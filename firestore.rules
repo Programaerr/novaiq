@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /contracts/{document=**} {
+      allow read, write: if true;
+    }
+
+    // Anonymous usage analytics: clients may only create new event logs.
+    // No public read/update/delete — this is a write-only ingestion collection.
+    match /analytics_events/{document=**} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+  }
+}

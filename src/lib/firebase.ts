@@ -1,0 +1,298 @@
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import {
+  getFirestore,
+  Firestore,
+  collection,
+  addDoc,
+  getDocs,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp
+} from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
+import firebaseConfig from '../../firebase-applet-config.json';
+import { ContractData } from '../types';
+
+let app: FirebaseApp;
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApp();
+}
+
+// Pass databaseId if provided in config
+export const db: Firestore = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+export const auth: Auth = getAuth(app);
+
+const CONTRACTS_COLLECTION = 'contracts';
+
+// Helper to track deleted identifiers so Firestore snapshot listeners never resurrect deleted contracts
+function getDeletedIdentifiers(): Set<string> {
+  try {
+    const list: string[] = JSON.parse(localStorage.getItem('novaq_deleted_contracts') || '[]');
+    return new Set(list.map(s => s.trim()).filter(Boolean));
+  } catch {
+    return new Set();
+  }
+}
+
+function markAsDeleted(id?: string, contractNumber?: string) {
+  try {
+    const current = Array.from(getDeletedIdentifiers());
+    if (id && id.trim()) current.push(id.trim());
+    if (contractNumber && contractNumber.trim()) current.push(contractNumber.trim());
+    localStorage.setItem('novaq_deleted_contracts', JSON.stringify(current));
+  } catch (e) {
+    console.warn('Error saving deleted identifiers:', e);
+  }
+}
+
+function unmarkDeleted(id?: string, contractNumber?: string) {
+  try {
+    const deleted = getDeletedIdentifiers();
+    if (id) deleted.delete(id.trim());
+    if (contractNumber) deleted.delete(contractNumber.trim());
+    localStorage.setItem('novaq_deleted_contracts', JSON.stringify(Array.from(deleted)));
+  } catch (e) {
+    console.warn('Error unmarking deleted identifier:', e);
+  }
+}
+
+// Save Contract to Firebase Firestore & Local Storage with deduplication
+export async function saveContractToFirebase(contract: ContractData): Promise<string> {
+  const contractNum = (contract.contractNumber || '').trim();
+  unmarkDeleted(contract.id, contractNum);
+
+  // 1. Instant local persistence guarantee
+  try {
+    const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+    const existingIndex = localContracts.findIndex((c) => (c.contractNumber || '').trim() === contractNum);
+    if (existingIndex >= 0) {
+      localContracts[existingIndex] = { ...localContracts[existingIndex], ...contract };
+    } else {
+      localContracts.unshift(contract);
+    }
+    localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
+    window.dispatchEvent(new Event('novaq_contracts_updated'));
+  } catch (e) {
+    console.warn('LocalStorage save error:', e);
+  }
+
+  // 2. Cloud Firestore sync (deduplicated by contractNumber)
+  try {
+    const contractsRef = collection(db, CONTRACTS_COLLECTION);
+    const { id, ...cleanContract } = contract;
+    
+    // Check if doc already exists in Firestore by contractNumber
+    const querySnapshot = await getDocs(contractsRef);
+    let existingDocId: string | null = null;
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      if ((data.contractNumber || '').trim() === contractNum) {
+        existingDocId = docSnap.id;
+      }
+    });
+
+    const docData = {
+      ...cleanContract,
+      createdAt: contract.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      serverCreatedAt: serverTimestamp(),
+    };
+
+    if (existingDocId) {
+      await updateDoc(doc(db, CONTRACTS_COLLECTION, existingDocId), docData);
+      return existingDocId;
+    } else {
+      const docRef = await addDoc(contractsRef, docData);
+      
+      // Update local storage item with Firestore ID
+      try {
+        const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+        const idx = localContracts.findIndex(c => (c.contractNumber || '').trim() === contractNum);
+        if (idx >= 0) {
+          localContracts[idx].id = docRef.id;
+          localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
+        }
+      } catch (err) {
+        console.warn('Local storage id sync error:', err);
+      }
+      
+      return docRef.id;
+    }
+  } catch (error) {
+    console.warn('Firestore sync operating in offline mode (local data preserved):', error);
+    return contract.id || `LOCAL_${Date.now()}`;
+  }
+}
+
+// Fetch all Contracts from Firestore with local fallback & deletion filtering
+export async function fetchContractsFromFirebase(): Promise<ContractData[]> {
+  const deletedSet = getDeletedIdentifiers();
+  const filterDeleted = (list: ContractData[]) => list.filter(c => {
+    const cId = (c.id || '').trim();
+    const cNum = (c.contractNumber || '').trim();
+    return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
+  });
+
+  const localContracts: ContractData[] = filterDeleted(JSON.parse(localStorage.getItem('novaq_contracts') || '[]'));
+  try {
+    const contractsRef = collection(db, CONTRACTS_COLLECTION);
+    const querySnapshot = await getDocs(contractsRef);
+    let contracts: ContractData[] = [];
+    querySnapshot.forEach((docSnap) => {
+      contracts.push({ ...docSnap.data(), id: docSnap.id } as ContractData);
+    });
+    
+    contracts = filterDeleted(contracts);
+    contracts.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+    
+    const cloudNumbers = new Set(contracts.map(c => (c.contractNumber || '').trim()));
+    const pendingLocal = localContracts.filter(c => !cloudNumbers.has((c.contractNumber || '').trim()));
+    
+    return filterDeleted([...contracts, ...pendingLocal]);
+  } catch (error) {
+    console.warn('Firestore fetch notice (using local storage fallback):', error);
+    return localContracts;
+  }
+}
+
+// Real-time listener for Contracts with silent offline fallback
+export function subscribeToContracts(callback: (contracts: ContractData[]) => void) {
+  const getLocalData = (): ContractData[] => {
+    try {
+      const deletedSet = getDeletedIdentifiers();
+      const list: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+      return list.filter(c => {
+        const cId = (c.id || '').trim();
+        const cNum = (c.contractNumber || '').trim();
+        return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
+      });
+    } catch {
+      return [];
+    }
+  };
+
+  const notify = (contracts: ContractData[]) => {
+    const deletedSet = getDeletedIdentifiers();
+    const clean = contracts.filter(c => {
+      const cId = (c.id || '').trim();
+      const cNum = (c.contractNumber || '').trim();
+      return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
+    });
+    callback(clean);
+  };
+
+  // Event listener for local updates
+  const handleLocalUpdate = () => {
+    fetchContractsFromFirebase().then(notify).catch(() => notify(getLocalData()));
+  };
+  window.addEventListener('novaq_contracts_updated', handleLocalUpdate);
+
+  try {
+    const contractsRef = collection(db, CONTRACTS_COLLECTION);
+    let unsubscribeSnapshot: (() => void) | null = null;
+    
+    unsubscribeSnapshot = onSnapshot(
+      contractsRef, 
+      (snapshot) => {
+        try {
+          const contracts: ContractData[] = [];
+          snapshot.forEach((docSnap) => {
+            contracts.push({ ...docSnap.data(), id: docSnap.id } as ContractData);
+          });
+          
+          contracts.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          });
+
+          const localContracts = getLocalData();
+          const cloudNumbers = new Set(contracts.map(c => (c.contractNumber || '').trim()));
+          const pendingLocal = localContracts.filter(c => !cloudNumbers.has((c.contractNumber || '').trim()));
+          notify([...contracts, ...pendingLocal]);
+        } catch {
+          notify(getLocalData());
+        }
+      }, 
+      (_err) => {
+        console.warn('Firestore snapshot notice (falling back to local data):', _err?.message || 'Offline/Rate limit');
+        notify(getLocalData());
+      }
+    );
+
+    return () => {
+      window.removeEventListener('novaq_contracts_updated', handleLocalUpdate);
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+      }
+    };
+  } catch (_error) {
+    notify(getLocalData());
+    return () => {
+      window.removeEventListener('novaq_contracts_updated', handleLocalUpdate);
+    };
+  }
+}
+
+// Delete Contract from Local Storage and Firestore completely
+export async function deleteContractFromFirebase(contractId?: string, contractNumber?: string): Promise<void> {
+  const targetId = (contractId || '').trim();
+  const targetNum = (contractNumber || '').trim();
+
+  // 1. Instantly record in deleted identifiers registry
+  markAsDeleted(targetId, targetNum);
+
+  // 2. Instantly purge from LocalStorage
+  try {
+    const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+    const filtered = localContracts.filter(c => {
+      const cId = (c.id || '').trim();
+      const cNum = (c.contractNumber || '').trim();
+
+      if (targetId && (cId === targetId || cNum === targetId)) return false;
+      if (targetNum && (cNum === targetNum || cId === targetNum)) return false;
+      return true;
+    });
+    localStorage.setItem('novaq_contracts', JSON.stringify(filtered));
+  } catch (e) {
+    console.warn('LocalStorage delete error:', e);
+  }
+
+  // 3. Dispatch local update event immediately
+  window.dispatchEvent(new Event('novaq_contracts_updated'));
+
+  // 4. Delete from Firestore asynchronously
+  try {
+    if (targetId && !targetId.startsWith('LOCAL_')) {
+      await deleteDoc(doc(db, CONTRACTS_COLLECTION, targetId)).catch(() => {});
+    }
+
+    const contractsRef = collection(db, CONTRACTS_COLLECTION);
+    const querySnapshot = await getDocs(contractsRef);
+    const deletePromises: Promise<void>[] = [];
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const docId = docSnap.id;
+      const docNum = (data.contractNumber || '').trim();
+
+      if (
+        (targetId && (docId === targetId || docNum === targetId)) ||
+        (targetNum && (docNum === targetNum || docId === targetNum))
+      ) {
+        deletePromises.push(deleteDoc(doc(db, CONTRACTS_COLLECTION, docId)));
+      }
+    });
+    await Promise.all(deletePromises);
+  } catch (error) {
+    console.warn('Firestore delete warning:', error);
+  }
+}
+

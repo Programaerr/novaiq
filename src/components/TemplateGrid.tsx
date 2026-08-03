@@ -1,0 +1,490 @@
+import React, { useState, useMemo, lazy, Suspense } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Template } from '../types';
+import { templatesData } from '../data/templatesData';
+import {
+  Search,
+  CheckCircle2,
+  FileSignature,
+  Clock,
+  Cpu,
+  Globe,
+  SlidersHorizontal,
+  RotateCcw,
+  ArrowUpDown
+} from 'lucide-react';
+import { cosmicAudio } from '../lib/audio';
+import { Language, getTranslation, translateText } from '../lib/i18n';
+import { PageLoader } from './PageLoader';
+
+// The interactive sandbox is the single largest component in the app (per-template demo logic
+// for all 10 templates). Loading it only when a customer actually opens a preview keeps it out
+// of the initial "Templates" page bundle entirely, which matters most on weak/low-end devices.
+const TemplateInteractiveSandbox = lazy(() =>
+  import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
+);
+
+interface TemplateGridProps {
+  onSelectTemplateForContract: (template: Template) => void;
+  onOpenStandalonePreview?: (template: Template) => void;
+  language?: Language;
+}
+
+export const TemplateGrid: React.FC<TemplateGridProps> = ({
+  onSelectTemplateForContract,
+  onOpenStandalonePreview,
+  language = 'ar',
+}) => {
+  const currentLang: Language = (language === 'en' ? 'en' : 'ar');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [maxPriceUSD, setMaxPriceUSD] = useState<number>(10000); // Slider range from $300 to $10,000
+  const [sortBy, setSortBy] = useState<string>('default'); // 'default', 'priceLowToHigh', 'priceHighToLow', 'fastest'
+  const [showFilterPanel, setShowFilterPanel] = useState<boolean>(false);
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+
+  const categories = [
+    { id: 'all', label: getTranslation('allCategories', currentLang) },
+    { id: 'corporate', label: translateText('شركات ومؤسسات', currentLang) },
+    { id: 'ecommerce', label: translateText('تجارة إلكترونية', currentLang) },
+    { id: 'tech', label: translateText('تقنية وسحابة', currentLang) },
+    { id: 'realestate', label: translateText('عقارات وتطوير', currentLang) },
+    { id: 'healthcare', label: translateText('خدمات وطب', currentLang) },
+    { id: 'fintech', label: translateText('فينتك وخدمات مالية', currentLang) },
+    { id: 'restaurant', label: translateText('مطاعم وتوصيل الطلبات', currentLang) },
+    { id: 'education', label: translateText('تعليم ومعاهد تدريب', currentLang) },
+    { id: 'hospitality', label: translateText('ضيافة وسياحة - فنادق', currentLang) },
+    { id: 'logistics', label: translateText('خدمات لوجستية وتوصيل', currentLang) },
+  ];
+
+  const sortOptions = [
+    { id: 'default', label: currentLang === 'ar' ? 'الافتراضي' : 'Default' },
+    { id: 'priceLowToHigh', label: currentLang === 'ar' ? 'السعر: من الأقل إلى الأعلى' : 'Price: Low to High' },
+    { id: 'priceHighToLow', label: currentLang === 'ar' ? 'السعر: من الأعلى إلى الأقل' : 'Price: High to Low' },
+    { id: 'fastest', label: currentLang === 'ar' ? 'سرعة الإنجاز (الأسرع)' : 'Fastest Delivery' },
+  ];
+
+  const activeFiltersCount = (selectedCategory !== 'all' ? 1 : 0) + (maxPriceUSD < 10000 ? 1 : 0) + (sortBy !== 'default' ? 1 : 0);
+
+  const resetAllFilters = () => {
+    setSelectedCategory('all');
+    setMaxPriceUSD(10000);
+    setSortBy('default');
+    setSearchQuery('');
+    cosmicAudio.playPing();
+  };
+
+  const filteredTemplates = useMemo(() => {
+    let list = templatesData.filter((t) => {
+      // Category filter
+      const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
+      
+      // Price Slider filter
+      const matchesPrice = t.basePriceUSD <= maxPriceUSD;
+
+      // Search filter
+      const titleTranslated = translateText(t.title, currentLang);
+      const subtitleTranslated = translateText(t.subtitle, currentLang);
+      const matchesSearch = 
+        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        titleTranslated.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        subtitleTranslated.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        t.techStack.some(tech => tech.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      return matchesCategory && matchesPrice && matchesSearch;
+    });
+
+    // Sorting
+    if (sortBy === 'priceLowToHigh') {
+      list = [...list].sort((a, b) => a.basePriceUSD - b.basePriceUSD);
+    } else if (sortBy === 'priceHighToLow') {
+      list = [...list].sort((a, b) => b.basePriceUSD - a.basePriceUSD);
+    } else if (sortBy === 'fastest') {
+      list = [...list].sort((a, b) => a.deliveryWeeks - b.deliveryWeeks);
+    }
+
+    return list;
+  }, [selectedCategory, maxPriceUSD, sortBy, searchQuery, currentLang]);
+
+  return (
+    <section id="templates-section" className="py-4 sm:py-6 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-6">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+            {getTranslation('templatesHeading', currentLang)}
+          </h2>
+          <p className="text-zinc-300 text-xs sm:text-sm">
+            {getTranslation('templatesSubheading', currentLang)}
+          </p>
+        </div>
+
+        {/* Top Control Bar (Search + Filter Toggle) */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
+          
+          {/* Filter Open/Close Button */}
+          <button
+            onClick={() => {
+              setShowFilterPanel(!showFilterPanel);
+              cosmicAudio.playPing();
+            }}
+            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 cursor-pointer transition-all shadow-md ${
+              showFilterPanel || activeFiltersCount > 0
+                ? 'bg-zinc-800 text-white border-white glow-white'
+                : 'bg-zinc-900 text-zinc-200 border-zinc-800 hover:border-zinc-500 glow-white-hover'
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4 text-zinc-300" />
+            <span>{currentLang === 'ar' ? 'فلاتر القوالب والأسعار' : 'Filter & Sort Templates'}</span>
+            {activeFiltersCount > 0 && (
+              <span className="w-5 h-5 rounded-full bg-white text-black text-[10px] font-black flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+
+          {/* Search Box */}
+          <div className="relative w-full sm:w-80">
+            <Search className="w-4 h-4 text-zinc-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={getTranslation('searchPlaceholder', currentLang)}
+              className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-white focus:outline-none text-white text-xs sm:text-sm placeholder-zinc-500 transition-all shadow-inner"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs cursor-pointer"
+              >
+                {currentLang === 'ar' ? 'مسح' : 'Clear'}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Expandable Filter Panel */}
+        <AnimatePresence>
+          {showFilterPanel && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden mb-6"
+            >
+              <div className="p-5 sm:p-6 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-5 glow-white-hover">
+                
+                {/* Header row inside panel */}
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <SlidersHorizontal className="w-4 h-4 text-white" />
+                    <h3 className="text-sm font-extrabold text-white">
+                      {currentLang === 'ar' ? 'تخصيص الفلاتر واختيار الميزانية' : 'Filter Options & Budget Selection'}
+                    </h3>
+                  </div>
+                  {activeFiltersCount > 0 && (
+                    <button
+                      onClick={resetAllFilters}
+                      className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>{currentLang === 'ar' ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter Sections Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* Category Selection */}
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-300 mb-2.5">
+                      {currentLang === 'ar' ? 'الأقسام والتصنيفات:' : 'Category:'}
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            setSelectedCategory(cat.id);
+                            cosmicAudio.playPing();
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                            selectedCategory === cat.id
+                              ? 'bg-zinc-800 text-white border border-white glow-white font-bold'
+                              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-600 hover:text-white'
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Price Range Slider ($300 - $10,000) */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-zinc-300">
+                        {currentLang === 'ar' ? 'حدد الميزانية والسعر (سلايدر):' : 'Price Budget Slider:'}
+                      </label>
+                      <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-xs font-bold border border-white/20 glow-white">
+                        {maxPriceUSD >= 10000 
+                          ? (currentLang === 'ar' ? 'الكل (حتى $10,000+)' : 'All (Up to $10k+)')
+                          : `$${maxPriceUSD.toLocaleString()}`}
+                      </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-3">
+                      <input
+                        type="range"
+                        min={300}
+                        max={10000}
+                        step={100}
+                        value={maxPriceUSD}
+                        onChange={(e) => {
+                          setMaxPriceUSD(Number(e.target.value));
+                        }}
+                        className="w-full accent-white cursor-pointer h-2 bg-zinc-700 rounded-lg appearance-none"
+                      />
+                      <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                        <span>$300</span>
+                        <span>$5,000</span>
+                        <span>$10,000</span>
+                      </div>
+                      <div className="text-[11px] text-zinc-400 text-center font-sans pt-1 border-t border-zinc-800">
+                        {currentLang === 'ar' 
+                          ? `تصفية القوالب بميزانية حتى: $${maxPriceUSD.toLocaleString()} (${(maxPriceUSD * 1450).toLocaleString()} د.ع تقريباً)` 
+                          : `Filter up to: $${maxPriceUSD.toLocaleString()} (~${(maxPriceUSD * 1450).toLocaleString()} IQD)`}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sorting Options */}
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-300 mb-2.5">
+                      {currentLang === 'ar' ? 'ترتيب النتائج حسب:' : 'Sort By:'}
+                    </label>
+                    <div className="flex flex-col gap-1.5">
+                      {sortOptions.map((so) => (
+                        <button
+                          key={so.id}
+                          onClick={() => {
+                            setSortBy(so.id);
+                            cosmicAudio.playPing();
+                          }}
+                          className={`px-3 py-2 rounded-lg text-xs text-right font-semibold transition-all cursor-pointer flex items-center justify-between ${
+                            sortBy === so.id
+                              ? 'bg-zinc-800 text-white border border-white glow-white font-bold'
+                              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-600 hover:text-white'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <ArrowUpDown className="w-3 h-3 text-zinc-400" />
+                            <span>{so.label}</span>
+                          </span>
+                          {sortBy === so.id && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Templates Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredTemplates.map((template, index) => {
+            const displayTitle = translateText(template.title, currentLang);
+            const displaySubtitle = translateText(template.subtitle, currentLang);
+            const displayDesc = translateText(template.description, currentLang);
+            const displayCategory = translateText(template.categoryLabel, currentLang);
+
+            return (
+              <motion.div
+                key={template.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.08 }}
+                className="bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-all duration-300 flex flex-col group shadow-xl"
+              >
+                
+                {/* Card Image Banner */}
+                <div 
+                  onClick={() => {
+                    if (onOpenStandalonePreview) {
+                      onOpenStandalonePreview(template);
+                    } else {
+                      setPreviewTemplate(template);
+                    }
+                    cosmicAudio.playPing();
+                  }}
+                  className="relative h-56 overflow-hidden bg-black cursor-pointer group/img"
+                >
+                  <img
+                    src={template.previewImage}
+                    alt={displayTitle}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700 opacity-80 group-hover/img:opacity-100"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+
+                  {/* Top Badge Tag */}
+                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/90 border border-zinc-700 text-white text-[11px] font-bold">
+                    {displayCategory}
+                  </div>
+
+                  {/* Delivery Time Badge */}
+                  <div className="absolute top-4 left-4 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/90 border border-zinc-800 text-zinc-300 text-[11px] font-mono">
+                    <Clock className="w-3 h-3 text-zinc-400" />
+                    <span>{getTranslation('deliveryTime', currentLang)} {template.deliveryWeeks} {translateText('أسابيع', currentLang)}</span>
+                  </div>
+
+                  {/* Hover Overlay Button */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/70">
+                    <span className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold flex items-center gap-2 shadow-2xl scale-95 group-hover/img:scale-100 transition-transform">
+                      <Globe className="w-4 h-4 text-black" />
+                      <span>{currentLang === 'ar' ? 'معاينة موقع منفصل' : 'Open Standalone Site'}</span>
+                    </span>
+                  </div>
+
+                  {/* Title overlay */}
+                  <div className="absolute bottom-3 right-4 left-4">
+                    <h3 className="text-xl font-bold text-white line-clamp-1">
+                      {displayTitle}
+                    </h3>
+                    <p className="text-xs text-zinc-400 font-light line-clamp-1">
+                      {displaySubtitle}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
+                  
+                  <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-all">
+                    <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed line-clamp-2">
+                      {displayDesc}
+                    </p>
+                  </div>
+
+                  {/* Tech Stack Pills */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {template.techStack.slice(0, 4).map((tech, i) => (
+                      <span
+                        key={i}
+                        className="px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-300 border border-zinc-800 text-[10px] font-mono"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                    {template.techStack.length > 4 && (
+                      <span className="px-2 py-1 rounded-lg bg-zinc-900 text-zinc-300 border border-zinc-800 text-[10px]">
+                        +{template.techStack.length - 4}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Features Checklist */}
+                  <ul className="space-y-1.5 text-xs text-zinc-300 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-all">
+                    {template.features.slice(0, 3).map((feat, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />
+                        <span className="line-clamp-1">{translateText(feat, currentLang)}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Price & Action Buttons */}
+                  <div className="pt-4 border-t border-zinc-800 flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-zinc-400">{currentLang === 'ar' ? 'التكلفة الأساسية للقالب:' : 'Base Template Cost:'}</span>
+                      <div className="text-left">
+                        <span className="text-lg font-bold text-white font-mono">
+                          {(template.basePriceIQD || 0).toLocaleString()} {translateText('د.ع', currentLang)}
+                        </span>
+                        <span className="block text-[10px] text-zinc-400 font-mono">
+                          (~${template.basePriceUSD.toLocaleString()} USD)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => {
+                          if (onOpenStandalonePreview) {
+                            onOpenStandalonePreview(template);
+                          } else {
+                            setPreviewTemplate(template);
+                          }
+                          cosmicAudio.playPing();
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Globe className="w-3.5 h-3.5 text-zinc-300" />
+                        <span>{currentLang === 'ar' ? 'موقع منفصل' : 'Full Site'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          onSelectTemplateForContract(template);
+                          cosmicAudio.playWarp();
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-white"
+                      >
+                        <FileSignature className="w-3.5 h-3.5 text-black" />
+                        <span>{getTranslation('selectForContract', currentLang)}</span>
+                      </button>
+                    </div>
+
+                  </div>
+
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {filteredTemplates.length === 0 && (
+          <div className="text-center py-16 bg-zinc-950 rounded-3xl border border-zinc-800">
+            <Cpu className="w-12 h-12 text-zinc-400 mx-auto mb-3 animate-pulse" />
+            <h3 className="text-lg font-bold text-white mb-1">{currentLang === 'ar' ? 'لم نجد قوالب تطابق البحث والفلاتر' : 'No templates match your filters'}</h3>
+            <p className="text-zinc-400 text-sm mb-4">{currentLang === 'ar' ? 'جرب تغيير خيارات السعر أو الأقسام' : 'Try adjusting your budget range or category selection'}</p>
+            <button
+              onClick={resetAllFilters}
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold cursor-pointer white-btn-glow"
+            >
+              {currentLang === 'ar' ? 'إعادة ضبط كافة الفلاتر' : 'Reset All Filters'}
+            </button>
+          </div>
+        )}
+
+      </div>
+
+      {/* Interactive Live Sandbox Preview Modal */}
+      {previewTemplate && (
+        <Suspense fallback={<PageLoader />}>
+          <TemplateInteractiveSandbox
+            template={previewTemplate}
+            onClose={() => setPreviewTemplate(null)}
+            onSelectForContract={(template) => {
+              setPreviewTemplate(null);
+              onSelectTemplateForContract(template);
+            }}
+          />
+        </Suspense>
+      )}
+
+    </section>
+  );
+};
+

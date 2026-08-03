@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
+    background-color: #000000;
+    color: #f4f4f5;
+    overflow-x: hidden;
+  }
+}
+
+/* Editorial Aesthetic Galaxy & Grid Styles */
+.galaxy-bg {
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+              #000000;
+}
+
+.grid-pattern {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* High Performance Cards (No mobile GPU lag or overheating) */
+.cosmic-glass {
+  background: rgba(9, 9, 11, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+}
+
+@media (min-width: 768px) {
+  .cosmic-glass {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+.cosmic-glass-hover {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
+}
+
+.cosmic-glass-hover:hover {
+  background: rgba(18, 18, 20, 0.98);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.05);
+  transform: translateY(-3px);
+}
+
+.gold-gradient-text {
+  color: #ffffff;
+}
+
+.silver-gradient-text {
+  color: #e4e4e7;
+}
+
+.glow-text {
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
+}
+
+.glow-border {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
+}
+
+/* White Glow for Selected/Active Items */
+.glow-white {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.45), 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.glow-white-lg {
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.55), 0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+.glow-white-hover {
+  transition: all 0.25s ease;
+}
+
+.glow-white-hover:hover {
+  box-shadow: 0 0 22px rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Black Glow on White Buttons */
+.white-btn-glow {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 0, 0, 0.9);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.white-btn-glow:hover {
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 0, 0, 1), 0 0 15px rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Global hover & active utility triggers */
+.selected-glow {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.45), 0 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Custom Cosmic Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes float-reverse {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(12px) rotate(-1deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 7s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 8s ease-in-out infinite;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-reverse,
+  .animate-pulse-glow {
+    animation: none;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
