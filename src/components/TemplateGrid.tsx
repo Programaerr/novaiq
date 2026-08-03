@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
+import { formatPrice, IQD_PER_USD } from '../lib/currency';
 import { PageLoader } from './PageLoader';
 
 // The interactive sandbox is the single largest component in the app (per-template demo logic
@@ -257,9 +258,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         <span>$10,000</span>
                       </div>
                       <div className="text-[11px] text-zinc-400 text-center font-sans pt-1 border-t border-zinc-800">
-                        {currentLang === 'ar' 
-                          ? `تصفية القوالب بميزانية حتى: $${maxPriceUSD.toLocaleString()} (${(maxPriceUSD * 1450).toLocaleString()} د.ع تقريباً)` 
-                          : `Filter up to: $${maxPriceUSD.toLocaleString()} (~${(maxPriceUSD * 1450).toLocaleString()} IQD)`}
+                        {currentLang === 'ar'
+                          ? `تصفية القوالب بميزانية حتى: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang)}`
+                          : `Filter up to: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang)}`}
                       </div>
                     </div>
                   </div>
@@ -412,10 +413,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       <span className="text-xs text-zinc-400">{currentLang === 'ar' ? 'التكلفة الأساسية للقالب:' : 'Base Template Cost:'}</span>
                       <div className="text-left">
                         <span className="text-lg font-bold text-white font-mono">
-                          {(template.basePriceIQD || 0).toLocaleString()} {translateText('د.ع', currentLang)}
-                        </span>
-                        <span className="block text-[10px] text-zinc-400 font-mono">
-                          (~${template.basePriceUSD.toLocaleString()} USD)
+                          {formatPrice(template.basePriceIQD, currentLang)}
                         </span>
                       </div>
                     </div>

@@ -16,6 +16,7 @@ import { deleteContractFromFirebase, subscribeToContracts } from '../lib/firebas
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
+import { formatPrice } from '../lib/currency';
 
 interface FirebaseOrdersModalProps {
   onClose: () => void;
@@ -231,8 +232,7 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
                 {isAr ? 'إجمالي قيمة المشاريع' : 'Total Projects Value'}
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-white font-mono">{totalValue.toLocaleString()}</span>
-                <span className="text-[10px] text-zinc-400">{isAr ? 'د.ع' : 'IQD'}</span>
+                <span className="text-xl font-bold text-white font-mono">{formatPrice(totalValue, language)}</span>
               </div>
             </div>
             <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white">
@@ -321,7 +321,7 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
                       </div>
                       <div className="flex items-center justify-between gap-2 pt-1 border-t border-zinc-800">
                         <span className="font-mono text-zinc-300 text-xs font-bold">
-                          {(ctr.totalPriceIQD || 0).toLocaleString()} {isAr ? 'د.ع' : 'IQD'}
+                          {formatPrice(ctr.totalPriceIQD || 0, language)}
                         </span>
                         <button
                           type="button"
@@ -397,7 +397,7 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
                     <span className="text-zinc-300">{isAr ? 'القيمة الكلية الموثقة بالعقد:' : 'Total Contract Value:'}</span>
                     <div className="text-left">
                       <span className="text-base sm:text-xl font-bold text-white font-mono">
-                        {(selectedContract.totalPriceIQD || 0).toLocaleString()} {isAr ? 'د.ع' : 'IQD'}
+                        {formatPrice(selectedContract.totalPriceIQD || 0, language)}
                       </span>
                     </div>
                   </div>
@@ -546,7 +546,7 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
                       </div>
                       <div className="flex items-center justify-between pt-1 border-t border-zinc-800">
                         <span className="font-mono text-zinc-300 text-xs font-bold">
-                          {(ctr.totalPriceIQD || 0).toLocaleString()} {isAr ? 'د.ع' : 'IQD'}
+                          {formatPrice(ctr.totalPriceIQD || 0, language)}
                         </span>
                         <button
                           type="button"
@@ -611,7 +611,7 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
                     <span className="text-xs font-bold text-zinc-300">{isAr ? 'الباقة والمواصفات المختارة:' : 'Selected Template Package:'}</span>
                     <div className="text-xs text-zinc-200 font-bold">{selectedContract.templateTitle}</div>
                     <div className="text-xs font-mono text-white font-bold pt-1">
-                      {isAr ? 'الإجمالي:' : 'Total:'} {(selectedContract.totalPriceIQD || 0).toLocaleString()} {isAr ? 'د.ع' : 'IQD'}
+                      {isAr ? 'الإجمالي:' : 'Total:'} {formatPrice(selectedContract.totalPriceIQD || 0, language)}
                     </div>
                   </div>
                   </div>

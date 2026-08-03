@@ -3,11 +3,10 @@ import {
   getFirestore,
   Firestore,
   collection,
-  addDoc,
   getDocs,
   onSnapshot,
   doc,
-  updateDoc,
+  setDoc,
   deleteDoc,
   serverTimestamp
 } from 'firebase/firestore';
@@ -80,20 +79,17 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
     console.warn('LocalStorage save error:', e);
   }
 
-  // 2. Cloud Firestore sync (deduplicated by contractNumber)
+  // 2. Cloud Firestore sync — contractNumber IS the document ID (instead of querying every
+  // existing doc to decide addDoc-vs-updateDoc). That check-then-act pattern raced: two
+  // near-simultaneous saves for the same contract (e.g. React StrictMode deliberately
+  // double-invoking the auto-save effect in dev) could both run their "does this exist?"
+  // query before either write landed, so both concluded "no" and both created a document —
+  // the exact duplicate-contract bug this was rewritten to fix. Writing straight to a
+  // deterministic doc ID makes the save idempotent no matter how many times it's called.
   try {
-    const contractsRef = collection(db, CONTRACTS_COLLECTION);
     const { id, ...cleanContract } = contract;
-    
-    // Check if doc already exists in Firestore by contractNumber
-    const querySnapshot = await getDocs(contractsRef);
-    let existingDocId: string | null = null;
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      if ((data.contractNumber || '').trim() === contractNum) {
-        existingDocId = docSnap.id;
-      }
-    });
+    const docId = contractNum || `LOCAL_${Date.now()}`;
+    const docRef = doc(db, CONTRACTS_COLLECTION, docId);
 
     const docData = {
       ...cleanContract,
@@ -102,26 +98,21 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
       serverCreatedAt: serverTimestamp(),
     };
 
-    if (existingDocId) {
-      await updateDoc(doc(db, CONTRACTS_COLLECTION, existingDocId), docData);
-      return existingDocId;
-    } else {
-      const docRef = await addDoc(contractsRef, docData);
-      
-      // Update local storage item with Firestore ID
-      try {
-        const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
-        const idx = localContracts.findIndex(c => (c.contractNumber || '').trim() === contractNum);
-        if (idx >= 0) {
-          localContracts[idx].id = docRef.id;
-          localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
-        }
-      } catch (err) {
-        console.warn('Local storage id sync error:', err);
+    await setDoc(docRef, docData, { merge: true });
+
+    // Update local storage item with the Firestore ID
+    try {
+      const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+      const idx = localContracts.findIndex(c => (c.contractNumber || '').trim() === contractNum);
+      if (idx >= 0) {
+        localContracts[idx].id = docRef.id;
+        localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
       }
-      
-      return docRef.id;
+    } catch (err) {
+      console.warn('Local storage id sync error:', err);
     }
+
+    return docRef.id;
   } catch (error) {
     console.warn('Firestore sync operating in offline mode (local data preserved):', error);
     return contract.id || `LOCAL_${Date.now()}`;

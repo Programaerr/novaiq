@@ -68,40 +68,34 @@ app.post('/api/gemini/consult', async (req, res) => {
   }
 });
 
-// Auto-Translation Endpoint (Arabic -> English) for dynamic/free-text content that
-// isn't part of the static UI dictionary — e.g. a client's custom feature request notes,
-// or any new section added later without a manually maintained translation.
-app.post('/api/gemini/translate', async (req, res) => {
+// Auto-Translation Endpoint (Arabic -> English) for dynamic/free-text content that isn't
+// part of the static UI dictionary — e.g. a client's custom feature request notes, or a
+// template's add-on spec labels. Deliberately NOT AI-based: this project is meant to run
+// on plain Node hosting (not just AI Studio, which is the only place GEMINI_API_KEY gets
+// auto-injected), so this proxies the free public Google Translate web endpoint instead —
+// no API key, no billing account, works anywhere with outbound internet access.
+app.post('/api/translate', async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, source = 'ar', target = 'en' } = req.body;
     if (!text || typeof text !== 'string') {
       return res.status(400).json({ error: 'text is required' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'مفتاح GEMINI_API_KEY غير متوفر في البيئة' });
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Translate service responded with ${response.status}`);
     }
 
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            {
-              text: `Translate the following Arabic text to natural, professional English suitable for a business software contract. Return ONLY the translated text with no quotes, labels, or explanation:\n\n${text}`
-            }
-          ]
-        }
-      ]
-    });
+    const data = await response.json();
+    // Response shape: [[[translatedChunk, originalChunk, ...], ...], ...] — Google splits
+    // long input into sentence chunks; join them back into one string.
+    const translated = ((data[0] || []) as any[]).map((segment) => segment[0]).join('');
 
-    return res.json({ translated: (response.text || '').trim() });
+    return res.json({ translated });
   } catch (error: any) {
-    console.error('Gemini translation error:', error);
-    return res.status(500).json({ error: error.message || 'حدث خطأ أثناء الترجمة عبر الذكاء الاصطناعي' });
+    console.error('Translation error:', error);
+    return res.status(500).json({ error: error.message || 'Translation failed' });
   }
 });
 

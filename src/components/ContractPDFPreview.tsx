@@ -3,7 +3,8 @@ import { ContractData } from '../types';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { saveContractToFirebase } from '../lib/firebase';
 import { Language, translateText } from '../lib/i18n';
-import { useAutoTranslate } from '../lib/aiTranslate';
+import { useAutoTranslate } from '../lib/autoTranslate';
+import { formatPrice } from '../lib/currency';
 import {
   Download,
   ShieldCheck,
@@ -41,8 +42,15 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const customNotes = useAutoTranslate(contract.customFeaturesText, language);
 
-  // Seamlessly auto-save to Firebase in the background on mount
+  // Seamlessly auto-save to Firebase in the background on mount. Guarded by a ref (not
+  // just component state) so React StrictMode's deliberate double-invoke of this effect in
+  // dev doesn't fire the save call twice — saveContractToFirebase is now idempotent either
+  // way, but there's no reason to make two network round-trips for one save.
+  const hasSavedRef = useRef(false);
   useEffect(() => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+
     let isMounted = true;
     const autoSave = async () => {
       try {
@@ -182,7 +190,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             <div className="flex justify-between items-center font-mono text-sm pt-1">
               <span>{isAr ? 'الإجمالي الكلي المعتمد للعقد:' : 'Total Approved Contract Value:'}</span>
               <strong className="text-xl text-white font-extrabold">
-                {(contract.totalPriceIQD || 0).toLocaleString()} {isAr ? 'د.ع' : 'IQD'}
+                {formatPrice(contract.totalPriceIQD || 0, language)}
               </strong>
             </div>
             <div className="text-[11px] text-zinc-400">

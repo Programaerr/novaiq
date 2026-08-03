@@ -37,6 +37,11 @@ export default defineConfig(() => {
           manualChunks(id) {
             if (!id.includes('node_modules')) return undefined;
             if (id.includes('firebase')) return 'vendor-firebase';
+            // jsPDF itself carries the ORIGINAL html2canvas as a transitive dependency
+            // (for its optional .html() method, which we never call) — matching only
+            // "html2canvas-pro" missed that plain "html2canvas" package entirely, so it
+            // was silently landing in the generic eager `vendor` bucket below, undoing
+            // the whole point of deferring PDF generation until it's actually used.
             if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
             if (id.includes('motion')) return 'vendor-motion';
             return 'vendor';

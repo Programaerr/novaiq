@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
+import { formatPrice } from '../lib/currency';
 
 interface ContractBuilderProps {
   selectedTemplate: Template | null;
@@ -105,6 +106,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // On touch devices, without this the browser can interpret the first drag as a page
+    // scroll instead of a stroke — the canvas then never receives the movement at all.
+    if ('touches' in e) e.preventDefault();
+
     setIsDrawing(true);
     setHasSignature(true);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -117,6 +122,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
+    if ('touches' in e) e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -180,6 +186,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
     if (!agreedToTerms) {
       alert(isAr ? 'يرجى الموافقة على الشروط والأحكام العامة للبدء' : 'Please accept the terms and conditions');
+      return;
+    }
+
+    if (!hasSignature) {
+      alert(isAr ? 'يرجى رسم التوقيع الرقمي في لوحة التوقيع قبل حفظ العقد' : 'Please draw your digital signature in the signature pad before saving the contract');
+      setCurrentStep(4);
       return;
     }
 
@@ -426,7 +438,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 >
                   {templatesData.map((t) => (
                     <option key={t.id} value={t.id}>
-                      {t.title} ({(t.basePriceIQD || 0).toLocaleString()} {isAr ? 'د.ع' : 'IQD'})
+                      {t.title} ({formatPrice(t.basePriceIQD, lang)})
                     </option>
                   ))}
                 </select>
@@ -459,7 +471,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                           <span className="text-xs font-medium text-zinc-200">{spec.label}</span>
                         </div>
                         <span className="text-xs font-mono font-bold text-white">
-                          +{(spec.priceIQD || 0).toLocaleString()} {isAr ? 'د.ع' : 'IQD'}
+                          +{formatPrice(spec.priceIQD || 0, lang)}
                         </span>
                       </div>
                     );
@@ -611,16 +623,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 font-mono">
                 <div className="flex items-center justify-between text-xs text-zinc-400">
                   <span>{isAr ? 'سعر القالب الأساسي:' : 'Base Template Price:'}</span>
-                  <span>{basePriceIQD.toLocaleString()} {isAr ? 'د.ع' : 'IQD'}</span>
+                  <span>{formatPrice(basePriceIQD, lang)}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-zinc-400">
                   <span>{isAr ? 'إجمالي الإضافات المختارة:' : 'Selected Add-ons Total:'}</span>
-                  <span>+{selectedSpecsPriceIQD.toLocaleString()} {isAr ? 'د.ع' : 'IQD'}</span>
+                  <span>+{formatPrice(selectedSpecsPriceIQD, lang)}</span>
                 </div>
                 <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-base font-bold text-white">
                   <span>{getTranslation('totalCostSummary', lang)}</span>
                   <span className="text-xl text-white font-extrabold">
-                    {totalPriceIQD.toLocaleString()} {isAr ? 'د.ع' : 'IQD'}
+                    {formatPrice(totalPriceIQD, lang)}
                   </span>
                 </div>
               </div>

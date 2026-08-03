@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { ContractData } from '../types';
 
 // The downloadable PDF used to be drawn line-by-line with jsPDF's own (Latin-only) fonts,
@@ -8,12 +8,22 @@ import { ContractData } from '../types';
 // correctly-translated, correctly-RTL on-screen contract document (rendered by the browser,
 // with real Arabic font + shaping) as an image and paginates it across A4 pages. This also
 // guarantees the PDF can never drift out of sync with what the client sees on screen.
+// Uses the `-pro` fork rather than plain html2canvas: Tailwind v4's default palette is
+// defined in oklch(), which the original library's CSS parser throws on ("Attempting to
+// parse an unsupported color function") — that exception silently killed every download.
 export async function generateContractPDF(element: HTMLElement, contract: ContractData): Promise<void> {
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    backgroundColor: '#000000',
-    useCORS: true,
-  });
+  let canvas: HTMLCanvasElement;
+  try {
+    canvas = await html2canvas(element, {
+      scale: 2,
+      backgroundColor: '#000000',
+      useCORS: true,
+    });
+  } catch (err) {
+    console.error('Failed to capture contract document as an image:', err);
+    alert('تعذر تجهيز ملف PDF. يرجى إعادة المحاولة أو تحديث الصفحة.');
+    return;
+  }
 
   const doc = new jsPDF({
     orientation: 'portrait',
