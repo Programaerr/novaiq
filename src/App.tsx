@@ -242,17 +242,23 @@ export default function App() {
       {/* Main Content View with Hardware Accelerated Transitions */}
       <main className="flex-1 relative z-10 pt-24 sm:pt-28 md:pt-32 pb-8">
         
-        {/* Persistent "Return to Main Page" button on inner views */}
+        {/* Persistent "Return to Main Page" button on inner views — fixed just below the
+            navbar so it stays reachable no matter how far the page is scrolled, instead of
+            scrolling away with the content like a normal in-flow element. The spacer below
+            reserves the room it used to take up in the layout now that it's out of flow. */}
         {activePage !== 'home' && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-3">
-            <button
-              onClick={() => navigateTo('home')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 text-xs font-bold transition-colors shadow-md cursor-pointer group"
-            >
-              <Home className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-              <span>{isAr ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home Page'}</span>
-            </button>
-          </div>
+          <>
+            <div className="h-13" aria-hidden="true" />
+            <div className="fixed top-20 sm:top-24 md:top-28 left-0 right-0 z-40 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-none">
+              <button
+                onClick={() => navigateTo('home')}
+                className="pointer-events-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/95 backdrop-blur-sm hover:bg-zinc-800 text-zinc-200 border border-zinc-800 text-xs font-bold transition-colors shadow-lg cursor-pointer group"
+              >
+                <Home className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
+                <span>{isAr ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home Page'}</span>
+              </button>
+            </div>
+          </>
         )}
 
         {activePage === 'home' && (
