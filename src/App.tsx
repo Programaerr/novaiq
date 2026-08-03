@@ -24,6 +24,7 @@ const ContractPDFPreview = lazy(() => import('./components/ContractPDFPreview').
 const FirebaseOrdersModal = lazy(() => import('./components/FirebaseOrdersModal').then((m) => ({ default: m.FirebaseOrdersModal })));
 const PolicyPage = lazy(() => import('./components/PolicyPage').then((m) => ({ default: m.PolicyPage })));
 const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox })));
+const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ default: m.AdminPage })));
 
 export default function App() {
   const [activePage, setActivePage] = useState<string>('home');
@@ -122,6 +123,8 @@ export default function App() {
         setActivePage('privacy');
       } else if (pageParam === 'terms') {
         setActivePage('terms');
+      } else if (pageParam === 'admin') {
+        setActivePage('admin');
       } else {
         setActivePage('home');
       }
@@ -382,6 +385,14 @@ export default function App() {
           <div className="page-in">
             <Suspense fallback={<PageLoader />}>
               <PolicyPage type="terms" language={language} />
+            </Suspense>
+          </div>
+        )}
+
+        {activePage === 'admin' && (
+          <div className="page-in">
+            <Suspense fallback={<PageLoader />}>
+              <AdminPage language={language} />
             </Suspense>
           </div>
         )}

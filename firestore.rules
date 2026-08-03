@@ -6,11 +6,20 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
-    // Anonymous usage analytics: clients may only create new event logs.
-    // No public read/update/delete — this is a write-only ingestion collection.
+    // Live price overrides for the public catalogue: everyone needs to read these (any
+    // visitor browsing templates), but only the signed-in admin may change a price.
+    match /pricing_overrides/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Anonymous usage analytics: any visitor may log an event (write-only ingestion),
+    // but only the signed-in admin (see src/lib/auth.ts) can read the log back — that's
+    // what the admin dashboard's analytics panel needs.
     match /analytics_events/{document=**} {
       allow create: if true;
-      allow read, update, delete: if false;
+      allow read: if request.auth != null;
+      allow update, delete: if false;
     }
   }
 }

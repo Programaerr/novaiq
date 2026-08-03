@@ -104,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Floating Side Drawer Menu */}
         {menuDrawerOpen && (
-          <div className="absolute top-full right-0 mt-3 w-80 bg-black/65 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-md space-y-3 z-50 animate-fade-in">
+          <div className="absolute top-full right-0 mt-3 w-80 bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <span className="text-xs font-bold text-white flex items-center gap-2">
                 <Compass className="w-4 h-4 text-white" />

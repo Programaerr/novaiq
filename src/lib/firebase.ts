@@ -7,6 +7,7 @@ import {
   onSnapshot,
   doc,
   setDoc,
+  updateDoc,
   deleteDoc,
   serverTimestamp
 } from 'firebase/firestore';
@@ -116,6 +117,32 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
   } catch (error) {
     console.warn('Firestore sync operating in offline mode (local data preserved):', error);
     return contract.id || `LOCAL_${Date.now()}`;
+  }
+}
+
+// Admin-only in practice: any caller can invoke this client-side, but it only ever runs
+// from the admin dashboard, which is gated behind Firebase Auth login. Covers status
+// changes and the post-negotiation edits (final agreed price, admin notes) in one call.
+export async function updateContractFields(
+  contractId: string,
+  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes'>>
+): Promise<void> {
+  await updateDoc(doc(db, CONTRACTS_COLLECTION, contractId), {
+    ...fields,
+    updatedAt: new Date().toISOString(),
+  });
+
+  // Keep the local cache in sync so the admin list doesn't flash back to the old value
+  // before Firestore's onSnapshot round-trip completes.
+  try {
+    const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+    const idx = localContracts.findIndex((c) => c.id === contractId);
+    if (idx >= 0) {
+      localContracts[idx] = { ...localContracts[idx], ...fields };
+      localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
+    }
+  } catch {
+    // non-critical
   }
 }
 

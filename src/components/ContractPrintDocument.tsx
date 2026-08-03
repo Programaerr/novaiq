@@ -11,6 +11,8 @@ interface ContractPrintDocumentProps {
   translatedSpecs: string[];
   /** Custom notes already resolved to the target language by the caller. */
   translatedNotes: string;
+  /** Admin's negotiated terms, already resolved to the target language by the caller. */
+  translatedAdminNotes?: string;
   templateTitle: string;
   city: string;
   country: string;
@@ -26,7 +28,7 @@ interface ContractPrintDocumentProps {
 // Letting the browser lay out the text and photographing the result is what makes a genuine
 // Arabic PDF possible at all.
 export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPrintDocumentProps>(
-  ({ contract, language, translatedSpecs, translatedNotes, templateTitle, city, country }, ref) => {
+  ({ contract, language, translatedSpecs, translatedNotes, translatedAdminNotes, templateTitle, city, country }, ref) => {
     const isAr = language === 'ar';
 
     const t = {
@@ -50,6 +52,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       addons: isAr ? 'الإضافات والمواصفات المختارة' : 'Selected Add-ons & Specifications',
       standard: isAr ? 'مواصفات القالب القياسية' : 'Standard template specifications',
       notes: isAr ? 'ملاحظات ومتطلبات خاصة' : 'Custom Notes & Requirements',
+      agreedTerms: isAr ? 'الشروط المتفق عليها بعد المراجعة' : 'Agreed Terms After Review',
       identity: isAr ? 'الهوية البصرية' : 'Visual Identity',
       langSupport: isAr ? 'لغات النظام' : 'System Languages',
 
@@ -255,6 +258,26 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                 </div>
               </div>
             )}
+
+            {translatedAdminNotes && (
+              <div style={{ marginTop: 12 }}>
+                <span style={{ color: '#64748b', fontSize: 11 }}>{t.agreedTerms}:</span>
+                <div
+                  style={{
+                    marginTop: 5,
+                    padding: 10,
+                    backgroundColor: '#fffbeb',
+                    border: '1px solid #fde68a',
+                    borderRadius: 6,
+                    fontSize: 11.5,
+                    color: '#1e293b',
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {translatedAdminNotes}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Section 3 */}
@@ -406,6 +429,7 @@ export const ConnectedContractPrintDocument = React.forwardRef<
 >(({ contract, language }, ref) => {
   const translatedSpecs = useAutoTranslateList(contract.selectedSpecs || [], language);
   const translatedNotes = useAutoTranslate(contract.customFeaturesText, language);
+  const translatedAdminNotes = useAutoTranslate(contract.adminNotes, language);
 
   return (
     <ContractPrintDocument
@@ -414,6 +438,7 @@ export const ConnectedContractPrintDocument = React.forwardRef<
       language={language}
       translatedSpecs={translatedSpecs}
       translatedNotes={translatedNotes}
+      translatedAdminNotes={translatedAdminNotes}
       templateTitle={translateText(contract.templateTitle, language)}
       city={translateText(contract.city, language)}
       country={translateText(contract.country, language)}

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Template, ContractData } from '../types';
-import { templatesData } from '../data/templatesData';
+import { useLiveTemplates } from '../lib/pricingOverrides';
 import {
   FileSignature,
   Building2,
@@ -36,8 +36,20 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const lang: Language = language;
   const isAr = lang === 'ar';
 
+  // Static catalogue merged with any live admin price overrides — same shape and name as
+  // the old static import, so every existing reference below still works unchanged.
+  const templatesData = useLiveTemplates();
+
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [template, setTemplate] = useState<Template>(selectedTemplate || templatesData[0]);
+
+  // Keeps the active template's pricing current if an admin edits it while this page is
+  // open (overrides load asynchronously, a moment after the initial static render).
+  useEffect(() => {
+    const live = templatesData.find(t => t.id === template.id);
+    if (live && live !== template) setTemplate(live);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templatesData]);
 
   // Form State
   const [companyName, setCompanyName] = useState('');

@@ -82,6 +82,10 @@ export interface ContractData {
   status: 'draft' | 'submitted' | 'under_review' | 'in_development' | 'completed';
   createdAt: string;
   updatedAt?: string;
+
+  // Set only by the admin dashboard, after negotiating with the client — appears on the
+  // final printed contract as agreed terms, distinct from the client's own original request.
+  adminNotes?: string;
 }
 
 export interface AIConsultationState {

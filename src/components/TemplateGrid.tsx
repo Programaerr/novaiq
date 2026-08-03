@@ -1,7 +1,7 @@
 import React, { useState, useMemo, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Template } from '../types';
-import { templatesData } from '../data/templatesData';
+import { useLiveTemplates } from '../lib/pricingOverrides';
 import {
   Search,
   CheckCircle2,
@@ -37,6 +37,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   language = 'ar',
 }) => {
   const currentLang: Language = (language === 'en' ? 'en' : 'ar');
+  // Static catalogue merged with any live admin price overrides — same shape and name as
+  // the old static import, so every existing reference below still works unchanged.
+  const templatesData = useLiveTemplates();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [maxPriceUSD, setMaxPriceUSD] = useState<number>(10000); // Slider range from $300 to $10,000
