@@ -16,7 +16,7 @@ export async function generateContractPDF(element: HTMLElement, contract: Contra
   try {
     canvas = await html2canvas(element, {
       scale: 2,
-      backgroundColor: '#000000',
+      backgroundColor: '#ffffff',
       useCORS: true,
     });
   } catch (err) {

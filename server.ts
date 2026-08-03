@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
@@ -68,30 +69,94 @@ app.post('/api/gemini/consult', async (req, res) => {
   }
 });
 
-// Auto-Translation Endpoint (Arabic -> English) for dynamic/free-text content that isn't
-// part of the static UI dictionary — e.g. a client's custom feature request notes, or a
-// template's add-on spec labels. Deliberately NOT AI-based: this project is meant to run
-// on plain Node hosting (not just AI Studio, which is the only place GEMINI_API_KEY gets
-// auto-injected), so this proxies the free public Google Translate web endpoint instead —
-// no API key, no billing account, works anywhere with outbound internet access.
+// ---------------------------------------------------------------------------
+// Auto-Translation (Arabic -> English) for dynamic/free-text content that isn't part of
+// the static UI dictionary — a client's custom feature notes, a template's add-on spec
+// labels, or any section added later.
+//
+// Deliberately NOT AI-based: this project is meant to run on plain Node hosting, not just
+// AI Studio (the only place GEMINI_API_KEY gets auto-injected), so it proxies the free
+// public Google Translate endpoint — no API key, no billing account.
+//
+// Results are cached to disk and shared by every visitor. Without this, each browser
+// re-translated the entire site on its first visit; now the first request for a given
+// string is the only one that ever hits the network, and the cache survives restarts.
+// ---------------------------------------------------------------------------
+
+const TRANSLATION_CACHE_FILE = path.join(process.cwd(), '.translation-cache.json');
+
+function loadTranslationCache(): Record<string, string> {
+  try {
+    if (fs.existsSync(TRANSLATION_CACHE_FILE)) {
+      return JSON.parse(fs.readFileSync(TRANSLATION_CACHE_FILE, 'utf-8'));
+    }
+  } catch (e) {
+    console.warn('Could not read translation cache, starting empty:', e);
+  }
+  return {};
+}
+
+const translationCache: Record<string, string> = loadTranslationCache();
+let cacheWriteTimer: NodeJS.Timeout | null = null;
+
+// Debounced so a burst of new strings results in one disk write, not one per string.
+function persistTranslationCache() {
+  if (cacheWriteTimer) clearTimeout(cacheWriteTimer);
+  cacheWriteTimer = setTimeout(() => {
+    try {
+      fs.writeFileSync(TRANSLATION_CACHE_FILE, JSON.stringify(translationCache, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn('Could not persist translation cache:', e);
+    }
+  }, 1000);
+}
+
+async function translateOne(text: string, source: string, target: string): Promise<string> {
+  const cacheKey = `${source}:${target}:${text}`;
+  if (translationCache[cacheKey]) return translationCache[cacheKey];
+
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Translate service responded with ${response.status}`);
+  }
+
+  const data = await response.json();
+  // Response shape: [[[translatedChunk, originalChunk, ...], ...], ...] — Google splits
+  // long input into sentence chunks; join them back into one string.
+  const translated = ((data[0] || []) as any[]).map((segment) => segment[0]).join('');
+
+  if (translated) {
+    translationCache[cacheKey] = translated;
+    persistTranslationCache();
+  }
+  return translated;
+}
+
 app.post('/api/translate', async (req, res) => {
   try {
-    const { text, source = 'ar', target = 'en' } = req.body;
+    const { text, texts, source = 'ar', target = 'en' } = req.body;
+
+    // Batch form — one request for a whole page's worth of strings instead of N.
+    if (Array.isArray(texts)) {
+      const results = await Promise.all(
+        texts.map(async (item: unknown) => {
+          if (typeof item !== 'string' || !item.trim()) return '';
+          try {
+            return await translateOne(item.trim(), source, target);
+          } catch {
+            return '';
+          }
+        })
+      );
+      return res.json({ translations: results });
+    }
+
     if (!text || typeof text !== 'string') {
-      return res.status(400).json({ error: 'text is required' });
+      return res.status(400).json({ error: 'text or texts is required' });
     }
 
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Translate service responded with ${response.status}`);
-    }
-
-    const data = await response.json();
-    // Response shape: [[[translatedChunk, originalChunk, ...], ...], ...] — Google splits
-    // long input into sentence chunks; join them back into one string.
-    const translated = ((data[0] || []) as any[]).map((segment) => segment[0]).join('');
-
+    const translated = await translateOne(text.trim(), source, target);
     return res.json({ translated });
   } catch (error: any) {
     console.error('Translation error:', error);

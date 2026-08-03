@@ -66,8 +66,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   // Digital Signature Canvas
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const signaturePadRef = useRef<HTMLDivElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
+  // Drives an inline highlight on the pad instead of an alert() — a modal popup that just
+  // says "go sign" makes the user dismiss it and then hunt for the pad themselves.
+  const [signatureMissing, setSignatureMissing] = useState(false);
 
   useEffect(() => {
     if (selectedTemplate) {
@@ -112,6 +116,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
     setIsDrawing(true);
     setHasSignature(true);
+    setSignatureMissing(false);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const point = getCanvasPoint(canvas, clientX, clientY);
@@ -190,8 +195,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     }
 
     if (!hasSignature) {
-      alert(isAr ? 'يرجى رسم التوقيع الرقمي في لوحة التوقيع قبل حفظ العقد' : 'Please draw your digital signature in the signature pad before saving the contract');
+      // Take the user straight to the pad and highlight it, rather than popping an alert
+      // that has to be dismissed before they can act on it.
       setCurrentStep(4);
+      setSignatureMissing(true);
+      requestAnimationFrame(() => {
+        signaturePadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
       return;
     }
 
@@ -663,7 +673,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </h3>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2" ref={signaturePadRef}>
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-zinc-300">
                     {isAr ? 'لوحة التوقيع الحي:' : 'Live Digital Signature Pad:'}
@@ -678,7 +688,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </button>
                 </div>
 
-                <div className="relative rounded-2xl overflow-hidden border-2 border-dashed border-zinc-700 bg-zinc-900">
+                <div
+                  className={`relative rounded-2xl overflow-hidden border-2 border-dashed bg-zinc-900 transition-colors ${
+                    signatureMissing ? 'border-white ring-2 ring-white/40' : 'border-zinc-700'
+                  }`}
+                >
                   <canvas
                     ref={canvasRef}
                     width={700}
@@ -698,6 +712,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     </div>
                   )}
                 </div>
+
+                {signatureMissing && (
+                  <p className="text-[11px] font-bold text-white flex items-center gap-1.5">
+                    <PenLine className="w-3.5 h-3.5 shrink-0" />
+                    <span>{isAr ? 'التوقيع مطلوب لإتمام العقد — ارسم توقيعك في المساحة أعلاه.' : 'A signature is required to complete the contract — draw yours in the area above.'}</span>
+                  </p>
+                )}
               </div>
             </div>
           )}

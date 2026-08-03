@@ -156,6 +156,20 @@ export default function App() {
     document.documentElement.lang = language;
   }, [language]);
 
+  // Whole-page auto-translation. Components that already have explicit English strings
+  // render them directly; this catches everything else — including any section added in
+  // future — so nothing silently stays Arabic in English mode. Loaded on demand so the
+  // Arabic default (the common case) never pays for it.
+  useEffect(() => {
+    let cancelled = false;
+    import('./lib/pageTranslator').then(({ setPageTranslation }) => {
+      if (!cancelled) setPageTranslation(language);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [language]);
+
   // Anonymous page-view logging — a no-op until the visitor accepts the cookie banner.
   // Dynamically imported so the analytics module (which pulls in Firebase) never sits
   // on the critical path for first paint.

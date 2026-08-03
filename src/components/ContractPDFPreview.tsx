@@ -3,8 +3,9 @@ import { ContractData } from '../types';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { saveContractToFirebase } from '../lib/firebase';
 import { Language, translateText } from '../lib/i18n';
-import { useAutoTranslate } from '../lib/autoTranslate';
+import { useAutoTranslate, useAutoTranslateList } from '../lib/autoTranslate';
 import { formatPrice } from '../lib/currency';
+import { ContractPrintDocument } from './ContractPrintDocument';
 import {
   Download,
   ShieldCheck,
@@ -19,18 +20,6 @@ interface ContractPDFPreviewProps {
   onSavedSuccess: () => void;
 }
 
-// A single selected-spec badge. Spec labels come straight from templatesData and are never
-// pre-translated (adding a manual dictionary entry per spec, per template, doesn't scale),
-// so each badge resolves its own translation independently via the AI auto-translate hook.
-const SpecBadge: React.FC<{ label: string; lang: Language }> = ({ label, lang }) => {
-  const translated = useAutoTranslate(label, lang);
-  return (
-    <span className="px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-200 border border-zinc-800 text-[11px]">
-      ✓ {translated}
-    </span>
-  );
-};
-
 export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   contract,
   language,
@@ -38,9 +27,17 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   onSavedSuccess,
 }) => {
   const isAr = language === 'ar';
-  const printableRef = useRef<HTMLDivElement>(null);
+  const printRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  // Spec labels and the client's free-text notes come straight from template data / user
+  // input and have no static dictionary entry, so they resolve through the translation
+  // service and are cached after the first lookup.
   const customNotes = useAutoTranslate(contract.customFeaturesText, language);
+  const translatedSpecs = useAutoTranslateList(contract.selectedSpecs, language);
+  const templateTitle = translateText(contract.templateTitle, language);
+  const city = translateText(contract.city, language);
+  const country = translateText(contract.country, language);
 
   // Seamlessly auto-save to Firebase in the background on mount. Guarded by a ref (not
   // just component state) so React StrictMode's deliberate double-invoke of this effect in
@@ -69,10 +66,10 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   }, [contract]);
 
   const handleDownloadPDF = async () => {
-    if (!printableRef.current || isGeneratingPdf) return;
+    if (!printRef.current || isGeneratingPdf) return;
     setIsGeneratingPdf(true);
     try {
-      await generateContractPDF(printableRef.current, contract);
+      await generateContractPDF(printRef.current, contract);
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -93,6 +90,19 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/94 overflow-y-auto">
+      {/* Off-screen print-ready document — this, not the dark preview below, is what the
+          PDF captures, so the downloaded file is a clean white formal contract. */}
+      <ContractPrintDocument
+        ref={printRef}
+        contract={contract}
+        language={language}
+        translatedSpecs={translatedSpecs}
+        translatedNotes={customNotes}
+        templateTitle={templateTitle}
+        city={city}
+        country={country}
+      />
+
       <div className="bg-black border border-zinc-800 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl my-auto flex flex-col max-h-[92vh]">
 
         {/* Modal Top Banner */}
@@ -124,8 +134,8 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
           </button>
         </div>
 
-        {/* Printable Contract Document Body */}
-        <div ref={printableRef} className="p-6 sm:p-8 overflow-y-auto space-y-6 text-zinc-200 bg-black">
+        {/* On-screen contract preview */}
+        <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-zinc-200 bg-black">
 
           {/* Document Header Box */}
           <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -136,7 +146,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
               </span>
             </div>
             <div className={`text-xs font-mono text-zinc-400 ${isAr ? 'text-right sm:text-left' : 'text-left sm:text-right'}`}>
-              <div>{isAr ? 'تاريخ الإصدار:' : 'Issue Date:'} {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-SA' : 'en-GB')}</div>
+              <div>{isAr ? 'تاريخ الإصدار:' : 'Issue Date:'} {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}</div>
               <div>{isAr ? 'حالة العقد:' : 'Contract Status:'} <span className="text-white font-bold">{isAr ? 'موثق ومعتمد' : 'Verified & Approved'}</span></div>
             </div>
           </div>
@@ -152,7 +162,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
               <div>{isAr ? 'الممثل المخول:' : 'Authorized Representative:'} <strong className="text-white">{contract.repName}</strong></div>
               <div>{isAr ? 'البريد الإلكتروني:' : 'Email:'} <strong className="text-white font-mono">{contract.email}</strong></div>
               <div>{isAr ? 'الهاتف / الجوال:' : 'Phone / Mobile:'} <strong className="text-white font-mono">{contract.phone}</strong></div>
-              <div>{isAr ? 'المقر والمدينة:' : 'City, Country:'} <strong className="text-white">{translateText(contract.city, language)}, {translateText(contract.country, language)}</strong></div>
+              <div>{isAr ? 'المقر والمدينة:' : 'City, Country:'} <strong className="text-white">{city}, {country}</strong></div>
             </div>
           </div>
 
@@ -162,12 +172,14 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
               {isAr ? '2. القالب المختار والمواصفات الفنية:' : '2. Selected Template & Technical Specifications:'}
             </h4>
             <div className="space-y-2">
-              <div>{isAr ? 'القالب المعتمد:' : 'Approved Template:'} <strong className="text-white text-sm font-bold">{translateText(contract.templateTitle, language)}</strong></div>
+              <div>{isAr ? 'القالب المعتمد:' : 'Approved Template:'} <strong className="text-white text-sm font-bold">{templateTitle}</strong></div>
               <div>{isAr ? 'المواصفات والإضافات المختارة:' : 'Selected Specifications & Add-ons:'}
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  {contract.selectedSpecs.length > 0 ? (
-                    contract.selectedSpecs.map((s, i) => (
-                      <SpecBadge key={i} label={s} lang={language} />
+                  {translatedSpecs.length > 0 ? (
+                    translatedSpecs.map((s, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-200 border border-zinc-800 text-[11px]">
+                        ✓ {s}
+                      </span>
                     ))
                   ) : (
                     <span className="text-zinc-400">{isAr ? 'مواصفات القالب القياسية' : 'Standard Template Specifications'}</span>
