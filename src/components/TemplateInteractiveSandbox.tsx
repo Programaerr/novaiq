@@ -329,6 +329,190 @@ const SAMPLE_SHIPMENTS: Shipment[] = [
   },
 ];
 
+// Each demo is meant to read as a real company's own website rather than a feature list,
+// so a customer browsing the catalogue can picture their business running on it. This is
+// the identity layer that makes that believable: a named company with a positioning line,
+// real-looking numbers, a service list, a client quote, and contact details.
+interface CompanyProfile {
+  name: string;
+  badge: string;
+  headline: string;
+  description: string;
+  primaryCta: { label: string; tab: string };
+  secondaryCta: { label: string; tab: string };
+  stats: { value: string; label: string }[];
+  services: { title: string; description: string }[];
+  testimonial: { quote: string; author: string; role: string };
+  contact: { phone: string; email: string; address: string; hours: string };
+}
+
+const COMPANY_PROFILES: Record<string, CompanyProfile> = {
+  'NVQ-HEALTH-05': {
+    name: 'Galaxy Health',
+    badge: 'مجموعة مستشفيات ومراكز طبية',
+    headline: 'رعاية طبية متكاملة على مدار الساعة',
+    description:
+      'مجموعة غالكسي الطبية تضم 4 مستشفيات و12 عيادة تخصصية في بغداد وأربيل والبصرة، مع فريق من 180 استشارياً وأحدث أجهزة التشخيص، وخدمة الاستشارات المرئية عن بُعد.',
+    primaryCta: { label: 'احجز موعدك الآن', tab: 'booking' },
+    secondaryCta: { label: 'تصفح الأطباء', tab: 'doctors' },
+    stats: [
+      { value: '180+', label: 'استشاري وطبيب' },
+      { value: '24/7', label: 'طوارئ واستقبال' },
+      { value: '12', label: 'عيادة تخصصية' },
+      { value: '96%', label: 'رضا المرضى' },
+    ],
+    services: [
+      { title: 'حجز المواعيد الفوري', description: 'اختر الطبيب والوقت المناسب واحصل على تأكيد فوري برسالة.' },
+      { title: 'نتائج التحاليل رقمياً', description: 'استلم نتائج المختبر والأشعة في حسابك دون مراجعة المستشفى.' },
+      { title: 'استشارات مرئية عن بُعد', description: 'قابل طبيبك بالفيديو من المنزل مع وصفة إلكترونية معتمدة.' },
+      { title: 'ملف صحي موحّد', description: 'كل تاريخك الطبي والوصفات والتقارير في مكان واحد آمن.' },
+    ],
+    testimonial: {
+      quote: 'حجزت موعداً واستلمت نتائج التحاليل من التطبيق دون الحاجة لمراجعة المستشفى مرتين. وفّر عليّ وقتاً كبيراً.',
+      author: 'أم محمد',
+      role: 'مراجعة في قسم الباطنية',
+    },
+    contact: {
+      phone: '07701234567',
+      email: 'care@galaxyhealth.iq',
+      address: 'بغداد - المنصور، شارع الأميرات',
+      hours: 'الطوارئ 24 ساعة | العيادات 9 صباحاً - 9 مساءً',
+    },
+  },
+
+  'NVQ-FOOD-07': {
+    name: 'Meteor Kitchen',
+    badge: 'سلسلة مطاعم وتوصيل',
+    headline: 'ألذ الأطباق تصلك ساخنة خلال 30 دقيقة',
+    description:
+      'ميتيور كيتشن سلسلة مطاعم عراقية بـ 7 فروع، تقدم المشاوي والمأكولات الشرقية والعالمية مع مطبخ مركزي يعمل بمعايير جودة صارمة وأسطول توصيل خاص يغطي بغداد بالكامل.',
+    primaryCta: { label: 'اطلب الآن', tab: 'menu' },
+    secondaryCta: { label: 'احجز طاولة', tab: 'reservation' },
+    stats: [
+      { value: '7', label: 'فروع في بغداد' },
+      { value: '30 د', label: 'متوسط التوصيل' },
+      { value: '4.8★', label: 'تقييم العملاء' },
+      { value: '65+', label: 'طبق في القائمة' },
+    ],
+    services: [
+      { title: 'طلب أونلاين وتوصيل', description: 'اختر من القائمة وتابع طلبك مباشرة من المطبخ حتى باب المنزل.' },
+      { title: 'حجز الطاولات', description: 'احجز طاولتك مسبقاً واختر الفرع والوقت المناسب لمناسبتك.' },
+      { title: 'قوائم متعددة للفروع', description: 'كل فرع بقائمته وأسعاره وعروضه الخاصة بإدارة مركزية.' },
+      { title: 'نقاط الولاء', description: 'اجمع نقاطاً مع كل طلب واستبدلها بخصومات ووجبات مجانية.' },
+    ],
+    testimonial: {
+      quote: 'أطلب أسبوعياً والتطبيق يحفظ طلبي المفضل. تتبع الطلب لحظة بلحظة يعطيني راحة بال.',
+      author: 'حسين العبيدي',
+      role: 'عميل دائم',
+    },
+    contact: {
+      phone: '07709876543',
+      email: 'order@meteorkitchen.iq',
+      address: 'بغداد - الكرادة داخل، قرب ساحة كهرمانة',
+      hours: 'يومياً 11 صباحاً - 2 بعد منتصف الليل',
+    },
+  },
+
+  'NVQ-EDU-08': {
+    name: 'Quasar Academy',
+    badge: 'معهد تدريب وتطوير مهني',
+    headline: 'تعلّم مهارة اليوم، واحصل على وظيفة الغد',
+    description:
+      'أكاديمية كوازار معهد تدريب معتمد يقدم دورات في البرمجة والتصميم والتسويق الرقمي وإدارة الأعمال، بشهادات موثقة ومدربين من داخل السوق، حضورياً وعن بُعد.',
+    primaryCta: { label: 'تصفح الدورات', tab: 'courses' },
+    secondaryCta: { label: 'لوحة الطالب', tab: 'dashboard' },
+    stats: [
+      { value: '4,200+', label: 'خريج وخريجة' },
+      { value: '38', label: 'دورة تدريبية' },
+      { value: '92%', label: 'نسبة إكمال الدورات' },
+      { value: '25', label: 'مدرب معتمد' },
+    ],
+    services: [
+      { title: 'دورات حضورية وعن بُعد', description: 'اختر الحضور في القاعة أو المتابعة أونلاين بنفس الشهادة.' },
+      { title: 'شهادات رقمية موثقة', description: 'شهادة إتمام برمز QR يمكن لأي جهة التحقق منها إلكترونياً.' },
+      { title: 'متابعة الدرجات والحضور', description: 'لوحة للطالب تعرض تقدمه ودرجاته ونسبة حضوره أولاً بأول.' },
+      { title: 'تقسيط الرسوم', description: 'خطط دفع مرنة على أقساط شهرية دون فوائد.' },
+    ],
+    testimonial: {
+      quote: 'أنهيت دورة تطوير الويب وحصلت على عمل خلال شهرين. المتابعة والمشاريع العملية صنعت الفرق.',
+      author: 'زينب كريم',
+      role: 'خريجة دورة تطوير الويب',
+    },
+    contact: {
+      phone: '07712345678',
+      email: 'info@quasaracademy.iq',
+      address: 'بغداد - زيونة، شارع الربيعي',
+      hours: 'السبت - الخميس، 10 صباحاً - 8 مساءً',
+    },
+  },
+
+  'NVQ-HOTEL-09': {
+    name: 'Aurora Stay',
+    badge: 'فنادق ومنتجعات',
+    headline: 'إقامة تليق بك في قلب المدينة',
+    description:
+      'أورورا ستاي مجموعة فندقية تدير 3 فنادق ومنتجعاً سياحياً، بغرف وأجنحة مصممة بعناية، ومطاعم، وقاعات مؤتمرات، وخدمة كونسيرج على مدار الساعة.',
+    primaryCta: { label: 'احجز غرفتك', tab: 'rooms' },
+    secondaryCta: { label: 'تفاصيل الحجز', tab: 'booking' },
+    stats: [
+      { value: '3', label: 'فنادق ومنتجع' },
+      { value: '240', label: 'غرفة وجناح' },
+      { value: '4.7★', label: 'تقييم النزلاء' },
+      { value: '24/7', label: 'خدمة الكونسيرج' },
+    ],
+    services: [
+      { title: 'حجز فوري ومؤكد', description: 'اختر الغرفة والتواريخ واحصل على تأكيد الحجز مباشرة.' },
+      { title: 'تسعير حسب الموسم', description: 'أسعار ديناميكية تتغير حسب الإشغال والموسم لأفضل قيمة.' },
+      { title: 'مزامنة مع منصات الحجز', description: 'تكامل مع Booking وAirbnb لمنع الحجز المزدوج تلقائياً.' },
+      { title: 'كونسيرج رقمي', description: 'اطلب خدمة الغرف أو المواصلات من هاتفك دون اتصال.' },
+    ],
+    testimonial: {
+      quote: 'الحجز تم بثوانٍ والغرفة كانت مطابقة تماماً للصور. الاستقبال كان بانتظارنا بالاسم.',
+      author: 'عمر الجبوري',
+      role: 'نزيل - جناح تنفيذي',
+    },
+    contact: {
+      phone: '07705558888',
+      email: 'reservations@aurorastay.iq',
+      address: 'بغداد - المنصور، شارع 14 رمضان',
+      hours: 'الاستقبال 24 ساعة طوال أيام الأسبوع',
+    },
+  },
+
+  'NVQ-LOG-10': {
+    name: 'Comet Express',
+    badge: 'خدمات شحن ولوجستيات',
+    headline: 'شحنتك تصل بسرعة، وتعرف مكانها كل لحظة',
+    description:
+      'كوميت إكسبرس شركة شحن وتوصيل تغطي جميع محافظات العراق، بأسطول من 120 مركبة ومستودعات فرز في 5 مدن، وخدمة الدفع عند الاستلام مع تسوية يومية للتجار.',
+    primaryCta: { label: 'تتبّع شحنتك', tab: 'tracking' },
+    secondaryCta: { label: 'احسب تكلفة الشحن', tab: 'calculator' },
+    stats: [
+      { value: '18', label: 'محافظة مغطاة' },
+      { value: '120', label: 'مركبة توصيل' },
+      { value: '48 س', label: 'متوسط زمن التسليم' },
+      { value: '99.2%', label: 'شحنات وصلت بنجاح' },
+    ],
+    services: [
+      { title: 'تتبّع لحظي للشحنة', description: 'تابع شحنتك في كل مرحلة من الاستلام حتى التسليم النهائي.' },
+      { title: 'حاسبة تكلفة فورية', description: 'اعرف تكلفة الشحن قبل الإرسال حسب الوزن والوجهة.' },
+      { title: 'الدفع عند الاستلام', description: 'حصّل قيمة بضاعتك من الزبون مع تسوية مالية يومية موثقة.' },
+      { title: 'إشعارات واتساب تلقائية', description: 'الزبون يستلم تحديثاً بكل تغيير في حالة شحنته.' },
+    ],
+    testimonial: {
+      quote: 'أدير متجراً إلكترونياً وأرسل يومياً أكثر من 40 طرداً. التسوية اليومية والتتبع وفّرا عليّ موظفاً كاملاً.',
+      author: 'مصطفى الساعدي',
+      role: 'صاحب متجر إلكتروني',
+    },
+    contact: {
+      phone: '07703334444',
+      email: 'support@cometexpress.iq',
+      address: 'بغداد - الدورة، المنطقة الصناعية',
+      hours: 'السبت - الخميس، 8 صباحاً - 8 مساءً',
+    },
+  },
+};
+
 export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProps> = ({
   template,
   onClose,
@@ -652,6 +836,102 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   // which device is actually running the browser.
   const isMobileFrame = deviceView === 'mobile';
   const gridCols = (mobileCols: string, wideCols: string) => isMobileFrame ? mobileCols : `${mobileCols} ${wideCols}`;
+
+  // Renders a template's landing page from its CompanyProfile. Shared across templates so
+  // every demo opens on a page that reads like a real business, not a bare feature widget.
+  const renderCompanyHome = (profile: CompanyProfile) => (
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      {/* Hero */}
+      <div className={`p-6 sm:p-8 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} border ${themeStyle.primaryBorder} text-center space-y-3 sm:space-y-4`}>
+        <span className={`px-3 py-1 rounded-full ${themeStyle.badgeBg} text-xs font-semibold inline-block`}>
+          {profile.badge}
+        </span>
+        <h3 className="text-xl sm:text-3xl font-extrabold text-white leading-tight">
+          {profile.headline}
+        </h3>
+        <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
+          {profile.description}
+        </p>
+        <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
+          <button
+            onClick={() => { setActiveTab(profile.primaryCta.tab); cosmicAudio.playPing(); }}
+            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}
+          >
+            {profile.primaryCta.label}
+          </button>
+          <button
+            onClick={() => { setActiveTab(profile.secondaryCta.tab); cosmicAudio.playTick(); }}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer"
+          >
+            {profile.secondaryCta.label}
+          </button>
+        </div>
+      </div>
+
+      {/* Key numbers */}
+      <div className={`grid ${gridCols('grid-cols-2', 'sm:grid-cols-4')} gap-3`}>
+        {profile.stats.map((stat, i) => (
+          <div key={i} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+            <div className={`text-lg sm:text-xl font-extrabold font-mono ${themeStyle.primaryText}`}>{stat.value}</div>
+            <div className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* What the company offers */}
+      <div className="space-y-3">
+        <h4 className="text-sm font-bold text-white">ماذا نقدّم لك</h4>
+        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3`}>
+          {profile.services.map((service, i) => (
+            <div key={i} className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5 hover:border-slate-700 transition-colors">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className={`w-4 h-4 shrink-0 ${themeStyle.primaryText}`} />
+                <span className="text-xs font-bold text-white">{service.title}</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">{service.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Client quote */}
+      <div className={`p-5 rounded-2xl bg-slate-900 border ${themeStyle.primaryBorder} space-y-3`}>
+        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">“{profile.testimonial.quote}”</p>
+        <div className="flex items-center gap-2.5 pt-1 border-t border-slate-800">
+          <div className={`w-8 h-8 rounded-full ${themeStyle.primaryBg} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+            {profile.testimonial.author.charAt(0)}
+          </div>
+          <div className="min-w-0">
+            <div className="text-xs font-bold text-white truncate">{profile.testimonial.author}</div>
+            <div className="text-[10px] text-slate-400 truncate">{profile.testimonial.role}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Contact block */}
+      <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <h4 className="text-sm font-bold text-white">تواصل معنا</h4>
+        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3 text-[11px]`}>
+          <div className="flex items-center gap-2 text-slate-300">
+            <Send className={`w-3.5 h-3.5 shrink-0 ${themeStyle.primaryText}`} />
+            <span className="font-mono" dir="ltr">{profile.contact.phone}</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-300">
+            <Globe className={`w-3.5 h-3.5 shrink-0 ${themeStyle.primaryText}`} />
+            <span className="font-mono truncate" dir="ltr">{profile.contact.email}</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-300">
+            <MapPin className={`w-3.5 h-3.5 shrink-0 ${themeStyle.primaryText}`} />
+            <span>{profile.contact.address}</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-300">
+            <Calendar className={`w-3.5 h-3.5 shrink-0 ${themeStyle.primaryText}`} />
+            <span>{profile.contact.hours}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   // Cart operations
   const addToCart = (product: ClothingProduct, color: string, size: string, quantity: number) => {
@@ -2133,7 +2413,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
       case 'NVQ-HEALTH-05':
       case 'galaxy-health': {
-        const healthTab = ['doctors', 'booking', 'results', 'consultation'].includes(activeTab) ? activeTab : 'doctors';
+        const healthTab = ['home', 'doctors', 'booking', 'results', 'consultation'].includes(activeTab) ? activeTab : 'home';
 
         return (
           <div className="space-y-6 text-slate-100">
@@ -2146,7 +2426,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <span className="font-bold text-sm sm:text-base text-white">Galaxy Health</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['doctors', 'booking', 'results', 'consultation'].map((tab) => (
+                {['home', 'doctors', 'booking', 'results', 'consultation'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -2154,6 +2434,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       healthTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
                     }`}
                   >
+                    {tab === 'home' && 'الرئيسية'}
                     {tab === 'doctors' && 'الأطباء والتخصصات'}
                     {tab === 'booking' && 'حجز موعد'}
                     {tab === 'results' && 'نتائج التحاليل'}
@@ -2162,6 +2443,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 ))}
               </div>
             </div>
+
+            {healthTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HEALTH-05'])}
 
             {healthTab === 'doctors' && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
@@ -2306,7 +2589,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       }
 
       case 'NVQ-FOOD-07': {
-        const foodTab = ['menu', 'order', 'reservation'].includes(activeTab) ? activeTab : 'menu';
+        const foodTab = ['home', 'menu', 'order', 'reservation'].includes(activeTab) ? activeTab : 'home';
         const filteredMenu = menuCategoryFilter === 'all' ? SAMPLE_MENU_ITEMS : SAMPLE_MENU_ITEMS.filter(m => m.category === menuCategoryFilter);
 
         return (
@@ -2320,7 +2603,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <span className="font-bold text-sm sm:text-base text-white">Meteor Kitchen</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['menu', 'order', 'reservation'].map((tab) => (
+                {['home', 'menu', 'order', 'reservation'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -2328,6 +2611,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       foodTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
                     }`}
                   >
+                    {tab === 'home' && 'الرئيسية'}
                     {tab === 'menu' && 'قائمة الطعام'}
                     {tab === 'order' && `سلة الطلب (${foodOrder.reduce((s, o) => s + o.quantity, 0)})`}
                     {tab === 'reservation' && 'حجز طاولة'}
@@ -2335,6 +2619,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 ))}
               </div>
             </div>
+
+            {foodTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-FOOD-07'])}
 
             {foodTab === 'menu' && (
               <div className="space-y-4 animate-fade-in text-xs">
@@ -2472,7 +2758,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       }
 
       case 'NVQ-EDU-08': {
-        const eduTab = ['courses', 'enroll', 'dashboard'].includes(activeTab) ? activeTab : 'courses';
+        const eduTab = ['home', 'courses', 'enroll', 'dashboard'].includes(activeTab) ? activeTab : 'home';
         const selectedCourse = SAMPLE_COURSES.find(c => c.id === selectedCourseId) || SAMPLE_COURSES[0];
         const filteredCourses = courseCategoryFilter === 'all' ? SAMPLE_COURSES : SAMPLE_COURSES.filter(c => c.category === courseCategoryFilter);
 
@@ -2487,7 +2773,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <span className="font-bold text-sm sm:text-base text-white">Quasar Academy</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['courses', 'enroll', 'dashboard'].map((tab) => (
+                {['home', 'courses', 'enroll', 'dashboard'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -2495,6 +2781,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       eduTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
                     }`}
                   >
+                    {tab === 'home' && 'الرئيسية'}
                     {tab === 'courses' && 'الدورات'}
                     {tab === 'enroll' && 'التسجيل'}
                     {tab === 'dashboard' && 'لوحة الطالب'}
@@ -2502,6 +2789,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 ))}
               </div>
             </div>
+
+            {eduTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-EDU-08'])}
 
             {eduTab === 'courses' && (
               <div className="space-y-4 animate-fade-in text-xs">
@@ -2624,7 +2913,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       }
 
       case 'NVQ-HOTEL-09': {
-        const hotelTab = ['rooms', 'booking', 'confirmation'].includes(activeTab) ? activeTab : 'rooms';
+        const hotelTab = ['home', 'rooms', 'booking', 'confirmation'].includes(activeTab) ? activeTab : 'home';
         const selectedRoom = SAMPLE_ROOMS.find(r => r.id === selectedRoomId) || SAMPLE_ROOMS[0];
         const nightsPreview = computeNights(checkInDate, checkOutDate);
         const latestBooking = hotelBookings[0];
@@ -2640,7 +2929,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <span className="font-bold text-sm sm:text-base text-white">Aurora Stay</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['rooms', 'booking', 'confirmation'].map((tab) => (
+                {['home', 'rooms', 'booking', 'confirmation'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -2648,6 +2937,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       hotelTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
                     }`}
                   >
+                    {tab === 'home' && 'الرئيسية'}
                     {tab === 'rooms' && 'الغرف والأجنحة'}
                     {tab === 'booking' && 'الحجز'}
                     {tab === 'confirmation' && 'تأكيد الحجز'}
@@ -2655,6 +2945,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 ))}
               </div>
             </div>
+
+            {hotelTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HOTEL-09'])}
 
             {hotelTab === 'rooms' && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
@@ -2755,7 +3047,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       }
 
       case 'NVQ-LOG-10': {
-        const logisticsTab = ['tracking', 'calculator', 'fleet'].includes(activeTab) ? activeTab : 'tracking';
+        const logisticsTab = ['home', 'tracking', 'calculator', 'fleet'].includes(activeTab) ? activeTab : 'home';
 
         return (
           <div className="space-y-6 text-slate-100">
@@ -2768,7 +3060,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <span className="font-bold text-sm sm:text-base text-white">Comet Express</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['tracking', 'calculator', 'fleet'].map((tab) => (
+                {['home', 'tracking', 'calculator', 'fleet'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -2776,6 +3068,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       logisticsTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
                     }`}
                   >
+                    {tab === 'home' && 'الرئيسية'}
                     {tab === 'tracking' && 'تتبع الشحنة'}
                     {tab === 'calculator' && 'حاسبة التكلفة'}
                     {tab === 'fleet' && 'الأسطول'}
@@ -2783,6 +3076,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 ))}
               </div>
             </div>
+
+            {logisticsTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-LOG-10'])}
 
             {logisticsTab === 'tracking' && (
               <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">

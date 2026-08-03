@@ -9,9 +9,14 @@
 // Run after adding Arabic content:  npm run translations
 //
 // Existing entries are never re-translated, so repeat runs only cost the new strings.
+//
+// Uses the TypeScript compiler's own parser (not a regex) to walk each file's real AST —
+// a regex-based scanner desyncs the moment it meets an escaped quote, a template literal,
+// or one string closing right where another opens, silently dropping everything after.
 
 import fs from 'fs';
 import path from 'path';
+import ts from 'typescript';
 
 const SRC_DIR = path.join(process.cwd(), 'src');
 const OUT_FILE = path.join(SRC_DIR, 'data', 'translations.json');
@@ -27,25 +32,25 @@ function walk(dir) {
   return files;
 }
 
-// Pulls Arabic text out of both quoted string literals and bare JSX text content.
-function extractStrings(source) {
+function extractStrings(filePath, source) {
   const found = new Set();
+  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 
-  const stringLiteral = /(['"`])((?:\\.|(?!\1)[^\\])*?)\1/g;
-  let match;
-  while ((match = stringLiteral.exec(source)) !== null) {
-    const value = match[2];
-    if (ARABIC.test(value) && !value.includes('${')) {
-      found.add(value.replace(/\\'/g, "'").replace(/\\"/g, '"').trim());
+  function visit(node) {
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+      const value = node.text.trim();
+      if (value && ARABIC.test(value)) found.add(value);
+    } else if (ts.isTemplateExpression(node)) {
+      // Interpolated template literal — only the static Arabic head/spans are translatable
+      // on their own; the ${...} parts are runtime values, so we skip the whole literal.
+    } else if (ts.isJsxText(node)) {
+      const value = node.text.trim();
+      if (value && ARABIC.test(value)) found.add(value);
     }
+    ts.forEachChild(node, visit);
   }
 
-  const jsxText = />([^<>{}]*[؀-ۿ][^<>{}]*)</g;
-  while ((match = jsxText.exec(source)) !== null) {
-    const value = match[1].trim();
-    if (value && ARABIC.test(value)) found.add(value);
-  }
-
+  visit(sourceFile);
   return found;
 }
 
@@ -64,7 +69,7 @@ async function main() {
 
   const all = new Set();
   for (const file of walk(SRC_DIR)) {
-    for (const s of extractStrings(fs.readFileSync(file, 'utf-8'))) all.add(s);
+    for (const s of extractStrings(file, fs.readFileSync(file, 'utf-8'))) all.add(s);
   }
 
   const missing = [...all].filter((s) => s.length > 1 && !existing[s]);
@@ -89,9 +94,15 @@ async function main() {
     }
   }
 
+  // Prune stale entries so removed/renamed content doesn't bloat the shipped dictionary.
+  const stillPresent = {};
+  for (const key of Object.keys(existing)) {
+    if (all.has(key)) stillPresent[key] = existing[key];
+  }
+
   fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true });
-  fs.writeFileSync(OUT_FILE, JSON.stringify(existing, null, 2), 'utf-8');
-  console.log(`Done. ${Object.keys(existing).length} total translations${failed ? `, ${failed} failed` : ''}.`);
+  fs.writeFileSync(OUT_FILE, JSON.stringify(stillPresent, null, 2), 'utf-8');
+  console.log(`Done. ${Object.keys(stillPresent).length} total translations${failed ? `, ${failed} failed` : ''}.`);
 }
 
 main();
