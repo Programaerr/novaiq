@@ -1,12 +1,10 @@
 {
-  "projectId": "luminous-voice-pmvz5",
-  "appId": "1:343437170253:web:9976fd9986994383c5ae04",
-  "apiKey": "AIzaSyARHEOfxiX0gA1C58LSUu3QnLSwz5z-t4U",
-  "authDomain": "luminous-voice-pmvz5.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-novaq-2cbb402b-0f4d-4179-85f9-73430d2beebf",
-  "storageBucket": "luminous-voice-pmvz5.firebasestorage.app",
-  "messagingSenderId": "343437170253",
-  "measurementId": "",
-  "oAuthClientId": "343437170253-sopc3o0d38mpuo6t5o81acrgj4d5k5td.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "projectId": "novaiq-2",
+  "appId": "1:260604029634:web:736480f2f839e9d22fa95b",
+  "apiKey": "AIzaSyDcxAl4hX9-4ozpWYqEEvGIS-5fKfCIQvo",
+  "authDomain": "novaiq-2.firebaseapp.com",
+  "firestoreDatabaseId": "",
+  "storageBucket": "novaiq-2.firebasestorage.app",
+  "messagingSenderId": "260604029634",
+  "measurementId": "G-Q6TVSRSV6P"
 }
