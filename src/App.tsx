@@ -1,5 +1,4 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { motion } from 'motion/react';
 import { CosmicBackground } from './components/CosmicBackground';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -45,48 +44,55 @@ export default function App() {
   const activeBgImage = (activePage === 'custom-request' && selectedTemplateForContract ? selectedTemplateForContract.previewImage : null)
     || (standalonePreviewTemplate ? standalonePreviewTemplate.previewImage : null);
 
-  // Scroll Spy for Home Page sections
+  // Scroll Spy for Home Page sections.
+  // Uses IntersectionObserver rather than a scroll listener: reading offsetTop on every
+  // scroll frame forced the browser into a synchronous layout recalculation before it
+  // could paint, which is one of the most common causes of visible scroll stutter.
+  // IntersectionObserver reports crossings off the main scroll path and fires only when
+  // a section boundary is actually crossed — a handful of times per page, not per frame.
   useEffect(() => {
     if (activePage !== 'home') {
       setActiveSection(activePage);
       return;
     }
 
-    let ticking = false;
-    const computeActiveSection = () => {
-      const scrollPos = window.scrollY + window.innerHeight / 3;
-      const templatesEl = document.getElementById('templates-section');
-      const contractEl = document.getElementById('contract-section');
-      const timelineEl = document.getElementById('timeline-section');
-      const aboutEl = document.getElementById('about-section');
+    const SECTIONS: Array<{ id: string; name: string }> = [
+      { id: 'templates-section', name: 'templates' },
+      { id: 'contract-section', name: 'contract' },
+      { id: 'timeline-section', name: 'timeline' },
+      { id: 'about-section', name: 'about' },
+    ];
 
-      let nextSection = 'hero';
-      if (aboutEl && scrollPos >= aboutEl.offsetTop) {
-        nextSection = 'about';
-      } else if (timelineEl && scrollPos >= timelineEl.offsetTop) {
-        nextSection = 'timeline';
-      } else if (contractEl && scrollPos >= contractEl.offsetTop) {
-        nextSection = 'contract';
-      } else if (templatesEl && scrollPos >= templatesEl.offsetTop) {
-        nextSection = 'templates';
-      }
+    const elements = SECTIONS
+      .map(({ id }) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
 
-      setActiveSection(prev => (prev !== nextSection ? nextSection : prev));
-      ticking = false;
-    };
+    if (elements.length === 0) {
+      setActiveSection('hero');
+      return;
+    }
 
-    // Throttle to once per animation frame so scrolling never queues up more
-    // layout reads (offsetTop) than the browser can paint.
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(computeActiveSection);
-        ticking = true;
-      }
-    };
+    const visibleIds = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visibleIds.add(entry.target.id);
+          else visibleIds.delete(entry.target.id);
+        }
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+        // Deepest section currently crossing the focus band wins; none means we're still at the hero.
+        let nextSection = 'hero';
+        for (const { id, name } of SECTIONS) {
+          if (visibleIds.has(id)) nextSection = name;
+        }
+
+        setActiveSection(prev => (prev !== nextSection ? nextSection : prev));
+      },
+      { rootMargin: '-33% 0px -60% 0px' }
+    );
+
+    elements.forEach(el => observer.observe(el));
+    return () => observer.disconnect();
   }, [activePage]);
 
   // Handle URL changes & popstate (browser back/forward)
@@ -221,27 +227,19 @@ export default function App() {
         
         {/* Persistent "Return to Main Page" button on inner views */}
         {activePage !== 'home' && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-3 flex justify-between items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-3">
             <button
               onClick={() => navigateTo('home')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 text-xs font-bold transition-all shadow-md cursor-pointer group"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 text-xs font-bold transition-colors shadow-md cursor-pointer group"
             >
               <Home className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
               <span>{isAr ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home Page'}</span>
             </button>
-            <span className="text-xs text-zinc-400 font-mono hidden sm:inline">
-              {isAr ? `الصفحة الحالية: ${activePage}` : `Page: ${activePage}`}
-            </span>
           </div>
         )}
 
         {activePage === 'home' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6 sm:space-y-8"
-          >
+          <div className="page-in space-y-6 sm:space-y-8">
             {/* Hero Banner */}
             <HeroSection
               onExploreTemplates={() => navigateTo('templates')}
@@ -299,15 +297,11 @@ export default function App() {
 
             {/* About Section */}
             <AboutSection language={language} />
-          </motion.div>
+          </div>
         )}
 
         {activePage === 'templates' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="page-in">
             <Suspense fallback={<PageLoader />}>
               <TemplateGrid
                 language={language}
@@ -315,16 +309,11 @@ export default function App() {
                 onOpenStandalonePreview={(template) => setStandalonePreviewTemplate(template)}
               />
             </Suspense>
-          </motion.div>
+          </div>
         )}
 
         {activePage === 'custom-request' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
-          >
+          <div className="page-in max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <Suspense fallback={<PageLoader />}>
               <ContractBuilder
                 language={language}
@@ -334,16 +323,11 @@ export default function App() {
                 initialPrimaryColor={initialPrimaryColor}
               />
             </Suspense>
-          </motion.div>
+          </div>
         )}
 
         {activePage === 'orders' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-          >
+          <div className="page-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Suspense fallback={<PageLoader />}>
               <FirebaseOrdersModal
                 language={language}
@@ -354,54 +338,38 @@ export default function App() {
                 }}
               />
             </Suspense>
-          </motion.div>
+          </div>
         )}
 
         {activePage === 'timeline' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="page-in">
             <MilestoneTimeline
               language={language}
               onCreateContract={() => navigateTo('custom-request')}
             />
-          </motion.div>
+          </div>
         )}
 
         {activePage === 'about' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="page-in">
             <AboutSection language={language} />
-          </motion.div>
+          </div>
         )}
 
         {activePage === 'privacy' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="page-in">
             <Suspense fallback={<PageLoader />}>
               <PolicyPage type="privacy" language={language} />
             </Suspense>
-          </motion.div>
+          </div>
         )}
 
         {activePage === 'terms' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className="page-in">
             <Suspense fallback={<PageLoader />}>
               <PolicyPage type="terms" language={language} />
             </Suspense>
-          </motion.div>
+          </div>
         )}
 
       </main>

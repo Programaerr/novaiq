@@ -308,13 +308,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             const displayDesc = translateText(template.description, currentLang);
             const displayCategory = translateText(template.categoryLabel, currentLang);
 
+            // Entrance is a plain CSS fade rather than a per-card Framer Motion animation.
+            // With 10 templates the staggered version ran 10 JS-driven animations at once on
+            // the exact frame the page mounts — the heaviest possible moment — which is what
+            // made this page feel like it stuttered on arrival.
             return (
-              <motion.div
+              <div
                 key={template.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.08 }}
-                className="bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-all duration-300 flex flex-col group shadow-xl"
+                style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${Math.min(index, 5) * 0.05}s` }}
+                className="bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 flex flex-col group shadow-xl"
               >
                 
                 {/* Card Image Banner */}
@@ -371,7 +373,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 {/* Card Content */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
                   
-                  <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-all">
+                  <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-colors">
                     <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed line-clamp-2">
                       {displayDesc}
                     </p>
@@ -395,7 +397,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   </div>
 
                   {/* Features Checklist */}
-                  <ul className="space-y-1.5 text-xs text-zinc-300 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-all">
+                  <ul className="space-y-1.5 text-xs text-zinc-300 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-colors">
                     {template.features.slice(0, 3).map((feat, i) => (
                       <li key={i} className="flex items-center gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />
@@ -428,7 +430,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           }
                           cosmicAudio.playPing();
                         }}
-                        className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <Globe className="w-3.5 h-3.5 text-zinc-300" />
                         <span>{currentLang === 'ar' ? 'موقع منفصل' : 'Full Site'}</span>
@@ -439,7 +441,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           onSelectTemplateForContract(template);
                           cosmicAudio.playWarp();
                         }}
-                        className="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-white"
+                        className="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
                       >
                         <FileSignature className="w-3.5 h-3.5 text-black" />
                         <span>{getTranslation('selectForContract', currentLang)}</span>
@@ -449,7 +451,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   </div>
 
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

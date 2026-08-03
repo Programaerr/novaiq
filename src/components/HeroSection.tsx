@@ -22,8 +22,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section className="relative pt-4 pb-8 md:pt-6 md:pb-10 overflow-hidden">
       
-      {/* Background Subtle Space Ambient Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-zinc-800/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
+      {/* Background Subtle Space Ambient Glow — drawn as a radial gradient instead of a
+          blurred circle: an animated 600px `blur(140px)` layer had to be re-rasterized by
+          the GPU continuously, which is pure cost on low-end devices for an effect that
+          looks the same either way. */}
+      <div
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none animate-pulse-glow"
+        style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(39,39,42,0.55) 0%, rgba(39,39,42,0.18) 45%, rgba(0,0,0,0) 78%)' }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center flex flex-col items-center">
         
