@@ -1,6 +1,6 @@
 import {
-  signInWithPopup,
-  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   type User,
@@ -8,15 +8,17 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
-const googleProvider = new GoogleAuthProvider();
+// Everyone — customers and the owner/partner alike — signs up and logs in through the
+// exact same form. There's no separate "admin sign-up": creating an account here only ever
+// grants a normal customer view (their own contracts). Admin access is a completely
+// separate allowlist (see isAdminEmail/addAdminEmail below), checked after login — the app
+// decides where to route someone once it knows who they are, not at account-creation time.
+export function loginAccount(email: string, password: string) {
+  return signInWithEmailAndPassword(auth, email, password);
+}
 
-// Everyone — customers and the owner/partner alike — signs in through the exact same
-// Google popup. There's no separate "admin sign-up": signing in here only ever grants a
-// normal customer view (their own contracts). Admin access is a completely separate
-// allowlist (see isAdminEmail/addAdminEmail below), checked after login — the app decides
-// where to route someone once it knows who they are, not at account-creation time.
-export function loginWithGoogle() {
-  return signInWithPopup(auth, googleProvider);
+export function registerAccount(email: string, password: string) {
+  return createUserWithEmailAndPassword(auth, email, password);
 }
 
 export function logoutAccount() {
@@ -54,11 +56,16 @@ export async function addAdminEmail(email: string): Promise<void> {
 export function authErrorMessage(error: unknown, isAr: boolean): string {
   const code = (error as { code?: string })?.code || '';
   switch (code) {
-    case 'auth/popup-closed-by-user':
-    case 'auth/cancelled-popup-request':
-      return isAr ? 'تم إغلاق نافذة تسجيل الدخول قبل الإكمال' : 'The sign-in window was closed before finishing';
-    case 'auth/popup-blocked':
-      return isAr ? 'المتصفح منع النافذة المنبثقة، اسمح بها وحاول مجدداً' : 'Your browser blocked the popup — allow it and try again';
+    case 'auth/email-already-in-use':
+      return isAr ? 'هذا البريد الإلكتروني مسجّل مسبقاً' : 'This email is already registered';
+    case 'auth/weak-password':
+      return isAr ? 'كلمة المرور ضعيفة جداً (6 أحرف على الأقل)' : 'Password is too weak (6+ characters)';
+    case 'auth/invalid-email':
+      return isAr ? 'صيغة البريد الإلكتروني غير صحيحة' : 'Invalid email format';
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return isAr ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة' : 'Incorrect email or password';
     case 'auth/too-many-requests':
       return isAr ? 'محاولات كثيرة جداً، يرجى المحاولة لاحقاً' : 'Too many attempts — please try again later';
     case 'auth/network-request-failed':
