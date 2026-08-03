@@ -385,6 +385,7 @@ export default function App() {
         <Suspense fallback={<PageLoader />}>
           <ContractPDFPreview
             contract={activeContractForPreview}
+            language={language}
             onClose={() => setActiveContractForPreview(null)}
             onSavedSuccess={() => {
               navigateTo('orders');

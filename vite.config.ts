@@ -37,7 +37,7 @@ export default defineConfig(() => {
           manualChunks(id) {
             if (!id.includes('node_modules')) return undefined;
             if (id.includes('firebase')) return 'vendor-firebase';
-            if (id.includes('jspdf')) return 'vendor-pdf';
+            if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
             if (id.includes('motion')) return 'vendor-motion';
             return 'vendor';
           },

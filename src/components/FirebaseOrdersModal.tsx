@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FileCheck,
   Search,
@@ -34,6 +34,10 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
   const [selectedContract, setSelectedContract] = useState<ContractData | null>(null);
   const [contractToDelete, setContractToDelete] = useState<ContractData | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
+  // Shared between the standalone-page and modal layouts below — only one of the two
+  // ever mounts at a time, so a single ref safely tracks whichever is on screen.
+  const contractSummaryRef = useRef<HTMLDivElement>(null);
 
   const isStandalone = typeof window !== 'undefined' && 
     (new URLSearchParams(window.location.search).get('page') === 'orders' || 
@@ -340,7 +344,8 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
           <div className="lg:col-span-8">
             {selectedContract ? (
               <div className="bg-black border border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-6">
-                
+                <div ref={contractSummaryRef} className="space-y-6">
+
                 {/* Visual Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-zinc-800 pb-5 gap-4">
                   <div>
@@ -397,6 +402,7 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
                     </div>
                   </div>
                 </div>
+                </div>
 
                 {/* Prominent Action Buttons - NON-OVERLAPPING */}
                 <div className="pt-4 flex flex-wrap items-center justify-end gap-3">
@@ -411,14 +417,21 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => {
-                      generateContractPDF(selectedContract);
-                      cosmicAudio.playPing();
+                    disabled={isGeneratingPdf}
+                    onClick={async () => {
+                      if (!contractSummaryRef.current || isGeneratingPdf) return;
+                      setIsGeneratingPdf(true);
+                      try {
+                        await generateContractPDF(contractSummaryRef.current, selectedContract);
+                        cosmicAudio.playPing();
+                      } finally {
+                        setIsGeneratingPdf(false);
+                      }
                     }}
-                    className="px-6 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-all hover:scale-[1.02] shrink-0"
+                    className="px-6 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-wait text-white border border-zinc-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg transition-all hover:scale-[1.02] shrink-0"
                   >
                     <Download className="w-4 h-4 text-zinc-300" />
-                    <span>{isAr ? 'تحميل العقد PDF' : 'Download Contract PDF'}</span>
+                    <span>{isGeneratingPdf ? (isAr ? 'جارِ التجهيز...' : 'Preparing...') : (isAr ? 'تحميل العقد PDF' : 'Download Contract PDF')}</span>
                   </button>
                 </div>
 
@@ -557,6 +570,7 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
             {selectedContract ? (
               <div className="space-y-6 max-w-2xl mx-auto w-full">
                 <div className="p-6 rounded-3xl bg-zinc-950 border border-zinc-800 space-y-4">
+                  <div ref={contractSummaryRef} className="space-y-4">
                   <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
                     <div>
                       <span className="text-xs font-mono text-zinc-400 block mb-1">
@@ -600,6 +614,7 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
                       {isAr ? 'الإجمالي:' : 'Total:'} {(selectedContract.totalPriceIQD || 0).toLocaleString()} {isAr ? 'د.ع' : 'IQD'}
                     </div>
                   </div>
+                  </div>
 
                   {/* Red Delete Button & Download PDF Button */}
                   <div className="pt-4 flex flex-wrap items-center justify-end gap-3">
@@ -613,14 +628,21 @@ export const FirebaseOrdersModal: React.FC<FirebaseOrdersModalProps> = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        generateContractPDF(selectedContract);
-                        cosmicAudio.playPing();
+                      disabled={isGeneratingPdf}
+                      onClick={async () => {
+                        if (!contractSummaryRef.current || isGeneratingPdf) return;
+                        setIsGeneratingPdf(true);
+                        try {
+                          await generateContractPDF(contractSummaryRef.current, selectedContract);
+                          cosmicAudio.playPing();
+                        } finally {
+                          setIsGeneratingPdf(false);
+                        }
                       }}
-                      className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shrink-0 transition-all hover:scale-[1.02]"
+                      className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-wait text-white border border-zinc-700 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shrink-0 transition-all hover:scale-[1.02]"
                     >
                       <Download className="w-4 h-4 text-zinc-300" />
-                      <span>{isAr ? 'تحميل العقد PDF' : 'Download Contract PDF'}</span>
+                      <span>{isGeneratingPdf ? (isAr ? 'جارِ التجهيز...' : 'Preparing...') : (isAr ? 'تحميل العقد PDF' : 'Download Contract PDF')}</span>
                     </button>
                   </div>
                 </div>
