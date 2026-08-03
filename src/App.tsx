@@ -21,7 +21,6 @@ import { Language } from './lib/i18n';
 const TemplateGrid = lazy(() => import('./components/TemplateGrid').then((m) => ({ default: m.TemplateGrid })));
 const ContractBuilder = lazy(() => import('./components/ContractBuilder').then((m) => ({ default: m.ContractBuilder })));
 const ContractPDFPreview = lazy(() => import('./components/ContractPDFPreview').then((m) => ({ default: m.ContractPDFPreview })));
-const FirebaseOrdersModal = lazy(() => import('./components/FirebaseOrdersModal').then((m) => ({ default: m.FirebaseOrdersModal })));
 const PolicyPage = lazy(() => import('./components/PolicyPage').then((m) => ({ default: m.PolicyPage })));
 const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox })));
 const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ default: m.AdminPage })));
@@ -34,7 +33,6 @@ export default function App() {
   
   // Modals state
   const [activeContractForPreview, setActiveContractForPreview] = useState<ContractData | null>(null);
-  const [savedContractsCount, setSavedContractsCount] = useState<number>(0);
   const [language, setLanguage] = useState<Language>('ar');
 
   // Carries the customer's exact choices from the interactive live-site demo into the contract form
@@ -124,7 +122,9 @@ export default function App() {
       } else if (pageParam === 'terms') {
         setActivePage('terms');
       } else if (pageParam === 'admin') {
-        setActivePage('admin');
+        // Same unified account/admin page as 'orders' — kept as an alias since it was
+        // shared before customers and admins used the same entry point.
+        setActivePage('orders');
       } else {
         setActivePage('home');
       }
@@ -133,23 +133,8 @@ export default function App() {
     handleLocationChange();
     window.addEventListener('popstate', handleLocationChange);
 
-    // Firebase is a large SDK (~120KB gzipped) — deferring it to a dynamic import means
-    // the browser only has to fetch/parse the small app shell before first paint, and
-    // Firebase loads right after in parallel while the user is already seeing the page.
-    // The badge count simply fills in a moment later, same as the subscription always did.
-    let unsubscribe: (() => void) | undefined;
-    let cancelled = false;
-    import('./lib/firebase').then(({ subscribeToContracts }) => {
-      if (cancelled) return;
-      unsubscribe = subscribeToContracts((contracts) => {
-        setSavedContractsCount(contracts.length);
-      });
-    });
-
     return () => {
-      cancelled = true;
       window.removeEventListener('popstate', handleLocationChange);
-      unsubscribe?.();
     };
   }, []);
 
@@ -234,7 +219,6 @@ export default function App() {
       <Navbar
         activePage={activePage}
         setActivePage={(page) => navigateTo(page)}
-        savedContractsCount={savedContractsCount}
         language={language}
         setLanguage={setLanguage}
       />
@@ -249,7 +233,7 @@ export default function App() {
         {activePage !== 'home' && (
           <>
             <div className="h-13" aria-hidden="true" />
-            <div className="fixed top-20 sm:top-24 md:top-28 left-0 right-0 z-40 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-none">
+            <div className="fixed top-20 left-0 right-0 z-40 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-none">
               <button
                 onClick={() => navigateTo('home')}
                 className="pointer-events-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/95 backdrop-blur-sm hover:bg-zinc-800 text-zinc-200 border border-zinc-800 text-xs font-bold transition-colors shadow-lg cursor-pointer group"
@@ -350,16 +334,9 @@ export default function App() {
         )}
 
         {activePage === 'orders' && (
-          <div className="page-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="page-in">
             <Suspense fallback={<PageLoader />}>
-              <FirebaseOrdersModal
-                language={language}
-                onClose={() => navigateTo('home')}
-                onNewContract={() => {
-                  setSelectedTemplateForContract(null);
-                  navigateTo('custom-request');
-                }}
-              />
+              <AdminPage language={language} />
             </Suspense>
           </div>
         )}
@@ -391,14 +368,6 @@ export default function App() {
           <div className="page-in">
             <Suspense fallback={<PageLoader />}>
               <PolicyPage type="terms" language={language} />
-            </Suspense>
-          </div>
-        )}
-
-        {activePage === 'admin' && (
-          <div className="page-in">
-            <Suspense fallback={<PageLoader />}>
-              <AdminPage language={language} />
             </Suspense>
           </div>
         )}

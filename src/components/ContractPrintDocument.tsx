@@ -68,6 +68,8 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       s5: isAr ? '5. التواقيع والاعتماد' : '5. SIGNATURES & AUTHORIZATION',
       clientSig: isAr ? 'توقيع ممثل الشركة' : 'Client Representative Signature',
       signedElectronically: isAr ? '[ تم التوقيع إلكترونياً ]' : '[ Signed Electronically ]',
+      companySig: isAr ? 'توقيع واعتماد NOVAIQ' : 'NOVAIQ Sign-off',
+      pendingApproval: isAr ? '[ قيد الاعتماد ]' : '[ Pending Approval ]',
       seal: isAr ? 'ختم NOVAIQ الرسمي' : 'NOVAIQ OFFICIAL SEAL',
       verified: isAr ? 'عقد إلكتروني موثّق' : 'VERIFIED E-CONTRACT',
       authCode: isAr ? 'رمز التوثيق' : 'AUTH CODE',
@@ -386,10 +388,24 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                   borderRadius: 8,
                   padding: '12px 16px',
                   textAlign: 'center',
-                  width: 190,
+                  width: 210,
                 }}
               >
-                <div style={{ fontSize: 11, fontWeight: 900, color: '#0f172a' }}>{t.seal}</div>
+                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>{t.companySig}</div>
+                {contract.companySignatureDataUrl ? (
+                  <img
+                    src={contract.companySignatureDataUrl}
+                    alt=""
+                    style={{ height: 44, maxWidth: 160, objectFit: 'contain', filter: 'invert(1)', display: 'block', margin: '0 auto' }}
+                  />
+                ) : (
+                  <div style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {t.pendingApproval}
+                  </div>
+                )}
+                <div style={{ fontSize: 11, fontWeight: 900, color: '#0f172a', marginTop: 6, borderTop: '1px solid #cbd5e1', paddingTop: 6 }}>
+                  {t.seal}
+                </div>
                 <div style={{ fontSize: 9, color: '#475569', marginTop: 4, letterSpacing: 0.5 }}>{t.verified}</div>
                 <div style={{ fontSize: 9, color: '#475569', marginTop: 6, fontFamily: 'monospace' }}>
                   {t.authCode}: NVQ-{contract.contractNumber.slice(-6)}

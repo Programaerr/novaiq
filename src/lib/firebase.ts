@@ -125,12 +125,18 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
 // changes and the post-negotiation edits (final agreed price, admin notes) in one call.
 export async function updateContractFields(
   contractId: string,
-  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes'>>
+  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl'>>
 ): Promise<void> {
-  await updateDoc(doc(db, CONTRACTS_COLLECTION, contractId), {
+  const updatePayload: Partial<ContractData> = {
     ...fields,
     updatedAt: new Date().toISOString(),
-  });
+  };
+  // Records exactly when a contract was marked done, for both the admin and the client to see.
+  if (fields.status === 'completed') {
+    updatePayload.completedAt = new Date().toISOString();
+  }
+
+  await updateDoc(doc(db, CONTRACTS_COLLECTION, contractId), updatePayload);
 
   // Keep the local cache in sync so the admin list doesn't flash back to the old value
   // before Firestore's onSnapshot round-trip completes.
@@ -138,7 +144,7 @@ export async function updateContractFields(
     const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
     const idx = localContracts.findIndex((c) => c.id === contractId);
     if (idx >= 0) {
-      localContracts[idx] = { ...localContracts[idx], ...fields };
+      localContracts[idx] = { ...localContracts[idx], ...updatePayload };
       localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
     }
   } catch {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
 import {
   LogOut,
   TrendingUp,
@@ -15,13 +15,16 @@ import {
   Loader2,
   BarChart3,
   Tag,
+  Users,
+  UserPlus,
+  RotateCcw,
 } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, toUSD } from '../lib/currency';
 import { subscribeToContracts, deleteContractFromFirebase, updateContractFields } from '../lib/firebase';
 import { subscribeToAnalyticsEvents, AnalyticsEvent } from '../lib/analytics';
-import { logoutAdmin } from '../lib/auth';
+import { logoutAccount, addAdminEmail, authErrorMessage } from '../lib/auth';
 import { useLiveTemplates, subscribeToPricingOverrides, savePricingOverride, PricingOverride } from '../lib/pricingOverrides';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
@@ -31,7 +34,7 @@ interface AdminDashboardProps {
   language: Language;
 }
 
-type Tab = 'overview' | 'contracts' | 'pricing';
+type Tab = 'overview' | 'contracts' | 'pricing' | 'team';
 
 const STATUS_FLOW: ContractData['status'][] = ['submitted', 'under_review', 'in_development', 'completed'];
 
@@ -117,6 +120,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
     { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
     { id: 'contracts', label: isAr ? 'إدارة العقود' : 'Contracts', icon: FileCheck },
     { id: 'pricing', label: isAr ? 'الأسعار' : 'Pricing', icon: Tag },
+    { id: 'team', label: isAr ? 'الفريق' : 'Team', icon: Users },
   ];
 
   return (
@@ -137,7 +141,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
           </div>
         </div>
         <button
-          onClick={() => logoutAdmin()}
+          onClick={() => logoutAccount()}
           className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
         >
           <LogOut className="w-4 h-4" />
@@ -178,6 +182,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
           )}
           {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} />}
           {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
+          {tab === 'team' && <TeamTab isAr={isAr} />}
         </>
       )}
     </div>
@@ -380,6 +385,128 @@ function ContractsTab({ isAr, language, contracts }: { isAr: boolean; language: 
   );
 }
 
+// ---------------------------------------------------------------------------
+// Company signature pad — NOVAIQ's own sign-off on a negotiated contract
+// ---------------------------------------------------------------------------
+
+interface CompanySignatureHandle {
+  getDataUrl: () => string;
+}
+
+const CompanySignaturePad = forwardRef<
+  CompanySignatureHandle,
+  { isAr: boolean; initialDataUrl?: string; onDirtyChange: (dirty: boolean) => void }
+>(({ isAr, initialDataUrl, onDirtyChange }, ref) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [hasSignature, setHasSignature] = useState(!!initialDataUrl);
+
+  // Draws the existing saved signature (if any) onto the canvas once it mounts, so
+  // re-opening a contract shows what was already signed instead of a blank pad.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setHasSignature(!!initialDataUrl);
+    if (initialDataUrl) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      img.src = initialDataUrl;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialDataUrl]);
+
+  useImperativeHandle(ref, () => ({
+    getDataUrl: () => (hasSignature ? canvasRef.current?.toDataURL('image/png') || '' : ''),
+  }));
+
+  const getCanvasPoint = (canvas: HTMLCanvasElement, clientX: number, clientY: number) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) * (canvas.width / rect.width),
+      y: (clientY - rect.top) * (canvas.height / rect.height),
+    };
+  };
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    if ('touches' in e) e.preventDefault();
+
+    setIsDrawing(true);
+    setHasSignature(true);
+    onDirtyChange(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const point = getCanvasPoint(canvas, clientX, clientY);
+    ctx.beginPath();
+    ctx.moveTo(point.x, point.y);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    if ('touches' in e) e.preventDefault();
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const point = getCanvasPoint(canvas, clientX, clientY);
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#f4f4f5';
+    ctx.lineTo(point.x, point.y);
+    ctx.stroke();
+  };
+
+  const clear = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setHasSignature(false);
+    onDirtyChange(true);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="relative rounded-2xl overflow-hidden border-2 border-dashed border-zinc-700 bg-zinc-900">
+        <canvas
+          ref={canvasRef}
+          width={500}
+          height={120}
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={() => setIsDrawing(false)}
+          onMouseLeave={() => setIsDrawing(false)}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={() => setIsDrawing(false)}
+          className="w-full h-28 cursor-crosshair touch-none"
+        />
+        {!hasSignature && (
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-zinc-500 text-xs font-semibold">
+            {isAr ? '[ ارسم توقيع الاعتماد هنا ]' : '[ Draw the sign-off here ]'}
+          </div>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={clear}
+        className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white cursor-pointer"
+      >
+        <RotateCcw className="w-3.5 h-3.5" />
+        <span>{isAr ? 'مسح التوقيع' : 'Clear Signature'}</span>
+      </button>
+    </div>
+  );
+});
+
+CompanySignaturePad.displayName = 'CompanySignaturePad';
+
 function ContractRow({
   contract,
   isAr,
@@ -400,26 +527,32 @@ function ContractRow({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+  const signatureRef = useRef<CompanySignatureHandle>(null);
+  const [signatureDirty, setSignatureDirty] = useState(false);
 
   useEffect(() => {
     setStatus(contract.status);
     setTotalPrice(String(contract.totalPriceIQD || 0));
     setAdminNotes(contract.adminNotes || '');
-  }, [contract.status, contract.totalPriceIQD, contract.adminNotes]);
+    setSignatureDirty(false);
+  }, [contract.status, contract.totalPriceIQD, contract.adminNotes, contract.companySignatureDataUrl]);
 
   const dirty =
     status !== contract.status ||
     Number(totalPrice) !== (contract.totalPriceIQD || 0) ||
-    adminNotes !== (contract.adminNotes || '');
+    adminNotes !== (contract.adminNotes || '') ||
+    signatureDirty;
 
   const handleSave = async () => {
     if (!contract.id || isSaving) return;
     setIsSaving(true);
     try {
+      const companySignatureDataUrl = signatureDirty ? signatureRef.current?.getDataUrl() : undefined;
       await updateContractFields(contract.id, {
         status,
         totalPriceIQD: Number(totalPrice) || 0,
         adminNotes: adminNotes.trim(),
+        ...(companySignatureDataUrl !== undefined ? { companySignatureDataUrl } : {}),
       });
       cosmicAudio.playPing();
     } finally {
@@ -535,6 +668,18 @@ function ContractRow({
               onChange={(e) => setAdminNotes(e.target.value)}
               placeholder={isAr ? 'مثال: تم الاتفاق على تخفيض السعر مقابل الدفع الكامل مسبقاً...' : 'e.g. Agreed on a reduced price in exchange for full upfront payment...'}
               className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+              {isAr ? 'توقيع واعتماد NOVAIQ (يظهر على العقد المطبوع بجانب توقيع العميل)' : "NOVAIQ's Sign-off (shown on the printed contract next to the client's signature)"}
+            </label>
+            <CompanySignaturePad
+              ref={signatureRef}
+              isAr={isAr}
+              initialDataUrl={contract.companySignatureDataUrl}
+              onDirtyChange={setSignatureDirty}
             />
           </div>
 
@@ -705,6 +850,80 @@ function PricingRow({
               <span>{justSaved ? (isAr ? 'تم الحفظ ✓' : 'Saved ✓') : isAr ? 'حفظ السعر' : 'Save Price'}</span>
             </button>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Team (admin allowlist)
+// ---------------------------------------------------------------------------
+
+function TeamTab({ isAr }: { isAr: boolean }) {
+  const [email, setEmail] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || isSaving) return;
+    setIsSaving(true);
+    setMessage(null);
+    try {
+      await addAdminEmail(trimmed);
+      setMessage({
+        type: 'success',
+        text: isAr
+          ? `تمت إضافة ${trimmed} كمسؤول. عليه إنشاء حساب عادي (اشتراك) بنفس هذا البريد إن لم يفعل بعد.`
+          : `${trimmed} added as an admin. They should sign up normally with this same email if they haven't already.`,
+      });
+      setEmail('');
+    } catch (err) {
+      setMessage({ type: 'error', text: authErrorMessage(err, isAr) });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="max-w-lg space-y-4">
+      <p className="text-xs text-zinc-400">
+        {isAr
+          ? 'أضف بريد شريكك هنا ليصبح مسؤولاً (أدمن) بنفس صلاحياتك الكاملة. عليه بعدها إنشاء حساب عادي بنفس البريد من زر "اشتراك" — بمجرد تسجيل دخوله، سيدخل تلقائياً إلى لوحة التحكم هذه بدلاً من صفحة العقود الخاصة بالزبائن.'
+          : "Add your partner's email here to make them a full admin. They then just sign up normally with this same email via the \"Sign Up\" button — once logged in, they'll automatically land in this control panel instead of the customer contracts view."}
+      </p>
+
+      <form onSubmit={handleAdd} className="flex gap-2">
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="partner@email.com"
+          dir="ltr"
+          className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
+        />
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all border border-white shrink-0"
+        >
+          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+          <span>{isAr ? 'إضافة' : 'Add'}</span>
+        </button>
+      </form>
+
+      {message && (
+        <div
+          className={`p-3 rounded-xl text-xs border ${
+            message.type === 'success'
+              ? 'bg-emerald-950/30 border-emerald-900/60 text-emerald-300'
+              : 'bg-red-950/40 border-red-900/60 text-red-300'
+          }`}
+        >
+          {message.text}
         </div>
       )}
     </div>

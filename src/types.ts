@@ -77,11 +77,15 @@ export interface ContractData {
   // Legal & Digital Signature
   signatureDataUrl: string;
   agreedToTerms: boolean;
+  // Set only by the admin dashboard — NOVAIQ's own sign-off, shown on the printed contract
+  // next to the client's signature so the client can see the work was actually approved.
+  companySignatureDataUrl?: string;
   
   // Status
   status: 'draft' | 'submitted' | 'under_review' | 'in_development' | 'completed';
   createdAt: string;
   updatedAt?: string;
+  completedAt?: string;
 
   // Set only by the admin dashboard, after negotiating with the client — appears on the
   // final printed contract as agreed terms, distinct from the client's own original request.

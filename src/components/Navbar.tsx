@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { 
-  FileCheck, 
-  Calendar, 
-  Layers, 
-  Menu, 
+import React, { useEffect, useState } from 'react';
+import {
+  Calendar,
+  Layers,
+  Menu,
   X,
   Compass,
   FileSignature,
   Home,
   Building2,
-  Globe
+  Globe,
+  LogIn,
+  UserCircle2
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { NovaiqLogo } from './NovaiqLogo';
@@ -17,7 +18,6 @@ import { NovaiqLogo } from './NovaiqLogo';
 interface NavbarProps {
   activePage: string;
   setActivePage: (page: string) => void;
-  savedContractsCount: number;
   language: Language;
   setLanguage: (lang: Language) => void;
 }
@@ -25,12 +25,29 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   activePage,
   setActivePage,
-  savedContractsCount,
   language,
   setLanguage,
 }) => {
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const isAr = language === 'ar';
+
+  // Lightweight presence check only — just enough to swap "Login" for "My Account" in the
+  // nav. AdminPage does the real work of telling admins and customers apart after this.
+  // Dynamically imported (not a static import) so Firebase never loads on a page view that
+  // never touches auth — Navbar itself renders eagerly on every single page.
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+    import('../lib/auth').then(({ subscribeToAuthState }) => {
+      if (cancelled) return;
+      unsubscribe = subscribeToAuthState((user) => setIsLoggedIn(!!user));
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, []);
 
   const navItems = [
     { id: 'home', label: isAr ? 'الرئيسية' : 'Home', icon: Home, href: '/' },
@@ -45,11 +62,21 @@ export const Navbar: React.FC<NavbarProps> = ({
     setActivePage(id);
     setMenuDrawerOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    const newUrl = id === 'home' 
-      ? window.location.pathname 
+
+    const newUrl = id === 'home'
+      ? window.location.pathname
       : `${window.location.pathname}?page=${id}`;
     window.history.pushState({}, '', newUrl);
+  };
+
+  // Separate from handleNavClick because these two need an extra `mode` query param so
+  // the account page opens on the matching tab — AdminLogin reads it directly on mount.
+  const goToAccount = (mode: 'login' | 'signup', e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setActivePage('orders');
+    setMenuDrawerOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.history.pushState({}, '', `${window.location.pathname}?page=orders&mode=${mode}`);
   };
 
   return (
@@ -80,26 +107,42 @@ export const Navbar: React.FC<NavbarProps> = ({
           <NovaiqLogo size={34} showText={true} />
         </a>
 
-        {/* Side 2: Orders Navigation */}
+        {/* Side 2: Account — before login, two separate entry points (Sign Up / Login);
+            once signed in, one "My Account" button (own contracts, or the control panel if
+            the account is an admin — AdminPage decides which). */}
         <div className="flex items-center gap-2 relative z-10">
-          {/* Orders / Contracts Link */}
-          <a
-            href="?page=orders"
-            onClick={(e) => handleNavClick('orders', e)}
-            className={`relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-              activePage === 'orders'
-                ? 'bg-zinc-800 text-white border-zinc-700'
-                : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border-zinc-800'
-            }`}
-          >
-            <FileCheck className="w-4 h-4 text-zinc-300" />
-            <span className="hidden sm:inline">{isAr ? 'العقود المحفوظة' : 'My Contracts'}</span>
-            {savedContractsCount > 0 && (
-              <span className="flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-white text-black text-[10px] font-bold">
-                {savedContractsCount}
-              </span>
-            )}
-          </a>
+          {isLoggedIn ? (
+            <a
+              href="?page=orders"
+              onClick={(e) => handleNavClick('orders', e)}
+              className={`relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                activePage === 'orders'
+                  ? 'bg-zinc-800 text-white border-zinc-700'
+                  : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border-zinc-800'
+              }`}
+            >
+              <UserCircle2 className="w-4 h-4 text-zinc-300" />
+              <span className="hidden sm:inline">{isAr ? 'حسابي' : 'My Account'}</span>
+            </a>
+          ) : (
+            <>
+              <a
+                href="?page=orders&mode=signup"
+                onClick={(e) => goToAccount('signup', e)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-zinc-200 text-black border border-white transition-all cursor-pointer white-btn-glow"
+              >
+                <span>{isAr ? 'اشتراك' : 'Sign Up'}</span>
+              </a>
+              <a
+                href="?page=orders&mode=login"
+                onClick={(e) => goToAccount('login', e)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-zinc-200 text-black border border-white transition-all cursor-pointer white-btn-glow"
+              >
+                <LogIn className="w-4 h-4 text-black" />
+                <span className="hidden sm:inline">{isAr ? 'تسجيل دخول' : 'Login'}</span>
+              </a>
+            </>
+          )}
         </div>
 
       </div>

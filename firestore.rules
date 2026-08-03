@@ -2,35 +2,43 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // True only for the owner/partner — regular customers also have accounts now (see
+    // src/lib/auth.ts), so "signed in" alone no longer implies "admin". Every admin-only
+    // rule below checks this instead of just request.auth != null.
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
     match /contracts/{document=**} {
       allow read, write: if true;
     }
 
-    // Live price overrides for the public catalogue: everyone needs to read these (any
-    // visitor browsing templates), but only the signed-in admin may change a price.
-    match /pricing_overrides/{document=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
+    // Admin allowlist: a document's ID is the admin's email; its content doesn't matter,
+    // only its existence. `get` (fetch by exact ID) is open to any signed-in user so the
+    // app can check "am I an admin?"; `list` is denied so the set of admin emails can never
+    // be discovered by scanning. Only an existing admin can add another — the very first
+    // one is created once, manually, in the Firebase Console.
+    match /admins/{email} {
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow write: if isAdmin();
     }
 
-    // Admin sign-up invite codes: a document's ID is itself the secret. `get` (fetch by
-    // exact ID) is allowed so sign-up can check "does this code exist"; `list` is denied so
-    // the set of valid codes can never be enumerated by scanning the collection — only
-    // someone who already has the exact code from the owner can ever read it. Only a
-    // signed-in admin can create new codes (the very first one is created once, manually,
-    // in the Firebase Console).
-    match /admin_invites/{code} {
-      allow get: if true;
-      allow list: if false;
-      allow write: if request.auth != null;
+    // Live price overrides for the public catalogue: everyone needs to read these (any
+    // visitor browsing templates), but only an admin may change a price.
+    match /pricing_overrides/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // Anonymous usage analytics: any visitor may log an event (write-only ingestion),
-    // but only the signed-in admin (see src/lib/auth.ts) can read the log back — that's
-    // what the admin dashboard's analytics panel needs.
+    // but only an admin can read the log back — that's what the dashboard's analytics
+    // panel needs.
     match /analytics_events/{document=**} {
       allow create: if true;
-      allow read: if request.auth != null;
+      allow read: if isAdmin();
       allow update, delete: if false;
     }
   }
