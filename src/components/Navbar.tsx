@@ -102,67 +102,71 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
         </div>
 
-        {/* Floating Side Drawer Menu */}
-        {menuDrawerOpen && (
-          <div className="absolute top-full right-0 mt-3 w-80 bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-              <span className="text-xs font-bold text-white flex items-center gap-2">
-                <Compass className="w-4 h-4 text-white" />
-                <span>{isAr ? 'أقسام منصة NOVAIQ' : 'NOVAIQ Pages'}</span>
-              </span>
-              <button 
-                onClick={() => setMenuDrawerOpen(false)} 
-                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activePage === item.id;
-                return (
-                  <a
-                    key={item.id}
-                    href={item.href}
-                    onClick={(e) => handleNavClick(item.id, e)}
-                    className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer ${
-                      isActive
-                        ? 'bg-zinc-800 text-white font-bold border border-zinc-700 shadow-md'
-                        : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
-                    }`}
-                  >
-                    <span className="flex items-center gap-3">
-                      <Icon className="w-4 h-4 text-zinc-400" />
-                      <span>{item.label}</span>
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-
-            <div className="pt-2 border-t border-zinc-800 space-y-2">
-              {/* Language Switcher Button — no backdrop-blur of its own: the drawer panel
-                  it sits inside already blurs the page behind it, so a second nested
-                  blur here would only add compositing cost with no visible difference. */}
-              <button
-                onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 text-xs font-medium cursor-pointer transition-colors shadow-lg glow-white-hover"
-              >
-                <span className="flex items-center gap-2.5">
-                  <Globe className="w-4 h-4 text-zinc-300" />
-                  <span>{isAr ? 'لغة المنصة / Language' : 'App Language / اللغة'}</span>
-                </span>
-                <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-[11px] font-bold border border-white/10">
-                  {isAr ? 'العربية (AR)' : 'English (EN)'}
-                </span>
-              </button>
-            </div>
-          </div>
-        )}
-
       </div>
+
+      {/* Floating Side Drawer Menu — deliberately a sibling of the glass pill above, not
+          nested inside it. A backdrop-blur element nested inside another backdrop-blur
+          element samples the ANCESTOR's own blurred/darkened layer instead of the real page
+          behind both of them — it renders as a flat dark box with no visible glass effect.
+          Positioned relative to <header> (which has no filter of its own) instead. */}
+      {menuDrawerOpen && (
+        <div className="absolute top-full right-3 sm:right-6 mt-3 w-80 bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+            <span className="text-xs font-bold text-white flex items-center gap-2">
+              <Compass className="w-4 h-4 text-white" />
+              <span>{isAr ? 'أقسام منصة NOVAIQ' : 'NOVAIQ Pages'}</span>
+            </span>
+            <button
+              onClick={() => setMenuDrawerOpen(false)}
+              className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activePage === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(item.id, e)}
+                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-zinc-800 text-white font-bold border border-zinc-700 shadow-md'
+                      : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon className="w-4 h-4 text-zinc-400" />
+                    <span>{item.label}</span>
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+
+          <div className="pt-2 border-t border-zinc-800 space-y-2">
+            {/* Language Switcher Button — no backdrop-blur of its own: the drawer panel
+                it sits inside already blurs the page behind it, so a second nested
+                blur here would only add compositing cost with no visible difference. */}
+            <button
+              onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 text-xs font-medium cursor-pointer transition-colors shadow-lg glow-white-hover"
+            >
+              <span className="flex items-center gap-2.5">
+                <Globe className="w-4 h-4 text-zinc-300" />
+                <span>{isAr ? 'لغة المنصة / Language' : 'App Language / اللغة'}</span>
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-[11px] font-bold border border-white/10">
+                {isAr ? 'العربية (AR)' : 'English (EN)'}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
