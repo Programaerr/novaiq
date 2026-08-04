@@ -773,6 +773,9 @@ function PricingTab({ isAr, language }: { isAr: boolean; language: Language }) {
 
   return (
     <div className="space-y-3">
+      <div className="max-w-xs">
+        <StatTile icon={Layers} label={isAr ? 'إجمالي القوالب' : 'Total Templates'} value={String(templates.length)} accent="text-amber-400" />
+      </div>
       <p className="text-xs text-zinc-400">
         {isAr
           ? 'أي تعديل هنا ينعكس فوراً على معرض القوالب وحاسبة العقد للزوار — بدون الحاجة لأي تحديث برمجي.'
@@ -1141,6 +1144,15 @@ function MembersTab({ isAr }: { isAr: boolean }) {
 
   return (
     <div className="space-y-4">
+      <div className="max-w-xs">
+        <StatTile
+          icon={UserCheck}
+          label={isAr ? 'إجمالي المشتركين' : 'Total Subscribers'}
+          value={users === null ? '—' : String(users.length)}
+          accent="text-indigo-400"
+        />
+      </div>
+
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <p className="text-xs text-zinc-400 max-w-lg">
           {isAr
