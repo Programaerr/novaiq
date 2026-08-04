@@ -3,7 +3,6 @@ import {
   LogOut,
   TrendingUp,
   FileCheck,
-  Eye,
   DollarSign,
   Download,
   Trash2,
@@ -19,6 +18,7 @@ import {
   RotateCcw,
   Ban,
   UserCheck,
+  Layers,
 } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -208,7 +208,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
           {tab === 'overview' && (
             <OverviewTab isAr={isAr} stats={stats} analyticsStats={analyticsStats} contracts={contracts} language={language} />
           )}
-          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} />}
+          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} stats={stats} />}
           {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
           {tab === 'team' && <TeamTab isAr={isAr} />}
           {tab === 'members' && <MembersTab isAr={isAr} />}
@@ -239,22 +239,6 @@ function OverviewTab({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatTile icon={FileCheck} label={isAr ? 'إجمالي العقود' : 'Total Contracts'} value={String(stats.count)} />
-        <StatTile
-          icon={DollarSign}
-          label={isAr ? 'إجمالي القيمة' : 'Total Value'}
-          value={formatPrice(stats.totalIQD, language)}
-          accent="text-emerald-400"
-        />
-        <StatTile
-          icon={TrendingUp}
-          label={isAr ? 'متوسط قيمة العقد' : 'Avg. Contract Value'}
-          value={formatPrice(stats.avgIQD, language)}
-        />
-        <StatTile icon={Eye} label={isAr ? 'إجمالي المشاهدات' : 'Total Page Views'} value={String(analyticsStats.totalViews)} accent="text-cyan-400" />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
           <h3 className="text-sm font-bold text-white">{isAr ? 'حالة العقود' : 'Contracts by Status'}</h3>
@@ -279,7 +263,12 @@ function OverviewTab({
         </div>
 
         <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-          <h3 className="text-sm font-bold text-white">{isAr ? 'أكثر الصفحات زيارة' : 'Most Visited Pages'}</h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-bold text-white">{isAr ? 'أكثر الصفحات زيارة' : 'Most Visited Pages'}</h3>
+            <span className="text-[11px] font-mono font-bold text-cyan-400 shrink-0">
+              {analyticsStats.totalViews} {isAr ? 'مشاهدة' : 'views'}
+            </span>
+          </div>
           {analyticsStats.topPages.length === 0 ? (
             <p className="text-xs text-zinc-500">{isAr ? 'لا توجد بيانات زيارات بعد (تتطلب موافقة الزوار على التتبع)' : 'No visit data yet (requires visitor tracking consent)'}</p>
           ) : (
@@ -348,7 +337,17 @@ function statusArabic(status: ContractData['status']): string {
 // Contracts management
 // ---------------------------------------------------------------------------
 
-function ContractsTab({ isAr, language, contracts }: { isAr: boolean; language: Language; contracts: ContractData[] }) {
+function ContractsTab({
+  isAr,
+  language,
+  contracts,
+  stats,
+}: {
+  isAr: boolean;
+  language: Language;
+  contracts: ContractData[];
+  stats: ReturnType<typeof useOverviewStatsType>;
+}) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ContractData['status']>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -367,6 +366,21 @@ function ContractsTab({ isAr, language, contracts }: { isAr: boolean; language: 
 
   return (
     <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <StatTile icon={FileCheck} label={isAr ? 'إجمالي العقود' : 'Total Contracts'} value={String(stats.count)} />
+        <StatTile
+          icon={DollarSign}
+          label={isAr ? 'إجمالي القيمة' : 'Total Value'}
+          value={formatPrice(stats.totalIQD, language)}
+          accent="text-emerald-400"
+        />
+        <StatTile
+          icon={TrendingUp}
+          label={isAr ? 'متوسط قيمة العقد' : 'Avg. Contract Value'}
+          value={formatPrice(stats.avgIQD, language)}
+        />
+      </div>
+
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className={`absolute ${isAr ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500`} />
@@ -758,6 +772,9 @@ function PricingTab({ isAr, language }: { isAr: boolean; language: Language }) {
 
   return (
     <div className="space-y-3">
+      <div className="max-w-xs">
+        <StatTile icon={Layers} label={isAr ? 'إجمالي القوالب' : 'Total Templates'} value={String(templates.length)} accent="text-amber-400" />
+      </div>
       <p className="text-xs text-zinc-400">
         {isAr
           ? 'أي تعديل هنا ينعكس فوراً على معرض القوالب وحاسبة العقد للزوار — بدون الحاجة لأي تحديث برمجي.'
@@ -1126,6 +1143,15 @@ function MembersTab({ isAr }: { isAr: boolean }) {
 
   return (
     <div className="space-y-4">
+      <div className="max-w-xs">
+        <StatTile
+          icon={UserCheck}
+          label={isAr ? 'إجمالي المشتركين' : 'Total Subscribers'}
+          value={users === null ? '—' : String(users.length)}
+          accent="text-indigo-400"
+        />
+      </div>
+
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <p className="text-xs text-zinc-400 max-w-lg">
           {isAr

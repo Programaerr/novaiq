@@ -406,7 +406,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 }`}>
                   <Icon className="w-4 h-4" />
                 </div>
-                <div className="truncate text-right">
+                <div className="truncate text-start">
                   <span className="text-[10px] text-zinc-400 block font-mono">{isAr ? `الخطوة ${s.step}` : `Step ${s.step}`}</span>
                   <span className="truncate">{s.title}</span>
                 </div>

@@ -2217,14 +2217,14 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <span className={`px-3 py-1 rounded ${themeStyle.badgeBg} text-[11px] font-semibold inline-block`}>
                       $ nebula --status
                     </span>
-                    <h3 className="text-lg sm:text-2xl font-bold text-white leading-tight" dir="rtl">
+                    <h3 className="text-lg sm:text-2xl font-bold text-white leading-tight">
                       ابنِ وأطلق منتجك السحابي بسرعة الضوء
                     </h3>
-                    <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed" dir="rtl">
+                    <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
                       بنية تحتية سحابية جاهزة، توثيق API تفاعلي، ولوحة قيادة حية لمنتجك الرقمي — كل ما تحتاجه شركتك التقنية لتنطلق دون تعقيد.
                       <span className="text-emerald-400 animate-pulse">▊</span>
                     </p>
-                    <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`} dir="rtl">
+                    <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
                       <button onClick={() => setActiveTab('pricing')} className={`w-full sm:w-auto px-5 py-2.5 rounded ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
                         شاهد خطط الأسعار
                       </button>
@@ -2238,15 +2238,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center font-mono`}>
                   <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
                     <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText}`}>99.98%</div>
-                    <div className="text-[11px] text-slate-500" dir="rtl">معدل التشغيل السنوي</div>
+                    <div className="text-[11px] text-slate-500">معدل التشغيل السنوي</div>
                   </div>
                   <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
                     <div className="text-lg sm:text-xl font-bold text-emerald-400">+40</div>
-                    <div className="text-[11px] text-slate-500" dir="rtl">شركة تستخدم المنصة</div>
+                    <div className="text-[11px] text-slate-500">شركة تستخدم المنصة</div>
                   </div>
                   <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
                     <div className="text-lg sm:text-xl font-bold text-amber-400">&lt; 50ms</div>
-                    <div className="text-[11px] text-slate-500" dir="rtl">زمن استجابة API</div>
+                    <div className="text-[11px] text-slate-500">زمن استجابة API</div>
                   </div>
                 </div>
               </div>
