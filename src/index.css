@@ -277,27 +277,33 @@
   opacity: 1;
 }
 
-/* Template-preview navbar wordmark: "Logo [spinning mark] Design" — the mark spins
-   continuously (a slow, steady rotation, not a fast dizzying one) and the word "Design"
-   plays a one-time reveal that looks like it's sliding out from the mark, instead of just
-   sitting there statically. */
+/* Template-preview navbar wordmark: "Logo [mark] Design" — hover-triggered, not automatic.
+   The mark only spins while the pointer is over the navbar's logo group, and "Design"
+   stays hidden until then, sliding out from the mark on hover-in and smoothly retreating
+   back on hover-out. Needs the parent to carry the `group` class (added in JSX). */
 @keyframes navbar-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
 .navbar-logo-mark {
-  animation: navbar-logo-spin 7s linear infinite;
+  transition: transform 0.4s ease;
 }
 
-@keyframes navbar-logo-word-emerge {
-  0% { opacity: 0; transform: translateX(10px) scale(0.5); }
-  60% { opacity: 1; }
-  100% { opacity: 1; transform: translateX(0) scale(1); }
+.group:hover .navbar-logo-mark {
+  animation: navbar-logo-spin 1.4s linear infinite;
 }
 
 .navbar-logo-word {
-  animation: navbar-logo-word-emerge 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(10px) scale(0.5);
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .navbar-logo-word {
+  opacity: 1;
+  transform: translateX(0) scale(1);
 }
 
 @media (prefers-reduced-motion: reduce) {
