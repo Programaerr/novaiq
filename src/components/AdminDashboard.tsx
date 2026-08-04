@@ -29,6 +29,7 @@ import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { cosmicAudio } from '../lib/audio';
+import { showToast } from '../lib/toast';
 
 interface AdminDashboardProps {
   language: Language;
@@ -550,6 +551,9 @@ function ContractRow({
         ...(companySignatureDataUrl !== undefined ? { companySignatureDataUrl } : {}),
       });
       cosmicAudio.playPing();
+      showToast(isAr ? 'تم حفظ التعديلات بنجاح' : 'Changes saved successfully', 'success');
+    } catch {
+      showToast(isAr ? 'تعذر حفظ التعديلات، حاول مجدداً' : 'Failed to save changes — please try again', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -564,6 +568,9 @@ function ContractRow({
     setIsDeleting(true);
     try {
       await deleteContractFromFirebase(contract.id, contract.contractNumber);
+      showToast(isAr ? 'تم حذف العقد' : 'Contract deleted', 'success');
+    } catch {
+      showToast(isAr ? 'تعذر حذف العقد، حاول مجدداً' : 'Failed to delete the contract — please try again', 'error');
     } finally {
       setIsDeleting(false);
     }
@@ -574,6 +581,8 @@ function ContractRow({
     setIsDownloading(true);
     try {
       await generateContractPDF(printRef.current, contract);
+    } catch {
+      showToast(isAr ? 'تعذر إنشاء ملف PDF، حاول مجدداً' : 'Failed to generate the PDF — please try again', 'error');
     } finally {
       setIsDownloading(false);
     }

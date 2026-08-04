@@ -17,6 +17,7 @@ import {
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
 import { formatPrice } from '../lib/currency';
+import { showToast } from '../lib/toast';
 
 interface ContractBuilderProps {
   selectedTemplate: Template | null;
@@ -61,6 +62,21 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [phone, setPhone] = useState('');
   const [country] = useState('العراق');
   const [city, setCity] = useState('بغداد');
+  const [fieldErrors, setFieldErrors] = useState<Set<string>>(new Set());
+
+  const errorInputClass = (field: string) =>
+    fieldErrors.has(field)
+      ? 'border-red-600 focus:border-red-500 ring-1 ring-red-600/40'
+      : 'border-zinc-800 focus:border-zinc-600';
+
+  const clearFieldError = (field: string) => {
+    if (!fieldErrors.has(field)) return;
+    setFieldErrors((prev) => {
+      const next = new Set(prev);
+      next.delete(field);
+      return next;
+    });
+  };
 
   // Phone Validation helper (Must start with 07 and be 11 digits)
   const isValidIraqiPhone = (num: string) => {
@@ -191,20 +207,35 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   const handleSubmitContract = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!companyName || !repName || !email || !phone) {
-      alert(isAr ? 'يرجى تعبئة كافة بيانات الشركة المطلوبة في الخطوة الأولى' : 'Please complete company details in step 1');
+
+    const missing = new Set<string>();
+    if (!companyName) missing.add('companyName');
+    if (!repName) missing.add('repName');
+    if (!email) missing.add('email');
+    if (!phone) missing.add('phone');
+
+    if (missing.size > 0) {
+      setFieldErrors(missing);
+      showToast(
+        isAr ? 'يرجى تعبئة كافة بيانات الشركة المطلوبة في الخطوة الأولى (محدّدة باللون الأحمر)' : 'Please complete the required company details in step 1 (highlighted in red)',
+        'error'
+      );
       setCurrentStep(1);
       return;
     }
 
     if (!isValidIraqiPhone(phone)) {
-      alert(isAr ? 'خطأ في رقم الهاتف: يجب أن يبدأ رقم الهاتف العراقي بـ 07 ويتكون من 11 رقماً بالضبط' : 'Invalid Iraqi phone number format. Must start with 07 and be 11 digits.');
+      setFieldErrors(new Set(['phone']));
+      showToast(
+        isAr ? 'خطأ في رقم الهاتف: يجب أن يبدأ رقم الهاتف العراقي بـ 07 ويتكون من 11 رقماً بالضبط' : 'Invalid Iraqi phone number format. Must start with 07 and be 11 digits.',
+        'error'
+      );
       setCurrentStep(1);
       return;
     }
 
     if (!agreedToTerms) {
-      alert(isAr ? 'يرجى الموافقة على الشروط والأحكام العامة للبدء' : 'Please accept the terms and conditions');
+      showToast(isAr ? 'يرجى الموافقة على الشروط والأحكام العامة للبدء' : 'Please accept the terms and conditions', 'error');
       return;
     }
 
@@ -213,6 +244,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       // that has to be dismissed before they can act on it.
       setCurrentStep(4);
       setSignatureMissing(true);
+      showToast(isAr ? 'التوقيع مطلوب لإتمام العقد' : 'A signature is required to complete the contract', 'error');
       requestAnimationFrame(() => {
         signaturePadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
@@ -261,6 +293,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     };
 
     cosmicAudio.playWarp();
+    showToast(isAr ? 'تم إنشاء العقد بنجاح' : 'Contract created successfully', 'success');
     onContractGenerated(contractData);
   };
 
@@ -341,9 +374,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     type="text"
                     required
                     value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
+                    onChange={(e) => {
+                      setCompanyName(e.target.value);
+                      clearFieldError('companyName');
+                    }}
                     placeholder={getTranslation('companyNamePlaceholder', lang)}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs"
+                    className={`w-full px-4 py-3 rounded-xl bg-zinc-900 border focus:outline-none text-white text-xs transition-colors ${errorInputClass('companyName')}`}
                   />
                 </div>
 
@@ -368,9 +404,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     type="text"
                     required
                     value={repName}
-                    onChange={(e) => setRepName(e.target.value)}
+                    onChange={(e) => {
+                      setRepName(e.target.value);
+                      clearFieldError('repName');
+                    }}
                     placeholder={getTranslation('repNamePlaceholder', lang)}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs"
+                    className={`w-full px-4 py-3 rounded-xl bg-zinc-900 border focus:outline-none text-white text-xs transition-colors ${errorInputClass('repName')}`}
                   />
                 </div>
 
@@ -382,9 +421,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     type="email"
                     required
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      clearFieldError('email');
+                    }}
                     placeholder={getTranslation('emailPlaceholder', lang)}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
+                    className={`w-full px-4 py-3 rounded-xl bg-zinc-900 border focus:outline-none text-white text-xs font-mono transition-colors ${errorInputClass('email')}`}
                   />
                 </div>
 
@@ -400,9 +442,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     onChange={(e) => {
                       const cleanDigits = e.target.value.replace(/\D/g, '').slice(0, 11);
                       setPhone(cleanDigits);
+                      clearFieldError('phone');
                     }}
                     placeholder={getTranslation('phonePlaceholder', lang)}
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
+                    className={`w-full px-4 py-3 rounded-xl bg-zinc-900 border focus:outline-none text-white text-xs font-mono transition-colors ${errorInputClass('phone')}`}
                   />
                   <p className="text-[11px] text-zinc-400 mt-1">
                     {isAr ? 'مثال: 07701234567 (11 رقماً)' : 'e.g. 07701234567 (11 digits)'}
@@ -754,9 +797,20 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  if (currentStep === 1 && (!companyName || !repName || !email || !phone)) {
-                    alert(isAr ? 'يرجى كتابة كافة البيانات الأساسية المكتملة أولاً' : 'Please complete basic info');
-                    return;
+                  if (currentStep === 1) {
+                    const missing = new Set<string>();
+                    if (!companyName) missing.add('companyName');
+                    if (!repName) missing.add('repName');
+                    if (!email) missing.add('email');
+                    if (!phone) missing.add('phone');
+                    if (missing.size > 0) {
+                      setFieldErrors(missing);
+                      showToast(
+                        isAr ? 'يرجى تعبئة كافة البيانات الأساسية المكتملة أولاً (محدّدة باللون الأحمر)' : 'Please complete the required basic info first (highlighted in red)',
+                        'error'
+                      );
+                      return;
+                    }
                   }
                   setCurrentStep(currentStep + 1);
                   cosmicAudio.playPing();

@@ -6,6 +6,7 @@ import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { AboutSection } from './components/AboutSection';
 import { Footer } from './components/Footer';
 import { CookieConsent } from './components/CookieConsent';
+import { ToastHost } from './components/ToastHost';
 import { PageLoader } from './components/PageLoader';
 import { templatesData } from './data/templatesData';
 import { Home } from 'lucide-react';
@@ -379,6 +380,9 @@ export default function App() {
 
       {/* Bottom Cookie Consent Banner */}
       <CookieConsent language={language} onNavigateToPrivacy={() => navigateTo('privacy')} />
+
+      {/* Global toast notifications — validation warnings, save confirmations, errors */}
+      <ToastHost />
 
       {/* Contract PDF Generated Preview Modal */}
       {activeContractForPreview && (

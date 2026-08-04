@@ -9,6 +9,7 @@ import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
+import { showToast } from '../lib/toast';
 
 interface CustomerDashboardProps {
   language: Language;
@@ -132,6 +133,8 @@ function CustomerContractRow({
     setIsDownloading(true);
     try {
       await generateContractPDF(printRef.current, contract);
+    } catch {
+      showToast(isAr ? 'تعذر إنشاء ملف PDF، حاول مجدداً' : 'Failed to generate the PDF — please try again', 'error');
     } finally {
       setIsDownloading(false);
     }

@@ -6,6 +6,7 @@ import { Language, translateText } from '../lib/i18n';
 import { useAutoTranslate, useAutoTranslateList } from '../lib/autoTranslate';
 import { formatPrice } from '../lib/currency';
 import { ContractPrintDocument } from './ContractPrintDocument';
+import { showToast } from '../lib/toast';
 import {
   Download,
   ShieldCheck,
@@ -55,22 +56,31 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
         await saveContractToFirebase(contract);
         if (isMounted) {
           onSavedSuccess();
+          showToast(isAr ? 'تم حفظ العقد بنجاح على حسابك' : 'The contract was saved to your account', 'success');
         }
       } catch (e) {
-        console.error('Auto save to Firebase failed silently:', e);
+        console.error('Auto save to Firebase failed:', e);
+        if (isMounted) {
+          showToast(
+            isAr ? 'تعذر حفظ العقد على الخادم — يمكنك تنزيل نسخة PDF كاحتياط' : 'Failed to save the contract to the server — you can still download a PDF copy as a backup',
+            'error'
+          );
+        }
       }
     };
     autoSave();
     return () => {
       isMounted = false;
     };
-  }, [contract]);
+  }, [contract, isAr]);
 
   const handleDownloadPDF = async () => {
     if (!printRef.current || isGeneratingPdf) return;
     setIsGeneratingPdf(true);
     try {
       await generateContractPDF(printRef.current, contract);
+    } catch {
+      showToast(isAr ? 'تعذر إنشاء ملف PDF، حاول مجدداً' : 'Failed to generate the PDF — please try again', 'error');
     } finally {
       setIsGeneratingPdf(false);
     }
