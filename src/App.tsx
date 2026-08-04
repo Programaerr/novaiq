@@ -292,7 +292,7 @@ export default function App() {
         )}
 
         {activePage === 'home' && (
-          <div className="page-in space-y-6 sm:space-y-8">
+          <div className="page-in space-y-10 sm:space-y-16">
             {/* Hero Banner */}
             <HeroSection
               onExploreTemplates={() => navigateTo('templates')}
