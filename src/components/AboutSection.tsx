@@ -7,6 +7,15 @@ interface AboutSectionProps {
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
+  // Windows/Fluent-style spotlight, same mechanic as the homepage feature squares:
+  // pushes the cursor position straight into a CSS custom property via the DOM (no
+  // setState) so the glow can track every frame without a React re-render.
+  const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+  };
+
   return (
     <section id="about-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,10 +57,14 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 desc: language === 'ar' ? 'تحديثات استقرار ومتابعة فنية بحسب الاتفاق المبرم بين الطرفين.' : 'System updates and technical follow-ups according to mutual agreement.'
               }
             ].map((item, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-black border border-zinc-800 hover:border-white/40 glow-white-hover text-center transition-all">
-                <CheckCircle2 className="w-4 h-4 text-white mx-auto mb-2" />
-                <h4 className="text-xs font-bold text-white">{item.title}</h4>
-                <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{item.desc}</p>
+              <div
+                key={idx}
+                onMouseMove={handleSpotlightMove}
+                className="spotlight-card min-h-[160px] flex flex-col items-center justify-center p-4 rounded-xl bg-black border border-zinc-800 hover:border-white/40 glow-white-hover text-center transition-all"
+              >
+                <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
+                <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>
+                <p className="relative z-10 text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
