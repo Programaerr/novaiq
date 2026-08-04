@@ -350,7 +350,7 @@ export default function App() {
                     <div
                       key={idx}
                       onMouseMove={handleSpotlightMove}
-                      className="spotlight-card aspect-square flex flex-col justify-center p-4 rounded-2xl bg-black border border-zinc-800/80 space-y-1"
+                      className="spotlight-card aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-800/80 space-y-1"
                     >
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>
