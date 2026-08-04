@@ -24,7 +24,6 @@ import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, toUSD } from '../lib/currency';
 import { subscribeToContracts, deleteContractFromFirebase, updateContractFields } from '../lib/firebase';
-import { subscribeToAnalyticsEvents, AnalyticsEvent } from '../lib/analytics';
 import { logoutAccount, addAdminEmail, authErrorMessage } from '../lib/auth';
 import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser, listTeamMembers, TeamMember } from '../lib/adminUsers';
 import { useLiveTemplates, subscribeToPricingOverrides, savePricingOverride, PricingOverride } from '../lib/pricingOverrides';
@@ -224,7 +223,7 @@ function OverviewTab({
   const recent = contracts.slice(0, 6);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
           <h3 className="text-sm font-bold text-white">{isAr ? 'حالة العقود' : 'Contracts by Status'}</h3>
@@ -247,43 +246,25 @@ function OverviewTab({
             </div>
           )}
         </div>
+      </div>
 
-        <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-white">{isAr ? 'أكثر الصفحات زيارة' : 'Most Visited Pages'}</h3>
-            <span className="text-[11px] font-mono font-bold text-cyan-400 shrink-0">
-              {analyticsStats.totalViews} {isAr ? 'مشاهدة' : 'views'}
-            </span>
-          </div>
-          {analyticsStats.topPages.length === 0 ? (
-            <p className="text-xs text-zinc-500">{isAr ? 'لا توجد بيانات زيارات بعد (تتطلب موافقة الزوار على التتبع)' : 'No visit data yet (requires visitor tracking consent)'}</p>
-          ) : (
-            <div className="space-y-2.5">
-              {analyticsStats.topPages.map(([page, count]) => (
-                <BarRow key={page} isAr={isAr} label={page} count={count} total={analyticsStats.totalViews} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-          <h3 className="text-sm font-bold text-white">{isAr ? 'أحدث العقود' : 'Recent Contracts'}</h3>
-          {recent.length === 0 ? (
-            <p className="text-xs text-zinc-500">{isAr ? 'لا توجد عقود بعد' : 'No contracts yet'}</p>
-          ) : (
-            <div className="space-y-2">
-              {recent.map((c) => (
-                <div key={c.id || c.contractNumber} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
-                  <div className="min-w-0">
-                    <div className="text-white font-bold truncate">{c.companyName}</div>
-                    <div className="text-zinc-500 text-[10px] truncate">{translateText(c.templateTitle, language)}</div>
-                  </div>
-                  <span className="text-zinc-300 font-mono shrink-0">{formatPrice(c.totalPriceIQD || 0, language)}</span>
+      <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
+        <h3 className="text-sm font-bold text-white">{isAr ? 'أحدث العقود' : 'Recent Contracts'}</h3>
+        {recent.length === 0 ? (
+          <p className="text-xs text-zinc-500">{isAr ? 'لا توجد عقود بعد' : 'No contracts yet'}</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+            {recent.map((c) => (
+              <div key={c.id || c.contractNumber} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+                <div className="min-w-0">
+                  <div className="text-white font-bold truncate">{c.companyName}</div>
+                  <div className="text-zinc-500 text-[10px] truncate">{translateText(c.templateTitle, language)}</div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <span className="text-zinc-300 font-mono shrink-0">{formatPrice(c.totalPriceIQD || 0, language)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
