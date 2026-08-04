@@ -26,7 +26,7 @@ import { formatPrice, toUSD } from '../lib/currency';
 import { subscribeToContracts, deleteContractFromFirebase, updateContractFields } from '../lib/firebase';
 import { subscribeToAnalyticsEvents, AnalyticsEvent } from '../lib/analytics';
 import { logoutAccount, addAdminEmail, authErrorMessage } from '../lib/auth';
-import { listAllUsers, setUserDisabled, deleteUserAccount, ManagedUser, listTeamMembers, TeamMember } from '../lib/adminUsers';
+import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser, listTeamMembers, TeamMember } from '../lib/adminUsers';
 import { useLiveTemplates, subscribeToPricingOverrides, savePricingOverride, PricingOverride } from '../lib/pricingOverrides';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
@@ -1076,7 +1076,7 @@ function MembersTab({ isAr }: { isAr: boolean }) {
     setIsLoading(true);
     setError('');
     try {
-      const list = await listAllUsers();
+      const list = await listRegularSubscribers();
       list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setUsers(list);
     } catch (err) {
@@ -1155,8 +1155,8 @@ function MembersTab({ isAr }: { isAr: boolean }) {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <p className="text-xs text-zinc-400 max-w-lg">
           {isAr
-            ? 'كل حساب سجّل بالموقع (زبائن ومسؤولين). عطّل حساباً لمنعه من الدخول مؤقتاً، أو احذفه نهائياً.'
-            : 'Every account registered on the site (customers and admins). Disable to temporarily block sign-in, or delete permanently.'}
+            ? 'حسابات الزبائن العاديين فقط (المسؤولون يُدارون من تبويب الفريق). عطّل حساباً لمنعه من الدخول مؤقتاً، أو احذفه نهائياً.'
+            : "Regular customer accounts only (admins are managed from the Team tab). Disable to temporarily block sign-in, or delete permanently."}
         </p>
         <button
           onClick={load}

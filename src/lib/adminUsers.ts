@@ -68,6 +68,18 @@ export async function listAllUsers(): Promise<ManagedUser[]> {
   });
 }
 
+// Same source as listAllUsers(), minus anyone in the admins allowlist — the Subscribers
+// panel is meant to show real customers, not the team managing them. Checks each user's own
+// email individually against `admins/{email}` (a `get` by known ID, allowed for any signed-in
+// user — see listTeamMembers below for why a direct `list` on that collection isn't possible).
+export async function listRegularSubscribers(): Promise<ManagedUser[]> {
+  const users = await listAllUsers();
+  const adminFlags = await Promise.all(
+    users.map((u) => (u.email ? getDoc(doc(db, 'admins', u.email.toLowerCase())) : null))
+  );
+  return users.filter((_, i) => !adminFlags[i]?.exists());
+}
+
 export async function setUserDisabled(uid: string, disabled: boolean): Promise<void> {
   await authedFetch(`/api/admin/users/${uid}`, {
     method: 'PATCH',
