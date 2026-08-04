@@ -12,6 +12,8 @@ import { Template } from '../types';
 const OVERRIDES_COLLECTION = 'pricing_overrides';
 
 export interface PricingOverride {
+  title?: string;
+  previewImage?: string;
   basePriceIQD?: number;
   basePriceUSD?: number;
   specPriceIQD?: Record<string, number>;
@@ -47,6 +49,8 @@ export function applyPricingOverrides(
     if (!o) return t;
     return {
       ...t,
+      title: o.title ?? t.title,
+      previewImage: o.previewImage ?? t.previewImage,
       basePriceIQD: o.basePriceIQD ?? t.basePriceIQD,
       basePriceUSD: o.basePriceUSD ?? t.basePriceUSD,
       specificationsOptions: t.specificationsOptions.map((spec) => ({
