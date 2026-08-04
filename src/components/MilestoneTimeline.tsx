@@ -160,7 +160,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
               cosmicAudio.playWarp();
             }}
             onMouseMove={handleSpotlightMove}
-            className="glow-cta-btn px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full text-white font-extrabold uppercase tracking-[0.1em] hover:scale-[1.02] transition-all inline-flex items-center cursor-pointer"
+            className="glow-cta-btn px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full text-white font-extrabold uppercase tracking-[0.1em] inline-flex items-center cursor-pointer"
           >
             <span className="cta-spotlight" />
             <Rocket className="relative z-10 w-4 h-4 sm:w-5 sm:h-5 text-white" />
