@@ -28,7 +28,18 @@ async function authedFetch(path: string, options: RequestInit = {}): Promise<any
     },
   });
 
-  const body = await res.json().catch(() => ({}));
+  // A route the running server doesn't actually have (e.g. server.ts was edited but the
+  // dev server wasn't restarted) falls through to Vite's SPA catch-all and comes back as
+  // a 200 OK HTML page, not JSON — silently defaulting to {} here let that masquerade as
+  // "no error", so .users ended up undefined instead of surfacing what actually happened.
+  const isJson = (res.headers.get('content-type') || '').includes('application/json');
+  if (!isJson) {
+    throw new Error(
+      `Server did not return JSON (status ${res.status}) — the dev server likely needs a restart to pick up new backend routes.`
+    );
+  }
+
+  const body = await res.json();
   if (!res.ok) {
     throw new Error(body.error || `Request failed (${res.status})`);
   }
@@ -37,7 +48,7 @@ async function authedFetch(path: string, options: RequestInit = {}): Promise<any
 
 export async function listAllUsers(): Promise<ManagedUser[]> {
   const data = await authedFetch('/api/admin/users');
-  return data.users;
+  return Array.isArray(data.users) ? data.users : [];
 }
 
 export async function setUserDisabled(uid: string, disabled: boolean): Promise<void> {

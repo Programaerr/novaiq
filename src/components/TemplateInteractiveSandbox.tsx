@@ -31,7 +31,9 @@ import {
   Hotel,
   Truck,
   Package,
-  MapPin
+  MapPin,
+  Terminal,
+  ChevronRight
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 
@@ -2151,89 +2153,121 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         const techTab = ['home', 'features', 'docs', 'pricing', 'dashboard'].includes(activeTab) ? activeTab : 'home';
 
         return (
-          <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+          <div className="relative space-y-5 text-slate-100">
+            {/* Circuit-board grid backdrop — a completely different world from the soft
+                cosmic glows everywhere else: sharp, technical, terminal-flavored. */}
+            <div
+              className="pointer-events-none absolute inset-0 -z-10 opacity-40 select-none"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to right, rgba(16,185,129,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(16,185,129,0.12) 1px, transparent 1px)',
+                backgroundSize: '28px 28px',
+              }}
+              aria-hidden="true"
+            />
+
+            {/* Terminal-style Navigation Bar — sharp corners, monospace prompt instead of
+                a soft logo lockup */}
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <Cpu className="w-5 h-5" />
+                <div className={`w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg`}>
+                  <Terminal className="w-4.5 h-4.5" />
                 </div>
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
+                <span className="text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">
+                  ~/Logo<span className="animate-pulse">▊</span>
+                </span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'features', 'docs', 'pricing', 'dashboard'].map((tab) => (
+              <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[11px] w-full sm:w-auto" dir="ltr">
+                {['home', 'features', 'docs', 'pricing', 'dashboard'].map((tabId) => (
                   <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      techTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    key={tabId}
+                    onClick={() => setActiveTab(tabId)}
+                    className={`px-2.5 py-1.5 rounded transition-all cursor-pointer flex items-center gap-1 ${
+                      techTab === tabId ? `${themeStyle.primaryBg} text-white font-bold` : 'text-emerald-500/70 hover:text-emerald-300 hover:bg-white/5'
                     }`}
                   >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'features' && 'المزايا'}
-                    {tab === 'docs' && 'توثيق API'}
-                    {tab === 'pricing' && 'الأسعار'}
-                    {tab === 'dashboard' && 'لوحة تحكم'}
+                    {techTab === tabId && <ChevronRight className="w-3 h-3 shrink-0" />}
+                    <span>
+                      {tabId === 'home' && '~/home'}
+                      {tabId === 'features' && '~/features'}
+                      {tabId === 'docs' && '~/docs'}
+                      {tabId === 'pricing' && '~/pricing'}
+                      {tabId === 'dashboard' && '~/dashboard'}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
 
             {techTab === 'home' && (
-              <div className="space-y-4 sm:space-y-6 animate-fade-in">
-                <div className={`p-6 sm:p-8 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} border ${themeStyle.primaryBorder} text-center space-y-3 sm:space-y-4`}>
-                  <span className={`px-3 py-1 rounded-full ${themeStyle.badgeBg} text-xs font-semibold inline-block`}>
-                    منصة SaaS السحابية
-                  </span>
-                  <h3 className="text-xl sm:text-3xl font-extrabold text-white leading-tight">
-                    ابنِ وأطلق منتجك السحابي بسرعة الضوء
-                  </h3>
-                  <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-                    بنية تحتية سحابية جاهزة، توثيق API تفاعلي، ولوحة قيادة حية لمنتجك الرقمي — كل ما تحتاجه شركتك التقنية لتنطلق دون تعقيد.
-                  </p>
-                  <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                    <button onClick={() => setActiveTab('pricing')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
-                      شاهد خطط الأسعار
-                    </button>
-                    <button onClick={() => setActiveTab('docs')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 text-xs font-bold cursor-pointer">
-                      استكشف توثيق API
-                    </button>
+              <div className="space-y-4 sm:space-y-5 animate-fade-in">
+                {/* Fake terminal window — macOS-style traffic-light chrome, then the pitch
+                    rendered as command output with a blinking cursor at the end */}
+                <div className="rounded-lg bg-black/70 backdrop-blur-xl border border-emerald-500/20 overflow-hidden shadow-xl">
+                  <div className="flex items-center gap-1.5 px-3.5 py-2.5 border-b border-emerald-500/10 bg-white/[0.02]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/70" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/70" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
+                    <span className="text-[10px] text-slate-500 font-mono mr-auto" dir="ltr">nebula — zsh</span>
+                  </div>
+                  <div className="p-5 sm:p-8 space-y-3 sm:space-y-4 text-center font-mono" dir="ltr">
+                    <span className={`px-3 py-1 rounded ${themeStyle.badgeBg} text-[11px] font-semibold inline-block`}>
+                      $ nebula --status
+                    </span>
+                    <h3 className="text-lg sm:text-2xl font-bold text-white leading-tight" dir="rtl">
+                      ابنِ وأطلق منتجك السحابي بسرعة الضوء
+                    </h3>
+                    <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed" dir="rtl">
+                      بنية تحتية سحابية جاهزة، توثيق API تفاعلي، ولوحة قيادة حية لمنتجك الرقمي — كل ما تحتاجه شركتك التقنية لتنطلق دون تعقيد.
+                      <span className="text-emerald-400 animate-pulse">▊</span>
+                    </p>
+                    <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`} dir="rtl">
+                      <button onClick={() => setActiveTab('pricing')} className={`w-full sm:w-auto px-5 py-2.5 rounded ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
+                        شاهد خطط الأسعار
+                      </button>
+                      <button onClick={() => setActiveTab('docs')} className="w-full sm:w-auto px-5 py-2.5 rounded bg-black/40 border border-emerald-500/20 text-emerald-400 text-xs font-bold cursor-pointer hover:border-emerald-500/40">
+                        استكشف توثيق API
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center`}>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText} font-mono`}>99.98%</div>
-                    <div className="text-[11px] text-slate-400">معدل التشغيل السنوي</div>
+                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center font-mono`}>
+                  <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
+                    <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText}`}>99.98%</div>
+                    <div className="text-[11px] text-slate-500" dir="rtl">معدل التشغيل السنوي</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className="text-lg sm:text-xl font-bold text-emerald-400 font-mono">+40</div>
-                    <div className="text-[11px] text-slate-400">شركة تستخدم المنصة</div>
+                  <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
+                    <div className="text-lg sm:text-xl font-bold text-emerald-400">+40</div>
+                    <div className="text-[11px] text-slate-500" dir="rtl">شركة تستخدم المنصة</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className="text-lg sm:text-xl font-bold text-amber-400 font-mono">&lt; 50ms</div>
-                    <div className="text-[11px] text-slate-400">زمن استجابة API</div>
+                  <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
+                    <div className="text-lg sm:text-xl font-bold text-amber-400">&lt; 50ms</div>
+                    <div className="text-[11px] text-slate-500" dir="rtl">زمن استجابة API</div>
                   </div>
                 </div>
               </div>
             )}
 
             {techTab === 'features' && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
+              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3.5 animate-fade-in text-xs`}>
                 {[
-                  { icon: Cpu, title: 'نشر فوري بنقرة واحدة', desc: 'حزم كودك ونشره على بنية سحابية موزعة عالمياً خلال ثوانٍ، دون إعدادات خوادم معقدة.' },
-                  { icon: Globe, title: 'قابلية توسع تلقائية', desc: 'يزداد عدد الخوادم تلقائياً مع ازدياد الطلب على منتجك، ويقل عند انخفاضه لتوفير التكلفة.' },
-                  { icon: Shield, title: 'أمان وتشفير من الطبقة الأولى', desc: 'تشفير كامل للبيانات أثناء النقل والتخزين، مع مراقبة أمنية استباقية على مدار الساعة.' },
-                  { icon: Sliders, title: 'مراقبة الأداء اللحظي', desc: 'لوحة قيادة حية لمراقبة زمن الاستجابة، الأخطاء، واستهلاك الموارد لحظة بلحظة.' },
+                  { icon: Cpu, title: 'نشر فوري بنقرة واحدة', desc: 'حزم كودك ونشره على بنية سحابية موزعة عالمياً خلال ثوانٍ، دون إعدادات خوادم معقدة.', tag: 'deploy.sh' },
+                  { icon: Globe, title: 'قابلية توسع تلقائية', desc: 'يزداد عدد الخوادم تلقائياً مع ازدياد الطلب على منتجك، ويقل عند انخفاضه لتوفير التكلفة.', tag: 'autoscale.yml' },
+                  { icon: Shield, title: 'أمان وتشفير من الطبقة الأولى', desc: 'تشفير كامل للبيانات أثناء النقل والتخزين، مع مراقبة أمنية استباقية على مدار الساعة.', tag: 'security.conf' },
+                  { icon: Sliders, title: 'مراقبة الأداء اللحظي', desc: 'لوحة قيادة حية لمراقبة زمن الاستجابة، الأخطاء، واستهلاك الموارد لحظة بلحظة.', tag: 'monitor.ts' },
                 ].map((f, idx) => {
                   const FeatureIcon = f.icon;
                   return (
-                    <div key={idx} className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-3">
-                      <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0`}>
-                        <FeatureIcon className="w-5 h-5" />
+                    <div key={idx} className="rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/20 hover:border-emerald-500/40 transition-colors overflow-hidden">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-emerald-500/10 bg-white/[0.02]">
+                        <FeatureIcon className={`w-3.5 h-3.5 ${themeStyle.primaryText}`} />
+                        <span className="text-[10px] text-slate-500 font-mono" dir="ltr">{f.tag}</span>
                       </div>
-                      <h4 className="text-sm font-bold text-white">{f.title}</h4>
-                      <p className="text-slate-400 leading-relaxed">{f.desc}</p>
+                      <div className="p-4 space-y-1.5">
+                        <h4 className="text-sm font-bold text-white">{f.title}</h4>
+                        <p className="text-slate-400 leading-relaxed">{f.desc}</p>
+                      </div>
                     </div>
                   );
                 })}
@@ -2241,42 +2275,47 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {techTab === 'docs' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                <h4 className="text-sm font-bold text-white">توثيق واجهة برمجة التطبيقات (API Reference)</h4>
-                <div className="p-4 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 font-mono text-[11px] text-emerald-300 overflow-x-auto" dir="ltr">
-                  <div className="text-slate-500">// Example: fetch account usage</div>
-                  <div>GET https://api.nebula.dev/v1/usage</div>
-                  <div className="text-slate-500 mt-2">Authorization: Bearer YOUR_API_KEY</div>
+              <div className="rounded-lg bg-black/40 backdrop-blur-md border border-emerald-500/20 overflow-hidden animate-fade-in text-xs">
+                <div className="flex items-center gap-1.5 px-3.5 py-2.5 border-b border-emerald-500/10 bg-white/[0.02]">
+                  <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-[11px] font-bold text-white">توثيق واجهة برمجة التطبيقات (API Reference)</span>
                 </div>
-                <div className="space-y-2">
-                  {[
-                    { method: 'GET', path: '/v1/usage', desc: 'استرجاع بيانات الاستهلاك الحالية' },
-                    { method: 'POST', path: '/v1/deploy', desc: 'نشر إصدار جديد من التطبيق' },
-                    { method: 'GET', path: '/v1/users', desc: 'قائمة المستخدمين المرتبطين بالحساب' },
-                  ].map((ep, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10">
-                      <span className={`px-2 py-0.5 rounded font-mono font-bold shrink-0 ${ep.method === 'GET' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}`}>{ep.method}</span>
-                      <span className="font-mono text-slate-300 shrink-0" dir="ltr">{ep.path}</span>
-                      <span className="text-slate-500 truncate">{ep.desc}</span>
-                    </div>
-                  ))}
+                <div className="p-4 sm:p-5 space-y-4">
+                  <div className="p-4 rounded-md bg-black/60 border border-emerald-500/10 font-mono text-[11px] text-emerald-300 overflow-x-auto" dir="ltr">
+                    <div className="text-slate-500">// Example: fetch account usage</div>
+                    <div>GET https://api.nebula.dev/v1/usage</div>
+                    <div className="text-slate-500 mt-2">Authorization: Bearer YOUR_API_KEY</div>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { method: 'GET', path: '/v1/usage', desc: 'استرجاع بيانات الاستهلاك الحالية' },
+                      { method: 'POST', path: '/v1/deploy', desc: 'نشر إصدار جديد من التطبيق' },
+                      { method: 'GET', path: '/v1/users', desc: 'قائمة المستخدمين المرتبطين بالحساب' },
+                    ].map((ep, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-2.5 rounded bg-black/60 border border-emerald-500/10">
+                        <span className={`px-2 py-0.5 rounded font-mono font-bold shrink-0 ${ep.method === 'GET' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}`}>{ep.method}</span>
+                        <span className="font-mono text-slate-300 shrink-0" dir="ltr">{ep.path}</span>
+                        <span className="text-slate-500 truncate">{ep.desc}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
             {techTab === 'pricing' && (
               <div className="space-y-4 animate-fade-in">
-                <div className="flex justify-center">
-                  <div className="inline-flex flex-wrap justify-center p-1 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs">
+                <div className="flex justify-center font-mono">
+                  <div className="inline-flex flex-wrap justify-center p-1 rounded-md bg-black/40 border border-emerald-500/20 text-xs">
                     <button
                       onClick={() => setSelectedPlan('monthly')}
-                      className={`px-3 sm:px-4 py-1.5 rounded-lg cursor-pointer ${selectedPlan === 'monthly' ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400'}`}
+                      className={`px-3 sm:px-4 py-1.5 rounded cursor-pointer ${selectedPlan === 'monthly' ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400'}`}
                     >
                       اشتراك شهري
                     </button>
                     <button
                       onClick={() => setSelectedPlan('yearly')}
-                      className={`px-3 sm:px-4 py-1.5 rounded-lg cursor-pointer ${selectedPlan === 'yearly' ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400'}`}
+                      className={`px-3 sm:px-4 py-1.5 rounded cursor-pointer ${selectedPlan === 'yearly' ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400'}`}
                     >
                       اشتراك سنوي (خصم 20%)
                     </button>
@@ -2284,26 +2323,26 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3`}>
-                  <div className="p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2">
-                    <h4 className="text-xs font-bold text-slate-300">الباقة الأساسية</h4>
+                  <div className="p-4 rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/20 space-y-2">
+                    <h4 className="text-xs font-bold text-slate-300 font-mono" dir="ltr">## basic_plan</h4>
                     <div className={`text-base sm:text-lg font-bold ${themeStyle.primaryText} font-mono`}>
                       {selectedPlan === 'monthly' ? '250,000 د.ع / شهرياً' : '2,400,000 د.ع / سنوياً'}
                     </div>
-                    <ul className="text-[11px] text-slate-400 space-y-1">
+                    <ul className="text-[11px] text-slate-400 space-y-1 font-mono">
                       <li>✔ ربط حتى 5 مستخدمين</li>
                       <li>✔ دعم فني عبر البريد</li>
                     </ul>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2 relative">
-                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-indigo-500 text-[10px] text-white font-bold">
+                  <div className="p-4 rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/40 space-y-2 relative">
+                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-emerald-500 text-[10px] text-black font-bold font-mono">
                       الأكثر طلباً
                     </span>
-                    <h4 className="text-xs font-bold text-white">الباقة الاحترافية</h4>
+                    <h4 className="text-xs font-bold text-white font-mono" dir="ltr">## pro_plan</h4>
                     <div className={`text-base sm:text-lg font-bold ${themeStyle.primaryText} font-mono`}>
                       {selectedPlan === 'monthly' ? '600,000 د.ع / شهرياً' : '5,800,000 د.ع / سنوياً'}
                     </div>
-                    <ul className="text-[11px] text-slate-300 space-y-1">
+                    <ul className="text-[11px] text-slate-300 space-y-1 font-mono">
                       <li>✔ مستخدمين غير محدودين</li>
                       <li>✔ ربط حقيقي مع API</li>
                     </ul>
@@ -2313,15 +2352,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {techTab === 'dashboard' && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-3 animate-fade-in text-xs`}>
+              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-3 animate-fade-in text-xs font-mono`}>
                 {[
                   { value: '128,430', label: 'استدعاء API اليوم' },
                   { value: '12', label: 'تكاملات نشطة' },
                   { value: '99.98%', label: 'معدل التشغيل' },
                 ].map((stat, idx) => (
-                  <div key={idx} className="text-center p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className={`text-xl font-extrabold font-mono ${themeStyle.primaryText}`}>{stat.value}</div>
-                    <div className="text-slate-400 mt-1">{stat.label}</div>
+                  <div key={idx} className="text-center p-4 rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/20">
+                    <div className={`text-xl font-extrabold ${themeStyle.primaryText}`}>{stat.value}</div>
+                    <div className="text-slate-500 mt-1">{stat.label}</div>
                   </div>
                 ))}
               </div>
