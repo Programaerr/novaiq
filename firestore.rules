@@ -43,14 +43,5 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
-
-    // Anonymous usage analytics: any visitor may log an event (write-only ingestion),
-    // but only an admin can read the log back — that's what the dashboard's analytics
-    // panel needs.
-    match /analytics_events/{document=**} {
-      allow create: if true;
-      allow read: if isAdmin();
-      allow update, delete: if false;
-    }
   }
 }
