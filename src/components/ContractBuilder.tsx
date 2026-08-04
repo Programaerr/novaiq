@@ -931,7 +931,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 onClick={() => setCurrentStep(currentStep - 1)}
                 className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />
                 <span>{isAr ? 'الخطوة السابقة' : 'Previous Step'}</span>
               </button>
             ) : <div />}
@@ -972,7 +972,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 className="px-6 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center gap-2 cursor-pointer border border-white"
               >
                 <span>{isAr ? 'الخطوة التالية' : 'Next Step'}</span>
-                <ArrowLeft className="w-4 h-4 text-black" />
+                <ArrowLeft className={`w-4 h-4 text-black ${!isAr ? 'rotate-180' : ''}`} />
               </button>
             ) : (
               <button
