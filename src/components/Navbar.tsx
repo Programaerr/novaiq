@@ -30,10 +30,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarBroken, setAvatarBroken] = useState(false);
   const isAr = language === 'ar';
 
   // Lightweight presence check only — just enough to swap "Login" for "My Account" in the
-  // nav. AdminPage does the real work of telling admins and customers apart after this.
+  // nav (using the Google account's own profile photo instead of an icon+label once signed
+  // in). AdminPage does the real work of telling admins and customers apart after this.
   // Dynamically imported (not a static import) so Firebase never loads on a page view that
   // never touches auth — Navbar itself renders eagerly on every single page.
   useEffect(() => {
@@ -41,7 +44,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     let cancelled = false;
     import('../lib/auth').then(({ subscribeToAuthState }) => {
       if (cancelled) return;
-      unsubscribe = subscribeToAuthState((user) => setIsLoggedIn(!!user));
+      unsubscribe = subscribeToAuthState((user) => {
+        setIsLoggedIn(!!user);
+        setAvatarUrl(user?.photoURL || null);
+        setAvatarBroken(false);
+      });
     });
     return () => {
       cancelled = true;
@@ -117,14 +124,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             <a
               href="?page=orders"
               onClick={(e) => handleNavClick('orders', e)}
-              className={`relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+              title={isAr ? 'حسابي' : 'My Account'}
+              className={`relative flex items-center justify-center p-1 rounded-full border transition-all cursor-pointer ${
                 activePage === 'orders'
-                  ? 'bg-zinc-800 text-white border-zinc-700'
-                  : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border-zinc-800'
+                  ? 'border-white'
+                  : 'border-zinc-700 hover:border-zinc-500'
               }`}
             >
-              <UserCircle2 className="w-4 h-4 text-zinc-300" />
-              <span className="hidden sm:inline">{isAr ? 'حسابي' : 'My Account'}</span>
+              {avatarUrl && !avatarBroken ? (
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  onError={() => setAvatarBroken(true)}
+                  className="w-7 h-7 rounded-full object-cover"
+                />
+              ) : (
+                <UserCircle2 className="w-7 h-7 text-zinc-300" />
+              )}
             </a>
           ) : (
             <a

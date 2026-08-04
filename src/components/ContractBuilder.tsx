@@ -88,6 +88,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [selectedSpecIds, setSelectedSpecIds] = useState<string[]>([]);
   const [customFeaturesText, setCustomFeaturesText] = useState('');
   const [showCustomRequest, setShowCustomRequest] = useState(false);
+
+  // A fully custom project — not based on any ready template at all. Arriving with no
+  // selectedTemplate (e.g. via the navbar's direct "Custom Contract" link) opens straight
+  // into this mode instead of silently defaulting to the first template in the catalogue.
+  const CUSTOM_OPTION_VALUE = '__custom__';
+  const [isCustomProject, setIsCustomProject] = useState(!selectedTemplate);
+  const [customProjectName, setCustomProjectName] = useState('');
   const [primaryColor, setPrimaryColor] = useState('#8b5cf6');
   const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'cosmic'>('cosmic');
   const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>('ar_en');
@@ -105,6 +112,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   useEffect(() => {
     if (selectedTemplate) {
+      setIsCustomProject(false);
       setTemplate(selectedTemplate);
       const rec = selectedTemplate.specificationsOptions
         .filter(s => s.recommended)
@@ -187,9 +195,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     setHasSignature(false);
   };
 
-  // Price Calculation in IQD
-  const basePriceIQD = template.basePriceIQD || 0;
-  const selectedSpecsPriceIQD = selectedSpecIds.reduce((total, id) => {
+  // Price Calculation in IQD — a fully custom project has no catalogue price at all; its
+  // final value is quoted by the team after reviewing the written description below.
+  const basePriceIQD = isCustomProject ? 0 : (template.basePriceIQD || 0);
+  const selectedSpecsPriceIQD = isCustomProject ? 0 : selectedSpecIds.reduce((total, id) => {
     const spec = template.specificationsOptions.find(s => s.id === id);
     return total + (spec ? (spec.priceIQD || 0) : 0);
   }, 0);
@@ -234,6 +243,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       return;
     }
 
+    if (isCustomProject && (!customProjectName.trim() || !customFeaturesText.trim())) {
+      const missingCustom = new Set<string>();
+      if (!customProjectName.trim()) missingCustom.add('customProjectName');
+      if (!customFeaturesText.trim()) missingCustom.add('customDescription');
+      setFieldErrors(missingCustom);
+      showToast(
+        isAr ? 'يرجى تسمية مشروعك ووصفه بالتفصيل في الخطوة الثانية (محدّدة باللون الأحمر)' : 'Please name and describe your project in detail in step 2 (highlighted in red)',
+        'error'
+      );
+      setCurrentStep(2);
+      return;
+    }
+
     if (!agreedToTerms) {
       showToast(isAr ? 'يرجى الموافقة على الشروط والأحكام العامة للبدء' : 'Please accept the terms and conditions', 'error');
       return;
@@ -257,7 +279,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     }
 
     const contractNumber = `NVQ-CTR-${Date.now().toString().slice(-6)}`;
-    const selectedSpecsLabels = selectedSpecIds.map(id => {
+    const selectedSpecsLabels = isCustomProject ? [] : selectedSpecIds.map(id => {
       const spec = template.specificationsOptions.find(s => s.id === id);
       return spec ? spec.label : id;
     });
@@ -271,8 +293,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       phone,
       country,
       city,
-      templateId: template.id,
-      templateTitle: template.title,
+      templateId: isCustomProject ? CUSTOM_OPTION_VALUE : template.id,
+      templateTitle: isCustomProject ? customProjectName.trim() : template.title,
       selectedSpecs: selectedSpecsLabels,
       customFeaturesText,
       primaryColor,
@@ -285,7 +307,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       selectedSpecsPriceSAR: selectedSpecsPriceIQD,
       totalPriceSAR: totalPriceIQD,
       paymentPlan,
-      deliveryTimelineWeeks: template.deliveryWeeks,
+      deliveryTimelineWeeks: isCustomProject ? 8 : template.deliveryWeeks,
       signatureDataUrl,
       agreedToTerms,
       status: 'submitted',
@@ -480,29 +502,45 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
               <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <img
-                    src={template.previewImage}
-                    alt={template.title}
-                    className="w-16 h-16 rounded-xl object-cover border border-zinc-700"
-                  />
+                  {isCustomProject ? (
+                    <div className="w-16 h-16 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center shrink-0">
+                      <PenLine className="w-6 h-6 text-white" />
+                    </div>
+                  ) : (
+                    <img
+                      src={template.previewImage}
+                      alt={template.title}
+                      className="w-16 h-16 rounded-xl object-cover border border-zinc-700"
+                    />
+                  )}
                   <div>
                     <span className="text-[10px] font-bold text-white bg-zinc-800 border border-zinc-700 px-2.5 py-0.5 rounded-full">
-                      {template.categoryLabel}
+                      {isCustomProject ? (isAr ? 'مشروع مخصص بالكامل' : 'Fully Custom Project') : template.categoryLabel}
                     </span>
                     <h4 className="text-sm font-bold text-white mt-1">
-                      {template.title}
+                      {isCustomProject ? (isAr ? 'صف مشروعك بنفسك بالأسفل' : 'Describe your project below') : template.title}
                     </h4>
                   </div>
                 </div>
 
                 <select
-                  value={template.id}
+                  value={isCustomProject ? CUSTOM_OPTION_VALUE : template.id}
                   onChange={(e) => {
+                    if (e.target.value === CUSTOM_OPTION_VALUE) {
+                      setIsCustomProject(true);
+                      return;
+                    }
                     const found = templatesData.find(t => t.id === e.target.value);
-                    if (found) setTemplate(found);
+                    if (found) {
+                      setIsCustomProject(false);
+                      setTemplate(found);
+                    }
                   }}
                   className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700 text-white text-xs font-semibold"
                 >
+                  <option value={CUSTOM_OPTION_VALUE}>
+                    {isAr ? '✏️ قالب مخصص بالكامل — صف مشروعك بنفسك' : '✏️ Fully Custom Project — describe it yourself'}
+                  </option>
                   {templatesData.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.title} ({formatPrice(t.basePriceIQD, lang)})
@@ -511,80 +549,131 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </select>
               </div>
 
-              {/* Specifications Checklist */}
-              <div className="space-y-3">
-                <label className="block text-xs font-bold text-zinc-300">
-                  {getTranslation('optionsLabel', lang)}
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {template.specificationsOptions.map((spec) => {
-                    const isSelected = selectedSpecIds.includes(spec.id);
-                    return (
-                      <div
-                        key={spec.id}
-                        onClick={() => toggleSpec(spec.id)}
-                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-3 ${
-                          isSelected
-                            ? 'bg-zinc-800 border-white text-white font-semibold glow-white'
-                            : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-500 glow-white-hover'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {isSelected ? (
-                            <CheckSquare className="w-4 h-4 text-white shrink-0" />
-                          ) : (
-                            <Square className="w-4 h-4 text-zinc-600 shrink-0" />
-                          )}
-                          <span className="text-xs font-medium text-zinc-200">{spec.label}</span>
-                        </div>
-                        <span className="text-xs font-mono font-bold text-white">
-                          +{formatPrice(spec.priceIQD || 0, lang)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              {isCustomProject ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                      {isAr ? 'اسم مشروعك المخصص' : 'Name your custom project'} *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={customProjectName}
+                      onChange={(e) => {
+                        setCustomProjectName(e.target.value);
+                        clearFieldError('customProjectName');
+                      }}
+                      placeholder={isAr ? 'مثال: منصة حجوزات صالات أفراح' : 'e.g. Event Hall Booking Platform'}
+                      className={`w-full px-4 py-3 rounded-xl bg-zinc-900 border focus:outline-none text-white text-xs transition-colors ${errorInputClass('customProjectName')}`}
+                    />
+                  </div>
 
-              <div
-                onClick={() => setShowCustomRequest(v => !v)}
-                className={`p-3.5 rounded-2xl border-2 border-dashed cursor-pointer transition-all flex items-center justify-between gap-3 ${
-                  showCustomRequest
-                    ? 'bg-zinc-800 border-white text-white font-semibold glow-white'
-                    : 'bg-zinc-900/60 border-zinc-700 text-zinc-400 hover:border-zinc-500 glow-white-hover'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {showCustomRequest ? (
-                    <CheckSquare className="w-4 h-4 text-white shrink-0" />
-                  ) : (
-                    <Square className="w-4 h-4 text-zinc-600 shrink-0" />
-                  )}
-                  <div className="flex items-center gap-2">
-                    <PenLine className="w-4 h-4 text-white shrink-0" />
-                    <span className="text-xs sm:text-sm font-bold">
-                      {isAr ? 'لم تجد ما تريده في القائمة أعلاه؟ اطلب ميزة مخصصة' : "Didn't find what you need above? Request a custom feature"}
-                    </span>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                      {isAr ? 'صف مشروعك بالتفصيل الكامل' : 'Describe your project in full detail'} *
+                    </label>
+                    <p className="text-[11px] text-zinc-400 mb-2">
+                      {isAr
+                        ? 'اكتب كل ما يخطر ببالك: الصفحات والأقسام المطلوبة، الميزات، الجمهور المستهدف، أمثلة مواقع تعجبك، وأي تفاصيل تساعدنا نفهم رؤيتك تماماً قبل تسعير المشروع.'
+                        : 'Write everything that comes to mind: the pages/sections you need, features, target audience, sites you like as references, and any detail that helps us fully understand your vision before pricing the project.'}
+                    </p>
+                    <textarea
+                      required
+                      rows={8}
+                      value={customFeaturesText}
+                      onChange={(e) => {
+                        setCustomFeaturesText(e.target.value);
+                        clearFieldError('customDescription');
+                      }}
+                      placeholder={isAr ? 'اكتب وصفك التفصيلي هنا...' : 'Write your detailed description here...'}
+                      className={`w-full p-3.5 rounded-xl bg-zinc-900 border focus:outline-none text-white text-xs leading-relaxed transition-colors ${errorInputClass('customDescription')}`}
+                    />
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-900/40 text-[11px] text-amber-200">
+                    {isAr
+                      ? 'لا يوجد سعر مسبق لمشروع مخصص — سيراجع فريقنا وصفك ويرسل لك عرض سعر ومدة تنفيذ مناسبة بعد تقديم الطلب.'
+                      : 'A custom project has no upfront price — our team will review your description and send back a quote and timeline after you submit.'}
                   </div>
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* Specifications Checklist */}
+                  <div className="space-y-3">
+                    <label className="block text-xs font-bold text-zinc-300">
+                      {getTranslation('optionsLabel', lang)}
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {template.specificationsOptions.map((spec) => {
+                        const isSelected = selectedSpecIds.includes(spec.id);
+                        return (
+                          <div
+                            key={spec.id}
+                            onClick={() => toggleSpec(spec.id)}
+                            className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-3 ${
+                              isSelected
+                                ? 'bg-zinc-800 border-white text-white font-semibold glow-white'
+                                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-500 glow-white-hover'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              {isSelected ? (
+                                <CheckSquare className="w-4 h-4 text-white shrink-0" />
+                              ) : (
+                                <Square className="w-4 h-4 text-zinc-600 shrink-0" />
+                              )}
+                              <span className="text-xs font-medium text-zinc-200">{spec.label}</span>
+                            </div>
+                            <span className="text-xs font-mono font-bold text-white">
+                              +{formatPrice(spec.priceIQD || 0, lang)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-              {showCustomRequest && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border-2 border-dashed border-zinc-700 animate-fade-in">
-                  <p className="text-[11px] text-zinc-400 mb-2.5">
-                    {isAr
-                      ? 'اكتب طلبك بالضبط هنا — أي ميزة أو فكرة خاصة بموقعك غير مذكورة في الإضافات الجاهزة، وسنقوم بدراستها وتسعيرها ضمن مشروعك.'
-                      : 'Describe exactly what you want here — any feature or idea for your site not covered by the ready-made add-ons above, and we\'ll scope and price it as part of your project.'}
-                  </p>
-                  <textarea
-                    rows={3}
-                    value={customFeaturesText}
-                    onChange={(e) => setCustomFeaturesText(e.target.value)}
-                    placeholder={getTranslation('customFeaturesPlaceholder', lang)}
-                    className="w-full p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs"
-                    autoFocus
-                  />
-                </div>
+                  <div
+                    onClick={() => setShowCustomRequest(v => !v)}
+                    className={`p-3.5 rounded-2xl border-2 border-dashed cursor-pointer transition-all flex items-center justify-between gap-3 ${
+                      showCustomRequest
+                        ? 'bg-zinc-800 border-white text-white font-semibold glow-white'
+                        : 'bg-zinc-900/60 border-zinc-700 text-zinc-400 hover:border-zinc-500 glow-white-hover'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {showCustomRequest ? (
+                        <CheckSquare className="w-4 h-4 text-white shrink-0" />
+                      ) : (
+                        <Square className="w-4 h-4 text-zinc-600 shrink-0" />
+                      )}
+                      <div className="flex items-center gap-2">
+                        <PenLine className="w-4 h-4 text-white shrink-0" />
+                        <span className="text-xs sm:text-sm font-bold">
+                          {isAr ? 'لم تجد ما تريده في القائمة أعلاه؟ اطلب ميزة مخصصة' : "Didn't find what you need above? Request a custom feature"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {showCustomRequest && (
+                    <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border-2 border-dashed border-zinc-700 animate-fade-in">
+                      <p className="text-[11px] text-zinc-400 mb-2.5">
+                        {isAr
+                          ? 'اكتب طلبك بالضبط هنا — أي ميزة أو فكرة خاصة بموقعك غير مذكورة في الإضافات الجاهزة، وسنقوم بدراستها وتسعيرها ضمن مشروعك.'
+                          : 'Describe exactly what you want here — any feature or idea for your site not covered by the ready-made add-ons above, and we\'ll scope and price it as part of your project.'}
+                      </p>
+                      <textarea
+                        rows={3}
+                        value={customFeaturesText}
+                        onChange={(e) => setCustomFeaturesText(e.target.value)}
+                        placeholder={getTranslation('customFeaturesPlaceholder', lang)}
+                        className="w-full p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs"
+                        autoFocus
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Color Scheme Picker */}
@@ -687,22 +776,35 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </h3>
               </div>
 
-              <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 font-mono">
-                <div className="flex items-center justify-between text-xs text-zinc-400">
-                  <span>{isAr ? 'سعر القالب الأساسي:' : 'Base Template Price:'}</span>
-                  <span>{formatPrice(basePriceIQD, lang)}</span>
+              {isCustomProject ? (
+                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-2">
+                  <div className="text-sm font-bold text-white">
+                    {isAr ? 'مشروع مخصص — السعر يُحدَّد بعد المراجعة' : 'Custom Project — price to be quoted after review'}
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    {isAr
+                      ? 'سيراجع فريقنا الوصف الذي كتبته في الخطوة السابقة ويتواصل معك بعرض سعر ومدة تنفيذ دقيقة بعد تقديم الطلب.'
+                      : 'Our team will review the description you wrote in the previous step and follow up with an accurate quote and timeline after you submit.'}
+                  </p>
                 </div>
-                <div className="flex items-center justify-between text-xs text-zinc-400">
-                  <span>{isAr ? 'إجمالي الإضافات المختارة:' : 'Selected Add-ons Total:'}</span>
-                  <span>+{formatPrice(selectedSpecsPriceIQD, lang)}</span>
+              ) : (
+                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 font-mono">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>{isAr ? 'سعر القالب الأساسي:' : 'Base Template Price:'}</span>
+                    <span>{formatPrice(basePriceIQD, lang)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>{isAr ? 'إجمالي الإضافات المختارة:' : 'Selected Add-ons Total:'}</span>
+                    <span>+{formatPrice(selectedSpecsPriceIQD, lang)}</span>
+                  </div>
+                  <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-base font-bold text-white">
+                    <span>{getTranslation('totalCostSummary', lang)}</span>
+                    <span className="text-xl text-white font-extrabold">
+                      {formatPrice(totalPriceIQD, lang)}
+                    </span>
+                  </div>
                 </div>
-                <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-base font-bold text-white">
-                  <span>{getTranslation('totalCostSummary', lang)}</span>
-                  <span className="text-xl text-white font-extrabold">
-                    {formatPrice(totalPriceIQD, lang)}
-                  </span>
-                </div>
-              </div>
+              )}
 
               <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -811,6 +913,17 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       );
                       return;
                     }
+                  }
+                  if (currentStep === 2 && isCustomProject && (!customProjectName.trim() || !customFeaturesText.trim())) {
+                    const missingCustom = new Set<string>();
+                    if (!customProjectName.trim()) missingCustom.add('customProjectName');
+                    if (!customFeaturesText.trim()) missingCustom.add('customDescription');
+                    setFieldErrors(missingCustom);
+                    showToast(
+                      isAr ? 'يرجى تسمية مشروعك ووصفه بالتفصيل أولاً (محدّدة باللون الأحمر)' : 'Please name and describe your project first (highlighted in red)',
+                      'error'
+                    );
+                    return;
                   }
                   setCurrentStep(currentStep + 1);
                   cosmicAudio.playPing();
