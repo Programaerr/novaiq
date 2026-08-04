@@ -332,8 +332,8 @@ export default function App() {
                           />
                         </div>
                         <div className="text-lg sm:text-xl font-extrabold text-white font-mono flex items-center justify-center gap-0.5">
-                          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">+</span>
                           <span>{stat.value}</span>
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">+</span>
                         </div>
                         <div className="text-[10px] text-zinc-400">{stat.label}</div>
                       </div>
