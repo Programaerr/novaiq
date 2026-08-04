@@ -205,6 +205,9 @@
   width: 230px;
   height: 250px;
   perspective: 1200px;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 @media (min-width: 640px) {
