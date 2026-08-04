@@ -250,6 +250,13 @@ app.patch('/api/admin/users/:uid', requireAdmin, async (req, res) => {
     if (typeof displayName === 'string') update.displayName = displayName;
 
     const updated = await getAuth().updateUser(uid, update);
+
+    // Keep the client-readable `users` mirror (src/lib/auth.ts) in sync — the Subscribers/
+    // Team panels list from that collection directly now, not from this route.
+    if (typeof disabled === 'boolean') {
+      await getFirestore().collection('users').doc(uid).set({ disabled }, { merge: true }).catch(() => {});
+    }
+
     res.json({
       user: {
         uid: updated.uid,
@@ -271,6 +278,7 @@ app.delete('/api/admin/users/:uid', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Cannot delete your own account from this panel' });
     }
     await getAuth().deleteUser(uid);
+    await getFirestore().collection('users').doc(uid).delete().catch(() => {});
     res.json({ success: true });
   } catch (error: any) {
     console.error('Delete user error:', error);
