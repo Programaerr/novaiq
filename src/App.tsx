@@ -9,7 +9,7 @@ import { Footer } from './components/Footer';
 import { CookieConsent } from './components/CookieConsent';
 import { ToastHost } from './components/ToastHost';
 import { PageLoader } from './components/PageLoader';
-import { templatesData } from './data/templatesData';
+import { useLiveTemplates } from './lib/pricingOverrides';
 
 import { Template, ContractData } from './types';
 import { Language } from './lib/i18n';
@@ -27,6 +27,7 @@ const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInter
 const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ default: m.AdminPage })));
 
 export default function App() {
+  const liveTemplates = useLiveTemplates();
   const [activePage, setActivePage] = useState<string>('home');
   const [selectedTemplateForContract, setSelectedTemplateForContract] = useState<Template | null>(null);
   const [standalonePreviewTemplate, setStandalonePreviewTemplate] = useState<Template | null>(null);
@@ -135,7 +136,7 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       const previewId = params.get('preview');
       if (previewId) {
-        const found = templatesData.find(t => t.id === previewId);
+        const found = liveTemplates.find(t => t.id === previewId);
         if (found) setStandalonePreviewTemplate(found);
       } else {
         setStandalonePreviewTemplate(null);
