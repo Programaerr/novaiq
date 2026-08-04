@@ -191,7 +191,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
 
         <div className="flex-1 min-w-0 space-y-6">
           {tab === 'overview' && (
-            <OverviewTab isAr={isAr} stats={stats} analyticsStats={analyticsStats} contracts={contracts} language={language} />
+            <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} />
           )}
           {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} stats={stats} />}
           {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
@@ -210,13 +210,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
 function OverviewTab({
   isAr,
   stats,
-  analyticsStats,
   contracts,
   language,
 }: {
   isAr: boolean;
   stats: ReturnType<typeof useOverviewStatsType>;
-  analyticsStats: { totalViews: number; topPages: [string, number][] };
   contracts: ContractData[];
   language: Language;
 }) {
