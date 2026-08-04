@@ -801,6 +801,9 @@ function PricingRow({
   savedOverride?: PricingOverride;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [title, setTitle] = useState(template.title);
+  const [previewImage, setPreviewImage] = useState(template.previewImage);
+  const [imageBroken, setImageBroken] = useState(false);
   const [basePriceIQD, setBasePriceIQD] = useState(String(template.basePriceIQD));
   const [specPrices, setSpecPrices] = useState<Record<string, string>>(() =>
     Object.fromEntries(template.specificationsOptions.map((s) => [s.id, String(s.priceIQD)]))
@@ -809,16 +812,20 @@ function PricingRow({
   const [justSaved, setJustSaved] = useState(false);
 
   useEffect(() => {
+    setTitle(template.title);
+    setPreviewImage(template.previewImage);
     setBasePriceIQD(String(template.basePriceIQD));
     setSpecPrices(Object.fromEntries(template.specificationsOptions.map((s) => [s.id, String(s.priceIQD)])));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [template.basePriceIQD, template.specificationsOptions.map((s) => s.priceIQD).join(',')]);
+  }, [template.title, template.previewImage, template.basePriceIQD, template.specificationsOptions.map((s) => s.priceIQD).join(',')]);
 
   const handleSave = async () => {
     if (isSaving) return;
     setIsSaving(true);
     try {
       await savePricingOverride(template.id, {
+        title: title.trim() || template.title,
+        previewImage: previewImage.trim() || template.previewImage,
         basePriceIQD: Number(basePriceIQD) || 0,
         basePriceUSD: toUSD(Number(basePriceIQD) || 0),
         specPriceIQD: Object.fromEntries(Object.entries(specPrices).map(([id, v]) => [id, Number(v) || 0])),
@@ -835,16 +842,28 @@ function PricingRow({
     <div className="rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden">
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center justify-between gap-3 p-4 text-left cursor-pointer hover:bg-zinc-900/50 transition-colors"
+        className="w-full flex items-center gap-3 p-4 text-left cursor-pointer hover:bg-zinc-900/50 transition-colors"
       >
-        <div className="min-w-0">
+        {template.previewImage && !imageBroken ? (
+          <img
+            src={template.previewImage}
+            alt=""
+            onError={() => setImageBroken(true)}
+            className="w-12 h-12 rounded-xl object-cover border border-zinc-800 shrink-0"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
+            <Layers className="w-4 h-4 text-zinc-500" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
           <div className="text-xs sm:text-sm font-bold text-white truncate">{translateText(template.title, language)}</div>
           <div className="text-[10px] text-zinc-500 truncate">{translateText(template.categoryLabel, language)}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {savedOverride && (
             <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-bold border border-emerald-800">
-              {isAr ? 'سعر معدّل' : 'Custom price'}
+              {isAr ? 'معدّل' : 'Edited'}
             </span>
           )}
           <span className="text-xs font-mono text-zinc-300">{formatPrice(template.basePriceIQD, language)}</span>
@@ -853,7 +872,51 @@ function PricingRow({
 
       {expanded && (
         <div className="p-4 pt-0 space-y-3 border-t border-zinc-800 animate-fade-in">
-          <div className="pt-4">
+          <div className="pt-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+                  {isAr ? 'اسم القالب' : 'Template Name'}
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+                  {isAr ? 'رابط صورة القالب' : 'Template Image URL'}
+                </label>
+                <input
+                  type="text"
+                  dir="ltr"
+                  value={previewImage}
+                  onChange={(e) => {
+                    setPreviewImage(e.target.value);
+                    setImageBroken(false);
+                  }}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
+                />
+              </div>
+            </div>
+            {previewImage && !imageBroken ? (
+              <img
+                src={previewImage}
+                alt=""
+                onError={() => setImageBroken(true)}
+                className="w-full sm:w-28 h-28 rounded-xl object-cover border border-zinc-800"
+              />
+            ) : (
+              <div className="w-full sm:w-28 h-28 rounded-xl bg-zinc-900 border border-dashed border-zinc-800 flex items-center justify-center text-zinc-600 text-[10px] text-center px-2">
+                {isAr ? 'رابط غير صالح' : 'Invalid URL'}
+              </div>
+            )}
+          </div>
+
+          <div>
             <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
               {isAr ? 'السعر الأساسي للقالب (د.ع)' : 'Template Base Price (IQD)'}
             </label>
@@ -889,7 +952,7 @@ function PricingRow({
               className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all border border-white"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              <span>{justSaved ? (isAr ? 'تم الحفظ ✓' : 'Saved ✓') : isAr ? 'حفظ السعر' : 'Save Price'}</span>
+              <span>{justSaved ? (isAr ? 'تم الحفظ ✓' : 'Saved ✓') : isAr ? 'حفظ التغييرات' : 'Save Changes'}</span>
             </button>
           </div>
         </div>
