@@ -15,8 +15,18 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
             
-            <div className="space-y-4">
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+            <div className="group relative overflow-hidden space-y-4">
+              {/* Giant wordmark watermark — sits behind the heading/paragraph, barely
+                  visible at rest (still faintly there on mobile, which has no hover) and
+                  brightens slightly on hover for a subtle "premium" reveal. */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none select-none absolute -top-3 sm:-top-6 -right-2 sm:-right-4 text-[4.5rem] sm:text-[7rem] lg:text-[8.5rem] font-black tracking-widest text-white opacity-[0.04] group-hover:opacity-[0.09] transition-opacity duration-700 whitespace-nowrap font-mono"
+              >
+                NOVAIQ
+              </span>
+
+              <h2 className="relative text-2xl sm:text-4xl font-extrabold text-white leading-tight">
                 {language === 'ar' ? (
                   <>شركة برمجية متخصصة في تطوير <span className="text-white underline decoration-zinc-700 underline-offset-8">المواقع والتطبيقات الإلكترونية</span></>
                 ) : (
@@ -24,7 +34,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 )}
               </h2>
 
-              <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+              <p className="relative text-zinc-300 text-xs sm:text-sm leading-relaxed">
                 {language === 'ar' ? (
                   <>تُقدم شركة <strong className="text-white">NOVAIQ</strong> حلولاً برمجية متطورة للشركات والمؤسسات بأسعار شفافة بالدينار العراقي ومعايير جودة عالية.</>
                 ) : (

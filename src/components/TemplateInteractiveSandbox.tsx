@@ -2172,11 +2172,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 a soft logo lockup */}
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg`}>
+                <span className="text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">~/Logo</span>
+                <div className={`navbar-logo-mark w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg`}>
                   <Terminal className="w-4.5 h-4.5" />
                 </div>
-                <span className="text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">
-                  ~/Logo<span className="animate-pulse">▊</span>
+                <span className="navbar-logo-word text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">
+                  Design<span className="animate-pulse">▊</span>
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[11px] w-full sm:w-auto" dir="ltr">
