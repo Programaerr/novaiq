@@ -20,7 +20,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
     <section id="about-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="bg-zinc-950 p-5 sm:p-6 rounded-3xl border border-zinc-800 relative overflow-hidden shadow-2xl">
+        <div className="electric-frame bg-zinc-950 p-5 sm:p-6 rounded-3xl border relative overflow-hidden shadow-2xl">
           
           <div className="max-w-3xl mx-auto text-center space-y-4">
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
@@ -60,7 +60,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
               <div
                 key={idx}
                 onMouseMove={handleSpotlightMove}
-                className="spotlight-card min-h-[160px] flex flex-col items-center justify-center p-4 rounded-xl bg-black border border-zinc-800 hover:border-white/40 glow-white-hover text-center transition-all"
+                className="spotlight-card min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-800 hover:border-white/40 glow-white-hover text-center transition-all"
               >
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>
