@@ -1136,10 +1136,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className="flex items-center justify-between gap-4 p-4 px-4 sm:px-6">
               {/* Right: Logo & Name */}
               <div className="flex items-center gap-3">
-                <div className={`relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
+                <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <ShoppingBag className="w-5 h-5" />
                 </div>
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
+                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
 
               {/* Center: Shopify Navigation (interactively filters category states!) */}

@@ -277,6 +277,29 @@
   opacity: 1;
 }
 
+/* Template-preview navbar wordmark: "Logo [spinning mark] Design" — the mark spins
+   continuously (a slow, steady rotation, not a fast dizzying one) and the word "Design"
+   plays a one-time reveal that looks like it's sliding out from the mark, instead of just
+   sitting there statically. */
+@keyframes navbar-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.navbar-logo-mark {
+  animation: navbar-logo-spin 7s linear infinite;
+}
+
+@keyframes navbar-logo-word-emerge {
+  0% { opacity: 0; transform: translateX(10px) scale(0.5); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.navbar-logo-word {
+  animation: navbar-logo-word-emerge 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
