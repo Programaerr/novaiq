@@ -90,6 +90,15 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                 className="bg-zinc-950 border border-zinc-800 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-700 transition-all shadow-xl"
               >
 
+                {/* Background phase-number watermark — clipped to its own layer (not
+                    the card) so the card itself can stay overflow-visible for the
+                    floating badge below to poke past its top edge. */}
+                <div className="absolute inset-0 rounded-[32px] overflow-hidden pointer-events-none">
+                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9rem] font-black text-white opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500 leading-none select-none font-mono">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                </div>
+
                 {/* Floating icon badge — pops above the card's top edge instead of
                     sitting inline, matching the reference card's badge treatment. */}
                 <div className="absolute -top-7 right-6 w-14 h-14 rounded-full bg-white flex items-center justify-center text-black shadow-lg z-10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(255,255,255,0.5)]">
