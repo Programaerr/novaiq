@@ -23,6 +23,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onCreateContract,
   language,
 }) => {
+  // Windows/Fluent-style spotlight for the glow CTA buttons: pushes the cursor position
+  // straight into a CSS custom property via the DOM (no setState) so the circular light
+  // can track every frame without a React re-render.
+  const handleSpotlightMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+  };
+
   // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
   // for real photography until the client supplies per-guarantee images.
   const guarantees = [
@@ -141,16 +150,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           
           <button
             onClick={onExploreTemplates}
+            onMouseMove={handleSpotlightMove}
             className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
           >
+            <span className="cta-spotlight" />
             <Rocket className="relative z-10 w-4 h-4 text-white" />
             <span className="relative z-10">{language === 'ar' ? 'استكشاف القوالب الجاهزة' : 'Explore Ready Templates'}</span>
           </button>
 
           <button
             onClick={onCreateContract}
+            onMouseMove={handleSpotlightMove}
             className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
           >
+            <span className="cta-spotlight" />
             <FileText className="relative z-10 w-4 h-4 text-white" />
             <span className="relative z-10">{language === 'ar' ? 'ابدأ مشروعك' : 'START YOUR Project'}</span>
           </button>

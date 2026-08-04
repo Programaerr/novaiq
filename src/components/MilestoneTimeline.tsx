@@ -17,6 +17,15 @@ interface MilestoneTimelineProps {
 }
 
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateContract, language = 'ar' }) => {
+  // Windows/Fluent-style spotlight for the glow CTA button: pushes the cursor position
+  // straight into a CSS custom property via the DOM (no setState) so the circular light
+  // can track every frame without a React re-render.
+  const handleSpotlightMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+  };
+
   const milestones = [
     {
       weeks: language === 'ar' ? 'الأسبوع 1 - 2' : 'Weeks 1 - 2',
@@ -150,8 +159,10 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
               onCreateContract();
               cosmicAudio.playWarp();
             }}
+            onMouseMove={handleSpotlightMove}
             className="glow-cta-btn px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full text-white font-extrabold uppercase tracking-[0.1em] hover:scale-[1.02] transition-all inline-flex items-center cursor-pointer"
           >
+            <span className="cta-spotlight" />
             <Rocket className="relative z-10 w-4 h-4 sm:w-5 sm:h-5 text-white" />
             <span className="relative z-10">{language === 'ar' ? 'ابدأ تنفيذ مشروعك ووقع العقد الآن' : 'Start Your Project & Sign Contract Now'}</span>
             <ArrowLeft className={`relative z-10 w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
