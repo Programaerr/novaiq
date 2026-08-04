@@ -87,14 +87,17 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
             return (
               <div
                 key={index}
-                className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 flex flex-col justify-between space-y-6 relative overflow-hidden group hover:border-zinc-700 transition-all shadow-xl"
+                className="bg-zinc-950 border border-zinc-800 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-700 transition-all shadow-xl"
               >
-                
-                {/* Top Number Banner */}
-                <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-black border border-zinc-800 flex items-center justify-center text-white shadow-md">
-                    <Icon className="w-6 h-6" />
-                  </div>
+
+                {/* Floating icon badge — pops above the card's top edge instead of
+                    sitting inline, matching the reference card's badge treatment. */}
+                <div className="absolute -top-7 right-6 w-14 h-14 rounded-full bg-white flex items-center justify-center text-black shadow-lg z-10">
+                  <Icon className="w-6 h-6" />
+                </div>
+
+                {/* Weeks Banner */}
+                <div className="flex items-center justify-start">
                   <span className="font-mono text-xs font-bold text-zinc-200 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
                     {ms.weeks}
                   </span>
