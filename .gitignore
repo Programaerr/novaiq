@@ -9,3 +9,4 @@ coverage/
 service-account*.json
 .claude/settings.local.json
 .translation-cache.json
+_*.mjs
