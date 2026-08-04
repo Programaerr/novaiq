@@ -111,7 +111,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                     maskImage: 'radial-gradient(120px circle at var(--spot-x, 50%) var(--spot-y, 50%), black, transparent 70%)',
                   }}
                 >
-                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9rem] font-black text-white leading-none select-none font-mono">
+                  <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[5.5rem] font-black text-white leading-none select-none font-mono">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
