@@ -148,9 +148,10 @@ export default function App() {
     };
   }, []);
 
-  // Maintain page direction (RTL) regardless of language text selection as requested
+  // Page direction follows the selected language — English needs LTR to read correctly
+  // (mixed word order, punctuation, and alignment all break under a forced RTL shell).
   useEffect(() => {
-    document.documentElement.dir = 'rtl';
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
     try {
       localStorage.setItem('novaiq_language', language);

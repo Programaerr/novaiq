@@ -1123,27 +1123,20 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       return (
         <div className="space-y-6 text-slate-100">
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
-          <div className="sticky -top-3 sm:-top-6 -mx-3 sm:-mx-6 bg-slate-900 border-b border-slate-800/80 z-30 shadow-xl shadow-black/20 mb-6 select-none rounded-t-2xl overflow-hidden">
+          <div className="sticky -top-3 sm:-top-6 -mx-3 sm:-mx-6 bg-white/5 backdrop-blur-xl border-b border-white/10 z-30 shadow-xl shadow-black/20 mb-6 select-none rounded-t-2xl overflow-hidden">
             {/* Promo Banner inside the sticky wrapper so it rolls up or stays with the header */}
-            <div className="bg-gradient-to-r from-emerald-950/40 via-teal-900/40 to-slate-900/40 px-4 py-2 text-center text-[10px] sm:text-[11px] text-emerald-400 border-b border-slate-800/40 flex items-center justify-center gap-2">
+            <div className="bg-gradient-to-r from-emerald-950/40 via-teal-900/40 to-slate-900/40 px-4 py-2 text-center text-[10px] sm:text-[11px] text-emerald-400 border-b border-white/10 flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>عرض خاص: شحن مجاني آمن لكافة محافظات العراق ودفع آمن عند الاستلام</span>
             </div>
 
             <div className="flex items-center justify-between gap-4 p-4 px-4 sm:px-6">
               {/* Right: Logo & Name */}
-              <div className="flex items-center gap-2.5">
-                <div className={`w-9 h-9 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg glow-emerald`}>
-                  <ShoppingBag className="w-4.5 h-4.5" />
+              <div className="flex items-center gap-3">
+                <div className={`relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <ShoppingBag className="w-5 h-5" />
                 </div>
-                <div>
-                  <span className="font-extrabold text-xs sm:text-sm text-white block tracking-wide">
-                    أوريون ستور
-                  </span>
-                  <span className="text-[9px] text-emerald-400 font-bold block">
-                    متجر إلكتروني متكامل بكود مملوك بالكامل
-                  </span>
-                </div>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
 
               {/* Center: Shopify Navigation (interactively filters category states!) */}
@@ -1209,7 +1202,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     setIsCartOpen(true);
                     cosmicAudio.playTick();
                   }}
-                  className="relative px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 flex items-center gap-2.5 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg"
+                  className="relative px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-2.5 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg"
                 >
                   <div className="relative">
                     <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
@@ -1234,7 +1227,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </div>
 
           {/* Search, Filters & Sorter Row */}
-          <div className={`flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-4 p-4 bg-slate-900/40 rounded-2xl border border-slate-800/60`}>
+          <div className={`flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-4 p-4 bg-white/5 backdrop-blur-md border border-white/10`}>
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
@@ -1243,7 +1236,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 value={storeSearch} 
                 onChange={e => setStoreSearch(e.target.value)}
                 placeholder="ابحث عن الموديلات، الأحذية، الإكسسوارات الفاخرة..." 
-                className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-slate-950 border border-slate-850 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
+                className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
               />
             </div>
 
@@ -1254,7 +1247,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <button
                   onClick={() => { setStoreCategory('all'); cosmicAudio.playTick(); }}
                   className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all ${
-                    storeCategory === 'all' ? `${themeStyle.primaryBg} text-white` : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-850'
+                    storeCategory === 'all' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                   }`}
                 >
                   الكل
@@ -1262,7 +1255,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <button
                   onClick={() => { setStoreCategory('men'); cosmicAudio.playTick(); }}
                   className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all ${
-                    storeCategory === 'men' ? `${themeStyle.primaryBg} text-white` : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-850'
+                    storeCategory === 'men' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                   }`}
                 >
                   رجالي
@@ -1270,7 +1263,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <button
                   onClick={() => { setStoreCategory('women'); cosmicAudio.playTick(); }}
                   className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all ${
-                    storeCategory === 'women' ? `${themeStyle.primaryBg} text-white` : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-850'
+                    storeCategory === 'women' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                   }`}
                 >
                   نسائي
@@ -1278,7 +1271,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <button
                   onClick={() => { setStoreCategory('accessories'); cosmicAudio.playTick(); }}
                   className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all ${
-                    storeCategory === 'accessories' ? `${themeStyle.primaryBg} text-white` : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-850'
+                    storeCategory === 'accessories' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                   }`}
                 >
                   إكسسوارات
@@ -1294,7 +1287,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     setStoreSort(e.target.value as any);
                     cosmicAudio.playTick();
                   }}
-                  className="bg-slate-950 border border-slate-850 text-slate-300 rounded-xl px-3 py-2 text-[10px] font-bold focus:outline-none focus:border-slate-700 cursor-pointer"
+                  className="bg-black/30 backdrop-blur-sm border border-white/10 text-slate-300 rounded-xl px-3 py-2 text-[10px] font-bold focus:outline-none focus:border-slate-700 cursor-pointer"
                 >
                   <option value="default">الافتراضي (الأكثر رواجاً)</option>
                   <option value="priceAsc">السعر: من الأقل للأعلى</option>
@@ -1309,11 +1302,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {sortedProducts.map((prod) => (
               <div 
                 key={prod.id} 
-                className="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-slate-700 hover:shadow-xl hover:shadow-black/30 transition-all duration-300 flex flex-col justify-between space-y-4 group"
+                className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 transition-all duration-300 flex flex-col justify-between space-y-4 group"
               >
                 <div className="space-y-3">
                   {/* Thumbnail / Image Mock */}
-                  <div className="h-48 rounded-xl bg-slate-950 border border-slate-800/80 relative overflow-hidden group-hover:scale-[1.01] transition-all duration-300">
+                  <div className="h-48 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 relative overflow-hidden group-hover:scale-[1.01] transition-all duration-300">
                     {prod.imageUrl ? (
                       <img
                         src={prod.imageUrl}
@@ -1333,7 +1326,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                           {prod.badge}
                         </span>
                       )}
-                      <span className="text-[10px] text-slate-300 font-mono bg-black/60 px-2 py-0.5 rounded border border-slate-800/80">
+                      <span className="text-[10px] text-slate-300 font-mono bg-black/60 px-2 py-0.5 rounded border border-white/10">
                         #{prod.id}
                       </span>
                     </div>
@@ -1358,7 +1351,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
                   <div>
                     <div className={`text-base font-bold font-mono ${themeStyle.primaryText}`}>
                       {prod.priceIQD.toLocaleString()} د.ع
@@ -1388,10 +1381,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           {/* Product Options Modal (High Fidelity Preview & Setup) */}
           {selectedProductForModal && (
             <div className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl animate-fade-in my-auto">
+              <div className="bg-slate-950/95 backdrop-blur-2xl border border-white/10 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl animate-fade-in my-auto">
                 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <ShoppingBag className={`w-5 h-5 ${themeStyle.primaryText}`} />
                     <h3 className="text-sm font-bold text-white">معاينة وتخصيص تفاصيل المنتج الفاخر</h3>
@@ -1409,7 +1402,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   
                   {/* Left Column: Image Area */}
                   <div className="md:col-span-5 space-y-3">
-                    <div className="aspect-[4/5] rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden relative group">
+                    <div className="aspect-[4/5] rounded-2xl bg-black/30 backdrop-blur-sm border border-white/10 overflow-hidden relative group">
                       {selectedProductForModal.imageUrl ? (
                         <img 
                           src={selectedProductForModal.imageUrl} 
@@ -1427,12 +1420,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         </span>
                       )}
                       
-                      <div className="absolute bottom-3 left-3 bg-black/75 px-2.5 py-1 rounded-md border border-slate-800 text-[10px] font-mono text-slate-300">
+                      <div className="absolute bottom-3 left-3 bg-black/75 px-2.5 py-1 rounded-md border border-white/10 text-[10px] font-mono text-slate-300">
                         {selectedProductForModal.id}
                       </div>
                     </div>
                     
-                    <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-850 text-center">
+                    <div className="p-3 bg-black/20 backdrop-blur-sm rounded-xl border border-white/10 text-center">
                       <span className="text-[10px] text-slate-400">توصيل محلي مباشر • شحن تجريبي مجاني</span>
                     </div>
                   </div>
@@ -1453,7 +1446,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         </div>
                       </div>
 
-                      <div className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-850">
+                      <div className="p-3.5 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10">
                         <span className="text-[11px] text-slate-400 block mb-0.5">السعر الفردي للقطعة:</span>
                         <div className="flex items-baseline gap-2">
                           <span className={`text-lg font-bold font-mono ${themeStyle.primaryText}`}>
@@ -1466,7 +1459,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       </div>
 
                       <div>
-                        <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/40 p-2.5 rounded-lg border border-slate-850">
+                        <p className="text-[11px] text-slate-300 leading-relaxed bg-white/5 backdrop-blur-sm p-2.5 rounded-lg border border-white/10">
                           {selectedProductForModal.description}
                         </p>
                       </div>
@@ -1484,7 +1477,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                                 className={`px-3 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all duration-200 flex items-center gap-1.5 ${
                                   isSelected 
                                     ? `${themeStyle.primaryBg} text-white border-white scale-[1.03] shadow-md shadow-black/40` 
-                                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                                    : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10 hover:text-white hover:border-white/25'
                                 }`}
                               >
                                 {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />}
@@ -1508,7 +1501,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                                 className={`min-w-[40px] h-9 px-3.5 rounded-xl border text-xs font-bold font-mono cursor-pointer transition-all duration-200 flex items-center justify-center ${
                                   isSelected 
                                     ? `${themeStyle.primaryBg} text-white border-white scale-[1.03] shadow-md shadow-black/40` 
-                                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700'
+                                    : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10 hover:text-white hover:border-white/25'
                                 }`}
                               >
                                 {s}
@@ -1543,7 +1536,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </div>
 
                     {/* Submit Section */}
-                    <div className={`pt-4 border-t border-slate-800/80 flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col sm:flex-row items-stretch sm:items-center'} justify-between gap-4`}>
+                    <div className={`pt-4 border-t border-white/10 flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col sm:flex-row items-stretch sm:items-center'} justify-between gap-4`}>
                       <div>
                         <span className="text-slate-400 block text-[10px]">إجمالي التكلفة المباشرة:</span>
                         <span className={`text-base font-bold font-mono ${themeStyle.primaryText}`}>
@@ -1571,9 +1564,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           {/* Cart Drawer Modal */}
           {isCartOpen && (
             <div className="fixed inset-0 z-50 bg-black/88 flex items-center justify-end">
-              <div className="bg-slate-900 border-r border-slate-800 w-full max-w-md h-full flex flex-col justify-between p-5 space-y-4 animate-fade-in">
+              <div className="bg-slate-950/95 backdrop-blur-2xl border-r border-white/10 w-full max-w-md h-full flex flex-col justify-between p-5 space-y-4 animate-fade-in">
                 <div>
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
                     <div className="flex items-center gap-2">
                       <ShoppingCart className={`w-5 h-5 ${themeStyle.primaryText}`} />
                       <h3 className="text-sm font-bold text-white">حقيبة التسوق الخاصة بك</h3>
@@ -1591,7 +1584,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   ) : (
                     <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                       {cart.map((item, idx) => (
-                        <div key={idx} className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3 text-xs">
+                        <div key={idx} className="p-3 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-3 text-xs">
                           <div className="space-y-1">
                             <h4 className="font-bold text-white">{item.product.name}</h4>
                             <div className="text-[11px] text-slate-400 flex items-center gap-2">
@@ -1603,7 +1596,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-lg border border-slate-800">
+                          <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm p-1.5 rounded-lg border border-white/10">
                             <button onClick={() => updateCartQuantity(idx, -1)} className="p-1 hover:text-white text-slate-400 cursor-pointer">
                               <Minus className="w-3.5 h-3.5" />
                             </button>
@@ -1619,7 +1612,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 {cart.length > 0 && (
-                  <div className="border-t border-slate-800 pt-4 space-y-3">
+                  <div className="border-t border-white/10 pt-4 space-y-3">
                     <div className="space-y-1 text-xs">
                       <div className="flex justify-between text-slate-400">
                         <span>إجمالي المنتجات:</span>
@@ -1629,7 +1622,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         <span>أجور التوصيل المباشر:</span>
                         <span className="text-emerald-400 font-bold">مجاني (عرض خاص)</span>
                       </div>
-                      <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-slate-800">
+                      <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-white/10">
                         <span>الإجمالي الكلي:</span>
                         <span className={`font-mono ${themeStyle.primaryText}`}>{totalCartIQD.toLocaleString()} د.ع</span>
                       </div>
@@ -1654,8 +1647,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           {/* Checkout Modal */}
           {isCheckoutOpen && (
             <div className="fixed inset-0 z-50 bg-black/88 flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="bg-slate-950/95 backdrop-blur-2xl border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-fade-in">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
                     <CreditCard className="w-4 h-4 text-emerald-400" />
                     <span>معلومات الطلب والتوصيل التجريبي</span>
@@ -1672,7 +1665,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       type="text" 
                       value={customerName} 
                       onChange={e => setCustomerName(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white" 
+                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white" 
                     />
                   </div>
 
@@ -1682,7 +1675,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       type="text" 
                       value={customerPhone} 
                       onChange={e => setCustomerPhone(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono" 
+                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" 
                     />
                   </div>
 
@@ -1692,7 +1685,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       type="text" 
                       value={customerCity} 
                       onChange={e => setCustomerCity(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white" 
+                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white" 
                     />
                   </div>
 
@@ -1702,7 +1695,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <button 
                         onClick={() => setPaymentMethod('cod')}
                         className={`p-2.5 rounded-lg border text-center font-semibold cursor-pointer transition-all ${
-                          paymentMethod === 'cod' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-slate-950 text-slate-400 border-slate-800'
+                          paymentMethod === 'cod' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
                         }`}
                       >
                         الدفع عند الاستلام
@@ -1710,7 +1703,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <button 
                         onClick={() => setPaymentMethod('zaincash')}
                         className={`p-2.5 rounded-lg border text-center font-semibold cursor-pointer transition-all ${
-                          paymentMethod === 'zaincash' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-slate-950 text-slate-400 border-slate-800'
+                          paymentMethod === 'zaincash' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
                         }`}
                       >
                         زين كاش
@@ -1718,7 +1711,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <button 
                         onClick={() => setPaymentMethod('mastercard')}
                         className={`p-2.5 rounded-lg border text-center font-semibold cursor-pointer transition-all ${
-                          paymentMethod === 'mastercard' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-slate-950 text-slate-400 border-slate-800'
+                          paymentMethod === 'mastercard' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
                         }`}
                       >
                         ماستر / كي كارد
@@ -1726,7 +1719,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <div className="pt-3 border-t border-white/10 flex items-center justify-between">
                     <div>
                       <span className="text-slate-400 block text-[11px]">المبلغ النهائي للطلب:</span>
                       <span className={`text-base font-bold font-mono ${themeStyle.primaryText}`}>
@@ -1749,8 +1742,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           {/* Confirmed Order Invoice Screen Modal */}
           {orderConfirmedInvoice && (
             <div className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-slate-100">
-                <div className="text-center space-y-2 border-b border-slate-800 pb-4">
+              <div className="bg-slate-950/95 backdrop-blur-2xl border border-white/10 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in text-slate-100">
+                <div className="text-center space-y-2 border-b border-white/10 pb-4">
                   <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/40">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
@@ -1759,7 +1752,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 <div className="space-y-2.5 text-xs bg-slate-950 p-4 rounded-xl border border-slate-800">
-                  <div className="flex justify-between border-b border-slate-800/80 pb-2">
+                  <div className="flex justify-between border-b border-white/10 pb-2">
                     <span className="text-slate-400">رقم الفاتورة:</span>
                     <span className="font-mono font-bold text-white">{orderConfirmedInvoice.orderId}</span>
                   </div>
@@ -1779,7 +1772,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <span className="text-slate-400">طريقة الدفع:</span>
                     <span className="text-emerald-400 font-bold">{orderConfirmedInvoice.paymentMethod}</span>
                   </div>
-                  <div className="flex justify-between pt-2 border-t border-slate-800 font-bold">
+                  <div className="flex justify-between pt-2 border-t border-white/10 font-bold">
                     <span>إجمالي الفاتورة:</span>
                     <span className={`font-mono text-sm ${themeStyle.primaryText}`}>
                       {orderConfirmedInvoice.totalIQD.toLocaleString()} د.ع
@@ -1910,10 +1903,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <div className={`relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
                 </div>
-                <div className="leading-tight">
-                  <span className="font-extrabold text-sm sm:text-base text-white block tracking-wide">STELLA</span>
-                  <span className="text-[10px] text-slate-400 font-semibold tracking-[0.15em]">HOLDING GROUP</span>
-                </div>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'services', 'projects', 'calculator', 'contact'].map((tab) => (
@@ -2170,12 +2160,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <Cpu className="w-4 h-4" />
+                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <Cpu className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Nebula Cloud Engine</span>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'features', 'docs', 'pricing', 'dashboard'].map((tab) => (
@@ -2183,7 +2173,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      techTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      techTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -2219,15 +2209,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center`}>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText} font-mono`}>99.98%</div>
                     <div className="text-[11px] text-slate-400">معدل التشغيل السنوي</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className="text-lg sm:text-xl font-bold text-emerald-400 font-mono">+40</div>
                     <div className="text-[11px] text-slate-400">شركة تستخدم المنصة</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className="text-lg sm:text-xl font-bold text-amber-400 font-mono">&lt; 50ms</div>
                     <div className="text-[11px] text-slate-400">زمن استجابة API</div>
                   </div>
@@ -2245,7 +2235,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 ].map((f, idx) => {
                   const FeatureIcon = f.icon;
                   return (
-                    <div key={idx} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                    <div key={idx} className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-3">
                       <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0`}>
                         <FeatureIcon className="w-5 h-5" />
                       </div>
@@ -2258,9 +2248,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {techTab === 'docs' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
                 <h4 className="text-sm font-bold text-white">توثيق واجهة برمجة التطبيقات (API Reference)</h4>
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-emerald-300 overflow-x-auto" dir="ltr">
+                <div className="p-4 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 font-mono text-[11px] text-emerald-300 overflow-x-auto" dir="ltr">
                   <div className="text-slate-500">// Example: fetch account usage</div>
                   <div>GET https://api.nebula.dev/v1/usage</div>
                   <div className="text-slate-500 mt-2">Authorization: Bearer YOUR_API_KEY</div>
@@ -2271,7 +2261,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     { method: 'POST', path: '/v1/deploy', desc: 'نشر إصدار جديد من التطبيق' },
                     { method: 'GET', path: '/v1/users', desc: 'قائمة المستخدمين المرتبطين بالحساب' },
                   ].map((ep, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+                    <div key={idx} className="flex items-center gap-3 p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10">
                       <span className={`px-2 py-0.5 rounded font-mono font-bold shrink-0 ${ep.method === 'GET' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}`}>{ep.method}</span>
                       <span className="font-mono text-slate-300 shrink-0" dir="ltr">{ep.path}</span>
                       <span className="text-slate-500 truncate">{ep.desc}</span>
@@ -2284,7 +2274,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {techTab === 'pricing' && (
               <div className="space-y-4 animate-fade-in">
                 <div className="flex justify-center">
-                  <div className="inline-flex flex-wrap justify-center p-1 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+                  <div className="inline-flex flex-wrap justify-center p-1 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs">
                     <button
                       onClick={() => setSelectedPlan('monthly')}
                       className={`px-3 sm:px-4 py-1.5 rounded-lg cursor-pointer ${selectedPlan === 'monthly' ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400'}`}
@@ -2301,7 +2291,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3`}>
-                  <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                  <div className="p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2">
                     <h4 className="text-xs font-bold text-slate-300">الباقة الأساسية</h4>
                     <div className={`text-base sm:text-lg font-bold ${themeStyle.primaryText} font-mono`}>
                       {selectedPlan === 'monthly' ? '250,000 د.ع / شهرياً' : '2,400,000 د.ع / سنوياً'}
@@ -2336,7 +2326,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   { value: '12', label: 'تكاملات نشطة' },
                   { value: '99.98%', label: 'معدل التشغيل' },
                 ].map((stat, idx) => (
-                  <div key={idx} className="text-center p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                  <div key={idx} className="text-center p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className={`text-xl font-extrabold font-mono ${themeStyle.primaryText}`}>{stat.value}</div>
                     <div className="text-slate-400 mt-1">{stat.label}</div>
                   </div>
@@ -2372,12 +2362,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <Building2 className="w-4 h-4" />
+                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <Building2 className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Cosmos Real Estate</span>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'properties', 'booking', 'agents'].map((tab) => (
@@ -2385,7 +2375,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      realTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      realTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -2420,15 +2410,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center`}>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText} font-mono`}>+80</div>
                     <div className="text-[11px] text-slate-400">عقار متاح حالياً</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className="text-lg sm:text-xl font-bold text-emerald-400 font-mono">+500</div>
                     <div className="text-[11px] text-slate-400">صفقة ناجحة</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className="text-lg sm:text-xl font-bold text-amber-400 font-mono">4.9★</div>
                     <div className="text-[11px] text-slate-400">تقييم رضا العملاء</div>
                   </div>
@@ -2467,7 +2457,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-5`}>
                   {filteredProperties.map(prop => (
-                    <div key={prop.id} className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 flex flex-col justify-between hover:border-slate-700 hover:shadow-lg transition-all">
+                    <div key={prop.id} className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-3 flex flex-col justify-between hover:border-white/25 hover:shadow-lg transition-all">
                       <div className="space-y-2">
                         <div className="h-40 rounded-xl overflow-hidden relative border border-slate-800 bg-slate-950">
                           <img src={prop.image} alt={prop.title} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-all duration-300" referrerPolicy="no-referrer" />
@@ -2508,7 +2498,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {realTab === 'booking' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   <Calendar className={`w-4 h-4 ${themeStyle.primaryText}`} />
                   <span>حجز معاينة: {selectedProperty.title}</span>
@@ -2519,7 +2509,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <select
                     value={selectedPropertyId}
                     onChange={(e) => setSelectedPropertyId(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white cursor-pointer"
+                    className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white cursor-pointer"
                   >
                     {SAMPLE_PROPERTIES.map((p) => (
                       <option key={p.id} value={p.id}>{p.title}</option>
@@ -2534,7 +2524,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       type="text"
                       value={visitorName}
                       onChange={(e) => setVisitorName(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -2543,7 +2533,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       type="date"
                       value={bookingDate}
                       onChange={(e) => setBookingDate(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono"
+                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
                     />
                   </div>
                 </div>
@@ -2566,7 +2556,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <div className="pt-3 border-t border-slate-800 space-y-2">
                     <span className="font-bold text-white block">طلبات المعاينة المقدمة:</span>
                     {propertyVisits.map((v) => (
-                      <div key={v.id} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                      <div key={v.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
                         <span className="text-white font-bold truncate">{v.propertyTitle}</span>
                         <span className="font-mono text-slate-300 shrink-0">{v.date}</span>
                       </div>
@@ -2579,7 +2569,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {realTab === 'agents' && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
                 {SAMPLE_AGENTS.map((agent, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3">
+                  <div key={idx} className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white font-bold text-lg shrink-0`}>
                       {agent.name.replace(/^(م\.|أ\.|د\.)\s*/, '').charAt(0)}
                     </div>
@@ -2603,12 +2593,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <Stethoscope className="w-4 h-4" />
+                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <Stethoscope className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Galaxy Health</span>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'doctors', 'booking', 'results', 'consultation'].map((tab) => (
@@ -2616,7 +2606,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      healthTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      healthTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -2634,7 +2624,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {healthTab === 'doctors' && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
                 {SAMPLE_DOCTORS.map((doc) => (
-                  <div key={doc.id} className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center gap-3 hover:border-slate-700 transition-all">
+                  <div key={doc.id} className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3 hover:border-white/25 transition-all">
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${doc.imageBg} shrink-0 flex items-center justify-center text-white font-bold text-lg`}>
                       {doc.name.replace('د. ', '').charAt(0)}
                     </div>
@@ -2666,7 +2656,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {healthTab === 'booking' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   <Calendar className={`w-4 h-4 ${themeStyle.primaryText}`} />
                   <span>حجز موعد طبي جديد</span>
@@ -2677,7 +2667,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <select
                     value={selectedDoctorId}
                     onChange={(e) => setSelectedDoctorId(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white cursor-pointer"
+                    className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white cursor-pointer"
                   >
                     {SAMPLE_DOCTORS.map((doc) => (
                       <option key={doc.id} value={doc.id}>{doc.name} - {doc.specialty}</option>
@@ -2692,7 +2682,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       type="date"
                       value={appointmentDate}
                       onChange={(e) => setAppointmentDate(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono"
+                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -2701,7 +2691,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       type="time"
                       value={appointmentTime}
                       onChange={(e) => setAppointmentTime(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono"
+                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
                     />
                   </div>
                 </div>
@@ -2725,7 +2715,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <div className="pt-3 border-t border-slate-800 space-y-2">
                     <span className="font-bold text-white block">مواعيدك المحجوزة:</span>
                     {appointments.map((apt) => (
-                      <div key={apt.id} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                      <div key={apt.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
                         <div className="min-w-0">
                           <span className="text-white font-bold block truncate">{apt.doctorName}</span>
                           <span className="text-slate-500 text-[10px] truncate block">{apt.specialty}</span>
@@ -2741,7 +2731,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {healthTab === 'results' && (
               <div className="space-y-2.5 animate-fade-in text-xs">
                 {SAMPLE_LAB_RESULTS.map((lab) => (
-                  <div key={lab.id} className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3">
+                  <div key={lab.id} className="p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <span className="text-white font-bold block truncate">{lab.name}</span>
                       <span className="text-slate-500 text-[10px] font-mono block truncate">{lab.id} • {lab.date} • {lab.doctor}</span>
@@ -2755,7 +2745,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {healthTab === 'consultation' && (
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-3 animate-fade-in text-xs">
+              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-center space-y-3 animate-fade-in text-xs">
                 <div className={`w-14 h-14 rounded-full ${themeStyle.badgeBg} flex items-center justify-center mx-auto`}>
                   <Stethoscope className={`w-6 h-6 ${themeStyle.primaryText}`} />
                 </div>
@@ -2780,12 +2770,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <ChefHat className="w-4 h-4" />
+                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <ChefHat className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Meteor Kitchen</span>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'menu', 'order', 'reservation'].map((tab) => (
@@ -2793,7 +2783,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      foodTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      foodTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -2815,7 +2805,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       key={cat}
                       onClick={() => setMenuCategoryFilter(cat)}
                       className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                        menuCategoryFilter === cat ? `${themeStyle.primaryBg} text-white` : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                        menuCategoryFilter === cat ? `${themeStyle.primaryBg} text-white` : 'bg-white/5 backdrop-blur-md border border-white/10 text-slate-400 hover:text-white'
                       }`}
                     >
                       {cat === 'all' && 'الكل'}
@@ -2829,7 +2819,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-4`}>
                   {filteredMenu.map((item) => (
-                    <div key={item.id} className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden hover:border-slate-700 transition-all">
+                    <div key={item.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
                       <div className={`h-24 bg-gradient-to-br ${item.imageBg} flex items-center justify-center`}>
                         <ChefHat className="w-7 h-7 text-white/70" />
                       </div>
@@ -2854,13 +2844,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {foodTab === 'order' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-3 animate-fade-in text-xs">
                 {foodOrder.length === 0 ? (
                   <p className="text-slate-500 text-center py-6">سلة الطلب فارغة، تصفح القائمة وأضف أصنافك المفضلة.</p>
                 ) : (
                   <>
                     {foodOrder.map((o, idx) => (
-                      <div key={o.item.id} className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
+                      <div key={o.item.id} className="p-3 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <span className="text-white font-bold block truncate">{o.item.name}</span>
                           <span className="text-slate-500 font-mono">{o.item.priceIQD.toLocaleString()} د.ع</span>
@@ -2892,7 +2882,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {foodTab === 'reservation' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   <Calendar className={`w-4 h-4 ${themeStyle.primaryText}`} />
                   <span>حجز طاولة جديدة</span>
@@ -2901,7 +2891,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <label className="block text-slate-400 font-bold">عدد الضيوف:</label>
-                    <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg px-2 py-2">
+                    <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg px-2 py-2">
                       <button onClick={() => setReservationGuests(g => Math.max(1, g - 1))} className="text-white cursor-pointer"><Minus className="w-3.5 h-3.5" /></button>
                       <span className="font-mono font-bold text-white flex-1 text-center">{reservationGuests}</span>
                       <button onClick={() => setReservationGuests(g => Math.min(20, g + 1))} className="text-white cursor-pointer"><Plus className="w-3.5 h-3.5" /></button>
@@ -2909,11 +2899,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-slate-400 font-bold">التاريخ:</label>
-                    <input type="date" value={reservationDate} onChange={(e) => setReservationDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono" />
+                    <input type="date" value={reservationDate} onChange={(e) => setReservationDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-slate-400 font-bold">الوقت:</label>
-                    <input type="time" value={reservationTime} onChange={(e) => setReservationTime(e.target.value)} className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono" />
+                    <input type="time" value={reservationTime} onChange={(e) => setReservationTime(e.target.value)} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" />
                   </div>
                 </div>
 
@@ -2929,7 +2919,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <div className="pt-3 border-t border-slate-800 space-y-2">
                     <span className="font-bold text-white block">حجوزاتك:</span>
                     {tableReservations.map((r) => (
-                      <div key={r.id} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                      <div key={r.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
                         <span className="text-white font-bold">{r.guests} أشخاص</span>
                         <span className="font-mono text-slate-300">{r.date} - {r.time}</span>
                       </div>
@@ -2950,12 +2940,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <GraduationCap className="w-4 h-4" />
+                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <GraduationCap className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Quasar Academy</span>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'courses', 'enroll', 'dashboard'].map((tab) => (
@@ -2963,7 +2953,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      eduTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      eduTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -2985,7 +2975,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       key={cat}
                       onClick={() => setCourseCategoryFilter(cat)}
                       className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                        courseCategoryFilter === cat ? `${themeStyle.primaryBg} text-white` : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                        courseCategoryFilter === cat ? `${themeStyle.primaryBg} text-white` : 'bg-white/5 backdrop-blur-md border border-white/10 text-slate-400 hover:text-white'
                       }`}
                     >
                       {cat === 'all' && 'الكل'}
@@ -2999,7 +2989,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4`}>
                   {filteredCourses.map((course) => (
-                    <div key={course.id} className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden hover:border-slate-700 transition-all">
+                    <div key={course.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
                       <div className={`h-20 bg-gradient-to-br ${course.imageBg} flex items-center justify-center`}>
                         <GraduationCap className="w-7 h-7 text-white/70" />
                       </div>
@@ -3026,7 +3016,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {eduTab === 'enroll' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   <GraduationCap className={`w-4 h-4 ${themeStyle.primaryText}`} />
                   <span>تأكيد التسجيل في: {selectedCourse.title}</span>
@@ -3038,7 +3028,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     type="text"
                     value={studentNameInput}
                     onChange={(e) => setStudentNameInput(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                    className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white"
                   />
                 </div>
                 <div className="flex items-center justify-between pt-1">
@@ -3058,20 +3048,20 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {eduTab === 'dashboard' && (
               <div className="space-y-4 animate-fade-in text-xs">
                 {enrollments.length > 0 && (
-                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                  <div className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2">
                     <span className="font-bold text-white block">دوراتك المسجلة:</span>
                     {enrollments.map((e) => (
-                      <div key={e.id} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                      <div key={e.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
                         <span className="text-white font-bold truncate">{e.courseTitle}</span>
                         <span className="font-mono text-slate-300 shrink-0">{e.date}</span>
                       </div>
                     ))}
                   </div>
                 )}
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                <div className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2">
                   <span className="font-bold text-white block">الدرجات:</span>
                   {SAMPLE_GRADES.map((g, idx) => (
-                    <div key={idx} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                    <div key={idx} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
                       <span className="text-white truncate">{g.course}</span>
                       <span className="flex items-center gap-2 shrink-0">
                         <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{g.grade}</span>
@@ -3080,10 +3070,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </div>
                   ))}
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                <div className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2">
                   <span className="font-bold text-white block">سجل الحضور:</span>
                   {SAMPLE_ATTENDANCE.map((a, idx) => (
-                    <div key={idx} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
+                    <div key={idx} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
                       <span className="font-mono text-slate-300">{a.date}</span>
                       <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${a.status === 'حاضر' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/15 text-red-400 border border-red-500/30'}`}>
                         {a.status}
@@ -3106,12 +3096,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <Hotel className="w-4 h-4" />
+                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <Hotel className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Aurora Stay</span>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'rooms', 'booking', 'confirmation'].map((tab) => (
@@ -3119,7 +3109,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      hotelTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      hotelTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -3136,7 +3126,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {hotelTab === 'rooms' && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
                 {SAMPLE_ROOMS.map((room) => (
-                  <div key={room.id} className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden hover:border-slate-700 transition-all">
+                  <div key={room.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
                     <div className={`h-24 bg-gradient-to-br ${room.imageBg} flex items-center justify-center`}>
                       <Hotel className="w-7 h-7 text-white/70" />
                     </div>
@@ -3144,7 +3134,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <h4 className="text-sm font-bold text-white">{room.name}</h4>
                       <div className="flex flex-wrap gap-1.5">
                         {room.amenities.map((a, idx) => (
-                          <span key={idx} className="px-2 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 text-[10px]">{a}</span>
+                          <span key={idx} className="px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-sm border border-white/10 text-slate-400 text-[10px]">{a}</span>
                         ))}
                       </div>
                       <p className="text-slate-400">يتسع لـ {room.capacity} ضيوف</p>
@@ -3164,7 +3154,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {hotelTab === 'booking' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   <Calendar className={`w-4 h-4 ${themeStyle.primaryText}`} />
                   <span>حجز: {selectedRoom.name}</span>
@@ -3173,17 +3163,17 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <label className="block text-slate-400 font-bold">تاريخ الوصول:</label>
-                    <input type="date" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono" />
+                    <input type="date" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-slate-400 font-bold">تاريخ المغادرة:</label>
-                    <input type="date" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono" />
+                    <input type="date" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="block text-slate-400 font-bold">عدد الضيوف:</label>
-                  <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg px-2 py-2 w-fit">
+                  <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg px-2 py-2 w-fit">
                     <button onClick={() => setGuestsCount(g => Math.max(1, g - 1))} className="text-white cursor-pointer"><Minus className="w-3.5 h-3.5" /></button>
                     <span className="font-mono font-bold text-white w-6 text-center">{guestsCount}</span>
                     <button onClick={() => setGuestsCount(g => Math.min(selectedRoom.capacity, g + 1))} className="text-white cursor-pointer"><Plus className="w-3.5 h-3.5" /></button>
@@ -3206,7 +3196,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {hotelTab === 'confirmation' && (
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-3 animate-fade-in text-xs">
+              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-center space-y-3 animate-fade-in text-xs">
                 {latestBooking ? (
                   <>
                     <div className={`w-14 h-14 rounded-full ${themeStyle.badgeBg} flex items-center justify-center mx-auto`}>
@@ -3214,7 +3204,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </div>
                     <h4 className="text-sm font-bold text-white">تم تأكيد حجزك بنجاح</h4>
                     <p className="text-slate-400 font-mono">رقم المرجع: {latestBooking.id}</p>
-                    <div className="max-w-xs mx-auto p-4 rounded-xl bg-slate-950 border border-slate-800 text-start space-y-1.5">
+                    <div className="max-w-xs mx-auto p-4 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-start space-y-1.5">
                       <div className="flex justify-between"><span className="text-slate-400">الغرفة:</span><span className="text-white font-bold">{latestBooking.roomName}</span></div>
                       <div className="flex justify-between"><span className="text-slate-400">الوصول:</span><span className="text-white font-mono">{latestBooking.checkIn}</span></div>
                       <div className="flex justify-between"><span className="text-slate-400">المغادرة:</span><span className="text-white font-mono">{latestBooking.checkOut}</span></div>
@@ -3237,12 +3227,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <Truck className="w-4 h-4" />
+                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <Truck className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Comet Express</span>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'tracking', 'calculator', 'fleet'].map((tab) => (
@@ -3250,7 +3240,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      logisticsTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      logisticsTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -3265,14 +3255,14 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {logisticsTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-LOG-10'])}
 
             {logisticsTab === 'tracking' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={trackingInput}
                     onChange={(e) => setTrackingInput(e.target.value)}
                     placeholder="مثال: CMX-77201"
-                    className="flex-1 p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono"
+                    className="flex-1 p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
                   />
                   <button onClick={trackShipment} className={`px-4 py-2.5 rounded-lg ${themeStyle.primaryBg} text-white font-bold cursor-pointer flex items-center gap-1.5 shrink-0`}>
                     <Package className="w-3.5 h-3.5" />
@@ -3310,7 +3300,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {logisticsTab === 'calculator' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
                 <div className="space-y-1.5">
                   <label className="block text-slate-400 font-bold">وزن الشحنة (كغم):</label>
                   <input
@@ -3319,7 +3309,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     step="0.5"
                     value={quoteWeight}
                     onChange={(e) => setQuoteWeight(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono"
+                    className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -3330,7 +3320,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         key={dest}
                         onClick={() => setQuoteDestination(dest)}
                         className={`flex-1 py-2 rounded-lg font-bold transition-all cursor-pointer ${
-                          quoteDestination === dest ? `${themeStyle.primaryBg} text-white` : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
+                          quoteDestination === dest ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm border border-white/10 text-slate-400 hover:text-white'
                         }`}
                       >
                         {dest === 'local' && 'محلي'}
@@ -3360,7 +3350,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   { value: '34', label: 'مندوبين متاحين' },
                   { value: '97%', label: 'معدل التسليم في الوقت' },
                 ].map((stat, idx) => (
-                  <div key={idx} className="text-center p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                  <div key={idx} className="text-center p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className={`text-xl font-extrabold font-mono ${themeStyle.primaryText}`}>{stat.value}</div>
                     <div className="text-slate-400 mt-1">{stat.label}</div>
                   </div>
@@ -3378,12 +3368,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <Wallet className="w-4 h-4" />
+                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <Wallet className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Vortex FinTech</span>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'wallet', 'cards', 'security'].map((tab) => (
@@ -3391,7 +3381,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      fintechTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      fintechTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -3426,15 +3416,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center`}>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText} font-mono`}>+25,000</div>
                     <div className="text-[11px] text-slate-400">مستخدم نشط</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className="text-lg sm:text-xl font-bold text-emerald-400 font-mono">256-bit</div>
                     <div className="text-[11px] text-slate-400">تشفير مصرفي</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
                     <div className="text-lg sm:text-xl font-bold text-amber-400 font-mono">24/7</div>
                     <div className="text-[11px] text-slate-400">مراقبة أمنية</div>
                   </div>
@@ -3460,7 +3450,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </div>
                 </div>
 
-                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 space-y-2.5">
                   <h4 className="text-xs font-bold text-white flex items-center gap-2">
                     <Send className={`w-4 h-4 ${themeStyle.primaryText} shrink-0`} />
                     <span>محاكاة تحويل مالي سريع</span>
@@ -3471,7 +3461,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       value={transferAmount}
                       onChange={(e) => setTransferAmount(e.target.value)}
                       placeholder="المبلغ بالدينار"
-                      className="flex-1 p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-white font-mono"
+                      className="flex-1 p-2.5 rounded-lg bg-white/5 backdrop-blur-md border border-white/10 text-xs text-white font-mono"
                     />
                     <button
                       onClick={() => {
@@ -3530,8 +3520,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {fintechTab === 'security' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10">
                   <div className="flex items-center gap-2.5">
                     <Shield className={`w-4 h-4 ${themeStyle.primaryText}`} />
                     <span className="text-white font-bold">الحماية الثنائية (2FA)</span>
@@ -3549,7 +3539,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     'تشفير كامل للبيانات أثناء النقل والتخزين',
                     'مراقبة أمنية استباقية على مدار الساعة',
                   ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+                    <div key={idx} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                       <span className="text-slate-300">{item}</span>
                     </div>
