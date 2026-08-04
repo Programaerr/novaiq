@@ -278,6 +278,45 @@ app.delete('/api/admin/users/:uid', requireAdmin, async (req, res) => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// Team roster — the admins Firestore collection only stores email + addedAt (its
+// `list` operation is denied to clients, so even a signed-in admin can't scan it
+// themselves; see isAdminEmail in src/lib/auth.ts). Cross-referencing it against Auth
+// records here is what lets the dashboard show each teammate's real name/photo instead
+// of just a bare email string.
+// ---------------------------------------------------------------------------
+
+app.get('/api/admin/team', requireAdmin, async (_req, res) => {
+  try {
+    const adminsSnap = await getFirestore().collection('admins').get();
+    const team = await Promise.all(
+      adminsSnap.docs.map(async (docSnap) => {
+        const email = docSnap.id;
+        const addedAt = docSnap.data().addedAt || null;
+        try {
+          const userRecord = await getAuth().getUserByEmail(email);
+          return {
+            email,
+            addedAt,
+            hasAccount: true,
+            uid: userRecord.uid,
+            displayName: userRecord.displayName || '',
+            photoURL: userRecord.photoURL || '',
+          };
+        } catch {
+          // Added as an admin but hasn't signed up with this email yet.
+          return { email, addedAt, hasAccount: false, uid: '', displayName: '', photoURL: '' };
+        }
+      })
+    );
+    team.sort((a, b) => new Date(a.addedAt || 0).getTime() - new Date(b.addedAt || 0).getTime());
+    res.json({ team });
+  } catch (error: any) {
+    console.error('List team error:', error);
+    res.status(500).json({ error: error.message || 'Failed to list team' });
+  }
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
