@@ -144,7 +144,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
         </div>
 
         {/* Bottom Callout */}
-        <div className="mt-16 flex justify-center">
+        <div className="mt-24 sm:mt-28 flex justify-center">
           <button
             onClick={() => {
               onCreateContract();
