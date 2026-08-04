@@ -8,7 +8,7 @@ interface AboutSectionProps {
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
   return (
-    <section id="about-section" className="py-6 sm:py-10 relative">
+    <section id="about-section" className="py-8 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="bg-zinc-950 p-5 sm:p-6 rounded-3xl border border-zinc-800 relative overflow-hidden shadow-2xl">
