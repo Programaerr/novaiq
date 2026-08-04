@@ -61,3 +61,17 @@ export async function setUserDisabled(uid: string, disabled: boolean): Promise<v
 export async function deleteUserAccount(uid: string): Promise<void> {
   await authedFetch(`/api/admin/users/${uid}`, { method: 'DELETE' });
 }
+
+export interface TeamMember {
+  email: string;
+  addedAt: string | null;
+  hasAccount: boolean;
+  uid: string;
+  displayName: string;
+  photoURL: string;
+}
+
+export async function listTeamMembers(): Promise<TeamMember[]> {
+  const data = await authedFetch('/api/admin/team');
+  return Array.isArray(data.team) ? data.team : [];
+}
