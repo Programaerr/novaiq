@@ -100,7 +100,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   })();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/94 overflow-y-auto">
+    <div data-lenis-prevent className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/94 overflow-y-auto">
       {/* Off-screen print-ready document — this, not the dark preview below, is what the
           PDF captures, so the downloaded file is a clean white formal contract. */}
       <ContractPrintDocument
@@ -147,7 +147,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
         </div>
 
         {/* On-screen contract preview */}
-        <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-zinc-200 bg-black">
+        <div data-lenis-prevent className="p-6 sm:p-8 overflow-y-auto space-y-6 text-zinc-200 bg-black">
 
           {/* Document Header Box */}
           <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

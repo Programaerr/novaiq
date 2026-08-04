@@ -1379,7 +1379,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
           {/* Product Options Modal (High Fidelity Preview & Setup) */}
           {selectedProductForModal && (
-            <div className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+            <div data-lenis-prevent className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
               <div className="bg-slate-950/95 backdrop-blur-2xl border border-white/10 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl animate-fade-in my-auto">
                 
                 {/* Modal Header */}
@@ -1578,7 +1578,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <p className="text-xs text-slate-400">حقيبة التسوق فارغة حالياً.</p>
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                    <div data-lenis-prevent className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                       {cart.map((item, idx) => (
                         <div key={idx} className="p-3 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-3 text-xs">
                           <div className="space-y-1">
@@ -2068,7 +2068,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {/* Service / Project detail modal — clicking any card opens its full details
                 instead of the grid being a static, non-interactive display. */}
             {corpDetail && (
-              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" onClick={() => setCorpDetail(null)}>
+              <div data-lenis-prevent className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" onClick={() => setCorpDetail(null)}>
                 <div
                   className="bg-slate-950/95 backdrop-blur-2xl border border-white/10 rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl animate-fade-in my-auto"
                   onClick={(e) => e.stopPropagation()}
@@ -3750,7 +3750,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       )}
 
       {/* Main Full-Screen Live Site Area */}
-      <div className={`flex-1 overflow-y-auto w-full ${deviceView === 'full' ? 'bg-black/30 backdrop-blur-sm p-2 sm:p-4' : 'bg-black p-2 sm:p-6'} flex flex-col items-center justify-start`}>
+      <div data-lenis-prevent className={`flex-1 overflow-y-auto w-full ${deviceView === 'full' ? 'bg-black/30 backdrop-blur-sm p-2 sm:p-4' : 'bg-black p-2 sm:p-6'} flex flex-col items-center justify-start`}>
         
         {deviceView === 'full' ? (
           <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
@@ -3781,7 +3781,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </div>
 
             {/* Render Standalone Interactive Page */}
-            <div className="p-3 sm:p-6 overflow-y-auto flex-1 bg-black/30 backdrop-blur-sm">
+            <div data-lenis-prevent className="p-3 sm:p-6 overflow-y-auto flex-1 bg-black/30 backdrop-blur-sm">
               {renderInteractivePageContent()}
             </div>
           </div>
