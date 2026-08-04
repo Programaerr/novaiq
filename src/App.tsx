@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, type CSSProperties, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties, type MouseEvent } from 'react';
 import { CosmicBackground } from './components/CosmicBackground';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -203,13 +203,25 @@ export default function App() {
 
   const isAr = language === 'ar';
 
-  // Stat bars start empty and fill up to their target on mount — rAF (not a plain
-  // effect) so the 0% state actually paints one frame before flipping to the real
-  // value, otherwise the browser coalesces both and the CSS transition never runs.
+  // Stat bars start empty and only fill up once the visitor actually scrolls them
+  // into view (not on page mount, which would finish the animation off-screen before
+  // anyone sees it). IntersectionObserver fires once, then disconnects.
   const [statsFilled, setStatsFilled] = useState(false);
+  const statsRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    const id = requestAnimationFrame(() => setStatsFilled(true));
-    return () => cancelAnimationFrame(id);
+    const el = statsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStatsFilled(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   // Fluent/Windows-style spotlight: pushes the cursor position straight into a CSS
@@ -302,7 +314,7 @@ export default function App() {
                         : 'We get straight to execution. Our pre-built production templates give you an instant 80% head start, while we customize the remaining 20% specifically for your brand identity.'}
                     </p>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 items-end">
+                  <div ref={statsRef} className="grid grid-cols-3 gap-3 items-end">
                     {[
                       { value: '80%', label: isAr ? 'جاهزية فورية' : 'Instant readiness', fill: 80 },
                       { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
