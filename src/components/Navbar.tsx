@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Calendar,
   Layers,
-  Menu,
   X,
   Compass,
   FileSignature,
@@ -14,6 +13,23 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { NovaiqLogo } from './NovaiqLogo';
+
+// Custom menu glyph — three uneven-length bars instead of lucide's equal-width Menu icon.
+const MenuBarsIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="12" x2="14" y2="12" />
+    <line x1="3" y1="18" x2="18" y2="18" />
+  </svg>
+);
 
 interface NavbarProps {
   activePage: string;
@@ -103,7 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200'
             }`}
           >
-            {menuDrawerOpen ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-zinc-300" />}
+            {menuDrawerOpen ? <X className="w-4 h-4 text-white" /> : <MenuBarsIcon className="w-4 h-4 text-zinc-300" />}
             <span className="hidden sm:inline">{isAr ? 'الأقسام والصفحات' : 'Menu'}</span>
           </button>
         </div>
@@ -171,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           behind both of them — it renders as a flat dark box with no visible glass effect.
           Positioned relative to <header> (which has no filter of its own) instead. */}
       {menuDrawerOpen && (
-        <div className="absolute top-full right-3 sm:right-6 mt-3 w-80 bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in">
+        <div className="absolute top-full mt-3 rtl:right-3 sm:rtl:right-6 ltr:left-3 sm:ltr:left-6 w-80 bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <span className="text-xs font-bold text-white flex items-center gap-2">
               <Compass className="w-4 h-4 text-white" />
