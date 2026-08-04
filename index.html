@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NOVAIQ | القوالب البرمجية والعقود الإلكترونية الذكية للشركات</title>
     <link rel="icon" type="image/png" href="/src/assets/images/novaiq-icon.png" />
-    <!-- Google Fonts: Cairo & Tajawal -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <!-- Cairo & Tajawal are self-hosted (see src/index.css @font-face rules) instead of
+         loaded from Google Fonts, to avoid the extra third-party round-trip and the
+         visible font swap-in delay that came with it. -->
   </head>
   <body class="bg-[#030712] text-slate-100 font-['Cairo',sans-serif] antialiased selection:bg-purple-600 selection:text-white min-h-screen overflow-x-hidden">
     <div id="root"></div>
