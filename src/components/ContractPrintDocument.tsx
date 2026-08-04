@@ -223,7 +223,23 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           <div style={{ marginBottom: 22 }}>
             <SectionTitle>{t.s2}</SectionTitle>
             <Field label={t.template} value={templateTitle} />
-            <Field label={t.identity} value={themeLabel} />
+            <div style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ color: '#64748b', fontSize: 11 }}>{t.identity}: </span>
+              <strong style={{ color: '#0f172a', fontSize: 12 }}>{themeLabel}</strong>
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: 13,
+                  height: 13,
+                  borderRadius: 4,
+                  backgroundColor: contract.primaryColor || '#8b5cf6',
+                  border: '1px solid #cbd5e1',
+                }}
+              />
+              <span style={{ fontSize: 10.5, color: '#475569', fontFamily: 'monospace' }}>
+                {(contract.primaryColor || '#8b5cf6').toUpperCase()}
+              </span>
+            </div>
             <Field label={t.langSupport} value={languageSupportLabel} />
 
             <div style={{ marginTop: 10 }}>
