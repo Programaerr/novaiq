@@ -5,7 +5,6 @@ import {
   FileCheck,
   Eye,
   DollarSign,
-  RefreshCw,
   Download,
   Trash2,
   Save,
@@ -72,13 +71,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
   const [tab, setTab] = useState<Tab>('overview');
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [events, setEvents] = useState<AnalyticsEvent[]>([]);
-  const [loadingContracts, setLoadingContracts] = useState(true);
 
   useEffect(() => {
-    const unsub = subscribeToContracts((data) => {
-      setContracts(data);
-      setLoadingContracts(false);
-    });
+    const unsub = subscribeToContracts(setContracts);
     return unsub;
   }, []);
 
@@ -170,21 +165,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
         })}
       </div>
 
-      {loadingContracts ? (
-        <div className="py-24 text-center text-zinc-400 text-xs">
-          <RefreshCw className="w-6 h-6 text-white mx-auto mb-2 animate-spin" />
-          {isAr ? 'جارِ تحميل بيانات الشركة...' : 'Loading business data...'}
-        </div>
-      ) : (
-        <>
-          {tab === 'overview' && (
-            <OverviewTab isAr={isAr} stats={stats} analyticsStats={analyticsStats} contracts={contracts} language={language} />
-          )}
-          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} />}
-          {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
-          {tab === 'team' && <TeamTab isAr={isAr} />}
-        </>
+      {tab === 'overview' && (
+        <OverviewTab isAr={isAr} stats={stats} analyticsStats={analyticsStats} contracts={contracts} language={language} />
       )}
+      {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} />}
+      {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
+      {tab === 'team' && <TeamTab isAr={isAr} />}
     </div>
   );
 };

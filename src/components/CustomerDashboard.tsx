@@ -38,14 +38,12 @@ function formatDate(iso: string | undefined, isAr: boolean): string {
 export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, user }) => {
   const isAr = language === 'ar';
   const [contracts, setContracts] = useState<ContractData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = subscribeToContracts((all) => {
       const mine = all.filter((c) => (c.email || '').trim().toLowerCase() === (user.email || '').trim().toLowerCase());
       setContracts(mine);
-      setLoading(false);
     });
     return unsub;
   }, [user.email]);
@@ -73,9 +71,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
         </button>
       </div>
 
-      {loading ? (
-        <div className="py-24 text-center text-zinc-400 text-xs">{isAr ? 'جارِ التحميل...' : 'Loading...'}</div>
-      ) : contracts.length === 0 ? (
+      {contracts.length === 0 ? (
         <div className="py-16 text-center text-zinc-500 text-xs border border-dashed border-zinc-800 rounded-2xl space-y-2">
           <p>
             {isAr
