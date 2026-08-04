@@ -34,7 +34,16 @@ export default function App() {
   
   // Modals state
   const [activeContractForPreview, setActiveContractForPreview] = useState<ContractData | null>(null);
-  const [language, setLanguage] = useState<Language>('ar');
+  // Remembered across visits so switching to English once doesn't reset back to Arabic
+  // (and re-trigger the whole-page translation pass) on every single page load.
+  const [language, setLanguage] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem('novaiq_language');
+      return saved === 'en' ? 'en' : 'ar';
+    } catch {
+      return 'ar';
+    }
+  });
 
   // Carries the customer's exact choices from the interactive live-site demo into the contract form
   const [initialCustomFeaturesText, setInitialCustomFeaturesText] = useState<string>('');
@@ -143,6 +152,11 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dir = 'rtl';
     document.documentElement.lang = language;
+    try {
+      localStorage.setItem('novaiq_language', language);
+    } catch {
+      // Storage unavailable (private browsing) — the choice just won't persist.
+    }
   }, [language]);
 
   // Whole-page auto-translation. Components that already have explicit English strings

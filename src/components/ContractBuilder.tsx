@@ -18,6 +18,7 @@ import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
 import { formatPrice } from '../lib/currency';
 import { showToast } from '../lib/toast';
+import { loadContractDraft, saveContractDraft, clearContractDraft } from '../lib/contractDraft';
 
 interface ContractBuilderProps {
   selectedTemplate: Template | null;
@@ -43,6 +44,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // the old static import, so every existing reference below still works unchanged.
   const templatesData = useLiveTemplates();
 
+  // Restored once on mount (not re-read on every render) — whatever the customer last
+  // typed here, so a refresh or accidental navigation away doesn't mean starting over.
+  const [draft] = useState(() => loadContractDraft());
+
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [template, setTemplate] = useState<Template>(selectedTemplate || templatesData[0]);
 
@@ -55,13 +60,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   }, [templatesData]);
 
   // Form State
-  const [companyName, setCompanyName] = useState('');
-  const [crNumber, setCrNumber] = useState('');
-  const [repName, setRepName] = useState('');
-  const [email, setEmail] = useState(accountEmail || '');
-  const [phone, setPhone] = useState('');
+  const [companyName, setCompanyName] = useState(draft?.companyName || '');
+  const [crNumber, setCrNumber] = useState(draft?.crNumber || '');
+  const [repName, setRepName] = useState(draft?.repName || '');
+  const [email, setEmail] = useState(draft?.email || accountEmail || '');
+  const [phone, setPhone] = useState(draft?.phone || '');
   const [country] = useState('العراق');
-  const [city, setCity] = useState('بغداد');
+  const [city, setCity] = useState(draft?.city || 'بغداد');
   const [fieldErrors, setFieldErrors] = useState<Set<string>>(new Set());
 
   const errorInputClass = (field: string) =>
@@ -85,19 +90,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   };
 
   // Customizations
-  const [selectedSpecIds, setSelectedSpecIds] = useState<string[]>([]);
-  const [customFeaturesText, setCustomFeaturesText] = useState('');
-  const [showCustomRequest, setShowCustomRequest] = useState(false);
+  const [selectedSpecIds, setSelectedSpecIds] = useState<string[]>(draft?.selectedSpecIds || []);
+  const [customFeaturesText, setCustomFeaturesText] = useState(draft?.customFeaturesText || '');
+  const [showCustomRequest, setShowCustomRequest] = useState(!!draft?.customFeaturesText);
 
   // A fully custom project — not based on any ready template at all. Arriving with no
   // selectedTemplate (e.g. via the navbar's direct "Custom Contract" link) opens straight
   // into this mode instead of silently defaulting to the first template in the catalogue.
   const CUSTOM_OPTION_VALUE = '__custom__';
-  const [isCustomProject, setIsCustomProject] = useState(!selectedTemplate);
-  const [customProjectName, setCustomProjectName] = useState('');
-  const [primaryColor, setPrimaryColor] = useState('#8b5cf6');
-  const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'cosmic'>('cosmic');
-  const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>('ar_en');
+  const [isCustomProject, setIsCustomProject] = useState(draft?.isCustomProject ?? !selectedTemplate);
+  const [customProjectName, setCustomProjectName] = useState(draft?.customProjectName || '');
+  const [primaryColor, setPrimaryColor] = useState(draft?.primaryColor || '#8b5cf6');
+  const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'cosmic'>(draft?.themePreference || 'cosmic');
+  const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>(draft?.languageSupport || 'ar_en');
   const [paymentPlan] = useState<'50_50' | '100_upfront' | '3_milestones'>('50_50');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
@@ -125,6 +130,41 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       if (initialPrimaryColor) setPrimaryColor(initialPrimaryColor);
     }
   }, [selectedTemplate, initialCustomFeaturesText, initialPrimaryColor]);
+
+  // Mirrors every field into localStorage as the customer types, so the draft survives a
+  // refresh or an accidental navigation away. Cleared only once a contract is actually
+  // submitted (see handleSubmitContract).
+  useEffect(() => {
+    saveContractDraft({
+      companyName,
+      crNumber,
+      repName,
+      email,
+      phone,
+      city,
+      selectedSpecIds,
+      customFeaturesText,
+      primaryColor,
+      themePreference,
+      languageSupport,
+      isCustomProject,
+      customProjectName,
+    });
+  }, [
+    companyName,
+    crNumber,
+    repName,
+    email,
+    phone,
+    city,
+    selectedSpecIds,
+    customFeaturesText,
+    primaryColor,
+    themePreference,
+    languageSupport,
+    isCustomProject,
+    customProjectName,
+  ]);
 
   // Canvas drawing handlers.
   // The canvas has a fixed internal drawing resolution (width={700} height={150})
@@ -314,6 +354,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       createdAt: new Date().toISOString(),
     };
 
+    clearContractDraft();
     cosmicAudio.playWarp();
     showToast(isAr ? 'تم إنشاء العقد بنجاح' : 'Contract created successfully', 'success');
     onContractGenerated(contractData);

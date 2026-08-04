@@ -23,7 +23,7 @@ export const ToastHost: React.FC = () => {
   const dismiss = (id: number) => setToasts((prev) => prev.filter((t) => t.id !== id));
 
   return (
-    <div className="fixed bottom-4 inset-x-0 z-[200] flex flex-col items-center gap-2 px-4 pointer-events-none">
+    <div className="fixed top-20 inset-x-0 z-[200] flex flex-col items-center gap-2 px-4 pointer-events-none">
       {toasts.map((t) => {
         const Icon = t.type === 'success' ? CheckCircle2 : t.type === 'error' ? XCircle : Info;
         const accent =
