@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Rocket,
   FileText,
   ShieldCheck,
   Clock,
   Globe2,
-  Award
+  Award,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
+
+const WHEEL_STEP = 90;
 
 interface HeroSectionProps {
   onExploreTemplates: () => void;
@@ -41,6 +45,40 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       desc: language === 'ar' ? 'أحدث التقنيات لسرعة استثنائية' : 'Modern web tech stacks',
     },
   ];
+
+  // Drag-to-spin state for the 3D guarantee wheel — dragRef holds the pointer's
+  // starting position and the wheel's rotation at that moment, so onPointerMove can
+  // compute an absolute rotation instead of accumulating drift from relative deltas.
+  const [rotation, setRotation] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{ startX: number; startRotation: number } | null>(null);
+
+  const snapToStep = (deg: number) => Math.round(deg / WHEEL_STEP) * WHEEL_STEP;
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { startX: e.clientX, startRotation: rotation };
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const deltaX = e.clientX - dragRef.current.startX;
+    setRotation(dragRef.current.startRotation + deltaX * 0.5);
+  };
+
+  const stopDragging = () => {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    setIsDragging(false);
+    setRotation((r) => snapToStep(r));
+  };
+
+  const rotateBy = (delta: number) => {
+    dragRef.current = null;
+    setIsDragging(false);
+    setRotation((r) => snapToStep(r) + delta);
+  };
 
   return (
     <section className="relative pt-4 pb-8 md:pt-6 md:pb-10 overflow-hidden">
@@ -92,26 +130,56 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </button>
         </div>
 
-        {/* Key Guarantees Wheel — the four cards orbit as one ring; each card counter-rotates
-            at the exact same rate so its own text stays upright while its position circles. */}
-        <div className="orbit-wheel mx-auto">
-          <div className="orbit-ring">
-            {guarantees.map(({ Icon, title, desc }, i) => (
-              <div
-                key={title}
-                className="orbit-item"
-                style={{ '--orbit-angle': `${i * 90}deg` } as React.CSSProperties}
-              >
-                <div className="orbit-card h-full flex flex-col justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
-                  <div className="w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
-                    <Icon className="w-4 h-4" />
+        {/* Key Guarantees Wheel — a 3D cube of cards the visitor spins by dragging
+            (mouse or touch) or with the arrow buttons. DOM order is reversed on purpose:
+            the page is dir="rtl", so the first child lands on the physical right. */}
+        <div className="flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => rotateBy(-WHEEL_STEP)}
+            aria-label={language === 'ar' ? 'التالي' : 'Next'}
+            className="shrink-0 w-9 h-9 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          <div
+            className="wheel3d-stage"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={stopDragging}
+            onPointerCancel={stopDragging}
+          >
+            <div
+              className={`wheel3d-ring${isDragging ? ' is-dragging' : ''}`}
+              style={{ transform: `rotateY(${rotation}deg)` }}
+            >
+              {guarantees.map(({ Icon, title, desc }, i) => (
+                <div
+                  key={title}
+                  className="wheel3d-item"
+                  style={{ '--item-angle': `${i * 90}deg` } as React.CSSProperties}
+                >
+                  <div className="h-full flex flex-col justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
+                    <div className="w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="text-base sm:text-lg lg:text-xl font-bold text-white font-mono mb-0.5">{title}</div>
+                    <div className="text-[10px] sm:text-[11px] text-zinc-400">{desc}</div>
                   </div>
-                  <div className="text-base sm:text-lg lg:text-xl font-bold text-white font-mono mb-0.5">{title}</div>
-                  <div className="text-[10px] sm:text-[11px] text-zinc-400">{desc}</div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => rotateBy(WHEEL_STEP)}
+            aria-label={language === 'ar' ? 'السابق' : 'Previous'}
+            className="shrink-0 w-9 h-9 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
         </div>
 
       </div>
