@@ -18,9 +18,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
             <div className="space-y-4">
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
                 {language === 'ar' ? (
-                  <>شركة برمجية متخصصة في تطوير <span className="text-white underline decoration-zinc-700 underline-offset-8">المنصات والعقود الرقمية</span></>
+                  <>شركة برمجية متخصصة في تطوير <span className="text-white underline decoration-zinc-700 underline-offset-8">المواقع والتطبيقات الإلكترونية</span></>
                 ) : (
-                  <>Software Firm Specializing in <span className="text-white underline decoration-zinc-700 underline-offset-8">Platforms & Digital Contracts</span></>
+                  <>Software Firm Specializing in <span className="text-white underline decoration-zinc-700 underline-offset-8">Websites & Digital Applications</span></>
                 )}
               </h2>
 
@@ -40,9 +40,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                   title: language === 'ar' ? 'تطوير منصات برمجية متكاملة' : 'Full-Stack Platform Engineering', 
                   desc: language === 'ar' ? 'تصميم وتنفيذ أنظمة ويب حديثة مخصصة لاحتياجات المؤسسات.' : 'Custom web system architecture & full deployment for modern enterprises.' 
                 },
-                { 
-                  title: language === 'ar' ? 'توثيق عقود إلكترونية رسمية (IQD)' : 'Official Digital Contracts System (IQD)', 
-                  desc: language === 'ar' ? 'نظام عقود رقمي معتمد يحدد كافة التفاصيل الفنية والمالية وحقوق الطرفين.' : 'Legally binding digital agreement engine specifying all specs, timelines & rights.' 
+                {
+                  title: language === 'ar' ? 'عقد رقمي رسمي لكل مشروع (IQD)' : 'A Formal Digital Contract for Every Project (IQD)',
+                  desc: language === 'ar' ? 'كل مشروع يُوثَّق باتفاقية واضحة تحدد التفاصيل الفنية والمالية وحقوق الطرفين قبل بدء العمل.' : 'Every project is documented with a clear agreement specifying technical/financial details and both parties\' rights before work begins.'
                 },
                 { 
                   title: language === 'ar' ? 'دعم فني ومتابعة دورية' : 'Ongoing Technical Support', 

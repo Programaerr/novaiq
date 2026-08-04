@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Template } from '../types';
+import { PriceInput } from './PriceInput';
 import {
   X,
   Monitor,
@@ -3446,10 +3447,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <span>محاكاة تحويل مالي سريع</span>
                   </h4>
                   <div className={`flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} gap-2`}>
-                    <input
-                      type="number"
+                    <PriceInput
                       value={transferAmount}
-                      onChange={(e) => setTransferAmount(e.target.value)}
+                      onChange={setTransferAmount}
                       placeholder="المبلغ بالدينار"
                       className="flex-1 p-2.5 rounded-lg bg-white/5 backdrop-blur-md border border-white/10 text-xs text-white font-mono"
                     />

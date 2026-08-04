@@ -30,6 +30,7 @@ import { ConnectedContractPrintDocument } from './ContractPrintDocument';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { cosmicAudio } from '../lib/audio';
 import { showToast } from '../lib/toast';
+import { PriceInput } from './PriceInput';
 
 interface AdminDashboardProps {
   language: Language;
@@ -648,17 +649,11 @@ function ContractRow({
               <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
                 {isAr ? 'السعر النهائي المتفق عليه (د.ع)' : 'Final Agreed Price (IQD)'}
               </label>
-              <input
-                type="number"
-                min={0}
+              <PriceInput
                 value={totalPrice}
-                onChange={(e) => setTotalPrice(e.target.value)}
+                onChange={setTotalPrice}
                 className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-mono"
-                dir="ltr"
               />
-              <p className="text-[10px] text-zinc-500 mt-1">
-                ≈ ${toUSD(Number(totalPrice) || 0).toLocaleString()} USD
-              </p>
             </div>
           </div>
 
@@ -813,13 +808,10 @@ function PricingRow({
             <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
               {isAr ? 'السعر الأساسي للقالب (د.ع)' : 'Template Base Price (IQD)'}
             </label>
-            <input
-              type="number"
-              min={0}
+            <PriceInput
               value={basePriceIQD}
-              onChange={(e) => setBasePriceIQD(e.target.value)}
+              onChange={setBasePriceIQD}
               className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-mono"
-              dir="ltr"
             />
           </div>
 
@@ -831,13 +823,10 @@ function PricingRow({
               {template.specificationsOptions.map((spec) => (
                 <div key={spec.id} className="flex items-center gap-2">
                   <span className="text-[11px] text-zinc-300 flex-1 truncate">{translateText(spec.label, language)}</span>
-                  <input
-                    type="number"
-                    min={0}
+                  <PriceInput
                     value={specPrices[spec.id] ?? ''}
-                    onChange={(e) => setSpecPrices((prev) => ({ ...prev, [spec.id]: e.target.value }))}
+                    onChange={(v) => setSpecPrices((prev) => ({ ...prev, [spec.id]: v }))}
                     className="w-28 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-white text-xs font-mono shrink-0"
-                    dir="ltr"
                   />
                 </div>
               ))}
