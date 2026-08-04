@@ -203,6 +203,15 @@ export default function App() {
 
   const isAr = language === 'ar';
 
+  // Stat bars start empty and fill up to their target on mount — rAF (not a plain
+  // effect) so the 0% state actually paints one frame before flipping to the real
+  // value, otherwise the browser coalesces both and the CSS transition never runs.
+  const [statsFilled, setStatsFilled] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setStatsFilled(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   // Fluent/Windows-style spotlight: pushes the cursor position straight into a CSS
   // custom property via the DOM (no setState) so the glow can track the mouse every
   // frame without re-rendering the component on each move.
@@ -281,17 +290,19 @@ export default function App() {
 
             {/* Quick Overview Grid to drive leads */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-zinc-950/80 border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
-                <div className="space-y-4">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white">
-                    {isAr ? 'الإنتاجية والسرعة في تسليم مشروعك' : 'Speed & Efficiency for Your Project'}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                    {isAr
-                      ? 'نحن لا نضيع وقتك في نقاشات ومفاوضات مطولة. قوالبنا البرمجية الجاهزة تمنحك انطلاقة فورية بنسبة 80% من مشروعك، بينما نتولى نحن تخصيص الـ 20% المتبقية لتلائم هوية شركتك ومتطلباتك الخاصة.'
-                      : 'We get straight to execution. Our pre-built production templates give you an instant 80% head start, while we customize the remaining 20% specifically for your brand identity.'}
-                  </p>
-                  <div className="grid grid-cols-3 gap-3 pt-2 items-end">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
+                <div className="flex flex-col justify-between gap-4">
+                  <div className="space-y-4">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white">
+                      {isAr ? 'الإنتاجية والسرعة في تسليم مشروعك' : 'Speed & Efficiency for Your Project'}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                      {isAr
+                        ? 'نحن لا نضيع وقتك في نقاشات ومفاوضات مطولة. قوالبنا البرمجية الجاهزة تمنحك انطلاقة فورية بنسبة 80% من مشروعك، بينما نتولى نحن تخصيص الـ 20% المتبقية لتلائم هوية شركتك ومتطلباتك الخاصة.'
+                        : 'We get straight to execution. Our pre-built production templates give you an instant 80% head start, while we customize the remaining 20% specifically for your brand identity.'}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 items-end">
                     {[
                       { value: '80%', label: isAr ? 'جاهزية فورية' : 'Instant readiness', fill: 80 },
                       { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
@@ -301,7 +312,11 @@ export default function App() {
                         <div className="relative w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
                             className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
-                            style={{ '--fill': `${stat.fill}%`, '--fill-hover': `${Math.min(stat.fill + 15, 100)}%` } as CSSProperties}
+                            style={{
+                              '--fill': statsFilled ? `${stat.fill}%` : '0%',
+                              '--fill-hover': `${Math.min(stat.fill + 15, 100)}%`,
+                              transitionDelay: `${idx * 150}ms`,
+                            } as CSSProperties}
                           />
                         </div>
                         <div className="text-lg sm:text-xl font-extrabold text-white font-mono flex items-center justify-center gap-0.5">

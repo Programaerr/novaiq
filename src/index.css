@@ -248,7 +248,7 @@
    revealed next to the number, to read as the metric ticking up. */
 .stat-bar-fill {
   height: var(--fill);
-  transition: height 0.4s ease;
+  transition: height 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .group:hover .stat-bar-fill {
