@@ -1124,7 +1124,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       return (
         <div className="space-y-6 text-slate-100">
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
-          <div className="m-1 sm:m-2 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 z-30 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
+          <div className="sticky top-1 sm:top-2 z-30 m-1 sm:m-2 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
             {/* Promo Banner inside the sticky wrapper so it rolls up or stays with the header */}
             <div className="bg-gradient-to-r from-emerald-950/40 via-teal-900/40 to-slate-900/40 px-4 py-2 text-center text-[10px] sm:text-[11px] text-emerald-400 border-b border-white/10 flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -1215,12 +1215,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </div>
                   
                   <span className="hidden sm:inline text-[11px]">حقيبة التسوق</span>
-                  {totalCartIQD > 0 ? (
+                  {totalCartIQD > 0 && (
                     <span className="font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 text-[10px]">
                       {totalCartIQD.toLocaleString()} د.ع
                     </span>
-                  ) : (
-                    <span className="text-[10px] text-slate-500 font-normal hidden sm:inline">(فارغة)</span>
                   )}
                 </button>
               </div>
@@ -1893,7 +1891,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
             {/* Glass Navigation Bar — frosted pill with a proper logo lockup, matching the
                 real NOVAIQ navbar's own backdrop-blur treatment instead of a flat solid box. */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-3">
                 <div className={`relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
@@ -2155,7 +2153,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
                 <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Cpu className="w-5 h-5" />
@@ -2357,7 +2355,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
                 <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
@@ -2585,7 +2583,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
                 <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Stethoscope className="w-5 h-5" />
@@ -2762,7 +2760,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
                 <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <ChefHat className="w-5 h-5" />
@@ -2932,7 +2930,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
                 <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <GraduationCap className="w-5 h-5" />
@@ -3088,7 +3086,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
                 <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Hotel className="w-5 h-5" />
@@ -3219,7 +3217,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
                 <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Truck className="w-5 h-5" />
@@ -3360,7 +3358,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
                 <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Wallet className="w-5 h-5" />
