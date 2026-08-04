@@ -210,16 +210,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={item.id}
                   href={item.href}
                   onClick={(e) => handleNavClick(item.id, e)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-xs transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-zinc-800 text-white font-bold border border-zinc-700 shadow-md'
-                      : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
+                      ? 'bg-white text-black font-bold shadow-lg'
+                      : 'text-zinc-300 font-medium hover:bg-zinc-900 hover:text-white'
                   }`}
                 >
-                  <span className="flex items-center gap-3">
-                    <Icon className="w-4 h-4 text-zinc-400" />
-                    <span>{item.label}</span>
+                  <span
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                      isActive ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
                   </span>
+                  <span>{item.label}</span>
                 </a>
               );
             })}
