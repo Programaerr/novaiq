@@ -1896,10 +1896,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 real NOVAIQ navbar's own backdrop-blur treatment instead of a flat solid box. */}
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-3">
-                <div className={`relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
+                <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
                 </div>
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
+                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'services', 'projects', 'calculator', 'contact'].map((tab) => (
@@ -2397,10 +2398,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {/* Navigation Bar */}
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
                 </div>
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
+                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'properties', 'booking', 'agents'].map((tab) => (
