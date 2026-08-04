@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Loader2 } from 'lucide-react';
+import { ShieldCheck, Loader2, FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 
@@ -55,6 +55,32 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ language }) => {
           <p className="text-xs text-zinc-400">
             {isAr ? 'سجّل الدخول بحساب Google لمتابعة عقودك المحفوظة.' : 'Sign in with Google to track your saved contracts.'}
           </p>
+        </div>
+
+        {/* Why sign in — shown before the button so it's clear what logging in actually
+            unlocks, not just an auth wall for its own sake. */}
+        <div className="space-y-2.5 py-1">
+          {[
+            {
+              icon: FileCheck,
+              text: isAr ? 'شاهد كل عقودك في مكان واحد خاص بك' : 'See all your contracts in one place, private to you',
+            },
+            {
+              icon: Clock,
+              text: isAr ? 'تابع حالة كل عقد لحظة بلحظة حتى الاكتمال' : 'Track each contract\'s status live, all the way to completion',
+            },
+            {
+              icon: Download,
+              text: isAr ? 'حمّل نسخة PDF من عقدك في أي وقت' : 'Download a PDF copy of your contract anytime',
+            },
+          ].map(({ icon: Icon, text }) => (
+            <div key={text} className="flex items-center gap-2.5 text-xs text-zinc-300">
+              <div className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
+                <Icon className="w-3.5 h-3.5 text-zinc-300" />
+              </div>
+              <span>{text}</span>
+            </div>
+          ))}
         </div>
 
         {error && (
