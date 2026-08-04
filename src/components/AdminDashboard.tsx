@@ -1168,7 +1168,7 @@ function MembersTab({ isAr }: { isAr: boolean }) {
           {isAr ? 'لا يوجد حسابات مطابقة' : 'No matching accounts'}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2.5">
           {filtered.map((u) => (
             <div
               key={u.uid}
