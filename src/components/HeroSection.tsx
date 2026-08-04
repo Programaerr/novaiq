@@ -160,12 +160,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             (mouse or touch) or with the arrow buttons pinned to the far edges of the
             row. DOM order is reversed on purpose: the page is dir="rtl", so the first
             child lands on the physical right. */}
-        <div className="flex items-center justify-between w-full max-w-xs sm:max-w-xl lg:max-w-2xl mx-auto">
+        <div className="flex items-center justify-center sm:justify-between w-full max-w-xs sm:max-w-xl lg:max-w-2xl mx-auto">
           <button
             type="button"
             onClick={() => rotateBy(-WHEEL_STEP)}
             aria-label={language === 'ar' ? 'التالي' : 'Next'}
-            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -207,7 +207,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             type="button"
             onClick={() => rotateBy(WHEEL_STEP)}
             aria-label={language === 'ar' ? 'السابق' : 'Previous'}
-            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
