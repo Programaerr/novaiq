@@ -1802,22 +1802,39 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-CORP-01':
       case 'stella-corporate':
         return (
-          <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800`}>
-              <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0`}>
-                  <Building2 className="w-4 h-4" />
+          <div className="relative space-y-6 text-slate-100">
+            {/* Ambient cosmic glows behind the glass UI — cheap radial gradients, not a
+                full-surface blur filter, so this stays smooth even on weak devices. */}
+            <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-3xl select-none" aria-hidden="true">
+              <div
+                className="absolute -top-20 -right-10 w-72 h-72 rounded-full"
+                style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(139,92,246,0.35) 0%, rgba(88,28,135,0.14) 45%, rgba(0,0,0,0) 78%)' }}
+              />
+              <div
+                className="absolute top-1/3 -left-16 w-64 h-64 rounded-full"
+                style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(63,63,70,0.30) 0%, rgba(39,39,42,0.14) 45%, rgba(0,0,0,0) 78%)' }}
+              />
+            </div>
+
+            {/* Glass Navigation Bar — frosted pill with a proper logo lockup, matching the
+                real NOVAIQ navbar's own backdrop-blur treatment instead of a flat solid box. */}
+            <div className={`flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+              <div className="flex items-center gap-3">
+                <div className={`relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <Building2 className="w-5 h-5" />
                 </div>
-                <span className="font-bold text-sm sm:text-base text-white">Stella Corporate</span>
+                <div className="leading-tight">
+                  <span className="font-extrabold text-sm sm:text-base text-white block tracking-wide">STELLA</span>
+                  <span className="text-[10px] text-slate-400 font-semibold tracking-[0.15em]">HOLDING GROUP</span>
+                </div>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
                 {['home', 'services', 'projects', 'calculator', 'contact'].map((tab) => (
-                  <button 
+                  <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      activeTab === tab ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400 hover:text-white'
+                      activeTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {tab === 'home' && 'الرئيسية'}
@@ -1833,8 +1850,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {/* Dynamic Body */}
             {activeTab === 'home' && (
               <div className="space-y-4 sm:space-y-6 animate-fade-in">
-                <div className={`p-6 sm:p-8 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} border ${themeStyle.primaryBorder} text-center space-y-3 sm:space-y-4`}>
-                  <span className={`px-3 py-1 rounded-full ${themeStyle.badgeBg} text-xs font-semibold inline-block`}>
+                <div className={`relative overflow-hidden p-6 sm:p-8 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} backdrop-blur-sm border ${themeStyle.primaryBorder} text-center space-y-3 sm:space-y-4`}>
+                  <div className={`w-14 h-14 mx-auto rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shadow-lg ring-1 ring-white/20`}>
+                    <Building2 className="w-7 h-7" />
+                  </div>
+                  <span className={`px-3 py-1 rounded-full ${themeStyle.badgeBg} text-xs font-semibold inline-block backdrop-blur-sm`}>
                     حلول مؤسسية متكاملة
                   </span>
                   <h3 className="text-xl sm:text-3xl font-extrabold text-white leading-tight">
@@ -1844,25 +1864,25 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     منصة الشركات الكبرى مع لوحة تحكم ذكية، دعم متعدد اللغات، وبوابة المستثمرين المحمية بأعلى درجات الأمان.
                   </p>
                   <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                    <button onClick={() => setActiveTab('calculator')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
+                    <button onClick={() => setActiveTab('calculator')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer shadow-lg`}>
                       حسّاب تكلفة مشروعك
                     </button>
-                    <button onClick={() => setActiveTab('contact')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer">
+                    <button onClick={() => setActiveTab('contact')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/15 text-slate-300 text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors">
                       طلب استشارة مباشرة
                     </button>
                   </div>
                 </div>
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center`}>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors">
                     <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText} font-mono`}>+150</div>
                     <div className="text-[11px] text-slate-400">مشروع مكتمل</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors">
                     <div className="text-lg sm:text-xl font-bold text-emerald-400 font-mono">99.9%</div>
                     <div className="text-[11px] text-slate-400">نسبة استقرار النظام</div>
                   </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors">
                     <div className="text-lg sm:text-xl font-bold text-amber-400 font-mono">24/7</div>
                     <div className="text-[11px] text-slate-400">دعم فني متواصل</div>
                   </div>
@@ -1872,32 +1892,32 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
             {activeTab === 'services' && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-                  <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0`}>
+                <div className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors space-y-3" style={{ animation: 'card-in 0.35s ease-out both' }}>
+                  <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0 shadow-md`}>
                     <Cpu className="w-5 h-5" />
                   </div>
                   <h4 className="text-sm font-bold text-white">تطوير الأنظمة السحابية المخصصة ERP</h4>
                   <p className="text-slate-400 leading-relaxed">بناء أنظمة متكاملة لإدارة الموارد، المبيعات، وشؤون الموظفين بطريقة مؤتمتة بالكامل وسريعة وآمنة.</p>
                   <span className={`text-[10px] font-bold ${themeStyle.primaryText} block`}>الأكثر طلباً للمؤسسات الكبرى</span>
                 </div>
-                <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-                  <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0`}>
+                <div className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors space-y-3" style={{ animation: 'card-in 0.35s ease-out both', animationDelay: '0.05s' }}>
+                  <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0 shadow-md`}>
                     <Globe className="w-5 h-5" />
                   </div>
                   <h4 className="text-sm font-bold text-white">بوابات الويب التعريفية للمجموعات</h4>
                   <p className="text-slate-400 leading-relaxed">تصميم وبناء مواقع الكترونية فخمة تعكس الهوية البصرية اللائقة بالشركات الكبرى والمستثمرين والمساهمين.</p>
                   <span className={`text-[10px] font-bold ${themeStyle.primaryText} block`}>تحميل فائق المتانة ومتوافق مع SEO</span>
                 </div>
-                <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-                  <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0`}>
+                <div className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors space-y-3" style={{ animation: 'card-in 0.35s ease-out both', animationDelay: '0.1s' }}>
+                  <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0 shadow-md`}>
                     <Shield className="w-5 h-5" />
                   </div>
                   <h4 className="text-sm font-bold text-white">حلول أمن المعلومات والشبكات الداخلية</h4>
                   <p className="text-slate-400 leading-relaxed">تأمين المنظومات الداخلية ضد الاختراق، تفعيل جدران حماية برمجية متطورة، والتدقيق الأمني المسبق.</p>
                   <span className={`text-[10px] font-bold ${themeStyle.primaryText} block`}>حماية قصوى وتدقيق دوري</span>
                 </div>
-                <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-                  <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0`}>
+                <div className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors space-y-3" style={{ animation: 'card-in 0.35s ease-out both', animationDelay: '0.15s' }}>
+                  <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0 shadow-md`}>
                     <Smartphone className="w-5 h-5" />
                   </div>
                   <h4 className="text-sm font-bold text-white">تطبيقات الهواتف الذكية عالية الأداء</h4>
@@ -1909,7 +1929,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
             {activeTab === 'projects' && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                <div className="p-3 bg-slate-900 border border-slate-800 rounded-2xl space-y-3 overflow-hidden">
+                <div className="p-3 bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors rounded-2xl space-y-3 overflow-hidden">
                   <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80" alt="project-1" loading="lazy" decoding="async" className="w-full h-32 object-cover rounded-xl opacity-80" referrerPolicy="no-referrer" />
                   <div className="p-1 space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold block">مجموعة الرافدين للمقاولات العامة</span>
@@ -1917,7 +1937,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <p className="text-[11px] text-slate-400">تسهيل المراسلات تتبع سير العمل والمشاريع في 15 موقع عمل بمرونة فائقة.</p>
                   </div>
                 </div>
-                <div className="p-3 bg-slate-900 border border-slate-800 rounded-2xl space-y-3 overflow-hidden">
+                <div className="p-3 bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors rounded-2xl space-y-3 overflow-hidden">
                   <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80" alt="project-2" loading="lazy" decoding="async" className="w-full h-32 object-cover rounded-xl opacity-80" referrerPolicy="no-referrer" />
                   <div className="p-1 space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold block">مصرف بابل الرقمي</span>
@@ -1929,7 +1949,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {activeTab === 'calculator' && (
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 animate-fade-in text-xs">
+              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 space-y-4 animate-fade-in text-xs shadow-xl">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   <Sliders className="w-4 h-4 text-emerald-400" />
                   <span>حاسبة التكلفة المباشرة للشركات</span>
@@ -1947,7 +1967,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         key={opt.id}
                         onClick={() => { setOrgSize(opt.id); cosmicAudio.playPing(); }}
                         className={`p-2 rounded-lg border text-center cursor-pointer transition-all ${
-                          orgSize === opt.id ? `${themeStyle.primaryBg} text-white border-white` : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-white'
+                          orgSize === opt.id ? `${themeStyle.primaryBg} text-white border-white shadow-md` : 'border-white/10 bg-white/5 backdrop-blur-sm text-slate-400 hover:text-white hover:border-white/25'
                         }`}
                       >
                         {opt.label}
@@ -1955,7 +1975,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     ))}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center space-y-1">
+                <div className="p-4 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 text-center space-y-1">
                   <span className="text-slate-400 block text-[11px]">التكلفة التقديرية الحالية:</span>
                   <span className={`text-xl font-bold font-mono ${themeStyle.primaryText}`}>
                     {orgSize === 'medium' ? '$2,500 - $4,800 USD' : orgSize === 'large' ? '$4,800 - $9,000 USD' : '$9,000 - $18,000 USD'}
@@ -1965,12 +1985,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             )}
 
             {activeTab === 'contact' && (
-              <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 animate-fade-in">
+              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 space-y-3 animate-fade-in shadow-xl">
                 <h4 className="text-sm font-bold text-white">نموذج التواصل والتسجيل المباشر</h4>
-                <input type="text" placeholder="الاسم الكامل" className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white" />
-                <input type="text" placeholder="رقم الهاتف" className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white" />
-                <textarea placeholder="تفاصيل المشروع والطلب..." rows={2} className="w-full p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white" />
-                <button onClick={() => alert('تم تسجيل الاستفسار التجريبي بنجاح في النظام!')} className={`w-full py-2.5 ${themeStyle.primaryBg} text-white text-xs font-bold rounded-lg cursor-pointer`}>
+                <input type="text" placeholder="الاسم الكامل" className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
+                <input type="text" placeholder="رقم الهاتف" className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
+                <textarea placeholder="تفاصيل المشروع والطلب..." rows={2} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
+                <button onClick={() => alert('تم تسجيل الاستفسار التجريبي بنجاح في النظام!')} className={`w-full py-2.5 ${themeStyle.primaryBg} text-white text-xs font-bold rounded-lg cursor-pointer shadow-lg`}>
                   إرسال الاستفسار المباشر
                 </button>
               </div>
