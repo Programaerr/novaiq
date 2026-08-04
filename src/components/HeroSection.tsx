@@ -137,7 +137,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </p>
 
         {/* Primary Action Buttons - Seamless SPA transition */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12 sm:mb-14 w-full">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16 sm:mb-20 w-full">
           
           <button
             onClick={onExploreTemplates}
