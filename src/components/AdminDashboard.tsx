@@ -1009,7 +1009,7 @@ function TeamTab({ isAr }: { isAr: boolean }) {
             <Loader2 className="w-5 h-5 text-white mx-auto mb-2 animate-spin" />
           </div>
         ) : members && members.length > 0 ? (
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2.5">
             {members.map((m) => (
               <div key={m.email} className="p-3.5 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center gap-3">
                 {m.photoURL ? (
@@ -1142,7 +1142,7 @@ function MembersTab({ isAr }: { isAr: boolean }) {
         </button>
       </div>
 
-      <div className="relative">
+      <div className="relative max-w-md">
         <Search className="w-4 h-4 text-zinc-500 absolute right-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
