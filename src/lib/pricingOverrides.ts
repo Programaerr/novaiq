@@ -61,10 +61,6 @@ export function applyPricingOverrides(
   });
 }
 
-export function getStaticTemplates(): Template[] {
-  return templatesData;
-}
-
 /** The single hook every template-price consumer (grid, contract builder, standalone
  *  preview) should use instead of importing templatesData directly — keeps admin price
  *  edits reflected everywhere without each component needing its own Firestore listener. */
