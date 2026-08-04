@@ -24,7 +24,6 @@ import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, toUSD } from '../lib/currency';
 import { subscribeToContracts, deleteContractFromFirebase, updateContractFields } from '../lib/firebase';
-import { subscribeToAnalyticsEvents, AnalyticsEvent } from '../lib/analytics';
 import { logoutAccount, addAdminEmail, authErrorMessage } from '../lib/auth';
 import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser, listTeamMembers, TeamMember } from '../lib/adminUsers';
 import { useLiveTemplates, subscribeToPricingOverrides, savePricingOverride, PricingOverride } from '../lib/pricingOverrides';
@@ -103,15 +102,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
   const isAr = language === 'ar';
   const [tab, setTab] = useState<Tab>('overview');
   const [contracts, setContracts] = useState<ContractData[]>([]);
-  const [events, setEvents] = useState<AnalyticsEvent[]>([]);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeToContracts(setContracts);
     return unsub;
   }, []);
-
-  useEffect(() => subscribeToAnalyticsEvents(setEvents), []);
 
   const stats = useMemo(() => {
     const totalIQD = contracts.reduce((s, c) => s + (c.totalPriceIQD || 0), 0);
@@ -133,17 +129,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
       avgIQD: contracts.length ? Math.round(totalIQD / contracts.length) : 0,
     };
   }, [contracts]);
-
-  const analyticsStats = useMemo(() => {
-    const pageViews = events.filter((e) => e.event === 'page_view');
-    const byPage: Record<string, number> = {};
-    pageViews.forEach((e) => {
-      const p = e.page || 'unknown';
-      byPage[p] = (byPage[p] || 0) + 1;
-    });
-    const topPages = Object.entries(byPage).sort((a, b) => b[1] - a[1]).slice(0, 8);
-    return { totalViews: pageViews.length, topPages };
-  }, [events]);
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
@@ -206,7 +191,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
 
         <div className="flex-1 min-w-0 space-y-6">
           {tab === 'overview' && (
-            <OverviewTab isAr={isAr} stats={stats} analyticsStats={analyticsStats} contracts={contracts} language={language} />
+            <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} />
           )}
           {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} stats={stats} />}
           {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
@@ -225,20 +210,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
 function OverviewTab({
   isAr,
   stats,
-  analyticsStats,
   contracts,
   language,
 }: {
   isAr: boolean;
   stats: ReturnType<typeof useOverviewStatsType>;
-  analyticsStats: { totalViews: number; topPages: [string, number][] };
   contracts: ContractData[];
   language: Language;
 }) {
   const recent = contracts.slice(0, 6);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
           <h3 className="text-sm font-bold text-white">{isAr ? 'حالة العقود' : 'Contracts by Status'}</h3>
@@ -261,43 +244,25 @@ function OverviewTab({
             </div>
           )}
         </div>
+      </div>
 
-        <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-white">{isAr ? 'أكثر الصفحات زيارة' : 'Most Visited Pages'}</h3>
-            <span className="text-[11px] font-mono font-bold text-cyan-400 shrink-0">
-              {analyticsStats.totalViews} {isAr ? 'مشاهدة' : 'views'}
-            </span>
-          </div>
-          {analyticsStats.topPages.length === 0 ? (
-            <p className="text-xs text-zinc-500">{isAr ? 'لا توجد بيانات زيارات بعد (تتطلب موافقة الزوار على التتبع)' : 'No visit data yet (requires visitor tracking consent)'}</p>
-          ) : (
-            <div className="space-y-2.5">
-              {analyticsStats.topPages.map(([page, count]) => (
-                <BarRow key={page} isAr={isAr} label={page} count={count} total={analyticsStats.totalViews} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
-          <h3 className="text-sm font-bold text-white">{isAr ? 'أحدث العقود' : 'Recent Contracts'}</h3>
-          {recent.length === 0 ? (
-            <p className="text-xs text-zinc-500">{isAr ? 'لا توجد عقود بعد' : 'No contracts yet'}</p>
-          ) : (
-            <div className="space-y-2">
-              {recent.map((c) => (
-                <div key={c.id || c.contractNumber} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
-                  <div className="min-w-0">
-                    <div className="text-white font-bold truncate">{c.companyName}</div>
-                    <div className="text-zinc-500 text-[10px] truncate">{translateText(c.templateTitle, language)}</div>
-                  </div>
-                  <span className="text-zinc-300 font-mono shrink-0">{formatPrice(c.totalPriceIQD || 0, language)}</span>
+      <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
+        <h3 className="text-sm font-bold text-white">{isAr ? 'أحدث العقود' : 'Recent Contracts'}</h3>
+        {recent.length === 0 ? (
+          <p className="text-xs text-zinc-500">{isAr ? 'لا توجد عقود بعد' : 'No contracts yet'}</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+            {recent.map((c) => (
+              <div key={c.id || c.contractNumber} className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+                <div className="min-w-0">
+                  <div className="text-white font-bold truncate">{c.companyName}</div>
+                  <div className="text-zinc-500 text-[10px] truncate">{translateText(c.templateTitle, language)}</div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <span className="text-zinc-300 font-mono shrink-0">{formatPrice(c.totalPriceIQD || 0, language)}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
