@@ -19,6 +19,7 @@ import {
   RotateCcw,
   Ban,
   UserCheck,
+  Layers,
 } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -236,10 +237,26 @@ function OverviewTab({
   language: Language;
 }) {
   const recent = contracts.slice(0, 6);
+  const templates = useLiveTemplates();
+  const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    listAllUsers()
+      .then((users) => {
+        if (!cancelled) setSubscriberCount(users.length);
+      })
+      .catch(() => {
+        if (!cancelled) setSubscriberCount(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
         <StatTile icon={FileCheck} label={isAr ? 'إجمالي العقود' : 'Total Contracts'} value={String(stats.count)} />
         <StatTile
           icon={DollarSign}
@@ -253,6 +270,13 @@ function OverviewTab({
           value={formatPrice(stats.avgIQD, language)}
         />
         <StatTile icon={Eye} label={isAr ? 'إجمالي المشاهدات' : 'Total Page Views'} value={String(analyticsStats.totalViews)} accent="text-cyan-400" />
+        <StatTile
+          icon={UserCheck}
+          label={isAr ? 'إجمالي المشتركين' : 'Total Subscribers'}
+          value={subscriberCount === null ? '—' : String(subscriberCount)}
+          accent="text-indigo-400"
+        />
+        <StatTile icon={Layers} label={isAr ? 'إجمالي القوالب' : 'Total Templates'} value={String(templates.length)} accent="text-amber-400" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

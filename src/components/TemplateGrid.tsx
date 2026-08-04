@@ -281,7 +281,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                             setSortBy(so.id);
                             cosmicAudio.playPing();
                           }}
-                          className={`px-3 py-2 rounded-lg text-xs text-right font-semibold transition-all cursor-pointer flex items-center justify-between ${
+                          className={`px-3 py-2 rounded-lg text-xs text-start font-semibold transition-all cursor-pointer flex items-center justify-between ${
                             sortBy === so.id
                               ? 'bg-zinc-800 text-white border border-white glow-white font-bold'
                               : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-600 hover:text-white'

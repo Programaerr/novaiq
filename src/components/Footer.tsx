@@ -40,7 +40,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
               <li>
                 <button 
                   onClick={(e) => handleLinkClick('templates', e)} 
-                  className="hover:text-white transition-colors text-zinc-300 cursor-pointer text-right"
+                  className="hover:text-white transition-colors text-zinc-300 cursor-pointer text-start"
                 >
                   {language === 'ar' ? 'القوالب الجاهزة' : 'Ready Templates'}
                 </button>
@@ -48,7 +48,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
               <li>
                 <button 
                   onClick={(e) => handleLinkClick('custom-request', e)} 
-                  className="hover:text-white transition-colors text-zinc-300 cursor-pointer text-right"
+                  className="hover:text-white transition-colors text-zinc-300 cursor-pointer text-start"
                 >
                   {language === 'ar' ? 'صانع العقود الرقمية' : 'Contract Builder'}
                 </button>
@@ -56,7 +56,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
               <li>
                 <button 
                   onClick={(e) => handleLinkClick('timeline', e)} 
-                  className="hover:text-white transition-colors text-zinc-300 cursor-pointer text-right"
+                  className="hover:text-white transition-colors text-zinc-300 cursor-pointer text-start"
                 >
                   {language === 'ar' ? 'خطة التسليم' : 'Delivery Roadmap'}
                 </button>
@@ -64,7 +64,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
               <li>
                 <button 
                   onClick={(e) => handleLinkClick('about', e)} 
-                  className="hover:text-white transition-colors text-zinc-300 cursor-pointer text-right"
+                  className="hover:text-white transition-colors text-zinc-300 cursor-pointer text-start"
                 >
                   {language === 'ar' ? 'عن NOVAIQ' : 'About NOVAIQ'}
                 </button>
@@ -109,7 +109,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-right font-mono text-[11px]">
+        <div className="pt-6 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-start font-mono text-[11px]">
           <div>
             {language === 'ar' ? 'جميع الحقوق محفوظة ©' : 'All Rights Reserved ©'} {new Date().getFullYear()} <strong className="text-white font-bold">NOVAIQ SOFTWARE SYSTEMS</strong>
           </div>
