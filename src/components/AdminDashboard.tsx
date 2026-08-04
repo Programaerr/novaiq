@@ -178,7 +178,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
           </div>
         </div>
         <button
-          onClick={() => logoutAccount()}
+          onClick={() => setShowLogoutConfirm(true)}
           className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
         >
           <LogOut className="w-4 h-4" />
