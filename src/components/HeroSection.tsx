@@ -151,7 +151,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           <button
             onClick={onExploreTemplates}
             onMouseMove={handleSpotlightMove}
-            className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm flex items-center justify-center gap-2.5 cursor-pointer"
+            className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
           >
             <span className="cta-spotlight" />
             <Rocket className="relative z-10 w-4 h-4 text-white" />
@@ -161,7 +161,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           <button
             onClick={onCreateContract}
             onMouseMove={handleSpotlightMove}
-            className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
+            className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
           >
             <span className="cta-spotlight" />
             <FileText className="relative z-10 w-4 h-4 text-white" />
