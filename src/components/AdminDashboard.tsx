@@ -3,7 +3,6 @@ import {
   LogOut,
   TrendingUp,
   FileCheck,
-  Eye,
   DollarSign,
   Download,
   Trash2,
