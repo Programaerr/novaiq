@@ -12,7 +12,8 @@ import {
   ArrowLeft,
   ArrowRight,
   FileCheck,
-  PenLine
+  PenLine,
+  Pipette
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
@@ -28,6 +29,15 @@ interface ContractBuilderProps {
   initialPrimaryColor?: string;
   accountEmail?: string | null;
 }
+
+const PRESET_COLORS = [
+  { hex: '#8b5cf6', labelAr: 'بنفسجي', labelEn: 'Purple' },
+  { hex: '#10b981', labelAr: 'زمردي', labelEn: 'Emerald' },
+  { hex: '#06b6d4', labelAr: 'سماوي', labelEn: 'Cyan' },
+  { hex: '#f59e0b', labelAr: 'ذهبي', labelEn: 'Amber' },
+  { hex: '#f43f5e', labelAr: 'ياقوتي', labelEn: 'Rose' },
+  { hex: '#71717a', labelAr: 'رمادي', labelEn: 'Monochrome' },
+];
 
 export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   selectedTemplate,
@@ -101,6 +111,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [isCustomProject, setIsCustomProject] = useState(draft?.isCustomProject ?? !selectedTemplate);
   const [customProjectName, setCustomProjectName] = useState(draft?.customProjectName || '');
   const [primaryColor, setPrimaryColor] = useState(draft?.primaryColor || '#8b5cf6');
+  const isCustomColor = !PRESET_COLORS.some((c) => c.hex === primaryColor);
+  const customColorInputRef = useRef<HTMLInputElement | null>(null);
   const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'cosmic'>(draft?.themePreference || 'cosmic');
   const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>(draft?.languageSupport || 'ar_en');
   const [paymentPlan] = useState<'50_50' | '100_upfront' | '3_milestones'>('50_50');
@@ -722,29 +734,58 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 <label className="block text-xs font-semibold text-zinc-300 mb-2">
                   {getTranslation('colorSchemeLabel', lang)}
                 </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {[
-                    { hex: '#8b5cf6', label: isAr ? 'بنفسجي' : 'Purple' },
-                    { hex: '#10b981', label: isAr ? 'زمردي' : 'Emerald' },
-                    { hex: '#06b6d4', label: isAr ? 'سماوي' : 'Cyan' },
-                    { hex: '#f59e0b', label: isAr ? 'ذهبي' : 'Amber' },
-                    { hex: '#f43f5e', label: isAr ? 'ياقوتي' : 'Rose' },
-                    { hex: '#71717a', label: isAr ? 'رمادي' : 'Monochrome' },
-                  ].map((c) => (
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {PRESET_COLORS.map((c) => (
                     <button
                       key={c.hex}
                       type="button"
                       onClick={() => setPrimaryColor(c.hex)}
-                      title={c.label}
+                      title={isAr ? c.labelAr : c.labelEn}
                       className={`w-9 h-9 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-center ${
-                        primaryColor === c.hex ? 'border-white scale-110 shadow-lg' : 'border-zinc-700 hover:border-zinc-500'
+                        !isCustomColor && primaryColor === c.hex ? 'border-white scale-110 shadow-lg' : 'border-zinc-700 hover:border-zinc-500'
                       }`}
                       style={{ backgroundColor: c.hex }}
                     >
-                      {primaryColor === c.hex && <CheckSquare className="w-4 h-4 text-white" />}
+                      {!isCustomColor && primaryColor === c.hex && <CheckSquare className="w-4 h-4 text-white" />}
                     </button>
                   ))}
+
+                  {/* Custom color — a native <input type="color"> gives the customer a full
+                      OS/browser color picker instead of being limited to the presets above;
+                      the swatch button just proxies a click through to the hidden input. */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => customColorInputRef.current?.click()}
+                      title={isAr ? 'لون مخصص' : 'Custom Color'}
+                      className={`w-9 h-9 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-center overflow-hidden ${
+                        isCustomColor ? 'border-white scale-110 shadow-lg' : 'border-zinc-700 hover:border-zinc-500'
+                      }`}
+                      style={isCustomColor ? { backgroundColor: primaryColor } : undefined}
+                    >
+                      {isCustomColor ? (
+                        <CheckSquare className="w-4 h-4 text-white drop-shadow" />
+                      ) : (
+                        <Pipette className="w-4 h-4 text-zinc-400" />
+                      )}
+                    </button>
+                    <input
+                      ref={customColorInputRef}
+                      type="color"
+                      value={primaryColor}
+                      onChange={(e) => setPrimaryColor(e.target.value)}
+                      title={isAr ? 'اختر لوناً مخصصاً' : 'Pick a custom color'}
+                      className="absolute inset-0 w-9 h-9 opacity-0 cursor-pointer"
+                    />
+                  </div>
                 </div>
+                {isCustomColor && (
+                  <p className="text-[11px] text-zinc-500 mt-2">
+                    {isAr
+                      ? `سنستخدم هذا اللون بالضبط (${primaryColor}) في تصميم موقعك.`
+                      : `We'll use this exact color (${primaryColor}) in your site's design.`}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
