@@ -65,7 +65,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
   ];
 
   return (
-    <section id="timeline-section" className="py-8 sm:py-14 relative">
+    <section id="timeline-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
