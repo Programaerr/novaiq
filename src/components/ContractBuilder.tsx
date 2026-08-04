@@ -24,6 +24,7 @@ interface ContractBuilderProps {
   language?: Language;
   initialCustomFeaturesText?: string;
   initialPrimaryColor?: string;
+  accountEmail?: string | null;
 }
 
 export const ContractBuilder: React.FC<ContractBuilderProps> = ({
@@ -32,6 +33,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   language = 'ar' as Language,
   initialCustomFeaturesText,
   initialPrimaryColor,
+  accountEmail,
 }) => {
   const lang: Language = language;
   const isAr = lang === 'ar';
@@ -55,7 +57,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [companyName, setCompanyName] = useState('');
   const [crNumber, setCrNumber] = useState('');
   const [repName, setRepName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(accountEmail || '');
   const [phone, setPhone] = useState('');
   const [country] = useState('العراق');
   const [city, setCity] = useState('بغداد');

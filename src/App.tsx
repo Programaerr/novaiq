@@ -19,7 +19,7 @@ import { Language } from './lib/i18n';
 // smooth performance on weak/low-end devices, since less JS means less to download,
 // parse, and execute before the page becomes interactive.
 const TemplateGrid = lazy(() => import('./components/TemplateGrid').then((m) => ({ default: m.TemplateGrid })));
-const ContractBuilder = lazy(() => import('./components/ContractBuilder').then((m) => ({ default: m.ContractBuilder })));
+const ContractBuilderGate = lazy(() => import('./components/ContractBuilderGate').then((m) => ({ default: m.ContractBuilderGate })));
 const ContractPDFPreview = lazy(() => import('./components/ContractPDFPreview').then((m) => ({ default: m.ContractPDFPreview })));
 const PolicyPage = lazy(() => import('./components/PolicyPage').then((m) => ({ default: m.PolicyPage })));
 const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox })));
@@ -322,7 +322,7 @@ export default function App() {
         {activePage === 'custom-request' && (
           <div className="page-in max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <Suspense fallback={<PageLoader />}>
-              <ContractBuilder
+              <ContractBuilderGate
                 language={language}
                 selectedTemplate={selectedTemplateForContract}
                 onContractGenerated={handleContractGenerated}

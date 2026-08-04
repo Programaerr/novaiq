@@ -107,9 +107,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           <NovaiqLogo size={34} showText={true} />
         </a>
 
-        {/* Side 2: Account — before login, two separate entry points (Sign Up / Login);
-            once signed in, one "My Account" button (own contracts, or the control panel if
-            the account is an admin — AdminPage decides which). */}
+        {/* Side 2: Account — before login, a single "Login" entry point (Google sign-in
+            covers both login and first-time sign-up in one click, so a separate "Sign Up"
+            button would just be a second path to the exact same screen); once signed in,
+            one "My Account" button (own contracts, or the control panel if the account is
+            an admin — AdminPage decides which). */}
         <div className="flex items-center gap-2 relative z-10">
           {isLoggedIn ? (
             <a
@@ -125,23 +127,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden sm:inline">{isAr ? 'حسابي' : 'My Account'}</span>
             </a>
           ) : (
-            <>
-              <a
-                href="?page=orders&mode=signup"
-                onClick={(e) => goToAccount('signup', e)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-zinc-200 text-black border border-white transition-all cursor-pointer white-btn-glow"
-              >
-                <span>{isAr ? 'اشتراك' : 'Sign Up'}</span>
-              </a>
-              <a
-                href="?page=orders&mode=login"
-                onClick={(e) => goToAccount('login', e)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-zinc-200 text-black border border-white transition-all cursor-pointer white-btn-glow"
-              >
-                <LogIn className="w-4 h-4 text-black" />
-                <span className="hidden sm:inline">{isAr ? 'تسجيل دخول' : 'Login'}</span>
-              </a>
-            </>
+            <a
+              href="?page=orders&mode=login"
+              onClick={(e) => goToAccount('login', e)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-zinc-200 text-black border border-white transition-all cursor-pointer white-btn-glow"
+            >
+              <LogIn className="w-4 h-4 text-black" />
+              <span className="hidden sm:inline">{isAr ? 'تسجيل دخول' : 'Login'}</span>
+            </a>
           )}
         </div>
 

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   signInWithPopup,
   GoogleAuthProvider,
@@ -25,6 +26,15 @@ export function logoutAccount() {
 
 export function subscribeToAuthState(callback: (user: User | null) => void) {
   return onAuthStateChanged(auth, callback);
+}
+
+// `undefined` while the initial auth check is in flight, `null` once resolved to "signed
+// out". Any component needing "who's logged in, if anyone" (e.g. gating a page behind
+// login) can use this instead of wiring its own subscribeToAuthState effect.
+export function useCurrentUser(): User | null | undefined {
+  const [user, setUser] = useState<User | null | undefined>(undefined);
+  useEffect(() => subscribeToAuthState(setUser), []);
+  return user;
 }
 
 function normalizeEmail(email: string): string {

@@ -27,6 +27,7 @@ import { logoutAccount, addAdminEmail, authErrorMessage } from '../lib/auth';
 import { useLiveTemplates, subscribeToPricingOverrides, savePricingOverride, PricingOverride } from '../lib/pricingOverrides';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
+import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { cosmicAudio } from '../lib/audio';
 
 interface AdminDashboardProps {
@@ -71,6 +72,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
   const [tab, setTab] = useState<Tab>('overview');
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [events, setEvents] = useState<AnalyticsEvent[]>([]);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeToContracts(setContracts);
@@ -120,6 +122,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2 pb-12 space-y-6">
+      {showLogoutConfirm && (
+        <LogoutConfirmDialog
+          isAr={isAr}
+          onCancel={() => setShowLogoutConfirm(false)}
+          onConfirm={() => logoutAccount()}
+        />
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
         <div className="flex items-center gap-3">

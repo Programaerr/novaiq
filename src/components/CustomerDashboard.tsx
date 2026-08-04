@@ -8,6 +8,7 @@ import { subscribeToContracts } from '../lib/firebase';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
+import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 
 interface CustomerDashboardProps {
   language: Language;
@@ -39,6 +40,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
   const isAr = language === 'ar';
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeToContracts((all) => {
@@ -50,6 +52,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-2 pb-12 space-y-6">
+      {showLogoutConfirm && (
+        <LogoutConfirmDialog
+          isAr={isAr}
+          onCancel={() => setShowLogoutConfirm(false)}
+          onConfirm={() => logoutAccount()}
+        />
+      )}
       <div className="flex items-center justify-between gap-4 pb-4 border-b border-zinc-800">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-md">
@@ -63,7 +72,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
           </div>
         </div>
         <button
-          onClick={() => logoutAccount()}
+          onClick={() => setShowLogoutConfirm(true)}
           className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors shrink-0"
         >
           <LogOut className="w-4 h-4" />
