@@ -144,17 +144,17 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
         </div>
 
         {/* Bottom Callout */}
-        <div className="mt-16 text-center">
+        <div className="mt-16 flex justify-center">
           <button
             onClick={() => {
               onCreateContract();
               cosmicAudio.playWarp();
             }}
-            className="px-8 py-4 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-sm uppercase tracking-[0.1em] shadow-xl shadow-white/10 hover:scale-[1.02] transition-all inline-flex items-center gap-3 cursor-pointer border border-white"
+            className="px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold uppercase tracking-[0.1em] shadow-xl shadow-white/10 hover:scale-[1.02] transition-all inline-flex items-center cursor-pointer border border-white"
           >
-            <Rocket className="w-5 h-5 text-black" />
+            <Rocket className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
             <span>{language === 'ar' ? 'ابدأ تنفيذ مشروعك ووقع العقد الآن' : 'Start Your Project & Sign Contract Now'}</span>
-            <ArrowLeft className={`w-5 h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
+            <ArrowLeft className={`w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
           </button>
         </div>
 
