@@ -208,7 +208,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     <div className="relative z-10 w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
                       <Icon className="w-4 h-4" />
                     </div>
-                    <div className="relative z-10 text-base sm:text-lg lg:text-xl font-bold text-white font-mono mb-0.5">{title}</div>
+                    <div className="relative z-10 text-base sm:text-lg lg:text-xl font-bold text-white mb-0.5">{title}</div>
                     <div className="relative z-10 text-[10px] sm:text-[11px] text-zinc-400">{desc}</div>
                   </div>
                 </div>
