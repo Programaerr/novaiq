@@ -23,26 +23,40 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onCreateContract,
   language,
 }) => {
+  // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
+  // for real photography until the client supplies per-guarantee images.
   const guarantees = [
     {
       Icon: Clock,
       title: language === 'ar' ? 'تسليم سريع ومنظم' : 'Fast Delivery',
       desc: language === 'ar' ? 'منهجية برمجية واضحة ومحددة' : 'Clear timeline & sprints',
+      bgImage:
+        'linear-gradient(115deg, transparent 0%, transparent 42%, rgba(255,255,255,0.4) 50%, transparent 58%, transparent 100%), linear-gradient(135deg, #3f3f46, #09090b)',
+      bgSize: 'auto, cover',
     },
     {
       Icon: ShieldCheck,
       title: language === 'ar' ? 'مواصفات برمجية دقيقة' : 'Verified Specs',
       desc: language === 'ar' ? 'حقوق الكود كاملة مع الحفظ' : 'Full code ownership',
+      bgImage:
+        'linear-gradient(rgba(255,255,255,0.28) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.28) 1px, transparent 1px), linear-gradient(160deg, #27272a, #000)',
+      bgSize: '22px 22px, 22px 22px, cover',
     },
     {
       Icon: Award,
       title: language === 'ar' ? 'دعم فني متكامل' : 'Full Support',
       desc: language === 'ar' ? 'متابعة دورية حسب الاتفاق' : 'Ongoing technical SLA',
+      bgImage:
+        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.45), transparent 45%), radial-gradient(circle at 72% 68%, rgba(255,255,255,0.22), transparent 50%), linear-gradient(180deg, #3f3f46, #000)',
+      bgSize: 'cover, cover, cover',
     },
     {
       Icon: Globe2,
       title: language === 'ar' ? 'أداء فائق السرعة' : 'Blazing Performance',
       desc: language === 'ar' ? 'أحدث التقنيات لسرعة استثنائية' : 'Modern web tech stacks',
+      bgImage:
+        'conic-gradient(from 0deg, rgba(255,255,255,0.3), transparent 20%, rgba(255,255,255,0.18) 40%, transparent 60%, rgba(255,255,255,0.25) 80%, transparent 100%), radial-gradient(circle, #27272a, #000)',
+      bgSize: 'cover, cover',
     },
   ];
 
@@ -131,14 +145,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* Key Guarantees Wheel — a 3D cube of cards the visitor spins by dragging
-            (mouse or touch) or with the arrow buttons. DOM order is reversed on purpose:
-            the page is dir="rtl", so the first child lands on the physical right. */}
-        <div className="flex items-center justify-center gap-4">
+            (mouse or touch) or with the arrow buttons pinned to the far edges of the
+            row. DOM order is reversed on purpose: the page is dir="rtl", so the first
+            child lands on the physical right. */}
+        <div className="flex items-center justify-between w-full max-w-xs sm:max-w-xl lg:max-w-2xl mx-auto">
           <button
             type="button"
             onClick={() => rotateBy(-WHEEL_STEP)}
             aria-label={language === 'ar' ? 'التالي' : 'Next'}
-            className="shrink-0 w-9 h-9 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -154,18 +169,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               className={`wheel3d-ring${isDragging ? ' is-dragging' : ''}`}
               style={{ transform: `rotateY(${rotation}deg)` }}
             >
-              {guarantees.map(({ Icon, title, desc }, i) => (
+              {guarantees.map(({ Icon, title, desc, bgImage, bgSize }, i) => (
                 <div
                   key={title}
                   className="wheel3d-item"
                   style={{ '--item-angle': `${i * 90}deg` } as React.CSSProperties}
                 >
-                  <div className="h-full flex flex-col justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
-                    <div className="w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
+                  <div className="group relative overflow-hidden h-full flex flex-col justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none"
+                      style={{ backgroundImage: bgImage, backgroundSize: bgSize }}
+                    />
+                    <div className="relative z-10 w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
                       <Icon className="w-4 h-4" />
                     </div>
-                    <div className="text-base sm:text-lg lg:text-xl font-bold text-white font-mono mb-0.5">{title}</div>
-                    <div className="text-[10px] sm:text-[11px] text-zinc-400">{desc}</div>
+                    <div className="relative z-10 text-base sm:text-lg lg:text-xl font-bold text-white font-mono mb-0.5">{title}</div>
+                    <div className="relative z-10 text-[10px] sm:text-[11px] text-zinc-400">{desc}</div>
                   </div>
                 </div>
               ))}
@@ -176,7 +195,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             type="button"
             onClick={() => rotateBy(WHEEL_STEP)}
             aria-label={language === 'ar' ? 'السابق' : 'Previous'}
-            className="shrink-0 w-9 h-9 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
