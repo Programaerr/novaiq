@@ -282,7 +282,7 @@ export default function App() {
 
             {/* Quick Overview Grid to drive leads */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
+              <div className="corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
                 <div className="flex flex-col gap-4">
                   <div className="flex-1 flex flex-col justify-start space-y-3 text-right">
                     <h3 className="text-xl sm:text-3xl font-bold text-white">
