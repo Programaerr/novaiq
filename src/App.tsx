@@ -282,15 +282,21 @@ export default function App() {
                       ? 'نحن لا نضيع وقتك في نقاشات ومفاوضات مطولة. قوالبنا البرمجية الجاهزة تمنحك انطلاقة فورية بنسبة 80% من مشروعك، بينما نتولى نحن تخصيص الـ 20% المتبقية لتلائم هوية شركتك ومتطلباتك الخاصة.'
                       : 'We get straight to execution. Our pre-built production templates give you an instant 80% head start, while we customize the remaining 20% specifically for your brand identity.'}
                   </p>
-                  <div className="grid grid-cols-3 gap-3 pt-2">
+                  <div className="grid grid-cols-3 gap-3 pt-2 items-end">
                     {[
-                      { value: '80%', label: isAr ? 'جاهزية فورية' : 'Instant readiness' },
-                      { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery' },
-                      { value: '100%', label: isAr ? 'ملكية الكود' : 'Code ownership' },
+                      { value: '80%', label: isAr ? 'جاهزية فورية' : 'Instant readiness', fill: 80 },
+                      { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
+                      { value: '100%', label: isAr ? 'ملكية الكود' : 'Code ownership', fill: 100 },
                     ].map((stat, idx) => (
-                      <div key={idx} className="text-center p-3 rounded-xl bg-black border border-zinc-800/80">
+                      <div key={idx} className="flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-800/80">
+                        <div className="relative w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
+                          <div
+                            className="absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
+                            style={{ height: `${stat.fill}%` }}
+                          />
+                        </div>
                         <div className="text-lg sm:text-xl font-extrabold text-white font-mono">{stat.value}</div>
-                        <div className="text-[10px] text-zinc-400 mt-0.5">{stat.label}</div>
+                        <div className="text-[10px] text-zinc-400">{stat.label}</div>
                       </div>
                     ))}
                   </div>
