@@ -269,7 +269,7 @@ export default function App() {
       />
 
       {/* Main Content View with Hardware Accelerated Transitions */}
-      <main className="flex-1 relative z-10 pt-24 sm:pt-28 md:pt-32 pb-8">
+      <main className="flex-1 relative z-10 pt-20 sm:pt-24 md:pt-28 pb-8">
         
         {activePage === 'home' && (
           <div className="page-in space-y-20 sm:space-y-24">
