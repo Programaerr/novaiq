@@ -17,6 +17,15 @@ interface MilestoneTimelineProps {
 }
 
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateContract, language = 'ar' }) => {
+  // Windows/Fluent-style spotlight, reused from the homepage feature squares: pushes
+  // the cursor position straight into a CSS custom property via the DOM (no setState)
+  // so a circular mask can follow the mouse every frame without re-rendering.
+  const handleNumberSpotlight = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+  };
+
   const milestones = [
     {
       weeks: language === 'ar' ? 'الأسبوع 1 - 2' : 'Weeks 1 - 2',
@@ -87,14 +96,22 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
             return (
               <div
                 key={index}
+                onMouseMove={handleNumberSpotlight}
                 className="bg-zinc-950 border border-zinc-800 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-700 transition-all shadow-xl"
               >
 
-                {/* Background phase-number watermark — clipped to its own layer (not
-                    the card) so the card itself can stay overflow-visible for the
-                    floating badge below to poke past its top edge. */}
-                <div className="absolute inset-0 rounded-[32px] overflow-hidden pointer-events-none">
-                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9rem] font-black text-white opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500 leading-none select-none font-mono">
+                {/* Background phase-number, revealed only inside a circular spotlight
+                    that tracks the cursor (mask-image, not a blur) — clipped to its own
+                    layer so the card itself can stay overflow-visible for the floating
+                    badge below to poke past its top edge. */}
+                <div
+                  className="absolute inset-0 rounded-[32px] overflow-hidden pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    WebkitMaskImage: 'radial-gradient(120px circle at var(--spot-x, 50%) var(--spot-y, 50%), black, transparent 70%)',
+                    maskImage: 'radial-gradient(120px circle at var(--spot-x, 50%) var(--spot-y, 50%), black, transparent 70%)',
+                  }}
+                >
+                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9rem] font-black text-white leading-none select-none font-mono">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
