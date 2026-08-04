@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Rocket,
   FileText,
@@ -94,6 +94,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     setRotation((r) => snapToStep(r) + delta);
   };
 
+  // Auto-advance one face every 5s. Depending on `rotation` restarts the timer after
+  // any manual click/drag, so the wheel never auto-advances right on top of the visitor's
+  // own input. Paused while dragging and skipped entirely under reduced-motion.
+  useEffect(() => {
+    if (isDragging) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => {
+      setRotation((r) => snapToStep(r) + WHEEL_STEP);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [isDragging, rotation]);
+
   return (
     <section className="relative pt-4 pb-8 md:pt-6 md:pb-10 overflow-hidden">
       
@@ -125,7 +137,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </p>
 
         {/* Primary Action Buttons - Seamless SPA transition */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 w-full">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12 sm:mb-14 w-full">
           
           <button
             onClick={onExploreTemplates}
