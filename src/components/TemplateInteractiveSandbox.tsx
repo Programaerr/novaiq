@@ -3601,7 +3601,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               onClick={onClose}
               className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0"
             >
-              <ArrowLeft className="w-4 h-4 text-zinc-300" />
+              <ArrowLeft className="w-4 h-4 text-zinc-300 ltr:rotate-180" />
               <span className="hidden sm:inline">العودة</span>
             </button>
             <div className="h-5 w-px bg-zinc-800 hidden sm:block shrink-0" />
@@ -3811,7 +3811,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
             >
               <span>طلب واستخراج العقد</span>
-              <ArrowLeft className="w-4 h-4 text-black" />
+              <ArrowLeft className="w-4 h-4 text-black ltr:rotate-180" />
             </button>
           </div>
         </div>
