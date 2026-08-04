@@ -26,6 +26,17 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Client-queryable mirror of every signed-in account (written by src/lib/auth.ts on
+    // each login). Lets the Subscribers/Team admin panels list real accounts straight from
+    // Firestore, with no Admin SDK service account key required. Only the signed-in user
+    // may write their own doc; only an admin may list the full directory — a regular
+    // customer must never be able to enumerate every other customer's email/photo.
+    match /users/{uid} {
+      allow get: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow list: if isAdmin();
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
     // Live price overrides for the public catalogue: everyone needs to read these (any
     // visitor browsing templates), but only an admin may change a price.
     match /pricing_overrides/{document=**} {

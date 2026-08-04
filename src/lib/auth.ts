@@ -41,6 +41,33 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
+// Mirrors every signed-in account into a client-queryable `users/{uid}` Firestore doc.
+// Enumerating Firebase Auth accounts directly needs the Admin SDK (server-only, requires a
+// service account key), which most local setups don't have configured yet — this mirror is
+// what lets the Subscribers/Team panels list real accounts without that dependency.
+// Registered once here (not inside subscribeToAuthState) so it fires exactly once per real
+// auth change no matter how many components subscribe.
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+  try {
+    const ref = doc(db, 'users', user.uid);
+    const existing = await getDoc(ref);
+    await setDoc(
+      ref,
+      {
+        email: normalizeEmail(user.email || ''),
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        lastSignInAt: new Date().toISOString(),
+        ...(existing.exists() ? {} : { createdAt: new Date().toISOString() }),
+      },
+      { merge: true }
+    );
+  } catch {
+    // Best-effort mirror — a failed write here must never block sign-in itself.
+  }
+});
+
 // The admin allowlist: document ID is the admin's email. A document existing (its content
 // doesn't matter) means that email is an admin. `get`-by-exact-ID is allowed for anyone
 // signed in (so the app can check "am I an admin?"), but `list` is denied — the set of
