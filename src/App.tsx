@@ -305,10 +305,10 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
                 <div className="flex flex-col gap-4">
                   <div className="flex-1 flex flex-col justify-center space-y-3 text-right">
-                    <h3 className="text-lg sm:text-2xl font-bold text-white">
+                    <h3 className="text-xl sm:text-3xl font-bold text-white">
                       {isAr ? 'الإنتاجية والسرعة في تسليم مشروعك' : 'Speed & Efficiency for Your Project'}
                     </h3>
-                    <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                    <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
                       {isAr
                         ? 'نحن لا نضيع وقتك في نقاشات ومفاوضات مطولة. قوالبنا البرمجية الجاهزة تمنحك انطلاقة فورية بنسبة 80% من مشروعك، بينما نتولى نحن تخصيص الـ 20% المتبقية لتلائم هوية شركتك ومتطلباتك الخاصة.'
                         : 'We get straight to execution. Our pre-built production templates give you an instant 80% head start, while we customize the remaining 20% specifically for your brand identity.'}
