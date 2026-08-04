@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties, type MouseEvent } from 'react';
+import Lenis from 'lenis';
 import { CosmicBackground } from './components/CosmicBackground';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -51,6 +52,31 @@ export default function App() {
   // Dynamic active background image computation
   const activeBgImage = (activePage === 'custom-request' && selectedTemplateForContract ? selectedTemplateForContract.previewImage : null)
     || (standalonePreviewTemplate ? standalonePreviewTemplate.previewImage : null);
+
+  // Buttery-smooth wheel scrolling (iOS-style momentum) for mouse/trackpad input — touch
+  // devices already get native momentum scrolling from the OS, so this only changes the
+  // feel of wheel-driven scrolling. Skipped under reduced-motion; elements marked
+  // data-lenis-prevent (modals, admin tables, the PDF preview) keep native scroll intact.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const lenis = new Lenis({
+      duration: 1.1,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
+
+    let rafId: number;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, []);
 
   // Scroll Spy for Home Page sections.
   // Uses IntersectionObserver rather than a scroll listener: reading offsetTop on every
