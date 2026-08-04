@@ -331,9 +331,8 @@ export default function App() {
                             } as CSSProperties}
                           />
                         </div>
-                        <div className="relative text-lg sm:text-xl font-extrabold text-white font-mono text-center">
-                          <span>{stat.value}</span>
-                          <span className="absolute top-0 -start-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">+</span>
+                        <div className="text-lg sm:text-xl font-extrabold text-white font-mono text-center">
+                          {stat.value}
                         </div>
                         <div className="text-[10px] text-zinc-400 text-center">{stat.label}</div>
                       </div>
