@@ -19,6 +19,29 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onCreateContract,
   language,
 }) => {
+  const guarantees = [
+    {
+      Icon: Clock,
+      title: language === 'ar' ? 'تسليم سريع ومنظم' : 'Fast Delivery',
+      desc: language === 'ar' ? 'منهجية برمجية واضحة ومحددة' : 'Clear timeline & sprints',
+    },
+    {
+      Icon: ShieldCheck,
+      title: language === 'ar' ? 'مواصفات برمجية دقيقة' : 'Verified Specs',
+      desc: language === 'ar' ? 'حقوق الكود كاملة مع الحفظ' : 'Full code ownership',
+    },
+    {
+      Icon: Award,
+      title: language === 'ar' ? 'دعم فني متكامل' : 'Full Support',
+      desc: language === 'ar' ? 'متابعة دورية حسب الاتفاق' : 'Ongoing technical SLA',
+    },
+    {
+      Icon: Globe2,
+      title: language === 'ar' ? 'أداء فائق السرعة' : 'Blazing Performance',
+      desc: language === 'ar' ? 'أحدث التقنيات لسرعة استثنائية' : 'Modern web tech stacks',
+    },
+  ];
+
   return (
     <section className="relative pt-4 pb-8 md:pt-6 md:pb-10 overflow-hidden">
       
@@ -69,41 +92,26 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </button>
         </div>
 
-        {/* Key Guarantees Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-          
-          <div className="p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all group shadow-xl">
-            <div className="w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
-              <Clock className="w-4 h-4" />
-            </div>
-            <div className="text-xl font-bold text-white font-mono mb-0.5">{language === 'ar' ? 'تسليم سريع ومنظم' : 'Fast Delivery'}</div>
-            <div className="text-[11px] text-zinc-400">{language === 'ar' ? 'منهجية برمجية واضحة ومحددة' : 'Clear timeline & sprints'}</div>
+        {/* Key Guarantees Wheel — the four cards orbit as one ring; each card counter-rotates
+            at the exact same rate so its own text stays upright while its position circles. */}
+        <div className="orbit-wheel mx-auto">
+          <div className="orbit-ring">
+            {guarantees.map(({ Icon, title, desc }, i) => (
+              <div
+                key={title}
+                className="orbit-item"
+                style={{ '--orbit-angle': `${i * 90}deg` } as React.CSSProperties}
+              >
+                <div className="orbit-card h-full flex flex-col justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
+                  <div className="w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="text-base sm:text-lg lg:text-xl font-bold text-white font-mono mb-0.5">{title}</div>
+                  <div className="text-[10px] sm:text-[11px] text-zinc-400">{desc}</div>
+                </div>
+              </div>
+            ))}
           </div>
-
-          <div className="p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all group shadow-xl">
-            <div className="w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <div className="text-xl font-bold text-white font-mono mb-0.5">{language === 'ar' ? 'مواصفات برمجية دقيقة' : 'Verified Specs'}</div>
-            <div className="text-[11px] text-zinc-400">{language === 'ar' ? 'حقوق الكود كاملة مع الحفظ' : 'Full code ownership'}</div>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all group shadow-xl">
-            <div className="w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
-              <Award className="w-4 h-4" />
-            </div>
-            <div className="text-xl font-bold text-white font-mono mb-0.5">{language === 'ar' ? 'دعم فني متكامل' : 'Full Support'}</div>
-            <div className="text-[11px] text-zinc-400">{language === 'ar' ? 'متابعة دورية حسب الاتفاق' : 'Ongoing technical SLA'}</div>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all group shadow-xl">
-            <div className="w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
-              <Globe2 className="w-4 h-4" />
-            </div>
-            <div className="text-xl font-bold text-white font-mono mb-0.5">{language === 'ar' ? 'أداء فائق السرعة' : 'Blazing Performance'}</div>
-            <div className="text-[11px] text-zinc-400">{language === 'ar' ? 'أحدث التقنيات لسرعة استثنائية' : 'Modern web tech stacks'}</div>
-          </div>
-
         </div>
 
       </div>

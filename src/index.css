@@ -195,11 +195,89 @@
   animation: pulse-glow 8s ease-in-out infinite;
 }
 
+/* Orbit Feature Wheel — the ring spins continuously while each card counter-rotates at
+   the identical rate, so the ring drives position but every card's own text stays upright
+   through the whole revolution. */
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbit-spin-reverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.orbit-wheel {
+  --orbit-radius: 88px;
+  position: relative;
+  width: calc(var(--orbit-radius) * 2 + 130px);
+  height: calc(var(--orbit-radius) * 2 + 130px);
+}
+
+@media (min-width: 640px) {
+  .orbit-wheel {
+    --orbit-radius: 150px;
+    width: calc(var(--orbit-radius) * 2 + 168px);
+    height: calc(var(--orbit-radius) * 2 + 168px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .orbit-wheel {
+    --orbit-radius: 220px;
+    width: calc(var(--orbit-radius) * 2 + 190px);
+    height: calc(var(--orbit-radius) * 2 + 190px);
+  }
+}
+
+.orbit-ring {
+  position: absolute;
+  inset: 0;
+  animation: orbit-spin 32s linear infinite;
+}
+
+.orbit-wheel:hover .orbit-ring,
+.orbit-wheel:hover .orbit-card {
+  animation-play-state: paused;
+}
+
+.orbit-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130px;
+  margin: -65px 0 0 -65px;
+  transform: rotate(var(--orbit-angle)) translateY(calc(var(--orbit-radius) * -1)) rotate(calc(var(--orbit-angle) * -1));
+}
+
+@media (min-width: 640px) {
+  .orbit-item {
+    width: 168px;
+    margin: -84px 0 0 -84px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .orbit-item {
+    width: 190px;
+    margin: -95px 0 0 -95px;
+  }
+}
+
+.orbit-card {
+  animation: orbit-spin-reverse 32s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .animate-pulse-glow {
+    animation: none;
+  }
+  .orbit-ring,
+  .orbit-card {
     animation: none;
   }
   *,
