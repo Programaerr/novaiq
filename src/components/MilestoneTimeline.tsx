@@ -95,7 +95,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                     card itself can stay overflow-visible for the floating badge below
                     to poke past its top edge. */}
                 <div className="absolute inset-0 rounded-[32px] overflow-hidden pointer-events-none">
-                  <span className="absolute top-3 left-4 text-[5.5rem] font-black text-white leading-none select-none font-mono opacity-0 blur-md group-hover:opacity-30 group-hover:blur-[2px] transition-all duration-500">
+                  <span className="absolute top-0 left-9 text-[5.5rem] font-black text-white leading-none select-none font-mono opacity-0 blur-md group-hover:opacity-30 group-hover:blur-[2px] transition-all duration-500">
                     {index + 1}
                   </span>
                 </div>
