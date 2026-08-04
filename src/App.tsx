@@ -200,13 +200,6 @@ export default function App() {
     };
   }, [language]);
 
-  // Anonymous page-view logging — a no-op until the visitor accepts the cookie banner.
-  // Dynamically imported so the analytics module (which pulls in Firebase) never sits
-  // on the critical path for first paint.
-  useEffect(() => {
-    import('./lib/analytics').then(({ trackPageView }) => trackPageView(activePage));
-  }, [activePage]);
-
   const navigateTo = (page: string) => {
     setActivePage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -103,15 +103,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
   const isAr = language === 'ar';
   const [tab, setTab] = useState<Tab>('overview');
   const [contracts, setContracts] = useState<ContractData[]>([]);
-  const [events, setEvents] = useState<AnalyticsEvent[]>([]);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const unsub = subscribeToContracts(setContracts);
     return unsub;
   }, []);
-
-  useEffect(() => subscribeToAnalyticsEvents(setEvents), []);
 
   const stats = useMemo(() => {
     const totalIQD = contracts.reduce((s, c) => s + (c.totalPriceIQD || 0), 0);
@@ -133,17 +130,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
       avgIQD: contracts.length ? Math.round(totalIQD / contracts.length) : 0,
     };
   }, [contracts]);
-
-  const analyticsStats = useMemo(() => {
-    const pageViews = events.filter((e) => e.event === 'page_view');
-    const byPage: Record<string, number> = {};
-    pageViews.forEach((e) => {
-      const p = e.page || 'unknown';
-      byPage[p] = (byPage[p] || 0) + 1;
-    });
-    const topPages = Object.entries(byPage).sort((a, b) => b[1] - a[1]).slice(0, 8);
-    return { totalViews: pageViews.length, topPages };
-  }, [events]);
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
