@@ -92,8 +92,8 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
 
                 {/* Floating icon badge — pops above the card's top edge instead of
                     sitting inline, matching the reference card's badge treatment. */}
-                <div className="group/badge absolute -top-7 right-6 w-14 h-14 rounded-full bg-white flex items-center justify-center text-black shadow-lg z-10 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] cursor-pointer">
-                  <Icon className="w-6 h-6 transition-transform duration-300 group-hover/badge:rotate-12 group-hover/badge:scale-110" />
+                <div className="absolute -top-7 right-6 w-14 h-14 rounded-full bg-white flex items-center justify-center text-black shadow-lg z-10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(255,255,255,0.5)]">
+                  <Icon className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
                 </div>
 
                 {/* Weeks Banner */}
