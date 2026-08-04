@@ -277,6 +277,48 @@
   opacity: 1;
 }
 
+/* Electric frame — the border glow pulses up and fades back down on its own, like a
+   current flickering through it, instead of a steady static border. */
+@keyframes electric-pulse {
+  0%, 100% {
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 24px rgba(255, 255, 255, 0.25), inset 0 0 16px rgba(255, 255, 255, 0.08);
+  }
+}
+
+.electric-frame {
+  animation: electric-pulse 3s ease-in-out infinite;
+}
+
+/* Corner sweep — a white light band that travels from the top-left corner to the
+   bottom-right corner and loops, automatically, independent of text direction (it's a
+   screen-space diagonal, not a logical start/end). */
+@keyframes corner-sweep {
+  0% { transform: translate(-100%, -100%); }
+  100% { transform: translate(100%, 100%); }
+}
+
+.corner-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.corner-sweep::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(135deg, transparent 47%, rgba(255, 255, 255, 0.55) 50%, transparent 53%);
+  animation: corner-sweep 4s linear infinite;
+  pointer-events: none;
+}
+
 /* Template-preview navbar wordmark: "Logo [mark] Design" — hover-triggered, not automatic.
    The mark only spins while the pointer is over the navbar's logo group, and "Design"
    stays hidden until then, sliding out from the mark on hover-in and smoothly retreating
