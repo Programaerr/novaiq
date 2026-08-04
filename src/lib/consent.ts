@@ -24,9 +24,3 @@ export function setConsentStatus(status: ConsentStatus) {
 export function isTrackingAllowed(): boolean {
   return getConsentStatus() === 'accepted';
 }
-
-export function onConsentChange(callback: (status: ConsentStatus) => void): () => void {
-  const handler = (e: Event) => callback((e as CustomEvent<ConsentStatus>).detail);
-  window.addEventListener(CONSENT_EVENT, handler);
-  return () => window.removeEventListener(CONSENT_EVENT, handler);
-}
