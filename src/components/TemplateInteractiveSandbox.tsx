@@ -1356,9 +1356,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <div className={`text-base font-bold font-mono ${themeStyle.primaryText}`}>
                       {prod.priceIQD.toLocaleString()} د.ع
                     </div>
-                    <div className="text-[10px] text-slate-500 font-mono">
-                      (~${prod.priceUSD} USD)
-                    </div>
                   </div>
 
                   <button 
@@ -1452,9 +1449,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                           <span className={`text-lg font-bold font-mono ${themeStyle.primaryText}`}>
                             {selectedProductForModal.priceIQD.toLocaleString()} د.ع
                           </span>
-                          <span className="text-xs text-slate-500 font-mono">
-                            (~${selectedProductForModal.priceUSD} USD)
-                          </span>
                         </div>
                       </div>
 
@@ -1512,12 +1506,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       </div>
 
                       {/* Dynamic Quantity Selection */}
-                      <div className="space-y-2 pt-1 border-t border-slate-850">
+                      <div className="space-y-2 pt-1 border-t border-white/10">
                         <div className="flex items-center justify-between">
                           <label className="block text-slate-400 font-bold text-[11px]">الكمية المطلوبة:</label>
                           <span className="text-[11px] text-slate-500 font-bold">الحد الأقصى للشراء 10 قطع</span>
                         </div>
-                        <div className="flex items-center gap-3 bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 w-fit">
+                        <div className="flex items-center gap-3 bg-black/30 backdrop-blur-sm px-3 py-2 rounded-xl border border-white/10 w-fit">
                           <button 
                             onClick={() => setModalQuantity(prev => Math.max(1, prev - 1))}
                             className="p-1.5 hover:bg-slate-800 hover:text-white text-slate-400 cursor-pointer rounded-lg transition-colors"
@@ -1751,7 +1745,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <p className="text-xs text-slate-400">فاتورة طلب تجريبية مكتملة لموقعك القادم</p>
                 </div>
 
-                <div className="space-y-2.5 text-xs bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div className="space-y-2.5 text-xs bg-black/30 backdrop-blur-sm p-4 rounded-xl border border-white/10">
                   <div className="flex justify-between border-b border-white/10 pb-2">
                     <span className="text-slate-400">رقم الفاتورة:</span>
                     <span className="font-mono font-bold text-white">{orderConfirmedInvoice.orderId}</span>
@@ -2050,7 +2044,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <div className="p-4 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 text-center space-y-1">
                   <span className="text-slate-400 block text-[11px]">التكلفة التقديرية الحالية:</span>
                   <span className={`text-xl font-bold font-mono ${themeStyle.primaryText}`}>
-                    {orgSize === 'medium' ? '$2,500 - $4,800 USD' : orgSize === 'large' ? '$4,800 - $9,000 USD' : '$9,000 - $18,000 USD'}
+                    {orgSize === 'medium' ? '3,625,000 - 6,960,000 د.ع' : orgSize === 'large' ? '6,960,000 - 13,050,000 د.ع' : '13,050,000 - 26,100,000 د.ع'}
                   </span>
                 </div>
               </div>
@@ -2202,7 +2196,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <button onClick={() => setActiveTab('pricing')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
                       شاهد خطط الأسعار
                     </button>
-                    <button onClick={() => setActiveTab('docs')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer">
+                    <button onClick={() => setActiveTab('docs')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 text-xs font-bold cursor-pointer">
                       استكشف توثيق API
                     </button>
                   </div>
@@ -2302,7 +2296,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </ul>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-900 border border-slate-700 space-y-2 relative">
+                  <div className="p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2 relative">
                     <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-indigo-500 text-[10px] text-white font-bold">
                       الأكثر طلباً
                     </span>
@@ -2403,7 +2397,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <button onClick={() => setActiveTab('properties')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
                       تصفح العقارات المتاحة
                     </button>
-                    <button onClick={() => setActiveTab('agents')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer">
+                    <button onClick={() => setActiveTab('agents')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 text-xs font-bold cursor-pointer">
                       تواصل مع مستشار عقاري
                     </button>
                   </div>
@@ -2432,7 +2426,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <button
                     onClick={() => setSelectedPropertyFilter('all')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'all' ? `${themeStyle.primaryBg} text-white` : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                      selectedPropertyFilter === 'all' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                     }`}
                   >
                     الكل
@@ -2440,7 +2434,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <button
                     onClick={() => setSelectedPropertyFilter('villas')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'villas' ? `${themeStyle.primaryBg} text-white` : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                      selectedPropertyFilter === 'villas' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                     }`}
                   >
                     فلل فاخرة
@@ -2448,7 +2442,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <button
                     onClick={() => setSelectedPropertyFilter('apartments')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'apartments' ? `${themeStyle.primaryBg} text-white` : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                      selectedPropertyFilter === 'apartments' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                     }`}
                   >
                     شقق ومكاتب
@@ -2459,7 +2453,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   {filteredProperties.map(prop => (
                     <div key={prop.id} className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-3 flex flex-col justify-between hover:border-white/25 hover:shadow-lg transition-all">
                       <div className="space-y-2">
-                        <div className="h-40 rounded-xl overflow-hidden relative border border-slate-800 bg-slate-950">
+                        <div className="h-40 rounded-xl overflow-hidden relative border border-white/10 bg-black/30 backdrop-blur-sm">
                           <img src={prop.image} alt={prop.title} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-all duration-300" referrerPolicy="no-referrer" />
                           <span className="absolute top-2 right-2 bg-black/85 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
                             {prop.category === 'villas' ? 'فيلا فاخرة' : 'عقار مكتبي/سكني'}
@@ -2473,14 +2467,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-slate-850 flex items-center justify-between">
+                      <div className="pt-2 border-t border-white/10 flex items-center justify-between">
                         <div>
                           <span className="text-[10px] text-slate-500 block font-semibold">القيمة التقديرية:</span>
                           <span className="text-sm font-bold text-amber-400 font-mono block">
-                            ${prop.priceUSD.toLocaleString()} USD
-                          </span>
-                          <span className="text-[10px] text-slate-450 font-mono">
-                            ({prop.priceIQD.toLocaleString()} د.ع)
+                            {prop.priceIQD.toLocaleString()} د.ع
                           </span>
                         </div>
 
@@ -2553,7 +2544,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </button>
 
                 {propertyVisits.length > 0 && (
-                  <div className="pt-3 border-t border-slate-800 space-y-2">
+                  <div className="pt-3 border-t border-white/10 space-y-2">
                     <span className="font-bold text-white block">طلبات المعاينة المقدمة:</span>
                     {propertyVisits.map((v) => (
                       <div key={v.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
@@ -2712,7 +2703,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </button>
 
                 {appointments.length > 0 && (
-                  <div className="pt-3 border-t border-slate-800 space-y-2">
+                  <div className="pt-3 border-t border-white/10 space-y-2">
                     <span className="font-bold text-white block">مواعيدك المحجوزة:</span>
                     {appointments.map((apt) => (
                       <div key={apt.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
@@ -2866,7 +2857,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         </div>
                       </div>
                     ))}
-                    <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                    <div className="pt-3 border-t border-white/10 flex items-center justify-between">
                       <span className="font-bold text-white">الإجمالي:</span>
                       <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{foodOrderTotalIQD.toLocaleString()} د.ع</span>
                     </div>
@@ -2916,7 +2907,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </button>
 
                 {tableReservations.length > 0 && (
-                  <div className="pt-3 border-t border-slate-800 space-y-2">
+                  <div className="pt-3 border-t border-white/10 space-y-2">
                     <span className="font-bold text-white block">حجوزاتك:</span>
                     {tableReservations.map((r) => (
                       <div key={r.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
@@ -3180,7 +3171,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <span className="font-bold text-white">الإجمالي ({nightsPreview} ليالٍ):</span>
                   <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{(nightsPreview * selectedRoom.pricePerNightIQD).toLocaleString()} د.ع</span>
                 </div>
@@ -3209,7 +3200,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <div className="flex justify-between"><span className="text-slate-400">الوصول:</span><span className="text-white font-mono">{latestBooking.checkIn}</span></div>
                       <div className="flex justify-between"><span className="text-slate-400">المغادرة:</span><span className="text-white font-mono">{latestBooking.checkOut}</span></div>
                       <div className="flex justify-between"><span className="text-slate-400">عدد الليالي:</span><span className="text-white font-mono">{latestBooking.nights}</span></div>
-                      <div className="flex justify-between pt-1.5 border-t border-slate-800"><span className="text-slate-400">الإجمالي:</span><span className={`font-bold ${themeStyle.primaryText}`}>{latestBooking.totalIQD.toLocaleString()} د.ع</span></div>
+                      <div className="flex justify-between pt-1.5 border-t border-white/10"><span className="text-slate-400">الإجمالي:</span><span className={`font-bold ${themeStyle.primaryText}`}>{latestBooking.totalIQD.toLocaleString()} د.ع</span></div>
                     </div>
                   </>
                 ) : (
@@ -3271,7 +3262,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 {foundShipment && (
-                  <div className="pt-3 border-t border-slate-800 space-y-3">
+                  <div className="pt-3 border-t border-white/10 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="font-mono font-bold text-white">{foundShipment.trackingNumber}</span>
                       <span className={`px-2.5 py-0.5 rounded-full ${themeStyle.badgeBg} text-[11px] font-bold`}>{foundShipment.status}</span>
@@ -3288,7 +3279,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                           {stage.done ? (
                             <CheckCircle2 className={`w-4 h-4 ${themeStyle.primaryText} shrink-0`} />
                           ) : (
-                            <span className="w-4 h-4 rounded-full border border-slate-700 shrink-0" />
+                            <span className="w-4 h-4 rounded-full border border-white/10 shrink-0" />
                           )}
                           <span className={stage.done ? 'text-white font-bold' : 'text-slate-500'}>{stage.label}</span>
                         </div>
@@ -3330,7 +3321,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     ))}
                   </div>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <span className="font-bold text-white">السعر التقديري:</span>
                   <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{computeShippingQuote().toLocaleString()} د.ع</span>
                 </div>
@@ -3409,7 +3400,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <button onClick={() => setActiveTab('wallet')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
                       افتح المحفظة الرقمية
                     </button>
-                    <button onClick={() => setActiveTab('security')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 text-xs font-bold cursor-pointer">
+                    <button onClick={() => setActiveTab('security')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 text-xs font-bold cursor-pointer">
                       إعدادات الأمان
                     </button>
                   </div>
@@ -3435,12 +3426,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {fintechTab === 'wallet' && (
               <div className={`p-4 sm:p-6 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} border ${themeStyle.primaryBorder} space-y-3 sm:space-y-4 animate-fade-in`}>
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3 pt-1`}>
-                  <div className="bg-slate-950/70 p-3.5 sm:p-4 rounded-xl border border-slate-800">
+                  <div className="bg-black/30 backdrop-blur-sm p-3.5 sm:p-4 rounded-xl border border-white/10">
                     <span className="text-xs text-slate-400 block mb-1">الرصيد الكلي المتوفر:</span>
                     <div className={`text-xl sm:text-2xl font-bold ${themeStyle.primaryText} font-mono`}>14,250,000 د.ع</div>
-                    <span className="text-[10px] text-slate-400 font-mono">(~$9,820 USD)</span>
                   </div>
-                  <div className="bg-slate-950/70 p-3.5 sm:p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-2">
+                  <div className="bg-black/30 backdrop-blur-sm p-3.5 sm:p-4 rounded-xl border border-white/10 flex flex-col justify-between space-y-2">
                     <span className="text-xs text-slate-400 block">آخر عملية تحويل:</span>
                     <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
                       <ArrowUpRight className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -3480,11 +3470,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
 
                 {/* Transaction history log */}
-                <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 text-xs">
+                <div className="p-3.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 space-y-2 text-xs">
                   <span className="font-bold text-white block">سجل المعاملات السريعة:</span>
                   <div className="space-y-1.5">
                     {transfersLog.map((tx) => (
-                      <div key={tx.id} className="flex items-center justify-between p-2 rounded bg-slate-900/90 text-[11px] border border-slate-800">
+                      <div key={tx.id} className="flex items-center justify-between p-2 rounded bg-white/5 backdrop-blur-md text-[11px] border border-white/10">
                         <div>
                           <span className="text-white font-bold block">{tx.recipient}</span>
                           <span className="text-slate-500 text-[10px] font-mono">{tx.id} • {tx.date}</span>
@@ -3554,7 +3544,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950 text-zinc-100 flex flex-col w-full h-[100dvh] overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm text-zinc-100 flex flex-col w-full h-[100dvh] overflow-hidden animate-fade-in">
       
       {/* Floating Top Bar / Controls */}
       {!controlsHidden ? (
@@ -3591,47 +3581,47 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               </button>
 
               {showColorPicker && (
-                <div className="absolute top-11 right-0 z-50 bg-slate-900 border border-slate-700 p-3 rounded-2xl shadow-2xl space-y-2 w-48 text-xs animate-fade-in">
+                <div className="absolute top-11 right-0 z-50 bg-white/5 backdrop-blur-md border border-white/10 p-3 rounded-2xl shadow-2xl space-y-2 w-48 text-xs animate-fade-in">
                   <span className="font-bold text-white block text-[11px]">اختر ثيم الألوان المفضل:</span>
                   <div className="grid grid-cols-2 gap-1.5">
                     <button 
                       onClick={() => changeThemeColor('emerald')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'emerald' ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500' : 'bg-slate-950 text-slate-400'}`}
+                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'emerald' ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
                     >
                       <span>زمردي</span>
                       <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
                     </button>
                     <button 
                       onClick={() => changeThemeColor('purple')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'purple' ? 'bg-purple-900/60 text-purple-300 border border-purple-500' : 'bg-slate-950 text-slate-400'}`}
+                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'purple' ? 'bg-purple-900/60 text-purple-300 border border-purple-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
                     >
                       <span>بنفسجي</span>
                       <span className="w-3 h-3 rounded-full bg-purple-500 inline-block" />
                     </button>
                     <button 
                       onClick={() => changeThemeColor('cyan')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'cyan' ? 'bg-cyan-900/60 text-cyan-300 border border-cyan-500' : 'bg-slate-950 text-slate-400'}`}
+                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'cyan' ? 'bg-cyan-900/60 text-cyan-300 border border-cyan-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
                     >
                       <span>سماوي</span>
                       <span className="w-3 h-3 rounded-full bg-cyan-500 inline-block" />
                     </button>
                     <button 
                       onClick={() => changeThemeColor('amber')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'amber' ? 'bg-amber-900/60 text-amber-300 border border-amber-500' : 'bg-slate-950 text-slate-400'}`}
+                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'amber' ? 'bg-amber-900/60 text-amber-300 border border-amber-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
                     >
                       <span>ذهبي</span>
                       <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" />
                     </button>
                     <button 
                       onClick={() => changeThemeColor('rose')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'rose' ? 'bg-rose-900/60 text-rose-300 border border-rose-500' : 'bg-slate-950 text-slate-400'}`}
+                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'rose' ? 'bg-rose-900/60 text-rose-300 border border-rose-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
                     >
                       <span>ياقوتي</span>
                       <span className="w-3 h-3 rounded-full bg-rose-500 inline-block" />
                     </button>
                     <button 
                       onClick={() => changeThemeColor('monochrome')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'monochrome' ? 'bg-zinc-800 text-white border border-white' : 'bg-slate-950 text-slate-400'}`}
+                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'monochrome' ? 'bg-zinc-800 text-white border border-white' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
                     >
                       <span>رمادي</span>
                       <span className="w-3 h-3 rounded-full bg-white inline-block" />
@@ -3713,10 +3703,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       )}
 
       {/* Main Full-Screen Live Site Area */}
-      <div className={`flex-1 overflow-y-auto w-full ${deviceView === 'full' ? 'bg-slate-950 p-2 sm:p-4' : 'bg-black p-2 sm:p-6'} flex flex-col items-center justify-start`}>
+      <div className={`flex-1 overflow-y-auto w-full ${deviceView === 'full' ? 'bg-black/30 backdrop-blur-sm p-2 sm:p-4' : 'bg-black p-2 sm:p-6'} flex flex-col items-center justify-start`}>
         
         {deviceView === 'full' ? (
-          <div className="w-full min-h-full bg-slate-950 text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
+          <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
             {renderInteractivePageContent()}
           </div>
         ) : (
@@ -3744,7 +3734,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </div>
 
             {/* Render Standalone Interactive Page */}
-            <div className="p-3 sm:p-6 overflow-y-auto flex-1 bg-slate-950/40">
+            <div className="p-3 sm:p-6 overflow-y-auto flex-1 bg-black/30 backdrop-blur-sm">
               {renderInteractivePageContent()}
             </div>
           </div>
