@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, type CSSProperties, type MouseEvent } from 'react';
 import { CosmicBackground } from './components/CosmicBackground';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -203,6 +203,15 @@ export default function App() {
 
   const isAr = language === 'ar';
 
+  // Fluent/Windows-style spotlight: pushes the cursor position straight into a CSS
+  // custom property via the DOM (no setState) so the glow can track the mouse every
+  // frame without re-rendering the component on each move.
+  const handleSpotlightMove = (e: MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+  };
+
   if (standalonePreviewTemplate) {
     return (
       <div className="min-h-screen bg-black text-white relative">
@@ -288,14 +297,17 @@ export default function App() {
                       { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
                       { value: '100%', label: isAr ? 'ملكية الكود' : 'Code ownership', fill: 100 },
                     ].map((stat, idx) => (
-                      <div key={idx} className="flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-800/80">
+                      <div key={idx} className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-800/80">
                         <div className="relative w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
-                            className="absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
-                            style={{ height: `${stat.fill}%` }}
+                            className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
+                            style={{ '--fill': `${stat.fill}%`, '--fill-hover': `${Math.min(stat.fill + 15, 100)}%` } as CSSProperties}
                           />
                         </div>
-                        <div className="text-lg sm:text-xl font-extrabold text-white font-mono">{stat.value}</div>
+                        <div className="text-lg sm:text-xl font-extrabold text-white font-mono flex items-center justify-center gap-0.5">
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">+</span>
+                          <span>{stat.value}</span>
+                        </div>
                         <div className="text-[10px] text-zinc-400">{stat.label}</div>
                       </div>
                     ))}
@@ -309,9 +321,13 @@ export default function App() {
                     { label: isAr ? "ربط وحفظ في Firebase" : "Firebase Cloud Storage", desc: isAr ? "ضمان حفظ كل البيانات" : "Persistent data sync" },
                     { label: isAr ? "أكواد برمجية نظيفة" : "Clean Source Code", desc: isAr ? "سهلة الصيانة والتشغيل" : "Maintainable architecture" }
                   ].map((x, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl bg-black border border-zinc-800/80 space-y-1">
-                      <div className="text-xs font-bold text-white">{x.label}</div>
-                      <div className="text-[11px] text-zinc-400">{x.desc}</div>
+                    <div
+                      key={idx}
+                      onMouseMove={handleSpotlightMove}
+                      className="spotlight-card aspect-square flex flex-col justify-center p-4 rounded-2xl bg-black border border-zinc-800/80 space-y-1"
+                    >
+                      <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
+                      <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>
                     </div>
                   ))}
                 </div>

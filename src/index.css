@@ -244,6 +244,39 @@
   backface-visibility: hidden;
 }
 
+/* Stat bar meters — the fill grows a little further on hover, in step with the "+"
+   revealed next to the number, to read as the metric ticking up. */
+.stat-bar-fill {
+  height: var(--fill);
+  transition: height 0.4s ease;
+}
+
+.group:hover .stat-bar-fill {
+  height: var(--fill-hover);
+}
+
+/* Windows/Fluent-style spotlight — a soft light that follows the cursor inside the
+   card. --spot-x/--spot-y are pushed straight to the DOM by a mousemove handler (see
+   handleSpotlightMove), so the glow tracks every frame without a React re-render. */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(220px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.14), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
