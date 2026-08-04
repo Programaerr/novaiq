@@ -141,18 +141,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           
           <button
             onClick={onExploreTemplates}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-sm white-btn-glow hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+            className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
           >
-            <Rocket className="w-4 h-4 text-black" />
-            <span>{language === 'ar' ? 'استكشاف القوالب الجاهزة' : 'Explore Ready Templates'}</span>
+            <Rocket className="relative z-10 w-4 h-4 text-white" />
+            <span className="relative z-10">{language === 'ar' ? 'استكشاف القوالب الجاهزة' : 'Explore Ready Templates'}</span>
           </button>
 
           <button
             onClick={onCreateContract}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-black hover:bg-zinc-900 text-white font-extrabold text-sm border border-zinc-700 hover:border-white glow-white-hover hover:scale-[1.01] transition-all flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
+            className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
           >
-            <FileText className="w-4 h-4 text-zinc-300" />
-            <span>{language === 'ar' ? 'ابدأ مشروعك' : 'START YOUR Project'}</span>
+            <FileText className="relative z-10 w-4 h-4 text-white" />
+            <span className="relative z-10">{language === 'ar' ? 'ابدأ مشروعك' : 'START YOUR Project'}</span>
           </button>
         </div>
 
