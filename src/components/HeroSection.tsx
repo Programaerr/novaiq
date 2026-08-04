@@ -187,7 +187,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   className="wheel3d-item"
                   style={{ '--item-angle': `${i * 90}deg` } as React.CSSProperties}
                 >
-                  <div className="group relative overflow-hidden h-full flex flex-col justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-right hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
+                  <div className="group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-center hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none"
                       style={{ backgroundImage: bgImage, backgroundSize: bgSize }}
