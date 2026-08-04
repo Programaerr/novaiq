@@ -57,6 +57,33 @@ function StatTile({ icon: Icon, label, value, accent }: { icon: React.ElementTyp
   );
 }
 
+function TabButton({
+  tabItem,
+  active,
+  onClick,
+  full,
+}: {
+  tabItem: { id: string; label: string; icon: React.ElementType };
+  active: boolean;
+  onClick: () => void;
+  full?: boolean;
+}) {
+  const Icon = tabItem.icon;
+  return (
+    <button
+      onClick={onClick}
+      className={`${full ? 'w-full' : ''} px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all border ${
+        active
+          ? 'bg-zinc-800 border-white text-white'
+          : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white'
+      }`}
+    >
+      <Icon className="w-4 h-4 shrink-0" />
+      <span>{tabItem.label}</span>
+    </button>
+  );
+}
+
 function BarRow({ label, count, total, isAr }: { label: string; count: number; total: number; isAr: boolean }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
@@ -127,7 +154,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2 pb-12 space-y-6">
+    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-12">
       {showLogoutConfirm && (
         <LogoutConfirmDialog
           isAr={isAr}
@@ -136,7 +163,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
         />
       )}
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-zinc-800">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-md">
             <ShieldCheck className="w-5 h-5" />
@@ -159,34 +186,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2">
-        {tabs.map((t) => {
-          const Icon = t.icon;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all border ${
-                tab === t.id
-                  ? 'bg-zinc-800 border-white text-white'
-                  : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <div className="lg:flex lg:items-start lg:gap-6">
+        {/* Desktop sidebar nav — a horizontal wrapping pill row was the only layout at any
+            width before, which left most of a wide monitor as empty background next to a
+            narrow content column. A persistent sidebar reclaims that width for content and
+            scales far better past tablet size. */}
+        <nav className="hidden lg:flex lg:flex-col lg:w-56 xl:w-64 shrink-0 gap-1.5 sticky lg:top-28 self-start">
+          {tabs.map((t) => (
+            <TabButton key={t.id} tabItem={t} active={tab === t.id} onClick={() => setTab(t.id)} full />
+          ))}
+        </nav>
 
-      {tab === 'overview' && (
-        <OverviewTab isAr={isAr} stats={stats} analyticsStats={analyticsStats} contracts={contracts} language={language} />
-      )}
-      {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} />}
-      {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
-      {tab === 'team' && <TeamTab isAr={isAr} />}
-      {tab === 'members' && <MembersTab isAr={isAr} />}
+        {/* Mobile/tablet: the original horizontal wrapping pill row */}
+        <div className="flex lg:hidden flex-wrap gap-2 mb-6">
+          {tabs.map((t) => (
+            <TabButton key={t.id} tabItem={t} active={tab === t.id} onClick={() => setTab(t.id)} />
+          ))}
+        </div>
+
+        <div className="flex-1 min-w-0 space-y-6">
+          {tab === 'overview' && (
+            <OverviewTab isAr={isAr} stats={stats} analyticsStats={analyticsStats} contracts={contracts} language={language} />
+          )}
+          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} />}
+          {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
+          {tab === 'team' && <TeamTab isAr={isAr} />}
+          {tab === 'members' && <MembersTab isAr={isAr} />}
+        </div>
+      </div>
     </div>
   );
 };
@@ -917,8 +944,8 @@ function TeamTab({ isAr }: { isAr: boolean }) {
   };
 
   return (
-    <div className="max-w-lg space-y-6">
-      <div className="space-y-4">
+    <div className="space-y-6">
+      <div className="max-w-lg space-y-4">
         <p className="text-xs text-zinc-400">
           {isAr
             ? 'أضف بريد شريكك هنا ليصبح مسؤولاً (أدمن) بنفس صلاحياتك الكاملة. عليه بعدها إنشاء حساب عادي بنفس البريد من زر "اشتراك" — بمجرد تسجيل دخوله، سيدخل تلقائياً إلى لوحة التحكم هذه بدلاً من صفحة العقود الخاصة بالزبائن.'
