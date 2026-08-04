@@ -69,7 +69,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-6">
+        <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
             {language === 'ar' ? 'جدول المراحل الزمنية لتنفيذ مشروعك' : 'Project Sprints & Delivery Timeline'}
           </h2>
@@ -134,7 +134,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
         </div>
 
         {/* Bottom Callout */}
-        <div className="mt-12 text-center">
+        <div className="mt-16 text-center">
           <button
             onClick={() => {
               onCreateContract();
