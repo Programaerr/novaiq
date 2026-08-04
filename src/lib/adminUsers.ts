@@ -1,4 +1,5 @@
-import { auth } from './firebase';
+import { collection, getDocs, getDoc, doc } from 'firebase/firestore';
+import { auth, db } from './firebase';
 
 export interface ManagedUser {
   uid: string;
@@ -46,9 +47,25 @@ async function authedFetch(path: string, options: RequestInit = {}): Promise<any
   return body;
 }
 
+// Reads the `users` mirror (see src/lib/auth.ts) straight from Firestore — no Admin SDK /
+// service account key needed. Firestore's own rules restrict `list` on this collection to
+// admins only (see firestore.rules), so a regular customer can never enumerate it even by
+// calling this same function.
 export async function listAllUsers(): Promise<ManagedUser[]> {
-  const data = await authedFetch('/api/admin/users');
-  return Array.isArray(data.users) ? data.users : [];
+  if (!auth.currentUser) throw new Error('Not signed in');
+  const snap = await getDocs(collection(db, 'users'));
+  return snap.docs.map((d) => {
+    const data = d.data() as Record<string, unknown>;
+    return {
+      uid: d.id,
+      email: (data.email as string) || '',
+      displayName: (data.displayName as string) || '',
+      photoURL: (data.photoURL as string) || '',
+      disabled: !!data.disabled,
+      createdAt: (data.createdAt as string) || '',
+      lastSignInAt: (data.lastSignInAt as string) || '',
+    };
+  });
 }
 
 export async function setUserDisabled(uid: string, disabled: boolean): Promise<void> {
@@ -71,7 +88,28 @@ export interface TeamMember {
   photoURL: string;
 }
 
+// Cross-references the `users` mirror against the `admins` allowlist entirely client-side.
+// The `admins` collection itself can never be listed (firestore.rules denies it on purpose,
+// so admin emails aren't enumerable), but any signed-in user MAY `get` a single admin doc
+// by its known ID — so checking each registered user's own email individually stays inside
+// that rule without needing the Admin SDK at all.
 export async function listTeamMembers(): Promise<TeamMember[]> {
-  const data = await authedFetch('/api/admin/team');
-  return Array.isArray(data.team) ? data.team : [];
+  const users = await listAllUsers();
+  const results = await Promise.all(
+    users.map(async (u): Promise<TeamMember | null> => {
+      if (!u.email) return null;
+      const adminSnap = await getDoc(doc(db, 'admins', u.email.toLowerCase()));
+      if (!adminSnap.exists()) return null;
+      const data = adminSnap.data() as Record<string, unknown>;
+      return {
+        email: u.email,
+        addedAt: (data?.addedAt as string) || null,
+        hasAccount: true,
+        uid: u.uid,
+        displayName: u.displayName,
+        photoURL: u.photoURL,
+      };
+    })
+  );
+  return results.filter((x): x is TeamMember => x !== null);
 }
