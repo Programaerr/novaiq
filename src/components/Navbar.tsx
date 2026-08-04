@@ -29,7 +29,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   setLanguage,
 }) => {
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // undefined = the initial auth check hasn't resolved yet. Left this way (instead of
+  // defaulting to false) so an already-logged-in visitor never sees the page flash
+  // "Login" for a moment before flipping to "My Account" — the skeleton bridges that gap.
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(undefined);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarBroken, setAvatarBroken] = useState(false);
   const isAr = language === 'ar';
@@ -120,7 +123,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             one "My Account" button (own contracts, or the control panel if the account is
             an admin — AdminPage decides which). */}
         <div className="flex items-center gap-2 relative z-10">
-          {isLoggedIn ? (
+          {isLoggedIn === undefined ? (
+            <div
+              aria-hidden="true"
+              className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 animate-pulse"
+            />
+          ) : isLoggedIn ? (
             <a
               href="?page=orders"
               onClick={(e) => handleNavClick('orders', e)}
