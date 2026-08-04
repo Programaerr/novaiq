@@ -139,7 +139,7 @@ export default function App() {
         setActivePage('home');
       }
     };
-      <h1>  jkjfd</h1>
+    
     handleLocationChange();
     window.addEventListener('popstate', handleLocationChange);
 
