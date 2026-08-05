@@ -1434,60 +1434,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               </div>
 
               {/* Center: Shopify Navigation (interactively filters category states!) */}
-              <nav className={`${isMobileFrame ? 'hidden' : 'hidden md:flex'} items-center gap-5 text-[11px] font-bold`}>
-                <button
-                  onClick={() => {
-                    setStoreCategory('all');
-                    cosmicAudio.playTick();
-                  }}
-                  className={`transition-all pb-1 border-b-2 cursor-pointer ${
-                    storeCategory === 'all' 
-                      ? `text-white border-emerald-400 font-extrabold` 
-                      : 'text-slate-400 border-transparent hover:text-white'
-                  }`}
-                >
-                  الرئيسية
-                </button>
-                <button
-                  onClick={() => {
-                    setStoreCategory('men');
-                    cosmicAudio.playTick();
-                  }}
-                  className={`transition-all pb-1 border-b-2 cursor-pointer ${
-                    storeCategory === 'men' 
-                      ? `text-white border-emerald-400 font-extrabold` 
-                      : 'text-slate-400 border-transparent hover:text-white'
-                  }`}
-                >
-                  الأزياء الرجالية
-                </button>
-                <button
-                  onClick={() => {
-                    setStoreCategory('women');
-                    cosmicAudio.playTick();
-                  }}
-                  className={`transition-all pb-1 border-b-2 cursor-pointer ${
-                    storeCategory === 'women' 
-                      ? `text-white border-emerald-400 font-extrabold` 
-                      : 'text-slate-400 border-transparent hover:text-white'
-                  }`}
-                >
-                  الأزياء النسائية
-                </button>
-                <button
-                  onClick={() => {
-                    setStoreCategory('accessories');
-                    cosmicAudio.playTick();
-                  }}
-                  className={`transition-all pb-1 border-b-2 cursor-pointer ${
-                    storeCategory === 'accessories' 
-                      ? `text-white border-emerald-400 font-extrabold` 
-                      : 'text-slate-400 border-transparent hover:text-white'
-                  }`}
-                >
-                  الأحذية والإكسسوارات
-                </button>
-              </nav>
+              {renderSiteMenuButton()}
 
               {/* Left: Interactive Shopify Cart Trigger */}
               <div className="flex items-center gap-2.5 shrink-0">
@@ -2457,26 +2404,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   Design<span className="animate-pulse">▊</span>
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[11px] w-full sm:w-auto" dir="ltr">
-                {['home', 'features', 'docs', 'pricing', 'dashboard'].map((tabId) => (
-                  <button
-                    key={tabId}
-                    onClick={() => setActiveTab(tabId)}
-                    className={`px-2.5 py-1.5 rounded transition-all cursor-pointer flex items-center gap-1 ${
-                      techTab === tabId ? `${themeStyle.primaryBg} text-white font-bold` : 'text-emerald-500/70 hover:text-emerald-300 hover:bg-white/5'
-                    }`}
-                  >
-                    {techTab === tabId && <ChevronRight className="w-3 h-3 shrink-0" />}
-                    <span>
-                      {tabId === 'home' && '~/home'}
-                      {tabId === 'features' && '~/features'}
-                      {tabId === 'docs' && '~/docs'}
-                      {tabId === 'pricing' && '~/pricing'}
-                      {tabId === 'dashboard' && '~/dashboard'}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {techTab === 'home' && (
@@ -2682,22 +2610,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'properties', 'booking', 'agents'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      realTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'properties' && 'العقارات'}
-                    {tab === 'booking' && 'حجز معاينة'}
-                    {tab === 'agents' && 'مستشارونا'}
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {realTab === 'home' && (
@@ -2911,23 +2824,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'doctors', 'booking', 'results', 'consultation'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      healthTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'doctors' && 'الأطباء والتخصصات'}
-                    {tab === 'booking' && 'حجز موعد'}
-                    {tab === 'results' && 'نتائج التحاليل'}
-                    {tab === 'consultation' && 'استشارة مرئية'}
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {healthTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HEALTH-05'])}
@@ -3089,22 +2986,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'menu', 'order', 'reservation'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      foodTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'menu' && 'قائمة الطعام'}
-                    {tab === 'order' && `سلة الطلب (${foodOrder.reduce((s, o) => s + o.quantity, 0)})`}
-                    {tab === 'reservation' && 'حجز طاولة'}
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {foodTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-FOOD-07'])}
@@ -3260,22 +3142,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'courses', 'enroll', 'dashboard'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      eduTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'courses' && 'الدورات'}
-                    {tab === 'enroll' && 'التسجيل'}
-                    {tab === 'dashboard' && 'لوحة الطالب'}
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {eduTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-EDU-08'])}
@@ -3417,22 +3284,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'rooms', 'booking', 'confirmation'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      hotelTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'rooms' && 'الغرف والأجنحة'}
-                    {tab === 'booking' && 'الحجز'}
-                    {tab === 'confirmation' && 'تأكيد الحجز'}
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {hotelTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HOTEL-09'])}
@@ -3549,22 +3401,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'tracking', 'calculator', 'fleet'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      logisticsTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'tracking' && 'تتبع الشحنة'}
-                    {tab === 'calculator' && 'حاسبة التكلفة'}
-                    {tab === 'fleet' && 'الأسطول'}
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {logisticsTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-LOG-10'])}
@@ -3691,22 +3528,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'wallet', 'cards', 'security'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      fintechTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'wallet' && 'المحفظة'}
-                    {tab === 'cards' && 'البطاقات'}
-                    {tab === 'security' && 'الأمان'}
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {fintechTab === 'home' && (
