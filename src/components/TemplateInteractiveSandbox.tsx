@@ -634,6 +634,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   });
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
 
+  // Frozen at mount on purpose: it seeds the iframe's URL, and a URL that changed with the
+  // palette would reload the running demo on every colour click. Live changes go over
+  // postMessage instead.
+  const initialThemeRef = useRef<ThemeColor>(themeColor);
+
   // General Interactive States
   const [activeTab, setActiveTab] = useState<string>('home');
 
@@ -871,12 +876,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         case 'novaiq_sandbox_cart': syncFromStorage(setCart, event.newValue, [] as CartItem[]); break;
         case 'novaiq_sandbox_appointments': syncFromStorage(setAppointments, event.newValue, [] as Appointment[]); break;
         case 'novaiq_sandbox_food_order': syncFromStorage(setFoodOrder, event.newValue, [] as FoodOrderItem[]); break;
-        case 'novaiq_sandbox_table_reservations': syncFromStorage(setTableReservations, event.newValue, []); break;
+        case 'novaiq_sandbox_table_reservations': syncFromStorage(setTableReservations, event.newValue, [] as Array<{ id: string; guests: number; date: string; time: string }>); break;
         case 'novaiq_sandbox_enrollments': syncFromStorage(setEnrollments, event.newValue, [] as Enrollment[]); break;
         case 'novaiq_sandbox_hotel_bookings': syncFromStorage(setHotelBookings, event.newValue, [] as HotelBooking[]); break;
         case 'novaiq_sandbox_shipping_quotes': syncFromStorage(setSavedQuotes, event.newValue, [] as ShippingQuote[]); break;
-        case 'novaiq_sandbox_property_visits': syncFromStorage(setPropertyVisits, event.newValue, []); break;
-        case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, []); break;
+        case 'novaiq_sandbox_property_visits': syncFromStorage(setPropertyVisits, event.newValue, [] as Array<{ id: string; propertyTitle: string; date: string; visitorName: string }>); break;
+        case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, [] as Array<{ id: string; amount: string; date: string; recipient: string }>); break;
         case 'novaiq_sandbox_account':
           setAccount(() => {
             try {
@@ -3788,218 +3793,809 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm text-zinc-100 flex flex-col w-full h-[100dvh] overflow-hidden animate-fade-in">
-      
-      {/* Floating Top Bar / Controls */}
-      {!controlsHidden ? (
-        <div className="py-2.5 px-3 sm:px-6 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between gap-2 shrink-0 z-30">
-          <div className="flex items-center gap-2 min-w-0">
-            <button
-              onClick={onClose}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0"
-            >
-              <ArrowLeft className="w-4 h-4 text-zinc-300 ltr:rotate-180" />
-              <span className="hidden sm:inline">العودة</span>
-            </button>
-            <div className="h-5 w-px bg-zinc-800 hidden sm:block shrink-0" />
-            <div className="min-w-0">
-              <h3 className="text-xs sm:text-sm font-bold text-white truncate max-w-[130px] sm:max-w-xs">
-                موقع حي: {template.title}
-              </h3>
-              <p className="text-[10px] text-zinc-400 font-mono truncate hidden sm:block">https://live.novaq.space/{template.id}</p>
-            </div>
+  // ---------------------------------------------------------------------------
+  // Site chrome. Everything below is what every template shares as an actual
+  // website rather than a landing page: a utility header with a working account
+  // entry, a sign-in page, a customer + admin area built from the demo's own
+  // data, and a footer. A client evaluating the design is looking for whether
+  // their business could run on this — so the pages a business actually lives in
+  // have to be there.
+  // ---------------------------------------------------------------------------
+
+  const siteIdentity = useMemo(() => {
+    const profile = COMPANY_PROFILES[template.id];
+    if (profile) return { name: profile.name, badge: profile.badge, contact: profile.contact };
+    return (
+      SITE_IDENTITIES[template.id] ?? {
+        name: template.title,
+        badge: template.categoryLabel,
+        contact: {
+          phone: '07700000000',
+          email: 'info@novaiq.space',
+          address: 'بغداد، العراق',
+          hours: 'الأحد - الخميس، 9 صباحاً - 5 مساءً',
+        },
+      }
+    );
+  }, [template]);
+
+  const siteHost = siteIdentity.contact.email.split('@')[1] || 'novaiq.space';
+  const previewAddress = `https://${siteHost}`;
+
+  const recordsLabel = (() => {
+    switch (template.id) {
+      case 'NVQ-HEALTH-05': return 'مواعيدي';
+      case 'NVQ-HOTEL-09': return 'حجوزاتي';
+      case 'NVQ-EDU-08': return 'دوراتي';
+      case 'NVQ-LOG-10': return 'شحناتي';
+      case 'NVQ-FINTECH-06': return 'تحويلاتي';
+      case 'NVQ-REAL-04': return 'معايناتي';
+      case 'NVQ-TECH-03': return 'اشتراكي';
+      default: return 'طلباتي';
+    }
+  })();
+
+  // Built from the template's own live demo state, so whatever the visitor just did on the
+  // site — filled a cart, booked a room, enrolled in a course — is what their account shows.
+  const accountRecords: AccountRecord[] = (() => {
+    if (template.id === 'NVQ-ECOM-02' || template.category === 'ecommerce') {
+      return cart.map((item, i) => ({
+        id: `ORD-${9400 + i}`,
+        title: item.product.name,
+        subtitle: `${item.selectedColor} · قياس ${item.selectedSize}`,
+        meta: `الكمية: ${item.quantity}`,
+        status: i === 0 ? 'قيد التجهيز' : 'بانتظار الشحن',
+        amount: `${(item.product.priceIQD * item.quantity).toLocaleString()} د.ع`,
+      }));
+    }
+
+    switch (template.id) {
+      case 'NVQ-HEALTH-05':
+        return appointments.map((a) => ({
+          id: a.id, title: a.doctorName, subtitle: a.specialty,
+          meta: `${a.date} — الساعة ${a.time}`, status: 'موعد مؤكد',
+        }));
+
+      case 'NVQ-FOOD-07':
+        return [
+          ...foodOrder.map((o, i) => ({
+            id: `FO-${3100 + i}`, title: o.item.name, subtitle: 'طلب توصيل',
+            meta: `الكمية: ${o.quantity}`, status: 'قيد التحضير في المطبخ',
+            amount: `${(o.item.priceIQD * o.quantity).toLocaleString()} د.ع`,
+          })),
+          ...tableReservations.map((r) => ({
+            id: r.id, title: `حجز طاولة لـ ${r.guests} أشخاص`, subtitle: 'حجز في الصالة',
+            meta: `${r.date} — الساعة ${r.time}`, status: 'حجز مؤكد',
+          })),
+        ];
+
+      case 'NVQ-EDU-08':
+        return enrollments.map((e) => ({
+          id: e.id, title: e.courseTitle, subtitle: `الطالب: ${e.studentName}`,
+          meta: `تاريخ التسجيل: ${e.date}`, status: 'مسجّل ونشط',
+        }));
+
+      case 'NVQ-HOTEL-09':
+        return hotelBookings.map((b) => ({
+          id: b.id, title: b.roomName, subtitle: `${b.guests} نزلاء · ${b.nights} ليالٍ`,
+          meta: `${b.checkIn} ← ${b.checkOut}`, status: 'حجز مؤكد',
+          amount: `${b.totalIQD.toLocaleString()} د.ع`,
+        }));
+
+      case 'NVQ-LOG-10':
+        return savedQuotes.map((q) => ({
+          id: q.id, title: `عرض شحن ${q.weight} كغم`,
+          subtitle: q.destination === 'local' ? 'داخل المحافظة' : q.destination === 'regional' ? 'بين المحافظات' : 'شحن دولي',
+          meta: 'عرض سعر محفوظ', status: 'صالح لمدة 7 أيام',
+          amount: `${q.priceIQD.toLocaleString()} د.ع`,
+        }));
+
+      case 'NVQ-REAL-04':
+        return propertyVisits.map((v) => ({
+          id: v.id, title: v.propertyTitle, subtitle: `باسم: ${v.visitorName}`,
+          meta: `موعد المعاينة: ${v.date}`, status: 'بانتظار تأكيد المكتب',
+        }));
+
+      case 'NVQ-FINTECH-06':
+        return transfersLog.map((t) => ({
+          id: t.id, title: t.recipient, subtitle: 'تحويل صادر',
+          meta: t.date, status: 'تم التنفيذ', amount: t.amount,
+        }));
+
+      case 'NVQ-CORP-01': {
+        const sizeLabel = orgSize === 'medium' ? 'مؤسسة متوسطة' : orgSize === 'large' ? 'مؤسسة كبرى' : 'مجموعة قابضة';
+        return [{
+          id: 'REQ-4471', title: 'طلب عرض سعر للحلول المؤسسية', subtitle: sizeLabel,
+          meta: 'قُدّم عبر حاسبة التكلفة', status: 'قيد المراجعة',
+        }];
+      }
+
+      case 'NVQ-TECH-03':
+        return [{
+          id: 'SUB-2210',
+          title: selectedPlan === 'monthly' ? 'الخطة الاحترافية — اشتراك شهري' : 'الخطة الاحترافية — اشتراك سنوي',
+          subtitle: 'مساحة عمل الإنتاج',
+          meta: selectedPlan === 'monthly' ? 'يتجدد تلقائياً كل 30 يوماً' : 'يتجدد سنوياً بخصم 20%',
+          status: 'اشتراك نشط',
+        }];
+
+      default:
+        return [];
+    }
+  })();
+
+  const handleSiteLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = loginEmail.trim().toLowerCase();
+    if (!email.includes('@') || email.length < 6) {
+      setLoginError('يرجى إدخال بريد إلكتروني صحيح.');
+      return;
+    }
+    if (loginPassword.length < 4) {
+      setLoginError('كلمة المرور يجب ألا تقل عن 4 أحرف.');
+      return;
+    }
+    const role: SiteAccount['role'] = email.startsWith('admin') ? 'admin' : 'customer';
+    setAccount({
+      email,
+      name: role === 'admin' ? 'مدير النظام' : email.split('@')[0] || 'زبون',
+      role,
+    });
+    setAccountSection(role === 'admin' ? 'admin' : 'overview');
+    setAuthView('account');
+    setLoginError('');
+    setLoginPassword('');
+    cosmicAudio.playPing();
+  };
+
+  const handleSiteLogout = () => {
+    setAccount(null);
+    setAuthView('site');
+    setActiveTab('home');
+    cosmicAudio.playTick();
+  };
+
+  const renderSiteUtilityBar = () => (
+    <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md">
+      <button
+        onClick={() => setAuthView('site')}
+        className="flex items-center gap-2.5 min-w-0 cursor-pointer text-start group"
+      >
+        <span className={`w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white text-xs font-black shrink-0 shadow-lg`}>
+          {siteIdentity.name.charAt(0)}
+        </span>
+        <span className="min-w-0">
+          <span className="block text-[11px] sm:text-xs font-bold text-white truncate group-hover:opacity-80 transition-opacity">
+            {siteIdentity.name}
+          </span>
+          <span className="hidden sm:flex items-center gap-1 text-[9px] text-slate-500 font-mono" dir="ltr">
+            <Lock className="w-2.5 h-2.5 text-emerald-500" />
+            {siteHost}
+          </span>
+        </span>
+      </button>
+
+      <div className="flex items-center gap-1.5 shrink-0">
+        {account && (
+          <button
+            onClick={() => { setAuthView('account'); setAccountSection('overview'); }}
+            title="الإشعارات"
+            className="relative p-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white cursor-pointer transition-colors"
+          >
+            <Bell className="w-3.5 h-3.5" />
+            {accountRecords.length > 0 && (
+              <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full ${themeStyle.primaryBg} text-white text-[9px] font-bold flex items-center justify-center`}>
+                {accountRecords.length}
+              </span>
+            )}
+          </button>
+        )}
+
+        {account ? (
+          <button
+            onClick={() => setAuthView('account')}
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-colors"
+          >
+            <span className={`w-5 h-5 rounded-full ${themeStyle.primaryBg} flex items-center justify-center text-white text-[9px] font-bold`}>
+              {account.name.charAt(0).toUpperCase()}
+            </span>
+            <span className="text-[11px] font-bold text-white max-w-[80px] truncate">{account.name}</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => { setAuthView('login'); cosmicAudio.playTick(); }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${themeStyle.primaryBg} text-white text-[11px] font-bold cursor-pointer`}
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span>تسجيل الدخول</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderLoginPage = () => (
+    <div className="animate-fade-in flex items-center justify-center py-6 sm:py-12">
+      <div className="w-full max-w-sm space-y-4">
+        <div className="text-center space-y-2">
+          <div className={`w-12 h-12 mx-auto rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shadow-lg`}>
+            <Lock className="w-5 h-5" />
           </div>
+          <h3 className="text-lg font-extrabold text-white">تسجيل الدخول إلى حسابك</h3>
+          <p className="text-[11px] text-slate-400">بوابة العملاء الخاصة بـ {siteIdentity.name}</p>
+        </div>
 
-          {/* Center Color Picker & Viewport Switcher Controls */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            
-            {/* Color Theme Selector Dropdown / Bar */}
-            <div className="relative">
+        <form onSubmit={handleSiteLogin} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3.5 shadow-xl">
+          <label className="block space-y-1.5">
+            <span className="text-[11px] font-bold text-slate-300">البريد الإلكتروني</span>
+            <span className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-black/40 border border-slate-700 focus-within:border-slate-500 transition-colors">
+              <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <input
+                type="email"
+                value={loginEmail}
+                onChange={(e) => { setLoginEmail(e.target.value); setLoginError(''); }}
+                placeholder="you@example.com"
+                dir="ltr"
+                className="flex-1 bg-transparent text-xs text-white outline-none placeholder:text-slate-600 min-w-0"
+              />
+            </span>
+          </label>
+
+          <label className="block space-y-1.5">
+            <span className="text-[11px] font-bold text-slate-300">كلمة المرور</span>
+            <span className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-black/40 border border-slate-700 focus-within:border-slate-500 transition-colors">
+              <KeyRound className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <input
+                type={loginPasswordVisible ? 'text' : 'password'}
+                value={loginPassword}
+                onChange={(e) => { setLoginPassword(e.target.value); setLoginError(''); }}
+                placeholder="••••••••"
+                dir="ltr"
+                className="flex-1 bg-transparent text-xs text-white outline-none placeholder:text-slate-600 min-w-0"
+              />
               <button
-                onClick={() => setShowColorPicker(!showColorPicker)}
-                className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-800 flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-all"
-                title="تخصيص ألوان القالب المباشرة"
+                type="button"
+                onClick={() => setLoginPasswordVisible((v) => !v)}
+                className="text-slate-500 hover:text-slate-300 cursor-pointer shrink-0"
+                title={loginPasswordVisible ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
               >
-                <Palette className="w-3.5 h-3.5 text-amber-400" />
-                <span className="hidden lg:inline text-[11px]">ألوان القالب</span>
+                {loginPasswordVisible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               </button>
+            </span>
+          </label>
 
-              {showColorPicker && (
-                <div className="absolute top-11 right-0 z-50 bg-white/5 backdrop-blur-md border border-white/10 p-3 rounded-2xl shadow-2xl space-y-2 w-48 text-xs animate-fade-in">
-                  <span className="font-bold text-white block text-[11px]">اختر ثيم الألوان المفضل:</span>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <button 
-                      onClick={() => changeThemeColor('emerald')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'emerald' ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
-                    >
-                      <span>زمردي</span>
-                      <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
-                    </button>
-                    <button 
-                      onClick={() => changeThemeColor('purple')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'purple' ? 'bg-purple-900/60 text-purple-300 border border-purple-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
-                    >
-                      <span>بنفسجي</span>
-                      <span className="w-3 h-3 rounded-full bg-purple-500 inline-block" />
-                    </button>
-                    <button 
-                      onClick={() => changeThemeColor('cyan')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'cyan' ? 'bg-cyan-900/60 text-cyan-300 border border-cyan-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
-                    >
-                      <span>سماوي</span>
-                      <span className="w-3 h-3 rounded-full bg-cyan-500 inline-block" />
-                    </button>
-                    <button 
-                      onClick={() => changeThemeColor('amber')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'amber' ? 'bg-amber-900/60 text-amber-300 border border-amber-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
-                    >
-                      <span>ذهبي</span>
-                      <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" />
-                    </button>
-                    <button 
-                      onClick={() => changeThemeColor('rose')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'rose' ? 'bg-rose-900/60 text-rose-300 border border-rose-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
-                    >
-                      <span>ياقوتي</span>
-                      <span className="w-3 h-3 rounded-full bg-rose-500 inline-block" />
-                    </button>
-                    <button 
-                      onClick={() => changeThemeColor('monochrome')}
-                      className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'monochrome' ? 'bg-zinc-800 text-white border border-white' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
-                    >
-                      <span>رمادي</span>
-                      <span className="w-3 h-3 rounded-full bg-white inline-block" />
-                    </button>
+          {loginError && (
+            <p className="text-[11px] text-rose-400 bg-rose-950/40 border border-rose-900/60 rounded-xl px-3 py-2">
+              {loginError}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className={`w-full py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer flex items-center justify-center gap-1.5`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>دخول آمن</span>
+          </button>
+
+          <div className="flex items-center justify-between text-[10px] text-slate-500">
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" defaultChecked className="w-3 h-3 accent-slate-400 cursor-pointer" />
+              <span>تذكّرني على هذا الجهاز</span>
+            </label>
+            <span className="hover:text-slate-300 cursor-pointer">نسيت كلمة المرور؟</span>
+          </div>
+        </form>
+
+        <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2.5">
+          <span className="block text-[10px] text-slate-400">حسابات تجريبية جاهزة — اضغط لتعبئتها فوراً:</span>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => { setLoginEmail('customer@demo.iq'); setLoginPassword('123456'); setLoginError(''); }}
+              className="px-2.5 py-2 rounded-xl bg-black/40 border border-slate-700 hover:border-slate-500 text-[10px] font-bold text-slate-300 cursor-pointer transition-colors"
+            >
+              حساب زبون
+            </button>
+            <button
+              onClick={() => { setLoginEmail('admin@demo.iq'); setLoginPassword('123456'); setLoginError(''); }}
+              className="px-2.5 py-2 rounded-xl bg-black/40 border border-slate-700 hover:border-slate-500 text-[10px] font-bold text-slate-300 cursor-pointer transition-colors"
+            >
+              حساب إدارة
+            </button>
+          </div>
+        </div>
+
+        <button
+          onClick={() => { setAuthView('site'); setLoginError(''); }}
+          className="w-full text-[11px] text-slate-400 hover:text-white cursor-pointer transition-colors"
+        >
+          العودة إلى الموقع
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderRecordCard = (record: AccountRecord) => (
+    <div key={record.id} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 space-y-0.5">
+          <div className="text-xs font-bold text-white truncate">{record.title}</div>
+          <div className="text-[10px] text-slate-400 truncate">{record.subtitle}</div>
+        </div>
+        <span className={`px-2 py-0.5 rounded-full ${themeStyle.badgeBg} text-[9px] font-bold shrink-0 whitespace-nowrap`}>
+          {record.status}
+        </span>
+      </div>
+      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-800 text-[10px]">
+        <span className="text-slate-500 font-mono truncate" dir="ltr">{record.id}</span>
+        <span className="text-slate-400 truncate">{record.meta}</span>
+        {record.amount && <span className={`font-mono font-bold shrink-0 ${themeStyle.primaryText}`}>{record.amount}</span>}
+      </div>
+    </div>
+  );
+
+  const renderAccountPage = () => {
+    if (!account) return renderLoginPage();
+
+    const navItems: Array<{ key: typeof accountSection; label: string; Icon: typeof User }> = [
+      { key: 'overview', label: 'نظرة عامة', Icon: LayoutDashboard },
+      { key: 'records', label: recordsLabel, Icon: Receipt },
+      { key: 'profile', label: 'الملف الشخصي', Icon: User },
+      ...(account.role === 'admin'
+        ? [{ key: 'admin' as const, label: 'لوحة الإدارة', Icon: ShieldCheck }]
+        : []),
+    ];
+
+    return (
+      <div className="animate-fade-in space-y-4">
+        <div className={`flex ${isMobileFrame ? 'flex-col' : 'flex-col lg:flex-row'} gap-4`}>
+          {/* In-site account navigation */}
+          <aside className={`shrink-0 ${isMobileFrame ? '' : 'lg:w-56'} space-y-3`}>
+            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <span className={`w-10 h-10 rounded-full ${themeStyle.primaryBg} flex items-center justify-center text-white text-sm font-black shrink-0`}>
+                  {account.name.charAt(0).toUpperCase()}
+                </span>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-white truncate">{account.name}</div>
+                  <div className="text-[10px] text-slate-500 truncate" dir="ltr">{account.email}</div>
+                </div>
+              </div>
+              <span className={`inline-block px-2 py-0.5 rounded-full ${themeStyle.badgeBg} text-[9px] font-bold`}>
+                {account.role === 'admin' ? 'صلاحيات إدارية' : 'حساب زبون'}
+              </span>
+            </div>
+
+            <nav className={`grid ${isMobileFrame ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-1'} gap-1.5`}>
+              {navItems.map(({ key, label, Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => { setAccountSection(key); cosmicAudio.playTick(); }}
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-[11px] font-bold cursor-pointer transition-colors ${
+                    accountSection === key
+                      ? `${themeStyle.primaryBg} text-white`
+                      : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{label}</span>
+                </button>
+              ))}
+              <button
+                onClick={handleSiteLogout}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[11px] font-bold cursor-pointer bg-slate-900 border border-slate-800 text-rose-400 hover:text-rose-300 transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">تسجيل الخروج</span>
+              </button>
+            </nav>
+          </aside>
+
+          <div className="flex-1 min-w-0 space-y-4">
+            {accountSection === 'overview' && (
+              <div className="space-y-4">
+                <div className={`p-5 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} border ${themeStyle.primaryBorder} space-y-1`}>
+                  <h3 className="text-base sm:text-lg font-extrabold text-white">أهلاً بك من جديد، {account.name}</h3>
+                  <p className="text-[11px] text-slate-300">هذه لوحتك الخاصة داخل موقع {siteIdentity.name}.</p>
+                </div>
+
+                <div className={`grid ${gridCols('grid-cols-2', 'sm:grid-cols-3')} gap-3`}>
+                  <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                    <div className={`text-lg font-extrabold font-mono ${themeStyle.primaryText}`}>{accountRecords.length}</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">{recordsLabel}</div>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                    <div className={`text-lg font-extrabold font-mono ${themeStyle.primaryText}`}>
+                      {accountRecords.filter((r) => r.amount).length}
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">عمليات بقيمة مالية</div>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                    <div className="text-lg font-extrabold font-mono text-emerald-400">نشط</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">حالة الحساب</div>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {/* Viewport switch controls */}
-            <div className="flex items-center gap-0.5 bg-black p-1 rounded-xl border border-zinc-800 text-xs">
-              <button
-                onClick={() => setDeviceView('full')}
-                title="موقع مباشر"
-                className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer ${deviceView === 'full' ? 'bg-zinc-800 text-white font-bold border border-white glow-white' : 'text-zinc-400 hover:text-white'}`}
-              >
-                <Monitor className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">مباشر</span>
-              </button>
-              <button
-                onClick={() => setDeviceView('desktop')}
-                title="شاشة كمبيوتر"
-                className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer ${deviceView === 'desktop' ? 'bg-zinc-800 text-white font-bold border border-white glow-white' : 'text-zinc-400 hover:text-white'}`}
-              >
-                <Monitor className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">كمبيوتر</span>
-              </button>
-              <button
-                onClick={() => setDeviceView('tablet')}
-                title="تابلت"
-                className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer ${deviceView === 'tablet' ? 'bg-zinc-800 text-white font-bold border border-white glow-white' : 'text-zinc-400 hover:text-white'}`}
-              >
-                <Tablet className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">تابلت</span>
-              </button>
-              <button
-                onClick={() => setDeviceView('mobile')}
-                title="جوال"
-                className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer ${deviceView === 'mobile' ? 'bg-zinc-800 text-white font-bold border border-white glow-white' : 'text-zinc-400 hover:text-white'}`}
-              >
-                <Smartphone className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">جوال</span>
-              </button>
-            </div>
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-bold text-white">آخر النشاطات</h4>
+                    <button
+                      onClick={() => setAccountSection('records')}
+                      className={`text-[10px] font-bold cursor-pointer ${themeStyle.primaryText}`}
+                    >
+                      عرض الكل
+                    </button>
+                  </div>
+                  {accountRecords.length === 0 ? (
+                    <div className="p-6 rounded-xl bg-slate-900 border border-slate-800 border-dashed text-center space-y-1.5">
+                      <p className="text-xs text-slate-300 font-bold">لا يوجد نشاط بعد</p>
+                      <p className="text-[10px] text-slate-500">تصفّح الموقع وجرّب الطلب أو الحجز، وستظهر العملية هنا مباشرة.</p>
+                    </div>
+                  ) : (
+                    <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-2.5`}>
+                      {accountRecords.slice(0, 4).map(renderRecordCard)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
-            <button
-              onClick={() => setControlsHidden(true)}
-              title="إخفاء شريط التحكم لمعاينة شاشة كاملة"
-              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 text-xs flex items-center gap-1 cursor-pointer glow-white-hover"
-            >
-              <Eye className="w-4 h-4 text-zinc-300" />
-            </button>
+            {accountSection === 'records' && (
+              <div className="space-y-3">
+                <h4 className="text-sm font-bold text-white">{recordsLabel}</h4>
+                {accountRecords.length === 0 ? (
+                  <div className="p-6 rounded-xl bg-slate-900 border border-slate-800 border-dashed text-center space-y-1.5">
+                    <p className="text-xs text-slate-300 font-bold">القائمة فارغة حالياً</p>
+                    <p className="text-[10px] text-slate-500">كل عملية تنفّذها داخل الموقع تُسجّل هنا تلقائياً.</p>
+                  </div>
+                ) : (
+                  <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-2.5`}>
+                    {accountRecords.map(renderRecordCard)}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {accountSection === 'profile' && (
+              <div className="space-y-3">
+                <h4 className="text-sm font-bold text-white">الملف الشخصي</h4>
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                  {[
+                    { label: 'الاسم الكامل', value: account.name },
+                    { label: 'البريد الإلكتروني', value: account.email, ltr: true },
+                    { label: 'رقم الهاتف', value: siteIdentity.contact.phone, ltr: true },
+                    { label: 'نوع الحساب', value: account.role === 'admin' ? 'حساب إداري' : 'حساب زبون' },
+                  ].map((field) => (
+                    <div key={field.label} className="space-y-1.5">
+                      <span className="text-[11px] font-bold text-slate-300">{field.label}</span>
+                      <div
+                        dir={field.ltr ? 'ltr' : undefined}
+                        className="px-3 py-2.5 rounded-xl bg-black/40 border border-slate-700 text-xs text-white truncate"
+                      >
+                        {field.value}
+                      </div>
+                    </div>
+                  ))}
+                  <button className={`w-full py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
+                    حفظ التعديلات
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {accountSection === 'admin' && account.role === 'admin' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className={`w-4 h-4 ${themeStyle.primaryText}`} />
+                  <h4 className="text-sm font-bold text-white">لوحة إدارة {siteIdentity.name}</h4>
+                </div>
+
+                <div className={`grid ${gridCols('grid-cols-2', 'sm:grid-cols-4')} gap-3`}>
+                  {[
+                    { Icon: Receipt, value: String(accountRecords.length), label: 'سجلات نشطة' },
+                    { Icon: Users, value: '1,284', label: 'مستخدم مسجّل' },
+                    { Icon: TrendingUp, value: '+18%', label: 'نمو هذا الشهر' },
+                    { Icon: Bell, value: '7', label: 'إشعارات جديدة' },
+                  ].map((tile) => (
+                    <div key={tile.label} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                      <tile.Icon className={`w-4 h-4 ${themeStyle.primaryText}`} />
+                      <div className="text-lg font-extrabold font-mono text-white">{tile.value}</div>
+                      <div className="text-[10px] text-slate-400">{tile.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                    <span className="text-xs font-bold text-white">السجلات الواردة</span>
+                    <span className="text-[10px] text-slate-500">تُحدَّث لحظياً</span>
+                  </div>
+                  {accountRecords.length === 0 ? (
+                    <p className="p-6 text-center text-[11px] text-slate-500">لا توجد سجلات واردة بعد.</p>
+                  ) : (
+                    <div className="divide-y divide-slate-800">
+                      {accountRecords.map((record) => (
+                        <div key={record.id} className="px-4 py-3 flex items-center justify-between gap-3 hover:bg-white/[0.03] transition-colors">
+                          <div className="min-w-0">
+                            <div className="text-[11px] font-bold text-white truncate">{record.title}</div>
+                            <div className="text-[10px] text-slate-500 truncate font-mono" dir="ltr">{record.id}</div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {record.amount && <span className="text-[10px] font-mono text-slate-300 hidden sm:inline">{record.amount}</span>}
+                            <span className={`px-2 py-0.5 rounded-full ${themeStyle.badgeBg} text-[9px] font-bold whitespace-nowrap`}>
+                              {record.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-[10px] text-slate-500 leading-relaxed">
+                  لوحة الإدارة تُبنى بالكامل حسب نشاط شركتك: صلاحيات متعددة للموظفين، تقارير، وتحكم كامل بالمحتوى والأسعار.
+                </p>
+              </div>
+            )}
           </div>
         </div>
-      ) : (
-        /* Floating mini badge when controls are hidden */
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-black/95 border border-zinc-700/80 p-2 rounded-2xl shadow-2xl">
-          <button
-            onClick={() => setControlsHidden(false)}
-            className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold cursor-pointer"
-          >
-            إظهار شريط التحكم
-          </button>
+      </div>
+    );
+  };
+
+  const renderSiteFooter = () => (
+    <footer className="mt-6 pt-6 border-t border-white/10 space-y-5">
+      <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-5`}>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className={`w-7 h-7 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white text-[11px] font-black`}>
+              {siteIdentity.name.charAt(0)}
+            </span>
+            <span className="text-xs font-bold text-white">{siteIdentity.name}</span>
+          </div>
+          <p className="text-[10px] text-slate-500 leading-relaxed">{siteIdentity.badge}</p>
+        </div>
+
+        <div className="space-y-2">
+          <h5 className="text-[11px] font-bold text-white">تواصل معنا</h5>
+          <ul className="space-y-1.5 text-[10px] text-slate-400">
+            <li className="flex items-center gap-1.5"><Phone className="w-3 h-3 shrink-0" /><span dir="ltr">{siteIdentity.contact.phone}</span></li>
+            <li className="flex items-center gap-1.5"><Mail className="w-3 h-3 shrink-0" /><span dir="ltr" className="truncate">{siteIdentity.contact.email}</span></li>
+            <li className="flex items-center gap-1.5"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{siteIdentity.contact.address}</span></li>
+            <li className="flex items-center gap-1.5"><Clock className="w-3 h-3 shrink-0" /><span className="truncate">{siteIdentity.contact.hours}</span></li>
+          </ul>
+        </div>
+
+        <div className="space-y-2">
+          <h5 className="text-[11px] font-bold text-white">حسابك</h5>
+          <ul className="space-y-1.5 text-[10px] text-slate-400">
+            <li>
+              <button
+                onClick={() => setAuthView(account ? 'account' : 'login')}
+                className="hover:text-white cursor-pointer transition-colors"
+              >
+                {account ? 'لوحة حسابي' : 'تسجيل الدخول'}
+              </button>
+            </li>
+            <li><button onClick={() => setAuthView('site')} className="hover:text-white cursor-pointer transition-colors">الصفحة الرئيسية</button></li>
+            <li><span className="hover:text-white cursor-pointer transition-colors">سياسة الخصوصية</span></li>
+            <li><span className="hover:text-white cursor-pointer transition-colors">الشروط والأحكام</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-4 border-t border-white/5 text-[10px] text-slate-500">
+        <span>© 2026 {siteIdentity.name} — جميع الحقوق محفوظة.</span>
+        <span className="flex items-center gap-1.5">
+          صُمّم وبُرمج بواسطة
+          <span className="text-slate-300 font-black font-mono tracking-widest">NOVAIQ</span>
+        </span>
+      </div>
+    </footer>
+  );
+
+  /** The template as a complete website: chrome, the page the visitor is on, and a footer. */
+  const renderLiveSite = () => (
+    <div className="space-y-4 sm:space-y-5">
+      {renderSiteUtilityBar()}
+      {authView === 'login'
+        ? renderLoginPage()
+        : authView === 'account'
+        ? renderAccountPage()
+        : renderInteractivePageContent()}
+      {renderSiteFooter()}
+    </div>
+  );
+
+  // A device frame runs this exact component inside an iframe on the same origin, and the
+  // `?live=` tab loads it as a page of its own. In both cases none of the preview toolbar
+  // belongs on screen — the customer is meant to be looking at a website.
+  if (chromeless) {
+    return (
+      <div className="min-h-[100dvh] w-full bg-[#05070c] text-slate-100">
+        <div className="mx-auto w-full max-w-[1400px] px-3 sm:px-6 lg:px-10 py-3 sm:py-6 pb-16">
+          {renderLiveSite()}
+        </div>
+      </div>
+    );
+  }
+
+  const livePreviewSrc = `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${initialThemeRef.current}&name=${encodeURIComponent(template.title)}`;
+
+  const openInNewTab = () => {
+    window.open(
+      `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${themeColor}&name=${encodeURIComponent(template.title)}`,
+      '_blank',
+      'noopener,noreferrer'
+    );
+    cosmicAudio.playPing();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm text-zinc-100 flex flex-col w-full h-[100dvh] overflow-hidden animate-fade-in">
+
+      {/* Preview toolbar */}
+      <div className="py-2.5 px-3 sm:px-6 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between gap-2 shrink-0 z-30">
+        <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={onClose}
-            className="px-3 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold cursor-pointer"
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shrink-0"
           >
-            العودة لـ NOVAIQ
+            <ArrowLeft className="w-4 h-4 text-zinc-300 ltr:rotate-180" />
+            <span className="hidden sm:inline">العودة</span>
+          </button>
+          <div className="h-5 w-px bg-zinc-800 hidden sm:block shrink-0" />
+          <div className="min-w-0">
+            <h3 className="text-xs sm:text-sm font-bold text-white truncate max-w-[130px] sm:max-w-xs">
+              موقع حي: {template.title}
+            </h3>
+            <p className="text-[10px] text-zinc-400 font-mono truncate hidden sm:block" dir="ltr">{previewAddress}</p>
+          </div>
+        </div>
+
+        {/* Center Color Picker & Viewport Switcher Controls */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          
+          {/* Color Theme Selector Dropdown / Bar */}
+          <div className="relative">
+            <button
+              onClick={() => setShowColorPicker(!showColorPicker)}
+              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-800 flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-all"
+              title="تخصيص ألوان القالب المباشرة"
+            >
+              <Palette className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden lg:inline text-[11px]">ألوان القالب</span>
+            </button>
+
+            {showColorPicker && (
+              <div className="absolute top-11 right-0 z-50 bg-white/5 backdrop-blur-md border border-white/10 p-3 rounded-2xl shadow-2xl space-y-2 w-48 text-xs animate-fade-in">
+                <span className="font-bold text-white block text-[11px]">اختر ثيم الألوان المفضل:</span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button 
+                    onClick={() => changeThemeColor('emerald')}
+                    className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'emerald' ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
+                  >
+                    <span>زمردي</span>
+                    <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
+                  </button>
+                  <button 
+                    onClick={() => changeThemeColor('purple')}
+                    className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'purple' ? 'bg-purple-900/60 text-purple-300 border border-purple-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
+                  >
+                    <span>بنفسجي</span>
+                    <span className="w-3 h-3 rounded-full bg-purple-500 inline-block" />
+                  </button>
+                  <button 
+                    onClick={() => changeThemeColor('cyan')}
+                    className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'cyan' ? 'bg-cyan-900/60 text-cyan-300 border border-cyan-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
+                  >
+                    <span>سماوي</span>
+                    <span className="w-3 h-3 rounded-full bg-cyan-500 inline-block" />
+                  </button>
+                  <button 
+                    onClick={() => changeThemeColor('amber')}
+                    className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'amber' ? 'bg-amber-900/60 text-amber-300 border border-amber-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
+                  >
+                    <span>ذهبي</span>
+                    <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" />
+                  </button>
+                  <button 
+                    onClick={() => changeThemeColor('rose')}
+                    className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'rose' ? 'bg-rose-900/60 text-rose-300 border border-rose-500' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
+                  >
+                    <span>ياقوتي</span>
+                    <span className="w-3 h-3 rounded-full bg-rose-500 inline-block" />
+                  </button>
+                  <button 
+                    onClick={() => changeThemeColor('monochrome')}
+                    className={`p-1.5 rounded-lg text-right font-semibold text-[11px] flex items-center justify-between cursor-pointer ${themeColor === 'monochrome' ? 'bg-zinc-800 text-white border border-white' : 'bg-black/30 backdrop-blur-sm text-slate-400'}`}
+                  >
+                    <span>رمادي</span>
+                    <span className="w-3 h-3 rounded-full bg-white inline-block" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Viewport switcher. "شاشتك" is the visitor's own screen, rendered inline;
+              the other three hand the site a real device viewport of its own. */}
+          <div className="flex items-center gap-0.5 bg-black p-1 rounded-xl border border-zinc-800 text-xs">
+            {([
+              { key: 'full', label: 'شاشتك', title: 'عرض على شاشتك الحالية', Icon: Monitor },
+              { key: 'desktop', label: 'كمبيوتر', title: 'محاكاة شاشة كمبيوتر 1280 بكسل', Icon: Monitor },
+              { key: 'tablet', label: 'تابلت', title: 'محاكاة جهاز لوحي 834 بكسل', Icon: Tablet },
+              { key: 'mobile', label: 'جوال', title: 'محاكاة هاتف 390 بكسل', Icon: Smartphone },
+            ] as const).map(({ key, label, title, Icon }) => (
+              <button
+                key={key}
+                onClick={() => { setDeviceView(key); cosmicAudio.playTick(); }}
+                title={title}
+                className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
+                  deviceView === key
+                    ? 'bg-zinc-800 text-white font-bold border border-white glow-white'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span className={key === 'full' ? 'hidden md:inline' : 'hidden sm:inline'}>{label}</span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={openInNewTab}
+            title="فتح القالب في تبويب مستقل بأعلى جودة"
+            className="p-1.5 sm:px-3 sm:py-2 rounded-xl bg-zinc-900 text-zinc-300 hover:text-white border border-zinc-800 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer glow-white-hover transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+            <span className="hidden xl:inline">فتح كموقع مستقل</span>
+            <ExternalLink className="w-3 h-3 hidden xl:inline" />
           </button>
         </div>
-      )}
+      </div>
 
-      {/* Main Full-Screen Live Site Area */}
-      <div data-lenis-prevent className={`flex-1 overflow-y-auto w-full ${deviceView === 'full' ? 'bg-black/30 backdrop-blur-sm p-2 sm:p-4' : 'bg-black p-2 sm:p-6'} flex flex-col items-center justify-start`}>
-        
+      {/* The live site itself. Anything but "شاشتك" hands the template a genuinely separate
+          browsing context at a real device width, so its own media queries decide the layout
+          — the preview is then an honest device simulation, not a scaled-down screenshot. */}
+      <div data-lenis-prevent className={`flex-1 min-h-0 overflow-hidden w-full flex flex-col items-center justify-start ${deviceView === 'full' ? 'overflow-y-auto bg-black/30 backdrop-blur-sm p-2 sm:p-4' : 'bg-gradient-to-b from-zinc-950 to-black p-2 sm:p-4'}`}>
+
         {deviceView === 'full' ? (
           <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
-            {renderInteractivePageContent()}
+            {renderLiveSite()}
           </div>
         ) : (
-          /* Standalone Browser Viewport */
-          <div
-            className={`bg-zinc-950 border-2 border-zinc-800 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 my-auto flex flex-col ${
-              deviceView === 'desktop'
-                ? 'w-full max-w-7xl h-[75vh]'
-                : deviceView === 'tablet'
-                ? 'w-full sm:w-[720px] max-w-full h-[70vh]'
-                : 'w-full max-w-[375px] shrink-0 aspect-[9/19.5] max-h-[80vh]'
-            }`}
-          >
-            {/* Simulated Browser Address Bar */}
-            <div className="bg-zinc-900 px-3 py-2 border-b border-zinc-800 flex items-center justify-between text-xs text-zinc-400 font-mono gap-2 shrink-0">
-              <div className="flex items-center gap-1.5 shrink-0">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-              </div>
-              <div className="bg-black px-3 py-1 rounded-lg text-[10px] sm:text-[11px] text-zinc-200 border border-zinc-800 truncate flex-1 text-center dir-ltr font-mono">
-                https://live.novaq.space/{template.id}
-              </div>
-              <div className="text-[10px] text-zinc-400 shrink-0 hidden sm:block">Baghdad, IQ</div>
-            </div>
-
-            {/* Render Standalone Interactive Page */}
-            <div data-lenis-prevent className="p-3 sm:p-6 overflow-y-auto flex-1 bg-black/30 backdrop-blur-sm">
-              {renderInteractivePageContent()}
-            </div>
-          </div>
+          <DevicePreviewFrame
+            device={deviceView}
+            src={livePreviewSrc}
+            addressUrl={previewAddress}
+            title={`معاينة حية: ${template.title}`}
+            themeColor={themeColor}
+            onOpenNewTab={openInNewTab}
+          />
         )}
 
       </div>
 
       {/* Floating Bottom Action Bar */}
-      {!controlsHidden && (
-        <div className="py-2.5 px-3 sm:px-6 bg-zinc-950 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0 z-20">
-          <div className="text-center sm:text-right">
-            <span className="text-[11px] text-zinc-400">التكلفة الأساسية للقالب: </span>
-            <span className="text-sm sm:text-base font-bold text-white font-mono">
-              {basePrice.toLocaleString()} د.ع
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
-            <button
-              onClick={() => onSelectForContract(template, buildCustomizationSummary(), THEME_COLOR_HEX[themeColor])}
-              className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
-            >
-              <span>طلب واستخراج العقد</span>
-              <ArrowLeft className="w-4 h-4 text-black ltr:rotate-180" />
-            </button>
-          </div>
+      <div className="py-2.5 px-3 sm:px-6 bg-zinc-950 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0 z-20">
+        <div className="text-center sm:text-right">
+          <span className="text-[11px] text-zinc-400">التكلفة الأساسية للقالب: </span>
+          <span className="text-sm sm:text-base font-bold text-white font-mono">
+            {basePrice.toLocaleString()} د.ع
+          </span>
         </div>
-      )}
+
+        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+          <button
+            onClick={() => onSelectForContract(template, buildCustomizationSummary(), THEME_COLOR_HEX[themeColor])}
+            className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
+          >
+            <span>طلب واستخراج العقد</span>
+            <ArrowLeft className="w-4 h-4 text-black ltr:rotate-180" />
+          </button>
+        </div>
+      </div>
 
     </div>
   );
