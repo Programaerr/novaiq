@@ -13,7 +13,8 @@ import {
   RotateCcw,
   ArrowUpDown,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Info
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
@@ -190,6 +191,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <p className="text-zinc-300 text-xs sm:text-sm">
             {getTranslation('templatesSubheading', currentLang)}
           </p>
+          <div className="inline-flex items-center gap-2 mt-3 px-3.5 py-1.5 rounded-full bg-zinc-950/80 border border-zinc-800 text-[11px] text-zinc-400">
+            <Info className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+            <span>
+              {currentLang === 'ar'
+                ? 'السعر المعروض للقالب (التصميم) فقط، ويختلف عند طلب موقع متكامل وجاهز للعمل الفعلي'
+                : 'The price shown is for the template design only — pricing differs for a fully complete, ready-to-launch website'}
+            </span>
+          </div>
         </div>
 
         {/* Top Control Bar (Search + Filter Toggle) */}
