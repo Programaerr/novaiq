@@ -883,14 +883,30 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         case 'novaiq_sandbox_property_visits': syncFromStorage(setPropertyVisits, event.newValue, [] as Array<{ id: string; propertyTitle: string; date: string; visitorName: string }>); break;
         case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, [] as Array<{ id: string; amount: string; date: string; recipient: string }>); break;
         case 'novaiq_sandbox_account':
-          setAccount(() => {
+          setAccount((prev) => {
+            const raw = event.newValue || '';
+            if ((prev ? JSON.stringify(prev) : '') === raw) return prev;
             try {
-              return event.newValue ? (JSON.parse(event.newValue) as SiteAccount) : null;
+              return raw ? (JSON.parse(raw) as SiteAccount) : null;
             } catch {
               return null;
             }
           });
           break;
+
+        // Stored as bare strings rather than JSON, and each one feeds the customization
+        // summary that travels into the contract — so they have to survive being changed
+        // inside a device frame just like the list-shaped state above.
+        case 'novaiq_sandbox_plan':
+          if (event.newValue === 'monthly' || event.newValue === 'yearly') setSelectedPlan(event.newValue);
+          break;
+        case 'novaiq_sandbox_orgsize':
+          if (event.newValue === 'medium' || event.newValue === 'large' || event.newValue === 'holding') setOrgSize(event.newValue);
+          break;
+        case 'novaiq_sandbox_property_filter':
+          if (event.newValue) setSelectedPropertyFilter(event.newValue);
+          break;
+
         default: break;
       }
     };
@@ -4558,7 +4574,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       {/* The live site itself. Anything but "شاشتك" hands the template a genuinely separate
           browsing context at a real device width, so its own media queries decide the layout
           — the preview is then an honest device simulation, not a scaled-down screenshot. */}
-      <div data-lenis-prevent className={`flex-1 min-h-0 overflow-hidden w-full flex flex-col items-center justify-start ${deviceView === 'full' ? 'overflow-y-auto bg-black/30 backdrop-blur-sm p-2 sm:p-4' : 'bg-gradient-to-b from-zinc-950 to-black p-2 sm:p-4'}`}>
+      <div data-lenis-prevent className={`flex-1 min-h-0 w-full flex flex-col items-center justify-start p-2 sm:p-4 ${deviceView === 'full' ? 'overflow-y-auto overflow-x-hidden bg-black/30 backdrop-blur-sm' : 'overflow-hidden bg-gradient-to-b from-zinc-950 to-black'}`}>
 
         {deviceView === 'full' ? (
           <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">

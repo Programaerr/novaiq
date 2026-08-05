@@ -242,9 +242,9 @@ export const DevicePreviewFrame: React.FC<DevicePreviewFrameProps> = ({
               {/* Phone side hardware */}
               {device === 'mobile' && (
                 <>
-                  <span className="device-side-button absolute left-[-2px] top-[128px] w-[3px] h-[54px] rounded-s-md" />
-                  <span className="device-side-button absolute left-[-2px] top-[196px] w-[3px] h-[54px] rounded-s-md" />
-                  <span className="device-side-button absolute right-[-2px] top-[160px] w-[3px] h-[84px] rounded-e-md" />
+                  <span className="device-side-button absolute left-[-2px] top-[128px] w-[3px] h-[54px] rounded-l-md" />
+                  <span className="device-side-button absolute left-[-2px] top-[196px] w-[3px] h-[54px] rounded-l-md" />
+                  <span className="device-side-button absolute right-[-2px] top-[160px] w-[3px] h-[84px] rounded-r-md" />
                 </>
               )}
             </div>
