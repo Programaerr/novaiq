@@ -1552,12 +1552,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         <div className="space-y-6 text-slate-100">
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
           <div className="sticky top-1 sm:top-2 z-30 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
-            {/* Promo Banner inside the sticky wrapper so it rolls up or stays with the header */}
-            <div className="bg-gradient-to-r from-emerald-950/40 via-teal-900/40 to-slate-900/40 px-4 py-2 text-center text-[10px] sm:text-[11px] text-emerald-400 border-b border-white/10 flex items-center justify-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>عرض خاص: شحن مجاني آمن لكافة محافظات العراق ودفع آمن عند الاستلام</span>
-            </div>
-
             <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
               {/* Right: sections menu (filters the store by category) */}
               {renderSiteMenuButton()}
