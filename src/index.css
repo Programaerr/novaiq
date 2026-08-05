@@ -187,6 +187,19 @@
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
+/* Gentle up/down drift for the wave divider on the store product cards — reads as the
+   wave "breathing" rather than a static cut-out shape. Plain transform keyframes only
+   (no custom properties), so it doesn't depend on @property surviving the build the way
+   an animated SVG path morph would. */
+@keyframes wave-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+.product-card-wave {
+  animation: wave-bob 4s ease-in-out infinite;
+}
+
 .page-in {
   animation: page-in 0.3s ease-out both;
 }

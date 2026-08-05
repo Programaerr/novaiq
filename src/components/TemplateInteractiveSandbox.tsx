@@ -1553,7 +1553,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
                 <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
                   <ShoppingBag className={`w-4 h-4 ${isNarrowViewport ? '' : 'sm:w-5 sm:h-5'}`} />
-
                 </div>
                 <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline sm:text-base'}`}>Design</span>
               </div>
@@ -1591,10 +1590,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </button>
               </div>
             </div>
-          </div>
 
-          {/* Search, Filters & Sorter Row */}
-          <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 backdrop-blur-md border border-white/10`}>
+            {/* Search, Filters & Sorter Row — kept inside the same sticky card as the
+                header instead of floating as its own separate block underneath it, so the
+                two read as one cohesive header instead of two disconnected pieces. */}
+            <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-3 sm:gap-4 p-3 sm:p-4 border-t border-white/10`}>
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
@@ -1628,17 +1628,21 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               </div>
             </div>
           </div>
+          </div>
 
           {/* Products Grid */}
           <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-6`}>
-            {sortedProducts.map((prod) => (
-              <div 
-                key={prod.id} 
-                className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 transition-all duration-300 flex flex-col justify-between space-y-4 group"
+            {sortedProducts.map((prod, prodIndex) => (
+              <div
+                key={prod.id}
+                style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${prodIndex * 0.05}s` }}
+                className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-4 group"
               >
                 <div className="space-y-3">
-                  {/* Thumbnail / Image Mock */}
-                  <div className="h-48 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 relative overflow-hidden group-hover:scale-[1.01] transition-all duration-300">
+                  {/* Thumbnail / Image Mock — the wave SVG overlaps the image's own bottom
+                      edge, so only the top corners are rounded here; the wave itself reads
+                      as the card's real bottom edge instead of a straight rectangular cut. */}
+                  <div className="h-48 rounded-t-xl bg-black/30 backdrop-blur-sm border border-white/10 relative overflow-hidden group-hover:scale-[1.01] transition-all duration-300">
                     {prod.imageUrl ? (
                       <img
                         src={prod.imageUrl}
@@ -1652,6 +1656,14 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <div className={`w-full h-full bg-gradient-to-br ${prod.imageBg}`} />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                    <svg
+                      className="product-card-wave absolute -bottom-px left-0 w-full h-9 pointer-events-none"
+                      viewBox="0 0 500 60"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <path d="M0,30 C125,60 375,0 500,30 L500,60 L0,60 Z" fill="#09090b" />
+                    </svg>
                     <div className="absolute top-2.5 right-2.5 flex items-center justify-between w-[calc(100%-20px)] z-10">
                       {prod.badge && (
                         <span className="px-2.5 py-1 rounded-md bg-black/90 text-[10px] font-bold text-white border border-white/10">
@@ -4050,7 +4062,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   };
 
   const renderSiteUtilityBar = () => (
-    <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md">
+    <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20">
       {/* No brand mark here — the template's own header carries it directly below. This strip
           is the account layer only, plus the connection indicator a real site would show. */}
       <span className="flex items-center gap-1.5 min-w-0 text-[10px] text-slate-500 font-mono" dir="ltr">
