@@ -1667,7 +1667,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   highlight), which CSS can't reach at all, so it always looks out of place
                   next to the rest of the site's glass styling. */}
               <div className="relative flex items-center gap-2 shrink-0">
-                <span className="hidden sm:inline text-[10px] text-slate-500 font-bold whitespace-nowrap">ترتيب الموديلات:</span>
                 <button
                   ref={storeSortBtnRef}
                   type="button"
