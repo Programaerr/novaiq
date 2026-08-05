@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Calendar,
   Layers,
-  X,
   Compass,
   FileSignature,
   Home,
@@ -14,24 +13,26 @@ import {
 import { Language } from '../lib/i18n';
 import { NovaiqLogo } from './NovaiqLogo';
 
-// The nav toggle's icon: three uneven bars at rest (the studio's established glyph), which
-// morph in place into an X on open rather than being swapped for a different icon — the same
-// control animating, not two icons trading places.
+// The nav toggle's icon: three uneven bars that settle toward an even split on hover, and
+// morph in place into an X on open — the same three bars animating throughout, never two
+// icons swapped for each other. Anchored with the logical `start` side (not a hardcoded
+// `left`) so the uneven lengths land on the correct physical edge in both the Arabic (RTL)
+// and English (LTR) shells instead of only ever reading right in one of them.
 const AnimatedMenuIcon: React.FC<{ open: boolean }> = ({ open }) => (
   <span className="relative block w-4 h-3.5" aria-hidden="true">
     <span
-      className={`absolute left-0 top-0 h-0.5 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
-        open ? 'w-4 translate-y-[6px] rotate-45' : 'w-4 translate-y-0 rotate-0'
+      className={`nav-menu-bar absolute start-0 top-0 h-0.5 w-4 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+        open ? 'translate-y-[6px] rotate-45 scale-x-100' : 'translate-y-0 rotate-0 scale-x-100 group-hover:scale-x-[0.62]'
       }`}
     />
     <span
-      className={`absolute left-0 top-1/2 -translate-y-1/2 h-0.5 rounded-full bg-current transition-all duration-200 ease-out ${
-        open ? 'w-0 opacity-0' : 'w-2.5 opacity-100'
+      className={`nav-menu-bar absolute start-0 top-1/2 -translate-y-1/2 h-0.5 w-4 rounded-full bg-current transition-all duration-200 ease-out ${
+        open ? 'scale-x-0 opacity-0' : 'scale-x-[0.625] opacity-100 group-hover:scale-x-100'
       }`}
     />
     <span
-      className={`absolute left-0 bottom-0 h-0.5 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
-        open ? 'w-4 -translate-y-[6px] -rotate-45' : 'w-3 translate-y-0 rotate-0'
+      className={`nav-menu-bar absolute start-0 bottom-0 h-0.5 w-4 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+        open ? '-translate-y-[6px] -rotate-45 scale-x-100' : 'translate-y-0 rotate-0 scale-x-[0.75] group-hover:scale-x-[0.82]'
       }`}
     />
   </span>
@@ -51,6 +52,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   setLanguage,
 }) => {
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const drawerRef = useRef<HTMLDivElement | null>(null);
   // undefined = the initial auth check hasn't resolved yet. Left this way (instead of
   // defaulting to false) so an already-logged-in visitor never sees the page flash
   // "Login" for a moment before flipping to "My Account" — the skeleton bridges that gap.
@@ -80,6 +83,28 @@ export const Navbar: React.FC<NavbarProps> = ({
       unsubscribe?.();
     };
   }, []);
+
+  // The drawer no longer carries its own close control (the toggle button itself already
+  // shows an X once open) — so clicking anywhere outside it, or pressing Escape, is what
+  // takes over that job instead.
+  useEffect(() => {
+    if (!menuDrawerOpen) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (drawerRef.current?.contains(target)) return;
+      if (menuButtonRef.current?.contains(target)) return;
+      setMenuDrawerOpen(false);
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuDrawerOpen(false);
+    };
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [menuDrawerOpen]);
 
   const navItems = [
     { id: 'home', label: isAr ? 'الرئيسية' : 'Home', icon: Home, href: '/' },
@@ -118,13 +143,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Side 1: Menu & Navigation Triggers */}
         <div className="flex items-center gap-2 relative z-10">
           <button
+            ref={menuButtonRef}
             onClick={() => setMenuDrawerOpen(!menuDrawerOpen)}
             aria-label={isAr ? (menuDrawerOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (menuDrawerOpen ? 'Close menu' : 'Open menu')}
             aria-expanded={menuDrawerOpen}
-            className={`flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl transition-all duration-300 cursor-pointer active:scale-90 ${
-              menuDrawerOpen
-                ? 'bg-white border border-white text-black'
-                : 'bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white'
+            className={`group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 ${
+              menuDrawerOpen ? 'text-white' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <AnimatedMenuIcon open={menuDrawerOpen} />
@@ -197,18 +221,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           behind both of them — it renders as a flat dark box with no visible glass effect.
           Positioned relative to <header> (which has no filter of its own) instead. */}
       {menuDrawerOpen && (
-        <div className="absolute top-full mt-3 rtl:right-3 sm:rtl:right-6 ltr:left-3 sm:ltr:left-6 w-80 bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+        <div
+          ref={drawerRef}
+          className="absolute top-full mt-3 rtl:right-3 sm:rtl:right-6 ltr:left-3 sm:ltr:left-6 w-80 bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in"
+        >
+          {/* No close control here — the toggle button already becomes an X once the
+              drawer is open, so a second one here would just be the same action twice.
+              Clicking outside the drawer, or Escape, close it instead (see the effect
+              above). */}
+          <div className="pb-3 border-b border-zinc-800">
             <span className="text-xs font-bold text-white flex items-center gap-2">
               <Compass className="w-4 h-4 text-white" />
               <span>{isAr ? 'أقسام منصة NOVAIQ' : 'NOVAIQ Pages'}</span>
             </span>
-            <button
-              onClick={() => setMenuDrawerOpen(false)}
-              className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
           </div>
 
           <div className="space-y-1">
