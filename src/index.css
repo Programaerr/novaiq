@@ -387,6 +387,46 @@
   opacity: 1;
 }
 
+/* Border beam — a fast white comet chases around the button's own perimeter on hover,
+   instead of glowing evenly all at once, on the template cards' action buttons. The ring
+   is drawn by masking a conic-gradient square down to just its edge (content-box XOR
+   border-box leaves only the padding strip). --border-beam-angle is driven every
+   animation frame from JS (startBorderBeam in TemplateGrid.tsx) instead of a CSS
+   @keyframes animation on the custom property — Tailwind's build strips the @property
+   registration a custom property needs to be smoothly interpolable, and without it
+   var(--border-beam-angle) with no fallback here resolved as invalid, which silently
+   invalidated the whole conic-gradient. */
+.border-beam-btn {
+  position: relative;
+  z-index: 0;
+}
+
+.border-beam-btn::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-beam-angle, 0deg),
+    #fff 0deg,
+    rgba(255, 255, 255, 0.7) 12deg,
+    rgba(255, 255, 255, 0.15) 30deg,
+    transparent 55deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.border-beam-btn:hover::after {
+  opacity: 1;
+}
+
 /* Navbar wordmark: NAME → mark → "Design" — both text pieces are hidden until hover, then
    slide out from behind the mark in opposite directions (NAME to the left, "Design" to the
    right), leaving just the mark visible by default. The mark itself stays still (an earlier
