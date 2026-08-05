@@ -4508,6 +4508,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     );
   }
 
+  const livePreviewSrc = `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${themeColor}&name=${encodeURIComponent(template.title)}`;
+
   const openInNewTab = () => {
     window.open(
       `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${themeColor}&name=${encodeURIComponent(template.title)}`,
