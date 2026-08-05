@@ -3,6 +3,7 @@ import { Template } from '../types';
 import { PriceInput } from './PriceInput';
 import {
   X,
+  Smartphone,
   CheckCircle2,
   ArrowLeft,
   Eye,
