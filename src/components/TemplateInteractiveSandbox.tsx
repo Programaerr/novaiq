@@ -4042,10 +4042,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       onClick={() => { setIsSiteMenuOpen(true); cosmicAudio.playTick(); }}
       aria-label="فتح قائمة أقسام الموقع"
       aria-expanded={isSiteMenuOpen}
-      className="site-menu-btn flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/25 text-white cursor-pointer transition-colors shrink-0"
+      className="site-menu-btn flex items-center gap-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/25 text-white cursor-pointer transition-colors shrink-0 p-2.5 sm:px-3 sm:py-2"
     >
       <SiteMenuIcon />
-      <span className="text-[11px] font-bold whitespace-nowrap">
+      {/* Icon-only on mobile, same as the cart trigger — the full label crowded the
+          centered logo next to it on narrow screens. */}
+      <span className="hidden sm:inline text-[11px] font-bold whitespace-nowrap">
         {activeNavLabel || 'القائمة'}
       </span>
     </button>
