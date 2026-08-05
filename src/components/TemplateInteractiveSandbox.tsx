@@ -1129,8 +1129,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isMobileFrame = isNarrowViewport;
-  const gridCols = (mobileCols: string, wideCols: string) => isMobileFrame ? mobileCols : `${mobileCols} ${wideCols}`;
+  const gridCols = (mobileCols: string, wideCols: string) => isNarrowViewport ? mobileCols : `${mobileCols} ${wideCols}`;
 
   // Renders a template's landing page from its CompanyProfile. Shared across templates so
   // every demo opens on a page that reads like a real business, not a bare feature widget.
@@ -1147,7 +1146,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
           {profile.description}
         </p>
-        <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
+        <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
           <button
             onClick={() => { setActiveTab(profile.primaryCta.tab); cosmicAudio.playPing(); }}
             className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}
@@ -1420,18 +1419,18 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               <span>عرض خاص: شحن مجاني آمن لكافة محافظات العراق ودفع آمن عند الاستلام</span>
             </div>
 
-            <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isMobileFrame ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
-              {/* Right: Logo & Name — sized off isMobileFrame (the device-view toggle),
+            <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
+              {/* Right: Logo & Name — sized off isNarrowViewport (the device-view toggle),
                   not sm:, since this header also renders inside the fixed 375px "mobile"
                   preview frame at whatever the real browser viewport happens to be; sm:
                   classes there matched the real window, not the frame, and rendered at
                   full desktop size squeezed into 375px, colliding with the cart button. */}
-              <div className={`group flex items-center gap-2 min-w-0 ${isMobileFrame ? '' : 'sm:gap-3'}`}>
-                <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isMobileFrame ? '' : 'sm:text-base'}`}>Logo</span>
-                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20 ${isMobileFrame ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
-                  <ShoppingBag className={`w-4 h-4 ${isMobileFrame ? '' : 'sm:w-5 sm:h-5'}`} />
+              <div className={`group flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
+                <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
+                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
+                  <ShoppingBag className={`w-4 h-4 ${isNarrowViewport ? '' : 'sm:w-5 sm:h-5'}`} />
                 </div>
-                <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isMobileFrame ? '' : 'sm:inline sm:text-base'}`}>Design</span>
+                <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline sm:text-base'}`}>Design</span>
               </div>
 
               {/* Center: Shopify Navigation (interactively filters category states!) */}
@@ -1444,7 +1443,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     setIsCartOpen(true);
                     cosmicAudio.playTick();
                   }}
-                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isMobileFrame ? '' : 'sm:px-3.5 sm:py-2 sm:gap-2.5'}`}
+                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isNarrowViewport ? '' : 'sm:px-3.5 sm:py-2 sm:gap-2.5'}`}
                 >
                   <div className="relative shrink-0">
                     <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
@@ -1455,11 +1454,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     )}
                   </div>
 
-                  <span className={`hidden text-[11px] whitespace-nowrap ${isMobileFrame ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
+                  <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
                   {totalCartIQD > 0 && (
                     <>
-                      <span className={`w-px h-3.5 bg-white/15 shrink-0 ${isMobileFrame ? '' : 'sm:hidden'}`} />
-                      <span className={`font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap ${isMobileFrame ? '' : 'sm:px-2 sm:text-[10px]'}`}>
+                      <span className={`w-px h-3.5 bg-white/15 shrink-0 ${isNarrowViewport ? '' : 'sm:hidden'}`} />
+                      <span className={`font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:px-2 sm:text-[10px]'}`}>
                         {totalCartIQD.toLocaleString()} د.ع
                       </span>
                     </>
@@ -1470,7 +1469,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </div>
 
           {/* Search, Filters & Sorter Row */}
-          <div className={`flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 backdrop-blur-md border border-white/10`}>
+          <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 backdrop-blur-md border border-white/10`}>
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
@@ -1484,42 +1483,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </div>
 
             {/* Mobile Category and Sort Controller */}
-            <div className={`flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col sm:flex-row sm:items-center'} gap-2 sm:gap-3 sm:justify-end`}>
-              {/* Category Quick Tabs on Mobile/Tablet */}
-              <div className={`${isMobileFrame ? 'flex' : 'flex md:hidden'} items-center gap-1 overflow-x-auto no-scrollbar py-0.5`}>
-                <button
-                  onClick={() => { setStoreCategory('all'); cosmicAudio.playTick(); }}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 ${
-                    storeCategory === 'all' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
-                  }`}
-                >
-                  الكل
-                </button>
-                <button
-                  onClick={() => { setStoreCategory('men'); cosmicAudio.playTick(); }}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 ${
-                    storeCategory === 'men' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
-                  }`}
-                >
-                  رجالي
-                </button>
-                <button
-                  onClick={() => { setStoreCategory('women'); cosmicAudio.playTick(); }}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 ${
-                    storeCategory === 'women' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
-                  }`}
-                >
-                  نسائي
-                </button>
-                <button
-                  onClick={() => { setStoreCategory('accessories'); cosmicAudio.playTick(); }}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 ${
-                    storeCategory === 'accessories' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
-                  }`}
-                >
-                  إكسسوارات
-                </button>
-              </div>
+            <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col sm:flex-row sm:items-center'} gap-2 sm:gap-3 sm:justify-end`}>
 
               {/* Advanced Sorter */}
               <div className="flex items-center gap-2">
@@ -1773,7 +1737,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </div>
 
                     {/* Submit Section */}
-                    <div className={`pt-4 border-t border-white/10 flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col sm:flex-row items-stretch sm:items-center'} justify-between gap-4`}>
+                    <div className={`pt-4 border-t border-white/10 flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col sm:flex-row items-stretch sm:items-center'} justify-between gap-4`}>
                       <div>
                         <span className="text-slate-400 block text-[10px]">إجمالي التكلفة المباشرة:</span>
                         <span className={`text-base font-bold font-mono ${themeStyle.primaryText}`}>
@@ -2135,7 +2099,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
             {/* Glass Navigation Bar — frosted pill with a proper logo lockup, matching the
                 real NOVAIQ navbar's own backdrop-blur treatment instead of a flat solid box. */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-3">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -2162,7 +2126,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
                     منصة الشركات الكبرى مع لوحة تحكم ذكية، دعم متعدد اللغات، وبوابة المستثمرين المحمية بأعلى درجات الأمان.
                   </p>
-                  <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
+                  <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
                     <button onClick={() => setActiveTab('calculator')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer shadow-lg`}>
                       حسّاب تكلفة مشروعك
                     </button>
@@ -2395,7 +2359,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
             {/* Terminal-style Navigation Bar — sharp corners, monospace prompt instead of
                 a soft logo lockup */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
               <div className="group flex items-center gap-2.5">
                 <span className="text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">~/Logo</span>
                 <div className={`navbar-logo-mark w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg`}>
@@ -2430,7 +2394,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       بنية تحتية سحابية جاهزة، توثيق API تفاعلي، ولوحة قيادة حية لمنتجك الرقمي — كل ما تحتاجه شركتك التقنية لتنطلق دون تعقيد.
                       <span className="text-emerald-400 animate-pulse">▊</span>
                     </p>
-                    <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
+                    <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
                       <button onClick={() => setActiveTab('pricing')} className={`w-full sm:w-auto px-5 py-2.5 rounded ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
                         شاهد خطط الأسعار
                       </button>
@@ -2603,7 +2567,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -2626,7 +2590,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
                     فلل، شقق، ومكاتب تجارية مختارة بعناية، مع معاينة مباشرة واستشارة عقارية مجانية من فريقنا المتخصص.
                   </p>
-                  <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
+                  <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
                     <button onClick={() => setActiveTab('properties')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
                       تصفح العقارات المتاحة
                     </button>
@@ -2817,7 +2781,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -2979,7 +2943,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3135,7 +3099,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3277,7 +3241,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3394,7 +3358,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3521,7 +3485,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3544,7 +3508,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
                     محفظة رقمية، تحويلات فورية، وبطاقات افتراضية — كل ذلك محمي بأعلى معايير التشفير والحماية الثنائية 2FA.
                   </p>
-                  <div className={`pt-2 flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
+                  <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
                     <button onClick={() => setActiveTab('wallet')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
                       افتح المحفظة الرقمية
                     </button>
@@ -3593,7 +3557,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <Send className={`w-4 h-4 ${themeStyle.primaryText} shrink-0`} />
                     <span>محاكاة تحويل مالي سريع</span>
                   </h4>
-                  <div className={`flex ${isMobileFrame ? 'flex-col' : 'flex-col sm:flex-row'} gap-2`}>
+                  <div className={`flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} gap-2`}>
                     <PriceInput
                       value={transferAmount}
                       onChange={setTransferAmount}
@@ -4154,9 +4118,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
     return (
       <div className="animate-fade-in space-y-4">
-        <div className={`flex ${isMobileFrame ? 'flex-col' : 'flex-col lg:flex-row'} gap-4`}>
+        <div className={`flex ${isNarrowViewport ? 'flex-col' : 'flex-col lg:flex-row'} gap-4`}>
           {/* In-site account navigation */}
-          <aside className={`shrink-0 ${isMobileFrame ? '' : 'lg:w-56'} space-y-3`}>
+          <aside className={`shrink-0 ${isNarrowViewport ? '' : 'lg:w-56'} space-y-3`}>
             <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
               <div className="flex items-center gap-2.5">
                 <span className={`w-10 h-10 rounded-full ${themeStyle.primaryBg} flex items-center justify-center text-white text-sm font-black shrink-0`}>
@@ -4172,7 +4136,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               </span>
             </div>
 
-            <nav className={`grid ${isMobileFrame ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-1'} gap-1.5`}>
+            <nav className={`grid ${isNarrowViewport ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-1'} gap-1.5`}>
               {navItems.map(({ key, label, Icon }) => (
                 <button
                   key={key}
