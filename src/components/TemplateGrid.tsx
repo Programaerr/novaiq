@@ -464,14 +464,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-                  {/* Top Badge Tag */}
-                  <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/90 border border-zinc-700 text-white text-[11px] font-bold">
+                  {/* Top Badge Tag — stacked above the delivery badge on mobile (both hug
+                      the right edge) since the two pills' combined width can exceed the
+                      300px-wide mobile card and collide; back to opposite corners once
+                      there's enough room on desktop's 380px card. */}
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/90 border border-zinc-700 text-white text-[10px] sm:text-[11px] font-bold">
                     {displayCategory}
                   </div>
 
                   {/* Delivery Time Badge */}
-                  <div className="absolute top-4 left-4 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/90 border border-zinc-800 text-zinc-300 text-[11px] font-mono">
-                    <Clock className="w-3 h-3 text-zinc-400" />
+                  <div className="absolute top-10 right-3 sm:top-4 sm:right-auto sm:left-4 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/90 border border-zinc-800 text-zinc-300 text-[10px] sm:text-[11px] font-mono">
+                    <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
                     <span>{getTranslation('deliveryTime', currentLang)} {template.deliveryWeeks} {translateText('أسابيع', currentLang)}</span>
                   </div>
 
