@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Template } from '../types';
 import { PriceInput } from './PriceInput';
+import { DevicePreviewFrame, type PreviewDevice } from './DevicePreviewFrame';
 import {
   X,
   Monitor,
@@ -9,6 +10,22 @@ import {
   CheckCircle2,
   ArrowLeft,
   Eye,
+  EyeOff,
+  ExternalLink,
+  LogIn,
+  LogOut,
+  User,
+  Users,
+  LayoutDashboard,
+  Receipt,
+  Bell,
+  KeyRound,
+  Mail,
+  ShieldCheck,
+  Lock,
+  Phone,
+  Clock,
+  TrendingUp,
   Building2,
   ShoppingBag,
   Stethoscope,
@@ -41,6 +58,32 @@ interface TemplateInteractiveSandboxProps {
   template: Template;
   onClose: () => void;
   onSelectForContract: (template: Template, customNotes?: string, primaryColorHex?: string) => void;
+  /**
+   * Render only the template's own website — no NOVAIQ preview toolbar, device switcher or
+   * price bar. This is the mode the device-frame iframes and the dedicated `?live=` tab use,
+   * where the customer must be looking at a website and not at a preview tool.
+   */
+  chromeless?: boolean;
+  /** Starting palette, so a frame opens on the colour the customer already picked outside it. */
+  initialThemeColor?: ThemeColor;
+}
+
+/** A row in the customer's in-site account area, built from whatever the template's own demo
+ *  actually holds — orders, appointments, bookings, enrolments — so the account page shows
+ *  the visitor's real activity rather than invented placeholder history. */
+interface AccountRecord {
+  id: string;
+  title: string;
+  subtitle: string;
+  meta: string;
+  status: string;
+  amount?: string;
+}
+
+interface SiteAccount {
+  email: string;
+  name: string;
+  role: 'customer' | 'admin';
 }
 
 export type ThemeColor = 'emerald' | 'purple' | 'cyan' | 'amber' | 'rose' | 'monochrome';
