@@ -563,14 +563,40 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   template,
   onClose,
   onSelectForContract,
+  chromeless = false,
+  initialThemeColor,
 }) => {
-  const [deviceView, setDeviceView] = useState<'full' | 'desktop' | 'tablet' | 'mobile'>('full');
-  const [controlsHidden, setControlsHidden] = useState<boolean>(false);
-  const [themeColor, setThemeColor] = useState<ThemeColor>('emerald');
+  const [deviceView, setDeviceView] = useState<'full' | PreviewDevice>('full');
+  const [themeColor, setThemeColor] = useState<ThemeColor>(() => {
+    if (initialThemeColor) return initialThemeColor;
+    try {
+      return (localStorage.getItem('novaiq_sandbox_theme') as ThemeColor) || 'emerald';
+    } catch {
+      return 'emerald';
+    }
+  });
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
 
   // General Interactive States
   const [activeTab, setActiveTab] = useState<string>('home');
+
+  // In-site account layer — every template gets a real sign-in page and a real account /
+  // admin area, because that is what separates a landing-page mock-up from a website a
+  // business could actually run on.
+  const [authView, setAuthView] = useState<'site' | 'login' | 'account'>('site');
+  const [account, setAccount] = useState<SiteAccount | null>(() => {
+    try {
+      const saved = localStorage.getItem('novaiq_sandbox_account');
+      return saved ? (JSON.parse(saved) as SiteAccount) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [accountSection, setAccountSection] = useState<'overview' | 'records' | 'profile' | 'admin'>('overview');
+  const [loginEmail, setLoginEmail] = useState<string>('');
+  const [loginPassword, setLoginPassword] = useState<string>('');
+  const [loginPasswordVisible, setLoginPasswordVisible] = useState<boolean>(false);
+  const [loginError, setLoginError] = useState<string>('');
 
   // E-Commerce Store States
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -743,14 +769,72 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     }
   }, [cart]);
 
-  // Persist Theme Color
   useEffect(() => {
-    try {
-      const savedTheme = localStorage.getItem('novaiq_sandbox_theme') as ThemeColor;
-      if (savedTheme) setThemeColor(savedTheme);
-    } catch {
-      // ignore
-    }
+    try { localStorage.setItem('novaiq_sandbox_account', account ? JSON.stringify(account) : ''); } catch { /* ignore */ }
+  }, [account]);
+
+  // A colour change outside a device frame is messaged into the frame instead of reloading
+  // it, so the demo keeps its place — a filled cart, a half-finished booking — while the
+  // palette swaps under it.
+  useEffect(() => {
+    if (!chromeless) return;
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const data = event.data as { type?: string; color?: ThemeColor } | null;
+      if (data?.type === 'novaiq:theme' && data.color) setThemeColor(data.color);
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [chromeless]);
+
+  // The device frames run the same site in an iframe on this origin, so both copies write to
+  // the same localStorage. Re-reading on the `storage` event is what keeps them one site
+  // rather than two: add something to the cart inside the phone frame, switch back to
+  // "شاشتك", and it's still there. Returning `prev` on an identical payload matters — it
+  // stops the two copies from bouncing writes back and forth forever.
+  useEffect(() => {
+    const syncFromStorage = <T,>(
+      setter: React.Dispatch<React.SetStateAction<T>>,
+      raw: string | null,
+      fallback: T
+    ) => {
+      setter((prev) => {
+        if (JSON.stringify(prev) === raw) return prev;
+        try {
+          return raw ? (JSON.parse(raw) as T) : fallback;
+        } catch {
+          return prev;
+        }
+      });
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (!event.key?.startsWith('novaiq_sandbox_')) return;
+      switch (event.key) {
+        case 'novaiq_sandbox_cart': syncFromStorage(setCart, event.newValue, [] as CartItem[]); break;
+        case 'novaiq_sandbox_appointments': syncFromStorage(setAppointments, event.newValue, [] as Appointment[]); break;
+        case 'novaiq_sandbox_food_order': syncFromStorage(setFoodOrder, event.newValue, [] as FoodOrderItem[]); break;
+        case 'novaiq_sandbox_table_reservations': syncFromStorage(setTableReservations, event.newValue, []); break;
+        case 'novaiq_sandbox_enrollments': syncFromStorage(setEnrollments, event.newValue, [] as Enrollment[]); break;
+        case 'novaiq_sandbox_hotel_bookings': syncFromStorage(setHotelBookings, event.newValue, [] as HotelBooking[]); break;
+        case 'novaiq_sandbox_shipping_quotes': syncFromStorage(setSavedQuotes, event.newValue, [] as ShippingQuote[]); break;
+        case 'novaiq_sandbox_property_visits': syncFromStorage(setPropertyVisits, event.newValue, []); break;
+        case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, []); break;
+        case 'novaiq_sandbox_account':
+          setAccount(() => {
+            try {
+              return event.newValue ? (JSON.parse(event.newValue) as SiteAccount) : null;
+            } catch {
+              return null;
+            }
+          });
+          break;
+        default: break;
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const changeThemeColor = (color: ThemeColor) => {
@@ -879,13 +963,20 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
   const themeStyle = getThemeClasses();
 
-  // The device-frame width (desktop/tablet/mobile) is a fixed pixel box, but CSS media
-  // queries (sm:/md:/lg:) always evaluate against the REAL browser viewport, not the box
-  // around them. Without this, picking "mobile" while testing from a desktop browser still
-  // renders multi-column desktop layouts squeezed into the small frame. Forcing single-column
-  // classes whenever the mobile frame is selected makes the simulation honest regardless of
-  // which device is actually running the browser.
-  const isMobileFrame = deviceView === 'mobile';
+  // The site now always renders into a viewport that is genuinely its own — the customer's
+  // real screen in "شاشتك", or the iframe's own 390/834/1280px viewport inside a device
+  // frame — so `sm:`/`md:` media queries can finally be trusted. This tracks that same
+  // width for the handful of layout decisions taken in JS rather than in CSS.
+  const [isNarrowViewport, setIsNarrowViewport] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false
+  );
+  useEffect(() => {
+    const handleResize = () => setIsNarrowViewport(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobileFrame = isNarrowViewport;
   const gridCols = (mobileCols: string, wideCols: string) => isMobileFrame ? mobileCols : `${mobileCols} ${wideCols}`;
 
   // Renders a template's landing page from its CompanyProfile. Shared across templates so
