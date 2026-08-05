@@ -1,4 +1,4 @@
-import React, { useState, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
@@ -11,7 +11,9 @@ import {
   Globe,
   SlidersHorizontal,
   RotateCcw,
-  ArrowUpDown
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
@@ -46,6 +48,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   const [sortBy, setSortBy] = useState<string>('default'); // 'default', 'priceLowToHigh', 'priceHighToLow', 'fastest'
   const [showFilterPanel, setShowFilterPanel] = useState<boolean>(false);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+
+  // Coverflow focus index — clicking any off-center card brings it to the middle instead
+  // of firing its buttons immediately (see pointerEvents toggle below); a fresh filter/
+  // search/sort always snaps back to the first result rather than an index that may no
+  // longer exist.
+  const [activeIndex, setActiveIndex] = useState(0);
+  const dragRef = useRef<{ startX: number } | null>(null);
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -111,6 +120,26 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
     return list;
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery, currentLang]);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [selectedCategory, maxPriceUSD, sortBy, searchQuery]);
+
+  const goToOffset = (delta: number) => {
+    setActiveIndex((i) => Math.max(0, Math.min(filteredTemplates.length - 1, i + delta)));
+  };
+
+  const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    dragRef.current = { startX: e.clientX };
+  };
+
+  const handleTrackPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.startX;
+    dragRef.current = null;
+    if (Math.abs(dx) < 50) return;
+    goToOffset(dx > 0 ? -1 : 1);
+  };
 
   return (
     <section id="templates-section" className="py-4 sm:py-6 relative">
@@ -304,25 +333,54 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           )}
         </AnimatePresence>
 
-        {/* Templates Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Templates Coverflow — clicking any off-center card brings it to focus (same
+            "click to bring to front" idea as a music-app cover carousel) instead of firing
+            its buttons; only the centered card is actually interactive, enforced via the
+            pointerEvents toggle below rather than guessing which inner element was clicked. */}
+        <div className="flex items-center justify-center gap-2 sm:gap-6">
+          <button
+            type="button"
+            onClick={() => goToOffset(1)}
+            disabled={activeIndex >= filteredTemplates.length - 1}
+            aria-label={currentLang === 'ar' ? 'التالي' : 'Next'}
+            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          <div
+            onPointerDown={handleTrackPointerDown}
+            onPointerUp={handleTrackPointerUp}
+            className="relative w-full max-w-4xl h-[600px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+          >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
             const displaySubtitle = translateText(template.subtitle, currentLang);
             const displayDesc = translateText(template.description, currentLang);
             const displayCategory = translateText(template.categoryLabel, currentLang);
 
-            // Entrance is a plain CSS fade rather than a per-card Framer Motion animation.
-            // With 10 templates the staggered version ran 10 JS-driven animations at once on
-            // the exact frame the page mounts — the heaviest possible moment — which is what
-            // made this page feel like it stuttered on arrival.
+            const offset = index - activeIndex;
+            const distance = Math.abs(offset);
+            const isActive = offset === 0;
+            if (distance > 2) return null;
+
             return (
               <div
                 key={template.id}
-                style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${Math.min(index, 5) * 0.05}s` }}
-                className="bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 flex flex-col group shadow-xl"
+                onClick={() => { if (!isActive) setActiveIndex(index); }}
+                style={{
+                  transform: `translate(-50%, -50%) translateX(${offset * 235}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
+                  opacity: isActive ? 1 : distance === 1 ? 0.55 : 0.28,
+                  zIndex: 10 - distance,
+                  transition: 'transform 0.45s ease, opacity 0.45s ease',
+                }}
+                className={`absolute top-1/2 left-1/2 w-[320px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
-                
+                <div
+                  style={{ pointerEvents: isActive ? 'auto' : 'none' }}
+                  className="bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 flex flex-col group shadow-2xl"
+                >
+
                 {/* Card Image Banner */}
                 <div 
                   onClick={() => {
