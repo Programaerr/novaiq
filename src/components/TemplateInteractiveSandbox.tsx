@@ -1612,9 +1612,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {/* Search, Filters & Sorter Row — kept inside the same sticky card as the
                 header instead of floating as its own separate block underneath it, so the
                 two read as one cohesive header instead of two disconnected pieces. */}
-            <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-3 sm:gap-4 p-3 sm:p-4 border-t border-white/10`}>
+            <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-t border-white/10">
             {/* Search Input */}
-            <div className="relative flex-1">
+            <div className="relative flex-1 min-w-0">
               <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
               <input
                 type="text"
@@ -1626,12 +1626,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </div>
 
             {/* Sorting controls */}
-            <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col sm:flex-row sm:items-center'} gap-2 sm:gap-3 sm:justify-end`}>
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
 
               {/* Advanced Sorter — a custom dropdown instead of a native <select>: the
                   browser draws a native <select>'s open popup itself (plain OS list, blue
                   highlight), which CSS can't reach at all, so it always looks out of place
-                  next to the rest of the site's glass styling. */}
+                  next to the rest of the site's glass styling. Icon-only on mobile — this
+                  row stays side by side with the search input instead of stacking under it,
+                  and the full "ترتيب: الأكثر رواجاً" label was the one thing too wide to
+                  fit next to a usable search field at 390px. */}
               <div className="relative flex items-center gap-2">
                 <span className="hidden sm:inline text-[10px] text-slate-500 font-bold whitespace-nowrap">ترتيب الموديلات:</span>
                 <button
@@ -1646,10 +1649,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   }}
                   aria-haspopup="listbox"
                   aria-expanded={isStoreSortOpen}
-                  className="w-full sm:w-auto flex items-center justify-between gap-2.5 bg-black/30 backdrop-blur-sm border border-white/10 hover:border-white/25 text-slate-300 rounded-xl px-3 py-2 text-[10px] font-bold cursor-pointer transition-colors"
+                  aria-label="ترتيب الموديلات"
+                  className="flex items-center justify-between gap-2.5 bg-black/30 backdrop-blur-sm border border-white/10 hover:border-white/25 text-slate-300 rounded-xl cursor-pointer transition-colors font-bold p-2.5 sm:px-3 sm:py-2"
                 >
-                  <span>{STORE_SORT_OPTIONS.find((o) => o.value === storeSort)?.label}</span>
-                  <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${isStoreSortOpen ? 'rotate-180' : ''}`} />
+                  <Sliders className="w-3.5 h-3.5 shrink-0 sm:hidden" />
+                  <span className="hidden sm:inline text-[10px]">{STORE_SORT_OPTIONS.find((o) => o.value === storeSort)?.label}</span>
+                  <ChevronDown className={`hidden sm:block w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${isStoreSortOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Portaled to <body> — the sticky store navbar above uses overflow-hidden
