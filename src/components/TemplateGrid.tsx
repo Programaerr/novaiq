@@ -383,7 +383,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             onPointerDown={handleTrackPointerDown}
             onPointerUp={handleTrackPointerUp}
-            className="relative w-full max-w-4xl h-[400px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+            className="relative w-full max-w-4xl h-[520px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -401,12 +401,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${offset * (isMobile ? 95 : 235)}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
+                  transform: `translate(-50%, -50%) translateX(${offset * (isMobile ? 130 : 235)}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
                   opacity: isActive ? 1 : distance === 1 ? 0.55 : 0.28,
                   zIndex: 10 - distance,
                   transition: 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease',
                 }}
-                className={`absolute top-1/2 left-1/2 w-[168px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute top-1/2 left-1/2 w-[230px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
