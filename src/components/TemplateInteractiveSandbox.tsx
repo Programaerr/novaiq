@@ -1639,7 +1639,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     setIsCartOpen(true);
                     cosmicAudio.playTick();
                   }}
-                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isNarrowViewport ? '' : 'sm:px-3.5 sm:py-2 sm:gap-2.5'}`}
+                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isNarrowViewport ? '' : 'lg:px-3.5 lg:py-2 lg:gap-2.5'}`}
                 >
                   <div className="relative shrink-0">
                     <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
@@ -1650,11 +1650,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     )}
                   </div>
 
-                  <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
+                  {/* Full label + price only from lg: up — at tablet widths (~834px) this
+                      whole header row (sort, cart, logo, search, menu) is tight enough that
+                      the full "حقيبة التسوق" text was overlapping the centered logo; icon +
+                      badge (+ price once there's an lg: screen's worth of room) reads fine
+                      without it. */}
+                  <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'lg:inline'}`}>حقيبة التسوق</span>
                   {totalCartIQD > 0 && !isNarrowViewport && (
                     <>
-                      <span className="w-px h-3.5 bg-white/15 shrink-0 sm:hidden" />
-                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap sm:px-2 sm:text-[10px]">
+                      <span className="w-px h-3.5 bg-white/15 shrink-0 lg:hidden" />
+                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap lg:px-2 lg:text-[10px]">
                         {totalCartIQD.toLocaleString()} د.ع
                       </span>
                     </>
