@@ -85,24 +85,26 @@ export const TemplateLivePage: React.FC = () => {
       </Suspense>
 
       {!isEmbedded && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 px-2.5 py-2 rounded-2xl bg-black/90 backdrop-blur-md border border-zinc-700/80 shadow-2xl">
-          <NovaiqLogo size={22} showText={false} />
+        <div className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-2xl bg-black/90 backdrop-blur-md border border-zinc-700/80 shadow-2xl">
+          <NovaiqLogo size={18} showText={false} />
           <span className="hidden sm:inline text-[10px] text-zinc-400 px-1">معاينة حية لقالب NOVAIQ</span>
           <button
             onClick={goHome}
-            className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors"
+            title="العودة"
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>العودة</span>
+            <span className="hidden sm:inline">العودة</span>
           </button>
           <button
             onClick={() =>
               (window.location.href = `${window.location.pathname}?preview=${encodeURIComponent(template.id)}`)
             }
-            className="px-3 py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-[11px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors"
+            title="اطلب هذا القالب"
+            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-[11px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors"
           >
             <FileSignature className="w-3.5 h-3.5" />
-            <span>اطلب هذا القالب</span>
+            <span className="hidden sm:inline">اطلب هذا القالب</span>
           </button>
         </div>
       )}
