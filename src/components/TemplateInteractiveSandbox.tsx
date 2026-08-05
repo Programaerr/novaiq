@@ -1551,7 +1551,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       return (
         <div className="space-y-6 text-slate-100">
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
-          <div className="sticky top-1 sm:top-2 z-30 m-1 sm:m-2 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
+          <div className="sticky top-1 sm:top-2 z-30 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
             {/* Promo Banner inside the sticky wrapper so it rolls up or stays with the header */}
             <div className="bg-gradient-to-r from-emerald-950/40 via-teal-900/40 to-slate-900/40 px-4 py-2 text-center text-[10px] sm:text-[11px] text-emerald-400 border-b border-white/10 flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -1559,7 +1559,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </div>
 
             <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
-              {/* Right: Logo & Name */}
+              {/* Right: sections menu (filters the store by category) */}
+              {renderSiteMenuButton()}
+
+              {/* Center: Logo & Name */}
               <div className={`group flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
                 <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
@@ -1567,9 +1570,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline sm:text-base'}`}>Design</span>
               </div>
-
-              {/* Center: sections menu (filters the store by category) */}
-              {renderSiteMenuButton()}
 
               {/* Left: Interactive Shopify Cart Trigger */}
               <div className="flex items-center gap-2.5 shrink-0">
