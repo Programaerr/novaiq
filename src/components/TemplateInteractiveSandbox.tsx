@@ -1570,6 +1570,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           return 0;
         });
 
+      sortedProductsLengthRef.current = sortedProducts.length;
+      const productCarouselActiveIndex = sortedProducts.length > 0 ? productCarouselIndex % sortedProducts.length : 0;
+
       return (
         <div className="space-y-6 text-slate-100">
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
