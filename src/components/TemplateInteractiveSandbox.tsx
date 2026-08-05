@@ -3922,23 +3922,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
   const renderSiteUtilityBar = () => (
     <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md">
-      <button
-        onClick={() => setAuthView('site')}
-        className="flex items-center gap-2.5 min-w-0 cursor-pointer text-start group"
-      >
-        <span className={`w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white text-xs font-black shrink-0 shadow-lg`}>
-          {siteIdentity.name.charAt(0)}
-        </span>
-        <span className="min-w-0">
-          <span className="block text-[11px] sm:text-xs font-bold text-white truncate group-hover:opacity-80 transition-opacity">
-            {siteIdentity.name}
-          </span>
-          <span className="hidden sm:flex items-center gap-1 text-[9px] text-slate-500 font-mono" dir="ltr">
-            <Lock className="w-2.5 h-2.5 text-emerald-500" />
-            {siteHost}
-          </span>
-        </span>
-      </button>
+      {/* No brand mark here — the template's own header carries it directly below. This strip
+          is the account layer only, plus the connection indicator a real site would show. */}
+      <span className="flex items-center gap-1.5 min-w-0 text-[10px] text-slate-500 font-mono" dir="ltr">
+        <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
+        <span className="truncate">{siteHost}</span>
+      </span>
 
       <div className="flex items-center gap-1.5 shrink-0">
         {account && (
