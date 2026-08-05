@@ -14,21 +14,27 @@ import {
 import { Language } from '../lib/i18n';
 import { NovaiqLogo } from './NovaiqLogo';
 
-// Custom menu glyph — three uneven-length bars instead of lucide's equal-width Menu icon.
-const MenuBarsIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <line x1="3" y1="6" x2="21" y2="6" />
-    <line x1="3" y1="12" x2="14" y2="12" />
-    <line x1="3" y1="18" x2="18" y2="18" />
-  </svg>
+// The nav toggle's icon: three uneven bars at rest (the studio's established glyph), which
+// morph in place into an X on open rather than being swapped for a different icon — the same
+// control animating, not two icons trading places.
+const AnimatedMenuIcon: React.FC<{ open: boolean }> = ({ open }) => (
+  <span className="relative block w-4 h-3.5" aria-hidden="true">
+    <span
+      className={`absolute left-0 top-0 h-0.5 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+        open ? 'w-4 translate-y-[6px] rotate-45' : 'w-4 translate-y-0 rotate-0'
+      }`}
+    />
+    <span
+      className={`absolute left-0 top-1/2 -translate-y-1/2 h-0.5 rounded-full bg-current transition-all duration-200 ease-out ${
+        open ? 'w-0 opacity-0' : 'w-2.5 opacity-100'
+      }`}
+    />
+    <span
+      className={`absolute left-0 bottom-0 h-0.5 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
+        open ? 'w-4 -translate-y-[6px] -rotate-45' : 'w-3 translate-y-0 rotate-0'
+      }`}
+    />
+  </span>
 );
 
 interface NavbarProps {
@@ -113,14 +119,15 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-2 relative z-10">
           <button
             onClick={() => setMenuDrawerOpen(!menuDrawerOpen)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm ${
+            aria-label={isAr ? (menuDrawerOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (menuDrawerOpen ? 'Close menu' : 'Open menu')}
+            aria-expanded={menuDrawerOpen}
+            className={`flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl transition-all duration-300 cursor-pointer active:scale-90 ${
               menuDrawerOpen
-                ? 'bg-zinc-800 text-white border border-zinc-700'
-                : 'bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200'
+                ? 'bg-white border border-white text-black'
+                : 'bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-300 hover:text-white'
             }`}
           >
-            {menuDrawerOpen ? <X className="w-4 h-4 text-white" /> : <MenuBarsIcon className="w-4 h-4 text-zinc-300" />}
-            <span className="hidden sm:inline">{isAr ? 'الأقسام والصفحات' : 'Menu'}</span>
+            <AnimatedMenuIcon open={menuDrawerOpen} />
           </button>
         </div>
 
