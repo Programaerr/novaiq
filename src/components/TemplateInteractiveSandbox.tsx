@@ -874,6 +874,28 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [isStoreSortOpen, setIsStoreSortOpen] = useState(false);
   const [storeSortMenuRect, setStoreSortMenuRect] = useState<{ top: number; right: number; width: number } | null>(null);
   const storeSortBtnRef = useRef<HTMLButtonElement>(null);
+  const [productCarouselIndex, setProductCarouselIndex] = useState(0);
+  const [isProductCarouselPaused, setIsProductCarouselPaused] = useState(false);
+  // sortedProducts (filtered + sorted) only exists inside renderInteractivePageContent, so
+  // this effect can't put it in its dependency array without recreating — and resetting —
+  // the 5s timer on every unrelated render. A ref updated during render instead lets the
+  // interval read the current count without ever needing to restart itself.
+  const sortedProductsLengthRef = useRef(0);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => {
+      if (isProductCarouselPaused) return;
+      const len = sortedProductsLengthRef.current;
+      if (len <= 1) return;
+      setProductCarouselIndex((i) => (i + 1) % len);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [isProductCarouselPaused]);
+
+  useEffect(() => {
+    setProductCarouselIndex(0);
+  }, [storeCategory, storeSearch, storeSort]);
   const [selectedProductForModal, setSelectedProductForModal] = useState<ClothingProduct | null>(null);
   const [modalColor, setModalColor] = useState<string>('');
   const [modalSize, setModalSize] = useState<string>('');
@@ -1548,10 +1570,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           return 0;
         });
 
+      sortedProductsLengthRef.current = sortedProducts.length;
+      const productCarouselActiveIndex = sortedProducts.length > 0 ? productCarouselIndex % sortedProducts.length : 0;
+
       return (
         <div className="space-y-6 text-slate-100">
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
-          <div className="sticky top-1 sm:top-2 z-30 m-1 sm:m-2 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
+          <div className="sticky top-1 sm:top-2 z-30 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
             {/* Promo Banner inside the sticky wrapper so it rolls up or stays with the header */}
             <div className="bg-gradient-to-r from-emerald-950/40 via-teal-900/40 to-slate-900/40 px-4 py-2 text-center text-[10px] sm:text-[11px] text-emerald-400 border-b border-white/10 flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -1559,7 +1584,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </div>
 
             <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
-              {/* Right: Logo & Name */}
+              {/* Right: sections menu (filters the store by category) */}
+              {renderSiteMenuButton()}
+
+              {/* Center: Logo & Name */}
               <div className={`group flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
                 <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
@@ -1567,9 +1595,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline sm:text-base'}`}>Design</span>
               </div>
-
-              {/* Center: sections menu (filters the store by category) */}
-              {renderSiteMenuButton()}
 
               {/* Left: Interactive Shopify Cart Trigger */}
               <div className="flex items-center gap-2.5 shrink-0">
@@ -1590,10 +1615,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </div>
 
                   <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
-                  {totalCartIQD > 0 && (
+                  {/* Price tag stays off on mobile too — this trigger is already competing
+                      for room with the centered logo and the menu button on the same row,
+                      and the price is one tap away once the cart itself opens. */}
+                  {totalCartIQD > 0 && !isNarrowViewport && (
                     <>
-                      <span className={`w-px h-3.5 bg-white/15 shrink-0 ${isNarrowViewport ? '' : 'sm:hidden'}`} />
-                      <span className={`font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:px-2 sm:text-[10px]'}`}>
+                      <span className="w-px h-3.5 bg-white/15 shrink-0 sm:hidden" />
+                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap sm:px-2 sm:text-[10px]">
                         {totalCartIQD.toLocaleString()} د.ع
                       </span>
                     </>
@@ -1685,13 +1713,27 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </div>
           </div>
 
-          {/* Products Grid */}
-          <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-6`}>
+          {/* Products Carousel — cars-of-a-train motion: one card advances into view every
+              5s, slow eased slide rather than an instant cut, paused on hover. py-3 -my-3
+              on the overflow-hidden viewport gives each card's own hover-lift + shadow room
+              so the clipping edge doesn't cut across the card itself (top or bottom). */}
+          <div
+            className="relative overflow-hidden py-3 -my-3"
+            onMouseEnter={() => setIsProductCarouselPaused(true)}
+            onMouseLeave={() => setIsProductCarouselPaused(false)}
+          >
+            <div
+              className={`flex ${isNarrowViewport ? 'gap-4' : 'gap-6'}`}
+              style={{
+                transform: `translateX(${productCarouselActiveIndex * (isNarrowViewport ? 276 : 344)}px)`,
+                transition: 'transform 1.4s cubic-bezier(0.65, 0, 0.35, 1)',
+              }}
+            >
             {sortedProducts.map((prod, prodIndex) => (
               <div
                 key={prod.id}
                 style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${prodIndex * 0.05}s` }}
-                className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-4 group"
+                className={`${isNarrowViewport ? 'w-[260px]' : 'w-[320px]'} shrink-0 p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-4 group`}
               >
                 <div className="space-y-3">
                   {/* Thumbnail / Image Mock — the wave SVG overlaps the image's own bottom
@@ -1772,6 +1814,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
               </div>
             ))}
+            </div>
           </div>
 
           {/* Product Options Modal (High Fidelity Preview & Setup) */}
