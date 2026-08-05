@@ -391,7 +391,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             const displayDesc = translateText(template.description, currentLang);
             const displayCategory = translateText(template.categoryLabel, currentLang);
 
-            const offset = index - activeIndex;
+            // Shortest circular distance, not plain index subtraction — so wrapping past
+            // the last card continues smoothly into the first one (like a looping menu)
+            // instead of snapping backward across the whole strip to reach index 0.
+            const n = filteredTemplates.length;
+            let offset = index - activeIndex;
+            if (offset > n / 2) offset -= n;
+            if (offset < -n / 2) offset += n;
             const distance = Math.abs(offset);
             const isActive = offset === 0;
             if (distance > 2) return null;
