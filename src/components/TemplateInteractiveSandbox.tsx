@@ -46,8 +46,7 @@ import {
   Truck,
   Package,
   MapPin,
-  Terminal,
-  ChevronRight
+  Terminal
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 
@@ -1128,6 +1127,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Escape closes the sections drawer — the one dismissal every visitor tries first.
+  useEffect(() => {
+    if (!isSiteMenuOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsSiteMenuOpen(false);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isSiteMenuOpen]);
 
   const gridCols = (mobileCols: string, wideCols: string) => isNarrowViewport ? mobileCols : `${mobileCols} ${wideCols}`;
 
@@ -3854,7 +3863,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         />
         <aside
           data-lenis-prevent
-          className="site-drawer fixed inset-y-0 rtl:right-0 ltr:left-0 z-[61] w-72 max-w-[85vw] bg-slate-950 border-s border-white/10 shadow-2xl flex flex-col overflow-y-auto"
+          className="site-drawer fixed inset-y-0 rtl:right-0 ltr:left-0 z-[61] w-72 max-w-[85vw] bg-slate-950 border-e border-white/10 shadow-2xl flex flex-col overflow-y-auto"
         >
           <div className="flex items-center justify-between gap-3 p-4 border-b border-white/10">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -4348,18 +4357,22 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     </footer>
   );
 
-  /** The template as a complete website: chrome, the page the visitor is on, and a footer. */
+  /** The template as a complete website: chrome, the page the visitor is on, and a footer.
+   *  The drawer sits outside the spaced stack deliberately — as a child of it, opening the
+   *  menu would add a `space-y` gap and nudge the whole page down. */
   const renderLiveSite = () => (
-    <div className="space-y-4 sm:space-y-5">
+    <>
       {renderSiteDrawer()}
-      {renderSiteUtilityBar()}
-      {authView === 'login'
-        ? renderLoginPage()
-        : authView === 'account'
-        ? renderAccountPage()
-        : renderInteractivePageContent()}
-      {renderSiteFooter()}
-    </div>
+      <div className="space-y-4 sm:space-y-5">
+        {renderSiteUtilityBar()}
+        {authView === 'login'
+          ? renderLoginPage()
+          : authView === 'account'
+          ? renderAccountPage()
+          : renderInteractivePageContent()}
+        {renderSiteFooter()}
+      </div>
+    </>
   );
 
   // A device frame runs this exact component inside an iframe on the same origin, and the
