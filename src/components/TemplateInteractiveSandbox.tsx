@@ -1331,7 +1331,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       <div className={`p-5 rounded-2xl bg-slate-900 border ${themeStyle.primaryBorder} space-y-3`}>
         <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">“{profile.testimonial.quote}”</p>
         <div className="flex items-center gap-2.5 pt-1 border-t border-slate-800">
-          <div className={`w-8 h-8 rounded-full ${themeStyle.primaryBg} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+          <div className={`w-8 h-8 rounded-full ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} text-xs font-bold shrink-0`}>
             {profile.testimonial.author.charAt(0)}
           </div>
           <div className="min-w-0">
@@ -2308,7 +2308,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {activeTab === 'home' && (
               <div className="space-y-4 sm:space-y-6 animate-fade-in">
                 <div className={`relative overflow-hidden p-6 sm:p-8 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} backdrop-blur-sm border ${themeStyle.primaryBorder} text-center space-y-3 sm:space-y-4`}>
-                  <div className={`w-14 h-14 mx-auto rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shadow-lg ring-1 ring-white/20`}>
+                  <div className={`w-14 h-14 mx-auto rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shadow-lg ring-1 ring-white/20`}>
                     <Building2 className="w-7 h-7" />
                   </div>
                   <span className={`px-3 py-1 rounded-full ${themeStyle.badgeBg} text-xs font-semibold inline-block backdrop-blur-sm`}>
@@ -2952,7 +2952,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
                 {SAMPLE_AGENTS.map((agent, idx) => (
                   <div key={idx} className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white font-bold text-lg shrink-0`}>
+                    <div className={`w-12 h-12 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} font-bold text-lg shrink-0`}>
                       {agent.name.replace(/^(م\.|أ\.|د\.)\s*/, '').charAt(0)}
                     </div>
                     <div className="min-w-0">
@@ -4149,7 +4149,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             onClick={() => setAuthView('account')}
             className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-colors"
           >
-            <span className={`w-5 h-5 rounded-full ${themeStyle.primaryBg} flex items-center justify-center text-white text-[9px] font-bold`}>
+            <span className={`w-5 h-5 rounded-full ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} text-[9px] font-bold`}>
               {account.name.charAt(0).toUpperCase()}
             </span>
             <span className="text-[11px] font-bold text-white max-w-[80px] truncate">{account.name}</span>
@@ -4171,7 +4171,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     <div className="animate-fade-in flex items-center justify-center py-6 sm:py-12">
       <div className="w-full max-w-sm space-y-4">
         <div className="text-center space-y-2">
-          <div className={`w-12 h-12 mx-auto rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shadow-lg`}>
+          <div className={`w-12 h-12 mx-auto rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shadow-lg`}>
             <Lock className="w-5 h-5" />
           </div>
           <h3 className="text-lg font-extrabold text-white">تسجيل الدخول إلى حسابك</h3>
@@ -4306,7 +4306,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           <aside className={`shrink-0 ${isNarrowViewport ? '' : 'lg:w-56'} space-y-3`}>
             <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
               <div className="flex items-center gap-2.5">
-                <span className={`w-10 h-10 rounded-full ${themeStyle.primaryBg} flex items-center justify-center text-white text-sm font-black shrink-0`}>
+                <span className={`w-10 h-10 rounded-full ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} text-sm font-black shrink-0`}>
                   {account.name.charAt(0).toUpperCase()}
                 </span>
                 <div className="min-w-0">
