@@ -1611,6 +1611,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </button>
                 </div>
               )}
+              </div>
 
               {/* Center: Logo & Name — absolutely centered on the row's own midpoint
                   instead of sitting between the two side elements in normal flex flow,
@@ -1624,10 +1625,47 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
               </div>
 
-              {/* Left: Sorting controls — a custom dropdown instead of a native <select>:
-                  the browser draws a native <select>'s open popup itself (plain OS list,
-                  blue highlight), which CSS can't reach at all, so it always looks out of
-                  place next to the rest of the site's glass styling. */}
+              {/* Left cluster: cart, then sorting controls. Both this whole row and the
+                  sort trigger stay reachable the entire time the customer scrolls — the
+                  sticky wrapper around this whole card already pins it to the top of the
+                  viewport, so nothing extra is needed here to keep sort "stuck" through
+                  scroll; it was only ever un-stuck while it lived in the second, non-sticky
+                  row below. */}
+              <div className="flex items-center gap-2 shrink-0">
+              {/* Interactive Shopify Cart Trigger */}
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  onClick={() => {
+                    setIsCartOpen(true);
+                    cosmicAudio.playTick();
+                  }}
+                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isNarrowViewport ? '' : 'sm:px-3.5 sm:py-2 sm:gap-2.5'}`}
+                >
+                  <div className="relative shrink-0">
+                    <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
+                    {totalCartCount > 0 && (
+                      <span className="absolute -top-2.5 -left-2.5 bg-rose-500 text-white text-[9px] font-mono font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">
+                        {totalCartCount}
+                      </span>
+                    )}
+                  </div>
+
+                  <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
+                  {totalCartIQD > 0 && !isNarrowViewport && (
+                    <>
+                      <span className="w-px h-3.5 bg-white/15 shrink-0 sm:hidden" />
+                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap sm:px-2 sm:text-[10px]">
+                        {totalCartIQD.toLocaleString()} د.ع
+                      </span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Sorting controls — a custom dropdown instead of a native <select>: the
+                  browser draws a native <select>'s open popup itself (plain OS list, blue
+                  highlight), which CSS can't reach at all, so it always looks out of place
+                  next to the rest of the site's glass styling. */}
               <div className="relative flex items-center gap-2 shrink-0">
                 <span className="hidden sm:inline text-[10px] text-slate-500 font-bold whitespace-nowrap">ترتيب الموديلات:</span>
                 <button
@@ -1692,40 +1730,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   document.body
                 )}
               </div>
-            </div>
-
-            {/* Second row — sections menu on the right, cart trigger on the left. */}
-            <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-t border-white/10">
-              {renderSiteMenuButton()}
-
-              {/* Interactive Shopify Cart Trigger */}
-              <div className="flex items-center gap-2.5 shrink-0">
-                <button
-                  onClick={() => {
-                    setIsCartOpen(true);
-                    cosmicAudio.playTick();
-                  }}
-                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isNarrowViewport ? '' : 'sm:px-3.5 sm:py-2 sm:gap-2.5'}`}
-                >
-                  <div className="relative shrink-0">
-                    <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
-                    {totalCartCount > 0 && (
-                      <span className="absolute -top-2.5 -left-2.5 bg-rose-500 text-white text-[9px] font-mono font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">
-                        {totalCartCount}
-                      </span>
-                    )}
-                  </div>
-
-                  <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
-                  {totalCartIQD > 0 && !isNarrowViewport && (
-                    <>
-                      <span className="w-px h-3.5 bg-white/15 shrink-0 sm:hidden" />
-                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap sm:px-2 sm:text-[10px]">
-                        {totalCartIQD.toLocaleString()} د.ع
-                      </span>
-                    </>
-                  )}
-                </button>
               </div>
             </div>
           </div>
