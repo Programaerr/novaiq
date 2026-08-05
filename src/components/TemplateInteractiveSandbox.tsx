@@ -1632,14 +1632,17 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
           {/* Products Grid */}
           <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-6`}>
-            {sortedProducts.map((prod) => (
-              <div 
-                key={prod.id} 
-                className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 transition-all duration-300 flex flex-col justify-between space-y-4 group"
+            {sortedProducts.map((prod, prodIndex) => (
+              <div
+                key={prod.id}
+                style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${prodIndex * 0.05}s` }}
+                className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-4 group"
               >
                 <div className="space-y-3">
-                  {/* Thumbnail / Image Mock */}
-                  <div className="h-48 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 relative overflow-hidden group-hover:scale-[1.01] transition-all duration-300">
+                  {/* Thumbnail / Image Mock — the wave SVG overlaps the image's own bottom
+                      edge, so only the top corners are rounded here; the wave itself reads
+                      as the card's real bottom edge instead of a straight rectangular cut. */}
+                  <div className="h-48 rounded-t-xl bg-black/30 backdrop-blur-sm border border-white/10 relative overflow-hidden group-hover:scale-[1.01] transition-all duration-300">
                     {prod.imageUrl ? (
                       <img
                         src={prod.imageUrl}
@@ -1653,6 +1656,14 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <div className={`w-full h-full bg-gradient-to-br ${prod.imageBg}`} />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                    <svg
+                      className="product-card-wave absolute -bottom-px left-0 w-full h-9 pointer-events-none"
+                      viewBox="0 0 500 60"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <path d="M0,30 C125,60 375,0 500,30 L500,60 L0,60 Z" fill="#09090b" />
+                    </svg>
                     <div className="absolute top-2.5 right-2.5 flex items-center justify-between w-[calc(100%-20px)] z-10">
                       {prod.badge && (
                         <span className="px-2.5 py-1 rounded-md bg-black/90 text-[10px] font-bold text-white border border-white/10">
