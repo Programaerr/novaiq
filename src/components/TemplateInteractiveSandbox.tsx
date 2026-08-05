@@ -1133,14 +1133,14 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               <span>عرض خاص: شحن مجاني آمن لكافة محافظات العراق ودفع آمن عند الاستلام</span>
             </div>
 
-            <div className="flex items-center justify-between gap-4 p-4 px-4 sm:px-6">
+            <div className="flex items-center justify-between gap-2 sm:gap-4 p-3 px-3 sm:p-4 sm:px-6">
               {/* Right: Logo & Name */}
-              <div className="group flex items-center gap-3">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <ShoppingBag className="w-5 h-5" />
+              <div className="group flex items-center gap-2 sm:gap-3 min-w-0">
+                <span className="font-extrabold text-xs sm:text-base text-white tracking-wide whitespace-nowrap">Logo</span>
+                <div className={`navbar-logo-mark relative w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                  <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
+                <span className="navbar-logo-word font-extrabold text-xs sm:text-base text-white tracking-wide hidden sm:inline whitespace-nowrap">Design</span>
               </div>
 
               {/* Center: Shopify Navigation (interactively filters category states!) */}
@@ -1200,15 +1200,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               </nav>
 
               {/* Left: Interactive Shopify Cart Trigger */}
-              <div className="flex items-center gap-2.5">
-                <button 
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
                   onClick={() => {
                     setIsCartOpen(true);
                     cosmicAudio.playTick();
                   }}
-                  className="relative px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-2.5 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg"
+                  className="relative px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-1.5 sm:gap-2.5 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg"
                 >
-                  <div className="relative">
+                  <div className="relative shrink-0">
                     <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
                     {totalCartCount > 0 && (
                       <span className="absolute -top-2.5 -left-2.5 bg-rose-500 text-white text-[9px] font-mono font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">
@@ -1216,10 +1216,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       </span>
                     )}
                   </div>
-                  
-                  <span className="hidden sm:inline text-[11px]">حقيبة التسوق</span>
+
+                  <span className="hidden sm:inline text-[11px] whitespace-nowrap">حقيبة التسوق</span>
                   {totalCartIQD > 0 && (
-                    <span className="font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 text-[10px]">
+                    <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 sm:px-2 py-0.5 rounded border border-emerald-500/20 text-[9px] sm:text-[10px] whitespace-nowrap">
                       {totalCartIQD.toLocaleString()} د.ع
                     </span>
                   )}
@@ -1229,26 +1229,26 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </div>
 
           {/* Search, Filters & Sorter Row */}
-          <div className={`flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-4 p-4 bg-white/5 backdrop-blur-md border border-white/10`}>
+          <div className={`flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 backdrop-blur-md border border-white/10`}>
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
-              <input 
-                type="text" 
-                value={storeSearch} 
+              <input
+                type="text"
+                value={storeSearch}
                 onChange={e => setStoreSearch(e.target.value)}
-                placeholder="ابحث عن الموديلات، الأحذية، الإكسسوارات الفاخرة..." 
+                placeholder="ابحث عن الموديلات، الأحذية، الإكسسوارات الفاخرة..."
                 className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
               />
             </div>
 
             {/* Mobile Category and Sort Controller */}
-            <div className="flex flex-wrap items-center justify-between gap-3 md:justify-end">
+            <div className={`flex ${isMobileFrame ? 'flex-col items-stretch' : 'flex-col sm:flex-row sm:items-center'} gap-2 sm:gap-3 sm:justify-end`}>
               {/* Category Quick Tabs on Mobile/Tablet */}
               <div className={`${isMobileFrame ? 'flex' : 'flex md:hidden'} items-center gap-1 overflow-x-auto no-scrollbar py-0.5`}>
                 <button
                   onClick={() => { setStoreCategory('all'); cosmicAudio.playTick(); }}
-                  className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 ${
                     storeCategory === 'all' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                   }`}
                 >
@@ -1256,7 +1256,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </button>
                 <button
                   onClick={() => { setStoreCategory('men'); cosmicAudio.playTick(); }}
-                  className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 ${
                     storeCategory === 'men' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                   }`}
                 >
@@ -1264,7 +1264,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </button>
                 <button
                   onClick={() => { setStoreCategory('women'); cosmicAudio.playTick(); }}
-                  className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 ${
                     storeCategory === 'women' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                   }`}
                 >
@@ -1272,7 +1272,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </button>
                 <button
                   onClick={() => { setStoreCategory('accessories'); cosmicAudio.playTick(); }}
-                  className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap cursor-pointer transition-all shrink-0 ${
                     storeCategory === 'accessories' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                   }`}
                 >
@@ -1282,16 +1282,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
               {/* Advanced Sorter */}
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-slate-500 font-bold whitespace-nowrap">ترتيب الموديلات:</span>
+                <span className="hidden sm:inline text-[10px] text-slate-500 font-bold whitespace-nowrap">ترتيب الموديلات:</span>
                 <select
                   value={storeSort}
                   onChange={(e) => {
                     setStoreSort(e.target.value as any);
                     cosmicAudio.playTick();
                   }}
-                  className="bg-black/30 backdrop-blur-sm border border-white/10 text-slate-300 rounded-xl px-3 py-2 text-[10px] font-bold focus:outline-none focus:border-slate-700 cursor-pointer"
+                  className="w-full sm:w-auto bg-black/30 backdrop-blur-sm border border-white/10 text-slate-300 rounded-xl px-3 py-2 text-[10px] font-bold focus:outline-none focus:border-slate-700 cursor-pointer"
                 >
-                  <option value="default">الافتراضي (الأكثر رواجاً)</option>
+                  <option value="default">ترتيب: الأكثر رواجاً</option>
                   <option value="priceAsc">السعر: من الأقل للأعلى</option>
                   <option value="priceDesc">السعر: من الأعلى للأقل</option>
                 </select>
