@@ -1553,14 +1553,24 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
           <div className="sticky top-1 sm:top-2 z-30 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
             <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
-              {/* Right: sections menu (filters the store by category) */}
-              {renderSiteMenuButton()}
+              {/* Right: Search Input — capped width so it doesn't fight the absolutely
+                  centered logo for space the way an unconstrained flex-1 would. */}
+              <div className="relative w-32 sm:w-56 shrink-0">
+                <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
+                <input
+                  type="text"
+                  value={storeSearch}
+                  onChange={e => setStoreSearch(e.target.value)}
+                  placeholder="ابحث عن الموديلات"
+                  className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
+                />
+              </div>
 
               {/* Center: Logo & Name — absolutely centered on the row's own midpoint
-                  instead of sitting between the cart and menu buttons in normal flex
-                  flow, since those two are different widths and justify-between only
-                  splits the leftover space evenly, not the row itself, which pushed
-                  the logo visibly off-center toward whichever side was narrower. */}
+                  instead of sitting between the two side elements in normal flex flow,
+                  since those two are different widths and justify-between only splits
+                  the leftover space evenly, not the row itself, which pushed the logo
+                  visibly off-center toward whichever side was narrower. */}
               <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
                 <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
@@ -1568,67 +1578,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
               </div>
 
-              {/* Left: Interactive Shopify Cart Trigger */}
-              <div className="flex items-center gap-2.5 shrink-0">
-                <button
-                  onClick={() => {
-                    setIsCartOpen(true);
-                    cosmicAudio.playTick();
-                  }}
-                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isNarrowViewport ? '' : 'sm:px-3.5 sm:py-2 sm:gap-2.5'}`}
-                >
-                  <div className="relative shrink-0">
-                    <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
-                    {totalCartCount > 0 && (
-                      <span className="absolute -top-2.5 -left-2.5 bg-rose-500 text-white text-[9px] font-mono font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">
-                        {totalCartCount}
-                      </span>
-                    )}
-                  </div>
-
-                  <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
-                  {/* Price tag stays off on mobile too — this trigger is already competing
-                      for room with the centered logo and the menu button on the same row,
-                      and the price is one tap away once the cart itself opens. */}
-                  {totalCartIQD > 0 && !isNarrowViewport && (
-                    <>
-                      <span className="w-px h-3.5 bg-white/15 shrink-0 sm:hidden" />
-                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap sm:px-2 sm:text-[10px]">
-                        {totalCartIQD.toLocaleString()} د.ع
-                      </span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Search, Filters & Sorter Row — kept inside the same sticky card as the
-                header instead of floating as its own separate block underneath it, so the
-                two read as one cohesive header instead of two disconnected pieces. */}
-            <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-t border-white/10">
-            {/* Search Input */}
-            <div className="relative flex-1 min-w-0">
-              <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
-              <input
-                type="text"
-                value={storeSearch}
-                onChange={e => setStoreSearch(e.target.value)}
-                placeholder="ابحث عن الموديلات"
-                className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
-              />
-            </div>
-
-            {/* Sorting controls */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-
-              {/* Advanced Sorter — a custom dropdown instead of a native <select>: the
-                  browser draws a native <select>'s open popup itself (plain OS list, blue
-                  highlight), which CSS can't reach at all, so it always looks out of place
-                  next to the rest of the site's glass styling. Icon-only on mobile — this
-                  row stays side by side with the search input instead of stacking under it,
-                  and the full "ترتيب: الأكثر رواجاً" label was the one thing too wide to
-                  fit next to a usable search field at 390px. */}
-              <div className="relative flex items-center gap-2">
+              {/* Left: Sorting controls — a custom dropdown instead of a native <select>:
+                  the browser draws a native <select>'s open popup itself (plain OS list,
+                  blue highlight), which CSS can't reach at all, so it always looks out of
+                  place next to the rest of the site's glass styling. */}
+              <div className="relative flex items-center gap-2 shrink-0">
                 <span className="hidden sm:inline text-[10px] text-slate-500 font-bold whitespace-nowrap">ترتيب الموديلات:</span>
                 <button
                   ref={storeSortBtnRef}
@@ -1693,7 +1647,41 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 )}
               </div>
             </div>
-          </div>
+
+            {/* Second row — sections menu on the right, cart trigger on the left. */}
+            <div className="flex flex-row items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4 border-t border-white/10">
+              {renderSiteMenuButton()}
+
+              {/* Interactive Shopify Cart Trigger */}
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  onClick={() => {
+                    setIsCartOpen(true);
+                    cosmicAudio.playTick();
+                  }}
+                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isNarrowViewport ? '' : 'sm:px-3.5 sm:py-2 sm:gap-2.5'}`}
+                >
+                  <div className="relative shrink-0">
+                    <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
+                    {totalCartCount > 0 && (
+                      <span className="absolute -top-2.5 -left-2.5 bg-rose-500 text-white text-[9px] font-mono font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">
+                        {totalCartCount}
+                      </span>
+                    )}
+                  </div>
+
+                  <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
+                  {totalCartIQD > 0 && !isNarrowViewport && (
+                    <>
+                      <span className="w-px h-3.5 bg-white/15 shrink-0 sm:hidden" />
+                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap sm:px-2 sm:text-[10px]">
+                        {totalCartIQD.toLocaleString()} د.ع
+                      </span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Products Grid */}
