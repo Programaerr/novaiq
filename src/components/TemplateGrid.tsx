@@ -54,6 +54,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // search/sort always snaps back to the first result rather than an index that may no
   // longer exist.
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<{ startX: number } | null>(null);
 
   const categories = [
@@ -129,17 +130,37 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     setActiveIndex((i) => Math.max(0, Math.min(filteredTemplates.length - 1, i + delta)));
   };
 
+  // setPointerCapture keeps receiving move/up events even if the finger/cursor drifts off
+  // the card mid-swipe — without it, a fast mobile flick can end outside the element and
+  // silently drop the "up" event, leaving the swipe never resolved.
   const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
     dragRef.current = { startX: e.clientX };
+    setIsDragging(true);
   };
 
   const handleTrackPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current) return;
     const dx = e.clientX - dragRef.current.startX;
     dragRef.current = null;
-    if (Math.abs(dx) < 50) return;
+    setIsDragging(false);
+    if (Math.abs(dx) < 40) return;
     goToOffset(dx > 0 ? -1 : 1);
   };
+
+  // Auto-advance one card every 8s, in slow motion (see the 1.6s transition below) — loops
+  // back to the first card after the last one. Paused while the visitor is dragging, and
+  // skipped entirely under reduced-motion. Depending on `activeIndex` restarts the 8s clock
+  // after any manual click/arrow/swipe, so autoplay never fights the visitor's own input.
+  useEffect(() => {
+    if (isDragging) return;
+    if (filteredTemplates.length <= 1) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => {
+      setActiveIndex((i) => (i + 1) % filteredTemplates.length);
+    }, 8000);
+    return () => window.clearInterval(id);
+  }, [isDragging, activeIndex, filteredTemplates.length]);
 
   return (
     <section id="templates-section" className="py-4 sm:py-6 relative">
@@ -372,7 +393,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   transform: `translate(-50%, -50%) translateX(${offset * 235}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
                   opacity: isActive ? 1 : distance === 1 ? 0.55 : 0.28,
                   zIndex: 10 - distance,
-                  transition: 'transform 0.45s ease, opacity 0.45s ease',
+                  transition: 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease',
                 }}
                 className={`absolute top-1/2 left-1/2 w-[320px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
