@@ -1067,7 +1067,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-purple-400',
           primaryBorder: 'border-purple-500/40',
           badgeBg: 'bg-purple-500/20 text-purple-300',
-          gradient: 'from-purple-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-purple-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
       case 'cyan':
         return {
@@ -1075,7 +1076,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-cyan-400',
           primaryBorder: 'border-cyan-500/40',
           badgeBg: 'bg-cyan-500/20 text-cyan-300',
-          gradient: 'from-cyan-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-cyan-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
       case 'amber':
         return {
@@ -1083,7 +1085,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-amber-400',
           primaryBorder: 'border-amber-500/40',
           badgeBg: 'bg-amber-500/20 text-amber-300',
-          gradient: 'from-amber-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-amber-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
       case 'rose':
         return {
@@ -1091,7 +1094,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-rose-400',
           primaryBorder: 'border-rose-500/40',
           badgeBg: 'bg-rose-500/20 text-rose-300',
-          gradient: 'from-rose-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-rose-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
       case 'monochrome':
         return {
@@ -1099,7 +1103,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-zinc-100',
           primaryBorder: 'border-zinc-400/40',
           badgeBg: 'bg-zinc-800 text-zinc-200',
-          gradient: 'from-zinc-900 via-slate-950 to-black'
+          gradient: 'from-zinc-900 via-slate-950 to-black',
+          // The other themes are all mid-tone (-600) backgrounds that read fine with the
+          // hardcoded text-white/icon color used everywhere primaryBg is applied; monochrome
+          // is the one theme whose primaryBg is actually white, so that same white
+          // text/icon goes invisible on it unless call sites swap in onPrimary instead.
+          onPrimary: 'text-black'
         };
       case 'emerald':
       default:
@@ -1108,7 +1117,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-emerald-400',
           primaryBorder: 'border-emerald-500/40',
           badgeBg: 'bg-emerald-500/20 text-emerald-300',
-          gradient: 'from-emerald-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-emerald-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
     }
   };
@@ -1427,7 +1437,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   full desktop size squeezed into 375px, colliding with the cart button. */}
               <div className={`group flex items-center gap-2 min-w-0 ${isMobileFrame ? '' : 'sm:gap-3'}`}>
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isMobileFrame ? '' : 'sm:text-base'}`}>Logo</span>
-                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20 ${isMobileFrame ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
+                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isMobileFrame ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
                   <ShoppingBag className={`w-4 h-4 ${isMobileFrame ? '' : 'sm:w-5 sm:h-5'}`} />
                 </div>
                 <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isMobileFrame ? '' : 'sm:inline sm:text-base'}`}>Design</span>
@@ -2137,7 +2147,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-3">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -2397,7 +2407,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
               <div className="group flex items-center gap-2.5">
                 <span className="text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">~/Logo</span>
-                <div className={`navbar-logo-mark w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg`}>
+                <div className={`navbar-logo-mark w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg`}>
                   <Terminal className="w-4.5 h-4.5" />
                 </div>
                 <span className="navbar-logo-word text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">
@@ -2605,7 +2615,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -2819,7 +2829,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Stethoscope className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -2981,7 +2991,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <ChefHat className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -3137,7 +3147,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -3279,7 +3289,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Hotel className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -3396,7 +3406,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Truck className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -3523,7 +3533,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isMobileFrame ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Wallet className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
