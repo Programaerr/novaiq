@@ -609,12 +609,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           </div>
         )}
 
-        {/* Brand mark — fills the empty stretch between the carousel and the footer instead
-            of leaving it visually empty. Scaled up as a whole (not just a bigger `size` prop)
-            so the wordmark grows in step with the icon instead of staying pinned at its
-            fixed text-xl/2xl size while the icon balloons past it. */}
-        <div className="flex justify-center mt-16 sm:mt-20 opacity-[0.28]">
-          <NovaiqLogo size={60} showText={true} className="scale-125 sm:scale-150" />
+        {/* Brand mark — sized to actually fill the empty stretch between the carousel and
+            the footer, not just sit as a small centered icon within it. Scaled up as a whole
+            (not just a bigger `size` prop) so the wordmark grows in step with the icon
+            instead of staying pinned at its fixed text-xl/2xl size while the icon balloons
+            past it; growing by breakpoint so it fills proportionally more on wider screens
+            without overflowing narrow ones. */}
+        <div className="flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14 opacity-[0.22]">
+          <NovaiqLogo size={60} showText={true} className="scale-150 sm:scale-[2.25] lg:scale-[3]" />
         </div>
 
         {filteredTemplates.length === 0 && (
