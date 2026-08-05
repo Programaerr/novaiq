@@ -428,7 +428,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${clampedOffset * (isMobile ? 175 : 235)}px) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
+                  transform: `translate(-50%, -50%) translateX(${clampedOffset * (isMobile ? 180 : 235)}px) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // Position/scale glide in slow motion; opacity settles fast on its own —
@@ -437,7 +437,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   transition: 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
                   pointerEvents: isVisible ? undefined : 'none',
                 }}
-                className={`absolute top-1/2 left-1/2 w-[260px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute top-1/2 left-1/2 w-[300px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
@@ -454,7 +454,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className="relative h-24 sm:h-56 overflow-hidden bg-black cursor-pointer group/img"
+                  className="relative h-40 sm:h-56 overflow-hidden bg-black cursor-pointer group/img"
                 >
                   <img
                     src={template.previewImage}
@@ -496,7 +496,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 </div>
 
                 {/* Card Content */}
-                <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-5">
+                <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-5">
                   
                   <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-colors">
                     <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed line-clamp-2">
