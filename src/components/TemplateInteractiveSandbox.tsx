@@ -872,7 +872,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [storeSearch, setStoreSearch] = useState<string>('');
   const [storeSort, setStoreSort] = useState<'default' | 'priceAsc' | 'priceDesc'>('default');
   const [isStoreSortOpen, setIsStoreSortOpen] = useState(false);
-  const [storeSortMenuRect, setStoreSortMenuRect] = useState<{ top: number; right: number; width: number } | null>(null);
+  const [storeSortMenuRect, setStoreSortMenuRect] = useState<{ top: number; left: number; width: number } | null>(null);
   const storeSortBtnRef = useRef<HTMLButtonElement>(null);
   const [selectedProductForModal, setSelectedProductForModal] = useState<ClothingProduct | null>(null);
   const [modalColor, setModalColor] = useState<string>('');
@@ -1620,7 +1620,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 type="text"
                 value={storeSearch}
                 onChange={e => setStoreSearch(e.target.value)}
-                placeholder="ابحث عن الموديلات، الأحذية، الإكسسوارات الفاخرة..."
+                placeholder="ابحث عن الموديلات"
                 className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
               />
             </div>
@@ -1643,7 +1643,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   onClick={() => {
                     if (!isStoreSortOpen && storeSortBtnRef.current) {
                       const r = storeSortBtnRef.current.getBoundingClientRect();
-                      setStoreSortMenuRect({ top: r.bottom + 6, right: window.innerWidth - r.right, width: r.width });
+                      const menuWidth = Math.max(r.width, 200);
+                      // Clamp within the viewport instead of always anchoring off the
+                      // trigger's own right edge — the trigger is icon-only and sits near
+                      // the left edge on mobile now, so a fixed-right popup wider than the
+                      // trigger itself was rendering mostly off-screen to the left.
+                      const left = Math.min(Math.max(r.left, 8), window.innerWidth - menuWidth - 8);
+                      setStoreSortMenuRect({ top: r.bottom + 6, left, width: r.width });
                     }
                     setIsStoreSortOpen((v) => !v);
                   }}
@@ -1665,7 +1671,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <div className="fixed inset-0 z-[70]" onClick={() => setIsStoreSortOpen(false)} />
                     <div
                       role="listbox"
-                      style={{ top: storeSortMenuRect.top, right: storeSortMenuRect.right, width: Math.max(storeSortMenuRect.width, 200) }}
+                      style={{ top: storeSortMenuRect.top, left: storeSortMenuRect.left, width: Math.max(storeSortMenuRect.width, 200) }}
                       className="fixed z-[71] rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/40 overflow-hidden animate-fade-in"
                     >
                       {STORE_SORT_OPTIONS.map((opt) => (
