@@ -383,7 +383,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             onPointerDown={handleTrackPointerDown}
             onPointerUp={handleTrackPointerUp}
+<<<<<<< HEAD
             className="relative w-full max-w-4xl h-[440px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+=======
+            className="relative w-full max-w-4xl h-[520px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+>>>>>>> c5906b5115c063ae102b0b7ae91212eb7edf877d
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -401,12 +405,20 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
+<<<<<<< HEAD
                   transform: `translate(-50%, -50%) translateX(${offset * (isMobile ? 135 : 235)}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
+=======
+                  transform: `translate(-50%, -50%) translateX(${offset * (isMobile ? 130 : 235)}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
+>>>>>>> c5906b5115c063ae102b0b7ae91212eb7edf877d
                   opacity: isActive ? 1 : distance === 1 ? 0.55 : 0.28,
                   zIndex: 10 - distance,
                   transition: 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease',
                 }}
+<<<<<<< HEAD
                 className={`absolute top-1/2 left-1/2 w-[240px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+=======
+                className={`absolute top-1/2 left-1/2 w-[230px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+>>>>>>> c5906b5115c063ae102b0b7ae91212eb7edf877d
               >
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
