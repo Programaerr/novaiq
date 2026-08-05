@@ -418,7 +418,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${clampedOffset * (isMobile ? 150 : 235)}px) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
+                  transform: `translate(-50%, -50%) translateX(${clampedOffset * (isMobile ? 175 : 235)}px) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // Position/scale glide in slow motion; opacity settles fast on its own —
