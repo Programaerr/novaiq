@@ -874,8 +874,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [isStoreSortOpen, setIsStoreSortOpen] = useState(false);
   const [storeSortMenuRect, setStoreSortMenuRect] = useState<{ top: number; right: number; width: number } | null>(null);
   const storeSortBtnRef = useRef<HTMLButtonElement>(null);
+  // Index climbs forever (no modulo) instead of wrapping straight back to 0 — wrapping
+  // mid-animation made the row visibly snap backward to the start every cycle instead of
+  // reading as one continuous train. The product list is rendered twice back to back
+  // (displayProducts below) so the train can keep sliding smoothly past the "end" into
+  // the second copy; once it's fully past the first copy, skipCarouselTransition silently
+  // rewinds the index by one full length with the transition switched off for that single
+  // frame, which is invisible since copy two at that position looks identical to copy one.
   const [productCarouselIndex, setProductCarouselIndex] = useState(0);
   const [isProductCarouselPaused, setIsProductCarouselPaused] = useState(false);
+  const [skipCarouselTransition, setSkipCarouselTransition] = useState(false);
   // sortedProducts (filtered + sorted) only exists inside renderInteractivePageContent, so
   // this effect can't put it in its dependency array without recreating — and resetting —
   // the 5s timer on every unrelated render. A ref updated during render instead lets the
@@ -888,10 +896,24 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       if (isProductCarouselPaused) return;
       const len = sortedProductsLengthRef.current;
       if (len <= 1) return;
-      setProductCarouselIndex((i) => (i + 1) % len);
+      setProductCarouselIndex((i) => i + 1);
     }, 5000);
     return () => window.clearInterval(id);
   }, [isProductCarouselPaused]);
+
+  useEffect(() => {
+    const len = sortedProductsLengthRef.current;
+    if (len <= 1 || productCarouselIndex < len) return;
+    // Let the 1.4s slide finish before rewinding — matches the transform's own duration.
+    const timer = window.setTimeout(() => {
+      setSkipCarouselTransition(true);
+      setProductCarouselIndex((i) => i - len);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setSkipCarouselTransition(false));
+      });
+    }, 1450);
+    return () => window.clearTimeout(timer);
+  }, [productCarouselIndex]);
 
   useEffect(() => {
     setProductCarouselIndex(0);
@@ -1571,7 +1593,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         });
 
       sortedProductsLengthRef.current = sortedProducts.length;
-      const productCarouselActiveIndex = sortedProducts.length > 0 ? productCarouselIndex % sortedProducts.length : 0;
+      // Two back-to-back copies — see the effects above for why the index itself never
+      // wraps mid-slide.
+      const displayProducts = sortedProducts.length > 0 ? [...sortedProducts, ...sortedProducts] : [];
 
       return (
         <div className="space-y-6 text-slate-100">
@@ -1725,14 +1749,14 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div
               className={`flex ${isNarrowViewport ? 'gap-4' : 'gap-6'}`}
               style={{
-                transform: `translateX(${productCarouselActiveIndex * (isNarrowViewport ? 276 : 344)}px)`,
-                transition: 'transform 1.4s cubic-bezier(0.65, 0, 0.35, 1)',
+                transform: `translateX(${productCarouselIndex * (isNarrowViewport ? 276 : 344)}px)`,
+                transition: skipCarouselTransition ? 'none' : 'transform 1.4s cubic-bezier(0.65, 0, 0.35, 1)',
               }}
             >
-            {sortedProducts.map((prod, prodIndex) => (
+            {displayProducts.map((prod, prodIndex) => (
               <div
-                key={prod.id}
-                style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${prodIndex * 0.05}s` }}
+                key={`${prod.id}-${prodIndex}`}
+                style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${(prodIndex % sortedProducts.length) * 0.05}s` }}
                 className={`${isNarrowViewport ? 'w-[260px]' : 'w-[320px]'} shrink-0 p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-4 group`}
               >
                 <div className="space-y-3">
