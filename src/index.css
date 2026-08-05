@@ -387,12 +387,89 @@
   opacity: 1;
 }
 
+<<<<<<< HEAD
 /* Navbar wordmark: NAME → mark → "Design" — both text pieces are hidden until hover, then
    slide out from behind the mark in opposite directions (NAME to the left, "Design" to the
    right), leaving just the mark visible by default. The mark itself stays still (an earlier
    spinning version read as gimmicky). Needs the parent to carry the `group` class (added in
    JSX). */
 .navbar-logo-name,
+=======
+<<<<<<< HEAD
+/* Border beam — a fast white comet chases around the button's own perimeter on hover,
+   instead of glowing evenly all at once. The ring is drawn by masking a conic-gradient
+   square down to just its edge (content-box XOR border-box leaves only the padding
+   strip), and --border-beam-angle is a real animatable custom property (not just a CSS
+   variable) so the conic-gradient can rotate smoothly via @keyframes instead of jumping
+   in discrete steps. Keeps spinning at all times (cheap — it's one small pseudo-element)
+   and only fades in on hover, so the comet never restarts from 0deg and looks like it
+   was always mid-flight. */
+@property --border-beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.border-beam-btn {
+  position: relative;
+  z-index: 0;
+}
+
+.border-beam-btn::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-beam-angle),
+    #fff 0deg,
+    rgba(255, 255, 255, 0.7) 12deg,
+    rgba(255, 255, 255, 0.15) 30deg,
+    transparent 55deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  animation: border-beam-spin 1.4s linear infinite;
+}
+
+.border-beam-btn:hover::after {
+  opacity: 1;
+}
+
+@keyframes border-beam-spin {
+  to { --border-beam-angle: 360deg; }
+}
+
+/* Template-preview navbar wordmark: "Logo [mark] Design" — hover-triggered, not automatic.
+   The mark only spins while the pointer is over the navbar's logo group, and "Design"
+   stays hidden until then, sliding out from the mark on hover-in and smoothly retreating
+   back on hover-out. Needs the parent to carry the `group` class (added in JSX). */
+@keyframes navbar-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.navbar-logo-mark {
+  transition: transform 0.4s ease;
+}
+
+.group:hover .navbar-logo-mark {
+  animation: navbar-logo-spin 1.4s linear infinite;
+}
+
+=======
+/* Navbar wordmark: NAME → mark → "Design" — hover-triggered, not automatic. The mark stays
+   still (an earlier spinning version read as gimmicky); "Design" is what moves, sliding out
+   from behind the mark on hover-in and pulling back on hover-out. Needs the parent to carry
+   the `group` class (added in JSX). */
+>>>>>>> e0936a0ab96fe8dae913544771216aca3c472d10
+>>>>>>> 38ef81d07ebccc2117a226aaebf4dcdc06881326
 .navbar-logo-word {
   display: inline-flex;
   align-items: center;
