@@ -612,6 +612,89 @@ const SITE_IDENTITIES: Record<string, { name: string; badge: string; contact: Co
   },
 };
 
+// Section lists for the shared side menu. Every template used to spell its sections out as
+// a wrapping row of pills inside its own header, which crowded the header and broke down
+// entirely once a template had five sections. One menu button per template, opening one
+// drawer, replaces all of them.
+const SITE_NAV_ITEMS: Record<string, Array<{ id: string; label: string }>> = {
+  'NVQ-CORP-01': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'services', label: 'خدماتنا' },
+    { id: 'projects', label: 'المشاريع' },
+    { id: 'calculator', label: 'حاسبة المشروع' },
+    { id: 'contact', label: 'اتصل بنا' },
+  ],
+  'NVQ-TECH-03': [
+    { id: 'home', label: '~/home' },
+    { id: 'features', label: '~/features' },
+    { id: 'docs', label: '~/docs' },
+    { id: 'pricing', label: '~/pricing' },
+    { id: 'dashboard', label: '~/dashboard' },
+  ],
+  'NVQ-REAL-04': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'properties', label: 'العقارات' },
+    { id: 'booking', label: 'حجز معاينة' },
+    { id: 'agents', label: 'مستشارونا' },
+  ],
+  'NVQ-HEALTH-05': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'doctors', label: 'الأطباء والتخصصات' },
+    { id: 'booking', label: 'حجز موعد' },
+    { id: 'results', label: 'نتائج التحاليل' },
+    { id: 'consultation', label: 'استشارة مرئية' },
+  ],
+  'NVQ-FINTECH-06': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'wallet', label: 'المحفظة' },
+    { id: 'cards', label: 'البطاقات' },
+    { id: 'security', label: 'الأمان' },
+  ],
+  'NVQ-FOOD-07': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'menu', label: 'قائمة الطعام' },
+    { id: 'order', label: 'سلة الطلب' },
+    { id: 'reservation', label: 'حجز طاولة' },
+  ],
+  'NVQ-EDU-08': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'courses', label: 'الدورات' },
+    { id: 'enroll', label: 'التسجيل' },
+    { id: 'dashboard', label: 'لوحة الطالب' },
+  ],
+  'NVQ-HOTEL-09': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'rooms', label: 'الغرف والأجنحة' },
+    { id: 'booking', label: 'الحجز' },
+    { id: 'confirmation', label: 'تأكيد الحجز' },
+  ],
+  'NVQ-LOG-10': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'tracking', label: 'تتبع الشحنة' },
+    { id: 'calculator', label: 'حاسبة التكلفة' },
+    { id: 'fleet', label: 'الأسطول' },
+  ],
+};
+
+// The store navigates by product category rather than by page, so its menu drives that
+// instead of the shared tab state.
+const STORE_NAV_ITEMS = [
+  { id: 'all', label: 'كل المنتجات' },
+  { id: 'men', label: 'أزياء رجالية' },
+  { id: 'women', label: 'أزياء نسائية' },
+  { id: 'accessories', label: 'إكسسوارات وأحذية' },
+];
+
+/** Three bars of deliberately uneven length — the same treatment as the NOVAIQ navbar's own
+ *  menu control, so the demos share the studio's visual language. */
+const SiteMenuIcon: React.FC = () => (
+  <span className="flex flex-col items-start gap-[3.5px] w-5 shrink-0" aria-hidden="true">
+    <span className="site-menu-bar block h-[2px] w-full rounded-full bg-current" />
+    <span className="site-menu-bar block h-[2px] w-[68%] rounded-full bg-current" />
+    <span className="site-menu-bar block h-[2px] w-[44%] rounded-full bg-current" />
+  </span>
+);
+
 export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProps> = ({
   template,
   onClose,
@@ -619,7 +702,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   chromeless = false,
   initialThemeColor,
 }) => {
-  const [deviceView, setDeviceView] = useState<'full' | PreviewDevice>('full');
   const [themeColor, setThemeColor] = useState<ThemeColor>(() => {
     if (initialThemeColor) return initialThemeColor;
     try {
@@ -630,13 +712,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   });
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
 
-  // Frozen at mount on purpose: it seeds the iframe's URL, and a URL that changed with the
-  // palette would reload the running demo on every colour click. Live changes go over
-  // postMessage instead.
-  const initialThemeRef = useRef<ThemeColor>(themeColor);
-
   // General Interactive States
   const [activeTab, setActiveTab] = useState<string>('home');
+  const [isSiteMenuOpen, setIsSiteMenuOpen] = useState<boolean>(false);
 
   // In-site account layer — every template gets a real sign-in page and a real account /
   // admin area, because that is what separates a landing-page mock-up from a website a
@@ -3967,6 +4045,115 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     cosmicAudio.playTick();
   };
 
+  // The store browses by category, everything else by page — one menu, two sources of truth.
+  const isStoreTemplate = template.id === 'NVQ-ECOM-02' || template.category === 'ecommerce';
+  const siteNavItems = isStoreTemplate ? STORE_NAV_ITEMS : SITE_NAV_ITEMS[template.id] ?? [];
+  const activeNavId = isStoreTemplate ? storeCategory : activeTab;
+
+  const selectSiteNav = (id: string) => {
+    if (isStoreTemplate) {
+      setStoreCategory(id as 'all' | 'men' | 'women' | 'accessories');
+    } else {
+      setActiveTab(id);
+    }
+    setAuthView('site');
+    setIsSiteMenuOpen(false);
+    cosmicAudio.playTick();
+  };
+
+  const activeNavLabel = siteNavItems.find((item) => item.id === activeNavId)?.label ?? '';
+
+  const renderSiteMenuButton = () => (
+    <button
+      onClick={() => { setIsSiteMenuOpen(true); cosmicAudio.playTick(); }}
+      aria-label="فتح قائمة أقسام الموقع"
+      aria-expanded={isSiteMenuOpen}
+      className="site-menu-btn flex items-center gap-2.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/25 text-white cursor-pointer transition-colors shrink-0"
+    >
+      <SiteMenuIcon />
+      <span className="text-[11px] font-bold whitespace-nowrap">
+        {activeNavLabel || 'القائمة'}
+      </span>
+    </button>
+  );
+
+  const renderSiteDrawer = () => {
+    if (!isSiteMenuOpen) return null;
+    return (
+      <>
+        <div
+          onClick={() => setIsSiteMenuOpen(false)}
+          className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm animate-fade-in"
+          aria-hidden="true"
+        />
+        <aside
+          data-lenis-prevent
+          className="site-drawer fixed inset-y-0 rtl:right-0 ltr:left-0 z-[61] w-72 max-w-[85vw] bg-slate-950 border-s border-white/10 shadow-2xl flex flex-col overflow-y-auto"
+        >
+          <div className="flex items-center justify-between gap-3 p-4 border-b border-white/10">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className={`w-9 h-9 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white text-xs font-black shrink-0`}>
+                {siteIdentity.name.charAt(0)}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs font-bold text-white truncate">{siteIdentity.name}</span>
+                <span className="block text-[9px] text-slate-500 truncate">{siteIdentity.badge}</span>
+              </span>
+            </div>
+            <button
+              onClick={() => setIsSiteMenuOpen(false)}
+              aria-label="إغلاق القائمة"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <nav className="p-3 space-y-1.5">
+            <span className="block px-2 pb-1 text-[9px] font-bold text-slate-500 tracking-wider">أقسام الموقع</span>
+            {siteNavItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => selectSiteNav(item.id)}
+                className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
+                  authView === 'site' && activeNavId === item.id
+                    ? `${themeStyle.primaryBg} text-white`
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <span className="truncate">{item.label}</span>
+                {authView === 'site' && activeNavId === item.id && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+              </button>
+            ))}
+          </nav>
+
+          <div className="p-3 mt-auto space-y-2 border-t border-white/10">
+            <button
+              onClick={() => {
+                setAuthView(account ? 'account' : 'login');
+                setIsSiteMenuOpen(false);
+                cosmicAudio.playTick();
+              }}
+              className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
+                authView !== 'site'
+                  ? `${themeStyle.primaryBg} text-white`
+                  : 'bg-white/5 border border-white/10 text-slate-300 hover:text-white'
+              }`}
+            >
+              {account ? <User className="w-3.5 h-3.5 shrink-0" /> : <LogIn className="w-3.5 h-3.5 shrink-0" />}
+              <span className="truncate">{account ? `حسابي — ${account.name}` : 'تسجيل الدخول'}</span>
+            </button>
+
+            <ul className="space-y-1.5 px-1 pt-1 text-[10px] text-slate-500">
+              <li className="flex items-center gap-1.5"><Phone className="w-3 h-3 shrink-0" /><span dir="ltr">{siteIdentity.contact.phone}</span></li>
+              <li className="flex items-center gap-1.5"><MapPin className="w-3 h-3 shrink-0" /><span className="truncate">{siteIdentity.contact.address}</span></li>
+            </ul>
+          </div>
+        </aside>
+      </>
+    );
+  };
+
   const renderSiteUtilityBar = () => (
     <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md">
       <button
@@ -4432,8 +4619,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     );
   }
 
-  const livePreviewSrc = `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${initialThemeRef.current}&name=${encodeURIComponent(template.title)}`;
-
   const openInNewTab = () => {
     window.open(
       `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${themeColor}&name=${encodeURIComponent(template.title)}`,
@@ -4532,61 +4717,23 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
           {/* Viewport switcher. "شاشتك" is the visitor's own screen, rendered inline;
               the other three hand the site a real device viewport of its own. */}
-          <div className="flex items-center gap-0.5 bg-black p-1 rounded-xl border border-zinc-800 text-xs">
-            {([
-              { key: 'full', label: 'شاشتك', title: 'عرض على شاشتك الحالية', Icon: Monitor },
-              { key: 'desktop', label: 'كمبيوتر', title: 'محاكاة شاشة كمبيوتر 1280 بكسل', Icon: Monitor },
-              { key: 'tablet', label: 'تابلت', title: 'محاكاة جهاز لوحي 834 بكسل', Icon: Tablet },
-              { key: 'mobile', label: 'جوال', title: 'محاكاة هاتف 390 بكسل', Icon: Smartphone },
-            ] as const).map(({ key, label, title, Icon }) => (
-              <button
-                key={key}
-                onClick={() => { setDeviceView(key); cosmicAudio.playTick(); }}
-                title={title}
-                className={`px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition-all cursor-pointer ${
-                  deviceView === key
-                    ? 'bg-zinc-800 text-white font-bold border border-white glow-white'
-                    : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span className={key === 'full' ? 'hidden md:inline' : 'hidden sm:inline'}>{label}</span>
-              </button>
-            ))}
-          </div>
-
           <button
             onClick={openInNewTab}
             title="فتح القالب في تبويب مستقل بأعلى جودة"
             className="p-1.5 sm:px-3 sm:py-2 rounded-xl bg-zinc-900 text-zinc-300 hover:text-white border border-zinc-800 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer glow-white-hover transition-colors"
           >
             <Eye className="w-4 h-4" />
-            <span className="hidden xl:inline">فتح كموقع مستقل</span>
-            <ExternalLink className="w-3 h-3 hidden xl:inline" />
+            <span className="hidden lg:inline">فتح كموقع مستقل</span>
+            <ExternalLink className="w-3 h-3 hidden lg:inline" />
           </button>
         </div>
       </div>
 
-      {/* The live site itself. Anything but "شاشتك" hands the template a genuinely separate
-          browsing context at a real device width, so its own media queries decide the layout
-          — the preview is then an honest device simulation, not a scaled-down screenshot. */}
-      <div data-lenis-prevent className={`flex-1 min-h-0 w-full flex flex-col items-center justify-start p-2 sm:p-4 ${deviceView === 'full' ? 'overflow-y-auto overflow-x-hidden bg-black/30 backdrop-blur-sm' : 'overflow-hidden bg-gradient-to-b from-zinc-950 to-black'}`}>
-
-        {deviceView === 'full' ? (
-          <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
-            {renderLiveSite()}
-          </div>
-        ) : (
-          <DevicePreviewFrame
-            device={deviceView}
-            src={livePreviewSrc}
-            addressUrl={previewAddress}
-            title={`معاينة حية: ${template.title}`}
-            themeColor={themeColor}
-            onOpenNewTab={openInNewTab}
-          />
-        )}
-
+      {/* The live site, rendered at the visitor's own screen size. */}
+      <div data-lenis-prevent className="flex-1 min-h-0 w-full flex flex-col items-center justify-start p-2 sm:p-4 overflow-y-auto overflow-x-hidden bg-black/30 backdrop-blur-sm">
+        <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
+          {renderLiveSite()}
+        </div>
       </div>
 
       {/* Floating Bottom Action Bar */}
