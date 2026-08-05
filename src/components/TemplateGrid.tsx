@@ -397,7 +397,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             onPointerDown={handleTrackPointerDown}
             onPointerUp={handleTrackPointerUp}
-            className="relative w-full max-w-4xl h-[560px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+            className="relative w-full max-w-4xl h-[600px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
