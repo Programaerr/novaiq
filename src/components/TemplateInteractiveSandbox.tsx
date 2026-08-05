@@ -1748,7 +1748,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-bold text-white leading-snug group-hover:text-emerald-400 transition-colors">{prod.name}</h4>
+                    <h4 className="text-sm font-bold text-white leading-snug">{prod.name}</h4>
                     <p className="text-[11px] text-slate-400 line-clamp-2 mt-1 leading-relaxed">{prod.description}</p>
                   </div>
                 </div>
