@@ -1558,12 +1558,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               <span>عرض خاص: شحن مجاني آمن لكافة محافظات العراق ودفع آمن عند الاستلام</span>
             </div>
 
-            <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
+            <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
               {/* Right: sections menu (filters the store by category) */}
               {renderSiteMenuButton()}
 
-              {/* Center: Logo & Name */}
-              <div className={`group flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
+              {/* Center: Logo & Name — absolutely centered on the row's own midpoint
+                  instead of sitting between the cart and menu buttons in normal flex
+                  flow, since those two are different widths and justify-between only
+                  splits the leftover space evenly, not the row itself, which pushed
+                  the logo visibly off-center toward whichever side was narrower. */}
+              <div className={`absolute left-1/2 -translate-x-1/2 group flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
                 <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
                   <ShoppingBag className={`w-4 h-4 ${isNarrowViewport ? '' : 'sm:w-5 sm:h-5'}`} />
