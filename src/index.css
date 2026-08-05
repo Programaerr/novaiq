@@ -481,6 +481,44 @@
   animation: navbar-cursor-blink 0.9s step-end infinite;
 }
 
+/* Device preview hardware.
+   The frames around the live template previews are drawn in CSS rather than shipped as
+   images: they have to scale to any zoom factor without softening, and a client judging a
+   design should never be looking at a blurry mock-up of the thing they're judging. */
+.device-body {
+  background: linear-gradient(158deg, #4b4b54 0%, #191920 26%, #0e0e12 60%, #383840 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 44px 90px -24px rgba(0, 0, 0, 0.95),
+    0 0 70px -26px rgba(255, 255, 255, 0.14);
+}
+
+/* Screen reflection. Deliberately faint — enough to read as glass, never enough to
+   interfere with judging the colours of the design underneath it. */
+.device-screen-glare {
+  background: linear-gradient(
+    122deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.015) 20%,
+    transparent 38%
+  );
+}
+
+.device-stand-neck {
+  background: linear-gradient(90deg, #17171c 0%, #33333c 34%, #45454f 50%, #33333c 66%, #17171c 100%);
+}
+
+.device-stand-base {
+  background: linear-gradient(180deg, #43434c 0%, #16161a 100%);
+  box-shadow: 0 20px 34px -14px rgba(0, 0, 0, 0.95);
+}
+
+.device-side-button {
+  background: linear-gradient(180deg, #26262c 0%, #4a4a55 42%, #26262c 100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
