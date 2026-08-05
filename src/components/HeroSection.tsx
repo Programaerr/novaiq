@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { useBorderBeam } from '../lib/useBorderBeam';
 
 const WHEEL_STEP = 90;
 
@@ -31,6 +32,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
     e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
   };
+
+  const { startBorderBeam, stopBorderBeam } = useBorderBeam();
 
   // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
   // for real photography until the client supplies per-guarantee images.
