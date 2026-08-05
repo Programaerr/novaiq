@@ -1420,11 +1420,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </div>
 
             <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
-              {/* Right: Logo & Name — sized off isNarrowViewport (the device-view toggle),
-                  not sm:, since this header also renders inside the fixed 375px "mobile"
-                  preview frame at whatever the real browser viewport happens to be; sm:
-                  classes there matched the real window, not the frame, and rendered at
-                  full desktop size squeezed into 375px, colliding with the cart button. */}
+              {/* Right: Logo & Name */}
               <div className={`group flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
                 <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
@@ -1433,7 +1429,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline sm:text-base'}`}>Design</span>
               </div>
 
-              {/* Center: Shopify Navigation (interactively filters category states!) */}
+              {/* Center: sections menu (filters the store by category) */}
               {renderSiteMenuButton()}
 
               {/* Left: Interactive Shopify Cart Trigger */}
@@ -1482,7 +1478,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               />
             </div>
 
-            {/* Mobile Category and Sort Controller */}
+            {/* Sorting controls */}
             <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col sm:flex-row sm:items-center'} gap-2 sm:gap-3 sm:justify-end`}>
 
               {/* Advanced Sorter */}
@@ -2097,8 +2093,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               />
             </div>
 
-            {/* Glass Navigation Bar — frosted pill with a proper logo lockup, matching the
-                real NOVAIQ navbar's own backdrop-blur treatment instead of a flat solid box. */}
+            {/* Glass header — logo lockup on one side, the sections menu on the other. */}
             <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-3">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
