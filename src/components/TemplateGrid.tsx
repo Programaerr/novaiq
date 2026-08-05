@@ -404,17 +404,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             if (offset < -n / 2) offset += n;
             const distance = Math.abs(offset);
             const isActive = offset === 0;
-            if (distance > 2) return null;
+            const isVisible = distance <= 2;
+            // Every card stays mounted permanently (never unmounted/remounted as it cycles
+            // near or away from center) — cards beyond distance 2 just sit at 0 opacity,
+            // pinned to the near edge so they're ready to slide back in. Unmounting far
+            // cards used to force each <img> to reload from scratch every time it cycled
+            // back into range, which is what showed up as the image/text flashing blank.
+            const cappedDistance = Math.min(distance, 3);
+            const clampedOffset = isVisible ? offset : Math.sign(offset) * 3;
 
             return (
               <div
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${offset * (isMobile ? 150 : 235)}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
-                  opacity: isActive ? 1 : distance === 1 ? 0.55 : 0.28,
-                  zIndex: 10 - distance,
-                  transition: 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease',
+                  transform: `translate(-50%, -50%) translateX(${clampedOffset * (isMobile ? 150 : 235)}px) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
+                  opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
+                  zIndex: 10 - cappedDistance,
+                  // Position/scale glide in slow motion; opacity settles fast on its own —
+                  // otherwise the incoming card visibly fades up out of a haze for the
+                  // whole 1.6s, instead of just sliding into place already at full clarity.
+                  transition: 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
+                  pointerEvents: isVisible ? undefined : 'none',
                 }}
                 className={`absolute top-1/2 left-1/2 w-[260px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
