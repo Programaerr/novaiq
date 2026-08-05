@@ -1067,7 +1067,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-purple-400',
           primaryBorder: 'border-purple-500/40',
           badgeBg: 'bg-purple-500/20 text-purple-300',
-          gradient: 'from-purple-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-purple-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
       case 'cyan':
         return {
@@ -1075,7 +1076,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-cyan-400',
           primaryBorder: 'border-cyan-500/40',
           badgeBg: 'bg-cyan-500/20 text-cyan-300',
-          gradient: 'from-cyan-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-cyan-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
       case 'amber':
         return {
@@ -1083,7 +1085,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-amber-400',
           primaryBorder: 'border-amber-500/40',
           badgeBg: 'bg-amber-500/20 text-amber-300',
-          gradient: 'from-amber-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-amber-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
       case 'rose':
         return {
@@ -1091,7 +1094,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-rose-400',
           primaryBorder: 'border-rose-500/40',
           badgeBg: 'bg-rose-500/20 text-rose-300',
-          gradient: 'from-rose-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-rose-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
       case 'monochrome':
         return {
@@ -1099,7 +1103,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-zinc-100',
           primaryBorder: 'border-zinc-400/40',
           badgeBg: 'bg-zinc-800 text-zinc-200',
-          gradient: 'from-zinc-900 via-slate-950 to-black'
+          gradient: 'from-zinc-900 via-slate-950 to-black',
+          // The other themes are all mid-tone (-600) backgrounds that read fine with the
+          // hardcoded text-white/icon color used everywhere primaryBg is applied; monochrome
+          // is the one theme whose primaryBg is actually white, so that same white
+          // text/icon goes invisible on it unless call sites swap in onPrimary instead.
+          onPrimary: 'text-black'
         };
       case 'emerald':
       default:
@@ -1108,7 +1117,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           primaryText: 'text-emerald-400',
           primaryBorder: 'border-emerald-500/40',
           badgeBg: 'bg-emerald-500/20 text-emerald-300',
-          gradient: 'from-emerald-950/80 via-slate-900 to-slate-950'
+          gradient: 'from-emerald-950/80 via-slate-900 to-slate-950',
+          onPrimary: 'text-white'
         };
     }
   };
@@ -1158,7 +1168,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
           <button
             onClick={() => { setActiveTab(profile.primaryCta.tab); cosmicAudio.playPing(); }}
-            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}
+            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer`}
           >
             {profile.primaryCta.label}
           </button>
@@ -1428,12 +1438,25 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               <span>عرض خاص: شحن مجاني آمن لكافة محافظات العراق ودفع آمن عند الاستلام</span>
             </div>
 
+<<<<<<< HEAD
+            <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isMobileFrame ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
+              {/* Right: Logo & Name — sized off isMobileFrame (the device-view toggle),
+                  not sm:, since this header also renders inside the fixed 375px "mobile"
+                  preview frame at whatever the real browser viewport happens to be; sm:
+                  classes there matched the real window, not the frame, and rendered at
+                  full desktop size squeezed into 375px, colliding with the cart button. */}
+              <div className={`group flex items-center gap-2 min-w-0 ${isMobileFrame ? '' : 'sm:gap-3'}`}>
+                <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isMobileFrame ? '' : 'sm:text-base'}`}>Logo</span>
+                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isMobileFrame ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
+                  <ShoppingBag className={`w-4 h-4 ${isMobileFrame ? '' : 'sm:w-5 sm:h-5'}`} />
+=======
             <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
               {/* Right: Logo & Name */}
               <div className={`group flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
                 <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
                   <ShoppingBag className={`w-4 h-4 ${isNarrowViewport ? '' : 'sm:w-5 sm:h-5'}`} />
+>>>>>>> 6d5d261f8e0c7afefdc104003763241aa5433fd3
                 </div>
                 <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline sm:text-base'}`}>Design</span>
               </div>
@@ -1577,7 +1600,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       setModalSize(prod.sizes[0]);
                       setModalQuantity(1);
                     }}
-                    className={`px-3.5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all`}
+                    className={`px-3.5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all`}
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>تخصيص وشراء</span>
@@ -1682,7 +1705,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                                 onClick={() => setModalColor(col)}
                                 className={`px-3 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all duration-200 flex items-center gap-1.5 ${
                                   isSelected 
-                                    ? `${themeStyle.primaryBg} text-white border-white scale-[1.03] shadow-md shadow-black/40` 
+                                    ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} border-white scale-[1.03] shadow-md shadow-black/40` 
                                     : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10 hover:text-white hover:border-white/25'
                                 }`}
                               >
@@ -1706,7 +1729,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                                 onClick={() => setModalSize(s)}
                                 className={`min-w-[40px] h-9 px-3.5 rounded-xl border text-xs font-bold font-mono cursor-pointer transition-all duration-200 flex items-center justify-center ${
                                   isSelected 
-                                    ? `${themeStyle.primaryBg} text-white border-white scale-[1.03] shadow-md shadow-black/40` 
+                                    ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} border-white scale-[1.03] shadow-md shadow-black/40` 
                                     : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10 hover:text-white hover:border-white/25'
                                 }`}
                               >
@@ -1752,7 +1775,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                       <button
                         onClick={() => addToCart(selectedProductForModal, modalColor, modalSize, modalQuantity)}
-                        className={`px-6 py-3 rounded-2xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-lg`}
+                        className={`px-6 py-3 rounded-2xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-lg`}
                       >
                         <ShoppingCart className="w-4 h-4" />
                         <span>تأكيد الإضافة إلى حقيبة التسوق ({modalQuantity} قطع)</span>
@@ -1839,7 +1862,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         setIsCartOpen(false);
                         setIsCheckoutOpen(true);
                       }}
-                      className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer flex items-center justify-center gap-2 shadow-lg`}
+                      className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer flex items-center justify-center gap-2 shadow-lg`}
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>الانتقال لإتمام الطلب والشحن</span>
@@ -1901,7 +1924,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <button 
                         onClick={() => setPaymentMethod('cod')}
                         className={`p-2.5 rounded-lg border text-center font-semibold cursor-pointer transition-all ${
-                          paymentMethod === 'cod' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
+                          paymentMethod === 'cod' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
                         }`}
                       >
                         الدفع عند الاستلام
@@ -1909,7 +1932,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <button 
                         onClick={() => setPaymentMethod('zaincash')}
                         className={`p-2.5 rounded-lg border text-center font-semibold cursor-pointer transition-all ${
-                          paymentMethod === 'zaincash' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
+                          paymentMethod === 'zaincash' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
                         }`}
                       >
                         زين كاش
@@ -1917,7 +1940,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <button 
                         onClick={() => setPaymentMethod('mastercard')}
                         className={`p-2.5 rounded-lg border text-center font-semibold cursor-pointer transition-all ${
-                          paymentMethod === 'mastercard' ? `${themeStyle.primaryBg} text-white border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
+                          paymentMethod === 'mastercard' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} border-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 border-white/10'
                         }`}
                       >
                         ماستر / كي كارد
@@ -1935,7 +1958,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                     <button
                       onClick={handleCompleteOrder}
-                      className={`px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer hover:scale-[1.02] transition-transform`}
+                      className={`px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer hover:scale-[1.02] transition-transform`}
                     >
                       تأكيد الطلب واستخراج الفاتورة
                     </button>
@@ -2106,7 +2129,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-3">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -2131,7 +2154,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     منصة الشركات الكبرى مع لوحة تحكم ذكية، دعم متعدد اللغات، وبوابة المستثمرين المحمية بأعلى درجات الأمان.
                   </p>
                   <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                    <button onClick={() => setActiveTab('calculator')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer shadow-lg`}>
+                    <button onClick={() => setActiveTab('calculator')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer shadow-lg`}>
                       حسّاب تكلفة مشروعك
                     </button>
                     <button onClick={() => setActiveTab('contact')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/15 text-slate-300 text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors">
@@ -2168,7 +2191,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/30 transition-colors space-y-3 cursor-pointer group"
                       style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${i * 0.05}s` }}
                     >
-                      <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} text-white flex items-center justify-center shrink-0 shadow-md`}>
+                      <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} flex items-center justify-center shrink-0 shadow-md`}>
                         <Icon className="w-5 h-5" />
                       </div>
                       <h4 className="text-sm font-bold text-white">{service.title}</h4>
@@ -2229,7 +2252,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         key={opt.id}
                         onClick={() => { setOrgSize(opt.id); cosmicAudio.playPing(); }}
                         className={`p-2 rounded-lg border text-center cursor-pointer transition-all ${
-                          orgSize === opt.id ? `${themeStyle.primaryBg} text-white border-white shadow-md` : 'border-white/10 bg-white/5 backdrop-blur-sm text-slate-400 hover:text-white hover:border-white/25'
+                          orgSize === opt.id ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} border-white shadow-md` : 'border-white/10 bg-white/5 backdrop-blur-sm text-slate-400 hover:text-white hover:border-white/25'
                         }`}
                       >
                         {opt.label}
@@ -2252,7 +2275,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <input type="text" placeholder="الاسم الكامل" className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
                 <input type="text" placeholder="رقم الهاتف" className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
                 <textarea placeholder="تفاصيل المشروع والطلب..." rows={2} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
-                <button onClick={() => alert('تم تسجيل الاستفسار التجريبي بنجاح في النظام!')} className={`w-full py-2.5 ${themeStyle.primaryBg} text-white text-xs font-bold rounded-lg cursor-pointer shadow-lg`}>
+                <button onClick={() => alert('تم تسجيل الاستفسار التجريبي بنجاح في النظام!')} className={`w-full py-2.5 ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold rounded-lg cursor-pointer shadow-lg`}>
                   إرسال الاستفسار المباشر
                 </button>
               </div>
@@ -2283,7 +2306,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     const Icon = service.icon;
                     return (
                       <div className="p-6 space-y-4 text-xs">
-                        <div className={`w-12 h-12 rounded-2xl ${themeStyle.primaryBg} text-white flex items-center justify-center shadow-lg`}>
+                        <div className={`w-12 h-12 rounded-2xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} flex items-center justify-center shadow-lg`}>
                           <Icon className="w-6 h-6" />
                         </div>
                         <h4 className="text-base font-extrabold text-white leading-snug">{service.title}</h4>
@@ -2299,7 +2322,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         </div>
                         <button
                           onClick={() => { setCorpDetail(null); setActiveTab('contact'); }}
-                          className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer shadow-lg mt-2`}
+                          className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer shadow-lg mt-2`}
                         >
                           اطلب هذه الخدمة الآن
                         </button>
@@ -2328,7 +2351,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                           </div>
                           <button
                             onClick={() => { setCorpDetail(null); setActiveTab('contact'); }}
-                            className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer shadow-lg mt-2`}
+                            className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer shadow-lg mt-2`}
                           >
                             لديك مشروع مشابه؟ تواصل معنا
                           </button>
@@ -2366,7 +2389,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
               <div className="group flex items-center gap-2.5">
                 <span className="text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">~/Logo</span>
-                <div className={`navbar-logo-mark w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg`}>
+                <div className={`navbar-logo-mark w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg`}>
                   <Terminal className="w-4.5 h-4.5" />
                 </div>
                 <span className="navbar-logo-word text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">
@@ -2399,7 +2422,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <span className="text-emerald-400 animate-pulse">▊</span>
                     </p>
                     <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                      <button onClick={() => setActiveTab('pricing')} className={`w-full sm:w-auto px-5 py-2.5 rounded ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
+                      <button onClick={() => setActiveTab('pricing')} className={`w-full sm:w-auto px-5 py-2.5 rounded ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer`}>
                         شاهد خطط الأسعار
                       </button>
                       <button onClick={() => setActiveTab('docs')} className="w-full sm:w-auto px-5 py-2.5 rounded bg-black/40 border border-emerald-500/20 text-emerald-400 text-xs font-bold cursor-pointer hover:border-emerald-500/40">
@@ -2486,13 +2509,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <div className="inline-flex flex-wrap justify-center p-1 rounded-md bg-black/40 border border-emerald-500/20 text-xs">
                     <button
                       onClick={() => setSelectedPlan('monthly')}
-                      className={`px-3 sm:px-4 py-1.5 rounded cursor-pointer ${selectedPlan === 'monthly' ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400'}`}
+                      className={`px-3 sm:px-4 py-1.5 rounded cursor-pointer ${selectedPlan === 'monthly' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold` : 'text-slate-400'}`}
                     >
                       اشتراك شهري
                     </button>
                     <button
                       onClick={() => setSelectedPlan('yearly')}
-                      className={`px-3 sm:px-4 py-1.5 rounded cursor-pointer ${selectedPlan === 'yearly' ? `${themeStyle.primaryBg} text-white font-bold` : 'text-slate-400'}`}
+                      className={`px-3 sm:px-4 py-1.5 rounded cursor-pointer ${selectedPlan === 'yearly' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold` : 'text-slate-400'}`}
                     >
                       اشتراك سنوي (خصم 20%)
                     </button>
@@ -2574,7 +2597,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Building2 className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -2595,7 +2618,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     فلل، شقق، ومكاتب تجارية مختارة بعناية، مع معاينة مباشرة واستشارة عقارية مجانية من فريقنا المتخصص.
                   </p>
                   <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                    <button onClick={() => setActiveTab('properties')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
+                    <button onClick={() => setActiveTab('properties')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer`}>
                       تصفح العقارات المتاحة
                     </button>
                     <button onClick={() => setActiveTab('agents')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 text-xs font-bold cursor-pointer">
@@ -2627,7 +2650,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <button
                     onClick={() => setSelectedPropertyFilter('all')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'all' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
+                      selectedPropertyFilter === 'all' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                     }`}
                   >
                     الكل
@@ -2635,7 +2658,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <button
                     onClick={() => setSelectedPropertyFilter('villas')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'villas' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
+                      selectedPropertyFilter === 'villas' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                     }`}
                   >
                     فلل فاخرة
@@ -2643,7 +2666,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <button
                     onClick={() => setSelectedPropertyFilter('apartments')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'apartments' ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
+                      selectedPropertyFilter === 'apartments' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
                     }`}
                   >
                     شقق ومكاتب
@@ -2678,7 +2701,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                         <button
                           onClick={() => { setSelectedPropertyId(prop.id); setActiveTab('booking'); cosmicAudio.playPing(); }}
-                          className={`px-3 py-2 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all`}
+                          className={`px-3 py-2 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all`}
                         >
                           طلب حجز معاينة
                         </button>
@@ -2738,7 +2761,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     ]);
                     cosmicAudio.playPing();
                   }}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer flex items-center justify-center gap-2`}
+                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>تأكيد طلب المعاينة</span>
@@ -2788,7 +2811,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Stethoscope className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -2823,7 +2846,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         setActiveTab('booking');
                         cosmicAudio.playPing();
                       }}
-                      className={`px-3 py-2 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer shrink-0`}
+                      className={`px-3 py-2 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer shrink-0`}
                     >
                       حجز موعد
                     </button>
@@ -2882,7 +2905,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     ]);
                     cosmicAudio.playPing();
                   }}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer flex items-center justify-center gap-2`}
+                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>تأكيد الحجز</span>
@@ -2930,7 +2953,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <p className="text-slate-400 max-w-sm mx-auto">محاكاة لواجهة مكالمة الفيديو مع الطبيب المعالج، مع دردشة نصية مباشرة فور بدء الاستشارة.</p>
                 <button
                   onClick={() => alert('تم بدء الاتصال التجريبي بغرفة الاستشارة المرئية بنجاح!')}
-                  className={`px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer`}
+                  className={`px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
                 >
                   بدء الاستشارة الآن
                 </button>
@@ -2950,7 +2973,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <ChefHat className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -2968,7 +2991,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       key={cat}
                       onClick={() => setMenuCategoryFilter(cat)}
                       className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                        menuCategoryFilter === cat ? `${themeStyle.primaryBg} text-white` : 'bg-white/5 backdrop-blur-md border border-white/10 text-slate-400 hover:text-white'
+                        menuCategoryFilter === cat ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-white/5 backdrop-blur-md border border-white/10 text-slate-400 hover:text-white'
                       }`}
                     >
                       {cat === 'all' && 'الكل'}
@@ -2993,7 +3016,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                           <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{item.priceIQD.toLocaleString()} د.ع</span>
                           <button
                             onClick={() => addFoodItem(item)}
-                            className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} text-white font-bold cursor-pointer flex items-center gap-1`}
+                            className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center gap-1`}
                           >
                             <Plus className="w-3.5 h-3.5" />
                             <span>أضف للطلب</span>
@@ -3035,7 +3058,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </div>
                     <button
                       onClick={() => alert('تم تأكيد طلبك التجريبي بنجاح! سيتم تحضيره فور تفعيل موقعك الفعلي.')}
-                      className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer`}
+                      className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
                     >
                       تأكيد الطلب
                     </button>
@@ -3072,7 +3095,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                 <button
                   onClick={confirmTableReservation}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer flex items-center justify-center gap-2`}
+                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>تأكيد الحجز</span>
@@ -3106,7 +3129,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -3124,7 +3147,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       key={cat}
                       onClick={() => setCourseCategoryFilter(cat)}
                       className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                        courseCategoryFilter === cat ? `${themeStyle.primaryBg} text-white` : 'bg-white/5 backdrop-blur-md border border-white/10 text-slate-400 hover:text-white'
+                        courseCategoryFilter === cat ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-white/5 backdrop-blur-md border border-white/10 text-slate-400 hover:text-white'
                       }`}
                     >
                       {cat === 'all' && 'الكل'}
@@ -3152,7 +3175,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                           <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{course.priceIQD.toLocaleString()} د.ع</span>
                           <button
                             onClick={() => { setSelectedCourseId(course.id); setActiveTab('enroll'); cosmicAudio.playPing(); }}
-                            className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} text-white font-bold cursor-pointer`}
+                            className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
                           >
                             سجل الآن
                           </button>
@@ -3186,7 +3209,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <button
                   onClick={() => confirmEnrollment(selectedCourse)}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer flex items-center justify-center gap-2`}
+                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>تأكيد التسجيل</span>
@@ -3248,7 +3271,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Hotel className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -3277,7 +3300,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{room.pricePerNightIQD.toLocaleString()} د.ع / ليلة</span>
                         <button
                           onClick={() => { setSelectedRoomId(room.id); setActiveTab('booking'); cosmicAudio.playPing(); }}
-                          className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} text-white font-bold cursor-pointer`}
+                          className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
                         >
                           احجز الآن
                         </button>
@@ -3322,7 +3345,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                 <button
                   onClick={() => confirmHotelBooking(selectedRoom)}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer flex items-center justify-center gap-2`}
+                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>تأكيد الحجز</span>
@@ -3365,7 +3388,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Truck className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -3385,7 +3408,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     placeholder="مثال: CMX-77201"
                     className="flex-1 p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
                   />
-                  <button onClick={trackShipment} className={`px-4 py-2.5 rounded-lg ${themeStyle.primaryBg} text-white font-bold cursor-pointer flex items-center gap-1.5 shrink-0`}>
+                  <button onClick={trackShipment} className={`px-4 py-2.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center gap-1.5 shrink-0`}>
                     <Package className="w-3.5 h-3.5" />
                     <span>تتبع</span>
                   </button>
@@ -3441,7 +3464,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         key={dest}
                         onClick={() => setQuoteDestination(dest)}
                         className={`flex-1 py-2 rounded-lg font-bold transition-all cursor-pointer ${
-                          quoteDestination === dest ? `${themeStyle.primaryBg} text-white` : 'bg-black/30 backdrop-blur-sm border border-white/10 text-slate-400 hover:text-white'
+                          quoteDestination === dest ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-black/30 backdrop-blur-sm border border-white/10 text-slate-400 hover:text-white'
                         }`}
                       >
                         {dest === 'local' && 'محلي'}
@@ -3457,7 +3480,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <button
                   onClick={saveShippingQuote}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer`}
+                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
                 >
                   احصل على عرض السعر
                 </button>
@@ -3492,7 +3515,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
+                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
                   <Wallet className="w-5 h-5" />
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
@@ -3513,7 +3536,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     محفظة رقمية، تحويلات فورية، وبطاقات افتراضية — كل ذلك محمي بأعلى معايير التشفير والحماية الثنائية 2FA.
                   </p>
                   <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                    <button onClick={() => setActiveTab('wallet')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
+                    <button onClick={() => setActiveTab('wallet')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer`}>
                       افتح المحفظة الرقمية
                     </button>
                     <button onClick={() => setActiveTab('security')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 text-xs font-bold cursor-pointer">
@@ -3577,7 +3600,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         ]);
                         cosmicAudio.playPing();
                       }}
-                      className={`w-full sm:w-auto px-4 py-2.5 ${themeStyle.primaryBg} text-white text-xs font-bold rounded-lg cursor-pointer shrink-0`}
+                      className={`w-full sm:w-auto px-4 py-2.5 ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold rounded-lg cursor-pointer shrink-0`}
                     >
                       تأكيد التحويل
                     </button>
@@ -3617,7 +3640,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <button
                   onClick={() => alert('تم تقديم طلب إصدار بطاقة رقمية جديدة تجريبياً بنجاح!')}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} text-white font-bold cursor-pointer`}
+                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
                 >
                   طلب بطاقة رقمية جديدة
                 </button>
@@ -3892,7 +3915,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 onClick={() => selectSiteNav(item.id)}
                 className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
                   authView === 'site' && activeNavId === item.id
-                    ? `${themeStyle.primaryBg} text-white`
+                    ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}`
                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -3911,7 +3934,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               }}
               className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
                 authView !== 'site'
-                  ? `${themeStyle.primaryBg} text-white`
+                  ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}`
                   : 'bg-white/5 border border-white/10 text-slate-300 hover:text-white'
               }`}
             >
@@ -3947,7 +3970,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           >
             <Bell className="w-3.5 h-3.5" />
             {accountRecords.length > 0 && (
-              <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full ${themeStyle.primaryBg} text-white text-[9px] font-bold flex items-center justify-center`}>
+              <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-[9px] font-bold flex items-center justify-center`}>
                 {accountRecords.length}
               </span>
             )}
@@ -3967,7 +3990,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         ) : (
           <button
             onClick={() => { setAuthView('login'); cosmicAudio.playTick(); }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${themeStyle.primaryBg} text-white text-[11px] font-bold cursor-pointer`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-[11px] font-bold cursor-pointer`}
           >
             <LogIn className="w-3.5 h-3.5" />
             <span>تسجيل الدخول</span>
@@ -4035,7 +4058,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
           <button
             type="submit"
-            className={`w-full py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer flex items-center justify-center gap-1.5`}
+            className={`w-full py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer flex items-center justify-center gap-1.5`}
           >
             <ShieldCheck className="w-4 h-4" />
             <span>دخول آمن</span>
@@ -4136,7 +4159,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   onClick={() => { setAccountSection(key); cosmicAudio.playTick(); }}
                   className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-[11px] font-bold cursor-pointer transition-colors ${
                     accountSection === key
-                      ? `${themeStyle.primaryBg} text-white`
+                      ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}`
                       : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
@@ -4239,7 +4262,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       </div>
                     </div>
                   ))}
-                  <button className={`w-full py-2.5 rounded-xl ${themeStyle.primaryBg} text-white text-xs font-bold cursor-pointer`}>
+                  <button className={`w-full py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer`}>
                     حفظ التعديلات
                   </button>
                 </div>
