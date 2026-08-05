@@ -1554,18 +1554,59 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
           <div className="sticky top-1 sm:top-2 z-30 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
             <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
-              {/* Right: Search Input — capped width so it doesn't fight the absolutely
-                  centered logo for space the way an unconstrained flex-1 would. */}
-              <div className="relative w-32 sm:w-56 shrink-0">
-                <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
-                <input
-                  type="text"
-                  value={storeSearch}
-                  onChange={e => setStoreSearch(e.target.value)}
-                  placeholder="ابحث عن الموديلات"
-                  className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
-                />
-              </div>
+              {/* Right: Search — on mobile this is a compact icon trigger matching the
+                  cart's own style, same as it used to be a full input squeezed next to the
+                  centered logo. Tapping it expands an input that takes over the whole row
+                  (the "وسط"/centered placement asked for) instead of trying to fit a usable
+                  text field into a slice of a 390px row alongside everything else. Desktop
+                  keeps the plain always-visible input, capped in width so it doesn't fight
+                  the absolutely centered logo for space the way an unconstrained flex-1
+                  would. */}
+              {isNarrowViewport ? (
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSearchOpen(true)}
+                  aria-label="بحث"
+                  className="flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 text-slate-300 cursor-pointer transition-colors shrink-0 p-2.5"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+              ) : (
+                <div className="relative w-56 shrink-0">
+                  <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
+                  <input
+                    type="text"
+                    value={storeSearch}
+                    onChange={e => setStoreSearch(e.target.value)}
+                    placeholder="ابحث عن الموديلات"
+                    className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
+                  />
+                </div>
+              )}
+
+              {isNarrowViewport && isMobileSearchOpen && (
+                <div className="absolute inset-0 z-10 flex items-center gap-2 px-3 bg-zinc-950/95 backdrop-blur-sm rounded-2xl animate-fade-in">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
+                    <input
+                      autoFocus
+                      type="text"
+                      value={storeSearch}
+                      onChange={e => setStoreSearch(e.target.value)}
+                      placeholder="ابحث عن الموديلات"
+                      className="w-full pr-9 pl-3 py-2.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-800 transition-all"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileSearchOpen(false)}
+                    aria-label="إغلاق البحث"
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white cursor-pointer transition-colors shrink-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
               {/* Center: Logo & Name — absolutely centered on the row's own midpoint
                   instead of sitting between the two side elements in normal flex flow,
