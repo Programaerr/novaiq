@@ -1590,10 +1590,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   </div>
 
                   <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
-                  {totalCartIQD > 0 && (
+                  {/* Price tag stays off on mobile too — this trigger is already competing
+                      for room with the centered logo and the menu button on the same row,
+                      and the price is one tap away once the cart itself opens. */}
+                  {totalCartIQD > 0 && !isNarrowViewport && (
                     <>
-                      <span className={`w-px h-3.5 bg-white/15 shrink-0 ${isNarrowViewport ? '' : 'sm:hidden'}`} />
-                      <span className={`font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap ${isNarrowViewport ? '' : 'sm:px-2 sm:text-[10px]'}`}>
+                      <span className="w-px h-3.5 bg-white/15 shrink-0 sm:hidden" />
+                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap sm:px-2 sm:text-[10px]">
                         {totalCartIQD.toLocaleString()} د.ع
                       </span>
                     </>
