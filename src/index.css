@@ -511,15 +511,24 @@
   --drawer-from: -100%;
 }
 
-/* The three bars stagger in on hover, which is what keeps the icon reading as a control
-   rather than as decoration. */
-.site-menu-bar {
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+/* Both menu glyphs (this template preview's own, and the main site navbar's .nav-menu-bar)
+   scale from whichever side the bar is actually anchored to — never a hardcoded physical
+   left, which reads wrong once the page mirrors to Arabic. Only the origin is shared here:
+   .nav-menu-bar times its own animation entirely through Tailwind's transition utilities, so
+   this rule deliberately does not also set `transition` — doing so would win over those
+   (unlayered CSS beats Tailwind's @layer utilities) and silently drop its opacity fade. */
+.site-menu-bar,
+.nav-menu-bar {
   transform-origin: right;
 }
 
-[dir='ltr'] .site-menu-bar {
+[dir='ltr'] .site-menu-bar,
+[dir='ltr'] .nav-menu-bar {
   transform-origin: left;
+}
+
+.site-menu-bar {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .site-menu-btn:hover .site-menu-bar:nth-child(1) { transform: scaleX(0.62); }
