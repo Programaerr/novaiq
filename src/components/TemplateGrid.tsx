@@ -57,6 +57,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<{ startX: number } | null>(null);
 
+  // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
+  // card doesn't overlap its neighbors (a fixed desktop-sized offset would).
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    setIsMobile(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
     { id: 'corporate', label: translateText('شركات ومؤسسات', currentLang) },
@@ -364,7 +375,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             onClick={() => goToOffset(1)}
             disabled={activeIndex >= filteredTemplates.length - 1}
             aria-label={currentLang === 'ar' ? 'التالي' : 'Next'}
-            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
+            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -372,7 +383,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             onPointerDown={handleTrackPointerDown}
             onPointerUp={handleTrackPointerUp}
-            className="relative w-full max-w-4xl h-[600px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+            className="relative w-full max-w-4xl h-[520px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -390,12 +401,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${offset * 235}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
+                  transform: `translate(-50%, -50%) translateX(${offset * (isMobile ? 130 : 235)}px) scale(${isActive ? 1 : distance === 1 ? 0.82 : 0.68})`,
                   opacity: isActive ? 1 : distance === 1 ? 0.55 : 0.28,
                   zIndex: 10 - distance,
                   transition: 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.6s ease',
                 }}
-                className={`absolute top-1/2 left-1/2 w-[320px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute top-1/2 left-1/2 w-[230px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
@@ -403,7 +414,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 >
 
                 {/* Card Image Banner */}
-                <div 
+                <div
                   onClick={() => {
                     if (onOpenStandalonePreview) {
                       onOpenStandalonePreview(template);
@@ -412,7 +423,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className="relative h-56 overflow-hidden bg-black cursor-pointer group/img"
+                  className="relative h-32 sm:h-56 overflow-hidden bg-black cursor-pointer group/img"
                 >
                   <img
                     src={template.previewImage}
@@ -454,7 +465,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 </div>
 
                 {/* Card Content */}
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-5">
+                <div className="p-3.5 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-5">
                   
                   <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-colors">
                     <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed line-clamp-2">
@@ -542,7 +553,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             onClick={() => goToOffset(-1)}
             disabled={activeIndex <= 0}
             aria-label={currentLang === 'ar' ? 'السابق' : 'Previous'}
-            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
+            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
