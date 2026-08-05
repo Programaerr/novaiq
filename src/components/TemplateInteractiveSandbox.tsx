@@ -1554,7 +1554,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
           <div className="sticky top-1 sm:top-2 z-30 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
             <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
-              {/* Right: Search — on mobile this is a compact icon trigger matching the
+              {/* Right cluster: sections menu, then search, right next to each other. */}
+              <div className="flex items-center gap-2 shrink-0">
+              {renderSiteMenuButton()}
+
+              {/* Search — on mobile this is a compact icon trigger matching the
                   cart's own style, same as it used to be a full input squeezed next to the
                   centered logo. Tapping it expands an input that takes over the whole row
                   (the "وسط"/centered placement asked for) instead of trying to fit a usable
