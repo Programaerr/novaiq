@@ -1576,7 +1576,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <Search className="w-4 h-4" />
                 </button>
               ) : (
-                <div className="relative w-56 shrink-0">
+                <div className="relative w-36 lg:w-56 shrink-0">
                   <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
                   <input
                     type="text"
