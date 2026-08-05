@@ -2094,7 +2094,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </div>
 
             {/* Glass header — logo lockup on one side, the sections menu on the other. */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-3">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -2354,7 +2354,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
             {/* Terminal-style Navigation Bar — sharp corners, monospace prompt instead of
                 a soft logo lockup */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
               <div className="group flex items-center gap-2.5">
                 <span className="text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">~/Logo</span>
                 <div className={`navbar-logo-mark w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg`}>
@@ -2562,7 +2562,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -2776,7 +2776,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -2938,7 +2938,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3094,7 +3094,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3236,7 +3236,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3353,7 +3353,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
@@ -3480,7 +3480,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return (
           <div className="space-y-6 text-slate-100">
             {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex ${isNarrowViewport ? 'flex-col items-start' : 'flex-col sm:flex-row items-start sm:items-center'} justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
+            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
               <div className="group flex items-center gap-2.5">
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
                 <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
