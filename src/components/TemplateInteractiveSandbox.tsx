@@ -1133,14 +1133,18 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               <span>عرض خاص: شحن مجاني آمن لكافة محافظات العراق ودفع آمن عند الاستلام</span>
             </div>
 
-            <div className="flex items-center justify-between gap-2 sm:gap-4 p-3 px-3 sm:p-4 sm:px-6">
-              {/* Right: Logo & Name */}
-              <div className="group flex items-center gap-2 sm:gap-3 min-w-0">
-                <span className="font-extrabold text-xs sm:text-base text-white tracking-wide whitespace-nowrap">Logo</span>
-                <div className={`navbar-logo-mark relative w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isMobileFrame ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
+              {/* Right: Logo & Name — sized off isMobileFrame (the device-view toggle),
+                  not sm:, since this header also renders inside the fixed 375px "mobile"
+                  preview frame at whatever the real browser viewport happens to be; sm:
+                  classes there matched the real window, not the frame, and rendered at
+                  full desktop size squeezed into 375px, colliding with the cart button. */}
+              <div className={`group flex items-center gap-2 min-w-0 ${isMobileFrame ? '' : 'sm:gap-3'}`}>
+                <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isMobileFrame ? '' : 'sm:text-base'}`}>Logo</span>
+                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20 ${isMobileFrame ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
+                  <ShoppingBag className={`w-4 h-4 ${isMobileFrame ? '' : 'sm:w-5 sm:h-5'}`} />
                 </div>
-                <span className="navbar-logo-word font-extrabold text-xs sm:text-base text-white tracking-wide hidden sm:inline whitespace-nowrap">Design</span>
+                <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isMobileFrame ? '' : 'sm:inline sm:text-base'}`}>Design</span>
               </div>
 
               {/* Center: Shopify Navigation (interactively filters category states!) */}
@@ -1206,7 +1210,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     setIsCartOpen(true);
                     cosmicAudio.playTick();
                   }}
-                  className="relative px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 sm:gap-2.5 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg"
+                  className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isMobileFrame ? '' : 'sm:px-3.5 sm:py-2 sm:gap-2.5'}`}
                 >
                   <div className="relative shrink-0">
                     <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
@@ -1217,11 +1221,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     )}
                   </div>
 
-                  <span className="hidden sm:inline text-[11px] whitespace-nowrap">حقيبة التسوق</span>
+                  <span className={`hidden text-[11px] whitespace-nowrap ${isMobileFrame ? '' : 'sm:inline'}`}>حقيبة التسوق</span>
                   {totalCartIQD > 0 && (
                     <>
-                      <span className="sm:hidden w-px h-3.5 bg-white/15 shrink-0" />
-                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 sm:px-2 py-0.5 rounded border border-emerald-500/20 text-[9px] sm:text-[10px] whitespace-nowrap">
+                      <span className={`w-px h-3.5 bg-white/15 shrink-0 ${isMobileFrame ? '' : 'sm:hidden'}`} />
+                      <span className={`font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap ${isMobileFrame ? '' : 'sm:px-2 sm:text-[10px]'}`}>
                         {totalCartIQD.toLocaleString()} د.ع
                       </span>
                     </>
