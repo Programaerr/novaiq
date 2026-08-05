@@ -1,12 +1,11 @@
 import { useRef } from 'react';
 
-// Speed-of-light "border beam" hover effect shared by the glow CTA buttons and the
-// template cards' action buttons — drives --border-beam-angle every animation frame from
-// JS instead of a CSS @keyframes animation on the custom property. Tailwind's build strips
-// the @property registration a custom property needs to be smoothly interpolable; without
-// it, var(--border-beam-angle) with no fallback resolves as invalid and silently
-// invalidates the whole conic-gradient that reads it (see .border-beam-btn / .cta-border-beam
-// in index.css).
+// Speed-of-light "border beam" hover effect for the site's 3 main glow CTA buttons —
+// drives --border-beam-angle every animation frame from JS instead of a CSS @keyframes
+// animation on the custom property. Tailwind's build strips the @property registration a
+// custom property needs to be smoothly interpolable; without it, var(--border-beam-angle)
+// with no fallback resolves as invalid and silently invalidates the whole conic-gradient
+// that reads it (see .cta-border-beam in index.css).
 export function useBorderBeam() {
   const rafRef = useRef<number | null>(null);
 

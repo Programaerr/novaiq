@@ -388,49 +388,15 @@
 }
 
 /* Border beam — a fast white comet chases around the button's own perimeter on hover,
-   instead of glowing evenly all at once. The ring is drawn by masking a conic-gradient
-   square down to just its edge (content-box XOR border-box leaves only the padding
-   strip). --border-beam-angle is driven every animation frame from JS (startBorderBeam
-   in TemplateGrid.tsx) instead of a CSS @keyframes animation on the custom property —
-   Tailwind's build strips the @property registration a custom property needs to be
-   smoothly interpolable, and without it var(--border-beam-angle) with no fallback here
-   resolved as invalid, which silently invalidated the whole conic-gradient. */
-.border-beam-btn {
-  position: relative;
-  z-index: 0;
-}
-
-.border-beam-btn::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  padding: 2px;
-  background: conic-gradient(
-    from var(--border-beam-angle, 0deg),
-    #fff 0deg,
-    rgba(255, 255, 255, 0.7) 12deg,
-    rgba(255, 255, 255, 0.15) 30deg,
-    transparent 55deg,
-    transparent 360deg
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  pointer-events: none;
-}
-
-.border-beam-btn:hover::after {
-  opacity: 1;
-}
-
-/* Same border-beam effect for .glow-cta-btn (the 3 main site CTAs), as a real child
-   element instead of ::after — .glow-cta-btn already spends both ::before (dot texture)
-   and ::after (glow-beneath ellipse) on itself, so there's no pseudo-element left for this
-   one. Same masked-conic-gradient ring, same JS-driven angle, just triggered by a
-   descendant-hover selector instead of :hover on its own pseudo-element. */
+   instead of glowing evenly all at once, on the 3 main site CTAs (.glow-cta-btn). A real
+   child element, not ::before/::after — .glow-cta-btn already spends both of those on
+   itself (dot texture + glow-beneath ellipse). The ring is drawn by masking a
+   conic-gradient square down to just its edge (content-box XOR border-box leaves only the
+   padding strip). --border-beam-angle is driven every animation frame from JS
+   (startBorderBeam in useBorderBeam.ts) instead of a CSS @keyframes animation on the
+   custom property — Tailwind's build strips the @property registration a custom property
+   needs to be smoothly interpolable, and without it var(--border-beam-angle) with no
+   fallback here resolved as invalid, which silently invalidated the whole conic-gradient. */
 .cta-border-beam {
   position: absolute;
   inset: -2px;

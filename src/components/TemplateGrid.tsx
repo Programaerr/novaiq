@@ -19,7 +19,6 @@ import {
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, IQD_PER_USD } from '../lib/currency';
-import { useBorderBeam } from '../lib/useBorderBeam';
 import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
 
@@ -70,10 +69,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
-
-  // Drives the "border beam" hover effect on the card action buttons — see useBorderBeam
-  // for why this is JS-driven rather than a CSS @keyframes animation.
-  const { startBorderBeam, stopBorderBeam } = useBorderBeam();
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -560,9 +555,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           }
                           cosmicAudio.playPing();
                         }}
-                        onMouseEnter={startBorderBeam}
-                        onMouseLeave={stopBorderBeam}
-                        className="border-beam-btn w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <Globe className="w-3.5 h-3.5 text-zinc-300" />
                         <span>{currentLang === 'ar' ? 'موقع منفصل' : 'Full Site'}</span>
@@ -573,9 +566,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           onSelectTemplateForContract(template);
                           cosmicAudio.playWarp();
                         }}
-                        onMouseEnter={startBorderBeam}
-                        onMouseLeave={stopBorderBeam}
-                        className="border-beam-btn w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
+                        className="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
                       >
                         <FileSignature className="w-3.5 h-3.5 text-black" />
                         <span>{getTranslation('selectForContract', currentLang)}</span>
