@@ -870,6 +870,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
   const [storeCategory, setStoreCategory] = useState<'all' | 'men' | 'women' | 'accessories'>('all');
   const [storeSearch, setStoreSearch] = useState<string>('');
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [storeSort, setStoreSort] = useState<'default' | 'priceAsc' | 'priceDesc'>('default');
   const [isStoreSortOpen, setIsStoreSortOpen] = useState(false);
   const [storeSortMenuRect, setStoreSortMenuRect] = useState<{ top: number; left: number; width: number } | null>(null);
