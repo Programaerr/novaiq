@@ -387,18 +387,6 @@
   opacity: 1;
 }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-/* Navbar wordmark: NAME → mark → "Design" — both text pieces are hidden until hover, then
-   slide out from behind the mark in opposite directions (NAME to the left, "Design" to the
-   right), leaving just the mark visible by default. The mark itself stays still (an earlier
-   spinning version read as gimmicky). Needs the parent to carry the `group` class (added in
-   JSX). */
-.navbar-logo-name,
-=======
-<<<<<<< HEAD
->>>>>>> 51ac36f0fdb241df529bbe7aac4da733bf0e7c93
 /* Border beam — a fast white comet chases around the button's own perimeter on hover,
    instead of glowing evenly all at once. The ring is drawn by masking a conic-gradient
    square down to just its edge (content-box XOR border-box leaves only the padding
@@ -438,15 +426,12 @@
   opacity: 1;
 }
 
-/* Navbar wordmark: NAME → mark → "Design" — hover-triggered, not automatic. The mark stays
-   still (an earlier spinning version read as gimmicky); "Design" is what moves, sliding out
-   from behind the mark on hover-in and pulling back on hover-out. Needs the parent to carry
-   the `group` class (added in JSX). */
-<<<<<<< HEAD
-=======
->>>>>>> e0936a0ab96fe8dae913544771216aca3c472d10
->>>>>>> 38ef81d07ebccc2117a226aaebf4dcdc06881326
->>>>>>> 51ac36f0fdb241df529bbe7aac4da733bf0e7c93
+/* Navbar wordmark: NAME → mark → "Design" — both text pieces are hidden until hover, then
+   slide out from behind the mark in opposite directions (NAME to the left, "Design" to the
+   right), leaving just the mark visible by default. The mark itself stays still (an earlier
+   spinning version read as gimmicky). Needs the parent to carry the `group` class (added in
+   JSX). */
+.navbar-logo-name,
 .navbar-logo-word {
   display: inline-flex;
   align-items: center;
