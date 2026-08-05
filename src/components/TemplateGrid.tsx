@@ -510,10 +510,39 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   </div>
 
                 </div>
+                </div>
               </div>
             );
           })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => goToOffset(-1)}
+            disabled={activeIndex <= 0}
+            aria-label={currentLang === 'ar' ? 'السابق' : 'Previous'}
+            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
         </div>
+
+        {/* Position dots */}
+        {filteredTemplates.length > 1 && (
+          <div className="flex items-center justify-center gap-1.5 mt-4">
+            {filteredTemplates.map((template, i) => (
+              <button
+                key={template.id}
+                type="button"
+                onClick={() => setActiveIndex(i)}
+                aria-label={translateText(template.title, currentLang)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  i === activeIndex ? 'w-6 bg-white' : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
         {filteredTemplates.length === 0 && (
           <div className="text-center py-16 bg-zinc-950 rounded-3xl border border-zinc-800">
