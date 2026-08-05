@@ -559,6 +559,63 @@ const COMPANY_PROFILES: Record<string, CompanyProfile> = {
   },
 };
 
+// The five templates above carry a full CompanyProfile. The remaining five drive their own
+// bespoke page layouts and never needed one — but the site chrome (header, account area,
+// footer) does, so every demo can present itself as a named business with real contact
+// details instead of borrowing the catalogue's marketing title.
+const SITE_IDENTITIES: Record<string, { name: string; badge: string; contact: CompanyProfile['contact'] }> = {
+  'NVQ-CORP-01': {
+    name: 'Stella Holding',
+    badge: 'مجموعة استثمارية قابضة',
+    contact: {
+      phone: '07701112233',
+      email: 'info@stellaholding.iq',
+      address: 'بغداد - المنصور، برج ستيلا التجاري',
+      hours: 'الأحد - الخميس، 9 صباحاً - 5 مساءً',
+    },
+  },
+  'NVQ-ECOM-02': {
+    name: 'Orion Store',
+    badge: 'متجر أزياء إلكتروني',
+    contact: {
+      phone: '07704445566',
+      email: 'support@orionstore.iq',
+      address: 'بغداد - الكرادة، مجمع أوريون',
+      hours: 'الطلبات على مدار الساعة | الدعم 9 صباحاً - 10 مساءً',
+    },
+  },
+  'NVQ-TECH-03': {
+    name: 'Nebula Cloud',
+    badge: 'منصة برمجيات سحابية',
+    contact: {
+      phone: '07707778899',
+      email: 'hello@nebulacloud.iq',
+      address: 'بغداد - زيونة، مركز الابتكار التقني',
+      hours: 'دعم فني 24/7 عبر المنصة',
+    },
+  },
+  'NVQ-REAL-04': {
+    name: 'Cosmos Estates',
+    badge: 'تطوير واستثمار عقاري',
+    contact: {
+      phone: '07702223344',
+      email: 'sales@cosmosestates.iq',
+      address: 'بغداد - اليرموك، مجمع كوزموس السكني',
+      hours: 'يومياً 10 صباحاً - 8 مساءً',
+    },
+  },
+  'NVQ-FINTECH-06': {
+    name: 'Vortex Pay',
+    badge: 'محفظة ومدفوعات إلكترونية',
+    contact: {
+      phone: '07706667788',
+      email: 'care@vortexpay.iq',
+      address: 'بغداد - الجادرية، برج فورتكس المالي',
+      hours: 'خدمة العملاء 24 ساعة',
+    },
+  },
+};
+
 export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProps> = ({
   template,
   onClose,
