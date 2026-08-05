@@ -2195,23 +2195,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs w-full sm:w-auto">
-                {['home', 'services', 'projects', 'calculator', 'contact'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                      activeTab === tab ? `${themeStyle.primaryBg} text-white font-bold shadow-md` : 'text-slate-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {tab === 'home' && 'الرئيسية'}
-                    {tab === 'services' && 'خدماتنا'}
-                    {tab === 'projects' && 'المشاريع'}
-                    {tab === 'calculator' && 'حاسبة المشروع'}
-                    {tab === 'contact' && 'اتصل بنا'}
-                  </button>
-                ))}
-              </div>
+              {renderSiteMenuButton()}
             </div>
 
             {/* Dynamic Body */}
@@ -4596,6 +4580,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   /** The template as a complete website: chrome, the page the visitor is on, and a footer. */
   const renderLiveSite = () => (
     <div className="space-y-4 sm:space-y-5">
+      {renderSiteDrawer()}
       {renderSiteUtilityBar()}
       {authView === 'login'
         ? renderLoginPage()
