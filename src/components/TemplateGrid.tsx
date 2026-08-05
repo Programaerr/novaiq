@@ -144,11 +144,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     setActiveIndex((i) => (n === 0 ? 0 : (i + delta + n) % n));
   };
 
-  // setPointerCapture keeps receiving move/up events even if the finger/cursor drifts off
-  // the card mid-swipe — without it, a fast mobile flick can end outside the element and
-  // silently drop the "up" event, leaving the swipe never resolved.
+  // Deliberately does NOT call setPointerCapture: capturing on the track would retarget
+  // every subsequent pointerup here too, including a plain tap on the active card's own
+  // "Full Site" / "Select for Contract" buttons — the browser then can't match that
+  // pointerup's target back to the button's mousedown target, so it never synthesizes a
+  // click and the button silently stops working. A plain start-X plus a pointerup that
+  // lands somewhere reasonable is enough for swipe detection without that trade-off.
   const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
     dragRef.current = { startX: e.clientX };
     setIsDragging(true);
   };
