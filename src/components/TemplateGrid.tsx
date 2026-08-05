@@ -20,6 +20,7 @@ import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, IQD_PER_USD } from '../lib/currency';
 import { PageLoader } from './PageLoader';
+import { NovaiqLogo } from './NovaiqLogo';
 
 // The interactive sandbox is the single largest component in the app (per-template demo logic
 // for all 10 templates). Loading it only when a customer actually opens a preview keeps it out
@@ -579,6 +580,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               </div>
             );
           })}
+
+          {/* Brand watermark — fills the empty space the tall coverflow stage leaves below
+              the vertically-centered cards, instead of leaving it visually empty. Low z-index
+              and pointer-events-none keep it strictly behind the cards' drag/click handling. */}
+          <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-0 opacity-[0.08] pointer-events-none">
+            <NovaiqLogo size={40} showText={true} />
+          </div>
           </div>
 
           <button
