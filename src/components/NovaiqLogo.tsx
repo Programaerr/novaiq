@@ -34,7 +34,7 @@ export const NovaiqLogo: React.FC<NovaiqLogoProps> = ({
       )}
 
       {animated && (
-        <span className="navbar-logo-word inline-flex items-center font-mono text-sm sm:text-base font-bold text-white">
+        <span className="navbar-logo-word font-mono text-sm sm:text-base font-bold text-white">
           <span className="navbar-logo-dots inline-flex" aria-hidden="true">
             <span>.</span>
             <span>.</span>

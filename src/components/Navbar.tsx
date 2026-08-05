@@ -124,13 +124,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* Center: Brand Logo with uploaded icon visual design */}
-        <a 
+        {/* Center: Brand Logo — absolutely positioned against the bar (which is `relative`)
+            instead of just being the middle flex child, so it stays pixel-perfect centered
+            regardless of how wide the menu button or account button happen to be (their
+            widths differ by auth state and language, which would otherwise nudge it off-center). */}
+        <a
           href="/"
           onClick={(e) => handleNavClick('home', e)}
-          className="flex items-center justify-center cursor-pointer group relative z-10"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group z-10"
         >
-          <NovaiqLogo size={34} showText={true} />
+          <NovaiqLogo size={34} showText={true} animated />
         </a>
 
         {/* Side 2: Account — before login, a single "Login" entry point (Google sign-in
