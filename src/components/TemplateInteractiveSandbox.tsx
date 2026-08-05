@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Template } from '../types';
 import { PriceInput } from './PriceInput';
 import {
@@ -871,6 +872,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [storeSearch, setStoreSearch] = useState<string>('');
   const [storeSort, setStoreSort] = useState<'default' | 'priceAsc' | 'priceDesc'>('default');
   const [isStoreSortOpen, setIsStoreSortOpen] = useState(false);
+  const [storeSortMenuRect, setStoreSortMenuRect] = useState<{ top: number; right: number; width: number } | null>(null);
+  const storeSortBtnRef = useRef<HTMLButtonElement>(null);
   const [selectedProductForModal, setSelectedProductForModal] = useState<ClothingProduct | null>(null);
   const [modalColor, setModalColor] = useState<string>('');
   const [modalSize, setModalSize] = useState<string>('');
@@ -1625,8 +1628,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               <div className="relative flex items-center gap-2">
                 <span className="hidden sm:inline text-[10px] text-slate-500 font-bold whitespace-nowrap">ترتيب الموديلات:</span>
                 <button
+                  ref={storeSortBtnRef}
                   type="button"
-                  onClick={() => setIsStoreSortOpen((v) => !v)}
+                  onClick={() => {
+                    if (!isStoreSortOpen && storeSortBtnRef.current) {
+                      const r = storeSortBtnRef.current.getBoundingClientRect();
+                      setStoreSortMenuRect({ top: r.bottom + 6, right: window.innerWidth - r.right, width: r.width });
+                    }
+                    setIsStoreSortOpen((v) => !v);
+                  }}
                   aria-haspopup="listbox"
                   aria-expanded={isStoreSortOpen}
                   className="w-full sm:w-auto flex items-center justify-between gap-2.5 bg-black/30 backdrop-blur-sm border border-white/10 hover:border-white/25 text-slate-300 rounded-xl px-3 py-2 text-[10px] font-bold cursor-pointer transition-colors"
@@ -1635,12 +1645,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${isStoreSortOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {isStoreSortOpen && (
+                {/* Portaled to <body> — the sticky store navbar above uses overflow-hidden
+                    to keep its own rounded corners clean, which would otherwise clip this
+                    popup instead of just letting it float over the page. */}
+                {isStoreSortOpen && storeSortMenuRect && createPortal(
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsStoreSortOpen(false)} />
+                    <div className="fixed inset-0 z-[70]" onClick={() => setIsStoreSortOpen(false)} />
                     <div
                       role="listbox"
-                      className="absolute top-full mt-1.5 right-0 z-50 w-full sm:w-56 rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/40 overflow-hidden animate-fade-in"
+                      style={{ top: storeSortMenuRect.top, right: storeSortMenuRect.right, width: Math.max(storeSortMenuRect.width, 200) }}
+                      className="fixed z-[71] rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/40 overflow-hidden animate-fade-in"
                     >
                       {STORE_SORT_OPTIONS.map((opt) => (
                         <button
@@ -1663,7 +1677,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         </button>
                       ))}
                     </div>
-                  </>
+                  </>,
+                  document.body
                 )}
               </div>
             </div>
