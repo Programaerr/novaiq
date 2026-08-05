@@ -139,7 +139,7 @@ export const templatesData: Template[] = [
       {
         title: 'استعراض البرج والوحدات',
         description: 'تفاصيل المساحات وخيارات الدفع الميسرة',
-        colorGrad: 'from-amber-900/60 to-slate-950',
+        colorGrad: 'from-amber-1/60 to-slate-950',
         contentPreview: 'Cosmos Luxury Residences & Towers'
       }
     ]
