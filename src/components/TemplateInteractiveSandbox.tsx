@@ -876,6 +876,26 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const storeSortBtnRef = useRef<HTMLButtonElement>(null);
   const [productCarouselIndex, setProductCarouselIndex] = useState(0);
   const [isProductCarouselPaused, setIsProductCarouselPaused] = useState(false);
+  // sortedProducts (filtered + sorted) only exists inside renderInteractivePageContent, so
+  // this effect can't put it in its dependency array without recreating — and resetting —
+  // the 5s timer on every unrelated render. A ref updated during render instead lets the
+  // interval read the current count without ever needing to restart itself.
+  const sortedProductsLengthRef = useRef(0);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => {
+      if (isProductCarouselPaused) return;
+      const len = sortedProductsLengthRef.current;
+      if (len <= 1) return;
+      setProductCarouselIndex((i) => (i + 1) % len);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [isProductCarouselPaused]);
+
+  useEffect(() => {
+    setProductCarouselIndex(0);
+  }, [storeCategory, storeSearch, storeSort]);
   const [selectedProductForModal, setSelectedProductForModal] = useState<ClothingProduct | null>(null);
   const [modalColor, setModalColor] = useState<string>('');
   const [modalSize, setModalSize] = useState<string>('');
