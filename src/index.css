@@ -426,6 +426,36 @@
   opacity: 1;
 }
 
+/* Same border-beam effect for .glow-cta-btn (the 3 main site CTAs), as a real child
+   element instead of ::after — .glow-cta-btn already spends both ::before (dot texture)
+   and ::after (glow-beneath ellipse) on itself, so there's no pseudo-element left for this
+   one. Same masked-conic-gradient ring, same JS-driven angle, just triggered by a
+   descendant-hover selector instead of :hover on its own pseudo-element. */
+.cta-border-beam {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-beam-angle, 0deg),
+    #fff 0deg,
+    rgba(255, 255, 255, 0.7) 12deg,
+    rgba(255, 255, 255, 0.15) 30deg,
+    transparent 55deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.glow-cta-btn:hover .cta-border-beam {
+  opacity: 1;
+}
+
 /* Navbar wordmark: NAME → mark → "Design" — both text pieces are hidden until hover, then
    slide out from behind the mark in opposite directions (NAME to the left, "Design" to the
    right), leaving just the mark visible by default. The mark itself stays still (an earlier

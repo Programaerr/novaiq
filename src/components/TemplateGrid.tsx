@@ -19,6 +19,7 @@ import {
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, IQD_PER_USD } from '../lib/currency';
+import { useBorderBeam } from '../lib/useBorderBeam';
 import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
 
@@ -70,32 +71,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Drives the "border beam" hover effect on the card action buttons (--border-beam-angle,
-  // read by .border-beam-btn::after in index.css) frame-by-frame from JS rather than a CSS
-  // @keyframes animation on the custom property. Tailwind's build strips the @property
-  // registration a custom property needs to animate smoothly, so a pure-CSS version left
-  // var(--border-beam-angle) permanently unset — with no fallback that makes the whole
-  // conic-gradient invalid instead of just failing to spin. rAF gives the same motion
-  // without depending on that registration surviving the build.
-  const beamRafRef = useRef<number | null>(null);
-
-  const startBorderBeam = (e: React.MouseEvent<HTMLElement>) => {
-    const el = e.currentTarget;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const angle = ((now - start) / 1400) * 360 % 360;
-      el.style.setProperty('--border-beam-angle', `${angle}deg`);
-      beamRafRef.current = requestAnimationFrame(tick);
-    };
-    beamRafRef.current = requestAnimationFrame(tick);
-  };
-
-  const stopBorderBeam = () => {
-    if (beamRafRef.current !== null) {
-      cancelAnimationFrame(beamRafRef.current);
-      beamRafRef.current = null;
-    }
-  };
+  // Drives the "border beam" hover effect on the card action buttons — see useBorderBeam
+  // for why this is JS-driven rather than a CSS @keyframes animation.
+  const { startBorderBeam, stopBorderBeam } = useBorderBeam();
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
