@@ -175,7 +175,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
   return (
     <section id="templates-section" className="py-4 sm:py-6 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-1 lg:px-1">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-6">
