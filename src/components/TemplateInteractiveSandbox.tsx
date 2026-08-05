@@ -3721,14 +3721,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             >
               <Eye className="w-4 h-4 text-zinc-300" />
             </button>
-
-            <button
-              onClick={onClose}
-              title="إغلاق المعاينة"
-              className="p-1.5 sm:p-2.5 rounded-xl bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
           </div>
         </div>
       ) : (
@@ -3800,12 +3792,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
-            <button
-              onClick={onClose}
-              className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-zinc-900 text-zinc-300 text-xs font-semibold hover:bg-zinc-800 border border-zinc-800 cursor-pointer glow-white-hover text-center"
-            >
-              إغلاق
-            </button>
             <button
               onClick={() => onSelectForContract(template, buildCustomizationSummary(), THEME_COLOR_HEX[themeColor])}
               className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
