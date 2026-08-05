@@ -686,6 +686,12 @@ const STORE_NAV_ITEMS = [
   { id: 'accessories', label: 'إكسسوارات وأحذية' },
 ];
 
+const STORE_SORT_OPTIONS: { value: 'default' | 'priceAsc' | 'priceDesc'; label: string }[] = [
+  { value: 'default', label: 'ترتيب: الأكثر رواجاً' },
+  { value: 'priceAsc', label: 'السعر: من الأقل للأعلى' },
+  { value: 'priceDesc', label: 'السعر: من الأعلى للأقل' },
+];
+
 // Widths the preview can be pinned to. These are real, commonly-targeted breakpoints — the
 // site is genuinely laid out at the chosen one, so what the customer sees is what that class
 // of screen actually gets.
@@ -1612,21 +1618,53 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             {/* Sorting controls */}
             <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col sm:flex-row sm:items-center'} gap-2 sm:gap-3 sm:justify-end`}>
 
-              {/* Advanced Sorter */}
-              <div className="flex items-center gap-2">
+              {/* Advanced Sorter — a custom dropdown instead of a native <select>: the
+                  browser draws a native <select>'s open popup itself (plain OS list, blue
+                  highlight), which CSS can't reach at all, so it always looks out of place
+                  next to the rest of the site's glass styling. */}
+              <div className="relative flex items-center gap-2">
                 <span className="hidden sm:inline text-[10px] text-slate-500 font-bold whitespace-nowrap">ترتيب الموديلات:</span>
-                <select
-                  value={storeSort}
-                  onChange={(e) => {
-                    setStoreSort(e.target.value as any);
-                    cosmicAudio.playTick();
-                  }}
-                  className="w-full sm:w-auto bg-black/30 backdrop-blur-sm border border-white/10 text-slate-300 rounded-xl px-3 py-2 text-[10px] font-bold focus:outline-none focus:border-slate-700 cursor-pointer"
+                <button
+                  type="button"
+                  onClick={() => setIsStoreSortOpen((v) => !v)}
+                  aria-haspopup="listbox"
+                  aria-expanded={isStoreSortOpen}
+                  className="w-full sm:w-auto flex items-center justify-between gap-2.5 bg-black/30 backdrop-blur-sm border border-white/10 hover:border-white/25 text-slate-300 rounded-xl px-3 py-2 text-[10px] font-bold cursor-pointer transition-colors"
                 >
-                  <option value="default">ترتيب: الأكثر رواجاً</option>
-                  <option value="priceAsc">السعر: من الأقل للأعلى</option>
-                  <option value="priceDesc">السعر: من الأعلى للأقل</option>
-                </select>
+                  <span>{STORE_SORT_OPTIONS.find((o) => o.value === storeSort)?.label}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${isStoreSortOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isStoreSortOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsStoreSortOpen(false)} />
+                    <div
+                      role="listbox"
+                      className="absolute top-full mt-1.5 right-0 z-50 w-full sm:w-56 rounded-xl bg-white/10 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/40 overflow-hidden animate-fade-in"
+                    >
+                      {STORE_SORT_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          role="option"
+                          aria-selected={storeSort === opt.value}
+                          onClick={() => {
+                            setStoreSort(opt.value);
+                            setIsStoreSortOpen(false);
+                            cosmicAudio.playTick();
+                          }}
+                          className={`w-full text-right px-3 py-2.5 text-[10px] font-bold transition-colors cursor-pointer ${
+                            storeSort === opt.value
+                              ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}`
+                              : 'text-slate-300 hover:bg-white/10'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
