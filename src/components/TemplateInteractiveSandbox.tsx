@@ -4135,53 +4135,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     );
   };
 
-  const renderSiteUtilityBar = () => (
-    <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20">
-      {/* No brand mark here — the template's own header carries it directly below. This strip
-          is the account layer only, plus the connection indicator a real site would show. */}
-      <span className="flex items-center gap-1.5 min-w-0 text-[10px] text-slate-500 font-mono" dir="ltr">
-        <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
-        <span className="truncate">{siteHost}</span>
-      </span>
-
-      <div className="flex items-center gap-1.5 shrink-0">
-        {account && (
-          <button
-            onClick={() => { setAuthView('account'); setAccountSection('overview'); }}
-            title="الإشعارات"
-            className="relative p-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white cursor-pointer transition-colors"
-          >
-            <Bell className="w-3.5 h-3.5" />
-            {accountRecords.length > 0 && (
-              <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-[9px] font-bold flex items-center justify-center`}>
-                {accountRecords.length}
-              </span>
-            )}
-          </button>
-        )}
-
-        {account ? (
-          <button
-            onClick={() => setAuthView('account')}
-            className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-colors"
-          >
-            <span className={`w-5 h-5 rounded-full ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} text-[9px] font-bold`}>
-              {account.name.charAt(0).toUpperCase()}
-            </span>
-            <span className="text-[11px] font-bold text-white max-w-[80px] truncate">{account.name}</span>
-          </button>
-        ) : (
-          <button
-            onClick={() => { setAuthView('login'); cosmicAudio.playTick(); }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-[11px] font-bold cursor-pointer`}
-          >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>تسجيل الدخول</span>
-          </button>
-        )}
-      </div>
-    </div>
-  );
 
   const renderLoginPage = () => (
     <div className="animate-fade-in flex items-center justify-center py-6 sm:py-12">
@@ -4570,7 +4523,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     <>
       {renderSiteDrawer()}
       <div className="space-y-4 sm:space-y-5">
-        {renderSiteUtilityBar()}
         {authView === 'login'
           ? renderLoginPage()
           : authView === 'account'
