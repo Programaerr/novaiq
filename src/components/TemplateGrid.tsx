@@ -137,8 +137,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     setActiveIndex(0);
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery]);
 
+  // Wraps rather than clamping — arrows/swipes loop continuously past either end, same
+  // as the auto-advance, instead of stopping dead at the first/last card.
   const goToOffset = (delta: number) => {
-    setActiveIndex((i) => Math.max(0, Math.min(filteredTemplates.length - 1, i + delta)));
+    const n = filteredTemplates.length;
+    setActiveIndex((i) => (n === 0 ? 0 : (i + delta + n) % n));
   };
 
   // setPointerCapture keeps receiving move/up events even if the finger/cursor drifts off
@@ -373,7 +376,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <button
             type="button"
             onClick={() => goToOffset(1)}
-            disabled={activeIndex >= filteredTemplates.length - 1}
             aria-label={currentLang === 'ar' ? 'التالي' : 'Next'}
             className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
           >
@@ -557,7 +559,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <button
             type="button"
             onClick={() => goToOffset(-1)}
-            disabled={activeIndex <= 0}
             aria-label={currentLang === 'ar' ? 'السابق' : 'Previous'}
             className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
           >
