@@ -387,6 +387,56 @@
   opacity: 1;
 }
 
+/* Border beam — a fast white comet chases around the button's own perimeter on hover,
+   instead of glowing evenly all at once. The ring is drawn by masking a conic-gradient
+   square down to just its edge (content-box XOR border-box leaves only the padding
+   strip), and --border-beam-angle is a real animatable custom property (not just a CSS
+   variable) so the conic-gradient can rotate smoothly via @keyframes instead of jumping
+   in discrete steps. Keeps spinning at all times (cheap — it's one small pseudo-element)
+   and only fades in on hover, so the comet never restarts from 0deg and looks like it
+   was always mid-flight. */
+@property --border-beam-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.border-beam-btn {
+  position: relative;
+  z-index: 0;
+}
+
+.border-beam-btn::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-beam-angle),
+    #fff 0deg,
+    rgba(255, 255, 255, 0.7) 12deg,
+    rgba(255, 255, 255, 0.15) 30deg,
+    transparent 55deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  animation: border-beam-spin 1.4s linear infinite;
+}
+
+.border-beam-btn:hover::after {
+  opacity: 1;
+}
+
+@keyframes border-beam-spin {
+  to { --border-beam-angle: 360deg; }
+}
+
 /* Template-preview navbar wordmark: "Logo [mark] Design" — hover-triggered, not automatic.
    The mark only spins while the pointer is over the navbar's logo group, and "Design"
    stays hidden until then, sliding out from the mark on hover-in and smoothly retreating
