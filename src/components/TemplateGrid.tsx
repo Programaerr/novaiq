@@ -423,7 +423,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className="relative h-32 sm:h-56 overflow-hidden bg-black cursor-pointer group/img"
+                  className="relative h-20 sm:h-56 overflow-hidden bg-black cursor-pointer group/img"
                 >
                   <img
                     src={template.previewImage}
@@ -465,7 +465,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 </div>
 
                 {/* Card Content */}
-                <div className="p-3.5 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-5">
+                <div className="p-2.5 sm:p-6 flex-1 flex flex-col justify-between space-y-2 sm:space-y-5">
                   
                   <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-colors">
                     <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed line-clamp-2">
