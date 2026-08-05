@@ -1206,7 +1206,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     setIsCartOpen(true);
                     cosmicAudio.playTick();
                   }}
-                  className="relative px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-1.5 sm:gap-2.5 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg"
+                  className="relative px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-3 sm:gap-2.5 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg"
                 >
                   <div className="relative shrink-0">
                     <ShoppingCart className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 transition-colors" />
@@ -1219,9 +1219,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                   <span className="hidden sm:inline text-[11px] whitespace-nowrap">حقيبة التسوق</span>
                   {totalCartIQD > 0 && (
-                    <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 sm:px-2 py-0.5 rounded border border-emerald-500/20 text-[9px] sm:text-[10px] whitespace-nowrap">
-                      {totalCartIQD.toLocaleString()} د.ع
-                    </span>
+                    <>
+                      <span className="sm:hidden w-px h-3.5 bg-white/15 shrink-0" />
+                      <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 sm:px-2 py-0.5 rounded border border-emerald-500/20 text-[9px] sm:text-[10px] whitespace-nowrap">
+                        {totalCartIQD.toLocaleString()} د.ع
+                      </span>
+                    </>
                   )}
                 </button>
               </div>
