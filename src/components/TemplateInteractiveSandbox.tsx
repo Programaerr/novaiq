@@ -874,50 +874,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [isStoreSortOpen, setIsStoreSortOpen] = useState(false);
   const [storeSortMenuRect, setStoreSortMenuRect] = useState<{ top: number; right: number; width: number } | null>(null);
   const storeSortBtnRef = useRef<HTMLButtonElement>(null);
-  // Index climbs forever (no modulo) instead of wrapping straight back to 0 — wrapping
-  // mid-animation made the row visibly snap backward to the start every cycle instead of
-  // reading as one continuous train. The product list is rendered twice back to back
-  // (displayProducts below) so the train can keep sliding smoothly past the "end" into
-  // the second copy; once it's fully past the first copy, skipCarouselTransition silently
-  // rewinds the index by one full length with the transition switched off for that single
-  // frame, which is invisible since copy two at that position looks identical to copy one.
-  const [productCarouselIndex, setProductCarouselIndex] = useState(0);
-  const [isProductCarouselPaused, setIsProductCarouselPaused] = useState(false);
-  const [skipCarouselTransition, setSkipCarouselTransition] = useState(false);
-  // sortedProducts (filtered + sorted) only exists inside renderInteractivePageContent, so
-  // this effect can't put it in its dependency array without recreating — and resetting —
-  // the 5s timer on every unrelated render. A ref updated during render instead lets the
-  // interval read the current count without ever needing to restart itself.
-  const sortedProductsLengthRef = useRef(0);
-
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setInterval(() => {
-      if (isProductCarouselPaused) return;
-      const len = sortedProductsLengthRef.current;
-      if (len <= 1) return;
-      setProductCarouselIndex((i) => i + 1);
-    }, 5000);
-    return () => window.clearInterval(id);
-  }, [isProductCarouselPaused]);
-
-  useEffect(() => {
-    const len = sortedProductsLengthRef.current;
-    if (len <= 1 || productCarouselIndex < len) return;
-    // Let the 1.4s slide finish before rewinding — matches the transform's own duration.
-    const timer = window.setTimeout(() => {
-      setSkipCarouselTransition(true);
-      setProductCarouselIndex((i) => i - len);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setSkipCarouselTransition(false));
-      });
-    }, 1450);
-    return () => window.clearTimeout(timer);
-  }, [productCarouselIndex]);
-
-  useEffect(() => {
-    setProductCarouselIndex(0);
-  }, [storeCategory, storeSearch, storeSort]);
   const [selectedProductForModal, setSelectedProductForModal] = useState<ClothingProduct | null>(null);
   const [modalColor, setModalColor] = useState<string>('');
   const [modalSize, setModalSize] = useState<string>('');
@@ -1591,11 +1547,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           if (storeSort === 'priceDesc') return b.priceIQD - a.priceIQD;
           return 0;
         });
-
-      sortedProductsLengthRef.current = sortedProducts.length;
-      // Two back-to-back copies — see the effects above for why the index itself never
-      // wraps mid-slide.
-      const displayProducts = sortedProducts.length > 0 ? [...sortedProducts, ...sortedProducts] : [];
 
       return (
         <div className="space-y-6 text-slate-100">
