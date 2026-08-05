@@ -70,6 +70,33 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
+  // Drives the "border beam" hover effect on the card action buttons (--border-beam-angle,
+  // read by .border-beam-btn::after in index.css) frame-by-frame from JS rather than a CSS
+  // @keyframes animation on the custom property. Tailwind's build strips the @property
+  // registration a custom property needs to animate smoothly, so a pure-CSS version left
+  // var(--border-beam-angle) permanently unset — with no fallback that makes the whole
+  // conic-gradient invalid instead of just failing to spin. rAF gives the same motion
+  // without depending on that registration surviving the build.
+  const beamRafRef = useRef<number | null>(null);
+
+  const startBorderBeam = (e: React.MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const angle = ((now - start) / 1400) * 360 % 360;
+      el.style.setProperty('--border-beam-angle', `${angle}deg`);
+      beamRafRef.current = requestAnimationFrame(tick);
+    };
+    beamRafRef.current = requestAnimationFrame(tick);
+  };
+
+  const stopBorderBeam = () => {
+    if (beamRafRef.current !== null) {
+      cancelAnimationFrame(beamRafRef.current);
+      beamRafRef.current = null;
+    }
+  };
+
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
     { id: 'corporate', label: translateText('شركات ومؤسسات', currentLang) },
@@ -555,6 +582,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           }
                           cosmicAudio.playPing();
                         }}
+                        onMouseEnter={startBorderBeam}
+                        onMouseLeave={stopBorderBeam}
                         className="border-beam-btn w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <Globe className="w-3.5 h-3.5 text-zinc-300" />
@@ -566,6 +595,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           onSelectTemplateForContract(template);
                           cosmicAudio.playWarp();
                         }}
+                        onMouseEnter={startBorderBeam}
+                        onMouseLeave={stopBorderBeam}
                         className="border-beam-btn w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
                       >
                         <FileSignature className="w-3.5 h-3.5 text-black" />
