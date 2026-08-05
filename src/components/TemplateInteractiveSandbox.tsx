@@ -46,7 +46,8 @@ import {
   Truck,
   Package,
   MapPin,
-  Terminal
+  Terminal,
+  ChevronDown
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 
@@ -863,6 +864,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [storeCategory, setStoreCategory] = useState<'all' | 'men' | 'women' | 'accessories'>('all');
   const [storeSearch, setStoreSearch] = useState<string>('');
   const [storeSort, setStoreSort] = useState<'default' | 'priceAsc' | 'priceDesc'>('default');
+  const [isStoreSortOpen, setIsStoreSortOpen] = useState(false);
   const [selectedProductForModal, setSelectedProductForModal] = useState<ClothingProduct | null>(null);
   const [modalColor, setModalColor] = useState<string>('');
   const [modalSize, setModalSize] = useState<string>('');
