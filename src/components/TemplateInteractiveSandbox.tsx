@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Template } from '../types';
 import { PriceInput } from './PriceInput';
-import { DevicePreviewFrame, type PreviewDevice } from './DevicePreviewFrame';
 import {
   X,
-  Monitor,
-  Tablet,
-  Smartphone,
   CheckCircle2,
   ArrowLeft,
   Eye,
