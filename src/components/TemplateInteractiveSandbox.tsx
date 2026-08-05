@@ -1688,27 +1688,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </div>
           </div>
 
-          {/* Products Carousel — cars-of-a-train motion: one card advances into view every
-              5s, slow eased slide rather than an instant cut, paused on hover. py-3 -my-3
-              on the overflow-hidden viewport gives each card's own hover-lift + shadow room
-              so the clipping edge doesn't cut across the card itself (top or bottom). */}
-          <div
-            className="relative overflow-hidden py-3 -my-3"
-            onMouseEnter={() => setIsProductCarouselPaused(true)}
-            onMouseLeave={() => setIsProductCarouselPaused(false)}
-          >
-            <div
-              className={`flex ${isNarrowViewport ? 'gap-4' : 'gap-6'}`}
-              style={{
-                transform: `translateX(${productCarouselIndex * (isNarrowViewport ? 276 : 344)}px)`,
-                transition: skipCarouselTransition ? 'none' : 'transform 1.4s cubic-bezier(0.65, 0, 0.35, 1)',
-              }}
-            >
-            {displayProducts.map((prod, prodIndex) => (
+          {/* Products Grid */}
+          <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-6`}>
+            {sortedProducts.map((prod, prodIndex) => (
               <div
-                key={`${prod.id}-${prodIndex}`}
-                style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${(prodIndex % sortedProducts.length) * 0.05}s` }}
-                className={`${isNarrowViewport ? 'w-[260px]' : 'w-[320px]'} shrink-0 p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-4 group`}
+                key={prod.id}
+                style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${prodIndex * 0.05}s` }}
+                className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-4 group"
               >
                 <div className="space-y-3">
                   {/* Thumbnail / Image Mock — the wave SVG overlaps the image's own bottom
