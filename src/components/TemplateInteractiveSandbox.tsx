@@ -874,6 +874,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [isStoreSortOpen, setIsStoreSortOpen] = useState(false);
   const [storeSortMenuRect, setStoreSortMenuRect] = useState<{ top: number; right: number; width: number } | null>(null);
   const storeSortBtnRef = useRef<HTMLButtonElement>(null);
+  const [productCarouselIndex, setProductCarouselIndex] = useState(0);
+  const [isProductCarouselPaused, setIsProductCarouselPaused] = useState(false);
   const [selectedProductForModal, setSelectedProductForModal] = useState<ClothingProduct | null>(null);
   const [modalColor, setModalColor] = useState<string>('');
   const [modalSize, setModalSize] = useState<string>('');
