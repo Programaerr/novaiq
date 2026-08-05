@@ -1472,10 +1472,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </button>
               </div>
             </div>
-          </div>
 
-          {/* Search, Filters & Sorter Row */}
-          <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-white/5 backdrop-blur-md border border-white/10`}>
+            {/* Search, Filters & Sorter Row — kept inside the same sticky card as the
+                header instead of floating as its own separate block underneath it, so the
+                two read as one cohesive header instead of two disconnected pieces. */}
+            <div className={`flex ${isNarrowViewport ? 'flex-col items-stretch' : 'flex-col md:flex-row items-stretch md:items-center'} justify-between gap-3 sm:gap-4 p-3 sm:p-4 border-t border-white/10`}>
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />
@@ -1508,6 +1509,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </select>
               </div>
             </div>
+          </div>
           </div>
 
           {/* Products Grid */}
@@ -3931,7 +3933,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   };
 
   const renderSiteUtilityBar = () => (
-    <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md">
+    <div className="flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20">
       {/* No brand mark here — the template's own header carries it directly below. This strip
           is the account layer only, plus the connection indicator a real site would show. */}
       <span className="flex items-center gap-1.5 min-w-0 text-[10px] text-slate-500 font-mono" dir="ltr">
