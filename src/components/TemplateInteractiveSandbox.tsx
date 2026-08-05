@@ -1775,7 +1775,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
               </div>
             ))}
-            </div>
           </div>
 
           {/* Product Options Modal (High Fidelity Preview & Setup) */}
