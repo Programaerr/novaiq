@@ -474,7 +474,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   </div>
 
                   {/* Delivery Time Badge */}
-                  <div className="absolute top-10 right-3 sm:top-4 sm:right-auto sm:left-4 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/90 border border-zinc-800 text-zinc-300 text-[10px] sm:text-[11px] font-mono">
+                  <div className="absolute top-10 right-3 sm:top-4 sm:right-auto sm:left-4 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/90 border border-zinc-800 text-white text-[10px] sm:text-[11px] font-bold">
                     <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
                     <span>{getTranslation('deliveryTime', currentLang)} {template.deliveryWeeks} {translateText('أسابيع', currentLang)}</span>
                   </div>
