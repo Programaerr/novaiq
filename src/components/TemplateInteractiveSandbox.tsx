@@ -1429,25 +1429,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               <span>عرض خاص: شحن مجاني آمن لكافة محافظات العراق ودفع آمن عند الاستلام</span>
             </div>
 
-<<<<<<< HEAD
-            <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isMobileFrame ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
-              {/* Right: Logo & Name — sized off isMobileFrame (the device-view toggle),
-                  not sm:, since this header also renders inside the fixed 375px "mobile"
-                  preview frame at whatever the real browser viewport happens to be; sm:
-                  classes there matched the real window, not the frame, and rendered at
-                  full desktop size squeezed into 375px, colliding with the cart button. */}
-              <div className={`group flex items-center gap-2 min-w-0 ${isMobileFrame ? '' : 'sm:gap-3'}`}>
-                <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isMobileFrame ? '' : 'sm:text-base'}`}>Logo</span>
-                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isMobileFrame ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
-                  <ShoppingBag className={`w-4 h-4 ${isMobileFrame ? '' : 'sm:w-5 sm:h-5'}`} />
-=======
             <div className={`flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
               {/* Right: Logo & Name */}
               <div className={`group flex items-center gap-2 min-w-0 ${isNarrowViewport ? '' : 'sm:gap-3'}`}>
                 <span className={`font-extrabold text-xs text-white tracking-wide whitespace-nowrap ${isNarrowViewport ? '' : 'sm:text-base'}`}>Logo</span>
-                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
+                <div className={`navbar-logo-mark relative w-8 h-8 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20 ${isNarrowViewport ? '' : 'sm:w-11 sm:h-11 sm:rounded-2xl'}`}>
                   <ShoppingBag className={`w-4 h-4 ${isNarrowViewport ? '' : 'sm:w-5 sm:h-5'}`} />
->>>>>>> 6d5d261f8e0c7afefdc104003763241aa5433fd3
                 </div>
                 <span className={`navbar-logo-word font-extrabold text-xs text-white tracking-wide hidden whitespace-nowrap ${isNarrowViewport ? '' : 'sm:inline sm:text-base'}`}>Design</span>
               </div>
