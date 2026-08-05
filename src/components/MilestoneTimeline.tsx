@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
-import { useBorderBeam } from '../lib/useBorderBeam';
 
 interface MilestoneTimelineProps {
   onCreateContract: () => void;
@@ -26,8 +25,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
     e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
     e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
   };
-
-  const { startBorderBeam, stopBorderBeam } = useBorderBeam();
 
   const milestones = [
     {
@@ -163,12 +160,9 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
               cosmicAudio.playWarp();
             }}
             onMouseMove={handleSpotlightMove}
-            onMouseEnter={startBorderBeam}
-            onMouseLeave={stopBorderBeam}
             className="glow-cta-btn px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full text-white font-extrabold uppercase tracking-[0.1em] hover:scale-[1.02] transition-all inline-flex items-center cursor-pointer"
           >
             <span className="cta-spotlight" />
-            <span className="cta-border-beam" />
             <Rocket className="relative z-10 w-4 h-4 sm:w-5 sm:h-5 text-white" />
             <span className="relative z-10">{language === 'ar' ? 'ابدأ تنفيذ مشروعك ووقع العقد الآن' : 'Start Your Project & Sign Contract Now'}</span>
             <ArrowLeft className={`relative z-10 w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
