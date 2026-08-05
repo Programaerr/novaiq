@@ -46,8 +46,7 @@ import {
   Truck,
   Package,
   MapPin,
-  Terminal,
-  ChevronRight
+  Terminal
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 
@@ -686,6 +685,113 @@ const STORE_NAV_ITEMS = [
   { id: 'accessories', label: 'إكسسوارات وأحذية' },
 ];
 
+// Widths the preview can be pinned to. These are real, commonly-targeted breakpoints — the
+// site is genuinely laid out at the chosen one, so what the customer sees is what that class
+// of screen actually gets.
+type ViewportChoice = 'full' | 'desktop' | 'tablet' | 'mobile';
+
+const VIEWPORT_PRESETS: Record<Exclude<ViewportChoice, 'full'>, { label: string; width: number }> = {
+  desktop: { label: 'كمبيوتر', width: 1280 },
+  tablet: { label: 'تابلت', width: 834 },
+  mobile: { label: 'جوال', width: 390 },
+};
+
+/**
+ * The template rendered at a fixed viewport width — no device mock-up around it, just the
+ * site reflowing at that width.
+ *
+ * It has to be an iframe rather than a narrow `div`: CSS media queries resolve against the
+ * browsing context, so a `div` capped at 390px on a desktop would still serve the desktop
+ * layout, squeezed. An iframe genuinely is 390px wide, so the template's own breakpoints do
+ * the work and the preview can be trusted.
+ */
+const ResponsivePreview: React.FC<{
+  width: number;
+  src: string;
+  title: string;
+  themeColor: string;
+}> = ({ width, src, title, themeColor }) => {
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [stage, setStage] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  // Frozen at mount: re-pointing a live iframe reloads it, and the palette is kept in sync
+  // over postMessage instead so the demo never loses the customer's place.
+  const [frameSrc] = useState(src);
+
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const measure = () => setStage({ w: el.clientWidth, h: el.clientHeight });
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: 'novaiq:theme', color: themeColor },
+      window.location.origin
+    );
+  }, [themeColor, width]);
+
+  // Only ever scales down, and only when the chosen width genuinely doesn't fit the panel —
+  // so a phone preview on a desktop stays pixel-exact.
+  const scale = stage.w > 0 ? Math.min(stage.w / width, 1) : 1;
+  const frameHeight = stage.h > 0 ? stage.h / scale : 0;
+
+  return (
+    <div className="flex-1 min-h-0 w-full flex flex-col items-center gap-2">
+      <div ref={stageRef} className="flex-1 min-h-0 w-full flex items-start justify-center">
+        {stage.h > 0 && (
+          <div
+            className="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-[#05070c]"
+            style={{ width: width * scale, height: stage.h }}
+          >
+            <iframe
+              ref={iframeRef}
+              src={frameSrc}
+              title={title}
+              onLoad={() => {
+                setIsLoading(false);
+                iframeRef.current?.contentWindow?.postMessage(
+                  { type: 'novaiq:theme', color: themeColor },
+                  window.location.origin
+                );
+              }}
+              style={{
+                width,
+                height: frameHeight,
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+                border: 0,
+                display: 'block',
+              }}
+            />
+            {isLoading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#05070c] text-zinc-500">
+                <span className="w-7 h-7 rounded-full border-2 border-zinc-700 border-t-white animate-spin" />
+                <span className="text-[11px] font-mono">جارٍ تحميل الموقع…</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="shrink-0 flex items-center gap-2 text-[10px] font-mono text-zinc-500">
+        <span dir="ltr">عرض {width}px</span>
+        {scale < 1 && (
+          <>
+            <span className="text-zinc-700">|</span>
+            <span dir="ltr">{Math.round(scale * 100)}%</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 /** Three bars of deliberately uneven length — the same treatment as the NOVAIQ navbar's own
  *  menu control, so the demos share the studio's visual language. */
 const SiteMenuIcon: React.FC = () => (
@@ -712,6 +818,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     }
   });
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
+
+  const [viewport, setViewport] = useState<ViewportChoice>('full');
 
   // General Interactive States
   const [activeTab, setActiveTab] = useState<string>('home');
@@ -1138,6 +1246,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Escape closes the sections drawer — the one dismissal every visitor tries first.
+  useEffect(() => {
+    if (!isSiteMenuOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsSiteMenuOpen(false);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isSiteMenuOpen]);
 
   const gridCols = (mobileCols: string, wideCols: string) => isNarrowViewport ? mobileCols : `${mobileCols} ${wideCols}`;
 
@@ -3866,7 +3984,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         />
         <aside
           data-lenis-prevent
-          className="site-drawer fixed inset-y-0 rtl:right-0 ltr:left-0 z-[61] w-72 max-w-[85vw] bg-slate-950 border-s border-white/10 shadow-2xl flex flex-col overflow-y-auto"
+          className="site-drawer fixed inset-y-0 rtl:right-0 ltr:left-0 z-[61] w-72 max-w-[85vw] bg-slate-950 border-e border-white/10 shadow-2xl flex flex-col overflow-y-auto"
         >
           <div className="flex items-center justify-between gap-3 p-4 border-b border-white/10">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -4360,18 +4478,22 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     </footer>
   );
 
-  /** The template as a complete website: chrome, the page the visitor is on, and a footer. */
+  /** The template as a complete website: chrome, the page the visitor is on, and a footer.
+   *  The drawer sits outside the spaced stack deliberately — as a child of it, opening the
+   *  menu would add a `space-y` gap and nudge the whole page down. */
   const renderLiveSite = () => (
-    <div className="space-y-4 sm:space-y-5">
+    <>
       {renderSiteDrawer()}
-      {renderSiteUtilityBar()}
-      {authView === 'login'
-        ? renderLoginPage()
-        : authView === 'account'
-        ? renderAccountPage()
-        : renderInteractivePageContent()}
-      {renderSiteFooter()}
-    </div>
+      <div className="space-y-4 sm:space-y-5">
+        {renderSiteUtilityBar()}
+        {authView === 'login'
+          ? renderLoginPage()
+          : authView === 'account'
+          ? renderAccountPage()
+          : renderInteractivePageContent()}
+        {renderSiteFooter()}
+      </div>
+    </>
   );
 
   // A device frame runs this exact component inside an iframe on the same origin, and the
@@ -4386,6 +4508,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       </div>
     );
   }
+
+  const livePreviewSrc = `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${themeColor}&name=${encodeURIComponent(template.title)}`;
 
   const openInNewTab = () => {
     window.open(
@@ -4485,23 +4609,61 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
           {/* Viewport switcher. "شاشتك" is the visitor's own screen, rendered inline;
               the other three hand the site a real device viewport of its own. */}
+          {/* Screen-width switcher. No device mock-ups — each choice simply lays the site out
+              at that width so the customer can see how it reflows on their audience's screens. */}
+          <div className="flex items-center gap-0.5 bg-black p-1 rounded-xl border border-zinc-800 text-xs">
+            {([
+              { key: 'full', label: 'شاشتك', title: 'العرض على شاشتك الحالية' },
+              { key: 'desktop', label: 'كمبيوتر', title: 'عرض بعرض 1280 بكسل' },
+              { key: 'tablet', label: 'تابلت', title: 'عرض بعرض 834 بكسل' },
+              { key: 'mobile', label: 'جوال', title: 'عرض بعرض 390 بكسل' },
+            ] as const).map(({ key, label, title }) => (
+              <button
+                key={key}
+                onClick={() => { setViewport(key); cosmicAudio.playTick(); }}
+                title={title}
+                className={`px-2.5 py-1 sm:py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                  viewport === key
+                    ? 'bg-zinc-800 text-white font-bold border border-white glow-white'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <button
             onClick={openInNewTab}
             title="فتح القالب في تبويب مستقل بأعلى جودة"
             className="p-1.5 sm:px-3 sm:py-2 rounded-xl bg-zinc-900 text-zinc-300 hover:text-white border border-zinc-800 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer glow-white-hover transition-colors"
           >
             <Eye className="w-4 h-4" />
-            <span className="hidden lg:inline">فتح كموقع مستقل</span>
-            <ExternalLink className="w-3 h-3 hidden lg:inline" />
+            <span className="hidden xl:inline">فتح كموقع مستقل</span>
+            <ExternalLink className="w-3 h-3 hidden xl:inline" />
           </button>
         </div>
       </div>
 
-      {/* The live site, rendered at the visitor's own screen size. */}
-      <div data-lenis-prevent className="flex-1 min-h-0 w-full flex flex-col items-center justify-start p-2 sm:p-4 overflow-y-auto overflow-x-hidden bg-black/30 backdrop-blur-sm">
-        <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
-          {renderLiveSite()}
-        </div>
+      {/* The live site — inline at the visitor's own screen size, or pinned to a chosen width. */}
+      <div
+        data-lenis-prevent
+        className={`flex-1 min-h-0 w-full flex flex-col items-center justify-start p-2 sm:p-4 bg-black/30 backdrop-blur-sm ${
+          viewport === 'full' ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'
+        }`}
+      >
+        {viewport === 'full' ? (
+          <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
+            {renderLiveSite()}
+          </div>
+        ) : (
+          <ResponsivePreview
+            width={VIEWPORT_PRESETS[viewport].width}
+            src={livePreviewSrc}
+            title={`معاينة حية: ${template.title}`}
+            themeColor={themeColor}
+          />
+        )}
       </div>
 
       {/* Floating Bottom Action Bar */}
