@@ -20,6 +20,7 @@ import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, IQD_PER_USD } from '../lib/currency';
 import { PageLoader } from './PageLoader';
+import { NovaiqLogo } from './NovaiqLogo';
 
 // The interactive sandbox is the single largest component in the app (per-template demo logic
 // for all 10 templates). Loading it only when a customer actually opens a preview keeps it out
