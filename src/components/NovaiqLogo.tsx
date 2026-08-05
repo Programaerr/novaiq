@@ -5,8 +5,8 @@ interface NovaiqLogoProps {
   className?: string;
   showText?: boolean;
   size?: number;
-  // Hover-only: the mark spins and a terminal-style "...▊Design" prompt types itself out
-  // next to it. Caller must put `group` on an ancestor for the hover trigger to reach this.
+  // Hover-only: a terminal-style "...▊Design" prompt types itself out right after the mark.
+  // Caller must put `group` on an ancestor for the hover trigger to reach this.
   animated?: boolean;
 }
 
@@ -17,21 +17,23 @@ export const NovaiqLogo: React.FC<NovaiqLogoProps> = ({
   animated = false,
 }) => {
   return (
-    <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
-      <img
-        src={logoMark}
-        alt="NOVAIQ"
-        width={size}
-        height={size}
-        className={`shrink-0 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ${animated ? 'navbar-logo-mark' : ''}`}
-        style={{ width: size, height: size }}
-      />
-
+    // dir="ltr" always — a brand lockup shouldn't mirror order in RTL the way normal
+    // content does; NAME → MARK → WORD must read the same physically in Arabic or English.
+    <div dir="ltr" className={`inline-flex items-center gap-2.5 select-none ${className}`}>
       {showText && (
         <span className="font-black tracking-widest text-white text-xl sm:text-2xl font-mono">
           NOVAIQ
         </span>
       )}
+
+      <img
+        src={logoMark}
+        alt="NOVAIQ"
+        width={size}
+        height={size}
+        className="shrink-0 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+        style={{ width: size, height: size }}
+      />
 
       {animated && (
         <span className="navbar-logo-word font-mono text-sm sm:text-base font-bold text-white">

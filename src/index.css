@@ -387,34 +387,21 @@
   opacity: 1;
 }
 
-/* Template-preview navbar wordmark: "Logo [mark] Design" — hover-triggered, not automatic.
-   The mark only spins while the pointer is over the navbar's logo group, and "Design"
-   stays hidden until then, sliding out from the mark on hover-in and smoothly retreating
-   back on hover-out. Needs the parent to carry the `group` class (added in JSX). */
-@keyframes navbar-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.navbar-logo-mark {
-  transition: transform 0.4s ease;
-}
-
-.group:hover .navbar-logo-mark {
-  animation: navbar-logo-spin 1.4s linear infinite;
-}
-
+/* Navbar wordmark: NAME → mark → "Design" — hover-triggered, not automatic. The mark stays
+   still (an earlier spinning version read as gimmicky); "Design" is what moves, sliding out
+   from behind the mark on hover-in and pulling back on hover-out. Needs the parent to carry
+   the `group` class (added in JSX). */
 .navbar-logo-word {
   display: inline-flex;
   align-items: center;
   opacity: 0;
-  transform: translateX(10px) scale(0.5);
-  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateX(-16px);
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .group:hover .navbar-logo-word {
   opacity: 1;
-  transform: translateX(0) scale(1);
+  transform: translateX(0);
 }
 
 /* "...▊Design" prompt — three dots pulsing in sequence (thinking/loading), then a
