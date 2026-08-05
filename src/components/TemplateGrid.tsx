@@ -577,13 +577,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               </div>
             );
           })}
-
-          {/* Brand watermark — fills the empty space the tall coverflow stage leaves below
-              the vertically-centered cards, instead of leaving it visually empty. Low z-index
-              and pointer-events-none keep it strictly behind the cards' drag/click handling. */}
-          <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-0 opacity-[0.08] pointer-events-none">
-            <NovaiqLogo size={40} showText={true} />
-          </div>
           </div>
 
           <button
@@ -612,6 +605,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             ))}
           </div>
         )}
+
+        {/* Brand mark — fills the empty stretch between the carousel and the footer instead
+            of leaving it visually empty. */}
+        <div className="flex justify-center mt-16 sm:mt-20 opacity-[0.16]">
+          <NovaiqLogo size={56} showText={true} />
+        </div>
 
         {filteredTemplates.length === 0 && (
           <div className="text-center py-16 bg-zinc-950 rounded-3xl border border-zinc-800">
