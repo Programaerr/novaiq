@@ -405,7 +405,8 @@
 }
 
 .navbar-logo-word {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   opacity: 0;
   transform: translateX(10px) scale(0.5);
   transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
@@ -414,6 +415,41 @@
 .group:hover .navbar-logo-word {
   opacity: 1;
   transform: translateX(0) scale(1);
+}
+
+/* "...▊Design" prompt — three dots pulsing in sequence (thinking/loading), then a
+   terminal-style blinking cursor, then the word itself. Reads as an ongoing process
+   settling on "Design", not just a static label appearing. */
+@keyframes navbar-dot-pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 1; }
+}
+
+.navbar-logo-dots span {
+  animation: navbar-dot-pulse 1.4s ease-in-out infinite;
+}
+
+.navbar-logo-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.navbar-logo-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+  margin-inline-end: 0.2em;
+}
+
+@keyframes navbar-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.navbar-logo-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  margin-inline-end: 0.3em;
+  background: #fff;
+  animation: navbar-cursor-blink 0.9s step-end infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
