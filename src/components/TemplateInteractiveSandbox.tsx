@@ -4057,7 +4057,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         >
           <div className="flex items-center justify-between gap-3 p-4 border-b border-white/10">
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className={`w-9 h-9 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center text-white text-xs font-black shrink-0`}>
+              <span className={`w-9 h-9 rounded-xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} text-xs font-black shrink-0`}>
                 {siteIdentity.name.charAt(0)}
               </span>
               <span className="min-w-0">
@@ -4501,7 +4501,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-5`}>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <span className={`w-7 h-7 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center text-white text-[11px] font-black`}>
+            <span className={`w-7 h-7 rounded-lg ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} text-[11px] font-black`}>
               {siteIdentity.name.charAt(0)}
             </span>
             <span className="text-xs font-bold text-white">{siteIdentity.name}</span>
