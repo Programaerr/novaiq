@@ -57,6 +57,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<{ startX: number } | null>(null);
 
+  // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
+  // card doesn't overlap its neighbors (a fixed desktop-sized offset would).
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    setIsMobile(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
     { id: 'corporate', label: translateText('شركات ومؤسسات', currentLang) },
@@ -364,7 +375,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             onClick={() => goToOffset(1)}
             disabled={activeIndex >= filteredTemplates.length - 1}
             aria-label={currentLang === 'ar' ? 'التالي' : 'Next'}
-            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
+            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -372,7 +383,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             onPointerDown={handleTrackPointerDown}
             onPointerUp={handleTrackPointerUp}
-            className="relative w-full max-w-4xl h-[600px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+            className="relative w-full max-w-4xl h-[520px] sm:h-[640px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -542,7 +553,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             onClick={() => goToOffset(-1)}
             disabled={activeIndex <= 0}
             aria-label={currentLang === 'ar' ? 'السابق' : 'Previous'}
-            className="shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 flex items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
+            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default disabled:hover:border-zinc-800"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
