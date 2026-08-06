@@ -8,9 +8,13 @@ import {
   Building2,
   Globe,
   LogIn,
-  UserCircle2
+  UserCircle2,
+  ShieldCheck,
+  FileText,
+  DollarSign
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { Currency } from '../lib/currency';
 import { NovaiqLogo } from './NovaiqLogo';
 
 // The nav toggle's icon: three uneven bars that settle toward an even split on hover, and
@@ -43,6 +47,8 @@ interface NavbarProps {
   setActivePage: (page: string) => void;
   language: Language;
   setLanguage: (lang: Language) => void;
+  currency: Currency;
+  setCurrency: (currency: Currency) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -50,6 +56,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActivePage,
   language,
   setLanguage,
+  currency,
+  setCurrency,
 }) => {
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -112,6 +120,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'custom-request', label: isAr ? 'عقد مخصص وتطوير' : 'Custom Contract', icon: FileSignature, href: '?page=custom-request' },
     { id: 'timeline', label: isAr ? 'مراحل العمل والتسليم' : 'Roadmap & Process', icon: Calendar, href: '?page=timeline' },
     { id: 'about', label: isAr ? 'عن NOVAIQ' : 'About NOVAIQ', icon: Building2, href: '?page=about' },
+    { id: 'privacy', label: isAr ? 'سياسة الخصوصية' : 'Privacy Policy', icon: ShieldCheck, href: '?page=privacy' },
+    { id: 'terms', label: isAr ? 'الشروط والأحكام' : 'Terms of Service', icon: FileText, href: '?page=terms' },
   ];
 
   const handleNavClick = (id: string, e?: React.MouseEvent) => {
@@ -278,6 +288,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
               <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-[11px] font-bold border border-white/10">
                 {isAr ? 'العربية (AR)' : 'English (EN)'}
+              </span>
+            </button>
+
+            {/* Currency Switcher — independent of language on purpose: the store is fully
+                Iraqi, so switching to English must not silently convert every price to
+                dollars. USD is only ever shown by an explicit choice made here. */}
+            <button
+              onClick={() => setCurrency(currency === 'IQD' ? 'USD' : 'IQD')}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 text-xs font-medium cursor-pointer transition-colors shadow-lg glow-white-hover"
+            >
+              <span className="flex items-center gap-2.5">
+                <DollarSign className="w-4 h-4 text-zinc-300" />
+                <span>{isAr ? 'عملة عرض الأسعار' : 'Display Currency'}</span>
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-[11px] font-bold border border-white/10">
+                {currency === 'IQD' ? (isAr ? 'دينار عراقي (IQD)' : 'Iraqi Dinar (IQD)') : (isAr ? 'دولار أمريكي (USD)' : 'US Dollar (USD)')}
               </span>
             </button>
           </div>

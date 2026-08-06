@@ -13,6 +13,7 @@ import { useLiveTemplates } from './lib/pricingOverrides';
 
 import { Template, ContractData } from './types';
 import { Language } from './lib/i18n';
+import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
 
 // Everything below is only needed after a navigation action (clicking into a page,
 // opening a live template demo, generating a contract PDF). Splitting these into their
@@ -45,6 +46,18 @@ export default function App() {
       return 'ar';
     }
   });
+
+  // Independent of language on purpose — the store is fully Iraqi, so switching to English
+  // must never silently convert prices to dollars. USD only shows once a customer explicitly
+  // picks it here, and it then persists the same way the language choice does.
+  const [currency, setCurrency] = useState<Currency>(() => readStoredCurrency());
+  useEffect(() => {
+    try {
+      localStorage.setItem(CURRENCY_STORAGE_KEY, currency);
+    } catch {
+      // Storage unavailable — the choice just won't persist.
+    }
+  }, [currency]);
 
   // Carries the customer's exact choices from the interactive live-site demo into the contract form
   const [initialCustomFeaturesText, setInitialCustomFeaturesText] = useState<string>('');
@@ -259,6 +272,8 @@ export default function App() {
         <Suspense fallback={<PageLoader />}>
           <TemplateInteractiveSandbox
             template={standalonePreviewTemplate}
+            language={language}
+            currency={currency}
             onClose={() => {
               setStandalonePreviewTemplate(null);
               window.history.replaceState({}, '', window.location.pathname);
@@ -286,6 +301,8 @@ export default function App() {
         setActivePage={(page) => navigateTo(page)}
         language={language}
         setLanguage={setLanguage}
+        currency={currency}
+        setCurrency={setCurrency}
       />
 
       {/* Main Content View with Hardware Accelerated Transitions */}
