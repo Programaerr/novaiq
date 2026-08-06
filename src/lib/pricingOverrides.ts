@@ -11,6 +11,31 @@ import { Template } from '../types';
 // render time everywhere a price is shown or calculated.
 const OVERRIDES_COLLECTION = 'pricing_overrides';
 
+// A fresh page load has no overrides yet — the Firestore listener is async, so without a
+// local cache the very first paint shows templatesData.ts's hardcoded default price, then
+// snaps to the real (overridden) price a moment later once the listener responds. That
+// flash reads as "reloading reverts to the old price" even though it self-corrects. Caching
+// the last-known overrides means the first paint on any repeat visit already has the
+// correct value, same bridge pattern already used for language/currency in this app.
+const OVERRIDES_CACHE_KEY = 'novaiq_pricing_overrides_cache';
+
+function readCachedOverrides(): Record<string, PricingOverride> {
+  try {
+    const raw = localStorage.getItem(OVERRIDES_CACHE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeCachedOverrides(overrides: Record<string, PricingOverride>) {
+  try {
+    localStorage.setItem(OVERRIDES_CACHE_KEY, JSON.stringify(overrides));
+  } catch {
+    // Storage unavailable (private browsing, quota) — the cache just won't persist.
+  }
+}
+
 export interface PricingOverride {
   title?: string;
   previewImage?: string;
@@ -73,10 +98,13 @@ export function applyPricingOverrides(
  *  preview) should use instead of importing templatesData directly — keeps admin price
  *  edits reflected everywhere without each component needing its own Firestore listener. */
 export function useLiveTemplates(): Template[] {
-  const [overrides, setOverrides] = useState<Record<string, PricingOverride>>({});
+  const [overrides, setOverrides] = useState<Record<string, PricingOverride>>(readCachedOverrides);
 
   useEffect(() => {
-    return subscribeToPricingOverrides(setOverrides);
+    return subscribeToPricingOverrides((next) => {
+      writeCachedOverrides(next);
+      setOverrides(next);
+    });
   }, []);
 
   return applyPricingOverrides(templatesData, overrides);
