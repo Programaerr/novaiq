@@ -19,8 +19,27 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/admins/$(request.auth.token.email.lower()));
     }
 
-    match /contracts/{document=**} {
-      allow read, write: if true;
+    // Contracts hold real customer financial/personal data — previously "if true" for
+    // every operation, meaning any visitor, signed in or not, could read/edit/delete any
+    // customer's contract (including its price) straight from the browser. Contract
+    // creation is gated behind login (ContractBuilderGate.tsx), so every contract now
+    // carries its creator's `uid`; a contract from before that field existed falls back to
+    // matching the account's email (case-insensitively, same normalization as isAdmin()).
+    // Customers only ever read their own contracts and create new ones (see
+    // CustomerDashboard.tsx — view + PDF download only); every further edit (status, final
+    // price, admin notes, deletion) happens exclusively from AdminDashboard.tsx, so update
+    // and delete are admin-only.
+    match /contracts/{contractId} {
+      function ownsContract() {
+        return request.auth != null && (
+          resource.data.uid == request.auth.uid ||
+          (!('uid' in resource.data) && resource.data.email.lower() == request.auth.token.email.lower())
+        );
+      }
+      allow read: if isAdmin() || ownsContract();
+      allow create: if isAdmin() ||
+        (request.auth != null && request.resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
     }
 
     // Admin allowlist: a document's ID is the admin's email; its content doesn't matter,

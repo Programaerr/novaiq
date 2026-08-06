@@ -35,5 +35,5 @@ export const ContractBuilderGate: React.FC<ContractBuilderGateProps> = (props) =
     return <AdminLogin language={props.language || 'ar'} />;
   }
 
-  return <ContractBuilder {...props} accountEmail={user.email} />;
+  return <ContractBuilder {...props} accountEmail={user.email} accountUid={user.uid} />;
 };

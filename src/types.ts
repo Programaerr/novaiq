@@ -38,6 +38,10 @@ export interface Template {
 
 export interface ContractData {
   id?: string;
+  // The creating account's Firebase Auth uid — the basis Firestore security rules use to
+  // confirm a customer owns a contract (see firestore.rules). Optional because contracts
+  // created before this field existed don't have it; those fall back to an email match.
+  uid?: string;
   contractNumber: string;
   companyName: string;
   crNumber: string; // Commercial Register number

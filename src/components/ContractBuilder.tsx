@@ -29,6 +29,7 @@ interface ContractBuilderProps {
   initialCustomFeaturesText?: string;
   initialPrimaryColor?: string;
   accountEmail?: string | null;
+  accountUid?: string | null;
 }
 
 const PRESET_COLORS = [
@@ -48,6 +49,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   initialCustomFeaturesText,
   initialPrimaryColor,
   accountEmail,
+  accountUid,
 }) => {
   const lang: Language = language;
   const isAr = lang === 'ar';
@@ -339,6 +341,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     });
 
     const contractData: ContractData = {
+      // Conditionally spread (not `uid: accountUid || undefined`) — Firestore's setDoc
+      // throws on an explicit `undefined` field value, so the key must be entirely absent
+      // rather than present-with-undefined when there's no account uid.
+      ...(accountUid ? { uid: accountUid } : {}),
       contractNumber,
       companyName,
       crNumber,
