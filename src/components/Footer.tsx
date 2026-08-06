@@ -10,6 +10,15 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) => {
+  const social = useSocialLinks();
+  const socialButtons = [
+    { href: social.facebook, Icon: Facebook, label: 'Facebook' },
+    { href: social.instagram, Icon: Instagram, label: 'Instagram' },
+    { href: social.twitter, Icon: Twitter, label: 'X (Twitter)' },
+    { href: social.tiktok, Icon: Music2, label: 'TikTok' },
+    { href: social.whatsapp ? whatsappLink(social.whatsapp) : undefined, Icon: MessageCircle, label: 'WhatsApp' },
+  ].filter((s): s is { href: string; Icon: typeof Facebook; label: string } => !!s.href);
+
   const handleLinkClick = (pageId: string, e: React.MouseEvent) => {
     e.preventDefault();
     if (onNavigate) {
@@ -105,6 +114,26 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
                 <span>www.novaiq.space</span>
               </div>
             </div>
+
+            {/* Social & WhatsApp — admin-configured (AdminDashboard's Settings tab), so this
+                whole row simply disappears until at least one link is actually set. */}
+            {socialButtons.length > 0 && (
+              <div className="flex items-center gap-2 pt-1">
+                {socialButtons.map(({ href, Icon, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    title={label}
+                    className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
