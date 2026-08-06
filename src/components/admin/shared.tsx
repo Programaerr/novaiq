@@ -1,0 +1,94 @@
+// Small pieces every admin tab reuses: the status ordering, three presentational primitives,
+// and the shape of the stats the shell computes once and hands down. Split out of
+// AdminDashboard.tsx so each tab file imports what it needs instead of all of them living in
+// one module.
+
+import React from 'react';
+import { ContractData } from '../../types';
+import { translateText } from '../../lib/i18n';
+import { STATUS_FLOW, StatTile, TabButton, BarRow, statusArabic } from './shared';
+
+export const STATUS_FLOW: ContractData['status'][] = ['submitted', 'under_review', 'in_development', 'completed'];
+
+export function StatTile({ icon: Icon, label, value, accent }: { icon: React.ElementType; label: string; value: string; accent?: string }) {
+  return (
+    <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+      <div className="space-y-1 min-w-0">
+        <span className="text-[11px] text-zinc-400 block font-medium truncate">{label}</span>
+        <div className={`text-xl font-extrabold font-mono truncate ${accent || 'text-white'}`}>{value}</div>
+      </div>
+      <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shrink-0">
+        <Icon className="w-5 h-5" />
+      </div>
+    </div>
+  );
+}
+
+export function TabButton({
+  tabItem,
+  active,
+  onClick,
+  full,
+}: {
+  tabItem: { id: string; label: string; icon: React.ElementType };
+  active: boolean;
+  onClick: () => void;
+  full?: boolean;
+}) {
+  const Icon = tabItem.icon;
+  return (
+    <button
+      onClick={onClick}
+      className={`${full ? 'w-full' : ''} px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all border ${
+        active
+          ? 'bg-zinc-800 border-white text-white'
+          : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white'
+      }`}
+    >
+      <Icon className="w-4 h-4 shrink-0" />
+      <span>{tabItem.label}</span>
+    </button>
+  );
+}
+
+export function BarRow({ label, count, total, isAr }: { label: string; count: number; total: number; isAr: boolean }) {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="text-zinc-300 truncate">{label}</span>
+        <span className="text-zinc-400 font-mono shrink-0">{count} ({pct}%)</span>
+      </div>
+      <div className="h-1.5 rounded-full bg-zinc-900 overflow-hidden">
+        <div className={`h-full bg-white/70 rounded-full`} style={{ width: `${pct}%`, [isAr ? 'marginLeft' : 'marginRight']: 'auto' }} />
+      </div>
+    </div>
+  );
+}
+
+export function statusArabic(status: ContractData['status']): string {
+  // translateText() looks entries up by their Arabic literal — these mirror the ones the
+  // rest of the app already stores in ContractData.status.
+  switch (status) {
+    case 'submitted':
+      return 'تم تقديم العقد';
+    case 'under_review':
+      return 'قيد المراجعة الفنية';
+    case 'in_development':
+      return 'قيد التطوير والتنفيذ';
+    case 'completed':
+      return 'مكتمل ومسلم';
+    default:
+      return 'مسودة';
+  }
+}
+
+/** The aggregate the shell computes from the live contract list and passes to the tabs. */
+export interface AdminStats {
+  totalIQD: number;
+  count: number;
+  byStatus: Record<string, number>;
+  byPaymentPlan: Record<string, number>;
+  topTemplates: [string, number][];
+  avgIQD: number;
+}

@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "src/components/AdminDashboard.tsx": {
-    "mtime": 1786016800.6471536,
-    "ast_hash": "b6d42e899ad795416c8b97cfc2c1558a",
+    "mtime": 1786032536.940288,
+    "ast_hash": "802d396b118851b8380cb288f1fb13cb",
     "semantic_hash": ""
   },
   "src/components/AdminLogin.tsx": {
@@ -372,6 +372,41 @@
   "src/assets/images/novaiq-logo-cropped.png": {
     "mtime": 1785756973.8125572,
     "ast_hash": "741dccb135d5ae4fec30ad40d16261c0",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ContractsTab.tsx": {
+    "mtime": 1786032523.4030983,
+    "ast_hash": "36fbc85b3c21bef2165f06a1c77a5993",
+    "semantic_hash": ""
+  },
+  "src/components/admin/MembersTab.tsx": {
+    "mtime": 1786032523.4990685,
+    "ast_hash": "56e31d0a22b8ae3128c378ec4958a3e7",
+    "semantic_hash": ""
+  },
+  "src/components/admin/OverviewTab.tsx": {
+    "mtime": 1786032523.3566816,
+    "ast_hash": "500d470b729159a259eddb2733d051c3",
+    "semantic_hash": ""
+  },
+  "src/components/admin/PricingTab.tsx": {
+    "mtime": 1786032523.439713,
+    "ast_hash": "8f3defbbb057f2d1a7348d33741b0860",
+    "semantic_hash": ""
+  },
+  "src/components/admin/SettingsTab.tsx": {
+    "mtime": 1786032523.5198877,
+    "ast_hash": "06423cf94812c318e7eff4c33d828bf4",
+    "semantic_hash": ""
+  },
+  "src/components/admin/TeamTab.tsx": {
+    "mtime": 1786032523.4686196,
+    "ast_hash": "022264347b9afeefc411a38c7a79800d",
+    "semantic_hash": ""
+  },
+  "src/components/admin/shared.tsx": {
+    "mtime": 1786032523.5344472,
+    "ast_hash": "bb0da1c5d4fb966aaa3cedd54ca021ce",
     "semantic_hash": ""
   }
 }

@@ -4,7 +4,7 @@
   "2": "scripts",
   "3": "package.json",
   "4": "devDependencies",
-  "5": "CustomerDashboard.tsx",
+  "5": "ContractsTab.tsx",
   "6": "dependencies",
   "7": "TemplateInteractiveSandbox.tsx",
   "8": "compilerOptions",
@@ -36,5 +36,6 @@
   "34": "graphify reference: transcribe video and audio",
   "35": "CLAUDE.md",
   "36": ".claude/CLAUDE.md",
-  "37": "extraction-spec.md"
+  "37": "extraction-spec.md",
+  "38": "autoTranslate.ts"
 }
