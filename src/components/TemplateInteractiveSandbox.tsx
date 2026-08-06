@@ -2756,7 +2756,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <div className="p-4 rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/20 space-y-2">
                     <h4 className="text-xs font-bold text-slate-300 font-mono" dir="ltr">## basic_plan</h4>
                     <div className={`text-base sm:text-lg font-bold ${themeStyle.primaryText} font-mono`}>
-                      {selectedPlan === 'monthly' ? '250,000 د.ع / شهرياً' : '2,400,000 د.ع / سنوياً'}
+                      {selectedPlan === 'monthly'
+                        ? (language === 'ar' ? '250,000 د.ع / شهرياً' : '250,000 IQD / month')
+                        : (language === 'ar' ? '2,400,000 د.ع / سنوياً' : '2,400,000 IQD / year')}
                     </div>
                     <ul className="text-[11px] text-slate-400 space-y-1 font-mono">
                       <li>✔ ربط حتى 5 مستخدمين</li>
@@ -2770,7 +2772,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </span>
                     <h4 className="text-xs font-bold text-white font-mono" dir="ltr">## pro_plan</h4>
                     <div className={`text-base sm:text-lg font-bold ${themeStyle.primaryText} font-mono`}>
-                      {selectedPlan === 'monthly' ? '600,000 د.ع / شهرياً' : '5,800,000 د.ع / سنوياً'}
+                      {selectedPlan === 'monthly'
+                        ? (language === 'ar' ? '600,000 د.ع / شهرياً' : '600,000 IQD / month')
+                        : (language === 'ar' ? '5,800,000 د.ع / سنوياً' : '5,800,000 IQD / year')}
                     </div>
                     <ul className="text-[11px] text-slate-300 space-y-1 font-mono">
                       <li>✔ مستخدمين غير محدودين</li>
