@@ -268,10 +268,22 @@ export default function App() {
         setCurrency={setCurrency}
       />
 
-      {/* Main Content View with Hardware Accelerated Transitions. Extra top padding kicks
-          in on every non-home page to clear the floating PageBackBar below (fixed/floating,
-          so it no longer pushes content down on its own like a normal in-flow element would). */}
-      <main className={`flex-1 relative z-10 pb-8 ${activePage === 'home' ? 'pt-20 sm:pt-24 md:pt-28' : 'pt-30 sm:pt-38 md:pt-46'}`}>
+      {/* Main Content View with Hardware Accelerated Transitions. Both bars above are
+          fixed/floating, so they don't push content down like an in-flow element would —
+          this padding is what clears them. It starts --content-gap below whichever bar is
+          lowest: the PageBackBar on inner pages, the Navbar itself on home (where no back
+          bar renders). Both offsets are measured at runtime rather than hardcoded per
+          breakpoint, so a change to either bar's own size re-flows the page automatically
+          instead of silently overlapping it. */}
+      <main
+        style={{
+          paddingTop:
+            activePage === 'home'
+              ? 'calc(var(--nav-bottom, 74px) + var(--content-gap))'
+              : 'calc(var(--backbar-bottom, 126px) + var(--content-gap))',
+        }}
+        className="flex-1 relative z-10 pb-8"
+      >
 
         {/* Back/Home bar — every page other than home gets one, pinned right under the
             Navbar, since the hamburger drawer alone wasn't a clear enough "how do I leave

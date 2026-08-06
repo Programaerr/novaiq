@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
+import { useFloatingBarBottom } from '../lib/useFloatingBarBottom';
 import { NovaiqLogo } from './NovaiqLogo';
 
 // The nav toggle's icon: three uneven bars that settle toward an even split on hover, and
@@ -64,6 +65,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useRef<HTMLDivElement | null>(null);
+  // Deliberately the glass pill, not the <header>: the drawer is a child of <header>, so
+  // measuring the header would make everything below the navbar jump down whenever the menu
+  // is opened. The pill is the actual bar, and the drawer is its sibling.
+  const barRef = useRef<HTMLDivElement | null>(null);
   // undefined = the initial auth check hasn't resolved yet. Left this way (instead of
   // defaulting to false) so an already-logged-in visitor never sees the page flash
   // "Login" for a moment before flipping to "My Account" — the skeleton bridges that gap.
@@ -71,6 +76,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarBroken, setAvatarBroken] = useState(false);
   const isAr = language === 'ar';
+
+  // Everything below the navbar (PageBackBar, page content) positions itself off this.
+  useFloatingBarBottom(barRef, '--nav-bottom');
 
   // Lightweight presence check only — just enough to swap "Login" for "My Account" in the
   // nav (using the Google account's own profile photo instead of an icon+label once signed
@@ -156,11 +164,17 @@ export const Navbar: React.FC<NavbarProps> = ({
     // menu/language on the physical right, account/login on the physical left — and then kept
     // permanently fixed in that arrangement regardless of language. Only the drawer's own text
     // content flips reading direction internally (see dir on the drawer panel).
-    <header dir="ltr" className="fixed top-3 left-0 right-0 z-50 w-full max-w-7xl mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
+    // top-3 on mobile is left exactly as tuned; sm:top-2 lifts the whole bar 4px on larger
+    // screens, where there was more dead space above it. Everything underneath re-derives
+    // from the measured bottom edge, so this one value is all that needs changing.
+    <header dir="ltr" className="fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-7xl mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
       {/* pb trimmed below pt on mobile only (sm+ restores the even p-3) — shrinks the bar's
           own footprint from its bottom edge so it clears whatever sits just beneath it on
           small screens (e.g. PageBackBar) without moving its top position at all. */}
-      <div className="bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl pt-3 pb-2 px-3 sm:p-3 sm:px-6 shadow-2xl shadow-black flex items-center justify-between gap-3 relative">
+      <div
+        ref={barRef}
+        className="bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl pt-3 pb-2 px-3 sm:p-3 sm:px-6 shadow-2xl shadow-black flex items-center justify-between gap-3 relative"
+      >
 
         {/* Side 1 (physical left): Account — before login, a single "Login" entry point
             (Google sign-in covers both login and first-time sign-up in one click, so a
