@@ -13,17 +13,11 @@ service-account*.json
 _*.mjs
 _*.png
 
-# graphify's own build cache (per-file AST cache, mtime/hash index) and its automatic
-# dated backup snapshots — both regenerate locally and would just bloat the repo. The
-# actual deliverables (graph.json, graph.html, GRAPH_REPORT.md, etc.) are committed on
-# purpose so the team shares one graph instead of everyone running the tool themselves.
-graphify-out/cache/
-graphify-out/20*/
-# Per-run intermediate sidecars (detect/extract/AST/semantic/analysis) — deleted at the
-# end of every run (Step 9), not deliverables. A few got committed by mistake early on;
-# excluding them here stops them from reappearing as noisy deletions on every rebuild.
-graphify-out/.graphify_detect.json
-graphify-out/.graphify_extract.json
-graphify-out/.graphify_ast.json
-graphify-out/.graphify_semantic.json
-graphify-out/.graphify_analysis.json
+# graphify-out/ is 100% derived from source — nothing in it is hand-edited. It used to be
+# committed deliberately so both of us shared one graph, but a shared *generated* directory
+# means every independent local rebuild is a guaranteed future conflict: it corrupted itself
+# with raw `<<<<<<<` markers twice in one evening once GitDoc started auto-syncing, once badly
+# enough to spill into real source (TemplateInteractiveSandbox.tsx got merge-mangled along
+# with it). Untracked, it can never appear in a merge at all — same treatment as node_modules/
+# or dist/. Each of us just runs `graphify update .` locally whenever we want a current graph.
+graphify-out/

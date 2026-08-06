@@ -1,22 +1,14 @@
-# graphify's outputs are generated artifacts that both of us regenerate locally, so every
-# pull tried to text-merge two independently-rebuilt graphs and injected conflict markers
-# straight into them — twice in one evening, each time leaving graph.json unparseable and the
-# `graphify query` path dead until it was rebuilt by hand.
+# graphify-out/ moved to .gitignore entirely (untracked can't conflict, full stop) — no merge
+# attribute needed for it here anymore.
 #
-# `merge=ours` (declared for real below via .githooks' setup, see package.json's "prepare"
-# script) makes a conflict on these paths auto-resolve to whichever side is already checked
-# out, silently, with no markers and no pause — the correct behavior for a generated file was
-# never a line-by-line merge anyway. Whoever wants a fresh graph after a pull just reruns
-# `graphify update .`; nothing here blocks GitDoc's auto-sync from continuing to run.
-graphify-out/graph.json            merge=ours -diff
-graphify-out/graph.html            merge=ours -diff
-graphify-out/GRAPH_REPORT.md       merge=ours
-graphify-out/manifest.json         merge=ours
-graphify-out/.graphify_labels.json merge=ours
-graphify-out/.graphify_labels.json.sig merge=ours
-
-# Lockfiles have the same problem for the same reason.
-package-lock.json merge=ours
+# package-lock.json is different from graphify-out in one important way: it isn't disposable.
+# A conflict there usually means the other person genuinely added/updated a dependency, and
+# silently keeping "our" side (merge=ours) would hide that change rather than just avoid noise
+# — the machine that kept its stale lockfile would then be missing a package with no warning.
+# So this stays plain: -merge just flags the conflict instead of splicing it line-by-line, and
+# the pre-commit hook below stops that flagged state from ever being auto-committed. Resolving
+# it correctly is just: take theirs, then `npm install` to regenerate cleanly.
+package-lock.json -merge
 
 # Shell hooks must keep LF endings on every platform — a CRLF shebang line can fail to execute
 # under Git Bash / WSL, silently turning the safety hook below into a no-op.
