@@ -3819,9 +3819,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     />
                     <button
                       onClick={() => {
-                        const amountStr = Number(transferAmount).toLocaleString();
                         setTransfersLog(prev => [
-                          { id: `TX-${Math.floor(10000 + Math.random() * 90000)}`, amount: `${amountStr} د.ع`, date: new Date().toISOString().split('T')[0], recipient: 'تحويل سريع مباشر' },
+                          { id: `TX-${Math.floor(10000 + Math.random() * 90000)}`, amountIQD: Number(transferAmount) || 0, date: new Date().toISOString().split('T')[0], recipient: 'تحويل سريع مباشر' },
                           ...prev
                         ]);
                         cosmicAudio.playPing();
@@ -4013,7 +4012,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-FINTECH-06':
         return transfersLog.map((t) => ({
           id: t.id, title: t.recipient, subtitle: 'تحويل صادر',
-          meta: t.date, status: 'تم التنفيذ', amount: t.amount,
+          meta: t.date, status: 'تم التنفيذ', amount: price(t.amountIQD),
         }));
 
       case 'NVQ-CORP-01': {
