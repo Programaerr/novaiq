@@ -69,7 +69,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
               <button
                 onClick={this.handleResetState}
-                className="nq-btn nq-btn--ghost w-full py-3 px-6 rounded-xl font-semibold text-xs cursor-pointer"
+                className="nq-btn nq-btn--solid w-full py-3 px-6 rounded-xl font-semibold text-xs cursor-pointer"
               >
                 <span className="nq-btn-beam" aria-hidden="true" />
                 العودة إلى الصفحة الرئيسية

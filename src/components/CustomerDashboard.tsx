@@ -76,7 +76,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
         </div>
         <button
           onClick={() => setShowLogoutConfirm(true)}
-          className="nq-btn nq-btn--ghost px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shrink-0"
+          className="nq-btn nq-btn--solid px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shrink-0"
         >
           <span className="nq-btn-beam" aria-hidden="true" />
           <LogOut className="w-4 h-4" />

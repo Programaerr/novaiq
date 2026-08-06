@@ -148,7 +148,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
 
           <button
             onClick={onClose}
-            className="nq-btn nq-btn--ghost p-2 rounded-xl cursor-pointer"
+            className="nq-btn nq-btn--solid p-2 rounded-xl cursor-pointer"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
             <X className="w-5 h-5" />
@@ -285,7 +285,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
 
             <button
               onClick={onFinish}
-              className="nq-btn nq-btn--ghost w-full sm:w-auto px-8 py-3 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer"
+              className="nq-btn nq-btn--solid w-full sm:w-auto px-8 py-3 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer"
             >
               <span className="nq-btn-beam" aria-hidden="true" />
               <CheckCircle2 className="w-5 h-5" />

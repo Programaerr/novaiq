@@ -18,7 +18,6 @@ interface MilestoneTimelineProps {
 }
 
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateContract, language = 'ar' }) => {
-  const ctaSpotlight = useSpotlight<HTMLButtonElement>();
   const cardSpotlight = useSpotlight<HTMLDivElement>();
 
   const milestones = [
@@ -177,14 +176,12 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
               onCreateContract();
               cosmicAudio.playWarp();
             }}
-            {...ctaSpotlight}
-            className="glow-cta-btn nq-btn px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full text-white font-extrabold uppercase tracking-[0.1em] transition-all inline-flex items-center cursor-pointer"
+            className="nq-btn nq-btn--solid px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full font-extrabold uppercase tracking-[0.1em] inline-flex items-center cursor-pointer"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
-            <span className="cta-spotlight" />
-            <Rocket className="relative z-10 w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            <span className="relative z-10">{language === 'ar' ? 'ابدأ تنفيذ مشروعك ووقع العقد الآن' : 'Start Your Project & Sign Contract Now'}</span>
-            <ArrowLeft className={`relative z-10 w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
+            <Rocket className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>{language === 'ar' ? 'ابدأ تنفيذ مشروعك ووقع العقد الآن' : 'Start Your Project & Sign Contract Now'}</span>
+            <ArrowLeft className={`w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
           </button>
         </div>
 

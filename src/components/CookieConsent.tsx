@@ -50,7 +50,7 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ language, onNaviga
           <button
             type="button"
             onClick={() => handleChoice(false)}
-            className="nq-btn nq-btn--ghost flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
+            className="nq-btn nq-btn--solid flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
             {isAr ? 'رفض' : 'Reject'}

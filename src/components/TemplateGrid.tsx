@@ -498,8 +498,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           }
                           cosmicAudio.playPing();
                         }}
-                        className="border-beam-btn w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="nq-btn w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
                       >
+                        <span className="nq-btn-beam" aria-hidden="true" />
                         <Globe className="w-3.5 h-3.5 text-zinc-300" />
                         <span>{currentLang === 'ar' ? 'موقع منفصل' : 'Full Site'}</span>
                       </button>
@@ -509,8 +510,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           onSelectTemplateForContract(template);
                           cosmicAudio.playWarp();
                         }}
-                        className="border-beam-btn w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
+                        className="nq-btn w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
                       >
+                        <span className="nq-btn-beam" aria-hidden="true" />
                         <FileSignature className="w-3.5 h-3.5 text-black" />
                         <span>{getTranslation('selectForContract', currentLang)}</span>
                       </button>

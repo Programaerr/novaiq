@@ -24,7 +24,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onCreateContract,
   language,
 }) => {
-  const ctaSpotlight = useSpotlight<HTMLButtonElement>();
   const cardSpotlight = useSpotlight<HTMLDivElement>();
 
   // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
@@ -145,24 +144,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           
           <button
             onClick={onExploreTemplates}
-            {...ctaSpotlight}
-            className="glow-cta-btn nq-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+            className="nq-btn nq-btn--solid w-full sm:w-auto px-8 py-3.5 rounded-full font-extrabold text-sm flex items-center justify-center gap-2.5 cursor-pointer"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
-            <span className="cta-spotlight" />
-            <Rocket className="relative z-10 w-4 h-4 text-white" />
-            <span className="relative z-10">{language === 'ar' ? 'استكشاف القوالب الجاهزة' : 'Explore Ready Templates'}</span>
+            <Rocket className="w-4 h-4" />
+            <span>{language === 'ar' ? 'استكشاف القوالب الجاهزة' : 'Explore Ready Templates'}</span>
           </button>
 
           <button
             onClick={onCreateContract}
-            {...ctaSpotlight}
-            className="glow-cta-btn nq-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm transition-all flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
+            className="nq-btn nq-btn--solid w-full sm:w-auto px-8 py-3.5 rounded-full font-extrabold text-sm flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
-            <span className="cta-spotlight" />
-            <FileText className="relative z-10 w-4 h-4 text-white" />
-            <span className="relative z-10">{language === 'ar' ? 'ابدأ مشروعك' : 'START YOUR Project'}</span>
+            <FileText className="w-4 h-4" />
+            <span>{language === 'ar' ? 'ابدأ مشروعك' : 'START YOUR Project'}</span>
           </button>
         </div>
 
@@ -175,7 +170,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             type="button"
             onClick={() => rotateBy(-WHEEL_STEP)}
             aria-label={language === 'ar' ? 'التالي' : 'Next'}
-            className="nq-btn nq-btn--ghost hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
+            className="nq-btn nq-btn--solid hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
             <ChevronRight className="w-4 h-4 ltr:rotate-180" />
@@ -221,7 +216,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             type="button"
             onClick={() => rotateBy(WHEEL_STEP)}
             aria-label={language === 'ar' ? 'السابق' : 'Previous'}
-            className="nq-btn nq-btn--ghost hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
+            className="nq-btn nq-btn--solid hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
             <ChevronLeft className="w-4 h-4 ltr:rotate-180" />

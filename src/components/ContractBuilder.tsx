@@ -916,7 +916,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="nq-btn nq-btn--ghost px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
+                className="nq-btn nq-btn--solid px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
               >
                 <span className="nq-btn-beam" aria-hidden="true" />
                 <ArrowRight className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />

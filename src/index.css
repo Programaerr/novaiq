@@ -336,16 +336,18 @@
    filter pill above: a beam traces the outline, the surface shifts, and the control
    lifts — then presses in when clicked.
 
-   .nq-btn carries ONLY the interaction, never a surface. That's what lets it layer
-   onto a button that already has a look of its own (see .glow-cta-btn, which keeps
-   its neon body and pointer-tracked spotlight and simply gains the beam) as well as
-   onto plain ones, which pick a surface with .nq-btn--solid (primary action) or
-   .nq-btn--ghost (secondary / icon). One system, three ways in — rather than each
-   button reinventing its own hover.
+   .nq-btn carries ONLY the interaction, never a surface. Pair it with .nq-btn--solid
+   for the white body every button on the site now shares, or use it bare on a button
+   that must keep a look of its own — the two template-card actions do exactly that,
+   taking the beam while staying dark/white to tell "preview" and "order" apart.
 
    Triggers are :hover, :focus-visible AND :active. :active is the important one:
    touch screens have no hover at all, so it's what gives a finger tap the same
    feedback a mouse gets, matching the touch parity the spotlight cards already have.
+
+   This replaced three separate one-off button treatments (a neon CTA pill, a blurred
+   static border halo, and a pointer-tracked CTA spotlight), all now deleted — they
+   were the reason no two buttons on the site responded the same way.
 
    .filter-pill-btn stays its own rule on purpose — it belongs to the templates page,
    which is outside this refactor — but the surface values here mirror it exactly, so
@@ -473,26 +475,9 @@
     0 10px 26px rgba(0, 0, 0, 0.45);
 }
 
-/* Secondary surface. Deliberately a translucent white wash rather than a solid zinc
-   fill: these sit on plain page background in some places and inside the floating glass
-   bars in others, and a wash reads correctly on both instead of stamping an opaque box
-   inside the glass. It brightens on interaction rather than inverting to white — the beam
-   is white, so a white surface would swallow it. */
-.nq-btn--ghost {
-  background: rgba(255, 255, 255, 0.06);
-  color: #d4d4d8;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-}
-
-.nq-btn--ghost:hover,
-.nq-btn--ghost:focus-visible,
-.nq-btn--ghost:active {
-  background: rgba(255, 255, 255, 0.14);
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
-}
+/* There is deliberately no second "secondary/ghost" surface. Every button outside the
+   templates page uses --solid, so a cancel and a confirm differ by their label and
+   position, not by weight — that uniformity is the point of this system. */
 
 /* The lift and the spin are decorative; the surface change alone still communicates
    "this responded", so honour a reduced-motion preference by dropping just the movement. */
@@ -708,104 +693,6 @@
   background: linear-gradient(135deg, transparent 47%, rgba(255, 255, 255, 0.55) 50%, transparent 53%);
   animation: corner-sweep 4s linear infinite;
   pointer-events: none;
-}
-
-/* Glow CTA button — dark glass pill with a white neon border, a faint speckled texture,
-   and a soft light pooling underneath, like the light were a physical source behind it.
-   .cta-spotlight is a real child element (not a pseudo-element, since ::before/::after
-   are already spoken for) carrying a circular light that follows the cursor on hover —
-   same --spot-x/--spot-y mechanic as the homepage spotlight cards. */
-.glow-cta-btn {
-  position: relative;
-  z-index: 0;
-  background: linear-gradient(180deg, #1c1c1f 0%, #050505 100%);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
-    0 0 18px rgba(255, 255, 255, 0.2),
-    0 8px 28px rgba(0, 0, 0, 0.5);
-  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
-}
-
-.glow-cta-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.9) 1px, transparent 1px);
-  background-size: 16px 16px;
-  background-position: 4px 6px;
-  opacity: 0.06;
-  pointer-events: none;
-}
-
-.glow-cta-btn::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -16px;
-  transform: translateX(-50%);
-  width: 65%;
-  height: 26px;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.5), transparent 72%);
-  filter: blur(7px);
-  pointer-events: none;
-  z-index: -1;
-}
-
-.glow-cta-btn:hover {
-  border-color: rgba(255, 255, 255, 0.7);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-    0 0 28px rgba(255, 255, 255, 0.4),
-    0 10px 34px rgba(0, 0, 0, 0.6);
-}
-
-.cta-spotlight {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(90px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.55), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.glow-cta-btn:hover .cta-spotlight,
-.glow-cta-btn.spotlight-touch .cta-spotlight {
-  opacity: 1;
-}
-
-/* Border beam — a soft white halo glowing around the button's own perimeter on hover,
-   following the exact rounded shape. Drawn by masking a solid white square down to just
-   its edge (content-box XOR border-box leaves only the padding strip) and blurring that
-   ring, rather than a box-shadow — box-shadow would just overwrite the box-shadow that
-   glow-white-hover/white-btn-glow already put on these same buttons instead of layering
-   with it, since only one box-shadow declaration wins per element. Pure CSS (no JS/angle
-   needed here — a solid ring looks the same from any "angle"). */
-.border-beam-btn {
-  position: relative;
-  z-index: 0;
-}
-
-.border-beam-btn::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  padding: 3px;
-  background: #fff;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  filter: blur(4px);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.border-beam-btn:hover::after {
-  opacity: 1;
 }
 
 /* Navbar wordmark: NAME → mark → "Design" — both text pieces are hidden until hover, then
