@@ -331,7 +331,7 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
     storageTiers: [{ gb: 128, priceIQD: 420000 }, { gb: 256, priceIQD: 490000 }],
     colors: ['أزرق فاتح', 'أسود', 'بنفسجي'],
     imageBg: 'from-cyan-900/70 to-slate-950',
-    image: UNSPLASH('photo-1585060544812-6b45742d762f'),
+    image: UNSPLASH('photo-1580910051074-3eb694886505'),
     tagline: 'كل المزايا، بأقل سعر.',
     specs: ['شاشة 6.6 بوصة', 'كاميرا 50 ميغا', 'بطارية 5000 mAh', 'مقاوم للماء IP67'],
   },

@@ -84,13 +84,17 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
                 />
                 {/* Fades the photo into the tint so the panel reads as one surface, not a banner. */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
-                {phone.badge && (
-                  <span className={`absolute top-3 start-3 px-2.5 py-1 rounded-full ${themeStyle.badgeBg} ${themeStyle.primaryText} text-[10px] font-bold backdrop-blur-md`}>
-                    {phone.badge}
-                  </span>
-                )}
-                {/* dir=ltr so the neutral punctuation doesn't get re-ordered by the RTL context. */}
-                <span dir="ltr" className="absolute top-3 end-3 font-mono text-[11px] tracking-[0.35em] text-white/70" aria-hidden="true">+◆–</span>
+                {/* Badge and mark share one justified row rather than opposite corners, so they
+                    can't collide whichever way the surrounding direction resolves. */}
+                <div className="absolute top-3 inset-x-3 flex items-start justify-between gap-2">
+                  {phone.badge ? (
+                    <span className={`px-2.5 py-1 rounded-full ${themeStyle.badgeBg} ${themeStyle.primaryText} text-[10px] font-bold backdrop-blur-md`}>
+                      {phone.badge}
+                    </span>
+                  ) : <span />}
+                  {/* dir=ltr so the neutral punctuation isn't re-ordered by the RTL context. */}
+                  <span dir="ltr" className="font-mono text-[11px] tracking-[0.35em] text-white/70" aria-hidden="true">+◆–</span>
+                </div>
               </div>
 
               <div className="p-4 space-y-2.5">
