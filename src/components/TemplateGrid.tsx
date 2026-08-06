@@ -230,7 +230,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             itself is `absolute`, so opening it floats a glass panel over the templates
             instead of pushing them down the page. */}
         <div ref={filterBarRef} className="relative mb-6">
-          <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 p-3 sm:p-4">
+          {/* bg-white/5 + backdrop-blur-xl used to leave this bar almost see-through, forcing
+              the heaviest (24px) blur tier to do all the work of hiding what's scrolling
+              behind it — recomputed every scroll frame, which is exactly the kind of GPU cost
+              CosmicBackground's own glow comment warns about. Navbar's pill and PageBackBar
+              solve the identical "glass bar sitting over scrolling content" problem with a
+              much denser fill (55% black) at a cheaper 12px blur — same frosted look, far
+              less to recompute per frame. Reusing that proven combo here instead of a bespoke
+              one. */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 shadow-xl shadow-black/20 p-3 sm:p-4">
             <button
               onClick={(e) => {
                 setShowFilterPanel(!showFilterPanel);
