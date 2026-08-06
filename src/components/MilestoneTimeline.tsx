@@ -128,10 +128,8 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                   </span>
                 </div>
 
-                {/* Title — text-right explicitly, not just inherited from dir, so English
-                    keeps the same right-aligned look as Arabic instead of switching to
-                    the standard LTR left-alignment. */}
-                <div className="text-right">
+                {/* Title */}
+                <div>
                   <h3 className="text-lg font-bold text-white mb-2">
                     {ms.phaseTitle}
                   </h3>
