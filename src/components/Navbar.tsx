@@ -147,7 +147,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="fixed top-3 left-0 right-0 z-50 w-full max-w-7xl mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
+    // dir="ltr" is forced here on purpose, independent of the active language — the whole
+    // point is that the navbar's physical layout (menu button on the left, drawer opening
+    // from the left, account/login on the right) never mirrors when switching languages, so
+    // the site doesn't visually "jump" every time someone toggles AR/EN. Only the drawer's
+    // own text content flips reading direction internally (see dir on the drawer panel).
+    <header dir="ltr" className="fixed top-3 left-0 right-0 z-50 w-full max-w-7xl mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
       <div className="bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl p-3 sm:px-6 shadow-2xl shadow-black flex items-center justify-between gap-3 relative">
         
         {/* Side 1: Menu & Navigation Triggers */}
@@ -245,7 +250,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       {menuDrawerOpen && (
         <div
           ref={drawerRef}
-          className="absolute top-full mt-3 rtl:right-3 sm:rtl:right-6 ltr:left-3 sm:ltr:left-6 w-80 max-h-[75vh] overflow-y-auto bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in"
+          dir={isAr ? 'rtl' : 'ltr'}
+          className="absolute top-full mt-3 left-3 sm:left-6 w-80 max-h-[75vh] overflow-y-auto bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in"
         >
           {/* No close control here — the toggle button already becomes an X once the
               drawer is open, so a second one here would just be the same action twice.
