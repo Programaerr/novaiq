@@ -14,6 +14,7 @@ const OVERRIDES_COLLECTION = 'pricing_overrides';
 export interface PricingOverride {
   title?: string;
   previewImage?: string;
+  demoUrl?: string;
   basePriceIQD?: number;
   basePriceUSD?: number;
   specPriceIQD?: Record<string, number>;
@@ -51,6 +52,7 @@ export function applyPricingOverrides(
       ...t,
       title: o.title ?? t.title,
       previewImage: o.previewImage ?? t.previewImage,
+      demoUrl: o.demoUrl ?? t.demoUrl,
       basePriceIQD: o.basePriceIQD ?? t.basePriceIQD,
       basePriceUSD: o.basePriceUSD ?? t.basePriceUSD,
       specificationsOptions: t.specificationsOptions.map((spec) => ({
