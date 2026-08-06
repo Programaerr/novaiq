@@ -160,8 +160,8 @@
     "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
-    "mtime": 1786004761.8799422,
-    "ast_hash": "ea98d6511198bf50c14eeea19bcdabce",
+    "mtime": 1786032366.32244,
+    "ast_hash": "3214c4720c24cbc167da8e6d0c643aa6",
     "semantic_hash": ""
   },
   "src/components/TemplateLivePage.tsx": {
@@ -362,6 +362,16 @@
   "src/assets/images/novaiq-logo-cropped.png": {
     "mtime": 1785756973.8125572,
     "ast_hash": "741dccb135d5ae4fec30ad40d16261c0",
+    "semantic_hash": ""
+  },
+  "src/components/sandbox/SandboxChrome.tsx": {
+    "mtime": 1786032303.4838789,
+    "ast_hash": "2319fed21009ec77f6f3f801f263314e",
+    "semantic_hash": ""
+  },
+  "src/data/sandboxDemoData.ts": {
+    "mtime": 1786032303.4797306,
+    "ast_hash": "cc8d29002b190e30f77f3fee16e4610c",
     "semantic_hash": ""
   }
 }
