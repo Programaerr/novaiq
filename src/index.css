@@ -630,8 +630,16 @@
    rather than the brand overlapping a control. */
 @media (max-width: 380px) {
   .navbar-logo-name {
-    font-size: 1rem;
-    letter-spacing: 0.08em;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+  }
+}
+
+/* Narrower still and even the stepped-down wordmark overlaps the account button, so the bar
+   falls back to the mark alone — the brand is still present, just without the lettering. */
+@media (max-width: 359px) {
+  .navbar-logo-name {
+    display: none;
   }
 }
 
