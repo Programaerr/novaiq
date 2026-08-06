@@ -233,7 +233,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {menuDrawerOpen && (
         <div
           ref={drawerRef}
-          className="absolute top-full mt-3 rtl:right-3 sm:rtl:right-6 ltr:left-3 sm:ltr:left-6 w-80 bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in"
+          className="absolute top-full mt-3 rtl:right-3 sm:rtl:right-6 ltr:left-3 sm:ltr:left-6 w-80 max-h-[75vh] overflow-y-auto bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in"
         >
           {/* No close control here — the toggle button already becomes an X once the
               drawer is open, so a second one here would just be the same action twice.
@@ -255,18 +255,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={item.id}
                   href={item.href}
                   onClick={(e) => handleNavClick(item.id, e)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-xs transition-all cursor-pointer ${
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer ${
                     isActive
                       ? 'bg-white text-black font-bold shadow-lg'
                       : 'text-zinc-300 font-medium hover:bg-zinc-900 hover:text-white'
                   }`}
                 >
                   <span
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all ${
                       isActive ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-4 h-4" />
                   </span>
                   <span>{item.label}</span>
                 </a>
@@ -274,37 +274,30 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </div>
 
-          <div className="pt-2 border-t border-zinc-800 space-y-2">
-            {/* Language Switcher Button — no backdrop-blur of its own: the drawer panel
-                it sits inside already blurs the page behind it, so a second nested
-                blur here would only add compositing cost with no visible difference. */}
+          {/* Language + Currency — a compact side-by-side pair instead of two full-width
+              stacked rows, so these settings don't push the section list further down and
+              off the visible drawer. No backdrop-blur of their own: the drawer panel they
+              sit inside already blurs the page behind it. */}
+          <div className="pt-2 border-t border-zinc-800 grid grid-cols-2 gap-2">
             <button
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 text-xs font-medium cursor-pointer transition-colors shadow-lg glow-white-hover"
+              title={isAr ? 'لغة المنصة' : 'App Language'}
+              className="flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 cursor-pointer transition-colors shadow-lg glow-white-hover"
             >
-              <span className="flex items-center gap-2.5">
-                <Globe className="w-4 h-4 text-zinc-300" />
-                <span>{isAr ? 'لغة المنصة / Language' : 'App Language / اللغة'}</span>
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-[11px] font-bold border border-white/10">
-                {isAr ? 'العربية (AR)' : 'English (EN)'}
-              </span>
+              <Globe className="w-4 h-4 text-zinc-300" />
+              <span className="font-mono text-[10px] font-bold">{isAr ? 'AR' : 'EN'}</span>
             </button>
 
-            {/* Currency Switcher — independent of language on purpose: the store is fully
-                Iraqi, so switching to English must not silently convert every price to
-                dollars. USD is only ever shown by an explicit choice made here. */}
+            {/* Independent of language on purpose — the store is fully Iraqi, so switching
+                to English must not silently convert every price to dollars. USD only ever
+                shows by an explicit choice made here. */}
             <button
               onClick={() => setCurrency(currency === 'IQD' ? 'USD' : 'IQD')}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 text-xs font-medium cursor-pointer transition-colors shadow-lg glow-white-hover"
+              title={isAr ? 'عملة عرض الأسعار' : 'Display Currency'}
+              className="flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 cursor-pointer transition-colors shadow-lg glow-white-hover"
             >
-              <span className="flex items-center gap-2.5">
-                <DollarSign className="w-4 h-4 text-zinc-300" />
-                <span>{isAr ? 'عملة عرض الأسعار' : 'Display Currency'}</span>
-              </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-[11px] font-bold border border-white/10">
-                {currency === 'IQD' ? (isAr ? 'دينار عراقي (IQD)' : 'Iraqi Dinar (IQD)') : (isAr ? 'دولار أمريكي (USD)' : 'US Dollar (USD)')}
-              </span>
+              <DollarSign className="w-4 h-4 text-zinc-300" />
+              <span className="font-mono text-[10px] font-bold">{currency}</span>
             </button>
           </div>
         </div>
