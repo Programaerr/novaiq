@@ -11001,7 +11001,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/TemplateGrid.tsx",
-      "source_location": "L474",
+      "source_location": "L486",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_templategrid_templategrid",
@@ -16881,5 +16881,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0bd9bf40395337237d50a1ff31c3b5817fd74d7a"
+  "built_at_commit": "08b58c1183f712a431ff4a9cf6dfdb9411f66fb6"
 }

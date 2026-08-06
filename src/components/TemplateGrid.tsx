@@ -160,15 +160,27 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return list;
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery, currentLang]);
 
+  // Compares against the last values it actually saw rather than just firing whenever the
+  // effect runs. Under StrictMode an effect is invoked twice on mount, and a run-counting
+  // guard would burn its one shot on the throwaway first pass — leaving the second pass free
+  // to reset an index the restore below had just set.
+  const lastFilters = useRef({ selectedCategory, maxPriceUSD, sortBy, searchQuery });
   useEffect(() => {
+    const prev = lastFilters.current;
+    if (
+      prev.selectedCategory === selectedCategory &&
+      prev.maxPriceUSD === maxPriceUSD &&
+      prev.sortBy === sortBy &&
+      prev.searchQuery === searchQuery
+    ) return;
+    lastFilters.current = { selectedCategory, maxPriceUSD, sortBy, searchQuery };
     setActiveIndex(0);
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery]);
 
-  // Opening a standalone preview unmounts this whole component (App swaps the tree), so
-  // coming back would otherwise drop the visitor on the first card again rather than the one
-  // they were just looking at. Declared after the reset above so that on a fresh mount this
-  // runs second and wins; the `once` guard keeps it from fighting later filter changes, which
-  // should still snap to the first result.
+  // Opening a standalone preview unmounts this whole component (App swaps the tree out), so
+  // returning would otherwise drop the visitor on the first card rather than the one they
+  // were just looking at. Only claims the position once, so changing a filter afterwards
+  // still snaps to the first result instead of yanking them back here.
   const didRestoreFocus = useRef(false);
   useEffect(() => {
     if (didRestoreFocus.current || !focusTemplateId) return;
