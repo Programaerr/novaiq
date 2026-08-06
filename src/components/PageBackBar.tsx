@@ -9,17 +9,18 @@ interface PageBackBarProps {
   onHome: () => void;
 }
 
-// A slim glass strip pinned right under the main Navbar on every inner page (anything
-// other than 'home') — without it, the only way back was the Navbar's hamburger menu,
-// which isn't obvious as a "back" affordance. Kept as its own small component (rather
-// than inlined per-page) so the back/home behavior and styling stay identical everywhere
-// it's used.
+// A floating glass strip pinned directly under the main Navbar on every inner page
+// (anything other than 'home') — without it, the only way back was the Navbar's
+// hamburger menu, which isn't obvious as a "back" affordance. `fixed` (not static-in-flow)
+// so it stays reachable while scrolling, exactly like the Navbar itself, and shares its
+// same glass tone (bg-black/55 + backdrop-blur-md) plus the identical `left-0 right-0` +
+// `max-w-7xl mx-auto px-3 sm:px-6` shell so the two pills line up edge-to-edge.
 export const PageBackBar: React.FC<PageBackBarProps> = ({ language, title, onBack, onHome }) => {
   const isAr = language === 'ar';
 
   return (
-    <div className="page-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 sm:mb-6">
-      <div className="flex items-center gap-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5">
+    <div className="fixed top-19 sm:top-23 md:top-26 left-0 right-0 z-40 w-full max-w-7xl mx-auto px-3 sm:px-6 pointer-events-none">
+      <div className="page-in pointer-events-auto flex items-center gap-2 bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-2xl shadow-black">
         <button
           type="button"
           onClick={onBack}
