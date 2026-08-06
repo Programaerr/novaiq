@@ -19,7 +19,11 @@ export const PageBackBar: React.FC<PageBackBarProps> = ({ language, title, onBac
   const isAr = language === 'ar';
 
   return (
-    <div className="fixed top-17 sm:top-21 md:top-24 left-0 right-0 z-40 w-full max-w-7xl mx-auto px-3 sm:px-6 pointer-events-none">
+    // Top offsets reuse the exact pt-20/sm:pt-24/md:pt-28 values App.tsx already uses to clear
+    // the fixed Navbar on the home page's `main` — the previous top-17/sm:21/md:24 values were
+    // 12px short of that at every breakpoint, so on mobile this bar sat partly under the Navbar
+    // instead of below it.
+    <div className="fixed top-20 sm:top-24 md:top-28 left-0 right-0 z-40 w-full max-w-7xl mx-auto px-3 sm:px-6 pointer-events-none">
       <div className="page-in pointer-events-auto flex items-center gap-2 bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-2xl shadow-black">
         <button
           type="button"
