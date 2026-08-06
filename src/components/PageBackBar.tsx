@@ -33,7 +33,8 @@ export const PageBackBar: React.FC<PageBackBarProps> = ({ language, title, onBac
       style={{ top: 'calc(var(--nav-bottom, 74px) + var(--stack-gap))' }}
       className="fixed left-0 right-0 z-40 w-full max-w-7xl mx-auto px-3 sm:px-6 pointer-events-none"
     >
-      <div className="page-in pointer-events-auto flex items-center gap-2 bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-2xl shadow-black">
+      {/* Shadowless for the same reason as the Navbar above it — see the note there. */}
+      <div className="page-in pointer-events-auto flex items-center gap-2 bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5">
         <button
           type="button"
           onClick={onBack}
@@ -58,7 +59,9 @@ export const PageBackBar: React.FC<PageBackBarProps> = ({ language, title, onBac
 
         <span className="w-px h-4 bg-white/10 hidden sm:block" />
 
-        <span className="hidden sm:block text-xs font-medium text-zinc-500 truncate">{title}</span>
+        {/* zinc-500 measured only 3.9:1 against this bar's fill — under the 4.5:1 floor, which
+            is why it read as greyed-out rather than as a label. zinc-300 clears it comfortably. */}
+        <span className="hidden sm:block text-xs font-semibold text-zinc-300 truncate">{title}</span>
       </div>
     </div>
   );

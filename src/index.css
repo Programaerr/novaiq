@@ -285,6 +285,19 @@
   transition: box-shadow 0.25s ease, background 0.25s ease;
 }
 
+/* The search field borrows the button system's beam (see .nq-btn-beam) so the toolbar's
+   two controls respond identically. :focus-within rather than :focus for the same reason as
+   the rule below — the inner <input> is what actually takes focus. */
+.search-neu:hover .nq-btn-beam,
+.search-neu:focus-within .nq-btn-beam {
+  opacity: 1;
+}
+
+.search-neu:hover .nq-btn-beam::before,
+.search-neu:focus-within .nq-btn-beam::before {
+  animation: nq-beam-spin 2s ease-in-out infinite;
+}
+
 /* Focus presses it inward — outer shadows shrink, inner ones deepen, the same sheet now
    dented rather than raised. :focus-within, not :focus, because the input inside takes the
    focus while this wrapper is what's actually styled. */
