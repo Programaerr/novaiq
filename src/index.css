@@ -625,6 +625,16 @@
   }
 }
 
+/* On the narrowest phones still in use the full-size wordmark runs the centred lockup into
+   the account button by a few pixels even with the prompt gone, so it steps down a size
+   rather than the brand overlapping a control. */
+@media (max-width: 380px) {
+  .navbar-logo-name {
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+  }
+}
+
 /* "...▊Design" prompt — three dots pulsing in sequence (thinking/loading), then a
    terminal-style blinking cursor, then the word itself. Reads as an ongoing process
    settling on "Design", not just a static label appearing. */
