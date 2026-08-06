@@ -639,7 +639,7 @@
      overflow means it still takes no room while closed, which was the original bug. */
   .navbar-logo-lockup {
     gap: 0;
-    transition: gap 700ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: gap 950ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .navbar-logo-name,
@@ -650,10 +650,13 @@
     overflow: hidden;
     white-space: nowrap;
     transform: none;
-    line-height: 1;
+    /* Tall enough for descenders: overflow:hidden does the horizontal collapse, and at
+       line-height 1 the box stops at the baseline, so it sheared the tail off the g in
+       "Design". */
+    line-height: 1.7;
     transition:
-      max-width 700ms cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 560ms ease 80ms;
+      max-width 950ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 620ms ease 60ms;
   }
 
   .navbar-logo-name {
@@ -669,8 +672,8 @@
   .navbar-logo-mark-img {
     width: 26px !important;
     height: 26px !important;
-    transition: width 700ms cubic-bezier(0.4, 0, 0.2, 1),
-                height 700ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 950ms cubic-bezier(0.4, 0, 0.2, 1),
+                height 950ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Tapped (see Navbar's touch handler) — the same NAME → mark → WORD arrangement the desktop
@@ -682,12 +685,12 @@
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-name {
-    max-width: 42px;
+    max-width: 75px;
     opacity: 1;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-word {
-    max-width: 55px;
+    max-width: 90px;
     opacity: 1;
   }
 
@@ -717,11 +720,11 @@
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-name {
-    max-width: 40px;
+    max-width: 60px;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-word {
-    max-width: 38px;
+    max-width: 70px;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-mark-img {
