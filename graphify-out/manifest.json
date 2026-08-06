@@ -145,9 +145,9 @@
     "semantic_hash": "b391705e2d1dce609363d8a9978ecd64"
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786016826.4828866,
-    "ast_hash": "a80d0229312ae2e8be8945d4d9a2678c",
-    "semantic_hash": "a80d0229312ae2e8be8945d4d9a2678c"
+    "mtime": 1786026731.6996126,
+    "ast_hash": "2b9ec273db141f1afb8eda1c29258d07",
+    "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
     "mtime": 1786004761.8799422,
