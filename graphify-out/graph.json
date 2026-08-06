@@ -1,7 +1,43 @@
 {
   "directed": false,
   "multigraph": false,
+<<<<<<< HEAD
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "readme_app_setup_flow",
+        "label": "Local App Setup Flow",
+        "nodes": [
+          "readme_nodejs",
+          "readme_npm_install",
+          "readme_gemini_api_key",
+          "readme_env_local",
+          "readme_npm_run_dev"
+        ],
+        "relation": "form",
+        "confidence": "INFERRED",
+        "confidence_score": 0.85,
+        "source_file": "README.md"
+      },
+      {
+        "id": "index_font_loading_optimization",
+        "label": "Self-hosted Font Preload Optimization Pattern",
+        "nodes": [
+          "index_cairo_font",
+          "index_tajawal_font",
+          "index_font_preload_optimization",
+          "src_index_css_font_face"
+        ],
+        "relation": "implement",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "index.html"
+      }
+    ]
+  },
+=======
   "graph": {},
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
   "nodes": [
     {
       "label": "package.json",
@@ -142,7 +178,11 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "package_dependencies",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "dependencies"
     },
@@ -153,7 +193,11 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "package_dependencies_google_genai",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "@google/genai"
     },
@@ -164,7 +208,11 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "google_genai",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "@google/genai"
     },
@@ -175,7 +223,11 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "package_dependencies_tailwindcss_vite",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "@tailwindcss/vite"
     },
@@ -186,7 +238,11 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tailwindcss_vite",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "@tailwindcss/vite"
     },
@@ -197,7 +253,11 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "package_dependencies_vitejs_plugin_react",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "@vitejs/plugin-react"
     },
@@ -208,7 +268,11 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "vitejs_plugin_react",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "@vitejs/plugin-react"
     },
@@ -219,7 +283,11 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "package_dependencies_dotenv",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "dotenv"
     },
@@ -230,7 +298,11 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "dotenv",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "dotenv"
     },
@@ -241,7 +313,11 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "package_dependencies_express",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "express"
     },
@@ -252,7 +328,11 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "express",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "express"
     },
@@ -263,7 +343,11 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "package_dependencies_firebase",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "firebase"
     },
@@ -274,7 +358,11 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "firebase",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "firebase"
     },
@@ -285,7 +373,11 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "package_dependencies_firebase_admin",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "firebase-admin"
     },
@@ -296,7 +388,11 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "firebase_admin",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "firebase-admin"
     },
@@ -307,7 +403,11 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "package_dependencies_html2canvas_pro",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "html2canvas-pro"
     },
@@ -318,7 +418,11 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "html2canvas_pro",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "html2canvas-pro"
     },
@@ -329,7 +433,11 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "package_dependencies_jspdf",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "jspdf"
     },
@@ -340,7 +448,11 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "jspdf",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "jspdf"
     },
@@ -352,7 +464,11 @@
       "_origin": "ast",
       "id": "package_dependencies_lenis",
       "community": 5,
+<<<<<<< HEAD
+      "community_name": "dependencies",
+=======
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "lenis"
     },
     {
@@ -363,7 +479,11 @@
       "_origin": "ast",
       "id": "lenis",
       "community": 5,
+<<<<<<< HEAD
+      "community_name": "dependencies",
+=======
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "lenis"
     },
     {
@@ -373,7 +493,11 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "package_dependencies_lucide_react",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "lucide-react"
     },
@@ -384,7 +508,11 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "lucide_react",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "lucide-react"
     },
@@ -395,7 +523,11 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "package_dependencies_motion",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "motion"
     },
@@ -406,7 +538,11 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "motion",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "motion"
     },
@@ -417,7 +553,11 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "package_dependencies_react",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "react"
     },
@@ -428,7 +568,11 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "react",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "react"
     },
@@ -439,7 +583,11 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "package_dependencies_react_dom",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "react-dom"
     },
@@ -450,7 +598,11 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "react_dom",
+<<<<<<< HEAD
+      "community": 5,
+=======
       "community": 7,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "dependencies",
       "norm_label": "react-dom"
     },
@@ -773,7 +925,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "server.ts"
     },
@@ -784,7 +940,11 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "server_app",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "app"
     },
@@ -796,7 +956,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "server_requireadmin",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "requireadmin()"
     },
@@ -808,7 +972,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "server_getlocalnetworkip",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "getlocalnetworkip()"
     },
@@ -819,7 +987,11 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "server_translation_cache_file",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "translation_cache_file"
     },
@@ -831,7 +1003,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "server_loadtranslationcache",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "loadtranslationcache()"
     },
@@ -842,7 +1018,11 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "server_translationcache",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "translationcache"
     },
@@ -854,7 +1034,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "server_persisttranslationcache",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "persisttranslationcache()"
     },
@@ -866,7 +1050,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "server_translateone",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "translateone()"
     },
@@ -878,7 +1066,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "server_startserver",
+<<<<<<< HEAD
+      "community": 11,
+=======
       "community": 13,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "server.ts",
       "norm_label": "startserver()"
     },
@@ -889,7 +1081,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "app.tsx"
     },
@@ -900,7 +1096,11 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_app_templategrid",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "templategrid"
     },
@@ -911,7 +1111,11 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_app_contractbuildergate",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "contractbuildergate"
     },
@@ -922,7 +1126,11 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_app_contractpdfpreview",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "contractpdfpreview"
     },
@@ -933,7 +1141,11 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_app_policypage",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "policypage"
     },
@@ -944,7 +1156,11 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_app_templateinteractivesandbox",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "templateinteractivesandbox"
     },
@@ -955,7 +1171,11 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_app_adminpage",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "adminpage"
     },
@@ -967,8 +1187,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_app_app",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "app()"
     },
     {
@@ -978,7 +1203,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_aboutsection",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "aboutsection.tsx"
     },
@@ -991,7 +1220,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_aboutsection_aboutsectionprops",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "aboutsectionprops"
     },
@@ -1003,7 +1236,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_aboutsection_aboutsection",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "aboutsection()"
     },
@@ -1014,7 +1251,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admindashboard",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "admindashboard.tsx"
     },
@@ -1028,7 +1269,11 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_admindashboardprops",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "admindashboardprops"
     },
     {
@@ -1040,7 +1285,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_tab",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "tab"
     },
@@ -1053,7 +1302,11 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_admindashboard",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "admindashboard()"
     },
     {
@@ -1063,8 +1316,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_adminlogin",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "adminlogin.tsx"
     },
     {
@@ -1076,8 +1334,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_adminloginprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "adminloginprops"
     },
     {
@@ -1088,8 +1351,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_googleicon",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "googleicon()"
     },
     {
@@ -1100,8 +1368,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_adminlogin",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "adminlogin()"
     },
     {
@@ -1111,8 +1384,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_adminpage",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "adminpage.tsx"
     },
     {
@@ -1124,8 +1402,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_adminpage_adminpageprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "adminpageprops"
     },
     {
@@ -1136,8 +1419,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_adminpage_adminpage",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "adminpage()"
     },
     {
@@ -1147,7 +1435,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_contractbuilder",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "contractbuilder.tsx"
     },
@@ -1160,8 +1452,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_contractbuilder_contractbuilderprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractbuilderprops"
     },
     {
@@ -1171,7 +1468,11 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_components_contractbuilder_preset_colors",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "preset_colors"
     },
@@ -1183,7 +1484,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_contractbuilder_contractbuilder",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "contractbuilder()"
     },
@@ -1194,8 +1499,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_contractbuildergate",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractbuildergate.tsx"
     },
     {
@@ -1207,8 +1517,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_contractbuildergate_contractbuildergateprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractbuildergateprops"
     },
     {
@@ -1219,8 +1534,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_contractbuildergate_contractbuildergate",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractbuildergate()"
     },
     {
@@ -1230,8 +1550,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_contractpdfpreview",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractpdfpreview.tsx"
     },
     {
@@ -1244,7 +1569,11 @@
       "_origin": "ast",
       "id": "src_components_contractpdfpreview_contractpdfpreviewprops",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractpdfpreviewprops"
     },
     {
@@ -1255,8 +1584,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_contractpdfpreview_contractpdfpreview",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractpdfpreview()"
     },
     {
@@ -1267,7 +1601,11 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractprintdocument.tsx"
     },
     {
@@ -1280,7 +1618,11 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument_contractprintdocumentprops",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractprintdocumentprops"
     },
     {
@@ -1291,7 +1633,11 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument_contractprintdocument",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractprintdocument"
     },
     {
@@ -1302,7 +1648,11 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument_connectedcontractprintdocument",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "connectedcontractprintdocument"
     },
     {
@@ -1312,7 +1662,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_cookieconsent",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "cookieconsent.tsx"
     },
@@ -1325,7 +1679,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_cookieconsent_cookieconsentprops",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "cookieconsentprops"
     },
@@ -1337,7 +1695,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_cookieconsent_cookieconsent",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "cookieconsent()"
     },
@@ -1348,7 +1710,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_cosmicbackground",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "cosmicbackground.tsx"
     },
@@ -1361,7 +1727,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_cosmicbackground_cosmicbackgroundprops",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "cosmicbackgroundprops"
     },
@@ -1372,7 +1742,11 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_components_cosmicbackground_section_glow_offsets",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "section_glow_offsets"
     },
@@ -1384,7 +1758,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_cosmicbackground_cosmicbackground",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "cosmicbackground()"
     },
@@ -1396,7 +1774,11 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "customerdashboard.tsx"
     },
     {
@@ -1409,7 +1791,11 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_customerdashboardprops",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "customerdashboardprops"
     },
     {
@@ -1420,7 +1806,11 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_status_label_ar",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "status_label_ar"
     },
     {
@@ -1432,7 +1822,11 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_formatdate",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "formatdate()"
     },
     {
@@ -1444,7 +1838,11 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_customerdashboard",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "customerdashboard()"
     },
     {
@@ -1455,8 +1853,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_customerdashboard_customercontractrow",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "customercontractrow()"
     },
     {
@@ -1466,7 +1869,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_errorboundary",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": "errorboundary.tsx"
     },
@@ -1479,7 +1886,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_props",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": "props"
     },
@@ -1492,7 +1903,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_state",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": "state"
     },
@@ -1505,7 +1920,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_errorboundary",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": "errorboundary"
     },
@@ -1517,7 +1936,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_errorboundary_constructor",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": ".constructor()"
     },
@@ -1529,7 +1952,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_errorboundary_getderivedstatefromerror",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": ".getderivedstatefromerror()"
     },
@@ -1541,7 +1968,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_errorboundary_componentdidcatch",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": ".componentdidcatch()"
     },
@@ -1553,7 +1984,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_errorboundary_handlereload",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": ".handlereload()"
     },
@@ -1565,7 +2000,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_errorboundary_handleresetstate",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": ".handleresetstate()"
     },
@@ -1577,7 +2016,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_errorboundary_errorboundary_render",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": ".render()"
     },
@@ -1588,8 +2031,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_footer",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "footer.tsx"
     },
     {
@@ -1601,8 +2049,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_footer_footerprops",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "footerprops"
     },
     {
@@ -1613,8 +2066,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_footer_footer",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "footer()"
     },
     {
@@ -1624,7 +2082,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_herosection",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "herosection.tsx"
     },
@@ -1637,7 +2099,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_herosection_herosectionprops",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "herosectionprops"
     },
@@ -1649,7 +2115,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_herosection_herosection",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "herosection()"
     },
@@ -1661,7 +2131,11 @@
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "logoutconfirmdialog.tsx"
     },
     {
@@ -1674,7 +2148,11 @@
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog_logoutconfirmdialogprops",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "logoutconfirmdialogprops"
     },
     {
@@ -1686,7 +2164,11 @@
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog_logoutconfirmdialog",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "logoutconfirmdialog()"
     },
     {
@@ -1696,8 +2178,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_milestonetimeline",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "milestonetimeline.tsx"
     },
     {
@@ -1709,8 +2196,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimelineprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "milestonetimelineprops"
     },
     {
@@ -1721,8 +2213,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimeline",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "milestonetimeline()"
     },
     {
@@ -1732,8 +2229,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_navbar",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "navbar.tsx"
     },
     {
@@ -1744,8 +2246,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_navbar_animatedmenuicon",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "animatedmenuicon()"
     },
     {
@@ -1757,8 +2264,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_navbar_navbarprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "navbarprops"
     },
     {
@@ -1769,8 +2281,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_navbar_navbar",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "navbar()"
     },
     {
@@ -1780,8 +2297,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_novaiqlogo",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "novaiqlogo.tsx"
     },
     {
@@ -1793,8 +2315,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_novaiqlogo_novaiqlogoprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "novaiqlogoprops"
     },
     {
@@ -1805,8 +2332,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_novaiqlogo_novaiqlogo",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "novaiqlogo()"
     },
     {
@@ -1816,8 +2348,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_pagebackbar",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pagebackbar.tsx"
     },
     {
@@ -1829,8 +2366,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_pagebackbar_pagebackbarprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pagebackbarprops"
     },
     {
@@ -1841,8 +2383,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_pagebackbar_pagebackbar",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pagebackbar()"
     },
     {
@@ -1852,8 +2399,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_pageloader",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pageloader.tsx"
     },
     {
@@ -1864,8 +2416,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_pageloader_pageloader",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pageloader()"
     },
     {
@@ -1875,8 +2432,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_policypage",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "policypage.tsx"
     },
     {
@@ -1888,8 +2450,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_policypage_policypageprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "policypageprops"
     },
     {
@@ -1901,8 +2468,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_policypage_section",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "section"
     },
     {
@@ -1912,8 +2484,13 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_policypage_privacy_sections",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "privacy_sections"
     },
     {
@@ -1923,8 +2500,13 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_components_policypage_terms_sections",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "terms_sections"
     },
     {
@@ -1935,8 +2517,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_policypage_policypage",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "policypage()"
     },
     {
@@ -1946,8 +2533,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_priceinput",
+<<<<<<< HEAD
+      "community": 3,
+      "community_name": "TemplateInteractiveSandbox.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "priceinput.tsx"
     },
     {
@@ -1959,8 +2551,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_priceinput_priceinputprops",
+<<<<<<< HEAD
+      "community": 3,
+      "community_name": "TemplateInteractiveSandbox.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "priceinputprops"
     },
     {
@@ -1971,8 +2568,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_priceinput_priceinput",
+<<<<<<< HEAD
+      "community": 3,
+      "community_name": "TemplateInteractiveSandbox.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "priceinput()"
     },
     {
@@ -1982,8 +2584,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_templatefilterpanel",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templatefilterpanel.tsx"
     },
     {
@@ -1995,8 +2602,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_templatefilterpanel_templatefilterpanelprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templatefilterpanelprops"
     },
     {
@@ -2007,8 +2619,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_templatefilterpanel_templatefilterpanel",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templatefilterpanel()"
     },
     {
@@ -2018,8 +2635,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_templategrid",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templategrid.tsx"
     },
     {
@@ -2029,8 +2651,13 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_components_templategrid_templateinteractivesandbox",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templateinteractivesandbox"
     },
     {
@@ -2042,8 +2669,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_templategrid_templategridprops",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templategridprops"
     },
     {
@@ -2054,8 +2686,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_templategrid_templategrid",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templategrid()"
     },
     {
@@ -2101,8 +2738,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_templatelivepage",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templatelivepage.tsx"
     },
     {
@@ -2112,8 +2754,13 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_components_templatelivepage_templateinteractivesandbox",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templateinteractivesandbox"
     },
     {
@@ -2123,8 +2770,13 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_templatelivepage_theme_colors",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "theme_colors"
     },
     {
@@ -2135,8 +2787,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_templatelivepage_readstoredlanguage",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "readstoredlanguage()"
     },
     {
@@ -2147,8 +2804,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_templatelivepage_templatelivepage",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templatelivepage()"
     },
     {
@@ -2158,8 +2820,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_toasthost",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "toasthost.tsx"
     },
     {
@@ -2170,8 +2837,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_toasthost_toasthost",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "toasthost()"
     },
     {
@@ -2181,7 +2853,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_contractstab",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "contractstab.tsx"
     },
@@ -2193,7 +2869,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_contractstab_contractstab",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "contractstab()"
     },
@@ -2206,7 +2886,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_admin_contractstab_companysignaturehandle",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "companysignaturehandle"
     },
@@ -2217,7 +2901,11 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "src_components_admin_contractstab_companysignaturepad",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "companysignaturepad"
     },
@@ -2229,8 +2917,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_contractstab_contractrow",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "contractrow()"
     },
     {
@@ -2240,8 +2933,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_memberstab",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "memberstab.tsx"
     },
     {
@@ -2252,8 +2950,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_memberstab_memberstab",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "memberstab()"
     },
     {
@@ -2263,7 +2966,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_overviewtab",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "overviewtab.tsx"
     },
@@ -2275,7 +2982,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_overviewtab_overviewtab",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "overviewtab()"
     },
@@ -2286,8 +2997,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_pricingtab",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pricingtab.tsx"
     },
     {
@@ -2298,8 +3014,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_pricingtab_pricingtab",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pricingtab()"
     },
     {
@@ -2310,8 +3031,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_pricingtab_pricingrow",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pricingrow()"
     },
     {
@@ -2321,8 +3047,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_settingstab",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "settingstab.tsx"
     },
     {
@@ -2332,8 +3063,13 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_components_admin_settingstab_social_fields",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "social_fields"
     },
     {
@@ -2344,8 +3080,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_settingstab_settingstab",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "settingstab()"
     },
     {
@@ -2355,8 +3096,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_teamtab",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "teamtab.tsx"
     },
     {
@@ -2367,8 +3113,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_teamtab_teamtab",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "teamtab()"
     },
     {
@@ -2378,7 +3129,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_shared",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "shared.tsx"
     },
@@ -2389,7 +3144,11 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_components_admin_shared_status_flow",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "status_flow"
     },
@@ -2401,7 +3160,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_shared_stattile",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "stattile()"
     },
@@ -2413,7 +3176,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_shared_tabbutton",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "tabbutton()"
     },
@@ -2425,7 +3192,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_shared_barrow",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "barrow()"
     },
@@ -2437,7 +3208,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_shared_statusarabic",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "statusarabic()"
     },
@@ -2450,7 +3225,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_admin_shared_adminstats",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "adminstats"
     },
@@ -2928,8 +3707,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_templatesdata",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templatesdata.ts"
     },
     {
@@ -2939,8 +3723,13 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_data_templatesdata_templatesdata",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "templatesdata"
     },
     {
@@ -2950,8 +3739,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_adminusers",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "adminusers.ts"
     },
     {
@@ -2963,8 +3757,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_adminusers_manageduser",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "manageduser"
     },
     {
@@ -2975,8 +3774,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_adminusers_authedfetch",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "authedfetch()"
     },
     {
@@ -2987,8 +3791,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_adminusers_listallusers",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "listallusers()"
     },
     {
@@ -2999,8 +3808,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_adminusers_listregularsubscribers",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "listregularsubscribers()"
     },
     {
@@ -3011,8 +3825,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_adminusers_setuserdisabled",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "setuserdisabled()"
     },
     {
@@ -3023,8 +3842,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_adminusers_deleteuseraccount",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "deleteuseraccount()"
     },
     {
@@ -3036,8 +3860,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_adminusers_teammember",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "teammember"
     },
     {
@@ -3048,8 +3877,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_adminusers_listteammembers",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "listteammembers()"
     },
     {
@@ -3059,8 +3893,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_audio",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "audio.ts"
     },
     {
@@ -3072,8 +3911,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine",
+<<<<<<< HEAD
+      "community": 16,
+      "community_name": "CosmicAudioEngine",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "cosmicaudioengine"
     },
     {
@@ -3084,8 +3928,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playwarp",
+<<<<<<< HEAD
+      "community": 16,
+      "community_name": "CosmicAudioEngine",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": ".playwarp()"
     },
     {
@@ -3096,8 +3945,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playping",
+<<<<<<< HEAD
+      "community": 16,
+      "community_name": "CosmicAudioEngine",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": ".playping()"
     },
     {
@@ -3108,8 +3962,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playtick",
+<<<<<<< HEAD
+      "community": 16,
+      "community_name": "CosmicAudioEngine",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": ".playtick()"
     },
     {
@@ -3120,8 +3979,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_toggleambient",
+<<<<<<< HEAD
+      "community": 16,
+      "community_name": "CosmicAudioEngine",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": ".toggleambient()"
     },
     {
@@ -3132,8 +3996,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_isambienton",
+<<<<<<< HEAD
+      "community": 16,
+      "community_name": "CosmicAudioEngine",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": ".isambienton()"
     },
     {
@@ -3143,8 +4012,13 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudio",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "cosmicaudio"
     },
     {
@@ -3154,8 +4028,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_auth",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "auth.ts"
     },
     {
@@ -3165,8 +4044,13 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_lib_auth_googleprovider",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "googleprovider"
     },
     {
@@ -3177,8 +4061,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_loginwithgoogle",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "loginwithgoogle()"
     },
     {
@@ -3190,7 +4079,11 @@
       "_origin": "ast",
       "id": "src_lib_auth_logoutaccount",
       "community": 0,
+<<<<<<< HEAD
+      "community_name": "Language",
+=======
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "logoutaccount()"
     },
     {
@@ -3201,8 +4094,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_subscribetoauthstate",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "subscribetoauthstate()"
     },
     {
@@ -3213,8 +4111,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_usecurrentuser",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "usecurrentuser()"
     },
     {
@@ -3225,8 +4128,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_normalizeemail",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "normalizeemail()"
     },
     {
@@ -3237,8 +4145,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_isadminemail",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "isadminemail()"
     },
     {
@@ -3249,8 +4162,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_addadminemail",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "addadminemail()"
     },
     {
@@ -3261,8 +4179,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_autherrormessage",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "autherrormessage()"
     },
     {
@@ -3272,8 +4195,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_autotranslate",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "autotranslate.ts"
     },
     {
@@ -3284,8 +4212,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_loadcache",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "loadcache()"
     },
     {
@@ -3296,8 +4229,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_savecache",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "savecache()"
     },
     {
@@ -3307,8 +4245,13 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_lib_autotranslate_memorycache",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "memorycache"
     },
     {
@@ -3320,8 +4263,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_pendingentry",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pendingentry"
     },
     {
@@ -3331,8 +4279,13 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_lib_autotranslate_pendingbatch",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pendingbatch"
     },
     {
@@ -3343,8 +4296,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_flushbatch",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "flushbatch()"
     },
     {
@@ -3355,8 +4313,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_requesttranslation",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "requesttranslation()"
     },
     {
@@ -3366,8 +4329,13 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "src_lib_autotranslate_bundled",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "bundled"
     },
     {
@@ -3378,8 +4346,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_isfullyresolved",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "isfullyresolved()"
     },
     {
@@ -3390,8 +4363,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_resolvestatic",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "resolvestatic()"
     },
     {
@@ -3402,8 +4380,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_useautotranslatelist",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "useautotranslatelist()"
     },
     {
@@ -3414,8 +4397,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_useautotranslate",
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "autoTranslate.ts",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "useautotranslate()"
     },
     {
@@ -3425,7 +4413,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_consent",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "consent.ts"
     },
@@ -3438,7 +4430,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_consent_consentstatus",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "consentstatus"
     },
@@ -3450,7 +4446,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_getconsentstatus",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "getconsentstatus()"
     },
@@ -3462,7 +4462,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_setconsentstatus",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "setconsentstatus()"
     },
@@ -3474,7 +4478,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_istrackingallowed",
+<<<<<<< HEAD
+      "community": 6,
+=======
       "community": 1,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "App.tsx",
       "norm_label": "istrackingallowed()"
     },
@@ -3485,7 +4493,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_contractdraft",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "contractdraft.ts"
     },
@@ -3498,7 +4510,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_contractdraft",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "contractdraft"
     },
@@ -3510,7 +4526,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_loadcontractdraft",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "loadcontractdraft()"
     },
@@ -3522,7 +4542,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_savecontractdraft",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "savecontractdraft()"
     },
@@ -3534,7 +4558,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_clearcontractdraft",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "clearcontractdraft()"
     },
@@ -3545,8 +4573,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_currency",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "currency.ts"
     },
     {
@@ -3556,8 +4589,13 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_lib_currency_iqd_per_usd",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "iqd_per_usd"
     },
     {
@@ -3569,8 +4607,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_currency_currency",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "currency"
     },
     {
@@ -3580,8 +4623,13 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_lib_currency_currency_storage_key",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "currency_storage_key"
     },
     {
@@ -3592,8 +4640,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_currency_readstoredcurrency",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "readstoredcurrency()"
     },
     {
@@ -3604,8 +4657,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_currency_tousd",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "tousd()"
     },
     {
@@ -3616,8 +4674,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_currency_formatprice",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "formatprice()"
     },
     {
@@ -3627,7 +4690,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_firebase",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "firebase.ts"
     },
@@ -3638,8 +4705,13 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_lib_firebase_db",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "db"
     },
     {
@@ -3649,8 +4721,13 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_lib_firebase_auth",
+<<<<<<< HEAD
+      "community": 2,
+      "community_name": "ContractsTab.tsx",
+=======
       "community": 6,
       "community_name": "auth.ts",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "auth"
     },
     {
@@ -3661,7 +4738,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_getdeletedidentifiers",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "getdeletedidentifiers()"
     },
@@ -3673,7 +4754,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_markasdeleted",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "markasdeleted()"
     },
@@ -3685,7 +4770,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_unmarkdeleted",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "unmarkdeleted()"
     },
@@ -3697,7 +4786,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_savecontracttofirebase",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "savecontracttofirebase()"
     },
@@ -3709,7 +4802,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_updatecontractfields",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "updatecontractfields()"
     },
@@ -3721,7 +4818,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_fetchcontractsfromfirebase",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "fetchcontractsfromfirebase()"
     },
@@ -3733,7 +4834,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_subscribetocontracts",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "subscribetocontracts()"
     },
@@ -3745,7 +4850,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_deletecontractfromfirebase",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "deletecontractfromfirebase()"
     },
@@ -3756,8 +4865,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_i18n",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "i18n.ts"
     },
     {
@@ -3769,8 +4883,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_i18n_language",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "language"
     },
     {
@@ -3780,8 +4899,13 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_lib_i18n_dynamic_translations",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "dynamic_translations"
     },
     {
@@ -3792,8 +4916,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_i18n_translatetext",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "translatetext()"
     },
     {
@@ -3803,8 +4932,13 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "src_lib_i18n_ui_translations",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "ui_translations"
     },
     {
@@ -3815,7 +4949,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_i18n_gettranslation",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "gettranslation()"
     },
@@ -3826,7 +4964,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pagetranslator",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "pagetranslator.ts"
     },
@@ -3837,7 +4979,11 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_lib_pagetranslator_skip_tags",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "skip_tags"
     },
@@ -3848,7 +4994,11 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_lib_pagetranslator_originals",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "originals"
     },
@@ -3859,7 +5009,11 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_lib_pagetranslator_translations",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "translations"
     },
@@ -3871,7 +5025,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_shouldskip",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "shouldskip()"
     },
@@ -3883,7 +5041,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_collectarabictextnodes",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "collectarabictextnodes()"
     },
@@ -3895,7 +5057,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_fetchtranslations",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "fetchtranslations()"
     },
@@ -3907,7 +5073,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_applytext",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "applytext()"
     },
@@ -3919,7 +5089,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_translatenodes",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "translatenodes()"
     },
@@ -3931,7 +5105,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_schedulescan",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "schedulescan()"
     },
@@ -3943,7 +5121,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_startobserver",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "startobserver()"
     },
@@ -3955,7 +5137,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_restoreoriginals",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "restoreoriginals()"
     },
@@ -3967,7 +5153,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pagetranslator_setpagetranslation",
+<<<<<<< HEAD
+      "community": 14,
+=======
       "community": 12,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "pageTranslator.ts",
       "norm_label": "setpagetranslation()"
     },
@@ -3978,7 +5168,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pdfgenerator",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "pdfgenerator.ts"
     },
@@ -3990,8 +5184,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdfgenerator_generatecontractpdf",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 0,
       "community_name": "ContractsTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "generatecontractpdf()"
     },
     {
@@ -4001,8 +5200,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pendingcontractselection.ts"
     },
     {
@@ -4014,8 +5218,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_pendingcontractselection",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pendingcontractselection"
     },
     {
@@ -4026,8 +5235,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_writependingcontractselection",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "writependingcontractselection()"
     },
     {
@@ -4038,8 +5252,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_consumependingcontractselection",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "consumependingcontractselection()"
     },
     {
@@ -4049,8 +5268,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pricingoverrides",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pricingoverrides.ts"
     },
     {
@@ -4061,8 +5285,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_readcachedoverrides",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "readcachedoverrides()"
     },
     {
@@ -4073,8 +5302,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_writecachedoverrides",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "writecachedoverrides()"
     },
     {
@@ -4086,8 +5320,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_pricingoverride",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "pricingoverride"
     },
     {
@@ -4098,8 +5337,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_subscribetopricingoverrides",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "subscribetopricingoverrides()"
     },
     {
@@ -4110,8 +5354,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_savepricingoverride",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "savepricingoverride()"
     },
     {
@@ -4122,8 +5371,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_applypricingoverrides",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "applypricingoverrides()"
     },
     {
@@ -4134,8 +5388,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_uselivetemplates",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "uselivetemplates()"
     },
     {
@@ -4145,8 +5404,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_sociallinks",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "sociallinks.ts"
     },
     {
@@ -4157,8 +5421,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_readcachedlinks",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "readcachedlinks()"
     },
     {
@@ -4169,8 +5438,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_writecachedlinks",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "writecachedlinks()"
     },
     {
@@ -4182,8 +5456,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_sociallinks",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "sociallinks"
     },
     {
@@ -4194,8 +5473,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_subscribetosociallinks",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "subscribetosociallinks()"
     },
     {
@@ -4206,8 +5490,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_savesociallinks",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "savesociallinks()"
     },
     {
@@ -4218,8 +5507,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_usesociallinks",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "usesociallinks()"
     },
     {
@@ -4230,8 +5524,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_whatsapplink",
+<<<<<<< HEAD
+      "community": 9,
+      "community_name": "SettingsTab.tsx",
+=======
       "community": 1,
       "community_name": "App.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "whatsapplink()"
     },
     {
@@ -4241,8 +5540,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_toast",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "toast.ts"
     },
     {
@@ -4254,8 +5558,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_toast_toasttype",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "toasttype"
     },
     {
@@ -4267,8 +5576,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_toast_toastmessage",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "toastmessage"
     },
     {
@@ -4280,8 +5594,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_toast_listener",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "listener"
     },
     {
@@ -4291,8 +5610,13 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_lib_toast_listeners",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "listeners"
     },
     {
@@ -4303,8 +5627,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_toast_showtoast",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "ContractBuilder.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "showtoast()"
     },
     {
@@ -4315,8 +5644,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_toast_subscribetotoasts",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 10,
       "community_name": "showToast",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "subscribetotoasts()"
     },
     {
@@ -4326,8 +5660,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_usescrollbehavior",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "usescrollbehavior.ts"
     },
     {
@@ -4338,8 +5677,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_usescrollbehavior_usesmoothscroll",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "usesmoothscroll()"
     },
     {
@@ -4350,8 +5694,13 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_usescrollbehavior_usesectionscrollspy",
+<<<<<<< HEAD
+      "community": 6,
+      "community_name": "App.tsx",
+=======
       "community": 5,
       "community_name": "PricingTab.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "usesectionscrollspy()"
     },
     {
@@ -4361,7 +5710,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_usesignaturepad",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "usesignaturepad.ts"
     },
@@ -4374,7 +5727,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_usesignaturepad_usesignaturepadoptions",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "usesignaturepadoptions"
     },
@@ -4387,7 +5744,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_usesignaturepad_pointerevt",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "pointerevt"
     },
@@ -4399,7 +5760,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_usesignaturepad_usesignaturepad",
+<<<<<<< HEAD
+      "community": 7,
+=======
       "community": 2,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractBuilder.tsx",
       "norm_label": "usesignaturepad()"
     },
@@ -4410,7 +5775,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_main",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": "main.tsx"
     },
@@ -4421,7 +5790,11 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_main_templatelivepage",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": "templatelivepage"
     },
@@ -4432,7 +5805,11 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_main_islivetemplateview",
+<<<<<<< HEAD
+      "community": 10,
+=======
       "community": 11,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ErrorBoundary",
       "norm_label": "islivetemplateview"
     },
@@ -4443,7 +5820,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_types",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "types.ts"
     },
@@ -4456,7 +5837,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_templatefeature",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "templatefeature"
     },
@@ -4469,8 +5854,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_template",
+<<<<<<< HEAD
+      "community": 0,
+      "community_name": "Language",
+=======
       "community": 2,
       "community_name": "ContractBuilder.tsx",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "norm_label": "template"
     },
     {
@@ -4482,7 +5872,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_contractdata",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "contractdata"
     },
@@ -4495,7 +5889,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_aiconsultationstate",
+<<<<<<< HEAD
+      "community": 2,
+=======
       "community": 0,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "ContractsTab.tsx",
       "norm_label": "aiconsultationstate"
     },
@@ -4506,7 +5904,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_vite_env_d",
+<<<<<<< HEAD
+      "community": 18,
+=======
       "community": 20,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "vite-env.d.ts",
       "norm_label": "vite-env.d.ts"
     },
@@ -4517,7 +5919,11 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_vite_env_d_jpg",
+<<<<<<< HEAD
+      "community": 18,
+=======
       "community": 20,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "vite-env.d.ts",
       "norm_label": "*.jpg"
     },
@@ -4528,7 +5934,11 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_vite_env_d_png",
+<<<<<<< HEAD
+      "community": 18,
+=======
       "community": 20,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "vite-env.d.ts",
       "norm_label": "*.png"
     },
@@ -4539,7 +5949,11 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_vite_env_d_svg",
+<<<<<<< HEAD
+      "community": 18,
+=======
       "community": 20,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "vite-env.d.ts",
       "norm_label": "*.svg"
     },
@@ -4550,7 +5964,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tsconfig",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "tsconfig.json"
     },
@@ -4561,7 +5979,11 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "tsconfig_compileroptions",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "compileroptions"
     },
@@ -4572,7 +5994,11 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_target",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "target"
     },
@@ -4583,7 +6009,11 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_experimentaldecorators",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "experimentaldecorators"
     },
@@ -4594,7 +6024,11 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_usedefineforclassfields",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "usedefineforclassfields"
     },
@@ -4605,7 +6039,11 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_module",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "module"
     },
@@ -4616,7 +6054,11 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_lib",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "lib"
     },
@@ -4627,7 +6069,11 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "ref_es2022",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "es2022"
     },
@@ -4638,7 +6084,11 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "ref_dom",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "dom"
     },
@@ -4649,7 +6099,11 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "ref_dom_iterable",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "dom.iterable"
     },
@@ -4660,7 +6114,11 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_skiplibcheck",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "skiplibcheck"
     },
@@ -4671,7 +6129,11 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_moduleresolution",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "moduleresolution"
     },
@@ -4682,7 +6144,11 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_isolatedmodules",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "isolatedmodules"
     },
@@ -4693,7 +6159,11 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_moduledetection",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "moduledetection"
     },
@@ -4704,7 +6174,11 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_allowjs",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "allowjs"
     },
@@ -4715,7 +6189,11 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_jsx",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "jsx"
     },
@@ -4726,7 +6204,11 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_paths",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "paths"
     },
@@ -4737,7 +6219,11 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_allowimportingtsextensions",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "allowimportingtsextensions"
     },
@@ -4748,7 +6234,11 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "tsconfig_compileroptions_noemit",
+<<<<<<< HEAD
+      "community": 8,
+=======
       "community": 9,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "compilerOptions",
       "norm_label": "noemit"
     },
@@ -4759,7 +6249,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "vite_config",
+<<<<<<< HEAD
+      "community": 20,
+=======
       "community": 27,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "vite.config.ts",
       "norm_label": "vite.config.ts"
     },
@@ -4771,7 +6265,11 @@
       "_callable": true,
       "_origin": "ast",
       "id": "vite_config_manualchunks",
+<<<<<<< HEAD
+      "community": 20,
+=======
       "community": 27,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "vite.config.ts",
       "norm_label": "manualchunks()"
     },
@@ -4782,7 +6280,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_claude",
+<<<<<<< HEAD
+      "community": 31,
+=======
       "community": 25,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": ".claude/CLAUDE.md",
       "norm_label": ".claude/claude.md"
     },
@@ -4793,7 +6295,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_claude_graphify",
+<<<<<<< HEAD
+      "community": 31,
+=======
       "community": 25,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": ".claude/CLAUDE.md",
       "norm_label": "graphify"
     },
@@ -4804,7 +6310,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "skill.md"
     },
@@ -4815,7 +6325,11 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_graphify",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "/graphify"
     },
@@ -4826,7 +6340,11 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_usage",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "usage"
     },
@@ -4837,7 +6355,11 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_what_graphify_is_for",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "what graphify is for"
     },
@@ -4848,7 +6370,11 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "what you must do when invoked"
     },
@@ -4859,7 +6385,11 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_0_github_repos_and_multi_path_merge_only_if_a_url_or_several_paths",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 0 - github repos and multi-path merge (only if a url or several paths)"
     },
@@ -4870,7 +6400,11 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_1_ensure_graphify_is_installed",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 1 - ensure graphify is installed"
     },
@@ -4881,7 +6415,11 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_2_detect_files",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 2 - detect files"
     },
@@ -4892,7 +6430,11 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_2_5_video_and_audio_only_if_video_files_detected",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 2.5 - video and audio (only if video files detected)"
     },
@@ -4903,7 +6445,11 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 3 - extract entities and relationships"
     },
@@ -4914,7 +6460,11 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_part_a_structural_extraction_for_code_files",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "part a - structural extraction for code files"
     },
@@ -4925,7 +6475,11 @@
       "source_location": "L193",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_part_b_semantic_extraction_parallel_subagents",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "part b - semantic extraction (parallel subagents)"
     },
@@ -4936,7 +6490,11 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_part_c_merge_ast_semantic_into_final_extraction",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "part c - merge ast + semantic into final extraction"
     },
@@ -4947,7 +6505,11 @@
       "source_location": "L390",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_4_build_graph_cluster_analyze_generate_outputs",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 4 - build graph, cluster, analyze, generate outputs"
     },
@@ -4958,7 +6520,11 @@
       "source_location": "L453",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_4_5_graph_health_check_read_only_integrity_gate",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 4.5 - graph health check (read-only integrity gate)"
     },
@@ -4969,7 +6535,11 @@
       "source_location": "L479",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_5_label_communities",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 5 - label communities"
     },
@@ -4980,7 +6550,11 @@
       "source_location": "L528",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_6_generate_obsidian_vault_opt_in_html",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 6 - generate obsidian vault (opt-in) + html"
     },
@@ -4991,7 +6565,11 @@
       "source_location": "L548",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_steps_6b_8_wiki_neo4j_falkordb_svg_graphml_mcp_benchmark_only_on_their_flags",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "steps 6b-8 - wiki, neo4j, falkordb, svg, graphml, mcp, benchmark (only on their flags)"
     },
@@ -5002,7 +6580,11 @@
       "source_location": "L554",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_step_9_save_manifest_update_cost_tracker_clean_up_and_report",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "step 9 - save manifest, update cost tracker, clean up, and report"
     },
@@ -5013,7 +6595,11 @@
       "source_location": "L656",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_interpreter_guard_for_subcommands",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "interpreter guard for subcommands"
     },
@@ -5024,7 +6610,11 @@
       "source_location": "L674",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_for_update_and_cluster_only",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "for --update and --cluster-only"
     },
@@ -5035,7 +6625,11 @@
       "source_location": "L680",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_for_graphify_query",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "for /graphify query"
     },
@@ -5046,7 +6640,11 @@
       "source_location": "L692",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_for_graphify_add_and_watch",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "for /graphify add and --watch"
     },
@@ -5057,7 +6655,11 @@
       "source_location": "L698",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "for the commit hook and native claude.md integration"
     },
@@ -5068,7 +6670,11 @@
       "source_location": "L704",
       "_origin": "ast",
       "id": "claude_skills_graphify_skill_honesty_rules",
+<<<<<<< HEAD
+      "community": 13,
+=======
       "community": 8,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "What You Must Do When Invoked",
       "norm_label": "honesty rules"
     },
@@ -5079,7 +6685,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_add_watch",
+<<<<<<< HEAD
+      "community": 25,
+=======
       "community": 17,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: add a URL and watch a folder",
       "norm_label": "add-watch.md"
     },
@@ -5090,7 +6700,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+<<<<<<< HEAD
+      "community": 25,
+=======
       "community": 17,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: add a URL and watch a folder",
       "norm_label": "graphify reference: add a url and watch a folder"
     },
@@ -5101,7 +6715,11 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_add_watch_for_graphify_add",
+<<<<<<< HEAD
+      "community": 25,
+=======
       "community": 17,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: add a URL and watch a folder",
       "norm_label": "for /graphify add"
     },
@@ -5112,7 +6730,11 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_add_watch_for_watch",
+<<<<<<< HEAD
+      "community": 25,
+=======
       "community": 17,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: add a URL and watch a folder",
       "norm_label": "for --watch"
     },
@@ -5123,7 +6745,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "exports.md"
     },
@@ -5134,7 +6760,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "graphify reference: extra exports and benchmark"
     },
@@ -5145,7 +6775,11 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports_step_6b_wiki_only_if_wiki_flag",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "step 6b - wiki (only if --wiki flag)"
     },
@@ -5156,7 +6790,11 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports_step_7_neo4j_export_only_if_neo4j_or_neo4j_push_flag",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "step 7 - neo4j export (only if --neo4j or --neo4j-push flag)"
     },
@@ -5167,7 +6805,11 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports_step_7a_falkordb_export_only_if_falkordb_or_falkordb_push_flag",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "step 7a - falkordb export (only if --falkordb or --falkordb-push flag)"
     },
@@ -5178,7 +6820,11 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports_step_7b_svg_export_only_if_svg_flag",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "step 7b - svg export (only if --svg flag)"
     },
@@ -5189,7 +6835,11 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports_step_7c_graphml_export_only_if_graphml_flag",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "step 7c - graphml export (only if --graphml flag)"
     },
@@ -5200,7 +6850,11 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports_step_7d_mcp_server_only_if_mcp_flag",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "step 7d - mcp server (only if --mcp flag)"
     },
@@ -5211,7 +6865,11 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_exports_step_8_token_reduction_benchmark_only_if_total_words_5000",
+<<<<<<< HEAD
+      "community": 23,
+=======
       "community": 14,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: extra exports and benchmark",
       "norm_label": "step 8 - token reduction benchmark (only if total_words > 5000)"
     },
@@ -5222,7 +6880,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_extraction_spec",
+<<<<<<< HEAD
+      "community": 32,
+=======
       "community": 26,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "extraction-spec.md",
       "norm_label": "extraction-spec.md"
     },
@@ -5233,7 +6895,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_extraction_spec_graphify_reference_extraction_subagent_prompt",
+<<<<<<< HEAD
+      "community": 32,
+=======
       "community": 26,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "extraction-spec.md",
       "norm_label": "graphify reference: extraction subagent prompt"
     },
@@ -5244,7 +6910,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_github_and_merge",
+<<<<<<< HEAD
+      "community": 28,
+=======
       "community": 21,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: GitHub clone and cross-repo merge",
       "norm_label": "github-and-merge.md"
     },
@@ -5255,7 +6925,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+<<<<<<< HEAD
+      "community": 28,
+=======
       "community": 21,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: GitHub clone and cross-repo merge",
       "norm_label": "graphify reference: github clone and cross-repo merge"
     },
@@ -5266,7 +6940,11 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_github_and_merge_step_0_clone_github_repo_s_only_if_a_github_url_was_given",
+<<<<<<< HEAD
+      "community": 28,
+=======
       "community": 21,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: GitHub clone and cross-repo merge",
       "norm_label": "step 0 - clone github repo(s) (only if a github url was given)"
     },
@@ -5277,7 +6955,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_hooks",
+<<<<<<< HEAD
+      "community": 26,
+=======
       "community": 18,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: commit hook and native CLAUDE.md integration",
       "norm_label": "hooks.md"
     },
@@ -5288,7 +6970,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+<<<<<<< HEAD
+      "community": 26,
+=======
       "community": 18,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: commit hook and native CLAUDE.md integration",
       "norm_label": "graphify reference: commit hook and native claude.md integration"
     },
@@ -5299,7 +6985,11 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_hooks_for_git_commit_hook",
+<<<<<<< HEAD
+      "community": 26,
+=======
       "community": 18,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: commit hook and native CLAUDE.md integration",
       "norm_label": "for git commit hook"
     },
@@ -5310,7 +7000,11 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_hooks_for_native_claude_md_integration",
+<<<<<<< HEAD
+      "community": 26,
+=======
       "community": 18,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: commit hook and native CLAUDE.md integration",
       "norm_label": "for native claude.md integration"
     },
@@ -5321,7 +7015,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_query",
+<<<<<<< HEAD
+      "community": 24,
+=======
       "community": 16,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: query, path, explain",
       "norm_label": "query.md"
     },
@@ -5332,7 +7030,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+<<<<<<< HEAD
+      "community": 24,
+=======
       "community": 16,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: query, path, explain",
       "norm_label": "graphify reference: query, path, explain"
     },
@@ -5343,7 +7045,11 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_query_step_0_constrained_query_expansion_required_before_traversal",
+<<<<<<< HEAD
+      "community": 24,
+=======
       "community": 16,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: query, path, explain",
       "norm_label": "step 0 \u2014 constrained query expansion (required before traversal)"
     },
@@ -5354,7 +7060,11 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_query_step_1_traversal",
+<<<<<<< HEAD
+      "community": 24,
+=======
       "community": 16,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: query, path, explain",
       "norm_label": "step 1 \u2014 traversal"
     },
@@ -5365,7 +7075,11 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_query_for_graphify_path",
+<<<<<<< HEAD
+      "community": 24,
+=======
       "community": 16,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: query, path, explain",
       "norm_label": "for /graphify path"
     },
@@ -5376,7 +7090,11 @@
       "source_location": "L254",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_query_for_graphify_explain",
+<<<<<<< HEAD
+      "community": 24,
+=======
       "community": 16,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: query, path, explain",
       "norm_label": "for /graphify explain"
     },
@@ -5387,7 +7105,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_transcribe",
+<<<<<<< HEAD
+      "community": 29,
+=======
       "community": 22,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: transcribe video and audio",
       "norm_label": "transcribe.md"
     },
@@ -5398,7 +7120,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+<<<<<<< HEAD
+      "community": 29,
+=======
       "community": 22,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: transcribe video and audio",
       "norm_label": "graphify reference: transcribe video and audio"
     },
@@ -5409,7 +7135,11 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_transcribe_step_2_5_transcribe_video_audio_files_only_if_video_files_detected",
+<<<<<<< HEAD
+      "community": 29,
+=======
       "community": 22,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: transcribe video and audio",
       "norm_label": "step 2.5 - transcribe video / audio files (only if video files detected)"
     },
@@ -5420,7 +7150,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_update",
+<<<<<<< HEAD
+      "community": 27,
+=======
       "community": 19,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: incremental update and cluster-only",
       "norm_label": "update.md"
     },
@@ -5431,7 +7165,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+<<<<<<< HEAD
+      "community": 27,
+=======
       "community": 19,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: incremental update and cluster-only",
       "norm_label": "graphify reference: incremental update and cluster-only"
     },
@@ -5442,7 +7180,11 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_update_for_update_incremental_re_extraction",
+<<<<<<< HEAD
+      "community": 27,
+=======
       "community": 19,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: incremental update and cluster-only",
       "norm_label": "for --update (incremental re-extraction)"
     },
@@ -5453,7 +7195,11 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "claude_skills_graphify_references_update_for_cluster_only",
+<<<<<<< HEAD
+      "community": 27,
+=======
       "community": 19,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "graphify reference: incremental update and cluster-only",
       "norm_label": "for --cluster-only"
     },
@@ -5464,7 +7210,11 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude",
+<<<<<<< HEAD
+      "community": 30,
+=======
       "community": 24,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "CLAUDE.md",
       "norm_label": "claude.md"
     },
@@ -5475,11 +7225,301 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "claude_graphify",
+<<<<<<< HEAD
+      "community": 30,
+=======
       "community": 24,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "community_name": "CLAUDE.md",
       "norm_label": "graphify"
     },
     {
+<<<<<<< HEAD
+      "label": "AI Studio App (NOVAIQ)",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": "https://ai.studio/apps/2cbb402b-0f4d-4179-85f9-73430d2beebf",
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "ai studio app (novaiq)",
+      "_origin": "semantic",
+      "id": "readme_ai_studio_app"
+    },
+    {
+      "label": "Node.js Prerequisite",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 17,
+      "community_name": ".env.local File",
+      "norm_label": "node.js prerequisite",
+      "_origin": "semantic",
+      "id": "readme_nodejs"
+    },
+    {
+      "label": "npm install Command",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 17,
+      "community_name": ".env.local File",
+      "norm_label": "npm install command",
+      "_origin": "semantic",
+      "id": "readme_npm_install"
+    },
+    {
+      "label": "GEMINI_API_KEY Environment Variable",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 17,
+      "community_name": ".env.local File",
+      "norm_label": "gemini_api_key environment variable",
+      "_origin": "semantic",
+      "id": "readme_gemini_api_key"
+    },
+    {
+      "label": ".env.local File",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 17,
+      "community_name": ".env.local File",
+      "norm_label": ".env.local file",
+      "_origin": "semantic",
+      "id": "readme_env_local"
+    },
+    {
+      "label": "npm run dev Command",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 17,
+      "community_name": ".env.local File",
+      "norm_label": "npm run dev command",
+      "_origin": "semantic",
+      "id": "readme_npm_run_dev"
+    },
+    {
+      "label": "NOVAIQ App Entry (index.html)",
+      "file_type": "code",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "novaiq app entry (index.html)",
+      "_origin": "semantic",
+      "id": "index_novaiq"
+    },
+    {
+      "label": "Cairo Variable Font (self-hosted)",
+      "file_type": "concept",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "cairo variable font (self-hosted)",
+      "_origin": "semantic",
+      "id": "index_cairo_font"
+    },
+    {
+      "label": "Tajawal Font (self-hosted)",
+      "file_type": "concept",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "tajawal font (self-hosted)",
+      "_origin": "semantic",
+      "id": "index_tajawal_font"
+    },
+    {
+      "label": "Font Preload + font-display Optimization",
+      "file_type": "rationale",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Self-hosting Cairo & Tajawal instead of loading from Google Fonts avoids the extra third-party round-trip and the visible font swap-in delay. Preloading the woff2 files makes the browser fetch font bytes immediately in parallel with everything else, and combined with font-display:block this prevents the page from ever painting in a fallback font first. Both Arabic and Latin subsets are preloaded because the NOVAIQ wordmark itself is Latin script even though the page is in Arabic mode.",
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "font preload + font-display optimization",
+      "_origin": "semantic",
+      "id": "index_font_preload_optimization"
+    },
+    {
+      "label": "src/main.tsx Entry Script",
+      "file_type": "code",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 19,
+      "community_name": "src/main.tsx Entry Script",
+      "norm_label": "src/main.tsx entry script",
+      "_origin": "semantic",
+      "id": "index_main_tsx"
+    },
+    {
+      "label": "#root Mount Element",
+      "file_type": "code",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 19,
+      "community_name": "src/main.tsx Entry Script",
+      "norm_label": "#root mount element",
+      "_origin": "semantic",
+      "id": "index_root_div"
+    },
+    {
+      "label": "RTL Arabic Layout (lang=ar dir=rtl)",
+      "file_type": "concept",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "rtl arabic layout (lang=ar dir=rtl)",
+      "_origin": "semantic",
+      "id": "index_rtl_arabic_layout"
+    },
+    {
+      "label": "NOVAIQ Favicon Icon",
+      "file_type": "image",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "novaiq favicon icon",
+      "_origin": "semantic",
+      "id": "index_novaiq_icon"
+    },
+    {
+      "label": "Dark Theme (html class=dark)",
+      "file_type": "concept",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "dark theme (html class=dark)",
+      "_origin": "semantic",
+      "id": "index_dark_theme"
+    },
+    {
+      "label": "@font-face Rules (src/index.css)",
+      "file_type": "code",
+      "source_file": "index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 12,
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "@font-face rules (src/index.css)",
+      "_origin": "semantic",
+      "id": "src_index_css_font_face"
+    },
+    {
+      "label": "NOVAIQ brand logo mark: an outlined/wireframe-style icon of two bracket-like pillar letterforms (resembling stylized 'H' or twin brackets) crossed by a tilted Saturn-like ring/ellipse, with the wordmark 'NOVAIQ' in a thin outlined sans-serif font beneath; rendered on a transparent/white background with a sketchy dashed-line stroke texture, suggesting a brand identity asset for the 'novaiq' project/site",
+      "file_type": "image",
+      "source_file": "src/assets/images/1785710025866.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 21,
+      "community_name": "NOVAIQ brand logo mark: an outlined/wireframe-style icon of two bracket-like pillar letterforms (resembling stylized 'H' or twin brackets) crossed by a tilted Saturn-like ring/ellipse, with the wordmark 'NOVAIQ' in a thin outlined sans-serif font beneath; rendered on a transparent/white background with a sketchy dashed-line stroke texture, suggesting a brand identity asset for the 'novaiq' project/site",
+      "norm_label": "novaiq brand logo mark: an outlined/wireframe-style icon of two bracket-like pillar letterforms (resembling stylized 'h' or twin brackets) crossed by a tilted saturn-like ring/ellipse, with the wordmark 'novaiq' in a thin outlined sans-serif font beneath; rendered on a transparent/white background with a sketchy dashed-line stroke texture, suggesting a brand identity asset for the 'novaiq' project/site",
+      "_origin": "semantic",
+      "id": "src_assets_images_1785710025866_novaiq_logo"
+    },
+    {
+      "label": "NovaIQ icon/logo mark: a stylized double-H (or interlocking bracket) letterform encircled by a tilted elliptical ring, evoking a planet's orbital ring; used as the brand icon/favicon for the NovaIQ site",
+      "file_type": "image",
+      "source_file": "src/assets/images/novaiq-icon.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 0,
+      "community_name": "Language",
+      "norm_label": "novaiq icon/logo mark: a stylized double-h (or interlocking bracket) letterform encircled by a tilted elliptical ring, evoking a planet's orbital ring; used as the brand icon/favicon for the novaiq site",
+      "_origin": "semantic",
+      "id": "src_assets_images_novaiq_icon"
+    },
+    {
+      "label": "NOVAIQ logo (cropped) - brand wordmark and icon featuring two stylized capital 'N' letterforms encircled by a tilted ring/orbit (Saturn-like) motif, with 'NOVAIQ' wordmark beneath; used as the site's brand logo",
+      "file_type": "image",
+      "source_file": "src/assets/images/novaiq-logo-cropped.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 22,
+      "community_name": "NOVAIQ logo (cropped) - brand wordmark and icon featuring two stylized capital 'N' letterforms encircled by a tilted ring/orbit (Saturn-like) motif, with 'NOVAIQ' wordmark beneath; used as the site's brand logo",
+      "norm_label": "novaiq logo (cropped) - brand wordmark and icon featuring two stylized capital 'n' letterforms encircled by a tilted ring/orbit (saturn-like) motif, with 'novaiq' wordmark beneath; used as the site's brand logo",
+      "_origin": "semantic",
+      "id": "src_assets_images_novaiq_logo_cropped"
+=======
       "label": "README.md",
       "file_type": "document",
       "source_file": "README.md",
@@ -5511,6 +7551,7 @@
       "community": 23,
       "community_name": "Run and deploy your AI Studio app",
       "norm_label": "run locally"
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
     }
   ],
   "links": [
@@ -10209,6 +12250,21 @@
       "confidence_score": 1.0
     },
     {
+<<<<<<< HEAD
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/NovaiqLogo.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_novaiqlogo",
+      "target": "src_assets_images_novaiq_icon",
+      "confidence_score": 1.0
+    },
+    {
+=======
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/NovaiqLogo.tsx",
@@ -16823,6 +18879,205 @@
       "confidence_score": 1.0
     },
     {
+<<<<<<< HEAD
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "readme_ai_studio_app",
+      "target": "index_novaiq"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "readme_nodejs",
+      "target": "readme_npm_install"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "readme_npm_install",
+      "target": "readme_gemini_api_key"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "readme_gemini_api_key",
+      "target": "readme_env_local"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "readme_env_local",
+      "target": "readme_npm_run_dev"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_novaiq",
+      "target": "index_cairo_font"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_novaiq",
+      "target": "index_dark_theme"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_novaiq",
+      "target": "index_novaiq_icon"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_novaiq",
+      "target": "index_rtl_arabic_layout"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_novaiq",
+      "target": "index_tajawal_font"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_cairo_font",
+      "target": "src_index_css_font_face"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_font_preload_optimization",
+      "target": "index_cairo_font"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_font_preload_optimization",
+      "target": "index_tajawal_font"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_tajawal_font",
+      "target": "src_index_css_font_face"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html",
+      "source_location": null,
+      "weight": 1.0,
+      "_origin": "semantic",
+      "source": "index_main_tsx",
+      "target": "index_root_div"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "readme_app_setup_flow",
+      "label": "Local App Setup Flow",
+      "nodes": [
+        "readme_nodejs",
+        "readme_npm_install",
+        "readme_gemini_api_key",
+        "readme_env_local",
+        "readme_npm_run_dev"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md"
+    },
+    {
+      "id": "index_font_loading_optimization",
+      "label": "Self-hosted Font Preload Optimization Pattern",
+      "nodes": [
+        "index_cairo_font",
+        "index_tajawal_font",
+        "index_font_preload_optimization",
+        "src_index_css_font_face"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "index.html"
+    }
+  ],
+  "built_at_commit": "a218e249b845f1fc0f6a4d95e46983e0c28199d8"
+=======
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "README.md",
@@ -16847,4 +19102,5 @@
   ],
   "hyperedges": [],
   "built_at_commit": "21ed3141d567ff0b45052a96523df4fbde395305"
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
 }

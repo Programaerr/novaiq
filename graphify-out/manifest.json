@@ -20,7 +20,11 @@
     "semantic_hash": ""
   },
   "package.json": {
+<<<<<<< HEAD
+    "mtime": 1786033895.1013386,
+=======
     "mtime": 1786034634.0518491,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
     "ast_hash": "0ce4afd51d40991f6d5ac62999b8281f",
     "semantic_hash": ""
   },
@@ -150,7 +154,11 @@
     "semantic_hash": ""
   },
   "src/components/TemplateFilterPanel.tsx": {
+<<<<<<< HEAD
+    "mtime": 1786033313.4693303,
+=======
     "mtime": 1786033656.6399262,
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
     "ast_hash": "b5bb167e30afb6c5ed7916c48c0fabc3",
     "semantic_hash": ""
   },
@@ -305,6 +313,15 @@
     "semantic_hash": ""
   },
   "src/lib/useScrollBehavior.ts": {
+<<<<<<< HEAD
+    "mtime": 1786033684.374139,
+    "ast_hash": "d60d0a1303cf912410ffa0312828a19c",
+    "semantic_hash": ""
+  },
+  "src/lib/useSignaturePad.ts": {
+    "mtime": 1786032848.6212752,
+    "ast_hash": "667899096b6fc157feacb9271ac5a499",
+=======
     "mtime": 1786034634.0553675,
     "ast_hash": "70c03f9ab7e1ff1928321834086aa398",
     "semantic_hash": ""
@@ -312,6 +329,7 @@
   "src/lib/useSignaturePad.ts": {
     "mtime": 1786032972.73359,
     "ast_hash": "bf5eea1cd9fe092d0df08ccb72146cf8",
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
     "semantic_hash": ""
   },
   "src/main.tsx": {

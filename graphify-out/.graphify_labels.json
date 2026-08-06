@@ -1,4 +1,39 @@
 {
+<<<<<<< HEAD
+  "0": "Language",
+  "1": "autoTranslate.ts",
+  "2": "ContractsTab.tsx",
+  "3": "TemplateInteractiveSandbox.tsx",
+  "4": "devDependencies",
+  "5": "dependencies",
+  "6": "App.tsx",
+  "7": "ContractBuilder.tsx",
+  "8": "compilerOptions",
+  "9": "SettingsTab.tsx",
+  "10": "ErrorBoundary",
+  "11": "server.ts",
+  "12": "NOVAIQ App Entry (index.html)",
+  "13": "What You Must Do When Invoked",
+  "14": "pageTranslator.ts",
+  "15": "build-translations.mjs",
+  "16": "CosmicAudioEngine",
+  "17": ".env.local File",
+  "18": "vite-env.d.ts",
+  "19": "src/main.tsx Entry Script",
+  "20": "vite.config.ts",
+  "21": "NOVAIQ brand logo mark: an outlined/wireframe-style icon of two bracket-like pillar letterforms (resembling stylized 'H' or twin brackets) crossed by a tilted Saturn-like ring/ellipse, with the wordmark 'NOVAIQ' in a thin outlined sans-serif font beneath; rendered on a transparent/white background with a sketchy dashed-line stroke texture, suggesting a brand identity asset for the 'novaiq' project/site",
+  "22": "NOVAIQ logo (cropped) - brand wordmark and icon featuring two stylized capital 'N' letterforms encircled by a tilted ring/orbit (Saturn-like) motif, with 'NOVAIQ' wordmark beneath; used as the site's brand logo",
+  "23": "graphify reference: extra exports and benchmark",
+  "24": "graphify reference: query, path, explain",
+  "25": "graphify reference: add a URL and watch a folder",
+  "26": "graphify reference: commit hook and native CLAUDE.md integration",
+  "27": "graphify reference: incremental update and cluster-only",
+  "28": "graphify reference: GitHub clone and cross-repo merge",
+  "29": "graphify reference: transcribe video and audio",
+  "30": "CLAUDE.md",
+  "31": ".claude/CLAUDE.md",
+  "32": "extraction-spec.md"
+=======
   "0": "ContractsTab.tsx",
   "1": "App.tsx",
   "2": "ContractBuilder.tsx",
@@ -27,4 +62,5 @@
   "25": ".claude/CLAUDE.md",
   "26": "extraction-spec.md",
   "27": "vite.config.ts"
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
 }
