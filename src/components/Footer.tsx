@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Mail, Globe, Facebook, Instagram, Twitter, Music2, MessageCircle } from 'lucide-react';
+import { ShieldCheck, Facebook, Instagram, Twitter, Music2, MessageCircle } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 import { NovaiqLogo } from './NovaiqLogo';
@@ -101,22 +101,13 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact — deliberately no hardcoded email/domain here. Every contact point shown
+              is admin-configured (AdminDashboard's Settings tab); this whole column collapses
+              to just its heading until the admin actually sets at least one real link, rather
+              than displaying placeholder contact info nobody monitors. */}
           <div className="space-y-2">
             <h4 className="text-sm font-bold text-white mb-3">{language === 'ar' ? 'التواصل والخدمة' : 'Contact & Support'}</h4>
-            <div className="space-y-2 font-mono">
-              <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                <span>support@novaiq.space</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Globe className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                <span>www.novaiq.space</span>
-              </div>
-            </div>
 
-            {/* Social & WhatsApp — admin-configured (AdminDashboard's Settings tab), so this
-                whole row simply disappears until at least one link is actually set. */}
             {socialButtons.length > 0 && (
               <div className="flex items-center gap-2 pt-1">
                 {socialButtons.map(({ href, Icon, label }) => (
