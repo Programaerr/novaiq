@@ -10,7 +10,8 @@
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "translations": "node scripts/build-translations.mjs"
+    "translations": "node scripts/build-translations.mjs",
+    "graph:watch": "$(cat graphify-out/.graphify_python 2>/dev/null || echo python) -m graphify.watch . --debounce 3"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
