@@ -278,47 +278,61 @@ export interface PhoneOrder {
 /** Extra-year warranty add-on, priced per device (see `confirmPhoneOrder`). */
 export const PHONE_WARRANTY_IQD = 45000;
 
+const UNSPLASH = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=75`;
+
 export const SAMPLE_PHONES: PhoneProduct[] = [
   {
     id: 'phone-1', name: 'iPhone 15 Pro Max', brand: 'Apple', badge: 'الأكثر مبيعاً',
     storageTiers: [{ gb: 256, priceIQD: 1700000 }, { gb: 512, priceIQD: 1950000 }, { gb: 1024, priceIQD: 2300000 }],
     colors: ['تيتانيوم طبيعي', 'تيتانيوم أسود', 'تيتانيوم أزرق'],
-    imageBg: 'from-slate-700/60 to-slate-900',
+    imageBg: 'from-slate-700/70 to-slate-950',
+    image: UNSPLASH('photo-1616348436168-de43ad0db179'),
+    tagline: 'تيتانيوم. أخف. وأقوى.',
     specs: ['شاشة 6.7 بوصة', 'شريحة A17 Pro', 'كاميرا 48 ميغا', 'بطارية 4441 mAh'],
   },
   {
     id: 'phone-2', name: 'Samsung Galaxy S24 Ultra', brand: 'Samsung', badge: 'قلم S Pen',
     storageTiers: [{ gb: 256, priceIQD: 1550000 }, { gb: 512, priceIQD: 1780000 }, { gb: 1024, priceIQD: 2100000 }],
     colors: ['رمادي تيتانيوم', 'بنفسجي', 'أسود'],
-    imageBg: 'from-indigo-900/60 to-slate-900',
+    imageBg: 'from-indigo-900/70 to-slate-950',
+    image: UNSPLASH('photo-1610945265064-0e34e5519bbf'),
+    tagline: 'قلم S Pen بين يديك.',
     specs: ['شاشة 6.8 بوصة', 'Snapdragon 8 Gen 3', 'كاميرا 200 ميغا', 'زوم بصري 5x'],
   },
   {
     id: 'phone-3', name: 'Google Pixel 8 Pro', brand: 'Google',
     storageTiers: [{ gb: 128, priceIQD: 1050000 }, { gb: 256, priceIQD: 1190000 }, { gb: 512, priceIQD: 1400000 }],
     colors: ['أزرق فاتح', 'رمادي', 'أبيض'],
-    imageBg: 'from-sky-900/60 to-slate-900',
+    imageBg: 'from-sky-900/70 to-slate-950',
+    image: UNSPLASH('photo-1574944985070-8f3ebc6b79d2'),
+    tagline: 'كاميرا تفكّر معك.',
     specs: ['شاشة 6.7 بوصة', 'شريحة Tensor G3', 'كاميرا 50 ميغا', 'تعديل صور بالذكاء الاصطناعي'],
   },
   {
     id: 'phone-4', name: 'Xiaomi 14 Pro', brand: 'Xiaomi',
     storageTiers: [{ gb: 256, priceIQD: 950000 }, { gb: 512, priceIQD: 1120000 }],
     colors: ['أسود', 'أبيض', 'أخضر'],
-    imageBg: 'from-orange-900/60 to-slate-900',
+    imageBg: 'from-orange-900/70 to-slate-950',
+    image: UNSPLASH('photo-1567581935884-3349723552ca'),
+    tagline: 'عدسات Leica بالكامل.',
     specs: ['شاشة 6.73 بوصة', 'عدسات Leica', 'شحن سريع 120 واط', 'بطارية 4880 mAh'],
   },
   {
     id: 'phone-5', name: 'OnePlus 12', brand: 'OnePlus',
     storageTiers: [{ gb: 256, priceIQD: 900000 }, { gb: 512, priceIQD: 1060000 }],
     colors: ['أخضر زمردي', 'أسود'],
-    imageBg: 'from-emerald-900/60 to-slate-900',
+    imageBg: 'from-emerald-900/70 to-slate-950',
+    image: UNSPLASH('photo-1601784551446-20c9e07cdbdb'),
+    tagline: 'سرعة بلا انتظار.',
     specs: ['شاشة 6.82 بوصة 120Hz', 'رام 12 غيغا', 'شحن 100 واط', 'بطارية 5400 mAh'],
   },
   {
     id: 'phone-6', name: 'Samsung Galaxy A55', brand: 'Samsung', badge: 'أفضل سعر',
     storageTiers: [{ gb: 128, priceIQD: 420000 }, { gb: 256, priceIQD: 490000 }],
     colors: ['أزرق فاتح', 'أسود', 'بنفسجي'],
-    imageBg: 'from-cyan-900/60 to-slate-900',
+    imageBg: 'from-cyan-900/70 to-slate-950',
+    image: UNSPLASH('photo-1580910051074-3eb694886505'),
+    tagline: 'كل المزايا، بأقل سعر.',
     specs: ['شاشة 6.6 بوصة', 'كاميرا 50 ميغا', 'بطارية 5000 mAh', 'مقاوم للماء IP67'],
   },
 ];

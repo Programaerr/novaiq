@@ -69,49 +69,75 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
       {phoneTab === 'phones' && searchedPhones.length > 0 && (
         <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
           {searchedPhones.map((phone) => (
-            <div key={phone.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
-              <div className={`h-24 bg-gradient-to-br ${phone.imageBg} flex items-center justify-center relative`}>
-                <Smartphone className="w-7 h-7 text-white/70" />
-                {phone.badge && (
-                  <span className={`absolute top-2 end-2 px-2 py-0.5 rounded-full ${themeStyle.badgeBg} ${themeStyle.primaryText} text-[10px] font-bold`}>
-                    {phone.badge}
-                  </span>
-                )}
+            // Product-poster card: the photo bleeds into a tinted panel and the copy sits on the
+            // same tint underneath — brand kicker, model, a highlighted claim, then the specs.
+            <article
+              key={phone.id}
+              className={`group rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b ${phone.imageBg} hover:border-white/25 transition-all`}
+            >
+              <div className="relative h-40 sm:h-44 overflow-hidden">
+                <img
+                  src={phone.image}
+                  alt={phone.name}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                {/* Fades the photo into the tint so the panel reads as one surface, not a banner. */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
+                {/* Badge and mark share one justified row rather than opposite corners, so they
+                    can't collide whichever way the surrounding direction resolves. */}
+                <div className="absolute top-3 inset-x-3 flex items-start justify-between gap-2">
+                  {phone.badge ? (
+                    <span className={`px-2.5 py-1 rounded-full ${themeStyle.badgeBg} ${themeStyle.primaryText} text-[10px] font-bold backdrop-blur-md`}>
+                      {phone.badge}
+                    </span>
+                  ) : <span />}
+                  {/* dir=ltr so the neutral punctuation isn't re-ordered by the RTL context. */}
+                  <span dir="ltr" className="font-mono text-[11px] tracking-[0.35em] text-white/70" aria-hidden="true">+◆–</span>
+                </div>
               </div>
-              <div className="p-3.5 space-y-2">
-                <div>
-                  <h4 className="text-sm font-bold text-white">{phone.name}</h4>
-                  <p className="text-slate-500 text-[10px] font-mono">{phone.brand}</p>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {phone.specs.map((s, idx) => (
-                    <span key={idx} className="px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-sm border border-white/10 text-slate-400 text-[10px]">{s}</span>
-                  ))}
-                </div>
-                <p className="text-slate-400">
+
+              <div className="p-4 space-y-2.5">
+                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/45">{phone.brand}</p>
+                <h4 className="text-base sm:text-lg font-black text-white leading-tight">{phone.name}</h4>
+                <p className="inline-block px-2.5 py-1 rounded-md bg-white/10 border border-white/10 text-white font-bold">
+                  {phone.tagline}
+                </p>
+                <p className="text-slate-400 leading-relaxed">{phone.specs.join(' · ')}</p>
+                <p className="text-slate-500 text-[10px]">
                   الذاكرة: {phone.storageTiers.map(t => storageLabel(t.gb)).join(' · ')}
                 </p>
-                <div className="flex items-center justify-between pt-1">
-                  <span className={`font-mono font-bold ${themeStyle.primaryText}`}>يبدأ من {price(phone.storageTiers[0].priceIQD)}</span>
+                <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/10">
+                  <span className="leading-tight">
+                    <span className="block text-[10px] text-slate-500">يبدأ من</span>
+                    <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(phone.storageTiers[0].priceIQD)}</span>
+                  </span>
                   <button
                     onClick={() => pickPhone(phone)}
-                    className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
+                    className={`px-3.5 py-2 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer shrink-0`}
                   >
                     اشترِ الآن
                   </button>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
 
       {phoneTab === 'order' && (
         <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-          <h4 className="text-sm font-bold text-white flex items-center gap-2">
-            <Smartphone className={`w-4 h-4 ${themeStyle.primaryText}`} />
-            <span>طلب: {selectedPhone.name}</span>
-          </h4>
+          <div className="flex items-center gap-3">
+            <img
+              src={selectedPhone.image}
+              alt={selectedPhone.name}
+              className={`w-14 h-14 rounded-xl object-cover border border-white/10 bg-gradient-to-b ${selectedPhone.imageBg}`}
+            />
+            <div>
+              <h4 className="text-sm font-bold text-white">طلب: {selectedPhone.name}</h4>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/45">{selectedPhone.brand}</p>
+            </div>
+          </div>
 
           {/* Choices on one side, what they cost on the other — the pickers are narrow, and
               left alone in a full-width card they stranded half the row empty on desktop. */}
