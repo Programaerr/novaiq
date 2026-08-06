@@ -19,11 +19,13 @@ import { NovaiqLogo } from './NovaiqLogo';
 
 // The nav toggle's icon: three uneven bars that settle toward an even split on hover, and
 // morph in place into an X on open — the same three bars animating throughout, never two
-// icons swapped for each other. Anchored with the logical `start` side (not a hardcoded
-// `left`) so the uneven lengths land on the correct physical edge in both the Arabic (RTL)
-// and English (LTR) shells instead of only ever reading right in one of them.
+// icons swapped for each other. The button now sits permanently on the bar's physical right
+// (see the header's forced dir="ltr" comment below), so this glyph is forced to dir="rtl"
+// on its own wrapper — independent of the header's dir — to keep the exact taper/anchor the
+// original Arabic-native design used (.nav-menu-bar's transform-origin follows [dir] in
+// index.css), instead of inheriting "ltr" and tapering toward the wrong edge.
 const AnimatedMenuIcon: React.FC<{ open: boolean }> = ({ open }) => (
-  <span className="relative block w-4 h-3.5" aria-hidden="true">
+  <span dir="rtl" className="relative block w-4 h-3.5" aria-hidden="true">
     <span
       className={`nav-menu-bar absolute start-0 top-0 h-0.5 w-4 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
         open ? 'translate-y-[6px] rotate-45 scale-x-100' : 'translate-y-0 rotate-0 scale-x-100 group-hover:scale-x-[0.62]'
