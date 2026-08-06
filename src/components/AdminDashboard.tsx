@@ -846,11 +846,6 @@ function PricingRow({
           <div className="text-[10px] text-zinc-500 truncate">{translateText(template.categoryLabel, language)}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {savedOverride && (
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[10px] font-bold border border-emerald-800">
-              {isAr ? 'معدّل' : 'Edited'}
-            </span>
-          )}
           <span className="text-xs font-mono text-zinc-300">{formatPrice(template.basePriceIQD, language, currency)}</span>
         </div>
       </button>
