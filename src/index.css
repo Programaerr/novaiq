@@ -609,37 +609,21 @@
   transform: translateX(0);
 }
 
-/* Phones have no hover, so the reveal above can never fire there — yet both pieces still
-   reserved their full width beside the mark (210px of lockup for a 34px logo), which pushed
-   the absolutely-centred brand into the language and menu buttons on a 390px bar. Below sm:
-   the name is simply always shown, and the "...Design" prompt drops out entirely rather than
-   sitting there permanently invisible and taking up room. */
+/* Phones have no hover, so neither piece can ever be revealed there — but hiding them with
+   opacity alone still reserved their full width (210px of lockup around a 34px mark), which
+   is what pushed the centred brand up against the language and menu buttons. Taking them out
+   of layout entirely leaves the mark alone, genuinely centred in the bar, and a size smaller
+   so it sits comfortably rather than filling the gap between the controls. */
 @media (max-width: 639px) {
-  .navbar-logo-name {
-    opacity: 1;
-    transform: none;
-  }
-
+  .navbar-logo-name,
   .navbar-logo-word {
     display: none;
   }
-}
 
-/* On the narrowest phones still in use the full-size wordmark runs the centred lockup into
-   the account button by a few pixels even with the prompt gone, so it steps down a size
-   rather than the brand overlapping a control. */
-@media (max-width: 380px) {
-  .navbar-logo-name {
-    font-size: 0.9rem;
-    letter-spacing: 0.06em;
-  }
-}
-
-/* Narrower still and even the stepped-down wordmark overlaps the account button, so the bar
-   falls back to the mark alone — the brand is still present, just without the lettering. */
-@media (max-width: 359px) {
-  .navbar-logo-name {
-    display: none;
+  /* Overrides the inline width/height the size prop writes, which a plain rule can't reach. */
+  .navbar-logo-mark-img {
+    width: 26px !important;
+    height: 26px !important;
   }
 }
 
