@@ -232,29 +232,18 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
         <div ref={filterBarRef} className="relative mb-6">
           <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 p-3 sm:p-4">
             <button
-              onClick={(e) => {
+              onClick={() => {
                 setShowFilterPanel(!showFilterPanel);
                 cosmicAudio.playPing();
-                const el = e.currentTarget;
-                el.classList.remove('is-pulsing');
-                void el.offsetWidth;
-                el.classList.add('is-pulsing');
               }}
-              onAnimationEnd={(e) => {
-                if (e.animationName === 'filter-pill-ripple') e.currentTarget.classList.remove('is-pulsing');
-              }}
-              className={`filter-pill-btn relative overflow-hidden w-full sm:w-auto px-4 py-2.5 rounded-full text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer ${
+              className={`filter-pill-btn relative w-full sm:w-auto px-4 py-2.5 rounded-full text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer ${
                 showFilterPanel || activeFiltersCount > 0 ? 'is-active' : ''
               }`}
             >
-              <span className="filter-pill-flare" />
-              <span className="relative z-10 flex items-center shrink-0">
-                <Sparkle className="w-3 h-3 text-black fill-black" />
-                <Sparkle className="w-2 h-2 text-black fill-black -ml-1 -mt-1.5" />
-              </span>
-              <span className="relative z-10 text-black">{currentLang === 'ar' ? 'تصفية' : 'Filter'}</span>
+              <Sparkle className="w-3.5 h-3.5 text-[#111111] fill-[#111111] shrink-0" />
+              <span className="font-semibold text-[#111111]">{currentLang === 'ar' ? 'تصفية' : 'Filter'}</span>
               {activeFiltersCount > 0 && (
-                <span className="relative z-10 w-5 h-5 rounded-full bg-black text-white text-[10px] font-black flex items-center justify-center">
+                <span className="w-5 h-5 rounded-full bg-[#111111] text-white text-[10px] font-black flex items-center justify-center">
                   {activeFiltersCount}
                 </span>
               )}

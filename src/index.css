@@ -162,69 +162,42 @@
   transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Filter pill button — a light glass surface sitting inside an otherwise dark toolbar, so
-   the glow has to invert too: a white bloom would be invisible against a white pill, so this
-   blooms dark instead. `.filter-pill-flare` is a real child span (not ::before/::after —
-   those are already spoken for by the ripple keyframe below reading the button's own
-   box-shadow) carrying a diagonal highlight that sweeps across on hover, clipped by the
-   button's own overflow-hidden. */
+/* Filter pill button — premium white CTA pill: flat #FFFFFF surface (not translucent —
+   this one sits low-contrast against a dark toolbar so the definition has to come entirely
+   from the shadow, not a border). Depth comes from two stacked outer shadows (a tight drop
+   shadow + a wide heavily-blurred low-opacity ambient glow) plus a pair of 1px inset
+   highlight/shade lines standing in for a glossy top bevel — a gradient background would've
+   fought the spec's "pure white background" requirement, so the gloss lives in box-shadow
+   instead of the background itself. */
 .filter-pill-btn {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(228, 228, 235, 0.88));
-  border: 1px solid rgba(10, 10, 15, 0.35);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 0 rgba(0, 0, 0, 0);
-  transition: box-shadow 0.3s ease, background 0.3s ease, transform 0.15s ease, border-color 0.3s ease;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.22),
+    0 0 36px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 250ms ease, transform 250ms ease;
 }
 
 .filter-pill-btn:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(214, 214, 222, 0.92));
-  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.5), 0 0 14px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05),
+    0 10px 26px rgba(0, 0, 0, 0.28),
+    0 0 46px rgba(0, 0, 0, 0.18);
+  transform: scale(1.03);
 }
 
 .filter-pill-btn:active {
-  transform: scale(0.96);
+  transform: scale(0.98);
 }
 
 .filter-pill-btn.is-active {
-  border-color: rgba(0, 0, 0, 0.55);
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55), 0 0 16px rgba(0, 0, 0, 0.3);
-}
-
-.filter-pill-flare {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.filter-pill-flare::after {
-  content: '';
-  position: absolute;
-  top: -60%;
-  left: -40%;
-  width: 35%;
-  height: 220%;
-  background: linear-gradient(115deg, transparent, rgba(0, 0, 0, 0.16), transparent);
-  transform: translateX(-120%) rotate(10deg);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.filter-pill-btn:hover .filter-pill-flare::after {
-  transform: translateX(360%) rotate(10deg);
-}
-
-/* Click pulse — a dark shadow ring that blooms outward and fades, triggered by toggling
-   .is-pulsing from JS (restarted via an offsetWidth reflow so repeat clicks re-trigger the
-   animation instead of a class no-op being ignored by the browser). */
-@keyframes filter-pill-ripple {
-  0% { box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(0, 0, 0, 0.45); }
-  60% { box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 0 16px rgba(0, 0, 0, 0); }
-  100% { box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(0, 0, 0, 0); }
-}
-
-.filter-pill-btn.is-pulsing {
-  animation: filter-pill-ripple 0.5s ease-out;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05),
+    0 10px 26px rgba(0, 0, 0, 0.3),
+    0 0 50px rgba(0, 0, 0, 0.22);
 }
 
 .white-btn-glow:hover {
