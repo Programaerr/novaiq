@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import {
   TrendingUp,
+  TrendingDown,
   FileCheck,
   DollarSign,
   Download,
@@ -23,7 +24,7 @@ import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { useSignaturePad } from '../../lib/useSignaturePad';
 import { PriceInput } from '../PriceInput';
-import { STATUS_FLOW, StatTile, statusArabic, AdminStats } from './shared';
+import { STATUS_FLOW, PAYMENT_STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, AdminStats } from './shared';
 
 export function ContractsTab({
   isAr,
