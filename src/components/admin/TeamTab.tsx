@@ -170,3 +170,4 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
       </div>
     </div>
   );
+}
