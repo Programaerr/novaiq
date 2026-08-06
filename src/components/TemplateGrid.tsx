@@ -238,7 +238,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               className={`w-full sm:w-auto px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 cursor-pointer transition-all ${
                 showFilterPanel || activeFiltersCount > 0
                   ? 'bg-white/10 text-white border-white/40 glow-white'
-                  : 'bg-black/20 backdrop-blur-sm text-zinc-200 border-white/10 hover:border-white/25 glow-white-hover'
+                  : 'bg-black/20 text-zinc-200 border-white/10 hover:border-white/25 glow-white-hover'
               }`}
             >
               <span className="w-7 h-7 rounded-lg bg-black/30 flex items-center justify-center shrink-0">
@@ -260,7 +260,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={getTranslation('searchPlaceholder', currentLang)}
-                className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-black/20 backdrop-blur-sm border border-white/10 focus:border-white/40 focus:outline-none text-white text-xs sm:text-sm placeholder-zinc-500 transition-all"
+                className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-black/20 border border-white/10 focus:border-white/40 focus:outline-none text-white text-xs sm:text-sm placeholder-zinc-500 transition-all"
               />
               {searchQuery && (
                 <button
@@ -285,7 +285,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-full inset-x-0 mt-2 z-30 rounded-2xl bg-black/70 backdrop-blur-2xl border border-white/15 shadow-2xl shadow-black/50 overflow-hidden"
+                className="absolute top-full inset-x-0 mt-2 z-30 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 overflow-hidden"
               >
                 <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5 space-y-5">
 
