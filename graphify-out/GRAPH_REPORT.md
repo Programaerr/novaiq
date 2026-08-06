@@ -1,16 +1,16 @@
 # Graph Report - novaiq  (2026-08-06)
 
 ## Corpus Check
-- 79 files · ~101,817 words
+- 80 files · ~101,959 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 471 nodes · 956 edges · 37 communities (27 shown, 10 thin omitted)
+- 474 nodes · 971 edges · 36 communities (25 shown, 11 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 4 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `469befdb`
+- Built from commit: `8846a59a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,17 +22,16 @@
 - devDependencies
 - dependencies
 - What You Must Do When Invoked
-- audio.ts
+- CosmicAudioEngine
 - compilerOptions
-- AdminDashboard.tsx
+- auth.ts
 - showToast
-- ErrorBoundary
+- CookieConsent.tsx
 - PricingTab.tsx
 - pageTranslator.ts
 - server.ts
 - graphify reference: extra exports and benchmark
 - scripts
-- PolicyPage.tsx
 - build-translations.mjs
 - graphify reference: query, path, explain
 - graphify reference: add a URL and watch a folder
@@ -53,9 +52,9 @@
 - @tailwindcss/vite
 
 ## God Nodes (most connected - your core abstractions)
-1. `Language` - 42 edges
-2. `Currency` - 23 edges
-3. `formatPrice()` - 20 edges
+1. `Language` - 44 edges
+2. `Currency` - 25 edges
+3. `formatPrice()` - 22 edges
 4. `translateText()` - 17 edges
 5. `ContractData` - 17 edges
 6. `useLiveTemplates()` - 15 edges
@@ -69,33 +68,33 @@
   src/lib/pdfGenerator.ts → package.json
 - `App()` --references--> `lenis`  [EXTRACTED]
   src/App.tsx → package.json
-- `AboutSectionProps` --references--> `Language`  [EXTRACTED]
-  src/components/AboutSection.tsx → src/lib/i18n.ts
 - `AdminLoginProps` --references--> `Language`  [EXTRACTED]
   src/components/AdminLogin.tsx → src/lib/i18n.ts
 - `CookieConsentProps` --references--> `Language`  [EXTRACTED]
   src/components/CookieConsent.tsx → src/lib/i18n.ts
+- `App()` --calls--> `useLiveTemplates()`  [EXTRACTED]
+  src/App.tsx → src/lib/pricingOverrides.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (37 total, 10 thin omitted)
+## Communities (36 total, 11 thin omitted)
 
 ### Community 0 - "ContractsTab.tsx"
-Cohesion: 0.12
-Nodes (34): CompanySignatureHandle, CompanySignaturePad, ContractRow(), ContractsTab(), OverviewTab(), AdminStats, BarRow(), STATUS_FLOW (+26 more)
+Cohesion: 0.09
+Nodes (51): CompanySignatureHandle, CompanySignaturePad, ContractRow(), ContractsTab(), OverviewTab(), AdminStats, BarRow(), StatTile() (+43 more)
 
 ### Community 1 - "App.tsx"
-Cohesion: 0.07
-Nodes (34): lenis, lenis, AdminPage, App(), ContractBuilderGate, ContractPDFPreview, PolicyPage, TemplateGrid (+26 more)
+Cohesion: 0.06
+Nodes (29): lenis, lenis, AdminPage, App(), ContractBuilderGate, ContractPDFPreview, PolicyPage, TemplateGrid (+21 more)
 
 ### Community 2 - "TemplateInteractiveSandbox.tsx"
 Cohesion: 0.10
 Nodes (38): ResponsivePreview(), SiteMenuIcon(), VIEWPORT_PRESETS, ViewportChoice, TemplateInteractiveSandbox(), AccountRecord, Appointment, CartItem (+30 more)
 
 ### Community 3 - "Language"
-Cohesion: 0.11
-Nodes (33): AdminDashboardProps, AdminPageProps, ContractBuilder(), ContractBuilderProps, PRESET_COLORS, ContractBuilderGate(), ContractBuilderGateProps, ContractPDFPreviewProps (+25 more)
+Cohesion: 0.08
+Nodes (41): AboutSection(), AboutSectionProps, AdminDashboardProps, AdminPageProps, ContractBuilder(), ContractBuilderProps, PRESET_COLORS, ContractBuilderGateProps (+33 more)
 
 ### Community 4 - "devDependencies"
 Cohesion: 0.11
@@ -109,29 +108,25 @@ Nodes (19): dotenv, express, firebase, @google/genai, html2canvas-pro, jspdf, lu
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
-### Community 7 - "audio.ts"
-Cohesion: 0.20
-Nodes (4): MilestoneTimeline(), MilestoneTimelineProps, cosmicAudio, CosmicAudioEngine
-
 ### Community 8 - "compilerOptions"
 Cohesion: 0.11
 Nodes (18): DOM, DOM.Iterable, ES2022, compilerOptions, allowImportingTsExtensions, allowJs, experimentalDecorators, isolatedModules (+10 more)
 
-### Community 9 - "AdminDashboard.tsx"
-Cohesion: 0.10
-Nodes (34): MembersTab(), TeamTab(), AdminDashboard(), Tab, AdminLogin(), AdminLoginProps, AdminPage(), CustomerDashboard() (+26 more)
+### Community 9 - "auth.ts"
+Cohesion: 0.13
+Nodes (25): MembersTab(), TeamTab(), AdminLogin(), AdminLoginProps, AdminPage(), ContractBuilderGate(), Navbar(), authedFetch() (+17 more)
 
 ### Community 10 - "showToast"
-Cohesion: 0.14
-Nodes (19): SettingsTab(), SOCIAL_FIELDS, Footer(), FooterProps, ToastHost(), db, readCachedLinks(), saveSocialLinks() (+11 more)
+Cohesion: 0.16
+Nodes (17): SettingsTab(), SOCIAL_FIELDS, Footer(), ToastHost(), readCachedLinks(), saveSocialLinks(), SocialLinks, subscribeToSocialLinks() (+9 more)
 
-### Community 11 - "ErrorBoundary"
-Cohesion: 0.17
-Nodes (5): ErrorBoundary, Props, State, isLiveTemplateView, TemplateLivePage
+### Community 11 - "CookieConsent.tsx"
+Cohesion: 0.43
+Nodes (6): CookieConsent(), CookieConsentProps, ConsentStatus, getConsentStatus(), isTrackingAllowed(), setConsentStatus()
 
 ### Community 12 - "PricingTab.tsx"
-Cohesion: 0.18
-Nodes (14): PricingRow(), PricingTab(), StatTile(), PriceInput(), PriceInputProps, templatesData, toUSD(), applyPricingOverrides() (+6 more)
+Cohesion: 0.20
+Nodes (13): PricingRow(), PricingTab(), PriceInput(), PriceInputProps, templatesData, toUSD(), applyPricingOverrides(), PricingOverride (+5 more)
 
 ### Community 13 - "pageTranslator.ts"
 Cohesion: 0.28
@@ -148,10 +143,6 @@ Nodes (8): graphify reference: extra exports and benchmark, Step 6b - Wiki (only
 ### Community 16 - "scripts"
 Cohesion: 0.29
 Nodes (7): scripts, build, clean, dev, lint, start, translations
-
-### Community 17 - "PolicyPage.tsx"
-Cohesion: 0.33
-Nodes (4): PolicyPageProps, PRIVACY_SECTIONS, Section, TERMS_SECTIONS
 
 ### Community 18 - "build-translations.mjs"
 Cohesion: 0.43
@@ -188,7 +179,7 @@ Nodes (3): vite, vite, vite
 ## Knowledge Gaps
 - **148 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+143 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -196,14 +187,14 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `dependencies` connect `dependencies` to `vite`, `firebase-admin`, `motion`, `react-dom`, `App.tsx`, `@tailwindcss/vite`, `package.json`?**
   _High betweenness centrality (0.170) - this node is a cross-community bridge._
 - **Why does `generateContractPDF()` connect `ContractsTab.tsx` to `dependencies`?**
-  _High betweenness centrality (0.096) - this node is a cross-community bridge._
+  _High betweenness centrality (0.097) - this node is a cross-community bridge._
 - **Why does `jspdf` connect `dependencies` to `ContractsTab.tsx`?**
   _High betweenness centrality (0.095) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
   _148 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ContractsTab.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.11522198731501057 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08581349206349206 - nodes in this community are weakly interconnected._
 - **Should `App.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.06871035940803383 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06423034330011074 - nodes in this community are weakly interconnected._
 - **Should `TemplateInteractiveSandbox.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.0975609756097561 - nodes in this community are weakly interconnected._

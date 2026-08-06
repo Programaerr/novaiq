@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786033064.7142706,
-    "ast_hash": "cfc76af27b8ba3f3f502df2e60fcb443",
+    "mtime": 1786033313.5415683,
+    "ast_hash": "b3f3720e413da7b5341512b99ae09933",
     "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
@@ -412,6 +412,11 @@
   "src/lib/useSignaturePad.ts": {
     "mtime": 1786032848.6212752,
     "ast_hash": "667899096b6fc157feacb9271ac5a499",
+    "semantic_hash": ""
+  },
+  "src/components/TemplateFilterPanel.tsx": {
+    "mtime": 1786033313.4693303,
+    "ast_hash": "b5bb167e30afb6c5ed7916c48c0fabc3",
     "semantic_hash": ""
   }
 }
