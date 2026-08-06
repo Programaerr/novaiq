@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties, type M
 import Lenis from 'lenis';
 import { CosmicBackground } from './components/CosmicBackground';
 import { Navbar } from './components/Navbar';
+import { PageBackBar } from './components/PageBackBar';
 import { HeroSection } from './components/HeroSection';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { AboutSection } from './components/AboutSection';
@@ -254,6 +255,16 @@ export default function App() {
 
   const isAr = language === 'ar';
 
+  const pageTitles: Record<string, string> = {
+    templates: isAr ? 'القوالب البرمجية' : 'Ready Templates',
+    'custom-request': isAr ? 'عقد مخصص وتطوير' : 'Custom Contract',
+    orders: isAr ? 'حسابي' : 'My Account',
+    timeline: isAr ? 'مراحل العمل والتسليم' : 'Roadmap & Process',
+    about: isAr ? 'عن NOVAIQ' : 'About NOVAIQ',
+    privacy: isAr ? 'سياسة الخصوصية' : 'Privacy Policy',
+    terms: isAr ? 'الشروط والأحكام' : 'Terms of Service',
+  };
+
   // Stat bars start empty and only fill up once the visitor actually scrolls them
   // into view (not on page mount, which would finish the animation off-screen before
   // anyone sees it). IntersectionObserver fires once, then disconnects.
@@ -326,7 +337,22 @@ export default function App() {
 
       {/* Main Content View with Hardware Accelerated Transitions */}
       <main className="flex-1 relative z-10 pt-20 sm:pt-24 md:pt-28 pb-8">
-        
+
+        {/* Back/Home bar — every page other than home gets one, pinned right under the
+            Navbar, since the hamburger drawer alone wasn't a clear enough "how do I leave
+            this page" affordance. "Back" always returns to home rather than using browser
+            history.back(): navigateTo() only ever pushes new entries (never replaces), so
+            home is the one predictable, always-correct destination regardless of how the
+            visitor arrived at the current page. */}
+        {activePage !== 'home' && (
+          <PageBackBar
+            language={language}
+            title={pageTitles[activePage] || ''}
+            onBack={() => navigateTo('home')}
+            onHome={() => navigateTo('home')}
+          />
+        )}
+
         {activePage === 'home' && (
           <div className="page-in space-y-20 sm:space-y-24">
             {/* Hero Banner */}
