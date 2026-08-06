@@ -204,183 +204,182 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           </div>
         </div>
 
-        {/* Top Control Bar (Search + Filter Toggle) */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
-          
-          {/* Filter Open/Close Button */}
-          <button
-            onClick={() => {
-              setShowFilterPanel(!showFilterPanel);
-              cosmicAudio.playPing();
-            }}
-            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 cursor-pointer transition-all shadow-md ${
-              showFilterPanel || activeFiltersCount > 0
-                ? 'bg-zinc-800 text-white border-white glow-white'
-                : 'bg-zinc-900 text-zinc-200 border-zinc-800 hover:border-zinc-500 glow-white-hover'
-            }`}
-          >
-            <SlidersHorizontal className="w-4 h-4 text-zinc-300" />
-            <span>{currentLang === 'ar' ? 'فلاتر القوالب والأسعار' : 'Filter & Sort Templates'}</span>
-            {activeFiltersCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-white text-black text-[10px] font-black flex items-center justify-center">
-                {activeFiltersCount}
-              </span>
-            )}
-          </button>
-
-          {/* Search Box */}
-          <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-zinc-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={getTranslation('searchPlaceholder', currentLang)}
-              className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-white focus:outline-none text-white text-xs sm:text-sm placeholder-zinc-500 transition-all shadow-inner"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs cursor-pointer"
-              >
-                {currentLang === 'ar' ? 'مسح' : 'Clear'}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Expandable Filter Panel */}
-        <AnimatePresence>
-          {showFilterPanel && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, y: -10 }}
-              animate={{ opacity: 1, height: 'auto', y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden mb-6"
+        {/* Filter & Search — one cohesive glass card (same recipe as the interactive
+            sandbox's sticky store header: backdrop-blur-xl bg-white/5, an internal
+            border-t divider instead of a second floating box) instead of two loose
+            opaque elements, so this reads as part of the same site rather than a
+            leftover admin-tool look. */}
+        <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 overflow-hidden mb-6">
+          <div className="flex flex-col sm:flex-row items-center gap-3 p-3 sm:p-4">
+            <button
+              onClick={() => {
+                setShowFilterPanel(!showFilterPanel);
+                cosmicAudio.playPing();
+              }}
+              className={`w-full sm:w-auto px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 cursor-pointer transition-all ${
+                showFilterPanel || activeFiltersCount > 0
+                  ? 'bg-white/10 text-white border-white/40 glow-white'
+                  : 'bg-black/20 backdrop-blur-sm text-zinc-200 border-white/10 hover:border-white/25 glow-white-hover'
+              }`}
             >
-              <div className="p-5 sm:p-6 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-5 glow-white-hover">
-                
-                {/* Header row inside panel */}
-                <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-                  <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="w-4 h-4 text-white" />
-                    <h3 className="text-sm font-extrabold text-white">
-                      {currentLang === 'ar' ? 'تخصيص الفلاتر واختيار الميزانية' : 'Filter Options & Budget Selection'}
-                    </h3>
-                  </div>
+              <span className="w-7 h-7 rounded-lg bg-black/30 flex items-center justify-center shrink-0">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-white" />
+              </span>
+              <span>{currentLang === 'ar' ? 'تصفية' : 'Filter'}</span>
+              {activeFiltersCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-white text-black text-[10px] font-black flex items-center justify-center">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+
+            {/* Search Box */}
+            <div className="relative w-full sm:w-80 sm:ms-auto">
+              <Search className="w-4 h-4 text-zinc-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={getTranslation('searchPlaceholder', currentLang)}
+                className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-black/20 backdrop-blur-sm border border-white/10 focus:border-white/40 focus:outline-none text-white text-xs sm:text-sm placeholder-zinc-500 transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs cursor-pointer"
+                >
+                  {currentLang === 'ar' ? 'مسح' : 'Clear'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Expandable Filter Panel — a divider, not a second floating card, so it
+              reads as one continuous surface with the bar above it. */}
+          <AnimatePresence>
+            {showFilterPanel && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden border-t border-white/10"
+              >
+                <div className="p-4 sm:p-6 space-y-5">
+
                   {activeFiltersCount > 0 && (
-                    <button
-                      onClick={resetAllFilters}
-                      className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
-                      <span>{currentLang === 'ar' ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}</span>
-                    </button>
+                    <div className="flex justify-end -mb-1">
+                      <button
+                        onClick={resetAllFilters}
+                        className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
+                        <span>{currentLang === 'ar' ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}</span>
+                      </button>
+                    </div>
                   )}
-                </div>
 
-                {/* Filter Sections Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
-                  {/* Category Selection */}
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-300 mb-2.5">
-                      {currentLang === 'ar' ? 'الأقسام والتصنيفات:' : 'Category:'}
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {categories.map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() => {
-                            setSelectedCategory(cat.id);
-                            cosmicAudio.playPing();
-                          }}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                            selectedCategory === cat.id
-                              ? 'bg-zinc-800 text-white border border-white glow-white font-bold'
-                              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-600 hover:text-white'
-                          }`}
-                        >
-                          {cat.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Filter Sections Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                  {/* Price Range Slider ($300 - $10,000) */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-bold text-zinc-300">
-                        {currentLang === 'ar' ? 'حدد الميزانية والسعر (سلايدر):' : 'Price Budget Slider:'}
+                    {/* Category Selection */}
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-300 mb-2.5">
+                        {currentLang === 'ar' ? 'الأقسام والتصنيفات:' : 'Category:'}
                       </label>
-                      <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-xs font-bold border border-white/20 glow-white">
-                        {maxPriceUSD >= 10000 
-                          ? (currentLang === 'ar' ? 'الكل (حتى $10,000+)' : 'All (Up to $10k+)')
-                          : `$${maxPriceUSD.toLocaleString()}`}
-                      </span>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-3">
-                      <input
-                        type="range"
-                        min={300}
-                        max={10000}
-                        step={100}
-                        value={maxPriceUSD}
-                        onChange={(e) => {
-                          setMaxPriceUSD(Number(e.target.value));
-                        }}
-                        className="w-full accent-white cursor-pointer h-2 bg-zinc-700 rounded-lg appearance-none"
-                      />
-                      <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                        <span>$300</span>
-                        <span>$5,000</span>
-                        <span>$10,000</span>
-                      </div>
-                      <div className="text-[11px] text-zinc-400 text-center font-sans pt-1 border-t border-zinc-800">
-                        {currentLang === 'ar'
-                          ? `تصفية القوالب بميزانية حتى: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`
-                          : `Filter up to: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`}
+                      <div className="flex flex-wrap gap-1.5">
+                        {categories.map((cat) => (
+                          <button
+                            key={cat.id}
+                            onClick={() => {
+                              setSelectedCategory(cat.id);
+                              cosmicAudio.playPing();
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                              selectedCategory === cat.id
+                                ? 'bg-white/10 text-white border border-white/40 glow-white font-bold'
+                                : 'bg-black/20 backdrop-blur-sm text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
+                            }`}
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Sorting Options */}
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-300 mb-2.5">
-                      {currentLang === 'ar' ? 'ترتيب النتائج حسب:' : 'Sort By:'}
-                    </label>
-                    <div className="flex flex-col gap-1.5">
-                      {sortOptions.map((so) => (
-                        <button
-                          key={so.id}
-                          onClick={() => {
-                            setSortBy(so.id);
-                            cosmicAudio.playPing();
+                    {/* Price Range Slider ($300 - $10,000) */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-bold text-zinc-300">
+                          {currentLang === 'ar' ? 'حدد الميزانية والسعر (سلايدر):' : 'Price Budget Slider:'}
+                        </label>
+                        <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-xs font-bold border border-white/20 glow-white">
+                          {maxPriceUSD >= 10000
+                            ? (currentLang === 'ar' ? 'الكل (حتى $10,000+)' : 'All (Up to $10k+)')
+                            : `$${maxPriceUSD.toLocaleString()}`}
+                        </span>
+                      </div>
+
+                      <div className="p-3.5 rounded-xl bg-black/20 backdrop-blur-sm border border-white/10 space-y-3">
+                        <input
+                          type="range"
+                          min={300}
+                          max={10000}
+                          step={100}
+                          value={maxPriceUSD}
+                          onChange={(e) => {
+                            setMaxPriceUSD(Number(e.target.value));
                           }}
-                          className={`px-3 py-2 rounded-lg text-xs text-start font-semibold transition-all cursor-pointer flex items-center justify-between ${
-                            sortBy === so.id
-                              ? 'bg-zinc-800 text-white border border-white glow-white font-bold'
-                              : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-600 hover:text-white'
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <ArrowUpDown className="w-3 h-3 text-zinc-400" />
-                            <span>{so.label}</span>
-                          </span>
-                          {sortBy === so.id && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
-                        </button>
-                      ))}
+                          className="w-full accent-white cursor-pointer h-2 bg-white/10 rounded-lg appearance-none"
+                        />
+                        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                          <span>$300</span>
+                          <span>$5,000</span>
+                          <span>$10,000</span>
+                        </div>
+                        <div className="text-[11px] text-zinc-400 text-center font-sans pt-1 border-t border-white/10">
+                          {currentLang === 'ar'
+                            ? `تصفية القوالب بميزانية حتى: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`
+                            : `Filter up to: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`}
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Sorting Options */}
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-300 mb-2.5">
+                        {currentLang === 'ar' ? 'ترتيب النتائج حسب:' : 'Sort By:'}
+                      </label>
+                      <div className="flex flex-col gap-1.5">
+                        {sortOptions.map((so) => (
+                          <button
+                            key={so.id}
+                            onClick={() => {
+                              setSortBy(so.id);
+                              cosmicAudio.playPing();
+                            }}
+                            className={`px-3 py-2 rounded-lg text-xs text-start font-semibold transition-all cursor-pointer flex items-center justify-between ${
+                              sortBy === so.id
+                                ? 'bg-white/10 text-white border border-white/40 glow-white font-bold'
+                                : 'bg-black/20 backdrop-blur-sm text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
+                            }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              <ArrowUpDown className="w-3 h-3 text-zinc-400" />
+                              <span>{so.label}</span>
+                            </span>
+                            {sortBy === so.id && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                   </div>
-
                 </div>
-
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Templates Coverflow — clicking any off-center card brings it to focus (same
             "click to bring to front" idea as a music-app cover carousel) instead of firing
