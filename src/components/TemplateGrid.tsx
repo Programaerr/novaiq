@@ -51,7 +51,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   const [maxPriceUSD, setMaxPriceUSD] = useState<number>(10000); // Slider range from $300 to $10,000
   const [sortBy, setSortBy] = useState<string>('default'); // 'default', 'priceLowToHigh', 'priceHighToLow', 'fastest'
   const [showFilterPanel, setShowFilterPanel] = useState<boolean>(false);
+  const filterBarRef = useRef<HTMLDivElement | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+
+  // The filter dropdown floats over the page rather than pushing content down, so it needs
+  // its own dismissal — clicking anywhere outside it, or Escape, closes it (same pattern as
+  // the navbar's own drawer).
+  useEffect(() => {
+    if (!showFilterPanel) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      if (filterBarRef.current?.contains(e.target as Node)) return;
+      setShowFilterPanel(false);
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowFilterPanel(false);
+    };
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [showFilterPanel]);
 
   // Coverflow focus index — clicking any off-center card brings it to the middle instead
   // of firing its buttons immediately (see pointerEvents toggle below); a fresh filter/
@@ -204,13 +225,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           </div>
         </div>
 
-        {/* Filter & Search — one cohesive glass card (same recipe as the interactive
-            sandbox's sticky store header: backdrop-blur-xl bg-white/5, an internal
-            border-t divider instead of a second floating box) instead of two loose
-            opaque elements, so this reads as part of the same site rather than a
-            leftover admin-tool look. */}
-        <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 overflow-hidden mb-6">
-          <div className="flex flex-col sm:flex-row items-center gap-3 p-3 sm:p-4">
+        {/* Filter & Search bar. `relative` anchors the dropdown below it — the dropdown
+            itself is `absolute`, so opening it floats a glass panel over the templates
+            instead of pushing them down the page. */}
+        <div ref={filterBarRef} className="relative mb-6">
+          <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 p-3 sm:p-4">
             <button
               onClick={() => {
                 setShowFilterPanel(!showFilterPanel);
@@ -254,18 +273,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             </div>
           </div>
 
-          {/* Expandable Filter Panel — a divider, not a second floating card, so it
-              reads as one continuous surface with the bar above it. */}
+          {/* Floating dropdown — a separate glass card positioned over whatever's below it
+              (never in normal flow), closed by clicking outside it or pressing Escape (see
+              the effect above), same idiom as the navbar's own drawer. Options are stacked
+              in one clear order (category → budget → sort) with dividers between them,
+              instead of three squeezed side-by-side columns fighting for space. */}
           <AnimatePresence>
             {showFilterPanel && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden border-t border-white/10"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full inset-x-0 mt-2 z-30 rounded-2xl bg-black/70 backdrop-blur-2xl border border-white/15 shadow-2xl shadow-black/50 overflow-hidden"
               >
-                <div className="p-4 sm:p-6 space-y-5">
+                <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5 space-y-5">
 
                   {activeFiltersCount > 0 && (
                     <div className="flex justify-end -mb-1">
@@ -279,102 +301,96 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     </div>
                   )}
 
-                  {/* Filter Sections Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    {/* Category Selection */}
-                    <div>
-                      <label className="block text-xs font-bold text-zinc-300 mb-2.5">
-                        {currentLang === 'ar' ? 'الأقسام والتصنيفات:' : 'Category:'}
-                      </label>
-                      <div className="flex flex-wrap gap-1.5">
-                        {categories.map((cat) => (
-                          <button
-                            key={cat.id}
-                            onClick={() => {
-                              setSelectedCategory(cat.id);
-                              cosmicAudio.playPing();
-                            }}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                              selectedCategory === cat.id
-                                ? 'bg-white/10 text-white border border-white/40 glow-white font-bold'
-                                : 'bg-black/20 backdrop-blur-sm text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
-                            }`}
-                          >
-                            {cat.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Price Range Slider ($300 - $10,000) */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs font-bold text-zinc-300">
-                          {currentLang === 'ar' ? 'حدد الميزانية والسعر (سلايدر):' : 'Price Budget Slider:'}
-                        </label>
-                        <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-xs font-bold border border-white/20 glow-white">
-                          {maxPriceUSD >= 10000
-                            ? (currentLang === 'ar' ? 'الكل (حتى $10,000+)' : 'All (Up to $10k+)')
-                            : `$${maxPriceUSD.toLocaleString()}`}
-                        </span>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl bg-black/20 backdrop-blur-sm border border-white/10 space-y-3">
-                        <input
-                          type="range"
-                          min={300}
-                          max={10000}
-                          step={100}
-                          value={maxPriceUSD}
-                          onChange={(e) => {
-                            setMaxPriceUSD(Number(e.target.value));
+                  {/* Category */}
+                  <div>
+                    <label className="block text-xs font-bold text-zinc-300 mb-2.5">
+                      {currentLang === 'ar' ? 'الأقسام والتصنيفات' : 'Category'}
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            setSelectedCategory(cat.id);
+                            cosmicAudio.playPing();
                           }}
-                          className="w-full accent-white cursor-pointer h-2 bg-white/10 rounded-lg appearance-none"
-                        />
-                        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                          <span>$300</span>
-                          <span>$5,000</span>
-                          <span>$10,000</span>
-                        </div>
-                        <div className="text-[11px] text-zinc-400 text-center font-sans pt-1 border-t border-white/10">
-                          {currentLang === 'ar'
-                            ? `تصفية القوالب بميزانية حتى: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`
-                            : `Filter up to: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`}
-                        </div>
-                      </div>
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                            selectedCategory === cat.id
+                              ? 'bg-white/15 text-white border border-white/40 glow-white font-bold'
+                              : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
                     </div>
-
-                    {/* Sorting Options */}
-                    <div>
-                      <label className="block text-xs font-bold text-zinc-300 mb-2.5">
-                        {currentLang === 'ar' ? 'ترتيب النتائج حسب:' : 'Sort By:'}
-                      </label>
-                      <div className="flex flex-col gap-1.5">
-                        {sortOptions.map((so) => (
-                          <button
-                            key={so.id}
-                            onClick={() => {
-                              setSortBy(so.id);
-                              cosmicAudio.playPing();
-                            }}
-                            className={`px-3 py-2 rounded-lg text-xs text-start font-semibold transition-all cursor-pointer flex items-center justify-between ${
-                              sortBy === so.id
-                                ? 'bg-white/10 text-white border border-white/40 glow-white font-bold'
-                                : 'bg-black/20 backdrop-blur-sm text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
-                            }`}
-                          >
-                            <span className="flex items-center gap-2">
-                              <ArrowUpDown className="w-3 h-3 text-zinc-400" />
-                              <span>{so.label}</span>
-                            </span>
-                            {sortBy === so.id && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
                   </div>
+
+                  {/* Budget */}
+                  <div className="pt-4 border-t border-white/10">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-zinc-300">
+                        {currentLang === 'ar' ? 'الميزانية القصوى' : 'Maximum Budget'}
+                      </label>
+                      <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-xs font-bold border border-white/20 glow-white">
+                        {maxPriceUSD >= 10000
+                          ? (currentLang === 'ar' ? 'الكل (حتى $10,000+)' : 'All (Up to $10k+)')
+                          : `$${maxPriceUSD.toLocaleString()}`}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <input
+                        type="range"
+                        min={300}
+                        max={10000}
+                        step={100}
+                        value={maxPriceUSD}
+                        onChange={(e) => {
+                          setMaxPriceUSD(Number(e.target.value));
+                        }}
+                        className="w-full accent-white cursor-pointer h-2 bg-white/10 rounded-lg appearance-none"
+                      />
+                      <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                        <span>$300</span>
+                        <span>$5,000</span>
+                        <span>$10,000</span>
+                      </div>
+                      <div className="text-[11px] text-zinc-400 text-center font-sans">
+                        {currentLang === 'ar'
+                          ? `تصفية القوالب بميزانية حتى: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`
+                          : `Filter up to: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sort — same chip language as Category, not a separate stacked-button
+                      list, so the two read as one consistent choice pattern. */}
+                  <div className="pt-4 border-t border-white/10">
+                    <label className="block text-xs font-bold text-zinc-300 mb-2.5">
+                      {currentLang === 'ar' ? 'ترتيب النتائج حسب' : 'Sort By'}
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {sortOptions.map((so) => (
+                        <button
+                          key={so.id}
+                          onClick={() => {
+                            setSortBy(so.id);
+                            cosmicAudio.playPing();
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            sortBy === so.id
+                              ? 'bg-white/15 text-white border border-white/40 glow-white font-bold'
+                              : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
+                          }`}
+                        >
+                          <ArrowUpDown className="w-3 h-3 shrink-0" />
+                          <span>{so.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                 </div>
               </motion.div>
             )}
