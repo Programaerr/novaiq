@@ -20,6 +20,7 @@ import { Language, getTranslation } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
 import { showToast } from '../lib/toast';
 import { loadContractDraft, saveContractDraft, clearContractDraft } from '../lib/contractDraft';
+import { useSignaturePad } from '../lib/useSignaturePad';
 
 interface ContractBuilderProps {
   selectedTemplate: Template | null;
@@ -123,13 +124,18 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   // Digital Signature Canvas
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const signaturePadRef = useRef<HTMLDivElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [hasSignature, setHasSignature] = useState(false);
   // Drives an inline highlight on the pad instead of an alert() — a modal popup that just
   // says "go sign" makes the user dismiss it and then hunt for the pad themselves.
   const [signatureMissing, setSignatureMissing] = useState(false);
+  const {
+    canvasRef,
+    hasSignature,
+    startDrawing,
+    draw,
+    stopDrawing,
+    clear: clearSignature,
+  } = useSignaturePad({ onStrokeStart: () => setSignatureMissing(false) });
 
   useEffect(() => {
     if (selectedTemplate) {
@@ -182,74 +188,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     customProjectName,
   ]);
 
-  // Canvas drawing handlers.
-  // The canvas has a fixed internal drawing resolution (width={700} height={150})
-  // but is displayed at a responsive CSS size (w-full h-36), which is almost never
-  // 700x150px. Without scaling, clientX/clientY (in CSS pixels) were used directly as
-  // drawing-buffer coordinates, so the stroke landed wherever the cursor/finger was
-  // MINUS the mismatch between the two sizes — the line simply didn't track the pointer.
-  const getCanvasPoint = (canvas: HTMLCanvasElement, clientX: number, clientY: number) => {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY,
-    };
-  };
-
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // On touch devices, without this the browser can interpret the first drag as a page
-    // scroll instead of a stroke — the canvas then never receives the movement at all.
-    if ('touches' in e) e.preventDefault();
-
-    setIsDrawing(true);
-    setHasSignature(true);
-    setSignatureMissing(false);
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const point = getCanvasPoint(canvas, clientX, clientY);
-
-    ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    if ('touches' in e) e.preventDefault();
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const point = getCanvasPoint(canvas, clientX, clientY);
-
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#f4f4f5';
-    ctx.lineTo(point.x, point.y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
-
-  const clearSignature = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setHasSignature(false);
-  };
 
   // Price Calculation in IQD — a fully custom project has no catalogue price at all; its
   // final value is quoted by the team after reviewing the written description below.

@@ -21,6 +21,7 @@ import { generateContractPDF } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
+import { useSignaturePad } from '../../lib/useSignaturePad';
 import { PriceInput } from '../PriceInput';
 import { STATUS_FLOW, StatTile, statusArabic, AdminStats } from './shared';
 
@@ -130,79 +131,13 @@ const CompanySignaturePad = forwardRef<
   CompanySignatureHandle,
   { isAr: boolean; initialDataUrl?: string; onDirtyChange: (dirty: boolean) => void }
 >(({ isAr, initialDataUrl, onDirtyChange }, ref) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [hasSignature, setHasSignature] = useState(!!initialDataUrl);
+  const { canvasRef, hasSignature, startDrawing, draw, stopDrawing, clear, getDataUrl } = useSignaturePad({
+    initialDataUrl,
+    onStrokeStart: () => onDirtyChange(true),
+    onClear: () => onDirtyChange(true),
+  });
 
-  // Draws the existing saved signature (if any) onto the canvas once it mounts, so
-  // re-opening a contract shows what was already signed instead of a blank pad.
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setHasSignature(!!initialDataUrl);
-    if (initialDataUrl) {
-      const img = new Image();
-      img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      img.src = initialDataUrl;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialDataUrl]);
-
-  useImperativeHandle(ref, () => ({
-    getDataUrl: () => (hasSignature ? canvasRef.current?.toDataURL('image/png') || '' : ''),
-  }));
-
-  const getCanvasPoint = (canvas: HTMLCanvasElement, clientX: number, clientY: number) => {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: (clientX - rect.left) * (canvas.width / rect.width),
-      y: (clientY - rect.top) * (canvas.height / rect.height),
-    };
-  };
-
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-    if ('touches' in e) e.preventDefault();
-
-    setIsDrawing(true);
-    setHasSignature(true);
-    onDirtyChange(true);
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const point = getCanvasPoint(canvas, clientX, clientY);
-    ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    if ('touches' in e) e.preventDefault();
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    const point = getCanvasPoint(canvas, clientX, clientY);
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#f4f4f5';
-    ctx.lineTo(point.x, point.y);
-    ctx.stroke();
-  };
-
-  const clear = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setHasSignature(false);
-    onDirtyChange(true);
-  };
+  useImperativeHandle(ref, () => ({ getDataUrl }));
 
   return (
     <div className="space-y-2">
@@ -213,11 +148,11 @@ const CompanySignaturePad = forwardRef<
           height={120}
           onMouseDown={startDrawing}
           onMouseMove={draw}
-          onMouseUp={() => setIsDrawing(false)}
-          onMouseLeave={() => setIsDrawing(false)}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
           onTouchStart={startDrawing}
           onTouchMove={draw}
-          onTouchEnd={() => setIsDrawing(false)}
+          onTouchEnd={stopDrawing}
           className="w-full h-28 cursor-crosshair touch-none"
         />
         {!hasSignature && (
