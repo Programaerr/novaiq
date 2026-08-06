@@ -35,7 +35,9 @@ export const NovaiqLogo: React.FC<NovaiqLogoProps> = ({
         alt="NOVAIQ"
         width={size}
         height={size}
-        className="shrink-0 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+        className={`shrink-0 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ${
+          animated ? 'navbar-logo-mark-img' : ''
+        }`}
         style={{ width: size, height: size }}
       />
 
