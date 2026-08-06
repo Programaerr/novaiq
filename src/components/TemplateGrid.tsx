@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
 import {
@@ -10,8 +9,6 @@ import {
   Cpu,
   Globe,
   Sparkle,
-  RotateCcw,
-  ArrowUpDown,
   ChevronLeft,
   ChevronRight,
   Info,
@@ -19,7 +16,7 @@ import {
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
-import { formatPrice, IQD_PER_USD, Currency } from '../lib/currency';
+import { formatPrice, Currency } from '../lib/currency';
 import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
 import { TemplateFilterPanel } from './TemplateFilterPanel';

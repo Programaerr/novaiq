@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties, type MouseEvent } from 'react';
-import Lenis from 'lenis';
 import { CosmicBackground } from './components/CosmicBackground';
+import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { Navbar } from './components/Navbar';
 import { PageBackBar } from './components/PageBackBar';
 import { HeroSection } from './components/HeroSection';
@@ -69,81 +69,8 @@ export default function App() {
   const activeBgImage = (activePage === 'custom-request' && selectedTemplateForContract ? selectedTemplateForContract.previewImage : null)
     || (standalonePreviewTemplate ? standalonePreviewTemplate.previewImage : null);
 
-  // Buttery-smooth wheel scrolling (iOS-style momentum) for mouse/trackpad input — touch
-  // devices already get native momentum scrolling from the OS, so this only changes the
-  // feel of wheel-driven scrolling. Skipped under reduced-motion; elements marked
-  // data-lenis-prevent (modals, admin tables, the PDF preview) keep native scroll intact.
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
-
-    let rafId: number;
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    };
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, []);
-
-  // Scroll Spy for Home Page sections.
-  // Uses IntersectionObserver rather than a scroll listener: reading offsetTop on every
-  // scroll frame forced the browser into a synchronous layout recalculation before it
-  // could paint, which is one of the most common causes of visible scroll stutter.
-  // IntersectionObserver reports crossings off the main scroll path and fires only when
-  // a section boundary is actually crossed — a handful of times per page, not per frame.
-  useEffect(() => {
-    if (activePage !== 'home') {
-      setActiveSection(activePage);
-      return;
-    }
-
-    const SECTIONS: Array<{ id: string; name: string }> = [
-      { id: 'templates-section', name: 'templates' },
-      { id: 'contract-section', name: 'contract' },
-      { id: 'timeline-section', name: 'timeline' },
-      { id: 'about-section', name: 'about' },
-    ];
-
-    const elements = SECTIONS
-      .map(({ id }) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-
-    if (elements.length === 0) {
-      setActiveSection('hero');
-      return;
-    }
-
-    const visibleIds = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) visibleIds.add(entry.target.id);
-          else visibleIds.delete(entry.target.id);
-        }
-
-        // Deepest section currently crossing the focus band wins; none means we're still at the hero.
-        let nextSection = 'hero';
-        for (const { id, name } of SECTIONS) {
-          if (visibleIds.has(id)) nextSection = name;
-        }
-
-        setActiveSection(prev => (prev !== nextSection ? nextSection : prev));
-      },
-      { rootMargin: '-33% 0px -60% 0px' }
-    );
-
-    elements.forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, [activePage]);
+  useSmoothScroll();
+  useSectionScrollSpy(activePage, setActiveSection);
 
   // Handle URL changes & popstate (browser back/forward)
   useEffect(() => {
