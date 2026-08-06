@@ -35,9 +35,9 @@
     "semantic_hash": "efcd88d876e34d4be09f5ae4d7aaa3e0"
   },
   "src/App.tsx": {
-    "mtime": 1786009020.8721337,
-    "ast_hash": "864e1234670eef0966a222b1bc4d6a42",
-    "semantic_hash": "864e1234670eef0966a222b1bc4d6a42"
+    "mtime": 1786015571.893453,
+    "ast_hash": "7ba39389127870ada1527e1dd75d24a1",
+    "semantic_hash": "7ba39389127870ada1527e1dd75d24a1"
   },
   "src/components/AboutSection.tsx": {
     "mtime": 1785867604.169136,
@@ -45,9 +45,9 @@
     "semantic_hash": "756bf8938a73a3faa3ae8615efcc1cb5"
   },
   "src/components/AdminDashboard.tsx": {
-    "mtime": 1786009134.0331924,
-    "ast_hash": "aa0be3eb7ad2035bf05b533cbbe82447",
-    "semantic_hash": "aa0be3eb7ad2035bf05b533cbbe82447"
+    "mtime": 1786016800.6471536,
+    "ast_hash": "b6d42e899ad795416c8b97cfc2c1558a",
+    "semantic_hash": "b6d42e899ad795416c8b97cfc2c1558a"
   },
   "src/components/AdminLogin.tsx": {
     "mtime": 1785839414.374453,
@@ -115,14 +115,14 @@
     "semantic_hash": "870cb535edd61de15bbe3a49aa840e10"
   },
   "src/components/MilestoneTimeline.tsx": {
-    "mtime": 1785942156.753243,
-    "ast_hash": "57567e59a55f6935430f8db43a05633c",
-    "semantic_hash": "57567e59a55f6935430f8db43a05633c"
+    "mtime": 1786012458.5645053,
+    "ast_hash": "c477ae065314707515b9044d964a29ad",
+    "semantic_hash": "c477ae065314707515b9044d964a29ad"
   },
   "src/components/Navbar.tsx": {
-    "mtime": 1786007879.0485451,
-    "ast_hash": "6c03b22a83b53bc51b7b3e5ef846489f",
-    "semantic_hash": "6c03b22a83b53bc51b7b3e5ef846489f"
+    "mtime": 1786014570.5665116,
+    "ast_hash": "a86fb898217ad19a40e495a8f979a3dd",
+    "semantic_hash": "a86fb898217ad19a40e495a8f979a3dd"
   },
   "src/components/NovaiqLogo.tsx": {
     "mtime": 1785938955.8887372,
@@ -145,9 +145,9 @@
     "semantic_hash": "b391705e2d1dce609363d8a9978ecd64"
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786007257.5937257,
-    "ast_hash": "e97772dcf2bbac0f920fc6e35ec82215",
-    "semantic_hash": "e97772dcf2bbac0f920fc6e35ec82215"
+    "mtime": 1786016826.4828866,
+    "ast_hash": "a80d0229312ae2e8be8945d4d9a2678c",
+    "semantic_hash": "a80d0229312ae2e8be8945d4d9a2678c"
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
     "mtime": 1786004761.8799422,
@@ -230,14 +230,14 @@
     "semantic_hash": "f616c42ed226400084052793d870fc18"
   },
   "src/lib/pricingOverrides.ts": {
-    "mtime": 1785872362.3658564,
-    "ast_hash": "d1c214d92065372fa5335ab9eac18aa8",
-    "semantic_hash": "d1c214d92065372fa5335ab9eac18aa8"
+    "mtime": 1786017803.331556,
+    "ast_hash": "5151fabe472a579afc9aba89d1565afa",
+    "semantic_hash": "5151fabe472a579afc9aba89d1565afa"
   },
   "src/lib/socialLinks.ts": {
-    "mtime": 1786004914.4056232,
-    "ast_hash": "70a64dd916920839779ae49594e26d7e",
-    "semantic_hash": "70a64dd916920839779ae49594e26d7e"
+    "mtime": 1786017853.2965417,
+    "ast_hash": "5502829900f54e9bb523b02e615cf1a0",
+    "semantic_hash": "5502829900f54e9bb523b02e615cf1a0"
   },
   "src/lib/toast.ts": {
     "mtime": 1785804930.701131,
@@ -273,5 +273,35 @@
     "mtime": 1786008891.1861699,
     "ast_hash": "dc2f556a44f2830de306adecd63cff6c",
     "semantic_hash": "dc2f556a44f2830de306adecd63cff6c"
+  },
+  "src/components/PageBackBar.tsx": {
+    "mtime": 1786015556.6265934,
+    "ast_hash": "17c33417f8585406391a216672bbf47c",
+    "semantic_hash": "17c33417f8585406391a216672bbf47c"
+  },
+  "README.md": {
+    "mtime": 1785752082.9588544,
+    "ast_hash": "024a13b91bf4694e25f038e405f808e3",
+    "semantic_hash": "024a13b91bf4694e25f038e405f808e3"
+  },
+  "index.html": {
+    "mtime": 1785843355.9365685,
+    "ast_hash": "a9800beff158e6a32b4694e6b707d78e",
+    "semantic_hash": "a9800beff158e6a32b4694e6b707d78e"
+  },
+  "src/assets/images/1785710025866.png": {
+    "mtime": 1785756634.1915581,
+    "ast_hash": "45929e6c576e85a5f7afa150a2692a77",
+    "semantic_hash": "45929e6c576e85a5f7afa150a2692a77"
+  },
+  "src/assets/images/novaiq-icon.png": {
+    "mtime": 1785757076.725773,
+    "ast_hash": "4b46fc6e62c31107f9738b89fb920dba",
+    "semantic_hash": "4b46fc6e62c31107f9738b89fb920dba"
+  },
+  "src/assets/images/novaiq-logo-cropped.png": {
+    "mtime": 1785756973.8125572,
+    "ast_hash": "741dccb135d5ae4fec30ad40d16261c0",
+    "semantic_hash": "741dccb135d5ae4fec30ad40d16261c0"
   }
 }
