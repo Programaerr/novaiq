@@ -4,6 +4,7 @@ import { ContractData } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
 import { STATUS_FLOW, PAYMENT_STATUS_FLOW, BarRow, StatTile, statusArabic, paymentStatusArabic, AdminStats } from './shared';
+import { CurrencyConverterCard } from './CurrencyConverterCard';
 import { Wallet, TrendingUp, TrendingDown, Landmark } from 'lucide-react';
 
 export function OverviewTab({
@@ -59,6 +60,8 @@ export function OverviewTab({
             : `Projected profit if all outstanding balances were collected: ${formatPrice(stats.projectedProfitIQD, language, currency)}`}
         </p>
       </div>
+
+      <CurrencyConverterCard isAr={isAr} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
