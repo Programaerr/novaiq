@@ -11,7 +11,8 @@ import {
   Download,
   ShieldCheck,
   X,
-  Loader2
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 
 interface ContractPDFPreviewProps {
@@ -20,6 +21,10 @@ interface ContractPDFPreviewProps {
   currency?: Currency;
   onClose: () => void;
   onSavedSuccess: () => void;
+  /** "تم التنزيل" — the customer explicitly wrapping up, distinct from the X button (which
+   *  just dismisses without going anywhere). Sends them back to the template they ordered, or
+   *  home for a fully custom project — see App.tsx's handleFinishContractDownload. */
+  onFinish: () => void;
 }
 
 export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
@@ -28,6 +33,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   currency = 'IQD',
   onClose,
   onSavedSuccess,
+  onFinish,
 }) => {
   const isAr = language === 'ar';
   const printRef = useRef<HTMLDivElement>(null);
@@ -251,28 +257,38 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
         </div>
 
         {/* Modal Actions Footer */}
-        <div className="p-4 sm:p-6 bg-zinc-950 border-t border-zinc-800 flex items-center justify-between gap-3">
+        <div className="p-4 sm:p-6 bg-zinc-950 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs text-zinc-400 font-mono hidden sm:block">
             {isAr ? 'سيتم طباعة سند العقد الرسمي الموثق' : 'The official verified contract deed will be printed'}
           </div>
 
-          <button
-            onClick={handleDownloadPDF}
-            disabled={isGeneratingPdf}
-            className="w-full sm:w-auto px-8 py-3 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-wait text-black text-sm font-extrabold shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-white"
-          >
-            {isGeneratingPdf ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>{isAr ? 'جارِ التجهيز...' : 'Preparing...'}</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-5 h-5" />
-                <span>{isAr ? 'تنزيل العقد PDF' : 'Download Contract PDF'}</span>
-              </>
-            )}
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPdf}
+              className="w-full sm:w-auto px-8 py-3 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-wait text-black text-sm font-extrabold shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-white"
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>{isAr ? 'جارِ التجهيز...' : 'Preparing...'}</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-5 h-5" />
+                  <span>{isAr ? 'تنزيل العقد PDF' : 'Download Contract PDF'}</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={onFinish}
+              className="w-full sm:w-auto px-8 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer transition-all"
+            >
+              <CheckCircle2 className="w-5 h-5" />
+              <span>{isAr ? 'تم التنزيل' : 'Download Complete'}</span>
+            </button>
+          </div>
         </div>
 
       </div>

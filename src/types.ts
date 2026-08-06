@@ -36,6 +36,11 @@ export interface Template {
   }[];
 }
 
+/** Sentinel `ContractData.templateId` for a fully custom (non-catalogue) project — the one
+ *  place both the contract form and anything reading a finished contract need to agree on
+ *  what "no ready-made template was picked" looks like. */
+export const CUSTOM_PROJECT_TEMPLATE_ID = '__custom__';
+
 export interface ContractData {
   id?: string;
   // The creating account's Firebase Auth uid — the basis Firestore security rules use to

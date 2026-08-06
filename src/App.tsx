@@ -10,9 +10,10 @@ import { Footer } from './components/Footer';
 import { CookieConsent } from './components/CookieConsent';
 import { ToastHost } from './components/ToastHost';
 import { PageLoader } from './components/PageLoader';
+import { ContractPreparingLoader } from './components/ContractPreparingLoader';
 import { useLiveTemplates } from './lib/pricingOverrides';
 
-import { Template, ContractData } from './types';
+import { Template, ContractData, CUSTOM_PROJECT_TEMPLATE_ID } from './types';
 import { Language } from './lib/i18n';
 import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
 import { consumePendingContractSelection } from './lib/pendingContractSelection';

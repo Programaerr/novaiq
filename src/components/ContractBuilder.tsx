@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Template, ContractData } from '../types';
+import { Template, ContractData, CUSTOM_PROJECT_TEMPLATE_ID } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
 import {
   FileSignature,
@@ -112,7 +112,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // A fully custom project — not based on any ready template at all. Arriving with no
   // selectedTemplate (e.g. via the navbar's direct "Custom Contract" link) opens straight
   // into this mode instead of silently defaulting to the first template in the catalogue.
-  const CUSTOM_OPTION_VALUE = '__custom__';
+  const CUSTOM_OPTION_VALUE = CUSTOM_PROJECT_TEMPLATE_ID;
   const [isCustomProject, setIsCustomProject] = useState(draft?.isCustomProject ?? !selectedTemplate);
   const [customProjectName, setCustomProjectName] = useState(draft?.customProjectName || '');
   const [primaryColor, setPrimaryColor] = useState(draft?.primaryColor || '#8b5cf6');
