@@ -207,13 +207,16 @@ export function RealEstateDemo({ ctx, bookingDate, propertyVisits, selectedPrope
             {price(prop.priceIQD)}
           </span>
 
+          {/* Follows the customer's chosen palette rather than a fixed black, so the demo
+              actually previews their colour. The roundel comes from the theme too — white on
+              the mid-tone palettes, but inverted on monochrome, whose button is itself white. */}
           <button
             onClick={() => { setSelectedPropertyId(prop.id); setActiveTab('booking'); cosmicAudio.playPing(); }}
-            className="ps-4 pe-1.5 py-1.5 rounded-full bg-zinc-900 hover:bg-black text-white font-bold cursor-pointer text-[13px] flex items-center gap-2 shrink-0 transition-colors"
+            className={`ps-4 pe-1.5 py-1.5 rounded-full ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer text-[13px] flex items-center gap-2 shrink-0 transition-colors`}
           >
             <span>احجز معاينة</span>
-            <span className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0">
-              <ArrowUpLeft className="w-3.5 h-3.5 text-zinc-900" />
+            <span className={`w-7 h-7 rounded-full ${themeStyle.onPrimaryChipBg} flex items-center justify-center shrink-0`}>
+              <ArrowUpLeft className={`w-3.5 h-3.5 ${themeStyle.onPrimaryChipText}`} />
             </span>
           </button>
         </div>
