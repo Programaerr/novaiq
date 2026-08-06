@@ -65,8 +65,8 @@
     "semantic_hash": ""
   },
   "src/components/ContractBuilder.tsx": {
-    "mtime": 1786024198.8874106,
-    "ast_hash": "27673c61855dbcb017134c68a6a15857",
+    "mtime": 1786032972.73359,
+    "ast_hash": "948711855bc6e3389a8962218f186d11",
     "semantic_hash": ""
   },
   "src/components/ContractBuilderGate.tsx": {
@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786032113.3259466,
-    "ast_hash": "da264fcc3fc14a9efcfb8b8c16f57d6b",
+    "mtime": 1786032832.6376593,
+    "ast_hash": "cfc76af27b8ba3f3f502df2e60fcb443",
     "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
@@ -172,6 +172,41 @@
   "src/components/ToastHost.tsx": {
     "mtime": 1785848255.9166956,
     "ast_hash": "d8765df3829f2b8f2ac3ce9fa2408686",
+    "semantic_hash": ""
+  },
+  "src/components/admin/ContractsTab.tsx": {
+    "mtime": 1786032972.73359,
+    "ast_hash": "19a8ed9caee6dcf89192323b05cc863a",
+    "semantic_hash": ""
+  },
+  "src/components/admin/MembersTab.tsx": {
+    "mtime": 1786032932.9104095,
+    "ast_hash": "49f0c7aea54f80f82e46aa8d83ab4f91",
+    "semantic_hash": ""
+  },
+  "src/components/admin/OverviewTab.tsx": {
+    "mtime": 1786032600.5319254,
+    "ast_hash": "500d470b729159a259eddb2733d051c3",
+    "semantic_hash": ""
+  },
+  "src/components/admin/PricingTab.tsx": {
+    "mtime": 1786032600.5329242,
+    "ast_hash": "8f3defbbb057f2d1a7348d33741b0860",
+    "semantic_hash": ""
+  },
+  "src/components/admin/SettingsTab.tsx": {
+    "mtime": 1786032932.9114096,
+    "ast_hash": "21b0bb72ee6d6b821e3a1d5db0bdfcc6",
+    "semantic_hash": ""
+  },
+  "src/components/admin/TeamTab.tsx": {
+    "mtime": 1786032932.9124093,
+    "ast_hash": "565ee9e8ca8655d583fb3c18d9b667c2",
+    "semantic_hash": ""
+  },
+  "src/components/admin/shared.tsx": {
+    "mtime": 1786032932.91341,
+    "ast_hash": "29e6e8209e89a27890f1dab076368c41",
     "semantic_hash": ""
   },
   "src/components/sandbox/SandboxChrome.tsx": {
@@ -372,61 +407,6 @@
   "src/assets/images/novaiq-logo-cropped.png": {
     "mtime": 1785848255.7752464,
     "ast_hash": "741dccb135d5ae4fec30ad40d16261c0",
-    "semantic_hash": ""
-  },
-  "src/components/admin/ContractsTab.tsx": {
-    "mtime": 1786032600.5309262,
-    "ast_hash": "36fbc85b3c21bef2165f06a1c77a5993",
-    "semantic_hash": ""
-  },
-  "src/components/admin/MembersTab.tsx": {
-<<<<<<< HEAD
-    "mtime": 1786032604.9035773,
-    "ast_hash": "71e9d0f5f4cd8178ecfbee7cb8f64e6e",
-=======
-    "mtime": 1786032600.5309262,
-    "ast_hash": "56e31d0a22b8ae3128c378ec4958a3e7",
->>>>>>> 9481dbebacd37805f2921a8658fb6a05d4b13364
-    "semantic_hash": ""
-  },
-  "src/components/admin/OverviewTab.tsx": {
-    "mtime": 1786032600.5319254,
-    "ast_hash": "500d470b729159a259eddb2733d051c3",
-    "semantic_hash": ""
-  },
-  "src/components/admin/PricingTab.tsx": {
-    "mtime": 1786032600.5329242,
-    "ast_hash": "8f3defbbb057f2d1a7348d33741b0860",
-    "semantic_hash": ""
-  },
-  "src/components/admin/SettingsTab.tsx": {
-<<<<<<< HEAD
-    "mtime": 1786032664.1725428,
-    "ast_hash": "21b0bb72ee6d6b821e3a1d5db0bdfcc6",
-    "semantic_hash": ""
-  },
-  "src/components/admin/TeamTab.tsx": {
-    "mtime": 1786032604.9023137,
-    "ast_hash": "05be1e26d80f6327692bfecbaa7b89e9",
-    "semantic_hash": ""
-  },
-  "src/components/admin/shared.tsx": {
-    "mtime": 1786032664.1659577,
-    "ast_hash": "29e6e8209e89a27890f1dab076368c41",
-=======
-    "mtime": 1786032600.5329242,
-    "ast_hash": "06423cf94812c318e7eff4c33d828bf4",
-    "semantic_hash": ""
-  },
-  "src/components/admin/TeamTab.tsx": {
-    "mtime": 1786032600.5339272,
-    "ast_hash": "022264347b9afeefc411a38c7a79800d",
-    "semantic_hash": ""
-  },
-  "src/components/admin/shared.tsx": {
-    "mtime": 1786032600.5349257,
-    "ast_hash": "bb0da1c5d4fb966aaa3cedd54ca021ce",
->>>>>>> 9481dbebacd37805f2921a8658fb6a05d4b13364
     "semantic_hash": ""
   }
 }

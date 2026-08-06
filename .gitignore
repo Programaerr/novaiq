@@ -9,7 +9,9 @@ coverage/
 service-account*.json
 .claude/settings.local.json
 .translation-cache.json
+# Throwaway verification scripts and the screenshots they produce.
 _*.mjs
+_*.png
 
 # graphify's own build cache (per-file AST cache, mtime/hash index) and its automatic
 # dated backup snapshots — both regenerate locally and would just bloat the repo. The

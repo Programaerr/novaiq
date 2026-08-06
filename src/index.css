@@ -185,27 +185,17 @@
 }
 
 /* Hover border beam — a solid 2px ring on the pill's own outline, not a blurred cloud
-   around it. The mask pair (full box minus content box) erases everything except the 2px
-   padding strip, leaving just the ring; the conic-gradient behind it puts two bright arcs
-   opposite each other, so rotating it sends light travelling around the outline. Rotation
-   is `transform: rotate()` rather than an animated custom property — Lightning CSS strips
-   the `@property` those need and silently kills the whole declaration. */
-.filter-pill-btn::before {
-  content: '';
+   around it. Two elements, because one can't do both jobs: this wrapper stays still and
+   owns the ring shape (the mask pair — full box minus content box — erases everything but
+   the 2px padding strip), while the rotating gradient lives on its ::before. Rotating the
+   masked element itself swings the whole rounded-rect out of alignment with the pill on
+   every frame but 0deg, which is what made the beam fly off the corners. */
+.filter-pill-beam {
   position: absolute;
   inset: -2px;
   border-radius: inherit;
   padding: 2px;
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    #FFFFFF 12%,
-    transparent 25%,
-    transparent 50%,
-    #FFFFFF 62%,
-    transparent 75%,
-    transparent
-  );
+  overflow: hidden;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -215,11 +205,40 @@
   transition: opacity 250ms ease;
 }
 
+/* Square (aspect-ratio 1 at 200% of the pill's width) so no matter the rotation angle it
+   still covers every edge — a pill-shaped gradient would leave the short sides bare as it
+   turned. Rotation is `transform: rotate()` rather than an animated custom property:
+   Lightning CSS strips the `@property` those need and silently kills the declaration. */
+.filter-pill-beam::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  aspect-ratio: 1;
+  /* Centring uses the standalone `translate` property, not a translate() inside transform —
+     the spin keyframe owns `transform`, and would overwrite the centring if they shared it. */
+  translate: -50% -50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    #FFFFFF 10%,
+    transparent 25%,
+    transparent 50%,
+    #FFFFFF 60%,
+    transparent 75%,
+    transparent
+  );
+}
+
 /* ease-in-out (not linear) on a full turn is what makes it undulate — the beam surges
-   through the fast middle of each rotation and eases at the ends, reading as a wave
-   rolling around the pill instead of a motor spinning at constant speed. */
-.filter-pill-btn:hover::before {
+   through the middle of each rotation and eases at the ends, reading as a wave rolling
+   around the pill rather than a motor spinning at constant speed. */
+.filter-pill-btn:hover .filter-pill-beam {
   opacity: 1;
+}
+
+.filter-pill-btn:hover .filter-pill-beam::before {
   animation: filter-pill-mist-spin 2s ease-in-out infinite;
 }
 
