@@ -11,11 +11,15 @@ export const STATUS_FLOW: ContractData['status'][] = ['submitted', 'under_review
 export const PAYMENT_STATUS_FLOW: NonNullable<ContractData['paymentStatus']>[] = ['unpaid', 'partial', 'paid'];
 
 export function StatTile({ icon: Icon, label, value, accent }: { icon: React.ElementType; label: string; value: string; accent?: string }) {
+  // Financial figures (profit/loss, totals) can run to 8+ digits — a fixed text-xl with
+  // `truncate` silently clipped those behind an ellipsis, hiding the actual number. A smaller,
+  // responsive size plus wrapping instead of truncating means a big number is always fully
+  // readable (on up to two lines if it has to), never cut off.
   return (
-    <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
-      <div className="space-y-1 min-w-0">
+    <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-between gap-3">
+      <div className="space-y-1 min-w-0 flex-1">
         <span className="text-[11px] text-zinc-400 block font-medium truncate">{label}</span>
-        <div className={`text-xl font-extrabold font-mono truncate ${accent || 'text-white'}`}>{value}</div>
+        <div className={`text-base sm:text-lg lg:text-xl font-extrabold font-mono leading-tight wrap-break-word ${accent || 'text-white'}`}>{value}</div>
       </div>
       <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shrink-0">
         <Icon className="w-5 h-5" />
