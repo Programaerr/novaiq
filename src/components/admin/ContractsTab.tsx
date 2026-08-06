@@ -13,8 +13,10 @@ import {
   Search,
   Loader2,
   RotateCcw,
+  Plus,
+  X,
 } from 'lucide-react';
-import { ContractData } from '../../types';
+import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
 import { deleteContractFromFirebase, updateContractFields } from '../../lib/firebase';
@@ -23,8 +25,9 @@ import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { useSignaturePad } from '../../lib/useSignaturePad';
+import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '../../lib/payments';
 import { PriceInput } from '../PriceInput';
-import { STATUS_FLOW, PAYMENT_STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, AdminStats } from './shared';
+import { STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, AdminStats } from './shared';
 
 export function ContractsTab({
   isAr,
@@ -203,11 +206,30 @@ function ContractRow({
   expanded: boolean;
   onToggle: () => void;
 }) {
+  // Legacy contracts saved before the payment ledger existed only have a lump `paidAmountIQD`
+  // — seed a single migrated entry so that money isn't silently dropped from the ledger the
+  // first time this contract is opened after the feature shipped. The id must be stable
+  // (not random) across re-renders — this same function also computes the dirty-check
+  // baseline, and a fresh random id every call would make an untouched legacy contract look
+  // permanently dirty.
+  const baselinePayments = (c: ContractData): PaymentRecord[] =>
+    c.payments ||
+    (c.paidAmountIQD
+      ? [
+          {
+            id: `legacy_${c.id || c.contractNumber}`,
+            amountIQD: c.paidAmountIQD,
+            date: (c.updatedAt || c.createdAt || '').slice(0, 10) || todayIsoDate(),
+            note: isAr ? 'دفعة مسجلة سابقاً' : 'Previously recorded payment',
+          },
+        ]
+      : []);
+
   const [status, setStatus] = useState(contract.status);
   const [totalPrice, setTotalPrice] = useState(String(contract.totalPriceIQD || 0));
   const [cost, setCost] = useState(String(contract.costIQD || 0));
-  const [paymentStatus, setPaymentStatus] = useState(contract.paymentStatus || 'unpaid');
-  const [paidAmount, setPaidAmount] = useState(String(contract.paidAmountIQD || 0));
+  const [payments, setPayments] = useState<PaymentRecord[]>(() => baselinePayments(contract));
+  const [installmentsPlanned, setInstallmentsPlanned] = useState(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
   const [adminNotes, setAdminNotes] = useState(contract.adminNotes || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -220,32 +242,38 @@ function ContractRow({
     setStatus(contract.status);
     setTotalPrice(String(contract.totalPriceIQD || 0));
     setCost(String(contract.costIQD || 0));
-    setPaymentStatus(contract.paymentStatus || 'unpaid');
-    setPaidAmount(String(contract.paidAmountIQD || 0));
+    setPayments(baselinePayments(contract));
+    setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
     setAdminNotes(contract.adminNotes || '');
     setSignatureDirty(false);
-  }, [contract.status, contract.totalPriceIQD, contract.costIQD, contract.paymentStatus, contract.paidAmountIQD, contract.adminNotes, contract.companySignatureDataUrl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contract.status, contract.totalPriceIQD, contract.costIQD, contract.payments, contract.paidAmountIQD, contract.installmentsPlanned, contract.adminNotes, contract.companySignatureDataUrl]);
 
-  // Picking a payment status fills in the obvious paid amount — full price for "paid", zero
-  // for "unpaid" — so the common case needs no typing. "Partial" is left as-is since only the
-  // admin knows the real number; typing over the auto-filled amount for "paid" still works too,
-  // for the rare case the client paid slightly more or less than the agreed price.
-  const handlePaymentStatusChange = (next: NonNullable<ContractData['paymentStatus']>) => {
-    setPaymentStatus(next);
-    if (next === 'paid') setPaidAmount(totalPrice);
-    else if (next === 'unpaid') setPaidAmount('0');
+  const addPayment = () => {
+    setPayments((prev) => [...prev, { id: newPaymentId(), amountIQD: 0, date: todayIsoDate(), note: '' }]);
   };
+  const updatePayment = (id: string, patch: Partial<PaymentRecord>) => {
+    setPayments((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  };
+  const removePayment = (id: string) => {
+    setPayments((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const paidAmountIQD = sumPayments(payments);
+  const paymentStatus = derivePaymentStatus(paidAmountIQD, Number(totalPrice) || 0);
+  const remainingIQD = (Number(totalPrice) || 0) - paidAmountIQD;
+  const installmentsPlannedNum = Number(installmentsPlanned) || 0;
 
   const dirty =
     status !== contract.status ||
     Number(totalPrice) !== (contract.totalPriceIQD || 0) ||
     Number(cost) !== (contract.costIQD || 0) ||
-    paymentStatus !== (contract.paymentStatus || 'unpaid') ||
-    Number(paidAmount) !== (contract.paidAmountIQD || 0) ||
+    JSON.stringify(payments) !== JSON.stringify(baselinePayments(contract)) ||
+    installmentsPlannedNum !== (contract.installmentsPlanned || 0) ||
     adminNotes !== (contract.adminNotes || '') ||
     signatureDirty;
 
-  const rowProfit = Number(paidAmount || 0) - Number(cost || 0);
+  const rowProfit = paidAmountIQD - Number(cost || 0);
 
   const handleSave = async () => {
     if (!contract.id || isSaving) return;
@@ -256,8 +284,10 @@ function ContractRow({
         status,
         totalPriceIQD: Number(totalPrice) || 0,
         costIQD: Number(cost) || 0,
+        payments,
+        paidAmountIQD,
         paymentStatus,
-        paidAmountIQD: Number(paidAmount) || 0,
+        installmentsPlanned: installmentsPlannedNum || undefined,
         adminNotes: adminNotes.trim(),
         ...(companySignatureDataUrl !== undefined ? { companySignatureDataUrl } : {}),
       });
@@ -379,55 +409,127 @@ function ContractRow({
           </div>
 
           {/* Financial tracking — internal only, never shown on the client's printed contract.
+              Payment status/collected amount are derived from the ledger below, not typed in
+              directly, so they can never drift out of sync with what was actually logged.
               Profit here is collected cash minus cost, not the full agreed price minus cost,
               so an unpaid or partially-paid contract never inflates realized profit. */}
           <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-3">
-            <span className="text-[11px] font-semibold text-zinc-400 block">
-              {isAr ? 'التتبع المالي (داخلي فقط)' : 'Financial Tracking (internal only)'}
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className="text-[11px] font-semibold text-zinc-400">
+                {isAr ? 'التتبع المالي (داخلي فقط)' : 'Financial Tracking (internal only)'}
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
+                  paymentStatus === 'paid'
+                    ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
+                    : paymentStatus === 'partial'
+                    ? 'bg-amber-950/60 border-amber-800 text-amber-300'
+                    : 'bg-zinc-950 border-zinc-700 text-zinc-400'
+                }`}
+              >
+                {translateText(paymentStatusArabic(paymentStatus), language)}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
               <div>
-                <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">
-                  {isAr ? 'حالة الدفع' : 'Payment Status'}
-                </label>
-                <select
-                  value={paymentStatus}
-                  onChange={(e) => handlePaymentStatusChange(e.target.value as NonNullable<ContractData['paymentStatus']>)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-black border border-zinc-800 text-white text-xs font-bold cursor-pointer"
-                >
-                  {PAYMENT_STATUS_FLOW.map((ps) => (
-                    <option key={ps} value={ps}>
-                      {translateText(paymentStatusArabic(ps), language)}
-                    </option>
-                  ))}
-                </select>
+                <span className="text-zinc-500 block mb-1">{isAr ? 'المحصّل' : 'Collected'}</span>
+                <strong className="text-emerald-400 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">
-                  {isAr ? 'المبلغ المحصّل فعلياً (د.ع)' : 'Actually Collected (IQD)'}
-                </label>
-                <PriceInput
-                  value={paidAmount}
-                  onChange={setPaidAmount}
-                  className="w-full px-3 py-2.5 rounded-xl bg-black border border-zinc-800 text-white text-xs font-mono"
-                />
+                <span className="text-zinc-500 block mb-1">{isAr ? 'المتبقي' : 'Remaining'}</span>
+                <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-zinc-400'}`}>
+                  {formatPrice(Math.max(remainingIQD, 0), language, currency)}
+                </strong>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">
-                  {isAr ? 'التكلفة (د.ع)' : 'Cost (IQD)'}
-                </label>
+                <label className="block text-zinc-500 mb-1">{isAr ? 'التكلفة (د.ع)' : 'Cost (IQD)'}</label>
                 <PriceInput
                   value={cost}
                   onChange={setCost}
-                  className="w-full px-3 py-2.5 rounded-xl bg-black border border-zinc-800 text-white text-xs font-mono"
+                  className="w-full px-2.5 py-2 rounded-lg bg-black border border-zinc-800 text-white text-xs font-mono"
                 />
               </div>
+              <div>
+                <span className="text-zinc-500 block mb-1">{isAr ? 'ربح العقد (محقق)' : "Profit (realized)"}</span>
+                <strong className={`font-mono wrap-break-word ${rowProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {formatPrice(rowProfit, language, currency)}
+                </strong>
+              </div>
             </div>
-            <div className="text-[11px] text-zinc-400">
-              {isAr ? 'ربح هذا العقد (محقق):' : "This contract's profit (realized):"}{' '}
-              <strong className={rowProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-                {formatPrice(rowProfit, language, currency)}
-              </strong>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">
+                {isAr ? 'عدد الدفعات المتفق عليها مع العميل (اختياري)' : "Installments agreed with the client (optional)"}
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  value={installmentsPlanned}
+                  onChange={(e) => setInstallmentsPlanned(e.target.value)}
+                  placeholder={isAr ? 'مثال: 3' : 'e.g. 3'}
+                  className="w-28 px-3 py-2 rounded-lg bg-black border border-zinc-800 text-white text-xs font-mono"
+                />
+                {installmentsPlannedNum > 0 && (
+                  <span className="text-[11px] text-zinc-400">
+                    {isAr
+                      ? `${payments.length} من ${installmentsPlannedNum} دفعة مسجّلة`
+                      : `${payments.length} of ${installmentsPlannedNum} installments logged`}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-zinc-500">{isAr ? 'سجل الدفعات' : 'Payment Ledger'}</span>
+                <button
+                  type="button"
+                  onClick={addPayment}
+                  className="flex items-center gap-1 text-[11px] font-bold text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  {isAr ? 'إضافة دفعة' : 'Add Payment'}
+                </button>
+              </div>
+
+              {payments.length === 0 ? (
+                <p className="text-[11px] text-zinc-600">{isAr ? 'لم تُسجَّل أي دفعة بعد' : 'No payments logged yet'}</p>
+              ) : (
+                <div className="space-y-2">
+                  {payments.map((p) => (
+                    <div key={p.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 rounded-lg bg-black border border-zinc-800">
+                      <input
+                        type="date"
+                        value={p.date}
+                        onChange={(e) => updatePayment(p.id, { date: e.target.value })}
+                        className="px-2 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-white text-[11px] font-mono w-36 shrink-0"
+                      />
+                      <PriceInput
+                        value={String(p.amountIQD)}
+                        onChange={(v) => updatePayment(p.id, { amountIQD: Number(v) || 0 })}
+                        className="px-2 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-white text-[11px] font-mono w-32 shrink-0"
+                      />
+                      <input
+                        type="text"
+                        value={p.note || ''}
+                        onChange={(e) => updatePayment(p.id, { note: e.target.value })}
+                        placeholder={isAr ? 'ملاحظة (اختياري)' : 'Note (optional)'}
+                        className="flex-1 min-w-24 px-2 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-white text-[11px]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePayment(p.id)}
+                        title={isAr ? 'حذف الدفعة' : 'Remove payment'}
+                        className="p-1.5 rounded-md bg-red-950/60 hover:bg-red-900 border border-red-900 text-red-300 cursor-pointer transition-colors shrink-0"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

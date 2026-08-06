@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, FileCheck, Download, Loader2, Clock, CheckCircle2 } from 'lucide-react';
+import { LogOut, FileCheck, Download, Loader2, Clock, CheckCircle2, Wallet } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -10,6 +10,7 @@ import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { showToast } from '../lib/toast';
+import { sumPayments } from '../lib/payments';
 
 interface CustomerDashboardProps {
   language: Language;
@@ -132,6 +133,13 @@ function CustomerContractRow({
   const [isDownloading, setIsDownloading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
+  // Read-only for the client — never editable here, only in the admin dashboard. Showing it
+  // at all (not just cost/profit, which stay admin-only) is deliberate: both sides can see
+  // exactly what's been paid and what's left, instead of only NOVAIQ having a record of it.
+  const paidAmountIQD = contract.payments ? sumPayments(contract.payments) : contract.paidAmountIQD || 0;
+  const remainingIQD = Math.max((contract.totalPriceIQD || 0) - paidAmountIQD, 0);
+  const installmentsPlanned = contract.installmentsPlanned || 0;
+
   const handleDownload = async () => {
     if (!printRef.current || isDownloading) return;
     setIsDownloading(true);
@@ -198,6 +206,45 @@ function CustomerContractRow({
             <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-900/40 text-xs">
               <span className="text-amber-400 font-bold block mb-1">{isAr ? 'الشروط المتفق عليها بعد المراجعة:' : 'Agreed Terms After Review:'}</span>
               <p className="text-zinc-200">{contract.adminNotes}</p>
+            </div>
+          )}
+
+          {(paidAmountIQD > 0 || (contract.payments && contract.payments.length > 0)) && (
+            <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2.5">
+              <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
+                <Wallet className="w-3.5 h-3.5 text-zinc-400" />
+                {isAr ? 'سجل المدفوعات' : 'Payment History'}
+              </span>
+              <div className="grid grid-cols-2 gap-3 text-[11px]">
+                <div>
+                  <span className="text-zinc-500 block mb-0.5">{isAr ? 'المدفوع' : 'Paid'}</span>
+                  <strong className="text-emerald-400 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
+                </div>
+                <div>
+                  <span className="text-zinc-500 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
+                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-zinc-400'}`}>
+                    {formatPrice(remainingIQD, language, currency)}
+                  </strong>
+                </div>
+              </div>
+              {installmentsPlanned > 0 && (
+                <p className="text-[11px] text-zinc-400">
+                  {isAr
+                    ? `${(contract.payments || []).length} من ${installmentsPlanned} دفعة`
+                    : `${(contract.payments || []).length} of ${installmentsPlanned} installments`}
+                </p>
+              )}
+              {contract.payments && contract.payments.length > 0 && (
+                <div className="space-y-1.5 pt-1 border-t border-zinc-800">
+                  {contract.payments.map((p) => (
+                    <div key={p.id} className="flex items-center justify-between gap-2 text-[11px]">
+                      <span className="text-zinc-500 font-mono shrink-0" dir="ltr">{p.date}</span>
+                      {p.note && <span className="text-zinc-400 truncate flex-1 text-center">{p.note}</span>}
+                      <strong className="text-zinc-200 font-mono shrink-0">{formatPrice(p.amountIQD, language, currency)}</strong>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

@@ -41,6 +41,17 @@ export interface Template {
  *  what "no ready-made template was picked" looks like. */
 export const CUSTOM_PROJECT_TEMPLATE_ID = '__custom__';
 
+/** One entry in a contract's payment ledger (see `ContractData.payments`) — logged, edited,
+ *  or removed individually so a mistyped amount doesn't force overwriting a single running
+ *  total and losing track of what was actually received and when. */
+export interface PaymentRecord {
+  id: string;
+  amountIQD: number;
+  /** ISO date (yyyy-mm-dd) the payment was received. */
+  date: string;
+  note?: string;
+}
+
 export interface ContractData {
   id?: string;
   // The creating account's Firebase Auth uid — the basis Firestore security rules use to
@@ -108,11 +119,21 @@ export interface ContractData {
    *  manually since there's no other cost-tracking system in the app to derive it from. */
   costIQD?: number;
   paymentStatus?: 'unpaid' | 'partial' | 'paid';
-  /** Cash actually collected so far. Kept distinct from `totalPriceIQD` (the agreed price) so
-   *  a `partial` contract's real collected amount is known, not just guessed at — profit is
-   *  computed as collected minus cost, not agreed-price minus cost, so money that hasn't
-   *  actually landed yet is never counted as realized profit. */
+  /** Cash actually collected so far. Always recomputed as the sum of `payments` on save
+   *  (kept as a plain field, not derived on read, so stats/list views can total it up
+   *  without re-summing every contract's ledger) — never edited directly. Kept distinct
+   *  from `totalPriceIQD` (the agreed price) so a `partial` contract's real collected
+   *  amount is known, not just guessed at — profit is computed as collected minus cost,
+   *  not agreed-price minus cost, so money that hasn't actually landed yet is never
+   *  counted as realized profit. */
   paidAmountIQD?: number;
+  /** The individual payments making up `paidAmountIQD` — lets the admin log, correct, or
+   *  remove a single entry (e.g. a mistyped amount) instead of only ever overwriting one
+   *  lump sum. `paymentStatus`/`paidAmountIQD` are always derived from this list on save. */
+  payments?: PaymentRecord[];
+  /** How many installments the client agreed to pay in, if the payment is split (e.g. 3) —
+   *  purely informational, to show progress like "2 of 3 paid" in both dashboards. */
+  installmentsPlanned?: number;
 }
 
 export interface AIConsultationState {

@@ -125,7 +125,7 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
 // changes and the post-negotiation edits (final agreed price, admin notes) in one call.
 export async function updateContractFields(
   contractId: string,
-  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD'>>
+  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned'>>
 ): Promise<void> {
   const updatePayload: Partial<ContractData> = {
     ...fields,
