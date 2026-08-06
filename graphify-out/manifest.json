@@ -408,5 +408,10 @@
     "mtime": 1785848255.7752464,
     "ast_hash": "741dccb135d5ae4fec30ad40d16261c0",
     "semantic_hash": ""
+  },
+  "src/lib/useSignaturePad.ts": {
+    "mtime": 1786032972.73359,
+    "ast_hash": "bf5eea1cd9fe092d0df08ccb72146cf8",
+    "semantic_hash": ""
   }
 }

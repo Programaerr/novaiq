@@ -10,8 +10,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "package",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 31,
+      "community_name": "package.json",
       "norm_label": "package.json"
     },
     {
@@ -21,8 +21,8 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "package_name",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 31,
+      "community_name": "package.json",
       "norm_label": "name"
     },
     {
@@ -32,8 +32,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "package_private",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 31,
+      "community_name": "package.json",
       "norm_label": "private"
     },
     {
@@ -43,8 +43,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "package_version",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 31,
+      "community_name": "package.json",
       "norm_label": "version"
     },
     {
@@ -54,8 +54,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "package_type",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 31,
+      "community_name": "package.json",
       "norm_label": "type"
     },
     {
@@ -65,8 +65,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "package_scripts",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 16,
+      "community_name": "scripts",
       "norm_label": "scripts"
     },
     {
@@ -76,8 +76,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "package_scripts_dev",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 16,
+      "community_name": "scripts",
       "norm_label": "dev"
     },
     {
@@ -87,8 +87,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "package_scripts_build",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 16,
+      "community_name": "scripts",
       "norm_label": "build"
     },
     {
@@ -98,8 +98,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "package_scripts_start",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 16,
+      "community_name": "scripts",
       "norm_label": "start"
     },
     {
@@ -109,8 +109,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "package_scripts_clean",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 16,
+      "community_name": "scripts",
       "norm_label": "clean"
     },
     {
@@ -120,8 +120,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "package_scripts_lint",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 16,
+      "community_name": "scripts",
       "norm_label": "lint"
     },
     {
@@ -131,8 +131,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "package_scripts_translations",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 16,
+      "community_name": "scripts",
       "norm_label": "translations"
     },
     {
@@ -175,8 +175,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "package_dependencies_tailwindcss_vite",
-      "community": 5,
-      "community_name": "dependencies",
+      "community": 36,
+      "community_name": "@tailwindcss/vite",
       "norm_label": "@tailwindcss/vite"
     },
     {
@@ -186,8 +186,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tailwindcss_vite",
-      "community": 5,
-      "community_name": "dependencies",
+      "community": 36,
+      "community_name": "@tailwindcss/vite",
       "norm_label": "@tailwindcss/vite"
     },
     {
@@ -285,8 +285,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "package_dependencies_firebase_admin",
-      "community": 5,
-      "community_name": "dependencies",
+      "community": 33,
+      "community_name": "firebase-admin",
       "norm_label": "firebase-admin"
     },
     {
@@ -296,8 +296,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "firebase_admin",
-      "community": 5,
-      "community_name": "dependencies",
+      "community": 33,
+      "community_name": "firebase-admin",
       "norm_label": "firebase-admin"
     },
     {
@@ -395,8 +395,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "package_dependencies_motion",
-      "community": 5,
-      "community_name": "dependencies",
+      "community": 34,
+      "community_name": "motion",
       "norm_label": "motion"
     },
     {
@@ -406,8 +406,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "motion",
-      "community": 5,
-      "community_name": "dependencies",
+      "community": 34,
+      "community_name": "motion",
       "norm_label": "motion"
     },
     {
@@ -439,8 +439,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "package_dependencies_react_dom",
-      "community": 5,
-      "community_name": "dependencies",
+      "community": 35,
+      "community_name": "react-dom",
       "norm_label": "react-dom"
     },
     {
@@ -450,8 +450,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "react_dom",
-      "community": 5,
-      "community_name": "dependencies",
+      "community": 35,
+      "community_name": "react-dom",
       "norm_label": "react-dom"
     },
     {
@@ -461,8 +461,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "package_dependencies_vite",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 32,
+      "community_name": "vite",
       "norm_label": "vite"
     },
     {
@@ -472,8 +472,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "vite",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 32,
+      "community_name": "vite",
       "norm_label": "vite"
     },
     {
@@ -692,8 +692,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "package_devdependencies_vite",
-      "community": 4,
-      "community_name": "devDependencies",
+      "community": 32,
+      "community_name": "vite",
       "norm_label": "vite"
     },
     {
@@ -1025,8 +1025,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admindashboard",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "admindashboard.tsx"
     },
     {
@@ -1051,8 +1051,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_tab",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "tab"
     },
     {
@@ -1063,8 +1063,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_admindashboard",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "admindashboard()"
     },
     {
@@ -1074,8 +1074,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_adminlogin",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminlogin.tsx"
     },
     {
@@ -1087,8 +1087,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_adminloginprops",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminloginprops"
     },
     {
@@ -1099,8 +1099,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_googleicon",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "googleicon()"
     },
     {
@@ -1111,8 +1111,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_adminlogin",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminlogin()"
     },
     {
@@ -1122,8 +1122,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_adminpage",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminpage.tsx"
     },
     {
@@ -1147,8 +1147,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_adminpage_adminpage",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminpage()"
     },
     {
@@ -1158,15 +1158,15 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_contractbuilder",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "contractbuilder.tsx"
     },
     {
       "label": "ContractBuilderProps",
       "file_type": "code",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L24",
+      "source_location": "L25",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -1179,23 +1179,23 @@
       "label": "PRESET_COLORS",
       "file_type": "code",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L35",
+      "source_location": "L36",
       "_origin": "ast",
       "id": "src_components_contractbuilder_preset_colors",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "preset_colors"
     },
     {
       "label": "ContractBuilder()",
       "file_type": "code",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_contractbuilder_contractbuilder",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "contractbuilder()"
     },
     {
@@ -1290,8 +1290,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_contractprintdocument_contractprintdocumentprops",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "contractprintdocumentprops"
     },
     {
@@ -1323,8 +1323,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_cookieconsent",
-      "community": 16,
-      "community_name": "CookieConsent.tsx",
+      "community": 1,
+      "community_name": "App.tsx",
       "norm_label": "cookieconsent.tsx"
     },
     {
@@ -1336,8 +1336,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_cookieconsent_cookieconsentprops",
-      "community": 16,
-      "community_name": "CookieConsent.tsx",
+      "community": 1,
+      "community_name": "App.tsx",
       "norm_label": "cookieconsentprops"
     },
     {
@@ -1348,8 +1348,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_cookieconsent_cookieconsent",
-      "community": 16,
-      "community_name": "CookieConsent.tsx",
+      "community": 1,
+      "community_name": "App.tsx",
       "norm_label": "cookieconsent()"
     },
     {
@@ -1454,8 +1454,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_customerdashboard_customerdashboard",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "customerdashboard()"
     },
     {
@@ -1600,7 +1600,7 @@
       "_origin": "ast",
       "id": "src_components_footer",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "footer.tsx"
     },
     {
@@ -1613,7 +1613,7 @@
       "_origin": "ast",
       "id": "src_components_footer_footerprops",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "footerprops"
     },
     {
@@ -1625,7 +1625,7 @@
       "_origin": "ast",
       "id": "src_components_footer_footer",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "footer()"
     },
     {
@@ -1671,8 +1671,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialog.tsx"
     },
     {
@@ -1684,8 +1684,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog_logoutconfirmdialogprops",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialogprops"
     },
     {
@@ -1696,8 +1696,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog_logoutconfirmdialog",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialog()"
     },
     {
@@ -1708,7 +1708,7 @@
       "_origin": "ast",
       "id": "src_components_milestonetimeline",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": "milestonetimeline.tsx"
     },
     {
@@ -1721,7 +1721,7 @@
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimelineprops",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": "milestonetimelineprops"
     },
     {
@@ -1733,7 +1733,7 @@
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimeline",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": "milestonetimeline()"
     },
     {
@@ -1791,8 +1791,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_novaiqlogo",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "novaiqlogo.tsx"
     },
     {
@@ -1804,8 +1804,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_novaiqlogo_novaiqlogoprops",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "novaiqlogoprops"
     },
     {
@@ -1816,8 +1816,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_novaiqlogo_novaiqlogo",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "novaiqlogo()"
     },
     {
@@ -1886,8 +1886,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_policypage",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypage.tsx"
     },
     {
@@ -1899,8 +1899,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_policypage_policypageprops",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypageprops"
     },
     {
@@ -1912,8 +1912,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_policypage_section",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "section"
     },
     {
@@ -1923,8 +1923,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_policypage_privacy_sections",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "privacy_sections"
     },
     {
@@ -1934,8 +1934,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_components_policypage_terms_sections",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "terms_sections"
     },
     {
@@ -1946,8 +1946,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_policypage_policypage",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypage()"
     },
     {
@@ -1957,8 +1957,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_priceinput",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "priceinput.tsx"
     },
     {
@@ -1970,8 +1970,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_priceinput_priceinputprops",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "priceinputprops"
     },
     {
@@ -1982,8 +1982,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_priceinput_priceinput",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "priceinput()"
     },
     {
@@ -1993,8 +1993,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_templategrid",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "templategrid.tsx"
     },
     {
@@ -2004,8 +2004,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_components_templategrid_templateinteractivesandbox",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "templateinteractivesandbox"
     },
     {
@@ -2133,8 +2133,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_toasthost",
-      "community": 17,
-      "community_name": "toast.ts",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "toasthost.tsx"
     },
     {
@@ -2145,8 +2145,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_toasthost_toasthost",
-      "community": 17,
-      "community_name": "toast.ts",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "toasthost()"
     },
     {
@@ -2164,7 +2164,7 @@
       "label": "ContractsTab()",
       "file_type": "code",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_contractstab_contractstab",
@@ -2176,7 +2176,7 @@
       "label": "CompanySignatureHandle",
       "file_type": "code",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L125",
+      "source_location": "L126",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -2189,7 +2189,7 @@
       "label": "CompanySignaturePad",
       "file_type": "code",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L129",
+      "source_location": "L130",
       "_origin": "ast",
       "id": "src_components_admin_contractstab_companysignaturepad",
       "community": 0,
@@ -2200,7 +2200,7 @@
       "label": "ContractRow()",
       "file_type": "code",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L243",
+      "source_location": "L178",
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_contractstab_contractrow",
@@ -2216,7 +2216,7 @@
       "_origin": "ast",
       "id": "src_components_admin_memberstab",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "memberstab.tsx"
     },
     {
@@ -2228,7 +2228,7 @@
       "_origin": "ast",
       "id": "src_components_admin_memberstab_memberstab",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "memberstab()"
     },
     {
@@ -2261,8 +2261,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admin_pricingtab",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "pricingtab.tsx"
     },
     {
@@ -2273,8 +2273,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_pricingtab_pricingtab",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "pricingtab()"
     },
     {
@@ -2285,8 +2285,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_pricingtab_pricingrow",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "pricingrow()"
     },
     {
@@ -2297,7 +2297,7 @@
       "_origin": "ast",
       "id": "src_components_admin_settingstab",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "settingstab.tsx"
     },
     {
@@ -2308,7 +2308,7 @@
       "_origin": "ast",
       "id": "src_components_admin_settingstab_social_fields",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "social_fields"
     },
     {
@@ -2320,7 +2320,7 @@
       "_origin": "ast",
       "id": "src_components_admin_settingstab_settingstab",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "settingstab()"
     },
     {
@@ -2331,7 +2331,7 @@
       "_origin": "ast",
       "id": "src_components_admin_teamtab",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "teamtab.tsx"
     },
     {
@@ -2343,7 +2343,7 @@
       "_origin": "ast",
       "id": "src_components_admin_teamtab_teamtab",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "teamtab()"
     },
     {
@@ -2376,8 +2376,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_shared_stattile",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "stattile()"
     },
     {
@@ -2903,8 +2903,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_templatesdata",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "templatesdata.ts"
     },
     {
@@ -2914,8 +2914,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_data_templatesdata_templatesdata",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "templatesdata"
     },
     {
@@ -2926,7 +2926,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminusers.ts"
     },
     {
@@ -2939,7 +2939,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_manageduser",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "manageduser"
     },
     {
@@ -2951,7 +2951,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_authedfetch",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "authedfetch()"
     },
     {
@@ -2963,7 +2963,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listallusers",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "listallusers()"
     },
     {
@@ -2975,7 +2975,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listregularsubscribers",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "listregularsubscribers()"
     },
     {
@@ -2987,7 +2987,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_setuserdisabled",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "setuserdisabled()"
     },
     {
@@ -2999,7 +2999,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_deleteuseraccount",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "deleteuseraccount()"
     },
     {
@@ -3012,7 +3012,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_teammember",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "teammember"
     },
     {
@@ -3024,7 +3024,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listteammembers",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "listteammembers()"
     },
     {
@@ -3035,7 +3035,7 @@
       "_origin": "ast",
       "id": "src_lib_audio",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": "audio.ts"
     },
     {
@@ -3048,7 +3048,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": "cosmicaudioengine"
     },
     {
@@ -3060,7 +3060,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playwarp",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": ".playwarp()"
     },
     {
@@ -3072,7 +3072,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playping",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": ".playping()"
     },
     {
@@ -3084,7 +3084,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playtick",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": ".playtick()"
     },
     {
@@ -3096,7 +3096,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_toggleambient",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": ".toggleambient()"
     },
     {
@@ -3108,7 +3108,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_isambienton",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": ".isambienton()"
     },
     {
@@ -3119,7 +3119,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudio",
       "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community_name": "audio.ts",
       "norm_label": "cosmicaudio"
     },
     {
@@ -3129,8 +3129,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_auth",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "auth.ts"
     },
     {
@@ -3140,8 +3140,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_lib_auth_googleprovider",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "googleprovider"
     },
     {
@@ -3152,8 +3152,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_loginwithgoogle",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "loginwithgoogle()"
     },
     {
@@ -3164,8 +3164,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_logoutaccount",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutaccount()"
     },
     {
@@ -3176,8 +3176,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_subscribetoauthstate",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "subscribetoauthstate()"
     },
     {
@@ -3200,8 +3200,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_normalizeemail",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "normalizeemail()"
     },
     {
@@ -3212,8 +3212,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_isadminemail",
-      "community": 3,
-      "community_name": "Language",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "isadminemail()"
     },
     {
@@ -3225,7 +3225,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_addadminemail",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "addadminemail()"
     },
     {
@@ -3237,7 +3237,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_autherrormessage",
       "community": 9,
-      "community_name": "adminUsers.ts",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "autherrormessage()"
     },
     {
@@ -3247,8 +3247,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_autotranslate",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "autotranslate.ts"
     },
     {
@@ -3259,8 +3259,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_loadcache",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "loadcache()"
     },
     {
@@ -3271,8 +3271,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_savecache",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "savecache()"
     },
     {
@@ -3282,8 +3282,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_lib_autotranslate_memorycache",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "memorycache"
     },
     {
@@ -3295,8 +3295,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_pendingentry",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "pendingentry"
     },
     {
@@ -3306,8 +3306,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_lib_autotranslate_pendingbatch",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "pendingbatch"
     },
     {
@@ -3318,8 +3318,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_flushbatch",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "flushbatch()"
     },
     {
@@ -3330,8 +3330,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_requesttranslation",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "requesttranslation()"
     },
     {
@@ -3341,8 +3341,8 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "src_lib_autotranslate_bundled",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "bundled"
     },
     {
@@ -3353,8 +3353,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_isfullyresolved",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "isfullyresolved()"
     },
     {
@@ -3365,8 +3365,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_resolvestatic",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "resolvestatic()"
     },
     {
@@ -3377,8 +3377,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_useautotranslatelist",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "useautotranslatelist()"
     },
     {
@@ -3389,8 +3389,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_autotranslate_useautotranslate",
-      "community": 12,
-      "community_name": "autoTranslate.ts",
+      "community": 0,
+      "community_name": "ContractsTab.tsx",
       "norm_label": "useautotranslate()"
     },
     {
@@ -3400,8 +3400,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_consent",
-      "community": 16,
-      "community_name": "CookieConsent.tsx",
+      "community": 1,
+      "community_name": "App.tsx",
       "norm_label": "consent.ts"
     },
     {
@@ -3413,8 +3413,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_consent_consentstatus",
-      "community": 16,
-      "community_name": "CookieConsent.tsx",
+      "community": 1,
+      "community_name": "App.tsx",
       "norm_label": "consentstatus"
     },
     {
@@ -3425,8 +3425,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_getconsentstatus",
-      "community": 16,
-      "community_name": "CookieConsent.tsx",
+      "community": 1,
+      "community_name": "App.tsx",
       "norm_label": "getconsentstatus()"
     },
     {
@@ -3437,8 +3437,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_setconsentstatus",
-      "community": 16,
-      "community_name": "CookieConsent.tsx",
+      "community": 1,
+      "community_name": "App.tsx",
       "norm_label": "setconsentstatus()"
     },
     {
@@ -3449,8 +3449,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_istrackingallowed",
-      "community": 16,
-      "community_name": "CookieConsent.tsx",
+      "community": 1,
+      "community_name": "App.tsx",
       "norm_label": "istrackingallowed()"
     },
     {
@@ -3460,8 +3460,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_contractdraft",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "contractdraft.ts"
     },
     {
@@ -3473,8 +3473,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_contractdraft",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "contractdraft"
     },
     {
@@ -3485,8 +3485,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_loadcontractdraft",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "loadcontractdraft()"
     },
     {
@@ -3497,8 +3497,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_savecontractdraft",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "savecontractdraft()"
     },
     {
@@ -3509,8 +3509,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_clearcontractdraft",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "clearcontractdraft()"
     },
     {
@@ -3520,8 +3520,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_currency",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "currency.ts"
     },
     {
@@ -3531,8 +3531,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_lib_currency_iqd_per_usd",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "iqd_per_usd"
     },
     {
@@ -3555,8 +3555,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_lib_currency_currency_storage_key",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "currency_storage_key"
     },
     {
@@ -3579,8 +3579,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_currency_tousd",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "tousd()"
     },
     {
@@ -3602,8 +3602,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_firebase",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "firebase.ts"
     },
     {
@@ -3614,7 +3614,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_db",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "db"
     },
     {
@@ -3624,8 +3624,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_lib_firebase_auth",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "auth"
     },
     {
@@ -3636,8 +3636,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_getdeletedidentifiers",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "getdeletedidentifiers()"
     },
     {
@@ -3648,8 +3648,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_markasdeleted",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "markasdeleted()"
     },
     {
@@ -3660,8 +3660,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_unmarkdeleted",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "unmarkdeleted()"
     },
     {
@@ -3672,8 +3672,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_savecontracttofirebase",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "savecontracttofirebase()"
     },
     {
@@ -3696,8 +3696,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_fetchcontractsfromfirebase",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "fetchcontractsfromfirebase()"
     },
     {
@@ -3708,8 +3708,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_subscribetocontracts",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "subscribetocontracts()"
     },
     {
@@ -3720,8 +3720,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_deletecontractfromfirebase",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "deletecontractfromfirebase()"
     },
     {
@@ -3790,8 +3790,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_i18n_gettranslation",
-      "community": 7,
-      "community_name": "ContractBuilder.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "gettranslation()"
     },
     {
@@ -4024,8 +4024,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pricingoverrides",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "pricingoverrides.ts"
     },
     {
@@ -4036,8 +4036,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_readcachedoverrides",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "readcachedoverrides()"
     },
     {
@@ -4048,8 +4048,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_writecachedoverrides",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "writecachedoverrides()"
     },
     {
@@ -4061,8 +4061,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_pricingoverride",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "pricingoverride"
     },
     {
@@ -4073,8 +4073,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_subscribetopricingoverrides",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "subscribetopricingoverrides()"
     },
     {
@@ -4085,8 +4085,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_savepricingoverride",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "savepricingoverride()"
     },
     {
@@ -4097,8 +4097,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_applypricingoverrides",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "applypricingoverrides()"
     },
     {
@@ -4109,8 +4109,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_uselivetemplates",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "uselivetemplates()"
     },
     {
@@ -4121,7 +4121,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "sociallinks.ts"
     },
     {
@@ -4133,7 +4133,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_readcachedlinks",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "readcachedlinks()"
     },
     {
@@ -4145,7 +4145,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_writecachedlinks",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "writecachedlinks()"
     },
     {
@@ -4158,7 +4158,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_sociallinks",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "sociallinks"
     },
     {
@@ -4170,7 +4170,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_subscribetosociallinks",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "subscribetosociallinks()"
     },
     {
@@ -4182,7 +4182,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_savesociallinks",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "savesociallinks()"
     },
     {
@@ -4194,7 +4194,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_usesociallinks",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "usesociallinks()"
     },
     {
@@ -4206,7 +4206,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_whatsapplink",
       "community": 10,
-      "community_name": "SettingsTab.tsx",
+      "community_name": "showToast",
       "norm_label": "whatsapplink()"
     },
     {
@@ -4216,8 +4216,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_toast",
-      "community": 17,
-      "community_name": "toast.ts",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "toast.ts"
     },
     {
@@ -4229,8 +4229,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_toast_toasttype",
-      "community": 17,
-      "community_name": "toast.ts",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "toasttype"
     },
     {
@@ -4242,8 +4242,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_toast_toastmessage",
-      "community": 17,
-      "community_name": "toast.ts",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "toastmessage"
     },
     {
@@ -4255,8 +4255,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_toast_listener",
-      "community": 17,
-      "community_name": "toast.ts",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "listener"
     },
     {
@@ -4266,8 +4266,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_lib_toast_listeners",
-      "community": 17,
-      "community_name": "toast.ts",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "listeners"
     },
     {
@@ -4278,8 +4278,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_toast_showtoast",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "showtoast()"
     },
     {
@@ -4290,9 +4290,58 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_toast_subscribetotoasts",
-      "community": 17,
-      "community_name": "toast.ts",
+      "community": 10,
+      "community_name": "showToast",
       "norm_label": "subscribetotoasts()"
+    },
+    {
+      "label": "useSignaturePad.ts",
+      "file_type": "code",
+      "source_file": "src/lib/useSignaturePad.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_lib_usesignaturepad",
+      "community": 3,
+      "community_name": "Language",
+      "norm_label": "usesignaturepad.ts"
+    },
+    {
+      "label": "UseSignaturePadOptions",
+      "file_type": "code",
+      "source_file": "src/lib/useSignaturePad.ts",
+      "source_location": "L13",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_usesignaturepad_usesignaturepadoptions",
+      "community": 3,
+      "community_name": "Language",
+      "norm_label": "usesignaturepadoptions"
+    },
+    {
+      "label": "PointerEvt",
+      "file_type": "code",
+      "source_file": "src/lib/useSignaturePad.ts",
+      "source_location": "L22",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "id": "src_lib_usesignaturepad_pointerevt",
+      "community": 3,
+      "community_name": "Language",
+      "norm_label": "pointerevt"
+    },
+    {
+      "label": "useSignaturePad()",
+      "file_type": "code",
+      "source_file": "src/lib/useSignaturePad.ts",
+      "source_location": "L26",
+      "_callable": true,
+      "_origin": "ast",
+      "id": "src_lib_usesignaturepad_usesignaturepad",
+      "community": 3,
+      "community_name": "Language",
+      "norm_label": "usesignaturepad()"
     },
     {
       "label": "main.tsx",
@@ -4334,8 +4383,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_types",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "types.ts"
     },
     {
@@ -4347,8 +4396,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_templatefeature",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "templatefeature"
     },
     {
@@ -4373,8 +4422,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_contractdata",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "contractdata"
     },
     {
@@ -4386,8 +4435,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_aiconsultationstate",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "aiconsultationstate"
     },
     {
@@ -7753,7 +7802,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder",
@@ -7764,7 +7813,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder",
@@ -7775,7 +7824,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L35",
+      "source_location": "L36",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder",
@@ -7979,6 +8028,30 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ContractBuilder.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_contractbuilder",
+      "target": "src_lib_usesignaturepad",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ContractBuilder.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_contractbuilder",
+      "target": "src_lib_usesignaturepad_usesignaturepad",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ContractBuilder.tsx",
       "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
@@ -8027,7 +8100,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilderprops",
@@ -8039,7 +8112,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilderprops",
@@ -8051,7 +8124,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilderprops",
@@ -8063,7 +8136,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilderprops",
@@ -8076,7 +8149,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L118",
+      "source_location": "L119",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilder",
@@ -8088,7 +8161,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L377",
+      "source_location": "L315",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilder",
@@ -8100,7 +8173,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L63",
+      "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilder",
@@ -8112,7 +8185,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L154",
+      "source_location": "L160",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilder",
@@ -8124,7 +8197,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L607",
+      "source_location": "L545",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilder",
@@ -8136,7 +8209,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L390",
+      "source_location": "L328",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilder",
@@ -8148,7 +8221,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L59",
+      "source_location": "L60",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilder",
@@ -8160,11 +8233,23 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/ContractBuilder.tsx",
-      "source_location": "L284",
+      "source_location": "L222",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_contractbuilder_contractbuilder",
       "target": "src_lib_toast_showtoast"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/ContractBuilder.tsx",
+      "source_location": "L138",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_contractbuilder_contractbuilder",
+      "target": "src_lib_usesignaturepad_usesignaturepad"
     },
     {
       "relation": "imports",
@@ -10309,7 +10394,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -10367,7 +10452,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11701,7 +11786,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L125",
+      "source_location": "L126",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11712,7 +11797,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L129",
+      "source_location": "L130",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11723,7 +11808,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L243",
+      "source_location": "L178",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11734,7 +11819,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11746,7 +11831,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11758,7 +11843,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11770,7 +11855,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11782,7 +11867,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11794,7 +11879,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab",
@@ -11986,6 +12071,30 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/admin/ContractsTab.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admin_contractstab",
+      "target": "src_lib_usesignaturepad",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/admin/ContractsTab.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admin_contractstab",
+      "target": "src_lib_usesignaturepad_usesignaturepad",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/admin/ContractsTab.tsx",
       "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
@@ -12011,7 +12120,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L92",
+      "source_location": "L93",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab_contractstab",
@@ -12023,7 +12132,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L63",
+      "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab_contractstab",
@@ -12035,7 +12144,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/admin/ContractsTab.tsx",
-      "source_location": "L92",
+      "source_location": "L93",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admin_contractstab_contractstab",
@@ -15516,6 +15625,51 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/lib/useSignaturePad.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_usesignaturepad",
+      "target": "src_lib_usesignaturepad_pointerevt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/useSignaturePad.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_usesignaturepad",
+      "target": "src_lib_usesignaturepad_usesignaturepad",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/useSignaturePad.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_usesignaturepad",
+      "target": "src_lib_usesignaturepad_usesignaturepadoptions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/lib/useSignaturePad.ts",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_usesignaturepad_usesignaturepad",
+      "target": "src_lib_usesignaturepad_pointerevt"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/main.tsx",
       "source_location": "L16",
       "weight": 1.0,
@@ -16431,5 +16585,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "abc25b1295fe878567527f58167f5656ffdc1c29"
+  "built_at_commit": "5f1a0bd1ee55aff8029d0ef227bd47e4ed411a69"
 }
