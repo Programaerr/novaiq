@@ -402,7 +402,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             "click to bring to front" idea as a music-app cover carousel) instead of firing
             its buttons; only the centered card is actually interactive, enforced via the
             pointerEvents toggle below rather than guessing which inner element was clicked. */}
-        <div className="flex items-center justify-center gap-2 sm:gap-6 mt-24 sm:mt-32">
+        <div className="flex items-center justify-center gap-2 sm:gap-6 mt-8 sm:mt-10">
           <button
             type="button"
             onClick={() => goToOffset(1)}
