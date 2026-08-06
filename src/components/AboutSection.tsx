@@ -14,7 +14,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
     <section id="about-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="electric-frame bg-zinc-950 p-5 sm:p-6 rounded-3xl border relative overflow-hidden shadow-2xl">
+        {/* No electric-frame here on purpose — its pulsing border glow was the "light around
+            the card" effect asked to be removed from this section. A static border keeps the
+            card visibly separated from the page without animating on its own. */}
+        <div className="bg-zinc-950 p-5 sm:p-6 rounded-3xl border border-zinc-700 relative overflow-hidden shadow-2xl">
           
           <div className="max-w-3xl mx-auto text-center space-y-4">
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">

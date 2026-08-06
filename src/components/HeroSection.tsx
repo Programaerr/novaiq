@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { useSpotlight } from '../lib/useSpotlight';
 
 const WHEEL_STEP = 90;
 
@@ -24,8 +23,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onCreateContract,
   language,
 }) => {
-  const cardSpotlight = useSpotlight<HTMLDivElement>();
-
   // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
   // for real photography until the client supplies per-guarantee images.
   const guarantees = [
@@ -193,10 +190,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   className="wheel3d-item"
                   style={{ '--item-angle': `${i * 90}deg` } as React.CSSProperties}
                 >
-                  <div
-                    {...cardSpotlight}
-                    className="spotlight-card group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-700 text-center hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl"
-                  >
+                  {/* No spotlight/glow here on purpose — the pointer-tracked light and the
+                      box-shadow bloom both washed a white overlay across the icon and text on
+                      hover, cutting their contrast. A plain border highlight communicates
+                      "hovered" without dimming what's actually on the face. */}
+                  <div className="group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-700 text-center hover:border-white/50 hover:bg-zinc-900/90 transition-all shadow-xl">
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none"
                       style={{ backgroundImage: bgImage, backgroundSize: bgSize }}
