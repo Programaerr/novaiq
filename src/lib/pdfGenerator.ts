@@ -6,7 +6,7 @@ import { ContractData } from '../types';
 // hardcoded in English — jsPDF's built-in fonts have no Arabic glyphs, so an Arabic version
 // of the same approach would render as blank boxes. Instead, this captures the already
 // correctly-translated, correctly-RTL on-screen contract document (rendered by the browser,
-// with real Arabic font + shaping) as an image and paginates it across A4 pages. This also
+// with real Arabic font + shaping) as an image, scaled to fit a single A4 page. This also
 // guarantees the PDF can never drift out of sync with what the client sees on screen.
 // Uses the `-pro` fork rather than plain html2canvas: Tailwind v4's default palette is
 // defined in oklch(), which the original library's CSS parser throws on ("Attempting to
@@ -34,22 +34,21 @@ export async function generateContractPDF(element: HTMLElement, contract: Contra
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  // Scaled to fit entirely within one page — width-fit alone (the old behavior) let a
+  // long contract (many add-ons, long custom notes, a long company name) overflow the
+  // page height and spill onto a second page. Taking the smaller of the width-fit and
+  // height-fit scale guarantees the whole document always lands on a single A4 page,
+  // shrinking proportionally on the rare contract that's naturally taller than one page
+  // instead of ever paginating.
+  const widthFitScale = pageWidth / canvas.width;
+  const heightFitScale = pageHeight / canvas.height;
+  const scale = Math.min(widthFitScale, heightFitScale);
+
+  const imgWidth = canvas.width * scale;
+  const imgHeight = canvas.height * scale;
   const imgData = canvas.toDataURL('image/png');
 
-  let heightLeft = imgHeight;
-  let position = 0;
-
-  doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    doc.addPage();
-    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
+  doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
 
   const cleanCompanyName = (contract.companyName || 'Company').replace(/[^a-zA-Z0-9_\-]/g, '_');
   const filename = `NOVAIQ_Contract_${cleanCompanyName}_${contract.contractNumber}.pdf`;
