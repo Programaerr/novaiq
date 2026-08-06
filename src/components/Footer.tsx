@@ -1,6 +1,7 @@
 import React from 'react';
-import { ShieldCheck, Mail, Globe } from 'lucide-react';
+import { ShieldCheck, Mail, Globe, Facebook, Instagram, Twitter, Music2, MessageCircle } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 import { NovaiqLogo } from './NovaiqLogo';
 
 interface FooterProps {
