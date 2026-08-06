@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
-import { formatPrice, toUSD } from '../lib/currency';
+import { formatPrice, toUSD, Currency } from '../lib/currency';
 import { subscribeToContracts, deleteContractFromFirebase, updateContractFields } from '../lib/firebase';
 import { logoutAccount, addAdminEmail, authErrorMessage } from '../lib/auth';
 import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser, listTeamMembers, TeamMember } from '../lib/adminUsers';
@@ -36,6 +36,7 @@ import { PriceInput } from './PriceInput';
 
 interface AdminDashboardProps {
   language: Language;
+  currency?: Currency;
 }
 
 type Tab = 'overview' | 'contracts' | 'pricing' | 'team' | 'members';
@@ -98,7 +99,7 @@ function BarRow({ label, count, total, isAr }: { label: string; count: number; t
   );
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, currency = 'IQD' }) => {
   const isAr = language === 'ar';
   const [tab, setTab] = useState<Tab>('overview');
   const [contracts, setContracts] = useState<ContractData[]>([]);
@@ -191,10 +192,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language }) => {
 
         <div className="flex-1 min-w-0 space-y-6">
           {tab === 'overview' && (
-            <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} />
+            <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} currency={currency} />
           )}
-          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} contracts={contracts} stats={stats} />}
-          {tab === 'pricing' && <PricingTab isAr={isAr} language={language} />}
+          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} currency={currency} contracts={contracts} stats={stats} />}
+          {tab === 'pricing' && <PricingTab isAr={isAr} language={language} currency={currency} />}
           {tab === 'team' && <TeamTab isAr={isAr} />}
           {tab === 'members' && <MembersTab isAr={isAr} />}
         </div>
@@ -212,11 +213,13 @@ function OverviewTab({
   stats,
   contracts,
   language,
+  currency,
 }: {
   isAr: boolean;
   stats: ReturnType<typeof useOverviewStatsType>;
   contracts: ContractData[];
   language: Language;
+  currency: Currency;
 }) {
   const recent = contracts.slice(0, 6);
 
@@ -258,7 +261,7 @@ function OverviewTab({
                   <div className="text-white font-bold truncate">{c.companyName}</div>
                   <div className="text-zinc-500 text-[10px] truncate">{translateText(c.templateTitle, language)}</div>
                 </div>
-                <span className="text-zinc-300 font-mono shrink-0">{formatPrice(c.totalPriceIQD || 0, language)}</span>
+                <span className="text-zinc-300 font-mono shrink-0">{formatPrice(c.totalPriceIQD || 0, language, currency)}</span>
               </div>
             ))}
           </div>
@@ -305,11 +308,13 @@ function statusArabic(status: ContractData['status']): string {
 function ContractsTab({
   isAr,
   language,
+  currency,
   contracts,
   stats,
 }: {
   isAr: boolean;
   language: Language;
+  currency: Currency;
   contracts: ContractData[];
   stats: ReturnType<typeof useOverviewStatsType>;
 }) {
@@ -336,13 +341,13 @@ function ContractsTab({
         <StatTile
           icon={DollarSign}
           label={isAr ? 'إجمالي القيمة' : 'Total Value'}
-          value={formatPrice(stats.totalIQD, language)}
+          value={formatPrice(stats.totalIQD, language, currency)}
           accent="text-emerald-400"
         />
         <StatTile
           icon={TrendingUp}
           label={isAr ? 'متوسط قيمة العقد' : 'Avg. Contract Value'}
-          value={formatPrice(stats.avgIQD, language)}
+          value={formatPrice(stats.avgIQD, language, currency)}
         />
       </div>
 
@@ -383,6 +388,7 @@ function ContractsTab({
               contract={c}
               isAr={isAr}
               language={language}
+              currency={currency}
               expanded={expandedId === (c.id || c.contractNumber)}
               onToggle={() => setExpandedId((prev) => (prev === (c.id || c.contractNumber) ? null : c.id || c.contractNumber || null))}
             />
@@ -519,12 +525,14 @@ function ContractRow({
   contract,
   isAr,
   language,
+  currency,
   expanded,
   onToggle,
 }: {
   contract: ContractData;
   isAr: boolean;
   language: Language;
+  currency: Currency;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -618,7 +626,7 @@ function ContractRow({
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs font-mono text-zinc-300 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language)}</span>
+          <span className="text-xs font-mono text-zinc-300 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
           <span className="px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-700 text-[10px] font-bold text-zinc-200">
             {translateText(statusArabic(contract.status), language)}
           </span>
@@ -729,7 +737,7 @@ function ContractRow({
 // Pricing
 // ---------------------------------------------------------------------------
 
-function PricingTab({ isAr, language }: { isAr: boolean; language: Language }) {
+function PricingTab({ isAr, language, currency }: { isAr: boolean; language: Language; currency: Currency }) {
   const templates = useLiveTemplates();
   const [overrides, setOverrides] = useState<Record<string, PricingOverride>>({});
 
@@ -747,7 +755,7 @@ function PricingTab({ isAr, language }: { isAr: boolean; language: Language }) {
       </p>
       <div className="space-y-2.5">
         {templates.map((t) => (
-          <PricingRow key={t.id} template={t} isAr={isAr} language={language} savedOverride={overrides[t.id]} />
+          <PricingRow key={t.id} template={t} isAr={isAr} language={language} currency={currency} savedOverride={overrides[t.id]} />
         ))}
       </div>
     </div>
@@ -758,11 +766,13 @@ function PricingRow({
   template,
   isAr,
   language,
+  currency,
   savedOverride,
 }: {
   template: ReturnType<typeof useLiveTemplates>[number];
   isAr: boolean;
   language: Language;
+  currency: Currency;
   savedOverride?: PricingOverride;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -831,7 +841,7 @@ function PricingRow({
               {isAr ? 'معدّل' : 'Edited'}
             </span>
           )}
-          <span className="text-xs font-mono text-zinc-300">{formatPrice(template.basePriceIQD, language)}</span>
+          <span className="text-xs font-mono text-zinc-300">{formatPrice(template.basePriceIQD, language, currency)}</span>
         </div>
       </button>
 

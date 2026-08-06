@@ -4,7 +4,7 @@ import { generateContractPDF } from '../lib/pdfGenerator';
 import { saveContractToFirebase } from '../lib/firebase';
 import { Language, translateText } from '../lib/i18n';
 import { useAutoTranslate, useAutoTranslateList } from '../lib/autoTranslate';
-import { formatPrice } from '../lib/currency';
+import { formatPrice, Currency } from '../lib/currency';
 import { ContractPrintDocument } from './ContractPrintDocument';
 import { showToast } from '../lib/toast';
 import {
@@ -17,6 +17,7 @@ import {
 interface ContractPDFPreviewProps {
   contract: ContractData;
   language: Language;
+  currency?: Currency;
   onClose: () => void;
   onSavedSuccess: () => void;
 }
@@ -24,6 +25,7 @@ interface ContractPDFPreviewProps {
 export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   contract,
   language,
+  currency = 'IQD',
   onClose,
   onSavedSuccess,
 }) => {
@@ -214,7 +216,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             <div className="flex justify-between items-center font-mono text-sm pt-1">
               <span>{isAr ? 'الإجمالي الكلي المعتمد للعقد:' : 'Total Approved Contract Value:'}</span>
               <strong className="text-xl text-white font-extrabold">
-                {formatPrice(contract.totalPriceIQD || 0, language)}
+                {formatPrice(contract.totalPriceIQD || 0, language, currency)}
               </strong>
             </div>
             <div className="text-[11px] text-zinc-400">

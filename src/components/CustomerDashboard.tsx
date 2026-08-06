@@ -3,7 +3,7 @@ import { LogOut, FileCheck, Download, Loader2, Clock, CheckCircle2 } from 'lucid
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
-import { formatPrice } from '../lib/currency';
+import { formatPrice, Currency } from '../lib/currency';
 import { subscribeToContracts } from '../lib/firebase';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
@@ -13,6 +13,7 @@ import { showToast } from '../lib/toast';
 
 interface CustomerDashboardProps {
   language: Language;
+  currency?: Currency;
   user: User;
 }
 
@@ -37,7 +38,7 @@ function formatDate(iso: string | undefined, isAr: boolean): string {
 // account email, each showing exactly when it was created, last updated, and (once
 // reached) completed. Admins never see this: AdminPage routes them to AdminDashboard
 // instead, before this component is ever rendered.
-export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, user }) => {
+export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, currency = 'IQD', user }) => {
   const isAr = language === 'ar';
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -102,6 +103,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
               contract={c}
               isAr={isAr}
               language={language}
+              currency={currency}
               expanded={expandedId === (c.id || c.contractNumber)}
               onToggle={() => setExpandedId((prev) => (prev === (c.id || c.contractNumber) ? null : c.id || c.contractNumber || null))}
             />
@@ -116,12 +118,14 @@ function CustomerContractRow({
   contract,
   isAr,
   language,
+  currency,
   expanded,
   onToggle,
 }: {
   contract: ContractData;
   isAr: boolean;
   language: Language;
+  currency: Currency;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -153,7 +157,7 @@ function CustomerContractRow({
           <div className="text-[10px] text-zinc-500 font-mono truncate">{contract.contractNumber}</div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs font-mono text-zinc-300 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language)}</span>
+          <span className="text-xs font-mono text-zinc-300 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
           <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
             contract.status === 'completed'
               ? 'bg-emerald-500/15 text-emerald-400 border-emerald-800'
