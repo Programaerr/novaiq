@@ -3,6 +3,8 @@ import { ArrowLeft, FileSignature, TriangleAlert } from 'lucide-react';
 import { useLiveTemplates } from '../lib/pricingOverrides';
 import { Language } from '../lib/i18n';
 import { readStoredCurrency } from '../lib/currency';
+import { writePendingContractSelection } from '../lib/pendingContractSelection';
+import type { Template } from '../types';
 import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
 import type { ThemeColor } from './TemplateInteractiveSandbox';
@@ -95,8 +97,19 @@ export const TemplateLivePage: React.FC = () => {
   };
 
   const goHome = () => closeBackToOpener();
-  const goToContract = () =>
-    closeBackToOpener(template ? `${window.location.pathname}?preview=${encodeURIComponent(template.id)}` : undefined);
+
+  // Lands on the real contract builder (`custom-request`), not another preview — `?preview=`
+  // only ever reopens this same sandbox, which is the bug this replaces. The template id (and
+  // any customization the customer made inside the demo — chosen colour, custom notes) travels
+  // through localStorage since this document shares no React state with the opener tab; App.tsx
+  // picks it up on mount. If the customer isn't signed in yet, ContractBuilderGate shows the
+  // login screen first — the pending selection just waits in state until they finish.
+  const goToContract = (selected?: Template, customNotes?: string, primaryColorHex?: string) => {
+    const target = selected || template;
+    if (!target) return;
+    writePendingContractSelection({ templateId: target.id, customNotes, primaryColorHex });
+    closeBackToOpener(`${window.location.pathname}?page=custom-request`);
+  };
 
   if (!template) {
     return (
@@ -149,7 +162,7 @@ export const TemplateLivePage: React.FC = () => {
             <span className="hidden sm:inline">{isAr ? 'العودة' : 'Back'}</span>
           </button>
           <button
-            onClick={goToContract}
+            onClick={() => goToContract()}
             title={isAr ? 'اطلب هذا القالب' : 'Order this template'}
             className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-[11px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors"
           >
