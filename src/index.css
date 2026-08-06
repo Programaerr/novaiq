@@ -184,26 +184,33 @@
   transition: background 250ms ease, color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
 }
 
-/* Hover mist — a real blurred layer sitting outside the button's own box (inset: -28px),
-   not a box-shadow ring hugging the edge. filter:blur (not box-shadow) is what lets it read
-   as drifting fog rather than a static glow, and the keyframe drifts/breathes it continuously
-   while hovered instead of holding one fixed shape. */
+/* Hover mist — hugs the pill's own outline (inset: -12px, tight) instead of floating as a
+   free blob around it. A conic-gradient (bright arc opposite a dim arc) rotated via
+   `transform: rotate()` — not an animated custom property, which Lightning CSS strips
+   `@property` for and silently breaks — reads as a fast light trail racing around the
+   frame; the blur softens it back into fog without losing the sense of motion. */
 .filter-pill-btn::before {
   content: '';
   position: absolute;
-  inset: -28px;
+  inset: -12px;
   border-radius: inherit;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15) 55%, transparent 75%);
-  filter: blur(18px);
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.05) 75%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  filter: blur(9px);
   opacity: 0;
   z-index: -1;
   pointer-events: none;
-  transition: opacity 300ms ease;
+  transition: opacity 250ms ease;
 }
 
 .filter-pill-btn:hover::before {
   opacity: 1;
-  animation: filter-pill-mist 2.4s ease-in-out infinite;
+  animation: filter-pill-mist-spin 0.6s linear infinite;
 }
 
 .filter-pill-btn.is-active {
@@ -232,10 +239,9 @@
   transform: scale(0.98);
 }
 
-@keyframes filter-pill-mist {
-  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.65; }
-  33% { transform: scale(1.18) translate(5px, -4px); opacity: 1; }
-  66% { transform: scale(1.08) translate(-5px, 4px); opacity: 0.8; }
+@keyframes filter-pill-mist-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .filter-pill-badge {
