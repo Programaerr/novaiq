@@ -57,7 +57,7 @@ export function ContractsTab({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <StatTile icon={FileCheck} label={isAr ? 'إجمالي العقود' : 'Total Contracts'} value={String(stats.count)} />
         <StatTile
           icon={DollarSign}
@@ -69,6 +69,18 @@ export function ContractsTab({
           icon={TrendingUp}
           label={isAr ? 'متوسط قيمة العقد' : 'Avg. Contract Value'}
           value={formatPrice(stats.avgIQD, language, currency)}
+        />
+        <StatTile
+          icon={TrendingDown}
+          label={isAr ? 'إجمالي التكلفة' : 'Total Cost'}
+          value={formatPrice(stats.totalCostIQD, language, currency)}
+          accent="text-red-400"
+        />
+        <StatTile
+          icon={TrendingUp}
+          label={isAr ? 'صافي الربح (محقق)' : 'Net Profit (Realized)'}
+          value={formatPrice(stats.netProfitIQD, language, currency)}
+          accent={stats.netProfitIQD >= 0 ? 'text-emerald-400' : 'text-red-400'}
         />
       </div>
 
@@ -193,6 +205,9 @@ function ContractRow({
 }) {
   const [status, setStatus] = useState(contract.status);
   const [totalPrice, setTotalPrice] = useState(String(contract.totalPriceIQD || 0));
+  const [cost, setCost] = useState(String(contract.costIQD || 0));
+  const [paymentStatus, setPaymentStatus] = useState(contract.paymentStatus || 'unpaid');
+  const [paidAmount, setPaidAmount] = useState(String(contract.paidAmountIQD || 0));
   const [adminNotes, setAdminNotes] = useState(contract.adminNotes || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -204,15 +219,33 @@ function ContractRow({
   useEffect(() => {
     setStatus(contract.status);
     setTotalPrice(String(contract.totalPriceIQD || 0));
+    setCost(String(contract.costIQD || 0));
+    setPaymentStatus(contract.paymentStatus || 'unpaid');
+    setPaidAmount(String(contract.paidAmountIQD || 0));
     setAdminNotes(contract.adminNotes || '');
     setSignatureDirty(false);
-  }, [contract.status, contract.totalPriceIQD, contract.adminNotes, contract.companySignatureDataUrl]);
+  }, [contract.status, contract.totalPriceIQD, contract.costIQD, contract.paymentStatus, contract.paidAmountIQD, contract.adminNotes, contract.companySignatureDataUrl]);
+
+  // Picking a payment status fills in the obvious paid amount — full price for "paid", zero
+  // for "unpaid" — so the common case needs no typing. "Partial" is left as-is since only the
+  // admin knows the real number; typing over the auto-filled amount for "paid" still works too,
+  // for the rare case the client paid slightly more or less than the agreed price.
+  const handlePaymentStatusChange = (next: NonNullable<ContractData['paymentStatus']>) => {
+    setPaymentStatus(next);
+    if (next === 'paid') setPaidAmount(totalPrice);
+    else if (next === 'unpaid') setPaidAmount('0');
+  };
 
   const dirty =
     status !== contract.status ||
     Number(totalPrice) !== (contract.totalPriceIQD || 0) ||
+    Number(cost) !== (contract.costIQD || 0) ||
+    paymentStatus !== (contract.paymentStatus || 'unpaid') ||
+    Number(paidAmount) !== (contract.paidAmountIQD || 0) ||
     adminNotes !== (contract.adminNotes || '') ||
     signatureDirty;
+
+  const rowProfit = Number(paidAmount || 0) - Number(cost || 0);
 
   const handleSave = async () => {
     if (!contract.id || isSaving) return;
@@ -222,6 +255,9 @@ function ContractRow({
       await updateContractFields(contract.id, {
         status,
         totalPriceIQD: Number(totalPrice) || 0,
+        costIQD: Number(cost) || 0,
+        paymentStatus,
+        paidAmountIQD: Number(paidAmount) || 0,
         adminNotes: adminNotes.trim(),
         ...(companySignatureDataUrl !== undefined ? { companySignatureDataUrl } : {}),
       });
@@ -280,8 +316,19 @@ function ContractRow({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <span className="text-xs font-mono text-zinc-300 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
+          <span
+            className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
+              (contract.paymentStatus || 'unpaid') === 'paid'
+                ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
+                : (contract.paymentStatus || 'unpaid') === 'partial'
+                ? 'bg-amber-950/60 border-amber-800 text-amber-300'
+                : 'bg-zinc-900 border-zinc-700 text-zinc-400'
+            }`}
+          >
+            {translateText(paymentStatusArabic(contract.paymentStatus), language)}
+          </span>
           <span className="px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-700 text-[10px] font-bold text-zinc-200">
             {translateText(statusArabic(contract.status), language)}
           </span>
@@ -328,6 +375,59 @@ function ContractRow({
                 onChange={setTotalPrice}
                 className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-mono"
               />
+            </div>
+          </div>
+
+          {/* Financial tracking — internal only, never shown on the client's printed contract.
+              Profit here is collected cash minus cost, not the full agreed price minus cost,
+              so an unpaid or partially-paid contract never inflates realized profit. */}
+          <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-3">
+            <span className="text-[11px] font-semibold text-zinc-400 block">
+              {isAr ? 'التتبع المالي (داخلي فقط)' : 'Financial Tracking (internal only)'}
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">
+                  {isAr ? 'حالة الدفع' : 'Payment Status'}
+                </label>
+                <select
+                  value={paymentStatus}
+                  onChange={(e) => handlePaymentStatusChange(e.target.value as NonNullable<ContractData['paymentStatus']>)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-black border border-zinc-800 text-white text-xs font-bold cursor-pointer"
+                >
+                  {PAYMENT_STATUS_FLOW.map((ps) => (
+                    <option key={ps} value={ps}>
+                      {translateText(paymentStatusArabic(ps), language)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">
+                  {isAr ? 'المبلغ المحصّل فعلياً (د.ع)' : 'Actually Collected (IQD)'}
+                </label>
+                <PriceInput
+                  value={paidAmount}
+                  onChange={setPaidAmount}
+                  className="w-full px-3 py-2.5 rounded-xl bg-black border border-zinc-800 text-white text-xs font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">
+                  {isAr ? 'التكلفة (د.ع)' : 'Cost (IQD)'}
+                </label>
+                <PriceInput
+                  value={cost}
+                  onChange={setCost}
+                  className="w-full px-3 py-2.5 rounded-xl bg-black border border-zinc-800 text-white text-xs font-mono"
+                />
+              </div>
+            </div>
+            <div className="text-[11px] text-zinc-400">
+              {isAr ? 'ربح هذا العقد (محقق):' : "This contract's profit (realized):"}{' '}
+              <strong className={rowProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}>
+                {formatPrice(rowProfit, language, currency)}
+              </strong>
             </div>
           </div>
 
