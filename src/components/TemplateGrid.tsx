@@ -542,7 +542,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       <span className="text-xs text-zinc-400">{currentLang === 'ar' ? 'التكلفة الأساسية للقالب:' : 'Base Template Cost:'}</span>
                       <div className="text-left">
                         <span className="text-lg font-bold text-white font-mono">
-                          {formatPrice(template.basePriceIQD, currentLang)}
+                          {formatPrice(template.basePriceIQD, currentLang, currency)}
                         </span>
                       </div>
                     </div>
@@ -642,6 +642,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
         <Suspense fallback={<PageLoader />}>
           <TemplateInteractiveSandbox
             template={previewTemplate}
+            language={language}
+            currency={currency}
             onClose={() => setPreviewTemplate(null)}
             onSelectForContract={(template) => {
               setPreviewTemplate(null);
