@@ -157,7 +157,10 @@ export const Navbar: React.FC<NavbarProps> = ({
     // permanently fixed in that arrangement regardless of language. Only the drawer's own text
     // content flips reading direction internally (see dir on the drawer panel).
     <header dir="ltr" className="fixed top-3 left-0 right-0 z-50 w-full max-w-7xl mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
-      <div className="bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl p-3 sm:px-6 shadow-2xl shadow-black flex items-center justify-between gap-3 relative">
+      {/* pb trimmed below pt on mobile only (sm+ restores the even p-3) — shrinks the bar's
+          own footprint from its bottom edge so it clears whatever sits just beneath it on
+          small screens (e.g. PageBackBar) without moving its top position at all. */}
+      <div className="bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl pt-3 pb-2 px-3 sm:p-3 sm:px-6 shadow-2xl shadow-black flex items-center justify-between gap-3 relative">
 
         {/* Side 1 (physical left): Account — before login, a single "Login" entry point
             (Google sign-in covers both login and first-time sign-up in one click, so a
