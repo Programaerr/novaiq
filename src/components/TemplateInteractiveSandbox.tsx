@@ -820,7 +820,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   onSelectForContract,
   chromeless = false,
   initialThemeColor,
+  language = 'ar',
+  currency = 'IQD',
 }) => {
+  // The one place every price in this component should be formatted through — a language-
+  // matched IQD label by default, converting to USD only if the customer explicitly chose it.
+  const price = (amountIQD: number) => formatPrice(amountIQD, language, currency);
   const [themeColor, setThemeColor] = useState<ThemeColor>(() => {
     if (initialThemeColor) return initialThemeColor;
     try {
