@@ -826,6 +826,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   // The one place every price in this component should be formatted through — a language-
   // matched IQD label by default, converting to USD only if the customer explicitly chose it.
   const price = (amountIQD: number) => formatPrice(amountIQD, language, currency);
+  // A handful of demo numbers (calculator ranges, subscription tiers, a mock wallet balance)
+  // are pre-formatted flavor text rather than a real priced field, so they can't run through
+  // price() for a true USD conversion — they still get the correct unit word per language.
+  const CUR = language === 'ar' ? 'د.ع' : 'IQD';
   const [themeColor, setThemeColor] = useState<ThemeColor>(() => {
     if (initialThemeColor) return initialThemeColor;
     try {
@@ -2489,7 +2493,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <div className="p-4 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 text-center space-y-1">
                   <span className="text-slate-400 block text-[11px]">التكلفة التقديرية الحالية:</span>
                   <span className={`text-xl font-bold font-mono ${themeStyle.primaryText}`}>
-                    {orgSize === 'medium' ? '3,625,000 - 6,960,000 د.ع' : orgSize === 'large' ? '6,960,000 - 13,050,000 د.ع' : '13,050,000 - 26,100,000 د.ع'}
+                    {orgSize === 'medium' ? `3,625,000 - 6,960,000 ${CUR}` : orgSize === 'large' ? `6,960,000 - 13,050,000 ${CUR}` : `13,050,000 - 26,100,000 ${CUR}`}
                   </span>
                 </div>
               </div>
