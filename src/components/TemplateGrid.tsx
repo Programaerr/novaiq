@@ -235,15 +235,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     <section id="templates-section" className="py-4 sm:py-6 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
+        {/* Section header. The heading/subheading pair was removed on request; the price
+            notice stays because it qualifies what the numbers on every card mean. */}
         <div className="text-center max-w-3xl mx-auto mb-6">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
-            {getTranslation('templatesHeading', currentLang)}
-          </h2>
-          <p className="text-zinc-300 text-xs sm:text-sm">
-            {getTranslation('templatesSubheading', currentLang)}
-          </p>
-          <div className="inline-flex items-center gap-2 mt-3 px-3.5 py-1.5 rounded-full bg-zinc-950/80 border border-zinc-800 text-[11px] text-zinc-400">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-950/80 border border-zinc-800 text-[11px] text-zinc-400">
             <Info className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
             <span>
               {currentLang === 'ar'
