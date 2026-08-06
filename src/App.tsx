@@ -452,7 +452,7 @@ export default function App() {
 
       {/* Contract PDF Generated Preview Modal */}
       {activeContractForPreview && (
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={<ContractPreparingLoader language={language} />}>
           <ContractPDFPreview
             contract={activeContractForPreview}
             language={language}
@@ -466,6 +466,16 @@ export default function App() {
             // needs to navigate anywhere: the customer already has the download button in
             // front of them and can go to 'orders' on their own once they're done with it.
             onSavedSuccess={() => {}}
+            onFinish={() => {
+              const templateId = activeContractForPreview.templateId;
+              setActiveContractForPreview(null);
+              if (templateId && templateId !== CUSTOM_PROJECT_TEMPLATE_ID) {
+                setLastPreviewedTemplateId(templateId);
+                navigateTo('templates');
+              } else {
+                navigateTo('home');
+              }
+            }}
           />
         </Suspense>
       )}
