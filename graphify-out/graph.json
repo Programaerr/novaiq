@@ -383,8 +383,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "package_dependencies_lenis",
-      "community": 25,
-      "community_name": "App.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "lenis"
     },
     {
@@ -394,8 +394,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "lenis",
-      "community": 25,
-      "community_name": "App.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "lenis"
     },
     {
@@ -1010,8 +1010,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_app_app",
-      "community": 25,
-      "community_name": "App.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "app()"
     },
     {
@@ -1021,8 +1021,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_aboutsection",
-      "community": 0,
-      "community_name": "Language",
+      "community": 25,
+      "community_name": "App.tsx",
       "norm_label": "aboutsection.tsx"
     },
     {
@@ -1034,8 +1034,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_aboutsection_aboutsectionprops",
-      "community": 0,
-      "community_name": "Language",
+      "community": 25,
+      "community_name": "App.tsx",
       "norm_label": "aboutsectionprops"
     },
     {
@@ -1046,8 +1046,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_aboutsection_aboutsection",
-      "community": 0,
-      "community_name": "Language",
+      "community": 25,
+      "community_name": "App.tsx",
       "norm_label": "aboutsection()"
     },
     {
@@ -1065,12 +1065,12 @@
       "label": "AdminDashboardProps",
       "file_type": "code",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L45",
+      "source_location": "L20",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_admindashboardprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "admindashboardprops"
     },
@@ -1078,7 +1078,7 @@
       "label": "Tab",
       "file_type": "code",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L50",
+      "source_location": "L25",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
@@ -1088,57 +1088,10 @@
       "norm_label": "tab"
     },
     {
-      "label": "STATUS_FLOW",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L52",
-      "_origin": "ast",
-      "id": "src_components_admindashboard_status_flow",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "status_flow"
-    },
-    {
-      "label": "StatTile()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L54",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_stattile",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "stattile()"
-    },
-    {
-      "label": "TabButton()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L68",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_tabbutton",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "tabbutton()"
-    },
-    {
-      "label": "BarRow()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L95",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_barrow",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "barrow()"
-    },
-    {
       "label": "AdminDashboard()",
       "file_type": "code",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L110",
+      "source_location": "L27",
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_admindashboard",
@@ -1147,169 +1100,14 @@
       "norm_label": "admindashboard()"
     },
     {
-      "label": "OverviewTab()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L221",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_overviewtab",
-      "community": 5,
-      "community_name": "ContractsTab.tsx",
-      "norm_label": "overviewtab()"
-    },
-    {
-      "label": "useOverviewStatsType()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L286",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_useoverviewstatstype",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "useoverviewstatstype()"
-    },
-    {
-      "label": "statusArabic()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L297",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_statusarabic",
-      "community": 5,
-      "community_name": "ContractsTab.tsx",
-      "norm_label": "statusarabic()"
-    },
-    {
-      "label": "ContractsTab()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L318",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_contractstab",
-      "community": 5,
-      "community_name": "ContractsTab.tsx",
-      "norm_label": "contractstab()"
-    },
-    {
-      "label": "CompanySignatureHandle",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L416",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_companysignaturehandle",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "companysignaturehandle"
-    },
-    {
-      "label": "CompanySignaturePad",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L420",
-      "_origin": "ast",
-      "id": "src_components_admindashboard_companysignaturepad",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "companysignaturepad"
-    },
-    {
-      "label": "ContractRow()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L534",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_contractrow",
-      "community": 5,
-      "community_name": "ContractsTab.tsx",
-      "norm_label": "contractrow()"
-    },
-    {
-      "label": "PricingTab()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L750",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_pricingtab",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "pricingtab()"
-    },
-    {
-      "label": "PricingRow()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L772",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_pricingrow",
-      "community": 5,
-      "community_name": "ContractsTab.tsx",
-      "norm_label": "pricingrow()"
-    },
-    {
-      "label": "TeamTab()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L972",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_teamtab",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "teamtab()"
-    },
-    {
-      "label": "MembersTab()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1135",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_memberstab",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "memberstab()"
-    },
-    {
-      "label": "SOCIAL_FIELDS",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1331",
-      "_origin": "ast",
-      "id": "src_components_admindashboard_social_fields",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
-      "norm_label": "social_fields"
-    },
-    {
-      "label": "SettingsTab()",
-      "file_type": "code",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1344",
-      "_callable": true,
-      "_origin": "ast",
-      "id": "src_components_admindashboard_settingstab",
-      "community": 14,
-      "community_name": "socialLinks.ts",
-      "norm_label": "settingstab()"
-    },
-    {
       "label": "AdminLogin.tsx",
       "file_type": "code",
       "source_file": "src/components/AdminLogin.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_adminlogin",
-      "community": 0,
-      "community_name": "Language",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminlogin.tsx"
     },
     {
@@ -1321,8 +1119,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_adminloginprops",
-      "community": 0,
-      "community_name": "Language",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminloginprops"
     },
     {
@@ -1333,8 +1131,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_googleicon",
-      "community": 0,
-      "community_name": "Language",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "googleicon()"
     },
     {
@@ -1345,8 +1143,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_adminlogin_adminlogin",
-      "community": 0,
-      "community_name": "Language",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminlogin()"
     },
     {
@@ -1356,7 +1154,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_adminpage",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "adminpage.tsx"
     },
@@ -1369,7 +1167,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_adminpage_adminpageprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "adminpageprops"
     },
@@ -1392,7 +1190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_contractbuilder",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "contractbuilder.tsx"
     },
@@ -1405,7 +1203,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_contractbuilder_contractbuilderprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "contractbuilderprops"
     },
@@ -1416,7 +1214,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_components_contractbuilder_preset_colors",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "preset_colors"
     },
@@ -1428,7 +1226,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_contractbuilder_contractbuilder",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "contractbuilder()"
     },
@@ -1439,7 +1237,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_contractbuildergate",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "contractbuildergate.tsx"
     },
@@ -1452,7 +1250,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_contractbuildergate_contractbuildergateprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "contractbuildergateprops"
     },
@@ -1476,7 +1274,7 @@
       "_origin": "ast",
       "id": "src_components_contractpdfpreview",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractpdfpreview.tsx"
     },
     {
@@ -1488,7 +1286,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_contractpdfpreview_contractpdfpreviewprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "contractpdfpreviewprops"
     },
@@ -1501,7 +1299,7 @@
       "_origin": "ast",
       "id": "src_components_contractpdfpreview_contractpdfpreview",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractpdfpreview()"
     },
     {
@@ -1512,7 +1310,7 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractprintdocument.tsx"
     },
     {
@@ -1525,7 +1323,7 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument_contractprintdocumentprops",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractprintdocumentprops"
     },
     {
@@ -1536,7 +1334,7 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument_contractprintdocument",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractprintdocument"
     },
     {
@@ -1547,7 +1345,7 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument_connectedcontractprintdocument",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "connectedcontractprintdocument"
     },
     {
@@ -1641,7 +1439,7 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "customerdashboard.tsx"
     },
     {
@@ -1653,7 +1451,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_customerdashboard_customerdashboardprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "customerdashboardprops"
     },
@@ -1665,7 +1463,7 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_status_label_ar",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "status_label_ar"
     },
     {
@@ -1677,7 +1475,7 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_formatdate",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "formatdate()"
     },
     {
@@ -1688,8 +1486,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_customerdashboard_customerdashboard",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "customerdashboard()"
     },
     {
@@ -1701,7 +1499,7 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_customercontractrow",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "customercontractrow()"
     },
     {
@@ -1834,7 +1632,7 @@
       "_origin": "ast",
       "id": "src_components_footer",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "footer.tsx"
     },
     {
@@ -1847,7 +1645,7 @@
       "_origin": "ast",
       "id": "src_components_footer_footerprops",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "footerprops"
     },
     {
@@ -1859,7 +1657,7 @@
       "_origin": "ast",
       "id": "src_components_footer_footer",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "footer()"
     },
     {
@@ -1941,8 +1739,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_milestonetimeline",
-      "community": 14,
-      "community_name": "socialLinks.ts",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "milestonetimeline.tsx"
     },
     {
@@ -1954,8 +1752,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimelineprops",
-      "community": 14,
-      "community_name": "socialLinks.ts",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "milestonetimelineprops"
     },
     {
@@ -1966,8 +1764,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimeline",
-      "community": 14,
-      "community_name": "socialLinks.ts",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "milestonetimeline()"
     },
     {
@@ -1977,7 +1775,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_navbar",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "navbar.tsx"
     },
@@ -1989,7 +1787,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_navbar_animatedmenuicon",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "animatedmenuicon()"
     },
@@ -2002,7 +1800,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_navbar_navbarprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "navbarprops"
     },
@@ -2014,8 +1812,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_navbar_navbar",
-      "community": 25,
-      "community_name": "App.tsx",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "navbar()"
     },
     {
@@ -2025,8 +1823,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_novaiqlogo",
-      "community": 0,
-      "community_name": "Language",
+      "community": 14,
+      "community_name": "SettingsTab.tsx",
       "norm_label": "novaiqlogo.tsx"
     },
     {
@@ -2038,8 +1836,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_novaiqlogo_novaiqlogoprops",
-      "community": 0,
-      "community_name": "Language",
+      "community": 14,
+      "community_name": "SettingsTab.tsx",
       "norm_label": "novaiqlogoprops"
     },
     {
@@ -2050,8 +1848,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_novaiqlogo_novaiqlogo",
-      "community": 0,
-      "community_name": "Language",
+      "community": 14,
+      "community_name": "SettingsTab.tsx",
       "norm_label": "novaiqlogo()"
     },
     {
@@ -2098,7 +1896,7 @@
       "_origin": "ast",
       "id": "src_components_pageloader",
       "community": 0,
-      "community_name": "Language",
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "pageloader.tsx"
     },
     {
@@ -2110,7 +1908,7 @@
       "_origin": "ast",
       "id": "src_components_pageloader_pageloader",
       "community": 0,
-      "community_name": "Language",
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "pageloader()"
     },
     {
@@ -2120,8 +1918,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_policypage",
-      "community": 0,
-      "community_name": "Language",
+      "community": 39,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypage.tsx"
     },
     {
@@ -2133,8 +1931,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_policypage_policypageprops",
-      "community": 0,
-      "community_name": "Language",
+      "community": 39,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypageprops"
     },
     {
@@ -2146,8 +1944,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_policypage_section",
-      "community": 0,
-      "community_name": "Language",
+      "community": 39,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "section"
     },
     {
@@ -2157,8 +1955,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_policypage_privacy_sections",
-      "community": 0,
-      "community_name": "Language",
+      "community": 39,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "privacy_sections"
     },
     {
@@ -2168,8 +1966,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_components_policypage_terms_sections",
-      "community": 0,
-      "community_name": "Language",
+      "community": 39,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "terms_sections"
     },
     {
@@ -2180,8 +1978,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_policypage_policypage",
-      "community": 0,
-      "community_name": "Language",
+      "community": 39,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypage()"
     },
     {
@@ -2192,7 +1990,7 @@
       "_origin": "ast",
       "id": "src_components_priceinput",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "priceinput.tsx"
     },
     {
@@ -2205,7 +2003,7 @@
       "_origin": "ast",
       "id": "src_components_priceinput_priceinputprops",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "priceinputprops"
     },
     {
@@ -2217,7 +2015,7 @@
       "_origin": "ast",
       "id": "src_components_priceinput_priceinput",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "priceinput()"
     },
     {
@@ -2227,7 +2025,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_templategrid",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "templategrid.tsx"
     },
@@ -2238,7 +2036,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_components_templategrid_templateinteractivesandbox",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "templateinteractivesandbox"
     },
@@ -2251,7 +2049,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_templategrid_templategridprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "templategridprops"
     },
@@ -2264,7 +2062,7 @@
       "_origin": "ast",
       "id": "src_components_templategrid_templategrid",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "templategrid()"
     },
     {
@@ -2287,7 +2085,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_templateinteractivesandbox_templateinteractivesandboxprops",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "templateinteractivesandboxprops"
     },
@@ -2311,7 +2109,7 @@
       "_origin": "ast",
       "id": "src_components_templatelivepage",
       "community": 0,
-      "community_name": "Language",
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "templatelivepage.tsx"
     },
     {
@@ -2322,7 +2120,7 @@
       "_origin": "ast",
       "id": "src_components_templatelivepage_templateinteractivesandbox",
       "community": 0,
-      "community_name": "Language",
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "templateinteractivesandbox"
     },
     {
@@ -2333,7 +2131,7 @@
       "_origin": "ast",
       "id": "src_components_templatelivepage_theme_colors",
       "community": 0,
-      "community_name": "Language",
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "theme_colors"
     },
     {
@@ -2345,7 +2143,7 @@
       "_origin": "ast",
       "id": "src_components_templatelivepage_readstoredlanguage",
       "community": 0,
-      "community_name": "Language",
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "readstoredlanguage()"
     },
     {
@@ -2357,7 +2155,7 @@
       "_origin": "ast",
       "id": "src_components_templatelivepage_templatelivepage",
       "community": 0,
-      "community_name": "Language",
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "templatelivepage()"
     },
     {
@@ -2391,7 +2189,7 @@
       "_origin": "ast",
       "id": "src_components_admin_contractstab",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractstab.tsx"
     },
     {
@@ -2403,7 +2201,7 @@
       "_origin": "ast",
       "id": "src_components_admin_contractstab_contractstab",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractstab()"
     },
     {
@@ -2416,7 +2214,7 @@
       "_origin": "ast",
       "id": "src_components_admin_contractstab_companysignaturehandle",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "companysignaturehandle"
     },
     {
@@ -2427,7 +2225,7 @@
       "_origin": "ast",
       "id": "src_components_admin_contractstab_companysignaturepad",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "companysignaturepad"
     },
     {
@@ -2439,7 +2237,7 @@
       "_origin": "ast",
       "id": "src_components_admin_contractstab_contractrow",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractrow()"
     },
     {
@@ -2473,7 +2271,7 @@
       "_origin": "ast",
       "id": "src_components_admin_overviewtab",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "overviewtab.tsx"
     },
     {
@@ -2485,7 +2283,7 @@
       "_origin": "ast",
       "id": "src_components_admin_overviewtab_overviewtab",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "overviewtab()"
     },
     {
@@ -2496,7 +2294,7 @@
       "_origin": "ast",
       "id": "src_components_admin_pricingtab",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "pricingtab.tsx"
     },
     {
@@ -2507,8 +2305,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_pricingtab_pricingtab",
-      "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "pricingtab()"
     },
     {
@@ -2520,7 +2318,7 @@
       "_origin": "ast",
       "id": "src_components_admin_pricingtab_pricingrow",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "pricingrow()"
     },
     {
@@ -2531,7 +2329,7 @@
       "_origin": "ast",
       "id": "src_components_admin_settingstab",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "settingstab.tsx"
     },
     {
@@ -2542,7 +2340,7 @@
       "_origin": "ast",
       "id": "src_components_admin_settingstab_social_fields",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "social_fields"
     },
     {
@@ -2554,7 +2352,7 @@
       "_origin": "ast",
       "id": "src_components_admin_settingstab_settingstab",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "settingstab()"
     },
     {
@@ -2588,7 +2386,7 @@
       "_origin": "ast",
       "id": "src_components_admin_shared",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "shared.tsx"
     },
     {
@@ -2599,7 +2397,7 @@
       "_origin": "ast",
       "id": "src_components_admin_shared_status_flow",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "status_flow"
     },
     {
@@ -2611,7 +2409,7 @@
       "_origin": "ast",
       "id": "src_components_admin_shared_stattile",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "stattile()"
     },
     {
@@ -2622,8 +2420,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_shared_tabbutton",
-      "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "tabbutton()"
     },
     {
@@ -2635,7 +2433,7 @@
       "_origin": "ast",
       "id": "src_components_admin_shared_barrow",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "barrow()"
     },
     {
@@ -2647,7 +2445,7 @@
       "_origin": "ast",
       "id": "src_components_admin_shared_statusarabic",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "statusarabic()"
     },
     {
@@ -2660,7 +2458,7 @@
       "_origin": "ast",
       "id": "src_components_admin_shared_adminstats",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "adminstats"
     },
     {
@@ -3137,8 +2935,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_templatesdata",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "templatesdata.ts"
     },
     {
@@ -3148,8 +2946,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_data_templatesdata_templatesdata",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "templatesdata"
     },
     {
@@ -3268,8 +3066,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_audio",
-      "community": 14,
-      "community_name": "socialLinks.ts",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "audio.ts"
     },
     {
@@ -3282,7 +3080,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "cosmicaudioengine"
     },
     {
@@ -3294,7 +3092,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playwarp",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": ".playwarp()"
     },
     {
@@ -3306,7 +3104,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playping",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": ".playping()"
     },
     {
@@ -3318,7 +3116,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playtick",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": ".playtick()"
     },
     {
@@ -3330,7 +3128,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_toggleambient",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": ".toggleambient()"
     },
     {
@@ -3342,7 +3140,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_isambienton",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": ".isambienton()"
     },
     {
@@ -3352,8 +3150,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudio",
-      "community": 14,
-      "community_name": "socialLinks.ts",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "cosmicaudio"
     },
     {
@@ -3386,8 +3184,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_loginwithgoogle",
-      "community": 0,
-      "community_name": "Language",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "loginwithgoogle()"
     },
     {
@@ -3694,7 +3492,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_contractdraft",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "contractdraft.ts"
     },
@@ -3707,7 +3505,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_contractdraft",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "contractdraft"
     },
@@ -3719,7 +3517,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_loadcontractdraft",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "loadcontractdraft()"
     },
@@ -3731,7 +3529,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_savecontractdraft",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "savecontractdraft()"
     },
@@ -3743,7 +3541,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_contractdraft_clearcontractdraft",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "clearcontractdraft()"
     },
@@ -3754,7 +3552,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_currency",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "currency.ts"
     },
@@ -3765,7 +3563,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_lib_currency_iqd_per_usd",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "iqd_per_usd"
     },
@@ -3778,7 +3576,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_currency_currency",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "currency"
     },
@@ -3802,7 +3600,7 @@
       "_origin": "ast",
       "id": "src_lib_currency_readstoredcurrency",
       "community": 0,
-      "community_name": "Language",
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "readstoredcurrency()"
     },
     {
@@ -3814,7 +3612,7 @@
       "_origin": "ast",
       "id": "src_lib_currency_tousd",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "tousd()"
     },
     {
@@ -3826,7 +3624,7 @@
       "_origin": "ast",
       "id": "src_lib_currency_formatprice",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "formatprice()"
     },
     {
@@ -3848,7 +3646,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_db",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "db"
     },
     {
@@ -3919,7 +3717,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_updatecontractfields",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "updatecontractfields()"
     },
     {
@@ -3954,8 +3752,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_deletecontractfromfirebase",
-      "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "deletecontractfromfirebase()"
     },
     {
@@ -3965,7 +3763,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_i18n",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "i18n.ts"
     },
@@ -3978,7 +3776,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_i18n_language",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "language"
     },
@@ -3989,7 +3787,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_lib_i18n_dynamic_translations",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "dynamic_translations"
     },
@@ -4002,7 +3800,7 @@
       "_origin": "ast",
       "id": "src_lib_i18n_translatetext",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "translatetext()"
     },
     {
@@ -4012,7 +3810,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "src_lib_i18n_ui_translations",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "ui_translations"
     },
@@ -4024,7 +3822,7 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_i18n_gettranslation",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "gettranslation()"
     },
@@ -4188,7 +3986,7 @@
       "_origin": "ast",
       "id": "src_lib_pdfgenerator",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "pdfgenerator.ts"
     },
     {
@@ -4200,7 +3998,7 @@
       "_origin": "ast",
       "id": "src_lib_pdfgenerator_generatecontractpdf",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "generatecontractpdf()"
     },
     {
@@ -4210,8 +4008,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection",
-      "community": 25,
-      "community_name": "App.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "pendingcontractselection.ts"
     },
     {
@@ -4223,8 +4021,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_pendingcontractselection",
-      "community": 25,
-      "community_name": "App.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "pendingcontractselection"
     },
     {
@@ -4235,8 +4033,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_writependingcontractselection",
-      "community": 25,
-      "community_name": "App.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "writependingcontractselection()"
     },
     {
@@ -4247,8 +4045,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_consumependingcontractselection",
-      "community": 25,
-      "community_name": "App.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "consumependingcontractselection()"
     },
     {
@@ -4258,8 +4056,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pricingoverrides",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "pricingoverrides.ts"
     },
     {
@@ -4270,8 +4068,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_readcachedoverrides",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "readcachedoverrides()"
     },
     {
@@ -4282,8 +4080,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_writecachedoverrides",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "writecachedoverrides()"
     },
     {
@@ -4295,8 +4093,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_pricingoverride",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "pricingoverride"
     },
     {
@@ -4307,8 +4105,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_subscribetopricingoverrides",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "subscribetopricingoverrides()"
     },
     {
@@ -4320,7 +4118,7 @@
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_savepricingoverride",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "savepricingoverride()"
     },
     {
@@ -4331,8 +4129,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_applypricingoverrides",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "applypricingoverrides()"
     },
     {
@@ -4343,8 +4141,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_uselivetemplates",
-      "community": 1,
-      "community_name": "AdminDashboard.tsx",
+      "community": 0,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "uselivetemplates()"
     },
     {
@@ -4355,7 +4153,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "sociallinks.ts"
     },
     {
@@ -4367,7 +4165,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_readcachedlinks",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "readcachedlinks()"
     },
     {
@@ -4379,7 +4177,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_writecachedlinks",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "writecachedlinks()"
     },
     {
@@ -4392,7 +4190,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_sociallinks",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "sociallinks"
     },
     {
@@ -4404,7 +4202,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_subscribetosociallinks",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "subscribetosociallinks()"
     },
     {
@@ -4416,7 +4214,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_savesociallinks",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "savesociallinks()"
     },
     {
@@ -4428,7 +4226,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_usesociallinks",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "usesociallinks()"
     },
     {
@@ -4440,7 +4238,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_whatsapplink",
       "community": 14,
-      "community_name": "socialLinks.ts",
+      "community_name": "SettingsTab.tsx",
       "norm_label": "whatsapplink()"
     },
     {
@@ -4513,7 +4311,7 @@
       "_origin": "ast",
       "id": "src_lib_toast_showtoast",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "showtoast()"
     },
     {
@@ -4569,7 +4367,7 @@
       "_origin": "ast",
       "id": "src_types",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "types.ts"
     },
     {
@@ -4582,7 +4380,7 @@
       "_origin": "ast",
       "id": "src_types_templatefeature",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "templatefeature"
     },
     {
@@ -4594,7 +4392,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_template",
-      "community": 0,
+      "community": 5,
       "community_name": "Language",
       "norm_label": "template"
     },
@@ -4608,7 +4406,7 @@
       "_origin": "ast",
       "id": "src_types_contractdata",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "contractdata"
     },
     {
@@ -4621,7 +4419,7 @@
       "_origin": "ast",
       "id": "src_types_aiconsultationstate",
       "community": 5,
-      "community_name": "ContractsTab.tsx",
+      "community_name": "Language",
       "norm_label": "aiconsultationstate"
     },
     {
@@ -5869,8 +5667,8 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 0,
-      "community_name": "Language",
+      "community": 14,
+      "community_name": "SettingsTab.tsx",
       "norm_label": "novaiq icon/logo mark: a stylized double-h (or interlocking bracket) letterform encircled by a tilted elliptical ring, evoking a planet's orbital ring; used as the brand icon/favicon for the novaiq site",
       "_origin": "semantic",
       "id": "src_assets_images_novaiq_icon"
@@ -7465,10 +7263,178 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_contractstab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_contractstab_contractstab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_memberstab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_memberstab_memberstab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_overviewtab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_overviewtab_overviewtab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_pricingtab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_pricingtab_pricingtab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_settingstab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_settingstab_settingstab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_shared",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_shared_tabbutton",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_teamtab",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AdminDashboard.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_components_admindashboard",
+      "target": "src_components_admin_teamtab_teamtab",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L110",
+      "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7479,7 +7445,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L45",
+      "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7490,161 +7456,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L95",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_barrow",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L416",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_companysignaturehandle",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L420",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_companysignaturepad",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L534",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_contractrow",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L318",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_contractstab",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1135",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_memberstab",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L221",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_overviewtab",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L772",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_pricingrow",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L750",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_pricingtab",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1344",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_settingstab",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1331",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_social_fields",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L54",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_stattile",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L52",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_status_flow",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L297",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_statusarabic",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L50",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7652,68 +7464,11 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L68",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_tabbutton",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L972",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_teamtab",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L286",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_admindashboard_useoverviewstatstype",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L39",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_contractprintdocument",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L39",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_contractprintdocument_connectedcontractprintdocument",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L40",
+      "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7725,7 +7480,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L40",
+      "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7737,139 +7492,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L43",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_priceinput",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L43",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_components_priceinput_priceinput",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L35",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_adminusers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L35",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_adminusers_deleteuseraccount",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L35",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_adminusers_listregularsubscribers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L35",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_adminusers_listteammembers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L35",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_adminusers_manageduser",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L35",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_adminusers_setuserdisabled",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L35",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_adminusers_teammember",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L41",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_audio",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L41",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_audio_cosmicaudio",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L34",
+      "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7881,31 +7504,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L34",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_auth_addadminemail",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L34",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_auth_autherrormessage",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L34",
+      "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7917,7 +7516,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L32",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7929,7 +7528,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L32",
+      "source_location": "L5",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7937,35 +7536,11 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L32",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_currency_formatprice",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L32",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_currency_tousd",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L33",
+      "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7977,19 +7552,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L33",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_firebase_deletecontractfromfirebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L33",
+      "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -7997,23 +7560,11 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L33",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_firebase_updatecontractfields",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L31",
+      "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -8025,7 +7576,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L31",
+      "source_location": "L4",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -8033,155 +7584,11 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L31",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_i18n_translatetext",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L38",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_pdfgenerator",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L38",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_pdfgenerator_generatecontractpdf",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L36",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_pricingoverrides",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L36",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_pricingoverrides_savepricingoverride",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L36",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_pricingoverrides_uselivetemplates",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L37",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_sociallinks",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L37",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_sociallinks_savesociallinks",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L37",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_sociallinks_sociallinks",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L37",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_sociallinks_usesociallinks",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L42",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_toast",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L42",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard",
-      "target": "src_lib_toast_showtoast",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L30",
+      "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -8193,7 +7600,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L30",
+      "source_location": "L3",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard",
@@ -8217,7 +7624,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L47",
+      "source_location": "L22",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard_admindashboardprops",
@@ -8229,7 +7636,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L46",
+      "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard_admindashboardprops",
@@ -8242,7 +7649,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L157",
+      "source_location": "L74",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard_admindashboard",
@@ -8254,7 +7661,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L117",
+      "source_location": "L34",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_components_admindashboard_admindashboard",
@@ -8270,354 +7677,6 @@
       "_origin": "ast",
       "source": "src_components_adminpage",
       "target": "src_components_admindashboard_admindashboard",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L243",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_overviewtab",
-      "target": "src_components_admindashboard_statusarabic",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L274",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_overviewtab",
-      "target": "src_lib_currency_formatprice",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L243",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_overviewtab",
-      "target": "src_lib_i18n_translatetext",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L641",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractrow",
-      "target": "src_components_admindashboard_statusarabic",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L383",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractstab",
-      "target": "src_components_admindashboard_statusarabic",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L354",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractstab",
-      "target": "src_lib_currency_formatprice",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L383",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractstab",
-      "target": "src_lib_i18n_translatetext",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L639",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractrow",
-      "target": "src_lib_currency_formatprice",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L600",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractrow",
-      "target": "src_lib_firebase_deletecontractfromfirebase",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L577",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractrow",
-      "target": "src_lib_firebase_updatecontractfields",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L634",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractrow",
-      "target": "src_lib_i18n_translatetext",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L613",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractrow",
-      "target": "src_lib_pdfgenerator_generatecontractpdf",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L584",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_contractrow",
-      "target": "src_lib_toast_showtoast",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L751",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_pricingtab",
-      "target": "src_lib_pricingoverrides_uselivetemplates",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L855",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_pricingrow",
-      "target": "src_lib_currency_formatprice",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L813",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_pricingrow",
-      "target": "src_lib_currency_tousd",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L851",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_pricingrow",
-      "target": "src_lib_i18n_translatetext",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L808",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_pricingrow",
-      "target": "src_lib_pricingoverrides_savepricingoverride",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L826",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_pricingrow",
-      "target": "src_lib_toast_showtoast",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L985",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_teamtab",
-      "target": "src_lib_adminusers_listteammembers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1014",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_teamtab",
-      "target": "src_lib_auth_addadminemail",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1024",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_teamtab",
-      "target": "src_lib_auth_autherrormessage",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1201",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_memberstab",
-      "target": "src_lib_adminusers_deleteuseraccount",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1146",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_memberstab",
-      "target": "src_lib_adminusers_listregularsubscribers",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1180",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_memberstab",
-      "target": "src_lib_adminusers_setuserdisabled",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1182",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_memberstab",
-      "target": "src_lib_toast_showtoast",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1358",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_settingstab",
-      "target": "src_lib_sociallinks_savesociallinks",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1345",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_settingstab",
-      "target": "src_lib_sociallinks_usesociallinks",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/AdminDashboard.tsx",
-      "source_location": "L1363",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_components_admindashboard_settingstab",
-      "target": "src_lib_toast_showtoast",
       "confidence_score": 1.0
     },
     {
@@ -17847,5 +16906,5 @@
       "source_file": "index.html"
     }
   ],
-  "built_at_commit": "cb455eea981fa39b3cc48ce976c7902892459b55"
+  "built_at_commit": "8119b3aea738b47dc46a2ac8fec180872fc3445c"
 }

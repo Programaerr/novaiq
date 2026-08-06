@@ -1,26 +1,26 @@
 # Graph Report - novaiq  (2026-08-06)
 
 ## Corpus Check
-- 78 files · ~106,666 words
+- 78 files · ~101,877 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 500 nodes · 1026 edges · 39 communities (27 shown, 12 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.57)
+- 483 nodes · 963 edges · 40 communities (28 shown, 12 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.57)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `cb455eea`
+- Built from commit: `8119b3ae`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- Language
+- TemplateLivePage.tsx
 - AdminDashboard.tsx
 - scripts
 - package.json
 - devDependencies
-- ContractsTab.tsx
+- Language
 - dependencies
 - TemplateInteractiveSandbox.tsx
 - compilerOptions
@@ -29,7 +29,7 @@
 - vite
 - server.ts
 - NOVAIQ App Entry (index.html)
-- socialLinks.ts
+- SettingsTab.tsx
 - firebase-admin
 - motion
 - build-translations.mjs
@@ -53,15 +53,16 @@
 - .claude/CLAUDE.md
 - extraction-spec.md
 - autoTranslate.ts
+- PolicyPage.tsx
 
 ## God Nodes (most connected - your core abstractions)
 1. `Language` - 42 edges
-2. `formatPrice()` - 25 edges
-3. `Currency` - 23 edges
-4. `translateText()` - 23 edges
-5. `showToast()` - 20 edges
-6. `useLiveTemplates()` - 17 edges
-7. `ContractData` - 17 edges
+2. `Currency` - 23 edges
+3. `formatPrice()` - 20 edges
+4. `translateText()` - 18 edges
+5. `ContractData` - 17 edges
+6. `useLiveTemplates()` - 15 edges
+7. `showToast()` - 15 edges
 8. `compilerOptions` - 15 edges
 9. `Template` - 13 edges
 10. `What You Must Do When Invoked` - 12 edges
@@ -73,10 +74,10 @@
   src/lib/pdfGenerator.ts → package.json
 - `App()` --references--> `lenis`  [EXTRACTED]
   src/App.tsx → package.json
-- `CookieConsentProps` --references--> `Language`  [EXTRACTED]
-  src/components/CookieConsent.tsx → src/lib/i18n.ts
-- `FooterProps` --references--> `Language`  [EXTRACTED]
-  src/components/Footer.tsx → src/lib/i18n.ts
+- `AboutSectionProps` --references--> `Language`  [EXTRACTED]
+  src/components/AboutSection.tsx → src/lib/i18n.ts
+- `AdminLoginProps` --references--> `Language`  [EXTRACTED]
+  src/components/AdminLogin.tsx → src/lib/i18n.ts
 
 ## Import Cycles
 - None detected.
@@ -85,15 +86,15 @@
 - **Local App Setup Flow** — readme_nodejs, readme_npm_install, readme_gemini_api_key, readme_env_local, readme_npm_run_dev [INFERRED 0.85]
 - **Self-hosted Font Preload Optimization Pattern** — index_cairo_font, index_tajawal_font, index_font_preload_optimization, src_index_css_font_face [EXTRACTED 1.00]
 
-## Communities (39 total, 12 thin omitted)
+## Communities (40 total, 12 thin omitted)
 
-### Community 0 - "Language"
-Cohesion: 0.08
-Nodes (41): NovaIQ icon/logo mark: a stylized double-H (or interlocking bracket) letterform encircled by a tilted elliptical ring, evoking a planet's orbital ring; used as the brand icon/favicon for the NovaIQ site, AboutSection(), AboutSectionProps, AdminDashboardProps, AdminLogin(), AdminLoginProps, AdminPageProps, ContractBuilder() (+33 more)
+### Community 0 - "TemplateLivePage.tsx"
+Cohesion: 0.14
+Nodes (19): lenis, lenis, App(), PageLoader(), readStoredLanguage(), TemplateInteractiveSandbox, TemplateLivePage(), THEME_COLORS (+11 more)
 
 ### Community 1 - "AdminDashboard.tsx"
-Cohesion: 0.07
-Nodes (46): MembersTab(), TeamTab(), AdminDashboard(), CompanySignatureHandle, CompanySignaturePad, MembersTab(), PricingTab(), SOCIAL_FIELDS (+38 more)
+Cohesion: 0.09
+Nodes (38): MembersTab(), PricingTab(), TabButton(), TeamTab(), AdminDashboard(), Tab, AdminLogin(), AdminLoginProps (+30 more)
 
 ### Community 2 - "scripts"
 Cohesion: 0.29
@@ -107,9 +108,9 @@ Nodes (4): name, private, type, version
 Cohesion: 0.11
 Nodes (19): autoprefixer, esbuild, devDependencies, autoprefixer, esbuild, tailwindcss, tsx, @types/express (+11 more)
 
-### Community 5 - "ContractsTab.tsx"
-Cohesion: 0.12
-Nodes (38): CompanySignatureHandle, CompanySignaturePad, ContractRow(), ContractsTab(), OverviewTab(), PricingRow(), PricingTab(), AdminStats (+30 more)
+### Community 5 - "Language"
+Cohesion: 0.09
+Nodes (58): CompanySignatureHandle, CompanySignaturePad, ContractRow(), ContractsTab(), OverviewTab(), PricingRow(), AdminStats, BarRow() (+50 more)
 
 ### Community 6 - "dependencies"
 Cohesion: 0.11
@@ -143,9 +144,9 @@ Nodes (7): app, getLocalNetworkIP(), persistTranslationCache(), startServer(), t
 Cohesion: 0.28
 Nodes (9): Cairo Variable Font (self-hosted), Dark Theme (html class=dark), Font Preload + font-display Optimization, NOVAIQ App Entry (index.html), NOVAIQ Favicon Icon, RTL Arabic Layout (lang=ar dir=rtl), Tajawal Font (self-hosted), AI Studio App (NOVAIQ) (+1 more)
 
-### Community 14 - "socialLinks.ts"
+### Community 14 - "SettingsTab.tsx"
 Cohesion: 0.12
-Nodes (17): SettingsTab(), SOCIAL_FIELDS, SettingsTab(), Footer(), FooterProps, MilestoneTimeline(), MilestoneTimelineProps, cosmicAudio (+9 more)
+Nodes (16): NovaIQ icon/logo mark: a stylized double-H (or interlocking bracket) letterform encircled by a tilted elliptical ring, evoking a planet's orbital ring; used as the brand icon/favicon for the NovaIQ site, SettingsTab(), SOCIAL_FIELDS, Footer(), FooterProps, NovaiqLogo(), NovaiqLogoProps, CosmicAudioEngine (+8 more)
 
 ### Community 17 - "build-translations.mjs"
 Cohesion: 0.43
@@ -164,8 +165,8 @@ Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 25 - "App.tsx"
-Cohesion: 0.07
-Nodes (33): lenis, lenis, AdminPage, App(), ContractBuilderGate, ContractPDFPreview, PolicyPage, TemplateGrid (+25 more)
+Cohesion: 0.08
+Nodes (28): AdminPage, ContractBuilderGate, ContractPDFPreview, PolicyPage, TemplateGrid, TemplateInteractiveSandbox, AboutSection(), AboutSectionProps (+20 more)
 
 ### Community 27 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -191,25 +192,29 @@ Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphif
 Cohesion: 0.27
 Nodes (11): bundled, flushBatch(), isFullyResolved(), memoryCache, pendingBatch, PendingEntry, requestTranslation(), resolveStatic() (+3 more)
 
+### Community 39 - "PolicyPage.tsx"
+Cohesion: 0.33
+Nodes (4): PolicyPageProps, PRIVACY_SECTIONS, Section, TERMS_SECTIONS
+
 ## Knowledge Gaps
-- **161 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+156 more)
+- **157 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+152 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **12 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `dependencies` connect `dependencies` to `package.json`, `vite`, `firebase-admin`, `motion`, `App.tsx`, `react-dom`, `@tailwindcss/vite`?**
-  _High betweenness centrality (0.157) - this node is a cross-community bridge._
-- **Why does `generateContractPDF()` connect `ContractsTab.tsx` to `AdminDashboard.tsx`, `dependencies`?**
-  _High betweenness centrality (0.097) - this node is a cross-community bridge._
-- **Why does `jspdf` connect `dependencies` to `ContractsTab.tsx`?**
-  _High betweenness centrality (0.095) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `dependencies` to `TemplateLivePage.tsx`, `package.json`, `vite`, `firebase-admin`, `motion`, `react-dom`, `@tailwindcss/vite`?**
+  _High betweenness centrality (0.160) - this node is a cross-community bridge._
+- **Why does `generateContractPDF()` connect `Language` to `dependencies`?**
+  _High betweenness centrality (0.090) - this node is a cross-community bridge._
+- **Why does `App()` connect `TemplateLivePage.tsx` to `App.tsx`, `pageTranslator.ts`, `Error Boundary & App Entry`?**
+  _High betweenness centrality (0.089) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
-  _161 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Language` be split into smaller, more focused modules?**
-  _Cohesion score 0.07985480943738657 - nodes in this community are weakly interconnected._
+  _157 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `TemplateLivePage.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.13768115942028986 - nodes in this community are weakly interconnected._
 - **Should `AdminDashboard.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.06954997077732321 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0851063829787234 - nodes in this community are weakly interconnected._
 - **Should `devDependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.10526315789473684 - nodes in this community are weakly interconnected._

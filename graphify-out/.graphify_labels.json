@@ -1,10 +1,10 @@
 {
-  "0": "Language",
+  "0": "TemplateLivePage.tsx",
   "1": "AdminDashboard.tsx",
   "2": "scripts",
   "3": "package.json",
   "4": "devDependencies",
-  "5": "ContractsTab.tsx",
+  "5": "Language",
   "6": "dependencies",
   "7": "TemplateInteractiveSandbox.tsx",
   "8": "compilerOptions",
@@ -13,7 +13,7 @@
   "11": "vite",
   "12": "server.ts",
   "13": "NOVAIQ App Entry (index.html)",
-  "14": "socialLinks.ts",
+  "14": "SettingsTab.tsx",
   "15": "firebase-admin",
   "16": "motion",
   "17": "build-translations.mjs",
@@ -37,5 +37,6 @@
   "35": "CLAUDE.md",
   "36": ".claude/CLAUDE.md",
   "37": "extraction-spec.md",
-  "38": "autoTranslate.ts"
+  "38": "autoTranslate.ts",
+  "39": "PolicyPage.tsx"
 }
