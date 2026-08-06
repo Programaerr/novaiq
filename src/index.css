@@ -657,12 +657,12 @@
   }
 
   .navbar-logo-name {
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
   }
 
   .navbar-logo-word {
-    font-size: 8px;
+    font-size: 10.5px;
   }
 
   /* Overrides the inline width/height the size prop writes, which a plain rule can't reach. */
@@ -678,22 +678,24 @@
      buttons. Each max-width is set near its text's real width so the easing tracks the letters
      appearing rather than finishing early against a slack ceiling. */
   .navbar-logo-lockup.is-revealed {
-    gap: 4px;
+    gap: 3px;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-name {
-    max-width: 42px;
+    max-width: 48px;
     opacity: 1;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-word {
-    max-width: 46px;
+    max-width: 60px;
     opacity: 1;
   }
 
+  /* The mark gives up a few pixels while the text is out — it is already the thing you can
+     see, and those pixels are what let the two words read at a legible size. */
   .navbar-logo-lockup.is-revealed .navbar-logo-mark-img {
-    width: 22px !important;
-    height: 22px !important;
+    width: 18px !important;
+    height: 18px !important;
   }
 }
 
