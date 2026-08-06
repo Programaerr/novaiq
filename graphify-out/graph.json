@@ -6012,7 +6012,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/pdfGenerator.ts",
-      "source_location": "L44",
+      "source_location": "L51",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_pdfgenerator_generatecontractpdf",
@@ -15541,5 +15541,5 @@
       "source_file": "index.html"
     }
   ],
-  "built_at_commit": "f61124361e39c70fe24ba6748d32e2a0924dbd6b"
+  "built_at_commit": "1f65b5be07339b1be69044ee8f96ec9dea076335"
 }
