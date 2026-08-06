@@ -184,33 +184,43 @@
   transition: background 250ms ease, color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
 }
 
-/* Hover mist — hugs the pill's own outline (inset: -12px, tight) instead of floating as a
-   free blob around it. A conic-gradient (bright arc opposite a dim arc) rotated via
-   `transform: rotate()` — not an animated custom property, which Lightning CSS strips
-   `@property` for and silently breaks — reads as a fast light trail racing around the
-   frame; the blur softens it back into fog without losing the sense of motion. */
+/* Hover border beam — a solid 2px ring on the pill's own outline, not a blurred cloud
+   around it. The mask pair (full box minus content box) erases everything except the 2px
+   padding strip, leaving just the ring; the conic-gradient behind it puts two bright arcs
+   opposite each other, so rotating it sends light travelling around the outline. Rotation
+   is `transform: rotate()` rather than an animated custom property — Lightning CSS strips
+   the `@property` those need and silently kills the whole declaration. */
 .filter-pill-btn::before {
   content: '';
   position: absolute;
-  inset: -12px;
+  inset: -2px;
   border-radius: inherit;
+  padding: 2px;
   background: conic-gradient(
     from 0deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.05) 25%,
-    rgba(255, 255, 255, 0.05) 75%,
-    rgba(255, 255, 255, 0.95) 100%
+    transparent,
+    #FFFFFF 12%,
+    transparent 25%,
+    transparent 50%,
+    #FFFFFF 62%,
+    transparent 75%,
+    transparent
   );
-  filter: blur(9px);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
   opacity: 0;
-  z-index: -1;
   pointer-events: none;
   transition: opacity 250ms ease;
 }
 
+/* ease-in-out (not linear) on a full turn is what makes it undulate — the beam surges
+   through the fast middle of each rotation and eases at the ends, reading as a wave
+   rolling around the pill instead of a motor spinning at constant speed. */
 .filter-pill-btn:hover::before {
   opacity: 1;
-  animation: filter-pill-mist-spin 0.6s linear infinite;
+  animation: filter-pill-mist-spin 2s ease-in-out infinite;
 }
 
 .filter-pill-btn.is-active {
