@@ -1176,12 +1176,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       lines.push(`قام العميل بتجربة التسجيل في دورة: ${last.courseTitle} باسم الطالب التجريبي ${last.studentName}`);
     } else if (template.id === 'NVQ-HOTEL-09' && hotelBookings.length > 0) {
       const last = hotelBookings[0];
-      lines.push(`قام العميل بتجربة حجز غرفة: ${last.roomName} من ${last.checkIn} إلى ${last.checkOut} (${last.nights} ليالٍ) بتكلفة تقديرية ${last.totalIQD.toLocaleString()} د.ع`);
+      lines.push(`قام العميل بتجربة حجز غرفة: ${last.roomName} من ${last.checkIn} إلى ${last.checkOut} (${last.nights} ليالٍ) بتكلفة تقديرية ${price(last.totalIQD)}`);
     } else if (template.id === 'NVQ-LOG-10') {
       if (foundShipment) lines.push(`قام العميل بتجربة تتبع شحنة تجريبية: ${foundShipment.trackingNumber} (${foundShipment.status})`);
       if (savedQuotes.length > 0) {
         const q = savedQuotes[0];
-        lines.push(`قام العميل بحساب عرض سعر شحن تجريبي: وزن ${q.weight} كغم لوجهة ${q.destination} بتكلفة تقديرية ${q.priceIQD.toLocaleString()} د.ع`);
+        lines.push(`قام العميل بحساب عرض سعر شحن تجريبي: وزن ${q.weight} كغم لوجهة ${q.destination} بتكلفة تقديرية ${price(q.priceIQD)}`);
       }
     }
 
@@ -1669,7 +1669,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <>
                       <span className="w-px h-3.5 bg-white/15 shrink-0 lg:hidden" />
                       <span className="font-mono bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 text-[9px] whitespace-nowrap lg:px-2 lg:text-[10px]">
-                        {totalCartIQD.toLocaleString()} د.ع
+                        {price(totalCartIQD)}
                       </span>
                     </>
                   )}
@@ -1815,7 +1815,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
                   <div>
                     <div className={`text-base font-bold font-mono ${themeStyle.primaryText}`}>
-                      {prod.priceIQD.toLocaleString()} د.ع
+                      {price(prod.priceIQD)}
                     </div>
                   </div>
 
@@ -1908,7 +1908,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         <span className="text-[11px] text-slate-400 block mb-0.5">السعر الفردي للقطعة:</span>
                         <div className="flex items-baseline gap-2">
                           <span className={`text-lg font-bold font-mono ${themeStyle.primaryText}`}>
-                            {selectedProductForModal.priceIQD.toLocaleString()} د.ع
+                            {price(selectedProductForModal.priceIQD)}
                           </span>
                         </div>
                       </div>
@@ -1995,7 +1995,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <div>
                         <span className="text-slate-400 block text-[10px]">إجمالي التكلفة المباشرة:</span>
                         <span className={`text-base font-bold font-mono ${themeStyle.primaryText}`}>
-                          {(selectedProductForModal.priceIQD * modalQuantity).toLocaleString()} د.ع
+                          {price((selectedProductForModal.priceIQD * modalQuantity))}
                         </span>
                       </div>
 
@@ -2047,7 +2047,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                               <span>القياس: {item.selectedSize}</span>
                             </div>
                             <div className={`font-mono font-bold ${themeStyle.primaryText}`}>
-                              {(item.product.priceIQD * item.quantity).toLocaleString()} د.ع
+                              {price((item.product.priceIQD * item.quantity))}
                             </div>
                           </div>
 
@@ -2071,7 +2071,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <div className="space-y-1 text-xs">
                       <div className="flex justify-between text-slate-400">
                         <span>إجمالي المنتجات:</span>
-                        <span className="font-mono text-white">{totalCartIQD.toLocaleString()} د.ع</span>
+                        <span className="font-mono text-white">{price(totalCartIQD)}</span>
                       </div>
                       <div className="flex justify-between text-slate-400">
                         <span>أجور التوصيل المباشر:</span>
@@ -2079,7 +2079,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       </div>
                       <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-white/10">
                         <span>الإجمالي الكلي:</span>
-                        <span className={`font-mono ${themeStyle.primaryText}`}>{totalCartIQD.toLocaleString()} د.ع</span>
+                        <span className={`font-mono ${themeStyle.primaryText}`}>{price(totalCartIQD)}</span>
                       </div>
                     </div>
 
@@ -2178,7 +2178,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     <div>
                       <span className="text-slate-400 block text-[11px]">المبلغ النهائي للطلب:</span>
                       <span className={`text-base font-bold font-mono ${themeStyle.primaryText}`}>
-                        {totalCartIQD.toLocaleString()} د.ع
+                        {price(totalCartIQD)}
                       </span>
                     </div>
 
@@ -2230,7 +2230,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                   <div className="flex justify-between pt-2 border-t border-white/10 font-bold">
                     <span>إجمالي الفاتورة:</span>
                     <span className={`font-mono text-sm ${themeStyle.primaryText}`}>
-                      {orderConfirmedInvoice.totalIQD.toLocaleString()} د.ع
+                      {price(orderConfirmedInvoice.totalIQD)}
                     </span>
                   </div>
                 </div>
@@ -2921,7 +2921,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         <div>
                           <span className="text-[10px] text-slate-500 block font-semibold">القيمة التقديرية:</span>
                           <span className="text-sm font-bold text-amber-400 font-mono block">
-                            {prop.priceIQD.toLocaleString()} د.ع
+                            {price(prop.priceIQD)}
                           </span>
                         </div>
 
@@ -3239,7 +3239,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         <h4 className="text-sm font-bold text-white">{item.name}</h4>
                         <p className="text-slate-400 line-clamp-2 leading-relaxed">{item.description}</p>
                         <div className="flex items-center justify-between pt-1">
-                          <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{item.priceIQD.toLocaleString()} د.ع</span>
+                          <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(item.priceIQD)}</span>
                           <button
                             onClick={() => addFoodItem(item)}
                             className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center gap-1`}
@@ -3265,7 +3265,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <div key={o.item.id} className="p-3 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <span className="text-white font-bold block truncate">{o.item.name}</span>
-                          <span className="text-slate-500 font-mono">{o.item.priceIQD.toLocaleString()} د.ع</span>
+                          <span className="text-slate-500 font-mono">{price(o.item.priceIQD)}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <button onClick={() => updateFoodItemQuantity(idx, -1)} className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white cursor-pointer">
@@ -3280,7 +3280,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     ))}
                     <div className="pt-3 border-t border-white/10 flex items-center justify-between">
                       <span className="font-bold text-white">الإجمالي:</span>
-                      <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{foodOrderTotalIQD.toLocaleString()} د.ع</span>
+                      <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{price(foodOrderTotalIQD)}</span>
                     </div>
                     <button
                       onClick={() => alert('تم تأكيد طلبك التجريبي بنجاح! سيتم تحضيره فور تفعيل موقعك الفعلي.')}
@@ -3398,7 +3398,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                         </div>
                         <p className="text-slate-400">{course.instructor} • {course.durationWeeks} أسابيع</p>
                         <div className="flex items-center justify-between pt-1">
-                          <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{course.priceIQD.toLocaleString()} د.ع</span>
+                          <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(course.priceIQD)}</span>
                           <button
                             onClick={() => { setSelectedCourseId(course.id); setActiveTab('enroll'); cosmicAudio.playPing(); }}
                             className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
@@ -3431,7 +3431,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <div className="flex items-center justify-between pt-1">
                   <span className="font-bold text-white">رسوم الدورة:</span>
-                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{selectedCourse.priceIQD.toLocaleString()} د.ع</span>
+                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{price(selectedCourse.priceIQD)}</span>
                 </div>
                 <button
                   onClick={() => confirmEnrollment(selectedCourse)}
@@ -3523,7 +3523,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       </div>
                       <p className="text-slate-400">يتسع لـ {room.capacity} ضيوف</p>
                       <div className="flex items-center justify-between pt-1">
-                        <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{room.pricePerNightIQD.toLocaleString()} د.ع / ليلة</span>
+                        <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(room.pricePerNightIQD)} / ليلة</span>
                         <button
                           onClick={() => { setSelectedRoomId(room.id); setActiveTab('booking'); cosmicAudio.playPing(); }}
                           className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
@@ -3566,7 +3566,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
                 <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <span className="font-bold text-white">الإجمالي ({nightsPreview} ليالٍ):</span>
-                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{(nightsPreview * selectedRoom.pricePerNightIQD).toLocaleString()} د.ع</span>
+                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{price((nightsPreview * selectedRoom.pricePerNightIQD))}</span>
                 </div>
 
                 <button
@@ -3593,7 +3593,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                       <div className="flex justify-between"><span className="text-slate-400">الوصول:</span><span className="text-white font-mono">{latestBooking.checkIn}</span></div>
                       <div className="flex justify-between"><span className="text-slate-400">المغادرة:</span><span className="text-white font-mono">{latestBooking.checkOut}</span></div>
                       <div className="flex justify-between"><span className="text-slate-400">عدد الليالي:</span><span className="text-white font-mono">{latestBooking.nights}</span></div>
-                      <div className="flex justify-between pt-1.5 border-t border-white/10"><span className="text-slate-400">الإجمالي:</span><span className={`font-bold ${themeStyle.primaryText}`}>{latestBooking.totalIQD.toLocaleString()} د.ع</span></div>
+                      <div className="flex justify-between pt-1.5 border-t border-white/10"><span className="text-slate-400">الإجمالي:</span><span className={`font-bold ${themeStyle.primaryText}`}>{price(latestBooking.totalIQD)}</span></div>
                     </div>
                   </>
                 ) : (
@@ -3702,7 +3702,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <span className="font-bold text-white">السعر التقديري:</span>
-                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{computeShippingQuote().toLocaleString()} د.ع</span>
+                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{price(computeShippingQuote())}</span>
                 </div>
                 <button
                   onClick={saveShippingQuote}
@@ -3959,7 +3959,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         subtitle: `${item.selectedColor} · قياس ${item.selectedSize}`,
         meta: `الكمية: ${item.quantity}`,
         status: i === 0 ? 'قيد التجهيز' : 'بانتظار الشحن',
-        amount: `${(item.product.priceIQD * item.quantity).toLocaleString()} د.ع`,
+        amount: `${price((item.product.priceIQD * item.quantity))}`,
       }));
     }
 
@@ -3975,7 +3975,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           ...foodOrder.map((o, i) => ({
             id: `FO-${3100 + i}`, title: o.item.name, subtitle: 'طلب توصيل',
             meta: `الكمية: ${o.quantity}`, status: 'قيد التحضير في المطبخ',
-            amount: `${(o.item.priceIQD * o.quantity).toLocaleString()} د.ع`,
+            amount: `${price((o.item.priceIQD * o.quantity))}`,
           })),
           ...tableReservations.map((r) => ({
             id: r.id, title: `حجز طاولة لـ ${r.guests} أشخاص`, subtitle: 'حجز في الصالة',
@@ -3993,7 +3993,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         return hotelBookings.map((b) => ({
           id: b.id, title: b.roomName, subtitle: `${b.guests} نزلاء · ${b.nights} ليالٍ`,
           meta: `${b.checkIn} ← ${b.checkOut}`, status: 'حجز مؤكد',
-          amount: `${b.totalIQD.toLocaleString()} د.ع`,
+          amount: `${price(b.totalIQD)}`,
         }));
 
       case 'NVQ-LOG-10':
@@ -4001,7 +4001,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           id: q.id, title: `عرض شحن ${q.weight} كغم`,
           subtitle: q.destination === 'local' ? 'داخل المحافظة' : q.destination === 'regional' ? 'بين المحافظات' : 'شحن دولي',
           meta: 'عرض سعر محفوظ', status: 'صالح لمدة 7 أيام',
-          amount: `${q.priceIQD.toLocaleString()} د.ع`,
+          amount: `${price(q.priceIQD)}`,
         }));
 
       case 'NVQ-REAL-04':
@@ -4753,7 +4753,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         <div className="text-center sm:text-right">
           <span className="text-[11px] text-zinc-400">التكلفة الأساسية للقالب: </span>
           <span className="text-sm sm:text-base font-bold text-white font-mono">
-            {basePrice.toLocaleString()} د.ع
+            {price(basePrice)}
           </span>
         </div>
 
