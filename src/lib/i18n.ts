@@ -184,7 +184,7 @@ export const UI_TRANSLATIONS = {
     // Template Grid
     templatesHeading: 'المكتبة الفضائية للقوالب البرمجية',
     templatesSubheading: 'اختر القالب الأنسب لنشاطك التجاري وانطلق بنسبة 80% جاهزية فورية مع إمكانية التخصيص الكامل.',
-    searchPlaceholder: 'ابحث عن قالب أو تقنية (مثال: تجارة، عقارات، React)...',
+    searchPlaceholder: 'ابحث عن قالب',
     allCategories: 'جميع القطاعات',
     viewDetails: 'معاينة القالب',
     selectForContract: 'اختيار القالب',
@@ -298,7 +298,7 @@ export const UI_TRANSLATIONS = {
     // Template Grid
     templatesHeading: 'Cosmic Library of Software Templates',
     templatesSubheading: 'Choose the ideal template for your business and launch with 80% immediate readiness with full customization options.',
-    searchPlaceholder: 'Search for template or tech (e.g. E-Commerce, Real Estate, React)...',
+    searchPlaceholder: 'Search for a template',
     allCategories: 'All Categories',
     viewDetails: 'Preview Template',
     selectForContract: 'Select for Contract',

@@ -33,6 +33,8 @@ interface TemplateGridProps {
   onOpenStandalonePreview?: (template: Template) => void;
   language?: Language;
   currency?: Currency;
+  /** Card to open on, if any — used to come back to the template a preview was opened from. */
+  focusTemplateId?: string | null;
 }
 
 export const TemplateGrid: React.FC<TemplateGridProps> = ({
@@ -40,6 +42,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   onOpenStandalonePreview,
   language = 'ar',
   currency = 'IQD',
+  focusTemplateId = null,
 }) => {
   const currentLang: Language = (language === 'en' ? 'en' : 'ar');
   // Static catalogue merged with any live admin price overrides — same shape and name as
@@ -157,9 +160,35 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return list;
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery, currentLang]);
 
+  // Compares against the last values it actually saw rather than just firing whenever the
+  // effect runs. Under StrictMode an effect is invoked twice on mount, and a run-counting
+  // guard would burn its one shot on the throwaway first pass — leaving the second pass free
+  // to reset an index the restore below had just set.
+  const lastFilters = useRef({ selectedCategory, maxPriceUSD, sortBy, searchQuery });
   useEffect(() => {
+    const prev = lastFilters.current;
+    if (
+      prev.selectedCategory === selectedCategory &&
+      prev.maxPriceUSD === maxPriceUSD &&
+      prev.sortBy === sortBy &&
+      prev.searchQuery === searchQuery
+    ) return;
+    lastFilters.current = { selectedCategory, maxPriceUSD, sortBy, searchQuery };
     setActiveIndex(0);
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery]);
+
+  // Opening a standalone preview unmounts this whole component (App swaps the tree out), so
+  // returning would otherwise drop the visitor on the first card rather than the one they
+  // were just looking at. Only claims the position once, so changing a filter afterwards
+  // still snaps to the first result instead of yanking them back here.
+  const didRestoreFocus = useRef(false);
+  useEffect(() => {
+    if (didRestoreFocus.current || !focusTemplateId) return;
+    const idx = filteredTemplates.findIndex((t) => t.id === focusTemplateId);
+    if (idx === -1) return;
+    didRestoreFocus.current = true;
+    setActiveIndex(idx);
+  }, [focusTemplateId, filteredTemplates]);
 
   // Wraps rather than clamping — arrows/swipes loop continuously past either end, same
   // as the auto-advance, instead of stopping dead at the first/last card.
@@ -257,19 +286,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             </button>
 
             {/* Search Box */}
-            <div className="relative w-full sm:w-80 sm:ms-auto">
-              <Search className="w-4 h-4 text-zinc-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+            <div className="search-neu relative w-full sm:w-80 sm:ms-auto rounded-full">
+              <Search className="w-4 h-4 text-zinc-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={getTranslation('searchPlaceholder', currentLang)}
-                className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-black/20 border border-white/10 focus:border-white/40 focus:outline-none text-white text-xs sm:text-sm placeholder-zinc-500 transition-all"
+                className="w-full pr-11 pl-4 py-2.5 rounded-full bg-transparent border-none focus:outline-none text-zinc-800 text-xs sm:text-sm font-semibold placeholder-zinc-500"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs cursor-pointer"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-800 text-xs font-bold cursor-pointer"
                 >
                   {currentLang === 'ar' ? 'مسح' : 'Clear'}
                 </button>

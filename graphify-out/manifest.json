@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1786033697.6878707,
-    "ast_hash": "2ee65b515bd9039d7e9559c9ea1b8fc1",
+    "mtime": 1786040126.2114997,
+    "ast_hash": "86b5298eafd55570ba2f3334991d8bfa",
     "semantic_hash": ""
   },
   "src/components/AboutSection.tsx": {
@@ -155,13 +155,13 @@
     "semantic_hash": ""
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786035568.2836466,
-    "ast_hash": "bcc71b598a83ef13a96fd6fabacfa21a",
+    "mtime": 1786040126.243424,
+    "ast_hash": "a99c6a37146278ddbe2fb71bd9c0bb4c",
     "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
-    "mtime": 1786032366.32244,
-    "ast_hash": "3214c4720c24cbc167da8e6d0c643aa6",
+    "mtime": 1786040138.9991775,
+    "ast_hash": "e2b1206b719770da09e1c9440d6fc722",
     "semantic_hash": ""
   },
   "src/components/TemplateLivePage.tsx": {
@@ -210,8 +210,8 @@
     "semantic_hash": ""
   },
   "src/components/sandbox/SandboxChrome.tsx": {
-    "mtime": 1786032303.4838789,
-    "ast_hash": "2319fed21009ec77f6f3f801f263314e",
+    "mtime": 1786040126.2919502,
+    "ast_hash": "849e985cdcc78a4a8f5f4e6841eafe16",
     "semantic_hash": ""
   },
   "src/components/sandbox/context.ts": {
@@ -325,8 +325,8 @@
     "semantic_hash": ""
   },
   "src/lib/i18n.ts": {
-    "mtime": 1785806220.1529217,
-    "ast_hash": "b5b80f8be19f19d8f0824f7a8492eedf",
+    "mtime": 1786040126.300977,
+    "ast_hash": "d56b1a4e53fb72665085fc1dafa9ea2e",
     "semantic_hash": ""
   },
   "src/lib/pageTranslator.ts": {

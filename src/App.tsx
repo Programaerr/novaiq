@@ -34,6 +34,11 @@ export default function App() {
   const [activePage, setActivePage] = useState<string>('home');
   const [selectedTemplateForContract, setSelectedTemplateForContract] = useState<Template | null>(null);
   const [standalonePreviewTemplate, setStandalonePreviewTemplate] = useState<Template | null>(null);
+  // Opening a standalone preview swaps the whole tree below (see the early return further
+  // down), so TemplateGrid unmounts and its carousel position dies with it. Remembering which
+  // template was opened — and outliving the preview itself — is what lets the grid come back
+  // to that card instead of snapping to the first one.
+  const [lastPreviewedTemplateId, setLastPreviewedTemplateId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<string>('hero');
   
   // Modals state
@@ -368,8 +373,12 @@ export default function App() {
               <TemplateGrid
                 language={language}
                 currency={currency}
+                focusTemplateId={lastPreviewedTemplateId}
                 onSelectTemplateForContract={handleSelectTemplateForContract}
-                onOpenStandalonePreview={(template) => setStandalonePreviewTemplate(template)}
+                onOpenStandalonePreview={(template) => {
+                  setLastPreviewedTemplateId(template.id);
+                  setStandalonePreviewTemplate(template);
+                }}
               />
             </Suspense>
           </div>

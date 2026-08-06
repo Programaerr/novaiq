@@ -250,6 +250,34 @@
     0 0 50px rgba(0, 0, 0, 0.22);
 }
 
+/* Neumorphic search field — the soft-UI look, where the control reads as pressed out of a
+   single sheet of material rather than drawn on top of it. That illusion is entirely the
+   paired shadows: a dark one down-right and a light one up-left, as if one fixed light source
+   sat above-left. Both are required — drop either and it flattens into an ordinary pill.
+   It carries its own pale surface instead of inheriting the toolbar's dark glass, since the
+   effect needs a mid-tone body for the light shadow to register against. */
+.search-neu {
+  background: linear-gradient(145deg, #f4f4f7, #d8d8e1);
+  box-shadow:
+    6px 6px 14px rgba(0, 0, 0, 0.5),
+    -3px -3px 10px rgba(255, 255, 255, 0.07),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.95),
+    inset -3px -3px 6px rgba(148, 148, 166, 0.55);
+  transition: box-shadow 0.25s ease, background 0.25s ease;
+}
+
+/* Focus presses it inward — outer shadows shrink, inner ones deepen, the same sheet now
+   dented rather than raised. :focus-within, not :focus, because the input inside takes the
+   focus while this wrapper is what's actually styled. */
+.search-neu:focus-within {
+  background: linear-gradient(145deg, #e4e4ec, #eeeef3);
+  box-shadow:
+    3px 3px 8px rgba(0, 0, 0, 0.4),
+    -2px -2px 8px rgba(255, 255, 255, 0.05),
+    inset 4px 4px 8px rgba(140, 140, 160, 0.6),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.95);
+}
+
 /* Hover inverts the whole pill (white/black -> black/white), so the ambient glow inverts
    too — a black bloom would disappear against a black pill, a white one reads as the
    surface catching light instead. Declared after .is-active so hover wins when both apply
