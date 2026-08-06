@@ -178,7 +178,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             type="button"
             onClick={() => rotateBy(-WHEEL_STEP)}
             aria-label={language === 'ar' ? 'التالي' : 'Next'}
-            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-700 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
           >
             <ChevronRight className="w-4 h-4 ltr:rotate-180" />
           </button>
@@ -200,12 +200,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   className="wheel3d-item"
                   style={{ '--item-angle': `${i * 90}deg` } as React.CSSProperties}
                 >
-                  <div className="group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800 text-center hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
+                  <div className="group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-700 text-center hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none"
                       style={{ backgroundImage: bgImage, backgroundSize: bgSize }}
                     />
-                    <div className="relative z-10 w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-800 flex items-center justify-center text-white">
+                    <div className="relative z-10 w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-700 flex items-center justify-center text-white">
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="relative z-10 text-base sm:text-lg lg:text-xl font-bold text-white mb-0.5">{title}</div>
@@ -220,7 +220,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             type="button"
             onClick={() => rotateBy(WHEEL_STEP)}
             aria-label={language === 'ar' ? 'السابق' : 'Previous'}
-            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-700 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 ltr:rotate-180" />
           </button>

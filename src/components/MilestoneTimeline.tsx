@@ -96,7 +96,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
             return (
               <div
                 key={index}
-                className="bg-zinc-950 border border-zinc-800 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-700 transition-all shadow-xl"
+                className="bg-zinc-950 border border-zinc-700 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-600 transition-all shadow-xl"
               >
 
                 {/* Background phase-number — fades in on card hover (simple hover, no
