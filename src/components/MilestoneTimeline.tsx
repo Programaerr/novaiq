@@ -99,12 +99,14 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                 className="bg-zinc-950 border border-zinc-800 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-700 transition-all shadow-xl"
               >
 
-                {/* Background phase-number — fades and un-blurs in on card hover
-                    (simple hover, no cursor tracking), clipped to its own layer so the
-                    card itself can stay overflow-visible for the floating badge below
-                    to poke past its top edge. */}
+                {/* Background phase-number — fades in on card hover (simple hover, no
+                    cursor tracking), clipped to its own layer so the card itself can stay
+                    overflow-visible for the floating badge below to poke past its top
+                    edge. Plain opacity only, no blur() — a blurred descendant's paint
+                    still escaped this wrapper's overflow-hidden + rounded corner clip in
+                    testing, which read as the number bleeding out over the badge above it. */}
                 <div className="absolute inset-0 rounded-[32px] overflow-hidden pointer-events-none">
-                  <span className="absolute top-0 left-9 text-[5.5rem] font-black text-white leading-none select-none font-mono opacity-0 blur-md group-hover:opacity-30 group-hover:blur-[2px] transition-all duration-500">
+                  <span className="absolute top-2 left-9 text-[5.5rem] font-black text-white leading-none select-none font-mono opacity-0 group-hover:opacity-20 transition-opacity duration-500">
                     {index + 1}
                   </span>
                 </div>
@@ -115,9 +117,13 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                   <Icon className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
                 </div>
 
-                {/* Weeks Banner */}
-                <div className="flex items-center justify-start">
-                  <span className="font-mono text-xs font-bold text-zinc-200 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
+                {/* Weeks Banner — margin-right:auto (physical, not the logical
+                    justify-start/-end pair) keeps this pinned to the same side as the
+                    icon badge's own fixed right-6 in both languages. justify-start flips
+                    with dir, so in English this used to land on the opposite side from
+                    the icon instead of staying grouped with it the way it does in Arabic. */}
+                <div className="flex items-center">
+                  <span className="font-mono text-xs font-bold text-zinc-200 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 ml-auto">
                     {ms.weeks}
                   </span>
                 </div>
