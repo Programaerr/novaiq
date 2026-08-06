@@ -26,7 +26,7 @@ interface CorporateDemoProps {
 }
 
 export function CorporateDemo({ ctx, corpDetail, orgSize, setCorpDetail, setOrgSize }: CorporateDemoProps) {
-  const { CUR, activeTab, gridCols, isNarrowViewport, setActiveTab, themeStyle } = ctx;
+  const { CUR, activeTab, gridCols, isNarrowViewport, renderSiteTopBar, setActiveTab, themeStyle } = ctx;
 
   const stellaServices = [
     {
@@ -125,17 +125,7 @@ export function CorporateDemo({ ctx, corpDetail, orgSize, setCorpDetail, setOrgS
         />
       </div>
 
-      {/* Glass header — logo lockup on one side, the sections menu on the other. */}
-      <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-        <div className="group flex items-center gap-3">
-          <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-          <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-            <Building2 className="w-5 h-5" />
-          </div>
-          <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-        </div>
-        {renderSiteMenuButton()}
-      </div>
+      {renderSiteTopBar(<Building2 className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
       {/* Dynamic Body */}
       {activeTab === 'home' && (

@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { Template } from '../types';
 import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
-import { PriceInput } from './PriceInput';
 import {
   X,
-  Smartphone,
   CheckCircle2,
   ArrowLeft,
   Eye,
@@ -26,31 +23,11 @@ import {
   Phone,
   Clock,
   TrendingUp,
-  Building2,
-  ShoppingBag,
-  Stethoscope,
-  Wallet,
   Send,
-  ArrowUpRight,
-  Search,
-  ShoppingCart,
-  Plus,
-  Minus,
   Palette,
-  Sliders,
   Calendar,
-  CreditCard,
-  Cpu,
   Globe,
-  Shield,
-  ChefHat,
-  GraduationCap,
-  Hotel,
-  Truck,
-  Package,
   MapPin,
-  Terminal,
-  ChevronDown
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 
@@ -71,21 +48,14 @@ import type {
   SiteAccount,
   ThemeColor,
 } from '../data/sandboxDemoData';
+
 import {
   COMPANY_PROFILES,
-  SAMPLE_ATTENDANCE,
-  SAMPLE_COURSES,
-  SAMPLE_DOCTORS,
-  SAMPLE_GRADES,
-  SAMPLE_LAB_RESULTS,
-  SAMPLE_MENU_ITEMS,
   SAMPLE_PRODUCTS,
-  SAMPLE_ROOMS,
   SAMPLE_SHIPMENTS,
   SITE_IDENTITIES,
   SITE_NAV_ITEMS,
   STORE_NAV_ITEMS,
-  STORE_SORT_OPTIONS,
   THEME_COLOR_HEX,
   THEME_COLOR_LABEL_AR,
 } from '../data/sandboxDemoData';
@@ -813,6 +783,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           modalSize={modalSize}
           orderConfirmedInvoice={orderConfirmedInvoice}
           paymentMethod={paymentMethod}
+          renderSiteMenuButton={renderSiteMenuButton}
           selectedProductForModal={selectedProductForModal}
           setCustomerCity={setCustomerCity}
           setCustomerName={setCustomerName}
@@ -848,7 +819,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-CORP-01':
       case 'stella-corporate':
         return (
-<<<<<<< HEAD
           <CorporateDemo
             ctx={ctx}
             corpDetail={corpDetail}
@@ -856,457 +826,21 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             setCorpDetail={setCorpDetail}
             setOrgSize={setOrgSize}
           />
-=======
-          <div className="relative space-y-6 text-slate-100">
-            {/* Ambient cosmic glows behind the glass UI — cheap radial gradients, not a
-                full-surface blur filter, so this stays smooth even on weak devices. */}
-            <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-3xl select-none" aria-hidden="true">
-              <div
-                className="absolute -top-20 -right-10 w-72 h-72 rounded-full"
-                style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(139,92,246,0.35) 0%, rgba(88,28,135,0.14) 45%, rgba(0,0,0,0) 78%)' }}
-              />
-              <div
-                className="absolute top-1/3 -left-16 w-64 h-64 rounded-full"
-                style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(63,63,70,0.30) 0%, rgba(39,39,42,0.14) 45%, rgba(0,0,0,0) 78%)' }}
-              />
-            </div>
-
-            {renderSiteTopBar(<Building2 className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
-
-            {/* Dynamic Body */}
-            {activeTab === 'home' && (
-              <div className="space-y-4 sm:space-y-6 animate-fade-in">
-                <div className={`relative overflow-hidden p-6 sm:p-8 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} backdrop-blur-sm border ${themeStyle.primaryBorder} text-center space-y-3 sm:space-y-4`}>
-                  <div className={`w-14 h-14 mx-auto rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shadow-lg ring-1 ring-white/20`}>
-                    <Building2 className="w-7 h-7" />
-                  </div>
-                  <span className={`px-3 py-1 rounded-full ${themeStyle.badgeBg} text-xs font-semibold inline-block backdrop-blur-sm`}>
-                    حلول مؤسسية متكاملة
-                  </span>
-                  <h3 className="text-xl sm:text-3xl font-extrabold text-white leading-tight">
-                    نبتكر حلولاً برمجية تقود المؤسسات نحو التحول الرقمي
-                  </h3>
-                  <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-                    منصة الشركات الكبرى مع لوحة تحكم ذكية، دعم متعدد اللغات، وبوابة المستثمرين المحمية بأعلى درجات الأمان.
-                  </p>
-                  <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                    <button onClick={() => setActiveTab('calculator')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer shadow-lg`}>
-                      حسّاب تكلفة مشروعك
-                    </button>
-                    <button onClick={() => setActiveTab('contact')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/15 text-slate-300 text-xs font-bold cursor-pointer hover:bg-white/10 transition-colors">
-                      طلب استشارة مباشرة
-                    </button>
-                  </div>
-                </div>
-
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center`}>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors">
-                    <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText} font-mono`}>+150</div>
-                    <div className="text-[11px] text-slate-400">مشروع مكتمل</div>
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors">
-                    <div className="text-lg sm:text-xl font-bold text-emerald-400 font-mono">99.9%</div>
-                    <div className="text-[11px] text-slate-400">نسبة استقرار النظام</div>
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 transition-colors">
-                    <div className="text-lg sm:text-xl font-bold text-amber-400 font-mono">24/7</div>
-                    <div className="text-[11px] text-slate-400">دعم فني متواصل</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'services' && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                {stellaServices.map((service, i) => {
-                  const Icon = service.icon;
-                  return (
-                    <div
-                      key={service.title}
-                      onClick={() => { setCorpDetail({ kind: 'service', index: i }); cosmicAudio.playPing(); }}
-                      className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/30 transition-colors space-y-3 cursor-pointer group"
-                      style={{ animation: 'card-in 0.35s ease-out both', animationDelay: `${i * 0.05}s` }}
-                    >
-                      <div className={`w-10 h-10 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} flex items-center justify-center shrink-0 shadow-md`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <h4 className="text-sm font-bold text-white">{service.title}</h4>
-                      <p className="text-slate-400 leading-relaxed">{service.desc}</p>
-                      <div className="flex items-center justify-between pt-1">
-                        <span className={`text-[10px] font-bold ${themeStyle.primaryText}`}>{service.tag}</span>
-                        <span className="text-[10px] font-bold text-slate-300 flex items-center gap-1 group-hover:text-white transition-colors">
-                          التفاصيل <ArrowUpRight className="w-3 h-3" />
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {activeTab === 'projects' && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                {stellaProjects.map((project, i) => (
-                  <div
-                    key={project.client}
-                    onClick={() => { setCorpDetail({ kind: 'project', index: i }); cosmicAudio.playPing(); }}
-                    className="p-3 bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/30 transition-colors rounded-2xl space-y-3 overflow-hidden cursor-pointer group"
-                  >
-                    <div className="relative overflow-hidden rounded-xl">
-                      <img src={project.image} alt={project.client} loading="lazy" decoding="async" className="w-full h-32 object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" referrerPolicy="no-referrer" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                    </div>
-                    <div className="p-1 space-y-1">
-                      <span className="text-[10px] text-slate-500 font-bold block">{project.client}</span>
-                      <h4 className="text-xs font-bold text-white">{project.title}</h4>
-                      <p className="text-[11px] text-slate-400">{project.desc}</p>
-                      <span className="text-[10px] font-bold text-slate-300 flex items-center gap-1 group-hover:text-white transition-colors pt-1">
-                        دراسة الحالة الكاملة <ArrowUpRight className="w-3 h-3" />
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === 'calculator' && (
-              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 space-y-4 animate-fade-in text-xs shadow-xl">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-emerald-400" />
-                  <span>حاسبة التكلفة المباشرة للشركات</span>
-                </h4>
-                <p className="text-slate-400">حدد نطاق الخدمة المطلوبة لحساب تقدير أولي لاحتياجات مؤسستك:</p>
-                <div className="space-y-2">
-                  <label className="block text-slate-300 font-bold">حجم المنظومة البرمجية:</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {([
-                      { id: 'medium' as const, label: 'مؤسسة متوسطة' },
-                      { id: 'large' as const, label: 'مؤسسة كبرى' },
-                      { id: 'holding' as const, label: 'مجموعة القابضة' },
-                    ]).map((opt) => (
-                      <button
-                        key={opt.id}
-                        onClick={() => { setOrgSize(opt.id); cosmicAudio.playPing(); }}
-                        className={`p-2 rounded-lg border text-center cursor-pointer transition-all ${
-                          orgSize === opt.id ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} border-white shadow-md` : 'border-white/10 bg-white/5 backdrop-blur-sm text-slate-400 hover:text-white hover:border-white/25'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="p-4 rounded-xl bg-black/30 backdrop-blur-md border border-white/10 text-center space-y-1">
-                  <span className="text-slate-400 block text-[11px]">التكلفة التقديرية الحالية:</span>
-                  <span className={`text-xl font-bold font-mono ${themeStyle.primaryText}`}>
-                    {orgSize === 'medium' ? `3,625,000 - 6,960,000 ${CUR}` : orgSize === 'large' ? `6,960,000 - 13,050,000 ${CUR}` : `13,050,000 - 26,100,000 ${CUR}`}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'contact' && (
-              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 space-y-3 animate-fade-in shadow-xl">
-                <h4 className="text-sm font-bold text-white">نموذج التواصل والتسجيل المباشر</h4>
-                <input type="text" placeholder="الاسم الكامل" className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
-                <input type="text" placeholder="رقم الهاتف" className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
-                <textarea placeholder="تفاصيل المشروع والطلب..." rows={2} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-xs text-white placeholder-slate-500" />
-                <button onClick={() => alert('تم تسجيل الاستفسار التجريبي بنجاح في النظام!')} className={`w-full py-2.5 ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold rounded-lg cursor-pointer shadow-lg`}>
-                  إرسال الاستفسار المباشر
-                </button>
-              </div>
-            )}
-
-            {/* Service / Project detail modal — clicking any card opens its full details
-                instead of the grid being a static, non-interactive display. */}
-            {corpDetail && (
-              <div data-lenis-prevent className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto" onClick={() => setCorpDetail(null)}>
-                <div
-                  className="bg-slate-950/95 backdrop-blur-2xl border border-white/10 rounded-3xl max-w-xl w-full overflow-hidden shadow-2xl animate-fade-in my-auto"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                    <h3 className="text-sm font-bold text-white">
-                      {corpDetail.kind === 'service' ? 'تفاصيل الخدمة الكاملة' : 'دراسة الحالة الكاملة'}
-                    </h3>
-                    <button
-                      onClick={() => setCorpDetail(null)}
-                      className="text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 p-1.5 rounded-xl cursor-pointer transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {corpDetail.kind === 'service' && (() => {
-                    const service = stellaServices[corpDetail.index];
-                    const Icon = service.icon;
-                    return (
-                      <div className="p-6 space-y-4 text-xs">
-                        <div className={`w-12 h-12 rounded-2xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} flex items-center justify-center shadow-lg`}>
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <h4 className="text-base font-extrabold text-white leading-snug">{service.title}</h4>
-                        <span className={`inline-block px-2.5 py-1 rounded-lg ${themeStyle.badgeBg} text-[10px] font-bold`}>{service.tag}</span>
-                        <p className="text-slate-300 leading-relaxed">{service.details}</p>
-                        <div className="space-y-1.5 pt-2 border-t border-white/10">
-                          {service.bullets.map((b) => (
-                            <div key={b} className="flex items-start gap-2">
-                              <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${themeStyle.primaryText}`} />
-                              <span className="text-slate-300">{b}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <button
-                          onClick={() => { setCorpDetail(null); setActiveTab('contact'); }}
-                          className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer shadow-lg mt-2`}
-                        >
-                          اطلب هذه الخدمة الآن
-                        </button>
-                      </div>
-                    );
-                  })()}
-
-                  {corpDetail.kind === 'project' && (() => {
-                    const project = stellaProjects[corpDetail.index];
-                    return (
-                      <div className="space-y-4 text-xs">
-                        <img src={project.image} alt={project.client} className="w-full h-40 sm:h-48 object-cover" referrerPolicy="no-referrer" />
-                        <div className="px-6 space-y-4 pb-6">
-                          <div>
-                            <span className="text-[10px] text-slate-500 font-bold block">{project.client}</span>
-                            <h4 className="text-base font-extrabold text-white leading-snug mt-0.5">{project.title}</h4>
-                          </div>
-                          <p className="text-slate-300 leading-relaxed">{project.details}</p>
-                          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10">
-                            {project.stats.map((s) => (
-                              <div key={s.label} className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
-                                <div className={`text-xs font-bold font-mono ${themeStyle.primaryText}`}>{s.value}</div>
-                                <div className="text-[10px] text-slate-400 mt-0.5">{s.label}</div>
-                              </div>
-                            ))}
-                          </div>
-                          <button
-                            onClick={() => { setCorpDetail(null); setActiveTab('contact'); }}
-                            className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer shadow-lg mt-2`}
-                          >
-                            لديك مشروع مشابه؟ تواصل معنا
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
-          </div>
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
         );
 
       case 'NVQ-TECH-03':
       case 'nebula-saas':
         return (
-<<<<<<< HEAD
           <SaasDemo
             ctx={ctx}
             selectedPlan={selectedPlan}
             setSelectedPlan={setSelectedPlan}
           />
-=======
-          <div className="relative space-y-5 text-slate-100">
-            {/* Circuit-board grid backdrop — a completely different world from the soft
-                cosmic glows everywhere else: sharp, technical, terminal-flavored. */}
-            <div
-              className="pointer-events-none absolute inset-0 -z-10 opacity-40 select-none"
-              style={{
-                backgroundImage:
-                  'linear-gradient(to right, rgba(16,185,129,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(16,185,129,0.12) 1px, transparent 1px)',
-                backgroundSize: '28px 28px',
-              }}
-              aria-hidden="true"
-            />
-
-            {/* Same bar as every other demo, but keeping this one's terminal prompt as its
-                wordmark — the shell aesthetic is this template's whole pitch. */}
-            {renderSiteTopBar(<Terminal className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, '~/Logo', true)}
-
-            {techTab === 'home' && (
-              <div className="space-y-4 sm:space-y-5 animate-fade-in">
-                {/* Fake terminal window — macOS-style traffic-light chrome, then the pitch
-                    rendered as command output with a blinking cursor at the end */}
-                <div className="rounded-lg bg-black/70 backdrop-blur-xl border border-emerald-500/20 overflow-hidden shadow-xl">
-                  <div className="flex items-center gap-1.5 px-3.5 py-2.5 border-b border-emerald-500/10 bg-white/[0.02]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/70" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/70" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
-                    <span className="text-[10px] text-slate-500 font-mono mr-auto" dir="ltr">nebula — zsh</span>
-                  </div>
-                  <div className="p-5 sm:p-8 space-y-3 sm:space-y-4 text-center font-mono" dir="ltr">
-                    <span className={`px-3 py-1 rounded ${themeStyle.badgeBg} text-[11px] font-semibold inline-block`}>
-                      $ nebula --status
-                    </span>
-                    <h3 className="text-lg sm:text-2xl font-bold text-white leading-tight">
-                      ابنِ وأطلق منتجك السحابي بسرعة الضوء
-                    </h3>
-                    <p className="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-                      بنية تحتية سحابية جاهزة، توثيق API تفاعلي، ولوحة قيادة حية لمنتجك الرقمي — كل ما تحتاجه شركتك التقنية لتنطلق دون تعقيد.
-                      <span className="text-emerald-400 animate-pulse">▊</span>
-                    </p>
-                    <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                      <button onClick={() => setActiveTab('pricing')} className={`w-full sm:w-auto px-5 py-2.5 rounded ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer`}>
-                        شاهد خطط الأسعار
-                      </button>
-                      <button onClick={() => setActiveTab('docs')} className="w-full sm:w-auto px-5 py-2.5 rounded bg-black/40 border border-emerald-500/20 text-emerald-400 text-xs font-bold cursor-pointer hover:border-emerald-500/40">
-                        استكشف توثيق API
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center font-mono`}>
-                  <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
-                    <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText}`}>99.98%</div>
-                    <div className="text-[11px] text-slate-500">معدل التشغيل السنوي</div>
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
-                    <div className="text-lg sm:text-xl font-bold text-emerald-400">+40</div>
-                    <div className="text-[11px] text-slate-500">شركة تستخدم المنصة</div>
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-md bg-black/40 backdrop-blur-md border-r-2 border border-emerald-500/30">
-                    <div className="text-lg sm:text-xl font-bold text-amber-400">&lt; 50ms</div>
-                    <div className="text-[11px] text-slate-500">زمن استجابة API</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {techTab === 'features' && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3.5 animate-fade-in text-xs`}>
-                {[
-                  { icon: Cpu, title: 'نشر فوري بنقرة واحدة', desc: 'حزم كودك ونشره على بنية سحابية موزعة عالمياً خلال ثوانٍ، دون إعدادات خوادم معقدة.', tag: 'deploy.sh' },
-                  { icon: Globe, title: 'قابلية توسع تلقائية', desc: 'يزداد عدد الخوادم تلقائياً مع ازدياد الطلب على منتجك، ويقل عند انخفاضه لتوفير التكلفة.', tag: 'autoscale.yml' },
-                  { icon: Shield, title: 'أمان وتشفير من الطبقة الأولى', desc: 'تشفير كامل للبيانات أثناء النقل والتخزين، مع مراقبة أمنية استباقية على مدار الساعة.', tag: 'security.conf' },
-                  { icon: Sliders, title: 'مراقبة الأداء اللحظي', desc: 'لوحة قيادة حية لمراقبة زمن الاستجابة، الأخطاء، واستهلاك الموارد لحظة بلحظة.', tag: 'monitor.ts' },
-                ].map((f, idx) => {
-                  const FeatureIcon = f.icon;
-                  return (
-                    <div key={idx} className="rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/20 hover:border-emerald-500/40 transition-colors overflow-hidden">
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-emerald-500/10 bg-white/[0.02]">
-                        <FeatureIcon className={`w-3.5 h-3.5 ${themeStyle.primaryText}`} />
-                        <span className="text-[10px] text-slate-500 font-mono" dir="ltr">{f.tag}</span>
-                      </div>
-                      <div className="p-4 space-y-1.5">
-                        <h4 className="text-sm font-bold text-white">{f.title}</h4>
-                        <p className="text-slate-400 leading-relaxed">{f.desc}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {techTab === 'docs' && (
-              <div className="rounded-lg bg-black/40 backdrop-blur-md border border-emerald-500/20 overflow-hidden animate-fade-in text-xs">
-                <div className="flex items-center gap-1.5 px-3.5 py-2.5 border-b border-emerald-500/10 bg-white/[0.02]">
-                  <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-[11px] font-bold text-white">توثيق واجهة برمجة التطبيقات (API Reference)</span>
-                </div>
-                <div className="p-4 sm:p-5 space-y-4">
-                  <div className="p-4 rounded-md bg-black/60 border border-emerald-500/10 font-mono text-[11px] text-emerald-300 overflow-x-auto" dir="ltr">
-                    <div className="text-slate-500">// Example: fetch account usage</div>
-                    <div>GET https://api.nebula.dev/v1/usage</div>
-                    <div className="text-slate-500 mt-2">Authorization: Bearer YOUR_API_KEY</div>
-                  </div>
-                  <div className="space-y-2">
-                    {[
-                      { method: 'GET', path: '/v1/usage', desc: 'استرجاع بيانات الاستهلاك الحالية' },
-                      { method: 'POST', path: '/v1/deploy', desc: 'نشر إصدار جديد من التطبيق' },
-                      { method: 'GET', path: '/v1/users', desc: 'قائمة المستخدمين المرتبطين بالحساب' },
-                    ].map((ep, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-2.5 rounded bg-black/60 border border-emerald-500/10">
-                        <span className={`px-2 py-0.5 rounded font-mono font-bold shrink-0 ${ep.method === 'GET' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'}`}>{ep.method}</span>
-                        <span className="font-mono text-slate-300 shrink-0" dir="ltr">{ep.path}</span>
-                        <span className="text-slate-500 truncate">{ep.desc}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {techTab === 'pricing' && (
-              <div className="space-y-4 animate-fade-in">
-                <div className="flex justify-center font-mono">
-                  <div className="inline-flex flex-wrap justify-center p-1 rounded-md bg-black/40 border border-emerald-500/20 text-xs">
-                    <button
-                      onClick={() => setSelectedPlan('monthly')}
-                      className={`px-3 sm:px-4 py-1.5 rounded cursor-pointer ${selectedPlan === 'monthly' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold` : 'text-slate-400'}`}
-                    >
-                      اشتراك شهري
-                    </button>
-                    <button
-                      onClick={() => setSelectedPlan('yearly')}
-                      className={`px-3 sm:px-4 py-1.5 rounded cursor-pointer ${selectedPlan === 'yearly' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold` : 'text-slate-400'}`}
-                    >
-                      اشتراك سنوي (خصم 20%)
-                    </button>
-                  </div>
-                </div>
-
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3`}>
-                  <div className="p-4 rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/20 space-y-2">
-                    <h4 className="text-xs font-bold text-slate-300 font-mono" dir="ltr">## basic_plan</h4>
-                    <div className={`text-base sm:text-lg font-bold ${themeStyle.primaryText} font-mono`}>
-                      {selectedPlan === 'monthly'
-                        ? (language === 'ar' ? '250,000 د.ع / شهرياً' : '250,000 IQD / month')
-                        : (language === 'ar' ? '2,400,000 د.ع / سنوياً' : '2,400,000 IQD / year')}
-                    </div>
-                    <ul className="text-[11px] text-slate-400 space-y-1 font-mono">
-                      <li>✔ ربط حتى 5 مستخدمين</li>
-                      <li>✔ دعم فني عبر البريد</li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/40 space-y-2 relative">
-                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-emerald-500 text-[10px] text-black font-bold font-mono">
-                      الأكثر طلباً
-                    </span>
-                    <h4 className="text-xs font-bold text-white font-mono" dir="ltr">## pro_plan</h4>
-                    <div className={`text-base sm:text-lg font-bold ${themeStyle.primaryText} font-mono`}>
-                      {selectedPlan === 'monthly'
-                        ? (language === 'ar' ? '600,000 د.ع / شهرياً' : '600,000 IQD / month')
-                        : (language === 'ar' ? '5,800,000 د.ع / سنوياً' : '5,800,000 IQD / year')}
-                    </div>
-                    <ul className="text-[11px] text-slate-300 space-y-1 font-mono">
-                      <li>✔ مستخدمين غير محدودين</li>
-                      <li>✔ ربط حقيقي مع API</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {techTab === 'dashboard' && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-3 animate-fade-in text-xs font-mono`}>
-                {[
-                  { value: '128,430', label: 'استدعاء API اليوم' },
-                  { value: '12', label: 'تكاملات نشطة' },
-                  { value: '99.98%', label: 'معدل التشغيل' },
-                ].map((stat, idx) => (
-                  <div key={idx} className="text-center p-4 rounded-md bg-black/40 backdrop-blur-md border border-emerald-500/20">
-                    <div className={`text-xl font-extrabold ${themeStyle.primaryText}`}>{stat.value}</div>
-                    <div className="text-slate-500 mt-1">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
         );
 
       case 'NVQ-REAL-04':
       case 'pulsar-realestate':
         return (
-<<<<<<< HEAD
           <RealEstateDemo
             ctx={ctx}
             bookingDate={bookingDate}
@@ -1320,208 +854,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             setVisitorName={setVisitorName}
             visitorName={visitorName}
           />
-=======
-          <div className="space-y-6 text-slate-100">
-            {renderSiteTopBar(<Building2 className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
-
-            {realTab === 'home' && (
-              <div className="space-y-4 sm:space-y-6 animate-fade-in">
-                <div className={`p-6 sm:p-8 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} border ${themeStyle.primaryBorder} text-center space-y-3 sm:space-y-4`}>
-                  <span className={`px-3 py-1 rounded-full ${themeStyle.badgeBg} text-xs font-semibold inline-block`}>
-                    منصة التطوير العقاري
-                  </span>
-                  <h3 className="text-xl sm:text-3xl font-extrabold text-white leading-tight">
-                    استثمر في أفضل العقارات الفاخرة في العراق
-                  </h3>
-                  <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-                    فلل، شقق، ومكاتب تجارية مختارة بعناية، مع معاينة مباشرة واستشارة عقارية مجانية من فريقنا المتخصص.
-                  </p>
-                  <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                    <button onClick={() => setActiveTab('properties')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer`}>
-                      تصفح العقارات المتاحة
-                    </button>
-                    <button onClick={() => setActiveTab('agents')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 text-xs font-bold cursor-pointer">
-                      تواصل مع مستشار عقاري
-                    </button>
-                  </div>
-                </div>
-
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center`}>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText} font-mono`}>+80</div>
-                    <div className="text-[11px] text-slate-400">عقار متاح حالياً</div>
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className="text-lg sm:text-xl font-bold text-emerald-400 font-mono">+500</div>
-                    <div className="text-[11px] text-slate-400">صفقة ناجحة</div>
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className="text-lg sm:text-xl font-bold text-amber-400 font-mono">4.9★</div>
-                    <div className="text-[11px] text-slate-400">تقييم رضا العملاء</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {realTab === 'properties' && (
-              <div className="space-y-4 animate-fade-in text-xs">
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    onClick={() => setSelectedPropertyFilter('all')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'all' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
-                    }`}
-                  >
-                    الكل
-                  </button>
-                  <button
-                    onClick={() => setSelectedPropertyFilter('villas')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'villas' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
-                    }`}
-                  >
-                    فلل فاخرة
-                  </button>
-                  <button
-                    onClick={() => setSelectedPropertyFilter('apartments')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all ${
-                      selectedPropertyFilter === 'apartments' ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-black/30 backdrop-blur-sm text-slate-400 hover:text-white border border-white/10'
-                    }`}
-                  >
-                    شقق ومكاتب
-                  </button>
-                </div>
-
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-5`}>
-                  {filteredProperties.map(prop => (
-                    <div key={prop.id} className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-3 flex flex-col justify-between hover:border-white/25 hover:shadow-lg transition-all">
-                      <div className="space-y-2">
-                        <div className="h-40 rounded-xl overflow-hidden relative border border-white/10 bg-black/30 backdrop-blur-sm">
-                          <img src={prop.image} alt={prop.title} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-all duration-300" referrerPolicy="no-referrer" />
-                          <span className="absolute top-2 right-2 bg-black/85 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-white/10">
-                            {prop.category === 'villas' ? 'فيلا فاخرة' : 'عقار مكتبي/سكني'}
-                          </span>
-                        </div>
-                        <h4 className="text-xs font-bold text-white px-1">{prop.title}</h4>
-                        <div className="flex items-center gap-3 text-[10px] text-slate-400 px-1">
-                          <span>📍 {prop.location}</span>
-                          <span>📐 {prop.space}</span>
-                          <span>🚪 {prop.rooms} غرف</span>
-                        </div>
-                      </div>
-
-                      <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] text-slate-500 block font-semibold">القيمة التقديرية:</span>
-                          <span className="text-sm font-bold text-amber-400 font-mono block">
-                            {price(prop.priceIQD)}
-                          </span>
-                        </div>
-
-                        <button
-                          onClick={() => { setSelectedPropertyId(prop.id); setActiveTab('booking'); cosmicAudio.playPing(); }}
-                          className={`px-3 py-2 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all`}
-                        >
-                          طلب حجز معاينة
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {realTab === 'booking' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Calendar className={`w-4 h-4 ${themeStyle.primaryText}`} />
-                  <span>حجز معاينة: {selectedProperty.title}</span>
-                </h4>
-
-                <div className="space-y-1.5">
-                  <label className="block text-slate-400 font-bold">اختر العقار:</label>
-                  <select
-                    value={selectedPropertyId}
-                    onChange={(e) => setSelectedPropertyId(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white cursor-pointer"
-                  >
-                    {SAMPLE_PROPERTIES.map((p) => (
-                      <option key={p.id} value={p.id}>{p.title}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">اسم الزائر:</label>
-                    <input
-                      type="text"
-                      value={visitorName}
-                      onChange={(e) => setVisitorName(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">تاريخ المعاينة:</label>
-                    <input
-                      type="date"
-                      value={bookingDate}
-                      onChange={(e) => setBookingDate(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    setPropertyVisits(prev => [
-                      { id: `VIS-${Math.floor(1000 + Math.random() * 9000)}`, propertyTitle: selectedProperty.title, date: bookingDate, visitorName },
-                      ...prev
-                    ]);
-                    cosmicAudio.playPing();
-                  }}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>تأكيد طلب المعاينة</span>
-                </button>
-
-                {propertyVisits.length > 0 && (
-                  <div className="pt-3 border-t border-white/10 space-y-2">
-                    <span className="font-bold text-white block">طلبات المعاينة المقدمة:</span>
-                    {propertyVisits.map((v) => (
-                      <div key={v.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
-                        <span className="text-white font-bold truncate">{v.propertyTitle}</span>
-                        <span className="font-mono text-slate-300 shrink-0">{v.date}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {realTab === 'agents' && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                {SAMPLE_AGENTS.map((agent, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} font-bold text-lg shrink-0`}>
-                      {agent.name.replace(/^(م\.|أ\.|د\.)\s*/, '').charAt(0)}
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="text-sm font-bold text-white truncate">{agent.name}</h4>
-                      <p className="text-slate-400 truncate">{agent.title}</p>
-                      <p className="text-slate-500 font-mono text-[11px]" dir="ltr">{agent.phone}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
         );
 
       case 'NVQ-HEALTH-05':
-<<<<<<< HEAD
       case 'galaxy-health':
         return (
           <HealthDemo
@@ -1536,170 +871,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             setSelectedDoctorId={setSelectedDoctorId}
           />
         );
-=======
-      case 'galaxy-health': {
-        const healthTab = ['home', 'doctors', 'booking', 'results', 'consultation'].includes(activeTab) ? activeTab : 'home';
-        const searchedDoctors = SAMPLE_DOCTORS.filter((d) => matchesSiteSearch(d.name, d.specialty));
-
-        return (
-          <div className="space-y-6 text-slate-100">
-            {renderSiteTopBar(<Stethoscope className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
-
-            {healthTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HEALTH-05'])}
-
-            {healthTab === 'doctors' && searchedDoctors.length === 0 && renderNoSearchResults('أي طبيب')}
-
-            {healthTab === 'doctors' && searchedDoctors.length > 0 && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                {searchedDoctors.map((doc) => (
-                  <div key={doc.id} className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3 hover:border-white/25 transition-all">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${doc.imageBg} shrink-0 flex items-center justify-center text-white font-bold text-lg`}>
-                      {doc.name.replace('د. ', '').charAt(0)}
-                    </div>
-                    <div className="flex-1 space-y-1 min-w-0">
-                      <h4 className="text-sm font-bold text-white truncate">{doc.name}</h4>
-                      <p className="text-slate-400 truncate">{doc.specialty}</p>
-                      <div className="flex items-center gap-2 text-[11px]">
-                        <span className="text-amber-400 font-bold">★ {doc.rating}</span>
-                        {doc.availableToday ? (
-                          <span className="text-emerald-400 font-bold">متوفر اليوم</span>
-                        ) : (
-                          <span className="text-slate-500">غير متوفر اليوم</span>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSelectedDoctorId(doc.id);
-                        setActiveTab('booking');
-                        cosmicAudio.playPing();
-                      }}
-                      className={`px-3 py-2 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer shrink-0`}
-                    >
-                      حجز موعد
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {healthTab === 'booking' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Calendar className={`w-4 h-4 ${themeStyle.primaryText}`} />
-                  <span>حجز موعد طبي جديد</span>
-                </h4>
-
-                <div className="space-y-1.5">
-                  <label className="block text-slate-400 font-bold">اختر الطبيب:</label>
-                  <select
-                    value={selectedDoctorId}
-                    onChange={(e) => setSelectedDoctorId(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white cursor-pointer"
-                  >
-                    {SAMPLE_DOCTORS.map((doc) => (
-                      <option key={doc.id} value={doc.id}>{doc.name} - {doc.specialty}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">التاريخ:</label>
-                    <input
-                      type="date"
-                      value={appointmentDate}
-                      onChange={(e) => setAppointmentDate(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">الوقت:</label>
-                    <input
-                      type="time"
-                      value={appointmentTime}
-                      onChange={(e) => setAppointmentTime(e.target.value)}
-                      className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    const doc = SAMPLE_DOCTORS.find((d) => d.id === selectedDoctorId);
-                    setAppointments((prev) => [
-                      { id: `APT-${Math.floor(1000 + Math.random() * 9000)}`, doctorName: doc?.name || '', specialty: doc?.specialty || '', date: appointmentDate, time: appointmentTime },
-                      ...prev
-                    ]);
-                    cosmicAudio.playPing();
-                  }}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>تأكيد الحجز</span>
-                </button>
-
-                {appointments.length > 0 && (
-                  <div className="pt-3 border-t border-white/10 space-y-2">
-                    <span className="font-bold text-white block">مواعيدك المحجوزة:</span>
-                    {appointments.map((apt) => (
-                      <div key={apt.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
-                        <div className="min-w-0">
-                          <span className="text-white font-bold block truncate">{apt.doctorName}</span>
-                          <span className="text-slate-500 text-[10px] truncate block">{apt.specialty}</span>
-                        </div>
-                        <span className="font-mono text-slate-300 shrink-0">{apt.date} - {apt.time}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {healthTab === 'results' && (
-              <div className="space-y-2.5 animate-fade-in text-xs">
-                {SAMPLE_LAB_RESULTS.map((lab) => (
-                  <div key={lab.id} className="p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <span className="text-white font-bold block truncate">{lab.name}</span>
-                      <span className="text-slate-500 text-[10px] font-mono block truncate">{lab.id} • {lab.date} • {lab.doctor}</span>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold shrink-0 ${lab.status === 'جاهز' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'}`}>
-                      {lab.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {healthTab === 'consultation' && (
-              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-center space-y-3 animate-fade-in text-xs">
-                <div className={`w-14 h-14 rounded-full ${themeStyle.badgeBg} flex items-center justify-center mx-auto`}>
-                  <Stethoscope className={`w-6 h-6 ${themeStyle.primaryText}`} />
-                </div>
-                <h4 className="text-sm font-bold text-white">غرفة الاستشارة المرئية عن بُعد</h4>
-                <p className="text-slate-400 max-w-sm mx-auto">محاكاة لواجهة مكالمة الفيديو مع الطبيب المعالج، مع دردشة نصية مباشرة فور بدء الاستشارة.</p>
-                <button
-                  onClick={() => alert('تم بدء الاتصال التجريبي بغرفة الاستشارة المرئية بنجاح!')}
-                  className={`px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
-                >
-                  بدء الاستشارة الآن
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      case 'NVQ-FOOD-07': {
-        const foodTab = ['home', 'menu', 'order', 'reservation'].includes(activeTab) ? activeTab : 'home';
-        const filteredMenu = (menuCategoryFilter === 'all' ? SAMPLE_MENU_ITEMS : SAMPLE_MENU_ITEMS.filter(m => m.category === menuCategoryFilter))
-          .filter(m => matchesSiteSearch(m.name, m.description));
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
 
       case 'NVQ-FOOD-07':
         return (
-<<<<<<< HEAD
           <RestaurantDemo
             ctx={ctx}
             addFoodItem={addFoodItem}
@@ -1718,159 +892,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             updateFoodItemQuantity={updateFoodItemQuantity}
           />
         );
-=======
-          <div className="space-y-6 text-slate-100">
-            {renderSiteTopBar(<ChefHat className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
-
-            {foodTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-FOOD-07'])}
-
-            {foodTab === 'menu' && (
-              <div className="space-y-4 animate-fade-in text-xs">
-                <div className="flex flex-wrap gap-2">
-                  {(['all', 'appetizers', 'mains', 'desserts', 'drinks'] as const).map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setMenuCategoryFilter(cat)}
-                      className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                        menuCategoryFilter === cat ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-white/5 backdrop-blur-md border border-white/10 text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      {cat === 'all' && 'الكل'}
-                      {cat === 'appetizers' && 'مقبلات'}
-                      {cat === 'mains' && 'أطباق رئيسية'}
-                      {cat === 'desserts' && 'حلويات'}
-                      {cat === 'drinks' && 'مشروبات'}
-                    </button>
-                  ))}
-                </div>
-
-                {filteredMenu.length === 0 && renderNoSearchResults('أي طبق')}
-
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-4`}>
-                  {filteredMenu.map((item) => (
-                    <div key={item.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
-                      <div className={`h-24 bg-gradient-to-br ${item.imageBg} flex items-center justify-center`}>
-                        <ChefHat className="w-7 h-7 text-white/70" />
-                      </div>
-                      <div className="p-3.5 space-y-2">
-                        <h4 className="text-sm font-bold text-white">{item.name}</h4>
-                        <p className="text-slate-400 line-clamp-2 leading-relaxed">{item.description}</p>
-                        <div className="flex items-center justify-between pt-1">
-                          <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(item.priceIQD)}</span>
-                          <button
-                            onClick={() => addFoodItem(item)}
-                            className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center gap-1`}
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>أضف للطلب</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {foodTab === 'order' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-3 animate-fade-in text-xs">
-                {foodOrder.length === 0 ? (
-                  <p className="text-slate-500 text-center py-6">سلة الطلب فارغة، تصفح القائمة وأضف أصنافك المفضلة.</p>
-                ) : (
-                  <>
-                    {foodOrder.map((o, idx) => (
-                      <div key={o.item.id} className="p-3 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <span className="text-white font-bold block truncate">{o.item.name}</span>
-                          <span className="text-slate-500 font-mono">{price(o.item.priceIQD)}</span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button onClick={() => updateFoodItemQuantity(idx, -1)} className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white cursor-pointer">
-                            <Minus className="w-3.5 h-3.5" />
-                          </button>
-                          <span className="font-mono font-bold text-white w-5 text-center">{o.quantity}</span>
-                          <button onClick={() => updateFoodItemQuantity(idx, 1)} className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white cursor-pointer">
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-                      <span className="font-bold text-white">الإجمالي:</span>
-                      <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{price(foodOrderTotalIQD)}</span>
-                    </div>
-                    <button
-                      onClick={() => alert('تم تأكيد طلبك التجريبي بنجاح! سيتم تحضيره فور تفعيل موقعك الفعلي.')}
-                      className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
-                    >
-                      تأكيد الطلب
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-
-            {foodTab === 'reservation' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Calendar className={`w-4 h-4 ${themeStyle.primaryText}`} />
-                  <span>حجز طاولة جديدة</span>
-                </h4>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">عدد الضيوف:</label>
-                    <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg px-2 py-2">
-                      <button onClick={() => setReservationGuests(g => Math.max(1, g - 1))} className="text-white cursor-pointer"><Minus className="w-3.5 h-3.5" /></button>
-                      <span className="font-mono font-bold text-white flex-1 text-center">{reservationGuests}</span>
-                      <button onClick={() => setReservationGuests(g => Math.min(20, g + 1))} className="text-white cursor-pointer"><Plus className="w-3.5 h-3.5" /></button>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">التاريخ:</label>
-                    <input type="date" value={reservationDate} onChange={(e) => setReservationDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">الوقت:</label>
-                    <input type="time" value={reservationTime} onChange={(e) => setReservationTime(e.target.value)} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" />
-                  </div>
-                </div>
-
-                <button
-                  onClick={confirmTableReservation}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>تأكيد الحجز</span>
-                </button>
-
-                {tableReservations.length > 0 && (
-                  <div className="pt-3 border-t border-white/10 space-y-2">
-                    <span className="font-bold text-white block">حجوزاتك:</span>
-                    {tableReservations.map((r) => (
-                      <div key={r.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
-                        <span className="text-white font-bold">{r.guests} أشخاص</span>
-                        <span className="font-mono text-slate-300">{r.date} - {r.time}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      case 'NVQ-EDU-08': {
-        const eduTab = ['home', 'courses', 'enroll', 'dashboard'].includes(activeTab) ? activeTab : 'home';
-        const selectedCourse = SAMPLE_COURSES.find(c => c.id === selectedCourseId) || SAMPLE_COURSES[0];
-        const filteredCourses = (courseCategoryFilter === 'all' ? SAMPLE_COURSES : SAMPLE_COURSES.filter(c => c.category === courseCategoryFilter))
-          .filter(c => matchesSiteSearch(c.title, c.instructor, c.level));
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
 
       case 'NVQ-EDU-08':
         return (
-<<<<<<< HEAD
           <EducationDemo
             ctx={ctx}
             confirmEnrollment={confirmEnrollment}
@@ -1883,145 +907,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             studentNameInput={studentNameInput}
           />
         );
-=======
-          <div className="space-y-6 text-slate-100">
-            {renderSiteTopBar(<GraduationCap className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
-
-            {eduTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-EDU-08'])}
-
-            {eduTab === 'courses' && (
-              <div className="space-y-4 animate-fade-in text-xs">
-                <div className="flex flex-wrap gap-2">
-                  {(['all', 'programming', 'languages', 'business', 'design'] as const).map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setCourseCategoryFilter(cat)}
-                      className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                        courseCategoryFilter === cat ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-white/5 backdrop-blur-md border border-white/10 text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      {cat === 'all' && 'الكل'}
-                      {cat === 'programming' && 'برمجة'}
-                      {cat === 'languages' && 'لغات'}
-                      {cat === 'business' && 'أعمال'}
-                      {cat === 'design' && 'تصميم'}
-                    </button>
-                  ))}
-                </div>
-
-                {filteredCourses.length === 0 && renderNoSearchResults('أي دورة')}
-
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4`}>
-                  {filteredCourses.map((course) => (
-                    <div key={course.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
-                      <div className={`h-20 bg-gradient-to-br ${course.imageBg} flex items-center justify-center`}>
-                        <GraduationCap className="w-7 h-7 text-white/70" />
-                      </div>
-                      <div className="p-3.5 space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <h4 className="text-sm font-bold text-white truncate">{course.title}</h4>
-                          <span className={`px-2 py-0.5 rounded-full ${themeStyle.badgeBg} text-[10px] font-bold shrink-0`}>{course.level}</span>
-                        </div>
-                        <p className="text-slate-400">{course.instructor} • {course.durationWeeks} أسابيع</p>
-                        <div className="flex items-center justify-between pt-1">
-                          <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(course.priceIQD)}</span>
-                          <button
-                            onClick={() => { setSelectedCourseId(course.id); setActiveTab('enroll'); cosmicAudio.playPing(); }}
-                            className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
-                          >
-                            سجل الآن
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {eduTab === 'enroll' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <GraduationCap className={`w-4 h-4 ${themeStyle.primaryText}`} />
-                  <span>تأكيد التسجيل في: {selectedCourse.title}</span>
-                </h4>
-                <p className="text-slate-400">{selectedCourse.instructor} • {selectedCourse.level} • {selectedCourse.durationWeeks} أسابيع</p>
-                <div className="space-y-1.5">
-                  <label className="block text-slate-400 font-bold">اسم الطالب:</label>
-                  <input
-                    type="text"
-                    value={studentNameInput}
-                    onChange={(e) => setStudentNameInput(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white"
-                  />
-                </div>
-                <div className="flex items-center justify-between pt-1">
-                  <span className="font-bold text-white">رسوم الدورة:</span>
-                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{price(selectedCourse.priceIQD)}</span>
-                </div>
-                <button
-                  onClick={() => confirmEnrollment(selectedCourse)}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>تأكيد التسجيل</span>
-                </button>
-              </div>
-            )}
-
-            {eduTab === 'dashboard' && (
-              <div className="space-y-4 animate-fade-in text-xs">
-                {enrollments.length > 0 && (
-                  <div className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2">
-                    <span className="font-bold text-white block">دوراتك المسجلة:</span>
-                    {enrollments.map((e) => (
-                      <div key={e.id} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
-                        <span className="text-white font-bold truncate">{e.courseTitle}</span>
-                        <span className="font-mono text-slate-300 shrink-0">{e.date}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2">
-                  <span className="font-bold text-white block">الدرجات:</span>
-                  {SAMPLE_GRADES.map((g, idx) => (
-                    <div key={idx} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
-                      <span className="text-white truncate">{g.course}</span>
-                      <span className="flex items-center gap-2 shrink-0">
-                        <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{g.grade}</span>
-                        <span className="text-slate-500">{g.status}</span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <div className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-2">
-                  <span className="font-bold text-white block">سجل الحضور:</span>
-                  {SAMPLE_ATTENDANCE.map((a, idx) => (
-                    <div key={idx} className="p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 flex items-center justify-between gap-2">
-                      <span className="font-mono text-slate-300">{a.date}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${a.status === 'حاضر' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/15 text-red-400 border border-red-500/30'}`}>
-                        {a.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      case 'NVQ-HOTEL-09': {
-        const hotelTab = ['home', 'rooms', 'booking', 'confirmation'].includes(activeTab) ? activeTab : 'home';
-        const selectedRoom = SAMPLE_ROOMS.find(r => r.id === selectedRoomId) || SAMPLE_ROOMS[0];
-        const nightsPreview = computeNights(checkInDate, checkOutDate);
-        const latestBooking = hotelBookings[0];
-        const searchedRooms = SAMPLE_ROOMS.filter((r) => matchesSiteSearch(r.name, ...r.amenities));
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
 
       case 'NVQ-HOTEL-09':
         return (
-<<<<<<< HEAD
           <HotelDemo
             ctx={ctx}
             checkInDate={checkInDate}
@@ -2036,115 +924,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             setGuestsCount={setGuestsCount}
             setSelectedRoomId={setSelectedRoomId}
           />
-=======
-          <div className="space-y-6 text-slate-100">
-            {renderSiteTopBar(<Hotel className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
-
-            {hotelTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HOTEL-09'])}
-
-            {hotelTab === 'rooms' && searchedRooms.length === 0 && renderNoSearchResults('أي غرفة')}
-
-            {hotelTab === 'rooms' && searchedRooms.length > 0 && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                {searchedRooms.map((room) => (
-                  <div key={room.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
-                    <div className={`h-24 bg-gradient-to-br ${room.imageBg} flex items-center justify-center`}>
-                      <Hotel className="w-7 h-7 text-white/70" />
-                    </div>
-                    <div className="p-3.5 space-y-2">
-                      <h4 className="text-sm font-bold text-white">{room.name}</h4>
-                      <div className="flex flex-wrap gap-1.5">
-                        {room.amenities.map((a, idx) => (
-                          <span key={idx} className="px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-sm border border-white/10 text-slate-400 text-[10px]">{a}</span>
-                        ))}
-                      </div>
-                      <p className="text-slate-400">يتسع لـ {room.capacity} ضيوف</p>
-                      <div className="flex items-center justify-between pt-1">
-                        <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(room.pricePerNightIQD)} / ليلة</span>
-                        <button
-                          onClick={() => { setSelectedRoomId(room.id); setActiveTab('booking'); cosmicAudio.playPing(); }}
-                          className={`px-3 py-1.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
-                        >
-                          احجز الآن
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {hotelTab === 'booking' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Calendar className={`w-4 h-4 ${themeStyle.primaryText}`} />
-                  <span>حجز: {selectedRoom.name}</span>
-                </h4>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">تاريخ الوصول:</label>
-                    <input type="date" value={checkInDate} onChange={(e) => setCheckInDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-400 font-bold">تاريخ المغادرة:</label>
-                    <input type="date" value={checkOutDate} onChange={(e) => setCheckOutDate(e.target.value)} className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono" />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-slate-400 font-bold">عدد الضيوف:</label>
-                  <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg px-2 py-2 w-fit">
-                    <button onClick={() => setGuestsCount(g => Math.max(1, g - 1))} className="text-white cursor-pointer"><Minus className="w-3.5 h-3.5" /></button>
-                    <span className="font-mono font-bold text-white w-6 text-center">{guestsCount}</span>
-                    <button onClick={() => setGuestsCount(g => Math.min(selectedRoom.capacity, g + 1))} className="text-white cursor-pointer"><Plus className="w-3.5 h-3.5" /></button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                  <span className="font-bold text-white">الإجمالي ({nightsPreview} ليالٍ):</span>
-                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{price((nightsPreview * selectedRoom.pricePerNightIQD))}</span>
-                </div>
-
-                <button
-                  onClick={() => confirmHotelBooking(selectedRoom)}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center justify-center gap-2`}
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>تأكيد الحجز</span>
-                </button>
-              </div>
-            )}
-
-            {hotelTab === 'confirmation' && (
-              <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-center space-y-3 animate-fade-in text-xs">
-                {latestBooking ? (
-                  <>
-                    <div className={`w-14 h-14 rounded-full ${themeStyle.badgeBg} flex items-center justify-center mx-auto`}>
-                      <CheckCircle2 className={`w-6 h-6 ${themeStyle.primaryText}`} />
-                    </div>
-                    <h4 className="text-sm font-bold text-white">تم تأكيد حجزك بنجاح</h4>
-                    <p className="text-slate-400 font-mono">رقم المرجع: {latestBooking.id}</p>
-                    <div className="max-w-xs mx-auto p-4 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 text-start space-y-1.5">
-                      <div className="flex justify-between"><span className="text-slate-400">الغرفة:</span><span className="text-white font-bold">{latestBooking.roomName}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">الوصول:</span><span className="text-white font-mono">{latestBooking.checkIn}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">المغادرة:</span><span className="text-white font-mono">{latestBooking.checkOut}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">عدد الليالي:</span><span className="text-white font-mono">{latestBooking.nights}</span></div>
-                      <div className="flex justify-between pt-1.5 border-t border-white/10"><span className="text-slate-400">الإجمالي:</span><span className={`font-bold ${themeStyle.primaryText}`}>{price(latestBooking.totalIQD)}</span></div>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-slate-500 py-6">لا يوجد حجز مؤكد بعد — أكمل خطوة الحجز أولاً.</p>
-                )}
-              </div>
-            )}
-          </div>
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
         );
 
       case 'NVQ-LOG-10':
         return (
-<<<<<<< HEAD
           <LogisticsDemo
             ctx={ctx}
             computeShippingQuote={computeShippingQuote}
@@ -2152,154 +935,20 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             quoteDestination={quoteDestination}
             quoteWeight={quoteWeight}
             saveShippingQuote={saveShippingQuote}
+            setFoundShipment={setFoundShipment}
             setQuoteDestination={setQuoteDestination}
             setQuoteWeight={setQuoteWeight}
+            setSiteSearch={setSiteSearch}
             setTrackingInput={setTrackingInput}
+            siteSearch={siteSearch}
             trackShipment={trackShipment}
             trackingInput={trackingInput}
           />
-=======
-          <div className="space-y-6 text-slate-100">
-            {renderSiteTopBar(<Truck className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
-
-            {logisticsTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-LOG-10'])}
-
-            {logisticsTab === 'tracking' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                {/* Header search feeds this tab rather than filtering a grid — a shipment is
-                    looked up, not browsed, so matches are offered as one-tap picks that fill
-                    the tracking field below. */}
-                {siteSearch.trim() && (
-                  <div className="space-y-2">
-                    {SAMPLE_SHIPMENTS.filter((s) => matchesSiteSearch(s.trackingNumber, s.origin, s.destination, s.status)).map((s) => (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          setTrackingInput(s.trackingNumber);
-                          setFoundShipment(s);
-                          setSiteSearch('');
-                          cosmicAudio.playTick();
-                        }}
-                        className="w-full text-right p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 transition-colors cursor-pointer flex items-center justify-between gap-3"
-                      >
-                        <span className="font-mono font-bold text-white">{s.trackingNumber}</span>
-                        <span className="text-[11px] text-slate-400 truncate">{s.origin} ← {s.destination}</span>
-                      </button>
-                    ))}
-                    {SAMPLE_SHIPMENTS.filter((s) => matchesSiteSearch(s.trackingNumber, s.origin, s.destination, s.status)).length === 0 &&
-                      renderNoSearchResults('أي شحنة')}
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={trackingInput}
-                    onChange={(e) => setTrackingInput(e.target.value)}
-                    placeholder="مثال: CMX-77201"
-                    className="flex-1 p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
-                  />
-                  <button onClick={trackShipment} className={`px-4 py-2.5 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer flex items-center gap-1.5 shrink-0`}>
-                    <Package className="w-3.5 h-3.5" />
-                    <span>تتبع</span>
-                  </button>
-                </div>
-
-                {foundShipment && (
-                  <div className="pt-3 border-t border-white/10 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-white">{foundShipment.trackingNumber}</span>
-                      <span className={`px-2.5 py-0.5 rounded-full ${themeStyle.badgeBg} text-[11px] font-bold`}>{foundShipment.status}</span>
-                    </div>
-                    {foundShipment.origin !== '—' && (
-                      <p className="text-slate-400 flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5" />
-                        <span>{foundShipment.origin} ← {foundShipment.destination}</span>
-                      </p>
-                    )}
-                    <div className="space-y-2">
-                      {foundShipment.stages.map((stage, idx) => (
-                        <div key={idx} className="flex items-center gap-2.5">
-                          {stage.done ? (
-                            <CheckCircle2 className={`w-4 h-4 ${themeStyle.primaryText} shrink-0`} />
-                          ) : (
-                            <span className="w-4 h-4 rounded-full border border-white/10 shrink-0" />
-                          )}
-                          <span className={stage.done ? 'text-white font-bold' : 'text-slate-500'}>{stage.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {logisticsTab === 'calculator' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                <div className="space-y-1.5">
-                  <label className="block text-slate-400 font-bold">وزن الشحنة (كغم):</label>
-                  <input
-                    type="number"
-                    min="0.5"
-                    step="0.5"
-                    value={quoteWeight}
-                    onChange={(e) => setQuoteWeight(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10 text-white font-mono"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-slate-400 font-bold">الوجهة:</label>
-                  <div className="flex gap-2">
-                    {(['local', 'regional', 'international'] as const).map((dest) => (
-                      <button
-                        key={dest}
-                        onClick={() => setQuoteDestination(dest)}
-                        className={`flex-1 py-2 rounded-lg font-bold transition-all cursor-pointer ${
-                          quoteDestination === dest ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}` : 'bg-black/30 backdrop-blur-sm border border-white/10 text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        {dest === 'local' && 'محلي'}
-                        {dest === 'regional' && 'إقليمي'}
-                        {dest === 'international' && 'دولي'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                  <span className="font-bold text-white">السعر التقديري:</span>
-                  <span className={`font-mono font-bold text-base ${themeStyle.primaryText}`}>{price(computeShippingQuote())}</span>
-                </div>
-                <button
-                  onClick={saveShippingQuote}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
-                >
-                  احصل على عرض السعر
-                </button>
-              </div>
-            )}
-
-            {logisticsTab === 'fleet' && (
-              <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-3 animate-fade-in text-xs`}>
-                {[
-                  { value: '128', label: 'شحنات نشطة حالياً' },
-                  { value: '34', label: 'مندوبين متاحين' },
-                  { value: '97%', label: 'معدل التسليم في الوقت' },
-                ].map((stat, idx) => (
-                  <div key={idx} className="text-center p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className={`text-xl font-extrabold font-mono ${themeStyle.primaryText}`}>{stat.value}</div>
-                    <div className="text-slate-400 mt-1">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
         );
 
       case 'NVQ-FINTECH-06':
       default:
         return (
-<<<<<<< HEAD
           <FintechDemo
             ctx={ctx}
             setTransferAmount={setTransferAmount}
@@ -2309,163 +958,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             transfersLog={transfersLog}
             twoFactorEnabled={twoFactorEnabled}
           />
-=======
-          <div className="space-y-6 text-slate-100">
-            {renderSiteTopBar(<Wallet className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
-
-            {fintechTab === 'home' && (
-              <div className="space-y-4 sm:space-y-6 animate-fade-in">
-                <div className={`p-6 sm:p-8 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} border ${themeStyle.primaryBorder} text-center space-y-3 sm:space-y-4`}>
-                  <span className={`px-3 py-1 rounded-full ${themeStyle.badgeBg} text-xs font-semibold inline-block`}>
-                    نظام مالي رقمي متكامل
-                  </span>
-                  <h3 className="text-xl sm:text-3xl font-extrabold text-white leading-tight">
-                    إدارة أموالك بأمان، من أي مكان
-                  </h3>
-                  <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-                    محفظة رقمية، تحويلات فورية، وبطاقات افتراضية — كل ذلك محمي بأعلى معايير التشفير والحماية الثنائية 2FA.
-                  </p>
-                  <div className={`pt-2 flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} justify-center gap-2.5`}>
-                    <button onClick={() => setActiveTab('wallet')} className={`w-full sm:w-auto px-5 py-2.5 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold cursor-pointer`}>
-                      افتح المحفظة الرقمية
-                    </button>
-                    <button onClick={() => setActiveTab('security')} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 text-xs font-bold cursor-pointer">
-                      إعدادات الأمان
-                    </button>
-                  </div>
-                </div>
-
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-3')} gap-2.5 text-center`}>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className={`text-lg sm:text-xl font-bold ${themeStyle.primaryText} font-mono`}>+25,000</div>
-                    <div className="text-[11px] text-slate-400">مستخدم نشط</div>
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className="text-lg sm:text-xl font-bold text-emerald-400 font-mono">256-bit</div>
-                    <div className="text-[11px] text-slate-400">تشفير مصرفي</div>
-                  </div>
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10">
-                    <div className="text-lg sm:text-xl font-bold text-amber-400 font-mono">24/7</div>
-                    <div className="text-[11px] text-slate-400">مراقبة أمنية</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {fintechTab === 'wallet' && (
-              <div className={`p-4 sm:p-6 rounded-2xl bg-gradient-to-r ${themeStyle.gradient} border ${themeStyle.primaryBorder} space-y-3 sm:space-y-4 animate-fade-in`}>
-                <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3 pt-1`}>
-                  <div className="bg-black/30 backdrop-blur-sm p-3.5 sm:p-4 rounded-xl border border-white/10">
-                    <span className="text-xs text-slate-400 block mb-1">الرصيد الكلي المتوفر:</span>
-                    <div className={`text-xl sm:text-2xl font-bold ${themeStyle.primaryText} font-mono`}>{`14,250,000 ${CUR}`}</div>
-                  </div>
-                  <div className="bg-black/30 backdrop-blur-sm p-3.5 sm:p-4 rounded-xl border border-white/10 flex flex-col justify-between space-y-2">
-                    <span className="text-xs text-slate-400 block">آخر عملية تحويل:</span>
-                    <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
-                      <ArrowUpRight className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>{language === 'ar' ? 'تم استلام 500,000 د.ع' : 'Received 500,000 IQD'}</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-mono">رمز المعاملة: #TX-984211</span>
-                  </div>
-                </div>
-
-                <div className="p-3.5 sm:p-4 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 space-y-2.5">
-                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                    <Send className={`w-4 h-4 ${themeStyle.primaryText} shrink-0`} />
-                    <span>محاكاة تحويل مالي سريع</span>
-                  </h4>
-                  <div className={`flex ${isNarrowViewport ? 'flex-col' : 'flex-col sm:flex-row'} gap-2`}>
-                    <PriceInput
-                      value={transferAmount}
-                      onChange={setTransferAmount}
-                      placeholder="المبلغ بالدينار"
-                      className="flex-1 p-2.5 rounded-lg bg-white/5 backdrop-blur-md border border-white/10 text-xs text-white font-mono"
-                    />
-                    <button
-                      onClick={() => {
-                        setTransfersLog(prev => [
-                          { id: `TX-${Math.floor(10000 + Math.random() * 90000)}`, amountIQD: Number(transferAmount) || 0, date: new Date().toISOString().split('T')[0], recipient: 'تحويل سريع مباشر' },
-                          ...prev
-                        ]);
-                        cosmicAudio.playPing();
-                      }}
-                      className={`w-full sm:w-auto px-4 py-2.5 ${themeStyle.primaryBg} ${themeStyle.onPrimary} text-xs font-bold rounded-lg cursor-pointer shrink-0`}
-                    >
-                      تأكيد التحويل
-                    </button>
-                  </div>
-                </div>
-
-                {/* Transaction history log */}
-                <div className="p-3.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10 space-y-2 text-xs">
-                  <span className="font-bold text-white block">سجل المعاملات السريعة:</span>
-                  <div className="space-y-1.5">
-                    {transfersLog.map((tx) => (
-                      <div key={tx.id} className="flex items-center justify-between p-2 rounded bg-white/5 backdrop-blur-md text-[11px] border border-white/10">
-                        <div>
-                          <span className="text-white font-bold block">{tx.recipient}</span>
-                          <span className="text-slate-500 text-[10px] font-mono">{tx.id} • {tx.date}</span>
-                        </div>
-                        <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(tx.amountIQD)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {fintechTab === 'cards' && (
-              <div className="space-y-4 animate-fade-in text-xs">
-                <div className={`p-5 rounded-2xl bg-gradient-to-br ${themeStyle.gradient} border ${themeStyle.primaryBorder} space-y-6`}>
-                  <div className="flex items-center justify-between">
-                    <CreditCard className={`w-7 h-7 ${themeStyle.primaryText}`} />
-                    <span className="text-white font-bold">Vortex Card</span>
-                  </div>
-                  <div className="font-mono text-white text-base sm:text-lg tracking-widest" dir="ltr">•••• •••• •••• 8421</div>
-                  <div className="flex items-center justify-between text-slate-300">
-                    <span>حامل البطاقة: أحمد العراقي</span>
-                    <span className="font-mono" dir="ltr">08/29</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => alert('تم تقديم طلب إصدار بطاقة رقمية جديدة تجريبياً بنجاح!')}
-                  className={`w-full py-3 rounded-xl ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer`}
-                >
-                  طلب بطاقة رقمية جديدة
-                </button>
-              </div>
-            )}
-
-            {fintechTab === 'security' && (
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-black/30 backdrop-blur-sm border border-white/10">
-                  <div className="flex items-center gap-2.5">
-                    <Shield className={`w-4 h-4 ${themeStyle.primaryText}`} />
-                    <span className="text-white font-bold">الحماية الثنائية (2FA)</span>
-                  </div>
-                  <button
-                    onClick={() => { setTwoFactorEnabled(v => !v); cosmicAudio.playPing(); }}
-                    className={`w-11 h-6 rounded-full relative transition-colors cursor-pointer ${twoFactorEnabled ? themeStyle.primaryBg : 'bg-slate-700'}`}
-                  >
-                    <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${twoFactorEnabled ? 'right-0.5' : 'right-5'}`} />
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    'تنبيهات فورية عند كل عملية دخول',
-                    'تشفير كامل للبيانات أثناء النقل والتخزين',
-                    'مراقبة أمنية استباقية على مدار الساعة',
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-black/30 backdrop-blur-sm border border-white/10">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span className="text-slate-300">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
->>>>>>> 9857027202d4ff1e803fdc6a928a80571f05addb
         );
     }
   };
@@ -2751,6 +1243,28 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       isNarrow={isNarrowViewport}
     />
   );
+
+  // Everything the individual template demos (./sandbox/templates/*) share. Each demo used to
+  // be a ~150-700 line branch inlined in this file's render switch, closing over whichever of
+  // the ~60 state values it happened to need; passing this one object instead lets each demo
+  // live in its own file that can be read and edited without opening this one.
+  const ctx: SandboxCtx = {
+    template,
+    language,
+    currency,
+    CUR,
+    price,
+    themeStyle,
+    gridCols,
+    isNarrowViewport,
+    activeTab,
+    setActiveTab,
+    account,
+    renderCompanyHome,
+    renderSiteTopBar,
+    matchesSiteSearch,
+    renderNoSearchResults,
+  };
 
   const renderSiteDrawer = () => {
     if (!isSiteMenuOpen) return null;

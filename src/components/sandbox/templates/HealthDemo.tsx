@@ -26,29 +26,22 @@ interface HealthDemoProps {
 }
 
 export function HealthDemo({ ctx, appointmentDate, appointmentTime, appointments, selectedDoctorId, setAppointmentDate, setAppointmentTime, setAppointments, setSelectedDoctorId }: HealthDemoProps) {
-  const { activeTab, gridCols, renderCompanyHome, setActiveTab, themeStyle } = ctx;
+  const { activeTab, gridCols, isNarrowViewport, matchesSiteSearch, renderCompanyHome, renderNoSearchResults, renderSiteTopBar, setActiveTab, themeStyle } = ctx;
 
   const healthTab = ['home', 'doctors', 'booking', 'results', 'consultation'].includes(activeTab) ? activeTab : 'home';
+  const searchedDoctors = SAMPLE_DOCTORS.filter((d) => matchesSiteSearch(d.name, d.specialty));
 
   return (
     <div className="space-y-6 text-slate-100">
-      {/* Navigation Bar */}
-      <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-        <div className="group flex items-center gap-2.5">
-          <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-          <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-            <Stethoscope className="w-5 h-5" />
-          </div>
-          <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-        </div>
-        {renderSiteMenuButton()}
-      </div>
+      {renderSiteTopBar(<Stethoscope className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
       {healthTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HEALTH-05'])}
 
-      {healthTab === 'doctors' && (
+      {healthTab === 'doctors' && searchedDoctors.length === 0 && renderNoSearchResults('أي طبيب')}
+
+      {healthTab === 'doctors' && searchedDoctors.length > 0 && (
         <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-          {SAMPLE_DOCTORS.map((doc) => (
+          {searchedDoctors.map((doc) => (
             <div key={doc.id} className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3 hover:border-white/25 transition-all">
               <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${doc.imageBg} shrink-0 flex items-center justify-center text-white font-bold text-lg`}>
                 {doc.name.replace('د. ', '').charAt(0)}

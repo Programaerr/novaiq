@@ -31,32 +31,25 @@ interface HotelDemoProps {
 }
 
 export function HotelDemo({ ctx, checkInDate, checkOutDate, computeNights, confirmHotelBooking, guestsCount, hotelBookings, selectedRoomId, setCheckInDate, setCheckOutDate, setGuestsCount, setSelectedRoomId }: HotelDemoProps) {
-  const { activeTab, gridCols, price, renderCompanyHome, setActiveTab, themeStyle } = ctx;
+  const { activeTab, gridCols, isNarrowViewport, matchesSiteSearch, price, renderCompanyHome, renderNoSearchResults, renderSiteTopBar, setActiveTab, themeStyle } = ctx;
 
   const hotelTab = ['home', 'rooms', 'booking', 'confirmation'].includes(activeTab) ? activeTab : 'home';
   const selectedRoom = SAMPLE_ROOMS.find(r => r.id === selectedRoomId) || SAMPLE_ROOMS[0];
   const nightsPreview = computeNights(checkInDate, checkOutDate);
   const latestBooking = hotelBookings[0];
+  const searchedRooms = SAMPLE_ROOMS.filter((r) => matchesSiteSearch(r.name, ...r.amenities));
 
   return (
     <div className="space-y-6 text-slate-100">
-      {/* Navigation Bar */}
-      <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-        <div className="group flex items-center gap-2.5">
-          <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-          <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-            <Hotel className="w-5 h-5" />
-          </div>
-          <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-        </div>
-        {renderSiteMenuButton()}
-      </div>
+      {renderSiteTopBar(<Hotel className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
       {hotelTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HOTEL-09'])}
 
-      {hotelTab === 'rooms' && (
+      {hotelTab === 'rooms' && searchedRooms.length === 0 && renderNoSearchResults('أي غرفة')}
+
+      {hotelTab === 'rooms' && searchedRooms.length > 0 && (
         <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-          {SAMPLE_ROOMS.map((room) => (
+          {searchedRooms.map((room) => (
             <div key={room.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
               <div className={`h-24 bg-gradient-to-br ${room.imageBg} flex items-center justify-center`}>
                 <Hotel className="w-7 h-7 text-white/70" />

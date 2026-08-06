@@ -160,8 +160,8 @@
     "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
-    "mtime": 1786040138.9991775,
-    "ast_hash": "e2b1206b719770da09e1c9440d6fc722",
+    "mtime": 1786041270.1359801,
+    "ast_hash": "1df71f289bc179065be67846cdea1a83",
     "semantic_hash": ""
   },
   "src/components/TemplateLivePage.tsx": {
@@ -215,58 +215,58 @@
     "semantic_hash": ""
   },
   "src/components/sandbox/context.ts": {
-    "mtime": 1786039984.3231835,
-    "ast_hash": "f436028a07535bbcb0a9e98cb2c4f328",
+    "mtime": 1786040497.919182,
+    "ast_hash": "49081e83d9d0f2625e635b7fe72d9fd6",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/CorporateDemo.tsx": {
-    "mtime": 1786040078.6895294,
-    "ast_hash": "f52ef480e74ad1e18ebab69b91293c23",
+    "mtime": 1786040518.8921585,
+    "ast_hash": "d45ae4619dcfedf247ff313ccb8e12ac",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/EducationDemo.tsx": {
-    "mtime": 1786040079.4218233,
-    "ast_hash": "5fa2a0daba0223cc4cd5731110bc34e9",
+    "mtime": 1786040518.924997,
+    "ast_hash": "3e056d919aed91220f6585b63f85c359",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/FintechDemo.tsx": {
-    "mtime": 1786040079.9344933,
-    "ast_hash": "506d2835ed6dd81d812f31a64a199bc4",
+    "mtime": 1786040518.9552054,
+    "ast_hash": "e1658ee89d8da8075ecbec2364e03ac1",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/HealthDemo.tsx": {
-    "mtime": 1786040079.1389835,
-    "ast_hash": "143562b369c77668a5bbd0344e68026f",
+    "mtime": 1786040518.983135,
+    "ast_hash": "85812d919e0085ab4944f0cdc1883973",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/HotelDemo.tsx": {
-    "mtime": 1786040079.5910232,
-    "ast_hash": "392088aabced5a989583960d6e520ef1",
+    "mtime": 1786040519.012043,
+    "ast_hash": "6a05bc567886a1ddce08dc0eb5dc4d1b",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/LogisticsDemo.tsx": {
-    "mtime": 1786040079.742846,
-    "ast_hash": "70abbdd0e7cee86db11a002e05914b3f",
+    "mtime": 1786040630.200166,
+    "ast_hash": "3826d105a9ff6e555dfe73c8a470e044",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/RealEstateDemo.tsx": {
-    "mtime": 1786040078.9980392,
-    "ast_hash": "30e6e9e14ccbd914f58b469c81dcfde1",
+    "mtime": 1786040519.075234,
+    "ast_hash": "e65461b680b1bfd44680a54f3d919e23",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/RestaurantDemo.tsx": {
-    "mtime": 1786040079.2890296,
-    "ast_hash": "76773a0f365604a64c0f6d5ceb2c9f83",
+    "mtime": 1786040630.2031696,
+    "ast_hash": "4b4a4dbb2caf63fbce5da62ed4573d09",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/SaasDemo.tsx": {
-    "mtime": 1786040078.8329673,
-    "ast_hash": "04c277fd5171b6369291b34356f06f9e",
+    "mtime": 1786040988.1789792,
+    "ast_hash": "086dbb5b7fb33619b7c0a80d381592d8",
     "semantic_hash": ""
   },
   "src/components/sandbox/templates/StoreDemo.tsx": {
-    "mtime": 1786040078.455477,
-    "ast_hash": "ef7f90ef46f17989216c18df3e879466",
+    "mtime": 1786040630.2087023,
+    "ast_hash": "c05c482643ce1aa33585673039a7a4ea",
     "semantic_hash": ""
   },
   "src/data/sandboxDemoData.ts": {

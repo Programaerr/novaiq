@@ -1,33 +1,33 @@
 # Graph Report - novaiq  (2026-08-06)
 
 ## Corpus Check
-- 91 files · ~111,596 words
+- 91 files · ~105,428 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 510 nodes · 1121 edges · 29 communities (22 shown, 7 thin omitted)
+- 511 nodes · 1121 edges · 29 communities (22 shown, 7 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 4 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6a09b8d0`
+- Built from commit: `e42c1c71`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- App.tsx
-- ContractsTab.tsx
 - Language
+- ContractsTab.tsx
+- ErrorBoundary
 - TemplateInteractiveSandbox.tsx
-- adminUsers.ts
 - devDependencies
 - dependencies
 - compilerOptions
 - What You Must Do When Invoked
-- toast.ts
-- ContractBuilder.tsx
+- SettingsTab.tsx
+- Currency
+- autoTranslate.ts
 - server.ts
-- CookieConsent.tsx
+- auth.ts
 - build-translations.mjs
 - CosmicAudioEngine
 - vite-env.d.ts
@@ -48,50 +48,46 @@
 1. `Language` - 46 edges
 2. `SandboxCtx` - 27 edges
 3. `Currency` - 27 edges
-4. `formatPrice()` - 21 edges
-5. `translateText()` - 17 edges
-6. `ContractData` - 17 edges
-7. `cosmicAudio` - 16 edges
+4. `formatPrice()` - 22 edges
+5. `cosmicAudio` - 17 edges
+6. `translateText()` - 17 edges
+7. `ContractData` - 17 edges
 8. `useLiveTemplates()` - 15 edges
 9. `showToast()` - 15 edges
 10. `Template` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `useSmoothScroll()` --references--> `lenis`  [EXTRACTED]
-  src/lib/useScrollBehavior.ts → package.json
 - `generateContractPDF()` --references--> `jspdf`  [EXTRACTED]
   src/lib/pdfGenerator.ts → package.json
-- `AboutSectionProps` --references--> `Language`  [EXTRACTED]
-  src/components/AboutSection.tsx → src/lib/i18n.ts
-- `CookieConsentProps` --references--> `Language`  [EXTRACTED]
-  src/components/CookieConsent.tsx → src/lib/i18n.ts
+- `useSmoothScroll()` --references--> `lenis`  [EXTRACTED]
+  src/lib/useScrollBehavior.ts → package.json
+- `AdminLoginProps` --references--> `Language`  [EXTRACTED]
+  src/components/AdminLogin.tsx → src/lib/i18n.ts
 - `FooterProps` --references--> `Language`  [EXTRACTED]
   src/components/Footer.tsx → src/lib/i18n.ts
+- `App()` --calls--> `readStoredCurrency()`  [EXTRACTED]
+  src/App.tsx → src/lib/currency.ts
 
 ## Import Cycles
 - None detected.
 
 ## Communities (29 total, 7 thin omitted)
 
-### Community 0 - "App.tsx"
-Cohesion: 0.05
-Nodes (33): AdminPage, App(), ContractBuilderGate, ContractPDFPreview, PolicyPage, TemplateGrid, TemplateInteractiveSandbox, AboutSection() (+25 more)
+### Community 0 - "Language"
+Cohesion: 0.06
+Nodes (42): AdminPage, App(), ContractBuilderGate, ContractPDFPreview, PolicyPage, TemplateGrid, TemplateInteractiveSandbox, AboutSection() (+34 more)
 
 ### Community 1 - "ContractsTab.tsx"
-Cohesion: 0.08
-Nodes (50): jspdf, jspdf, CompanySignatureHandle, CompanySignaturePad, ContractRow(), ContractsTab(), OverviewTab(), AdminStats (+42 more)
+Cohesion: 0.11
+Nodes (44): CompanySignatureHandle, CompanySignaturePad, ContractRow(), ContractsTab(), OverviewTab(), PricingRow(), PricingTab(), AdminStats (+36 more)
 
-### Community 2 - "Language"
-Cohesion: 0.08
-Nodes (42): AdminDashboard(), AdminDashboardProps, Tab, AdminLogin(), AdminLoginProps, AdminPage(), AdminPageProps, ContractBuilderProps (+34 more)
+### Community 2 - "ErrorBoundary"
+Cohesion: 0.17
+Nodes (5): ErrorBoundary, Props, State, isLiveTemplateView, TemplateLivePage
 
 ### Community 3 - "TemplateInteractiveSandbox.tsx"
 Cohesion: 0.07
-Nodes (64): PriceInput(), PriceInputProps, SandboxCtx, SandboxTheme, themeClassesFor(), ResponsivePreview(), SiteMenuIcon(), SiteTopBar() (+56 more)
-
-### Community 4 - "adminUsers.ts"
-Cohesion: 0.31
-Nodes (11): MembersTab(), TeamTab(), authedFetch(), deleteUserAccount(), listAllUsers(), listRegularSubscribers(), listTeamMembers(), ManagedUser (+3 more)
+Nodes (66): PriceInput(), PriceInputProps, SandboxCtx, SandboxTheme, themeClassesFor(), ResponsivePreview(), SiteMenuIcon(), SiteTopBar() (+58 more)
 
 ### Community 5 - "devDependencies"
 Cohesion: 0.06
@@ -99,7 +95,7 @@ Nodes (32): autoprefixer, esbuild, devDependencies, autoprefixer, esbuild, tailw
 
 ### Community 6 - "dependencies"
 Cohesion: 0.07
-Nodes (27): dotenv, express, firebase, firebase-admin, @google/genai, html2canvas-pro, lenis, lucide-react (+19 more)
+Nodes (29): dotenv, express, firebase, firebase-admin, @google/genai, html2canvas-pro, jspdf, lenis (+21 more)
 
 ### Community 7 - "compilerOptions"
 Cohesion: 0.11
@@ -109,21 +105,25 @@ Nodes (18): DOM, DOM.Iterable, ES2022, compilerOptions, allowImportingTsExtensio
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
-### Community 9 - "toast.ts"
-Cohesion: 0.15
-Nodes (18): SettingsTab(), SOCIAL_FIELDS, Footer(), FooterProps, ToastHost(), db, readCachedLinks(), saveSocialLinks() (+10 more)
+### Community 9 - "SettingsTab.tsx"
+Cohesion: 0.27
+Nodes (11): SettingsTab(), SOCIAL_FIELDS, Footer(), FooterProps, readCachedLinks(), saveSocialLinks(), SocialLinks, subscribeToSocialLinks() (+3 more)
 
-### Community 10 - "ContractBuilder.tsx"
-Cohesion: 0.14
-Nodes (21): PricingRow(), PricingTab(), ContractBuilder(), PRESET_COLORS, templatesData, clearContractDraft(), ContractDraft, loadContractDraft() (+13 more)
+### Community 10 - "Currency"
+Cohesion: 0.08
+Nodes (39): AdminDashboardProps, ContractBuilder(), ContractBuilderProps, PRESET_COLORS, CustomerDashboardProps, Navbar(), NavbarProps, NovaiqLogo() (+31 more)
+
+### Community 11 - "autoTranslate.ts"
+Cohesion: 0.27
+Nodes (11): bundled, flushBatch(), isFullyResolved(), memoryCache, pendingBatch, PendingEntry, requestTranslation(), resolveStatic() (+3 more)
 
 ### Community 12 - "server.ts"
 Cohesion: 0.24
 Nodes (7): app, getLocalNetworkIP(), persistTranslationCache(), startServer(), translateOne(), TRANSLATION_CACHE_FILE, translationCache
 
-### Community 13 - "CookieConsent.tsx"
-Cohesion: 0.43
-Nodes (6): CookieConsent(), CookieConsentProps, ConsentStatus, getConsentStatus(), isTrackingAllowed(), setConsentStatus()
+### Community 13 - "auth.ts"
+Cohesion: 0.12
+Nodes (26): MembersTab(), TeamTab(), AdminLogin(), AdminLoginProps, AdminPage(), AdminPageProps, ContractBuilderGate(), ContractBuilderGateProps (+18 more)
 
 ### Community 15 - "build-translations.mjs"
 Cohesion: 0.43
@@ -165,17 +165,17 @@ Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphif
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `dependencies` connect `dependencies` to `ContractsTab.tsx`, `devDependencies`?**
+- **Why does `dependencies` connect `dependencies` to `devDependencies`?**
   _High betweenness centrality (0.160) - this node is a cross-community bridge._
-- **Why does `jspdf` connect `ContractsTab.tsx` to `dependencies`?**
-  _High betweenness centrality (0.101) - this node is a cross-community bridge._
+- **Why does `generateContractPDF()` connect `ContractsTab.tsx` to `dependencies`?**
+  _High betweenness centrality (0.103) - this node is a cross-community bridge._
+- **Why does `jspdf` connect `dependencies` to `ContractsTab.tsx`?**
+  _High betweenness centrality (0.102) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `version` to the rest of the system?**
   _150 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `App.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.05357142857142857 - nodes in this community are weakly interconnected._
-- **Should `ContractsTab.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.08461131676361713 - nodes in this community are weakly interconnected._
 - **Should `Language` be split into smaller, more focused modules?**
-  _Cohesion score 0.08182349503214495 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05764411027568922 - nodes in this community are weakly interconnected._
+- **Should `ContractsTab.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.10776942355889724 - nodes in this community are weakly interconnected._
 - **Should `TemplateInteractiveSandbox.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07120253164556962 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0680517916290274 - nodes in this community are weakly interconnected._

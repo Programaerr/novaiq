@@ -42,6 +42,20 @@ export interface SandboxCtx {
   account: SiteAccount | null;
   /** The shared marketing homepage, rendered from the demo's own company identity. */
   renderCompanyHome: (profile: CompanyProfile) => React.ReactNode;
+  /**
+   * The sticky glass header every demo sits under — one bar shared by all of them rather
+   * than a near-identical copy per template. `logoNameLtr` keeps the SaaS demo's `~/Logo`
+   * terminal prompt reading left-to-right inside the otherwise RTL layout.
+   */
+  renderSiteTopBar: (logoMark: React.ReactNode, logoName: string, logoNameLtr?: boolean) => React.ReactNode;
+  /**
+   * True when the visitor's query in the shared header matches any of the given fields (or
+   * when they haven't typed anything). Every demo filters its own list through this, so one
+   * search box drives doctors, rooms, courses, shipments and the rest alike.
+   */
+  matchesSiteSearch: (...fields: Array<string | number | undefined | null>) => boolean;
+  /** Shown in place of a list the visitor's query filtered down to nothing. */
+  renderNoSearchResults: (what: string) => React.ReactNode;
 }
 
 /**

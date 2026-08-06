@@ -15,6 +15,7 @@ import {
 import { SAMPLE_PRODUCTS, STORE_SORT_OPTIONS } from '../../../data/sandboxDemoData';
 import type { ClothingProduct, CartItem } from '../../../data/sandboxDemoData';
 import { cosmicAudio } from '../../../lib/audio';
+import type { ViewportChoice } from '../SandboxChrome';
 import type { SandboxCtx } from '../context';
 
 // Orion Store — the clothing shop demo: catalogue, product modal, cart, checkout and invoice.
@@ -31,21 +32,22 @@ interface StoreDemoProps {
   handleCompleteOrder: () => void;
   isCartOpen: boolean;
   isCheckoutOpen: boolean;
-  isMobileSearchOpen: unknown /* TODO */;
-  isStoreSortOpen: unknown /* TODO */;
+  isMobileSearchOpen: boolean;
+  isStoreSortOpen: boolean;
   modalColor: string;
   modalQuantity: number;
   modalSize: string;
   orderConfirmedInvoice: any | null;
   paymentMethod: 'cod' | 'zaincash' | 'mastercard';
+  renderSiteMenuButton: () => React.ReactNode;
   selectedProductForModal: ClothingProduct | null;
   setCustomerCity: React.Dispatch<React.SetStateAction<string>>;
   setCustomerName: React.Dispatch<React.SetStateAction<string>>;
   setCustomerPhone: React.Dispatch<React.SetStateAction<string>>;
   setIsCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setIsCheckoutOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsMobileSearchOpen: unknown /* TODO */;
-  setIsStoreSortOpen: unknown /* TODO */;
+  setIsMobileSearchOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsStoreSortOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setModalColor: React.Dispatch<React.SetStateAction<string>>;
   setModalQuantity: React.Dispatch<React.SetStateAction<number>>;
   setModalSize: React.Dispatch<React.SetStateAction<string>>;
@@ -60,13 +62,13 @@ interface StoreDemoProps {
   storeSort: 'default' | 'priceAsc' | 'priceDesc';
   storeSortBtnRef: React.RefObject<HTMLButtonElement>;
   storeSortMenuRect: { top: number; left: number; width: number } | null;
-  totalCartCount: unknown /* TODO */;
-  totalCartIQD: unknown /* TODO */;
-  updateCartQuantity: unknown /* TODO */;
+  totalCartCount: number;
+  totalCartIQD: number;
+  updateCartQuantity: (index: number, delta: number) => void;
   viewport: ViewportChoice;
 }
 
-export function StoreDemo({ ctx, addToCart, cart, customerCity, customerName, customerPhone, handleCompleteOrder, isCartOpen, isCheckoutOpen, isMobileSearchOpen, isStoreSortOpen, modalColor, modalQuantity, modalSize, orderConfirmedInvoice, paymentMethod, selectedProductForModal, setCustomerCity, setCustomerName, setCustomerPhone, setIsCartOpen, setIsCheckoutOpen, setIsMobileSearchOpen, setIsStoreSortOpen, setModalColor, setModalQuantity, setModalSize, setOrderConfirmedInvoice, setPaymentMethod, setSelectedProductForModal, setStoreSearch, setStoreSort, setStoreSortMenuRect, storeCategory, storeSearch, storeSort, storeSortBtnRef, storeSortMenuRect, totalCartCount, totalCartIQD, updateCartQuantity, viewport }: StoreDemoProps) {
+export function StoreDemo({ ctx, addToCart, cart, customerCity, customerName, customerPhone, handleCompleteOrder, isCartOpen, isCheckoutOpen, isMobileSearchOpen, isStoreSortOpen, modalColor, modalQuantity, modalSize, orderConfirmedInvoice, paymentMethod, renderSiteMenuButton, selectedProductForModal, setCustomerCity, setCustomerName, setCustomerPhone, setIsCartOpen, setIsCheckoutOpen, setIsMobileSearchOpen, setIsStoreSortOpen, setModalColor, setModalQuantity, setModalSize, setOrderConfirmedInvoice, setPaymentMethod, setSelectedProductForModal, setStoreSearch, setStoreSort, setStoreSortMenuRect, storeCategory, storeSearch, storeSort, storeSortBtnRef, storeSortMenuRect, totalCartCount, totalCartIQD, updateCartQuantity, viewport }: StoreDemoProps) {
   const { gridCols, isNarrowViewport, price, themeStyle } = ctx;
 
   const sortedProducts = [...SAMPLE_PRODUCTS]

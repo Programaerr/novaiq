@@ -29,28 +29,19 @@ interface RestaurantDemoProps {
   setReservationGuests: React.Dispatch<React.SetStateAction<number>>;
   setReservationTime: React.Dispatch<React.SetStateAction<string>>;
   tableReservations: Array<{ id: string; guests: number; date: string; time: string }>;
-  updateFoodItemQuantity: unknown /* TODO */;
+  updateFoodItemQuantity: (index: number, delta: number) => void;
 }
 
 export function RestaurantDemo({ ctx, addFoodItem, confirmTableReservation, foodOrder, foodOrderTotalIQD, menuCategoryFilter, reservationDate, reservationGuests, reservationTime, setMenuCategoryFilter, setReservationDate, setReservationGuests, setReservationTime, tableReservations, updateFoodItemQuantity }: RestaurantDemoProps) {
-  const { activeTab, gridCols, price, renderCompanyHome, themeStyle } = ctx;
+  const { activeTab, gridCols, isNarrowViewport, matchesSiteSearch, price, renderCompanyHome, renderNoSearchResults, renderSiteTopBar, themeStyle } = ctx;
 
   const foodTab = ['home', 'menu', 'order', 'reservation'].includes(activeTab) ? activeTab : 'home';
-  const filteredMenu = menuCategoryFilter === 'all' ? SAMPLE_MENU_ITEMS : SAMPLE_MENU_ITEMS.filter(m => m.category === menuCategoryFilter);
+  const filteredMenu = (menuCategoryFilter === 'all' ? SAMPLE_MENU_ITEMS : SAMPLE_MENU_ITEMS.filter(m => m.category === menuCategoryFilter))
+    .filter(m => matchesSiteSearch(m.name, m.description));
 
   return (
     <div className="space-y-6 text-slate-100">
-      {/* Navigation Bar */}
-      <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-        <div className="group flex items-center gap-2.5">
-          <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-          <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-            <ChefHat className="w-5 h-5" />
-          </div>
-          <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-        </div>
-        {renderSiteMenuButton()}
-      </div>
+      {renderSiteTopBar(<ChefHat className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
       {foodTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-FOOD-07'])}
 
@@ -73,6 +64,8 @@ export function RestaurantDemo({ ctx, addFoodItem, confirmTableReservation, food
               </button>
             ))}
           </div>
+
+          {filteredMenu.length === 0 && renderNoSearchResults('أي طبق')}
 
           <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-4`}>
             {filteredMenu.map((item) => (

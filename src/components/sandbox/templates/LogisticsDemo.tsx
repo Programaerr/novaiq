@@ -5,8 +5,9 @@ import {
   Package,
   MapPin,
 } from 'lucide-react';
-import { COMPANY_PROFILES } from '../../../data/sandboxDemoData';
+import { SAMPLE_SHIPMENTS, COMPANY_PROFILES } from '../../../data/sandboxDemoData';
 import type { Shipment } from '../../../data/sandboxDemoData';
+import { cosmicAudio } from '../../../lib/audio';
 import type { SandboxCtx } from '../context';
 
 // The shipping demo: shipment tracking, the cost calculator and the fleet view.
@@ -20,36 +21,54 @@ interface LogisticsDemoProps {
   quoteDestination: 'local' | 'regional' | 'international';
   quoteWeight: string;
   saveShippingQuote: () => void;
+  setFoundShipment: React.Dispatch<React.SetStateAction<Shipment | null>>;
   setQuoteDestination: React.Dispatch<React.SetStateAction<'local' | 'regional' | 'international'>>;
   setQuoteWeight: React.Dispatch<React.SetStateAction<string>>;
+  setSiteSearch: React.Dispatch<React.SetStateAction<string>>;
   setTrackingInput: React.Dispatch<React.SetStateAction<string>>;
+  siteSearch: string;
   trackShipment: () => void;
   trackingInput: string;
 }
 
-export function LogisticsDemo({ ctx, computeShippingQuote, foundShipment, quoteDestination, quoteWeight, saveShippingQuote, setQuoteDestination, setQuoteWeight, setTrackingInput, trackShipment, trackingInput }: LogisticsDemoProps) {
-  const { activeTab, gridCols, price, renderCompanyHome, themeStyle } = ctx;
+export function LogisticsDemo({ ctx, computeShippingQuote, foundShipment, quoteDestination, quoteWeight, saveShippingQuote, setFoundShipment, setQuoteDestination, setQuoteWeight, setSiteSearch, setTrackingInput, siteSearch, trackShipment, trackingInput }: LogisticsDemoProps) {
+  const { activeTab, gridCols, isNarrowViewport, matchesSiteSearch, price, renderCompanyHome, renderNoSearchResults, renderSiteTopBar, themeStyle } = ctx;
 
   const logisticsTab = ['home', 'tracking', 'calculator', 'fleet'].includes(activeTab) ? activeTab : 'home';
 
   return (
     <div className="space-y-6 text-slate-100">
-      {/* Navigation Bar */}
-      <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-        <div className="group flex items-center gap-2.5">
-          <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-          <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-            <Truck className="w-5 h-5" />
-          </div>
-          <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-        </div>
-        {renderSiteMenuButton()}
-      </div>
+      {renderSiteTopBar(<Truck className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
       {logisticsTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-LOG-10'])}
 
       {logisticsTab === 'tracking' && (
         <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
+          {/* Header search feeds this tab rather than filtering a grid — a shipment is
+              looked up, not browsed, so matches are offered as one-tap picks that fill
+              the tracking field below. */}
+          {siteSearch.trim() && (
+            <div className="space-y-2">
+              {SAMPLE_SHIPMENTS.filter((s) => matchesSiteSearch(s.trackingNumber, s.origin, s.destination, s.status)).map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => {
+                    setTrackingInput(s.trackingNumber);
+                    setFoundShipment(s);
+                    setSiteSearch('');
+                    cosmicAudio.playTick();
+                  }}
+                  className="w-full text-right p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 transition-colors cursor-pointer flex items-center justify-between gap-3"
+                >
+                  <span className="font-mono font-bold text-white">{s.trackingNumber}</span>
+                  <span className="text-[11px] text-slate-400 truncate">{s.origin} ← {s.destination}</span>
+                </button>
+              ))}
+              {SAMPLE_SHIPMENTS.filter((s) => matchesSiteSearch(s.trackingNumber, s.origin, s.destination, s.status)).length === 0 &&
+                renderNoSearchResults('أي شحنة')}
+            </div>
+          )}
+
           <div className="flex gap-2">
             <input
               type="text"

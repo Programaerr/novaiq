@@ -25,25 +25,16 @@ interface EducationDemoProps {
 }
 
 export function EducationDemo({ ctx, confirmEnrollment, courseCategoryFilter, enrollments, selectedCourseId, setCourseCategoryFilter, setSelectedCourseId, setStudentNameInput, studentNameInput }: EducationDemoProps) {
-  const { activeTab, gridCols, price, renderCompanyHome, setActiveTab, themeStyle } = ctx;
+  const { activeTab, gridCols, isNarrowViewport, matchesSiteSearch, price, renderCompanyHome, renderNoSearchResults, renderSiteTopBar, setActiveTab, themeStyle } = ctx;
 
   const eduTab = ['home', 'courses', 'enroll', 'dashboard'].includes(activeTab) ? activeTab : 'home';
   const selectedCourse = SAMPLE_COURSES.find(c => c.id === selectedCourseId) || SAMPLE_COURSES[0];
-  const filteredCourses = courseCategoryFilter === 'all' ? SAMPLE_COURSES : SAMPLE_COURSES.filter(c => c.category === courseCategoryFilter);
+  const filteredCourses = (courseCategoryFilter === 'all' ? SAMPLE_COURSES : SAMPLE_COURSES.filter(c => c.category === courseCategoryFilter))
+    .filter(c => matchesSiteSearch(c.title, c.instructor, c.level));
 
   return (
     <div className="space-y-6 text-slate-100">
-      {/* Navigation Bar */}
-      <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-        <div className="group flex items-center gap-2.5">
-          <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-          <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-            <GraduationCap className="w-5 h-5" />
-          </div>
-          <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-        </div>
-        {renderSiteMenuButton()}
-      </div>
+      {renderSiteTopBar(<GraduationCap className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
       {eduTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-EDU-08'])}
 
@@ -66,6 +57,8 @@ export function EducationDemo({ ctx, confirmEnrollment, courseCategoryFilter, en
               </button>
             ))}
           </div>
+
+          {filteredCourses.length === 0 && renderNoSearchResults('أي دورة')}
 
           <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4`}>
             {filteredCourses.map((course) => (

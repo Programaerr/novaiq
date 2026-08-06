@@ -26,23 +26,13 @@ interface FintechDemoProps {
 }
 
 export function FintechDemo({ ctx, setTransferAmount, setTransfersLog, setTwoFactorEnabled, transferAmount, transfersLog, twoFactorEnabled }: FintechDemoProps) {
-  const { CUR, activeTab, gridCols, isNarrowViewport, price, setActiveTab, themeStyle } = ctx;
+  const { CUR, activeTab, gridCols, isNarrowViewport, language, price, renderSiteTopBar, setActiveTab, themeStyle } = ctx;
 
   const fintechTab = ['home', 'wallet', 'cards', 'security'].includes(activeTab) ? activeTab : 'home';
 
   return (
     <div className="space-y-6 text-slate-100">
-      {/* Navigation Bar */}
-      <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-        <div className="group flex items-center gap-2.5">
-          <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-          <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-            <Wallet className="w-5 h-5" />
-          </div>
-          <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-        </div>
-        {renderSiteMenuButton()}
-      </div>
+      {renderSiteTopBar(<Wallet className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
       {fintechTab === 'home' && (
         <div className="space-y-4 sm:space-y-6 animate-fade-in">
