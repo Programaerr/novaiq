@@ -45,9 +45,9 @@
     "semantic_hash": "756bf8938a73a3faa3ae8615efcc1cb5"
   },
   "src/components/AdminDashboard.tsx": {
-    "mtime": 1786005119.862659,
-    "ast_hash": "306ced479694c717fe6a65690eca0e68",
-    "semantic_hash": "306ced479694c717fe6a65690eca0e68"
+    "mtime": 1786007591.7179482,
+    "ast_hash": "2c5583864cc826081199d8e5da4d1be3",
+    "semantic_hash": "2c5583864cc826081199d8e5da4d1be3"
   },
   "src/components/AdminLogin.tsx": {
     "mtime": 1785839414.374453,
@@ -120,9 +120,9 @@
     "semantic_hash": "57567e59a55f6935430f8db43a05633c"
   },
   "src/components/Navbar.tsx": {
-    "mtime": 1786003123.1671226,
-    "ast_hash": "e97d0dfe07baa9556cff74cda3a8ed76",
-    "semantic_hash": "e97d0dfe07baa9556cff74cda3a8ed76"
+    "mtime": 1786007879.0485451,
+    "ast_hash": "6c03b22a83b53bc51b7b3e5ef846489f",
+    "semantic_hash": "6c03b22a83b53bc51b7b3e5ef846489f"
   },
   "src/components/NovaiqLogo.tsx": {
     "mtime": 1785938955.8887372,
@@ -145,9 +145,9 @@
     "semantic_hash": "b391705e2d1dce609363d8a9978ecd64"
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786003319.4403577,
-    "ast_hash": "a5bd7afca8f4ced1a4f315282d662cbf",
-    "semantic_hash": "a5bd7afca8f4ced1a4f315282d662cbf"
+    "mtime": 1786007257.5937257,
+    "ast_hash": "e97772dcf2bbac0f920fc6e35ec82215",
+    "semantic_hash": "e97772dcf2bbac0f920fc6e35ec82215"
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
     "mtime": 1786004761.8799422,
@@ -155,9 +155,9 @@
     "semantic_hash": "ea98d6511198bf50c14eeea19bcdabce"
   },
   "src/components/TemplateLivePage.tsx": {
-    "mtime": 1786004725.7092316,
-    "ast_hash": "203f157586082002c39f55afb99a491e",
-    "semantic_hash": "203f157586082002c39f55afb99a491e"
+    "mtime": 1786007296.1847012,
+    "ast_hash": "86ad7cbf53559b67ac9ff2183ae04068",
+    "semantic_hash": "86ad7cbf53559b67ac9ff2183ae04068"
   },
   "src/components/ToastHost.tsx": {
     "mtime": 1785806902.2014768,
