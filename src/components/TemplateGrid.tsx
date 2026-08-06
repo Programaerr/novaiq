@@ -250,8 +250,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
         {/* Filter & Search bar. `relative` anchors the dropdown below it — the dropdown
             itself is `absolute`, so opening it floats a glass panel over the templates
-            instead of pushing them down the page. */}
-        <div ref={filterBarRef} className="relative mb-6">
+            instead of pushing them down the page. The explicit `z-40` is what keeps that
+            panel above the coverflow: the cards below carry their own z-index (up to 10)
+            and, sitting later in the DOM, would otherwise paint straight over a menu whose
+            own stacking order was still `auto`. */}
+        <div ref={filterBarRef} className="relative z-40 mb-6">
           {/* bg-white/5 + backdrop-blur-xl used to leave this bar almost see-through, forcing
               the heaviest (24px) blur tier to do all the work of hiding what's scrolling
               behind it — recomputed every scroll frame, which is exactly the kind of GPU cost
