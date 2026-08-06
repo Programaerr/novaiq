@@ -70,6 +70,11 @@ export function CurrencyConverterCard({ isAr }: { isAr: boolean }) {
                 : `Current rate: $1 = ${rate.toLocaleString(undefined, { maximumFractionDigits: 2 })} IQD — this is the official market rate and may differ from the platform's own fixed pricing rate`
               : ''}
           </p>
+          {updatedAt && (
+            <p className="text-[10px] text-zinc-600" dir="ltr">
+              {isAr ? `آخر تحديث للسعر: ${updatedAt}` : `Rate last updated: ${updatedAt}`}
+            </p>
+          )}
         </>
       )}
     </div>
