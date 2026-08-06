@@ -13,7 +13,7 @@ const DYNAMIC_TRANSLATIONS: Record<string, { en: string; ar: string }> = {
   'فينتك وخدمات مالية': { ar: 'فينتك وخدمات مالية', en: 'FinTech & Digital Banking' },
   'مطاعم وتوصيل الطلبات': { ar: 'مطاعم وتوصيل الطلبات', en: 'Restaurants & Food Delivery' },
   'تعليم ومعاهد تدريب': { ar: 'تعليم ومعاهد تدريب', en: 'Education & Training Institutes' },
-  'ضيافة وسياحة - فنادق': { ar: 'ضيافة وسياحة - فنادق', en: 'Hospitality & Tourism - Hotels' },
+  'هواتف وإلكترونيات': { ar: 'هواتف وإلكترونيات', en: 'Mobile Phones & Electronics' },
   'خدمات لوجستية وتوصيل': { ar: 'خدمات لوجستية وتوصيل', en: 'Logistics & Delivery Services' },
   'all': { ar: 'جميع القطاعات', en: 'All Categories' },
 
@@ -57,8 +57,12 @@ const DYNAMIC_TRANSLATIONS: Record<string, { en: string; ar: string }> = {
   'كوازار للتعليم والتدريب (Quasar Academy)': { ar: 'كوازار للتعليم والتدريب (Quasar Academy)', en: 'Quasar Academy' },
   'منصة معاهد التدريب والدورات التعليمية الاحترافية': { ar: 'منصة معاهد التدريب والدورات التعليمية الاحترافية', en: 'Platform for Training Institutes & Professional Educational Courses' },
 
-  'أورورا الفندقي (Aurora Stay)': { ar: 'أورورا الفندقي (Aurora Stay)', en: 'Aurora Stay' },
-  'منصة حجوزات الفنادق والمنتجعات السياحية': { ar: 'منصة حجوزات الفنادق والمنتجعات السياحية', en: 'Hotel & Tourist Resort Booking Platform' },
+  'بلسار لبيع الهواتف (Pulsar Mobile)': { ar: 'بلسار لبيع الهواتف (Pulsar Mobile)', en: 'Pulsar Mobile' },
+  'متجر الهواتف الذكية والإكسسوارات': { ar: 'متجر الهواتف الذكية والإكسسوارات', en: 'Smartphone & Accessories Store' },
+  'متجر هواتف متكامل يعرض الموديلات بمواصفاتها، ويتيح اختيار الذاكرة واللون وحساب السعر النهائي قبل تأكيد الطلب.': {
+    ar: 'متجر هواتف متكامل يعرض الموديلات بمواصفاتها، ويتيح اختيار الذاكرة واللون وحساب السعر النهائي قبل تأكيد الطلب.',
+    en: 'A complete phone store that lists every model with its specs and lets customers pick storage and colour, seeing the final price before confirming the order.'
+  },
 
   'كوميت للخدمات اللوجستية (Comet Express)': { ar: 'كوميت للخدمات اللوجستية (Comet Express)', en: 'Comet Express' },
   'منصة إدارة الشحنات وخدمات التوصيل السريع': { ar: 'منصة إدارة الشحنات وخدمات التوصيل السريع', en: 'Shipment Management & Fast Delivery Services Platform' },

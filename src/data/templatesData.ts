@@ -295,44 +295,44 @@ export const templatesData: Template[] = [
     ]
   },
   {
-    id: 'NVQ-HOTEL-09',
-    title: 'أورورا الفندقي (Aurora Stay)',
-    subtitle: 'منصة حجوزات الفنادق والمنتجعات السياحية',
-    category: 'hospitality',
-    categoryLabel: 'ضيافة وسياحة - فنادق',
-    description: 'منصة حجز فندقي متكاملة تتيح للنزلاء تصفح الغرف، اختيار التواريخ، ومعرفة السعر الفوري قبل تأكيد الحجز.',
-    longDescription: 'مصمم للفنادق والمنتجعات السياحية، يوفر استعراض غرف وأجنحة بصور بانورامية، تقويم حجز تفاعلي، حاسبة سعر فوري حسب الليالي وعدد الضيوف، وتأكيد حجز برقم مرجعي وفاتورة إلكترونية.',
-    previewImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-    basePriceIQD: 1750000,
-    basePriceUSD: 1207,
+    id: 'NVQ-PHONE-09',
+    title: 'بلسار لبيع الهواتف (Pulsar Mobile)',
+    subtitle: 'متجر الهواتف الذكية والإكسسوارات',
+    category: 'mobile',
+    categoryLabel: 'هواتف وإلكترونيات',
+    description: 'متجر هواتف متكامل يعرض الموديلات بمواصفاتها، ويتيح اختيار الذاكرة واللون وحساب السعر النهائي قبل تأكيد الطلب.',
+    longDescription: 'مصمم لمتاجر الهواتف الذكية ومحلات الإلكترونيات، يوفر كتالوج موديلات بمواصفات تفصيلية وشارات (الأكثر مبيعاً / أفضل سعر)، اختيار سعة الذاكرة واللون مع تحديث فوري للسعر، إضافة كفالة سنة إضافية، حاسبة تقسيط شهري، وتأكيد طلب برقم مرجعي وفاتورة إلكترونية.',
+    previewImage: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=80',
+    basePriceIQD: 1650000,
+    basePriceUSD: 1138,
     deliveryWeeks: 4,
-    tags: ['فنادق', 'حجز غرف', 'تقويم حجوزات', 'سياحة'],
+    tags: ['متجر هواتف', 'مقارنة مواصفات', 'تقسيط', 'كفالة وصيانة'],
     techStack: ['React 19', 'Tailwind CSS v4', 'Firebase Firestore', 'Payment Gateway API', 'Framer Motion'],
     features: [
-      'استعراض الغرف والأجنحة بصور بانورامية وتفاصيل شاملة',
-      'تقويم حجز تفاعلي لاختيار تاريخ الوصول والمغادرة',
-      'حاسبة السعر الفوري حسب عدد الليالي والضيوف',
-      'تأكيد الحجز الفوري مع رقم مرجعي وفاتورة إلكترونية',
-      'إدارة الخدمات الإضافية (سبا، فطور، مطار)'
+      'كتالوج هواتف بمواصفات تفصيلية وشارات الأكثر مبيعاً وأفضل سعر',
+      'اختيار سعة الذاكرة واللون مع تحديث السعر لحظياً',
+      'إضافة كفالة سنة إضافية وحساب الإجمالي حسب الكمية',
+      'حاسبة تقسيط شهري تعرض الدفعة قبل الشراء',
+      'تأكيد الطلب برقم مرجعي وفاتورة إلكترونية'
     ],
     specificationsOptions: [
-      { id: 'spec_booking_calendar_sync', label: 'مزامنة تقويم الحجوزات مع Booking.com وAirbnb', priceIQD: 300000, recommended: true },
-      { id: 'spec_dynamic_pricing', label: 'نظام التسعير الديناميكي حسب الموسم والإشغال', priceIQD: 250000, recommended: true },
-      { id: 'spec_concierge_chat', label: 'خدمة الكونسيرج الرقمي والدردشة الفورية مع النزيل', priceIQD: 180000 },
-      { id: 'spec_multi_property', label: 'إدارة أكثر من فرع فندقي/منتجع من لوحة واحدة', priceIQD: 220000 }
+      { id: 'spec_phone_compare', label: 'أداة مقارنة بين هاتفين أو أكثر بالمواصفات جنباً إلى جنب', priceIQD: 250000, recommended: true },
+      { id: 'spec_installment_engine', label: 'نظام التقسيط وحساب الدفعات مع طلب الموافقة', priceIQD: 300000, recommended: true },
+      { id: 'spec_imei_warranty', label: 'سجل الكفالة بالرقم التسلسلي IMEI وتتبع حالة الصيانة', priceIQD: 220000 },
+      { id: 'spec_trade_in', label: 'خدمة استبدال الجهاز القديم وتقييم سعره تلقائياً', priceIQD: 190000 }
     ],
     mockScreens: [
       {
-        title: 'استعراض الغرف والأجنحة',
-        description: 'تصفح الغرف المتاحة مع الأسعار والمرافق',
-        colorGrad: 'from-amber-900/60 to-slate-950',
-        contentPreview: 'Aurora Stay - Luxury Redefined'
+        title: 'كتالوج الهواتف',
+        description: 'تصفح الموديلات مع المواصفات والسعر ابتداءً من أقل ذاكرة',
+        colorGrad: 'from-indigo-900/60 to-slate-950',
+        contentPreview: 'Pulsar Mobile - Original Devices, Real Warranty'
       },
       {
-        title: 'تأكيد الحجز',
-        description: 'ملخص الحجز مع رقم مرجعي وتفاصيل الفاتورة',
-        colorGrad: 'from-yellow-900/60 to-slate-950',
-        contentPreview: 'Booking Confirmed - Reference #AUR-...'
+        title: 'تأكيد الطلب',
+        description: 'ملخص الطلب مع الذاكرة واللون والكفالة ورقم مرجعي',
+        colorGrad: 'from-sky-900/60 to-slate-950',
+        contentPreview: 'Order Confirmed - Reference #PLS-...'
       }
     ]
   },
