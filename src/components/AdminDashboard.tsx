@@ -40,10 +40,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
     const byStatus: Record<string, number> = {};
     const byTemplate: Record<string, number> = {};
     const byPaymentPlan: Record<string, number> = {};
+    const byPaymentStatus: Record<string, number> = {};
+    let totalCostIQD = 0;
+    let totalCollectedIQD = 0;
     contracts.forEach((c) => {
       byStatus[c.status] = (byStatus[c.status] || 0) + 1;
       byTemplate[c.templateTitle] = (byTemplate[c.templateTitle] || 0) + 1;
       byPaymentPlan[c.paymentPlan] = (byPaymentPlan[c.paymentPlan] || 0) + 1;
+      byPaymentStatus[c.paymentStatus || 'unpaid'] = (byPaymentStatus[c.paymentStatus || 'unpaid'] || 0) + 1;
+      totalCostIQD += c.costIQD || 0;
+      totalCollectedIQD += c.paidAmountIQD || 0;
     });
     const topTemplates = Object.entries(byTemplate).sort((a, b) => b[1] - a[1]).slice(0, 6);
     return {
@@ -53,6 +59,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
       byPaymentPlan,
       topTemplates,
       avgIQD: contracts.length ? Math.round(totalIQD / contracts.length) : 0,
+      byPaymentStatus,
+      totalCostIQD,
+      totalCollectedIQD,
+      totalOutstandingIQD: totalIQD - totalCollectedIQD,
+      netProfitIQD: totalCollectedIQD - totalCostIQD,
+      projectedProfitIQD: totalIQD - totalCostIQD,
     };
   }, [contracts]);
 

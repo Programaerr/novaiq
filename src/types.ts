@@ -94,6 +94,20 @@ export interface ContractData {
   // Set only by the admin dashboard, after negotiating with the client — appears on the
   // final printed contract as agreed terms, distinct from the client's own original request.
   adminNotes?: string;
+
+  // Internal financial tracking — admin-only (Firestore rules gate all `update`s to admins),
+  // never shown on the client's own printed contract. Deliberately separate from `status`
+  // (which tracks project progress): a contract can be `completed` and still `unpaid`, or
+  // `submitted` and already `paid` in full up front.
+  /** What NOVAIQ actually spent to deliver this contract (freelancers, hosting, etc.), entered
+   *  manually since there's no other cost-tracking system in the app to derive it from. */
+  costIQD?: number;
+  paymentStatus?: 'unpaid' | 'partial' | 'paid';
+  /** Cash actually collected so far. Kept distinct from `totalPriceIQD` (the agreed price) so
+   *  a `partial` contract's real collected amount is known, not just guessed at — profit is
+   *  computed as collected minus cost, not agreed-price minus cost, so money that hasn't
+   *  actually landed yet is never counted as realized profit. */
+  paidAmountIQD?: number;
 }
 
 export interface AIConsultationState {

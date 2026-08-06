@@ -1,8 +1,10 @@
-// The dashboard landing tab: status/template breakdown bars plus the newest contracts.
+// The dashboard landing tab: status/template breakdown bars, financial position, and the
+// newest contracts.
 import { ContractData } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { STATUS_FLOW, BarRow, statusArabic, AdminStats } from './shared';
+import { STATUS_FLOW, PAYMENT_STATUS_FLOW, BarRow, StatTile, statusArabic, paymentStatusArabic, AdminStats } from './shared';
+import { Wallet, TrendingUp, TrendingDown, Landmark } from 'lucide-react';
 
 export function OverviewTab({
   isAr,

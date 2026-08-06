@@ -8,6 +8,8 @@ import { ContractData } from '../../types';
 
 export const STATUS_FLOW: ContractData['status'][] = ['submitted', 'under_review', 'in_development', 'completed'];
 
+export const PAYMENT_STATUS_FLOW: NonNullable<ContractData['paymentStatus']>[] = ['unpaid', 'partial', 'paid'];
+
 export function StatTile({ icon: Icon, label, value, accent }: { icon: React.ElementType; label: string; value: string; accent?: string }) {
   return (
     <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
@@ -64,6 +66,17 @@ export function BarRow({ label, count, total, isAr }: { label: string; count: nu
   );
 }
 
+export function paymentStatusArabic(status: ContractData['paymentStatus']): string {
+  switch (status) {
+    case 'paid':
+      return 'مدفوع بالكامل';
+    case 'partial':
+      return 'دفعة جزئية';
+    default:
+      return 'غير مدفوع';
+  }
+}
+
 export function statusArabic(status: ContractData['status']): string {
   // translateText() looks entries up by their Arabic literal — these mirror the ones the
   // rest of the app already stores in ContractData.status.
@@ -89,4 +102,18 @@ export interface AdminStats {
   byPaymentPlan: Record<string, number>;
   topTemplates: [string, number][];
   avgIQD: number;
+
+  // Financial position — see the field comments on ContractData for why "profit" is computed
+  // from money actually collected rather than the full agreed price.
+  byPaymentStatus: Record<string, number>;
+  /** Sum of costIQD across every contract. */
+  totalCostIQD: number;
+  /** Sum of paidAmountIQD — cash that has actually landed. */
+  totalCollectedIQD: number;
+  /** totalIQD - totalCollectedIQD: agreed money not yet in hand. */
+  totalOutstandingIQD: number;
+  /** Realized profit: totalCollectedIQD - totalCostIQD. */
+  netProfitIQD: number;
+  /** Best case if every outstanding balance were collected: totalIQD - totalCostIQD. */
+  projectedProfitIQD: number;
 }
