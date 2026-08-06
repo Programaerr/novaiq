@@ -248,6 +248,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 showFilterPanel || activeFiltersCount > 0 ? 'is-active' : ''
               }`}
             >
+              <span className="filter-pill-beam" aria-hidden="true" />
               <Sparkle className="w-3.5 h-3.5 text-current fill-current shrink-0" />
               <span className="font-semibold text-current">{currentLang === 'ar' ? 'تصفية' : 'Filter'}</span>
               {activeFiltersCount > 0 && (
