@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
+import { useSpotlight } from '../lib/useSpotlight';
 
 interface MilestoneTimelineProps {
   onCreateContract: () => void;
@@ -17,14 +18,8 @@ interface MilestoneTimelineProps {
 }
 
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateContract, language = 'ar' }) => {
-  // Windows/Fluent-style spotlight for the glow CTA button: pushes the cursor position
-  // straight into a CSS custom property via the DOM (no setState) so the circular light
-  // can track every frame without a React re-render.
-  const handleSpotlightMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
-    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
-  };
+  const ctaSpotlight = useSpotlight<HTMLButtonElement>();
+  const cardSpotlight = useSpotlight<HTMLDivElement>();
 
   const milestones = [
     {
@@ -96,7 +91,8 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
             return (
               <div
                 key={index}
-                className="bg-zinc-950 border border-zinc-700 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-600 transition-all shadow-xl"
+                {...cardSpotlight}
+                className="spotlight-track bg-zinc-950 border border-zinc-700 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-600 transition-all shadow-xl"
               >
 
                 {/* Background phase-number — fades in on card hover (simple hover, no
@@ -104,8 +100,12 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                     overflow-visible for the floating badge below to poke past its top
                     edge. Plain opacity only, no blur() — a blurred descendant's paint
                     still escaped this wrapper's overflow-hidden + rounded corner clip in
-                    testing, which read as the number bleeding out over the badge above it. */}
+                    testing, which read as the number bleeding out over the badge above it.
+                    The pointer-tracked spotlight glow (.spotlight-glow) lives in this same
+                    clipped layer for the same reason — .spotlight-card's own overflow:hidden
+                    isn't an option on the card itself here. */}
                 <div className="absolute inset-0 rounded-[32px] overflow-hidden pointer-events-none">
+                  <span className="spotlight-glow" />
                   <span className="absolute top-2 left-9 text-[5.5rem] font-black text-white leading-none select-none font-mono opacity-0 group-hover:opacity-20 transition-opacity duration-500">
                     {index + 1}
                   </span>
@@ -177,7 +177,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
               onCreateContract();
               cosmicAudio.playWarp();
             }}
-            onMouseMove={handleSpotlightMove}
+            {...ctaSpotlight}
             className="glow-cta-btn px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full text-white font-extrabold uppercase tracking-[0.1em] hover:scale-[1.02] transition-all inline-flex items-center cursor-pointer"
           >
             <span className="cta-spotlight" />

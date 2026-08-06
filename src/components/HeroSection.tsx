@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { useSpotlight } from '../lib/useSpotlight';
 
 const WHEEL_STEP = 90;
 
@@ -23,14 +24,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onCreateContract,
   language,
 }) => {
-  // Windows/Fluent-style spotlight for the glow CTA buttons: pushes the cursor position
-  // straight into a CSS custom property via the DOM (no setState) so the circular light
-  // can track every frame without a React re-render.
-  const handleSpotlightMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
-    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
-  };
+  const ctaSpotlight = useSpotlight<HTMLButtonElement>();
+  const cardSpotlight = useSpotlight<HTMLDivElement>();
 
   // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
   // for real photography until the client supplies per-guarantee images.
@@ -150,7 +145,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           
           <button
             onClick={onExploreTemplates}
-            onMouseMove={handleSpotlightMove}
+            {...ctaSpotlight}
             className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
           >
             <span className="cta-spotlight" />
@@ -160,7 +155,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           <button
             onClick={onCreateContract}
-            onMouseMove={handleSpotlightMove}
+            {...ctaSpotlight}
             className="glow-cta-btn w-full sm:w-auto px-8 py-3.5 rounded-full text-white font-extrabold text-sm hover:scale-[1.02] transition-all flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
           >
             <span className="cta-spotlight" />
@@ -200,7 +195,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   className="wheel3d-item"
                   style={{ '--item-angle': `${i * 90}deg` } as React.CSSProperties}
                 >
-                  <div className="group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-700 text-center hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl">
+                  <div
+                    {...cardSpotlight}
+                    className="spotlight-card group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-700 text-center hover:border-white/50 glow-white-hover hover:bg-zinc-900/90 transition-all shadow-xl"
+                  >
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none"
                       style={{ backgroundImage: bgImage, backgroundSize: bgSize }}
