@@ -151,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl p-3 sm:px-6 shadow-2xl shadow-black flex items-center justify-between gap-3 relative">
         
         {/* Side 1: Menu & Navigation Triggers */}
-        <div className="flex items-center gap-2 relative z-10">
+        <div className="flex items-center gap-1.5 relative z-10">
           <button
             ref={menuButtonRef}
             onClick={() => setMenuDrawerOpen(!menuDrawerOpen)}
@@ -162,6 +162,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <AnimatedMenuIcon open={menuDrawerOpen} />
+          </button>
+
+          {/* Language toggle — moved out of the drawer to sit right in the main bar, so
+              switching language is a single always-visible tap instead of needing the
+              drawer opened first. */}
+          <button
+            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+            title={isAr ? 'تبديل اللغة' : 'Switch language'}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold cursor-pointer transition-colors"
+          >
+            <Globe className="w-4 h-4" />
+            <span className="font-mono">{isAr ? 'AR' : 'EN'}</span>
           </button>
         </div>
 
@@ -274,30 +286,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </div>
 
-          {/* Language + Currency — a compact side-by-side pair instead of two full-width
-              stacked rows, so these settings don't push the section list further down and
-              off the visible drawer. No backdrop-blur of their own: the drawer panel they
-              sit inside already blurs the page behind it. */}
-          <div className="pt-2 border-t border-zinc-800 grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-              title={isAr ? 'لغة المنصة' : 'App Language'}
-              className="flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 cursor-pointer transition-colors shadow-lg glow-white-hover"
-            >
-              <Globe className="w-4 h-4 text-zinc-300" />
-              <span className="font-mono text-[10px] font-bold">{isAr ? 'AR' : 'EN'}</span>
-            </button>
-
-            {/* Independent of language on purpose — the store is fully Iraqi, so switching
-                to English must not silently convert every price to dollars. USD only ever
-                shows by an explicit choice made here. */}
+          {/* Currency — independent of language on purpose: the store is fully Iraqi, so
+              switching to English must not silently convert every price to dollars. USD
+              only ever shows by an explicit choice made here. No backdrop-blur of its own:
+              the drawer panel it sits inside already blurs the page behind it. */}
+          <div className="pt-2 border-t border-zinc-800">
             <button
               onClick={() => setCurrency(currency === 'IQD' ? 'USD' : 'IQD')}
-              title={isAr ? 'عملة عرض الأسعار' : 'Display Currency'}
-              className="flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 cursor-pointer transition-colors shadow-lg glow-white-hover"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 text-xs font-medium cursor-pointer transition-colors shadow-lg glow-white-hover"
             >
-              <DollarSign className="w-4 h-4 text-zinc-300" />
-              <span className="font-mono text-[10px] font-bold">{currency}</span>
+              <span className="flex items-center gap-2.5">
+                <DollarSign className="w-4 h-4 text-zinc-300" />
+                <span>{isAr ? 'عملة عرض الأسعار' : 'Display Currency'}</span>
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-[11px] font-bold border border-white/10">
+                {currency === 'IQD' ? (isAr ? 'دينار عراقي (IQD)' : 'Iraqi Dinar (IQD)') : (isAr ? 'دولار أمريكي (USD)' : 'US Dollar (USD)')}
+              </span>
             </button>
           </div>
         </div>
