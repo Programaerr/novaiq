@@ -30,7 +30,13 @@ export function subscribeToPricingOverrides(callback: (overrides: Record<string,
       });
       callback(result);
     },
-    () => callback({})
+    // Deliberately does NOT call callback({}) here. A transient listener error (a brief
+    // network blip, the token refreshing, the listener being re-negotiated) firing *after*
+    // real overrides already loaded would otherwise wipe every live price/name/link back to
+    // the static defaults — exactly the "shows Saved, then reverts to the old price" bug.
+    // Logged so a genuine, persistent failure (e.g. unpublished Firestore rules) is still
+    // visible in the console instead of failing completely silently.
+    (error) => console.error('pricing_overrides subscription error:', error)
   );
 }
 
