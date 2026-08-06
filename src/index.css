@@ -634,46 +634,106 @@
    of layout entirely leaves the mark alone, genuinely centred in the bar, and a size smaller
    so it sits comfortably rather than filling the gap between the controls. */
 @media (max-width: 639px) {
+  /* Collapsed to nothing rather than `display: none`, which can't be transitioned — this is
+     what lets the tap reveal ease open instead of snapping. Zero max-width plus a clipped
+     overflow means it still takes no room while closed, which was the original bug. */
+  .navbar-logo-lockup {
+    gap: 0;
+    transition: gap 700ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   .navbar-logo-name,
   .navbar-logo-word {
-    display: none;
+    display: inline-flex;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transform: none;
+    line-height: 1;
+    transition:
+      max-width 700ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 560ms ease 80ms;
+  }
+
+  .navbar-logo-name {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .navbar-logo-word {
+    font-size: 8px;
   }
 
   /* Overrides the inline width/height the size prop writes, which a plain rule can't reach. */
   .navbar-logo-mark-img {
     width: 26px !important;
     height: 26px !important;
+    transition: width 700ms cubic-bezier(0.4, 0, 0.2, 1),
+                height 700ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Tapped (see Navbar's touch handler): the same reveal the desktop does on hover, except
-     stacked into a column. Laid out sideways it would need ~210px of width it doesn't have
-     and would run straight into the language button; going downward it stays as narrow as the
-     mark. The lockup is absolutely positioned, so growing taller shifts nothing around it. */
+  /* Tapped (see Navbar's touch handler) — the same NAME → mark → WORD arrangement the desktop
+     hover shows, just sized to the width actually available between the account and language
+     buttons. Each max-width is set near its text's real width so the easing tracks the letters
+     appearing rather than finishing early against a slack ceiling. */
   .navbar-logo-lockup.is-revealed {
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .navbar-logo-lockup.is-revealed .navbar-logo-name,
-  .navbar-logo-lockup.is-revealed .navbar-logo-word {
-    display: inline-flex;
-    opacity: 1;
-    transform: none;
-    line-height: 1;
+    gap: 4px;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-name {
-    font-size: 10px;
-    letter-spacing: 0.18em;
+    max-width: 42px;
+    opacity: 1;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-word {
-    font-size: 8px;
+    max-width: 46px;
+    opacity: 1;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-mark-img {
-    width: 20px !important;
-    height: 20px !important;
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+
+/* Side by side needs real width, and the gap between the account and language buttons only
+   grows with the screen — so the lockup steps down again on narrower phones rather than
+   overlapping them. */
+@media (max-width: 389px) {
+  .navbar-logo-lockup.is-revealed {
+    gap: 2px;
+  }
+
+  .navbar-logo-name {
+    font-size: 9px;
+    letter-spacing: 0.04em;
+  }
+
+  .navbar-logo-word {
+    font-size: 7px;
+  }
+
+  .navbar-logo-lockup.is-revealed .navbar-logo-name {
+    max-width: 40px;
+  }
+
+  .navbar-logo-lockup.is-revealed .navbar-logo-word {
+    max-width: 38px;
+  }
+
+  .navbar-logo-lockup.is-revealed .navbar-logo-mark-img {
+    width: 18px !important;
+    height: 18px !important;
+  }
+}
+
+/* Below this there isn't room for all three side by side at any legible size, so the prompt
+   drops and the name keeps its place beside the mark. */
+@media (max-width: 359px) {
+  .navbar-logo-lockup.is-revealed .navbar-logo-word {
+    max-width: 0;
+    opacity: 0;
   }
 }
 
