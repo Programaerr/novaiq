@@ -1,20 +1,14 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { useSpotlight } from '../lib/useSpotlight';
 
 interface AboutSectionProps {
   language?: Language;
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
-  // Windows/Fluent-style spotlight, same mechanic as the homepage feature squares:
-  // pushes the cursor position straight into a CSS custom property via the DOM (no
-  // setState) so the glow can track every frame without a React re-render.
-  const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
-    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
-  };
+  const spotlight = useSpotlight<HTMLDivElement>();
 
   return (
     <section id="about-section" className="py-10 sm:py-14 relative">
@@ -59,7 +53,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
             ].map((item, idx) => (
               <div
                 key={idx}
-                onMouseMove={handleSpotlightMove}
+                {...spotlight}
                 className="spotlight-card min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 hover:border-white/40 glow-white-hover text-center transition-all"
               >
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />

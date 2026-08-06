@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 'react';
 import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
+import { useSpotlight } from './lib/useSpotlight';
 import { Navbar } from './components/Navbar';
 import { PageBackBar } from './components/PageBackBar';
 import { HeroSection } from './components/HeroSection';
@@ -219,14 +220,7 @@ export default function App() {
     return () => observer.disconnect();
   }, []);
 
-  // Fluent/Windows-style spotlight: pushes the cursor position straight into a CSS
-  // custom property via the DOM (no setState) so the glow can track the mouse every
-  // frame without re-rendering the component on each move.
-  const handleSpotlightMove = (e: MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
-    e.currentTarget.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
-  };
+  const spotlight = useSpotlight<HTMLDivElement>();
 
   if (standalonePreviewTemplate) {
     return (
@@ -329,8 +323,12 @@ export default function App() {
                       { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
                       { value: '100%', label: isAr ? 'ملكية الكود' : 'Code ownership', fill: 100 },
                     ].map((stat, idx) => (
-                      <div key={idx} className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80">
-                        <div className="relative w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
+                      <div
+                        key={idx}
+                        {...spotlight}
+                        className="spotlight-card group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
+                      >
+                        <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
                             className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
                             style={{
@@ -340,10 +338,10 @@ export default function App() {
                             } as CSSProperties}
                           />
                         </div>
-                        <div className="text-lg sm:text-xl font-extrabold text-white font-mono text-center">
+                        <div className="relative z-10 text-lg sm:text-xl font-extrabold text-white font-mono text-center">
                           {stat.value}
                         </div>
-                        <div className="text-[10px] text-zinc-400 text-center">{stat.label}</div>
+                        <div className="relative z-10 text-[10px] text-zinc-400 text-center">{stat.label}</div>
                       </div>
                     ))}
                   </div>
@@ -358,7 +356,7 @@ export default function App() {
                   ].map((x, idx) => (
                     <div
                       key={idx}
-                      onMouseMove={handleSpotlightMove}
+                      {...spotlight}
                       className="spotlight-card aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
                     >
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>

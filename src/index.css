@@ -440,9 +440,11 @@
   height: var(--fill-hover);
 }
 
-/* Windows/Fluent-style spotlight — a soft light that follows the cursor inside the
-   card. --spot-x/--spot-y are pushed straight to the DOM by a mousemove handler (see
-   handleSpotlightMove), so the glow tracks every frame without a React re-render. */
+/* Windows/Fluent-style spotlight — a soft light that follows the pointer inside the
+   card. --spot-x/--spot-y are pushed straight to the DOM by useSpotlight() (mouse via
+   onMouseMove, touch via onTouchMove), so the glow tracks every frame without a React
+   re-render. Touch screens have no :hover, so onTouchStart/onTouchEnd toggle the
+   `spotlight-touch` class as the equivalent "lit while a finger is down" signal. */
 .spotlight-card {
   position: relative;
   overflow: hidden;
@@ -458,7 +460,32 @@
   pointer-events: none;
 }
 
-.spotlight-card:hover::before {
+.spotlight-card:hover::before,
+.spotlight-card.spotlight-touch::before {
+  opacity: 1;
+}
+
+/* Same mechanic as .spotlight-card, but as a real child element instead of a pseudo-element
+   on the card itself — for cards whose own box must stay `overflow: visible` (e.g. a badge
+   that intentionally pokes past the card's edge) and so can't take .spotlight-card's own
+   `overflow: hidden`. Drop this inside whatever inner layer already clips to the card's
+   shape (--spot-x/--spot-y are custom properties, so they inherit down from the card that
+   actually received the pointer events). Trigger class lives on that outer card. */
+.spotlight-track {
+  position: relative;
+}
+
+.spotlight-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(220px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.14), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.spotlight-track:hover .spotlight-glow,
+.spotlight-track.spotlight-touch .spotlight-glow {
   opacity: 1;
 }
 
@@ -565,7 +592,8 @@
   pointer-events: none;
 }
 
-.glow-cta-btn:hover .cta-spotlight {
+.glow-cta-btn:hover .cta-spotlight,
+.glow-cta-btn.spotlight-touch .cta-spotlight {
   opacity: 1;
 }
 
