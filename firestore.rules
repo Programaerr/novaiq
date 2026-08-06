@@ -43,5 +43,13 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    // Site-wide settings (currently just the social/WhatsApp links shown in the footer) —
+    // same shape as pricing_overrides: public read since every visitor's page renders them,
+    // admin-only write.
+    match /settings/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }

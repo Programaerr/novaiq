@@ -19,6 +19,12 @@ import {
   Ban,
   UserCheck,
   Layers,
+  Settings,
+  Facebook,
+  Instagram,
+  Twitter,
+  Music2,
+  MessageCircle,
 } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -27,6 +33,7 @@ import { subscribeToContracts, deleteContractFromFirebase, updateContractFields 
 import { logoutAccount, addAdminEmail, authErrorMessage } from '../lib/auth';
 import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser, listTeamMembers, TeamMember } from '../lib/adminUsers';
 import { useLiveTemplates, subscribeToPricingOverrides, savePricingOverride, PricingOverride } from '../lib/pricingOverrides';
+import { useSocialLinks, saveSocialLinks, SocialLinks } from '../lib/socialLinks';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
@@ -39,7 +46,7 @@ interface AdminDashboardProps {
   currency?: Currency;
 }
 
-type Tab = 'overview' | 'contracts' | 'pricing' | 'team' | 'members';
+type Tab = 'overview' | 'contracts' | 'pricing' | 'team' | 'members' | 'settings';
 
 const STATUS_FLOW: ContractData['status'][] = ['submitted', 'under_review', 'in_development', 'completed'];
 
@@ -137,6 +144,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
     { id: 'pricing', label: isAr ? 'الأسعار' : 'Pricing', icon: Tag },
     { id: 'team', label: isAr ? 'الفريق' : 'Team', icon: Users },
     { id: 'members', label: isAr ? 'المشتركون' : 'Subscribers', icon: UserCheck },
+    { id: 'settings', label: isAr ? 'الإعدادات' : 'Settings', icon: Settings },
   ];
 
   return (
@@ -198,6 +206,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           {tab === 'pricing' && <PricingTab isAr={isAr} language={language} currency={currency} />}
           {tab === 'team' && <TeamTab isAr={isAr} />}
           {tab === 'members' && <MembersTab isAr={isAr} />}
+          {tab === 'settings' && <SettingsTab isAr={isAr} />}
         </div>
       </div>
     </div>
