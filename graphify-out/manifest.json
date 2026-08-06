@@ -60,14 +60,14 @@
     "semantic_hash": "ccc832cc12d58c50a42b9f4eaffe7f30"
   },
   "src/components/ContractBuilder.tsx": {
-    "mtime": 1786003428.654213,
-    "ast_hash": "cbe92047b0a98978f4666d46bb5c1ce8",
-    "semantic_hash": "cbe92047b0a98978f4666d46bb5c1ce8"
+    "mtime": 1786022981.5442736,
+    "ast_hash": "d646208b90de323117bbec346eb1faff",
+    "semantic_hash": "d646208b90de323117bbec346eb1faff"
   },
   "src/components/ContractBuilderGate.tsx": {
-    "mtime": 1786003339.803039,
-    "ast_hash": "cc2166533f60d602d9047b7c56501f93",
-    "semantic_hash": "cc2166533f60d602d9047b7c56501f93"
+    "mtime": 1786022941.300975,
+    "ast_hash": "bb8ae9f2d8e55c525eedbaa7ff40f7a9",
+    "semantic_hash": "bb8ae9f2d8e55c525eedbaa7ff40f7a9"
   },
   "src/components/ContractPDFPreview.tsx": {
     "mtime": 1786003880.2861378,
@@ -100,9 +100,9 @@
     "semantic_hash": "d9245c04caea81ddc3630fd5f18890d8"
   },
   "src/components/Footer.tsx": {
-    "mtime": 1786005188.0232432,
-    "ast_hash": "e211edc95fdb3d1a9763ab78ab634573",
-    "semantic_hash": "e211edc95fdb3d1a9763ab78ab634573"
+    "mtime": 1786021839.9534185,
+    "ast_hash": "74812d2f48f49ca315ad44cc1ad24f2f",
+    "semantic_hash": "74812d2f48f49ca315ad44cc1ad24f2f"
   },
   "src/components/HeroSection.tsx": {
     "mtime": 1785942156.7359111,
@@ -230,14 +230,14 @@
     "semantic_hash": "f616c42ed226400084052793d870fc18"
   },
   "src/lib/pricingOverrides.ts": {
-    "mtime": 1786017803.331556,
-    "ast_hash": "5151fabe472a579afc9aba89d1565afa",
-    "semantic_hash": "5151fabe472a579afc9aba89d1565afa"
+    "mtime": 1786021245.4846303,
+    "ast_hash": "bf2a342c21b10c4112fe356eb4d2f452",
+    "semantic_hash": "bf2a342c21b10c4112fe356eb4d2f452"
   },
   "src/lib/socialLinks.ts": {
-    "mtime": 1786017853.2965417,
-    "ast_hash": "5502829900f54e9bb523b02e615cf1a0",
-    "semantic_hash": "5502829900f54e9bb523b02e615cf1a0"
+    "mtime": 1786021282.7078192,
+    "ast_hash": "3e9217ece3750e615b57391e9a823eec",
+    "semantic_hash": "3e9217ece3750e615b57391e9a823eec"
   },
   "src/lib/toast.ts": {
     "mtime": 1785804930.701131,
@@ -250,9 +250,9 @@
     "semantic_hash": "2a575b2edee41d8fbb25a0258d0dd41f"
   },
   "src/types.ts": {
-    "mtime": 1785799029.9181094,
-    "ast_hash": "0c2aab8f1d72e85de196a690aae7038a",
-    "semantic_hash": "0c2aab8f1d72e85de196a690aae7038a"
+    "mtime": 1786022929.1349187,
+    "ast_hash": "a2251e8d3718b68c78ced46be210e7cb",
+    "semantic_hash": "a2251e8d3718b68c78ced46be210e7cb"
   },
   "src/vite-env.d.ts": {
     "mtime": 1785752081.4688115,
