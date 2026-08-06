@@ -128,8 +128,10 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                   </span>
                 </div>
 
-                {/* Title */}
-                <div>
+                {/* Title — text-right explicitly, not just inherited from dir, so English
+                    keeps the same right-aligned look as Arabic instead of switching to
+                    the standard LTR left-alignment. */}
+                <div className="text-right">
                   <h3 className="text-lg font-bold text-white mb-2">
                     {ms.phaseTitle}
                   </h3>
@@ -147,10 +149,22 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                   </ul>
                 </div>
 
-                {/* Bottom Step Indicator */}
+                {/* Bottom Step Indicator — which span renders first swaps with the
+                    physical side justify-between assigns it (RTL: first child = right),
+                    so which language draws "Phase X of 4" the DOM keeps it pinned to the
+                    same physical side as Arabic instead of trading places with "X Weeks". */}
                 <div className="pt-4 border-t border-zinc-900 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
-                  <span>{language === 'ar' ? `المرحلة ${index + 1} من 4` : `Phase ${index + 1} of 4`}</span>
-                  <span className="text-white font-bold">{language === 'ar' ? '2 أسابيع' : '2 Weeks'}</span>
+                  {language === 'ar' ? (
+                    <>
+                      <span>{`المرحلة ${index + 1} من 4`}</span>
+                      <span className="text-white font-bold">2 أسابيع</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-white font-bold">2 Weeks</span>
+                      <span>{`Phase ${index + 1} of 4`}</span>
+                    </>
+                  )}
                 </div>
 
               </div>
