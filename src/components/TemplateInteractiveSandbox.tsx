@@ -1259,7 +1259,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
   const renderSiteDrawer = () => {
     if (!isSiteMenuOpen) return null;
-    return (
+    // Portaled to <body>: the scrollable preview pane above (renderLiveSite's ancestor) carries
+    // backdrop-blur-sm, and any backdrop-filter/filter/transform on an ancestor makes it the
+    // containing block for `fixed` descendants per the CSS spec — so without the portal, this
+    // drawer's `fixed` was resolving against that scrolling pane's box instead of the real
+    // viewport, and scrolled away with it instead of staying put like the site's own Navbar
+    // drawer (which has no such ancestor). Same fix already used by the store demo's sort menu.
+    return createPortal(
       <>
         <div
           onClick={() => setIsSiteMenuOpen(false)}
@@ -1330,7 +1336,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </ul>
           </div>
         </aside>
-      </>
+      </>,
+      document.body
     );
   };
 
