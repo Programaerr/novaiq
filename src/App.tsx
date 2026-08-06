@@ -14,6 +14,7 @@ import { useLiveTemplates } from './lib/pricingOverrides';
 import { Template, ContractData } from './types';
 import { Language } from './lib/i18n';
 import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
+import { consumePendingContractSelection } from './lib/pendingContractSelection';
 
 // Everything below is only needed after a navigation action (clicking into a page,
 // opening a live template demo, generating a contract PDF). Splitting these into their
@@ -185,6 +186,24 @@ export default function App() {
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
     };
+  }, []);
+
+  // Picks up a template selected from the standalone `?live=` tab's "order this template"
+  // button (TemplateLivePage.tsx) — that tab shares no React state with this one, so the
+  // hand-off travels through localStorage instead (see lib/pendingContractSelection.ts).
+  // Runs once on mount; `?page=custom-request` is already set by the effect above, so this
+  // only needs to fill in which template and what the customer customized in the demo. If
+  // they aren't signed in yet, ContractBuilderGate shows the login screen first — this state
+  // just waits until they finish.
+  useEffect(() => {
+    const pending = consumePendingContractSelection();
+    if (!pending) return;
+    const found = liveTemplates.find((t) => t.id === pending.templateId);
+    if (!found) return;
+    setSelectedTemplateForContract(found);
+    setInitialCustomFeaturesText(pending.customNotes || '');
+    setInitialPrimaryColor(pending.primaryColorHex || '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Page direction follows the selected language — English needs LTR to read correctly
