@@ -252,8 +252,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
             title={isAr ? 'تبديل اللغة' : 'Switch language'}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold cursor-pointer transition-colors"
+            className="nq-btn nq-btn--ghost flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl text-xs font-bold cursor-pointer"
           >
+            <span className="nq-btn-beam" aria-hidden="true" />
             <Globe className="w-4 h-4" />
             <span className="font-mono">{isAr ? 'AR' : 'EN'}</span>
           </button>

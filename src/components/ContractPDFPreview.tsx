@@ -148,8 +148,9 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 cursor-pointer"
+            className="nq-btn nq-btn--ghost p-2 rounded-xl cursor-pointer"
           >
+            <span className="nq-btn-beam" aria-hidden="true" />
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -266,8 +267,9 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             <button
               onClick={handleDownloadPDF}
               disabled={isGeneratingPdf}
-              className="w-full sm:w-auto px-8 py-3 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-wait text-black text-sm font-extrabold shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-white"
+              className="nq-btn nq-btn--solid w-full sm:w-auto px-8 py-3 rounded-xl disabled:opacity-60 disabled:cursor-wait text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer"
             >
+              <span className="nq-btn-beam" aria-hidden="true" />
               {isGeneratingPdf ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -283,8 +285,9 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
 
             <button
               onClick={onFinish}
-              className="w-full sm:w-auto px-8 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700 text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer transition-all"
+              className="nq-btn nq-btn--ghost w-full sm:w-auto px-8 py-3 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer"
             >
+              <span className="nq-btn-beam" aria-hidden="true" />
               <CheckCircle2 className="w-5 h-5" />
               <span>{isAr ? 'تم التنزيل' : 'Download Complete'}</span>
             </button>
