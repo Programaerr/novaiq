@@ -37,8 +37,9 @@ export const PageBackBar: React.FC<PageBackBarProps> = ({ language, title, onBac
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-300 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/10 transition-all cursor-pointer"
+          className="nq-btn nq-btn--ghost flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer"
         >
+          <span className="nq-btn-beam" aria-hidden="true" />
           <ArrowRight className="w-3.5 h-3.5 ltr:rotate-180" />
           <span>{isAr ? 'رجوع' : 'Back'}</span>
         </button>
@@ -48,8 +49,9 @@ export const PageBackBar: React.FC<PageBackBarProps> = ({ language, title, onBac
         <button
           type="button"
           onClick={onHome}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-300 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/10 transition-all cursor-pointer"
+          className="nq-btn nq-btn--ghost flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer"
         >
+          <span className="nq-btn-beam" aria-hidden="true" />
           <Home className="w-3.5 h-3.5" />
           <span>{isAr ? 'الرئيسية' : 'Home'}</span>
         </button>

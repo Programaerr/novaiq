@@ -916,8 +916,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+                className="nq-btn nq-btn--ghost px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
               >
+                <span className="nq-btn-beam" aria-hidden="true" />
                 <ArrowRight className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />
                 <span>{isAr ? 'الخطوة السابقة' : 'Previous Step'}</span>
               </button>
@@ -956,17 +957,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   setCurrentStep(currentStep + 1);
                   cosmicAudio.playPing();
                 }}
-                className="px-6 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center gap-2 cursor-pointer border border-white"
+                className="nq-btn nq-btn--solid px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
               >
+                <span className="nq-btn-beam" aria-hidden="true" />
                 <span>{isAr ? 'الخطوة التالية' : 'Next Step'}</span>
-                <ArrowLeft className={`w-4 h-4 text-black ${!isAr ? 'rotate-180' : ''}`} />
+                <ArrowLeft className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />
               </button>
             ) : (
               <button
                 type="submit"
-                className="px-8 py-3 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs sm:text-sm font-extrabold white-btn-glow flex items-center gap-2 cursor-pointer transition-all border border-white"
+                className="nq-btn nq-btn--solid px-8 py-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer"
               >
-                <FileCheck className="w-4 h-4 text-black" />
+                <span className="nq-btn-beam" aria-hidden="true" />
+                <FileCheck className="w-4 h-4" />
                 <span>{getTranslation('generateContractBtn', lang)}</span>
               </button>
             )}

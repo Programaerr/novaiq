@@ -60,16 +60,18 @@ export class ErrorBoundary extends React.Component<Props, State> {
             <div className="flex flex-col gap-3">
               <button
                 onClick={this.handleReload}
-                className="w-full py-3.5 px-6 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-200 transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                className="nq-btn nq-btn--solid w-full py-3.5 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
               >
+                <span className="nq-btn-beam" aria-hidden="true" />
                 <RefreshCw className="w-4 h-4" />
                 إعادة تحميل المنصة
               </button>
 
               <button
                 onClick={this.handleResetState}
-                className="w-full py-3 px-6 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-semibold text-xs hover:border-zinc-700 hover:text-white transition-all cursor-pointer"
+                className="nq-btn nq-btn--ghost w-full py-3 px-6 rounded-xl font-semibold text-xs cursor-pointer"
               >
+                <span className="nq-btn-beam" aria-hidden="true" />
                 العودة إلى الصفحة الرئيسية
               </button>
             </div>

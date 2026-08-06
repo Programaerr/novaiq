@@ -35,14 +35,16 @@ export const LogoutConfirmDialog: React.FC<LogoutConfirmDialogProps> = ({ isAr, 
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold cursor-pointer transition-colors"
+            className="nq-btn nq-btn--ghost flex-1 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
           >
+            <span className="nq-btn-beam" aria-hidden="true" />
             {isAr ? 'إلغاء' : 'Cancel'}
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-extrabold cursor-pointer transition-all border border-white"
+            className="nq-btn nq-btn--solid flex-1 py-2.5 rounded-xl text-xs font-extrabold cursor-pointer"
           >
+            <span className="nq-btn-beam" aria-hidden="true" />
             {isAr ? 'تسجيل الخروج' : 'Sign Out'}
           </button>
         </div>

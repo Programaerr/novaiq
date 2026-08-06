@@ -93,8 +93,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ language }) => {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={isSubmitting}
-          className="w-full py-3 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 text-black text-sm font-extrabold flex items-center justify-center gap-3 cursor-pointer transition-all border border-white"
+          className="nq-btn nq-btn--solid w-full py-3 rounded-xl disabled:opacity-60 text-sm font-extrabold flex items-center justify-center gap-3 cursor-pointer"
         >
+          <span className="nq-btn-beam" aria-hidden="true" />
           {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
           <span>{isAr ? 'المتابعة عبر Google' : 'Continue with Google'}</span>
         </button>

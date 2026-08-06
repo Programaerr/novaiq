@@ -50,15 +50,17 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ language, onNaviga
           <button
             type="button"
             onClick={() => handleChoice(false)}
-            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 text-xs font-bold transition-colors cursor-pointer"
+            className="nq-btn nq-btn--ghost flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
           >
+            <span className="nq-btn-beam" aria-hidden="true" />
             {isAr ? 'رفض' : 'Reject'}
           </button>
           <button
             type="button"
             onClick={() => handleChoice(true)}
-            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer"
+            className="nq-btn nq-btn--solid flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
           >
+            <span className="nq-btn-beam" aria-hidden="true" />
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>{isAr ? 'موافقة' : 'Accept'}</span>
           </button>

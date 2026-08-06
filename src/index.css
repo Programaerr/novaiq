@@ -331,6 +331,185 @@
   color: #111111;
 }
 
+/* ─── Unified button system ────────────────────────────────────────────────────
+   One interaction language for every button on the site, modelled on the templates'
+   filter pill above: a beam traces the outline, the surface shifts, and the control
+   lifts — then presses in when clicked.
+
+   .nq-btn carries ONLY the interaction, never a surface. That's what lets it layer
+   onto a button that already has a look of its own (see .glow-cta-btn, which keeps
+   its neon body and pointer-tracked spotlight and simply gains the beam) as well as
+   onto plain ones, which pick a surface with .nq-btn--solid (primary action) or
+   .nq-btn--ghost (secondary / icon). One system, three ways in — rather than each
+   button reinventing its own hover.
+
+   Triggers are :hover, :focus-visible AND :active. :active is the important one:
+   touch screens have no hover at all, so it's what gives a finger tap the same
+   feedback a mouse gets, matching the touch parity the spotlight cards already have.
+
+   .filter-pill-btn stays its own rule on purpose — it belongs to the templates page,
+   which is outside this refactor — but the surface values here mirror it exactly, so
+   the reference button and the rest of the site read as one family. */
+.nq-btn {
+  position: relative;
+  /* Own stacking context, so a beam or an underglow with a negative z-index tucks
+     behind this button's own surface rather than behind its whole container. */
+  isolation: isolate;
+  transition: background 250ms ease, color 250ms ease, box-shadow 250ms ease,
+    border-color 250ms ease, transform 250ms ease;
+}
+
+.nq-btn:hover,
+.nq-btn:focus-visible {
+  transform: scale(1.03);
+}
+
+.nq-btn:active {
+  transform: scale(0.98);
+}
+
+/* A disabled button must not appear to respond at all, and :hover/:active can still
+   match one in several browsers — so both the lift and the beam are cancelled here. */
+.nq-btn:disabled,
+.nq-btn[aria-disabled='true'] {
+  transform: none;
+}
+
+.nq-btn:disabled .nq-btn-beam,
+.nq-btn[aria-disabled='true'] .nq-btn-beam {
+  opacity: 0;
+  animation: none;
+}
+
+/* The beam ring. Two elements are required and neither can be dropped: this one holds
+   still and owns the ring shape (the mask pair — full box minus content box — erases
+   everything but the 2px edge strip), while the rotating gradient lives on its ::before.
+   Rotating the masked element itself swings the rounded rectangle out of alignment with
+   the button on every frame but 0deg, which reads as the beam flying off the corners. */
+.nq-btn-beam {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+
+/* Square (200% of the button's width at aspect-ratio 1) so every rotation angle still
+   covers all four edges — a pill-shaped gradient leaves the short sides bare as it turns.
+   Rotation is `transform: rotate()` rather than an animated custom property: Lightning CSS
+   strips the `@property` those depend on and silently kills the declaration. */
+.nq-btn-beam::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  aspect-ratio: 1;
+  /* Centring uses the standalone `translate` property, not a translate() inside transform —
+     the spin keyframe owns `transform` and would otherwise overwrite the centring. */
+  translate: -50% -50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    #FFFFFF 10%,
+    transparent 25%,
+    transparent 50%,
+    #FFFFFF 60%,
+    transparent 75%,
+    transparent
+  );
+}
+
+.nq-btn:hover .nq-btn-beam,
+.nq-btn:focus-visible .nq-btn-beam,
+.nq-btn:active .nq-btn-beam {
+  opacity: 1;
+}
+
+/* ease-in-out (not linear) on a full turn is what makes it undulate — the beam surges
+   through the middle of each rotation and eases at the ends, reading as a wave rolling
+   around the button rather than a motor spinning at a constant speed. */
+.nq-btn:hover .nq-btn-beam::before,
+.nq-btn:focus-visible .nq-btn-beam::before,
+.nq-btn:active .nq-btn-beam::before {
+  animation: nq-beam-spin 2s ease-in-out infinite;
+}
+
+@keyframes nq-beam-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Primary surface — same flat white body and inverting hover as the filter pill.
+   Icon, text and any badge inside use currentColor, so the single `color` flip carries
+   them along with the background instead of needing a rule each. */
+.nq-btn--solid {
+  background: #FFFFFF;
+  color: #111111;
+  border: 1px solid #FFFFFF;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.22),
+    0 0 36px rgba(0, 0, 0, 0.12);
+}
+
+.nq-btn--solid:hover,
+.nq-btn--solid:focus-visible,
+.nq-btn--solid:active {
+  background: #0A0A0A;
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.4),
+    0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+/* Secondary surface. Deliberately a translucent white wash rather than a solid zinc
+   fill: these sit on plain page background in some places and inside the floating glass
+   bars in others, and a wash reads correctly on both instead of stamping an opaque box
+   inside the glass. It brightens on interaction rather than inverting to white — the beam
+   is white, so a white surface would swallow it. */
+.nq-btn--ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: #d4d4d8;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.nq-btn--ghost:hover,
+.nq-btn--ghost:focus-visible,
+.nq-btn--ghost:active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+/* The lift and the spin are decorative; the surface change alone still communicates
+   "this responded", so honour a reduced-motion preference by dropping just the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .nq-btn:hover,
+  .nq-btn:focus-visible,
+  .nq-btn:active {
+    transform: none;
+  }
+
+  .nq-btn:hover .nq-btn-beam::before,
+  .nq-btn:focus-visible .nq-btn-beam::before,
+  .nq-btn:active .nq-btn-beam::before {
+    animation: none;
+  }
+}
+
 .white-btn-glow:hover {
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 0, 0, 1), 0 0 15px rgba(255, 255, 255, 0.6);
   transform: translateY(-2px);
