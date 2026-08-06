@@ -283,8 +283,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               )}
             </button>
 
-            {/* Search Box */}
+            {/* Search Box — carries the same rotating beam as the Filter pill beside it, so
+                the toolbar's two controls answer a pointer the same way. It lights on hover
+                and stays lit while the field has focus (a text field is "active" for as long
+                as someone is typing in it, not just while the cursor rests on it). */}
             <div className="search-neu relative w-full sm:w-80 sm:ms-auto rounded-full">
+              <span className="nq-btn-beam" aria-hidden="true" />
               <Search className="w-4 h-4 text-zinc-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
