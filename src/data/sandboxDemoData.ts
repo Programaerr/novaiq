@@ -239,32 +239,82 @@ export const SAMPLE_ATTENDANCE = [
   { date: '2026-08-08', status: 'حاضر' },
 ];
 
-// Hospitality demo data
-export interface HotelRoom {
+// Mobile store demo data
+export interface PhoneStorageTier {
+  /** Capacity in GB — the label is derived (1024 renders as "1 تيرا"). */
+  gb: number;
+  priceIQD: number;
+}
+
+export interface PhoneProduct {
   id: string;
   name: string;
-  type: 'standard' | 'deluxe' | 'suite';
-  pricePerNightIQD: number;
-  capacity: number;
+  brand: string;
+  /** Cheapest tier first: the catalogue card quotes `storageTiers[0]` as the "starting at" price. */
+  storageTiers: PhoneStorageTier[];
+  colors: string[];
   imageBg: string;
-  amenities: string[];
+  specs: string[];
+  badge?: string;
 }
 
-export interface HotelBooking {
+export interface PhoneOrder {
   id: string;
-  roomName: string;
-  checkIn: string;
-  checkOut: string;
-  guests: number;
-  nights: number;
+  phoneName: string;
+  storageGb: number;
+  color: string;
+  quantity: number;
+  warranty: boolean;
   totalIQD: number;
+  date: string;
 }
 
-export const SAMPLE_ROOMS: HotelRoom[] = [
-  { id: 'room-1', name: 'غرفة قياسية بإطلالة على المدينة', type: 'standard', pricePerNightIQD: 90000, capacity: 2, imageBg: 'from-slate-800/60 to-slate-900', amenities: ['واي فاي مجاني', 'إفطار', 'تكييف'] },
-  { id: 'room-2', name: 'غرفة ديلوكس بإطلالة على النهر', type: 'deluxe', pricePerNightIQD: 140000, capacity: 2, imageBg: 'from-amber-900/60 to-slate-900', amenities: ['واي فاي مجاني', 'إفطار', 'شرفة خاصة', 'ميني بار'] },
-  { id: 'room-3', name: 'جناح تنفيذي فاخر', type: 'suite', pricePerNightIQD: 220000, capacity: 4, imageBg: 'from-yellow-900/60 to-slate-900', amenities: ['واي فاي مجاني', 'إفطار', 'صالة استقبال', 'خدمة كونسيرج'] },
-  { id: 'room-4', name: 'جناح العائلة الواسع', type: 'suite', pricePerNightIQD: 260000, capacity: 6, imageBg: 'from-orange-900/60 to-slate-900', amenities: ['واي فاي مجاني', 'إفطار', 'غرفتي نوم', 'مطبخ صغير'] },
+/** Extra-year warranty add-on, priced per device (see `confirmPhoneOrder`). */
+export const PHONE_WARRANTY_IQD = 45000;
+
+export const SAMPLE_PHONES: PhoneProduct[] = [
+  {
+    id: 'phone-1', name: 'iPhone 15 Pro Max', brand: 'Apple', badge: 'الأكثر مبيعاً',
+    storageTiers: [{ gb: 256, priceIQD: 1700000 }, { gb: 512, priceIQD: 1950000 }, { gb: 1024, priceIQD: 2300000 }],
+    colors: ['تيتانيوم طبيعي', 'تيتانيوم أسود', 'تيتانيوم أزرق'],
+    imageBg: 'from-slate-700/60 to-slate-900',
+    specs: ['شاشة 6.7 بوصة', 'شريحة A17 Pro', 'كاميرا 48 ميغا', 'بطارية 4441 mAh'],
+  },
+  {
+    id: 'phone-2', name: 'Samsung Galaxy S24 Ultra', brand: 'Samsung', badge: 'قلم S Pen',
+    storageTiers: [{ gb: 256, priceIQD: 1550000 }, { gb: 512, priceIQD: 1780000 }, { gb: 1024, priceIQD: 2100000 }],
+    colors: ['رمادي تيتانيوم', 'بنفسجي', 'أسود'],
+    imageBg: 'from-indigo-900/60 to-slate-900',
+    specs: ['شاشة 6.8 بوصة', 'Snapdragon 8 Gen 3', 'كاميرا 200 ميغا', 'زوم بصري 5x'],
+  },
+  {
+    id: 'phone-3', name: 'Google Pixel 8 Pro', brand: 'Google',
+    storageTiers: [{ gb: 128, priceIQD: 1050000 }, { gb: 256, priceIQD: 1190000 }, { gb: 512, priceIQD: 1400000 }],
+    colors: ['أزرق فاتح', 'رمادي', 'أبيض'],
+    imageBg: 'from-sky-900/60 to-slate-900',
+    specs: ['شاشة 6.7 بوصة', 'شريحة Tensor G3', 'كاميرا 50 ميغا', 'تعديل صور بالذكاء الاصطناعي'],
+  },
+  {
+    id: 'phone-4', name: 'Xiaomi 14 Pro', brand: 'Xiaomi',
+    storageTiers: [{ gb: 256, priceIQD: 950000 }, { gb: 512, priceIQD: 1120000 }],
+    colors: ['أسود', 'أبيض', 'أخضر'],
+    imageBg: 'from-orange-900/60 to-slate-900',
+    specs: ['شاشة 6.73 بوصة', 'عدسات Leica', 'شحن سريع 120 واط', 'بطارية 4880 mAh'],
+  },
+  {
+    id: 'phone-5', name: 'OnePlus 12', brand: 'OnePlus',
+    storageTiers: [{ gb: 256, priceIQD: 900000 }, { gb: 512, priceIQD: 1060000 }],
+    colors: ['أخضر زمردي', 'أسود'],
+    imageBg: 'from-emerald-900/60 to-slate-900',
+    specs: ['شاشة 6.82 بوصة 120Hz', 'رام 12 غيغا', 'شحن 100 واط', 'بطارية 5400 mAh'],
+  },
+  {
+    id: 'phone-6', name: 'Samsung Galaxy A55', brand: 'Samsung', badge: 'أفضل سعر',
+    storageTiers: [{ gb: 128, priceIQD: 420000 }, { gb: 256, priceIQD: 490000 }],
+    colors: ['أزرق فاتح', 'أسود', 'بنفسجي'],
+    imageBg: 'from-cyan-900/60 to-slate-900',
+    specs: ['شاشة 6.6 بوصة', 'كاميرا 50 ميغا', 'بطارية 5000 mAh', 'مقاوم للماء IP67'],
+  },
 ];
 
 // Logistics demo data
@@ -427,36 +477,36 @@ export const COMPANY_PROFILES: Record<string, CompanyProfile> = {
     },
   },
 
-  'NVQ-HOTEL-09': {
-    name: 'Aurora Stay',
-    badge: 'فنادق ومنتجعات',
-    headline: 'إقامة تليق بك في قلب المدينة',
+  'NVQ-PHONE-09': {
+    name: 'Pulsar Mobile',
+    badge: 'هواتف ذكية وإكسسوارات',
+    headline: 'هاتفك الجديد بضمان حقيقي وسعر واضح',
     description:
-      'أورورا ستاي مجموعة فندقية تدير 3 فنادق ومنتجعاً سياحياً، بغرف وأجنحة مصممة بعناية، ومطاعم، وقاعات مؤتمرات، وخدمة كونسيرج على مدار الساعة.',
-    primaryCta: { label: 'احجز غرفتك', tab: 'rooms' },
-    secondaryCta: { label: 'تفاصيل الحجز', tab: 'booking' },
+      'بلسار موبايل متجر هواتف ذكية يبيع أجهزة أصلية بكفالة وكيل، مع مقارنة مواصفات قبل الشراء، وخيارات ذاكرة وألوان، وتقسيط مريح، وصيانة معتمدة داخل المتجر.',
+    primaryCta: { label: 'تصفح الهواتف', tab: 'phones' },
+    secondaryCta: { label: 'أكمل طلبك', tab: 'order' },
     stats: [
-      { value: '3', label: 'فنادق ومنتجع' },
-      { value: '240', label: 'غرفة وجناح' },
-      { value: '4.7★', label: 'تقييم النزلاء' },
-      { value: '24/7', label: 'خدمة الكونسيرج' },
+      { value: '4', label: 'فروع في بغداد' },
+      { value: '150+', label: 'موديل متوفر' },
+      { value: '4.8★', label: 'تقييم الزبائن' },
+      { value: '12 شهر', label: 'كفالة الوكيل' },
     ],
     services: [
-      { title: 'حجز فوري ومؤكد', description: 'اختر الغرفة والتواريخ واحصل على تأكيد الحجز مباشرة.' },
-      { title: 'تسعير حسب الموسم', description: 'أسعار ديناميكية تتغير حسب الإشغال والموسم لأفضل قيمة.' },
-      { title: 'مزامنة مع منصات الحجز', description: 'تكامل مع Booking وAirbnb لمنع الحجز المزدوج تلقائياً.' },
-      { title: 'كونسيرج رقمي', description: 'اطلب خدمة الغرف أو المواصلات من هاتفك دون اتصال.' },
+      { title: 'أجهزة أصلية بكفالة', description: 'كل جهاز يصل بكفالة وكيل موثقة برقم تسلسلي داخل الفاتورة.' },
+      { title: 'مقارنة المواصفات', description: 'قارن الشاشة والكاميرا والبطارية بين الموديلات قبل ما تقرر.' },
+      { title: 'تقسيط بدون فوائد', description: 'قسّط جهازك على دفعات شهرية مع موافقة فورية داخل المتجر.' },
+      { title: 'صيانة واستبدال', description: 'مركز صيانة معتمد، واستبدال خلال 7 أيام إذا كان هناك عيب مصنعي.' },
     ],
     testimonial: {
-      quote: 'الحجز تم بثوانٍ والغرفة كانت مطابقة تماماً للصور. الاستقبال كان بانتظارنا بالاسم.',
+      quote: 'اشتريت الجهاز بالتقسيط والسعر كان نفس المعروض بالموقع بالضبط، والكفالة انكتبت بالفاتورة.',
       author: 'عمر الجبوري',
-      role: 'نزيل - جناح تنفيذي',
+      role: 'زبون - iPhone 15 Pro Max',
     },
     contact: {
       phone: '07705558888',
-      email: 'reservations@aurorastay.iq',
-      address: 'بغداد - المنصور، شارع 14 رمضان',
-      hours: 'الاستقبال 24 ساعة طوال أيام الأسبوع',
+      email: 'sales@pulsarmobile.iq',
+      address: 'بغداد - الكرادة، شارع 62',
+      hours: 'السبت - الخميس، 10 صباحاً - 10 مساءً',
     },
   },
 
@@ -601,11 +651,11 @@ export const SITE_NAV_ITEMS: Record<string, Array<{ id: string; label: string }>
     { id: 'enroll', label: 'التسجيل' },
     { id: 'dashboard', label: 'لوحة الطالب' },
   ],
-  'NVQ-HOTEL-09': [
+  'NVQ-PHONE-09': [
     { id: 'home', label: 'الرئيسية' },
-    { id: 'rooms', label: 'الغرف والأجنحة' },
-    { id: 'booking', label: 'الحجز' },
-    { id: 'confirmation', label: 'تأكيد الحجز' },
+    { id: 'phones', label: 'الهواتف' },
+    { id: 'order', label: 'إتمام الطلب' },
+    { id: 'confirmation', label: 'تأكيد الطلب' },
   ],
   'NVQ-LOG-10': [
     { id: 'home', label: 'الرئيسية' },
