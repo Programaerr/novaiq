@@ -15,7 +15,7 @@ import { useSocialLinks, saveSocialLinks, SocialLinks } from '../../lib/socialLi
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 
-export const SOCIAL_FIELDS: Array<{
+const SOCIAL_FIELDS: Array<{
   id: keyof SocialLinks;
   icon: React.ElementType;
   labelAr: string;
@@ -28,7 +28,7 @@ export const SOCIAL_FIELDS: Array<{
   { id: 'tiktok', icon: Music2, labelAr: 'تيك توك', labelEn: 'TikTok', placeholder: 'https://tiktok.com/@yourpage' },
 ];
 
-function SettingsTab({ isAr }: { isAr: boolean }) {
+export function SettingsTab({ isAr }: { isAr: boolean }) {
   const savedLinks = useSocialLinks();
   const [links, setLinks] = useState<SocialLinks>({});
   const [isSaving, setIsSaving] = useState(false);
