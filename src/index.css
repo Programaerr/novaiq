@@ -170,6 +170,10 @@
    so a single `color` change on hover flips them along with the background — one property to
    invert instead of three. */
 .filter-pill-btn {
+  /* isolate: gives this button its own stacking context so the mist layer's z-index:-1
+     below only tucks behind the button's own opaque surface, not behind the whole toolbar
+     bar (which has no stacking context of its own and would otherwise swallow it). */
+  isolation: isolate;
   background: #FFFFFF;
   color: #111111;
   box-shadow:
@@ -178,6 +182,28 @@
     0 8px 20px rgba(0, 0, 0, 0.22),
     0 0 36px rgba(0, 0, 0, 0.12);
   transition: background 250ms ease, color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
+}
+
+/* Hover mist — a real blurred layer sitting outside the button's own box (inset: -28px),
+   not a box-shadow ring hugging the edge. filter:blur (not box-shadow) is what lets it read
+   as drifting fog rather than a static glow, and the keyframe drifts/breathes it continuously
+   while hovered instead of holding one fixed shape. */
+.filter-pill-btn::before {
+  content: '';
+  position: absolute;
+  inset: -28px;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15) 55%, transparent 75%);
+  filter: blur(18px);
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.filter-pill-btn:hover::before {
+  opacity: 1;
+  animation: filter-pill-mist 2.4s ease-in-out infinite;
 }
 
 .filter-pill-btn.is-active {
@@ -198,13 +224,18 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     inset 0 -1px 1px rgba(0, 0, 0, 0.4),
-    0 10px 26px rgba(0, 0, 0, 0.45),
-    0 0 40px rgba(255, 255, 255, 0.16);
+    0 10px 26px rgba(0, 0, 0, 0.45);
   transform: scale(1.03);
 }
 
 .filter-pill-btn:active {
   transform: scale(0.98);
+}
+
+@keyframes filter-pill-mist {
+  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.65; }
+  33% { transform: scale(1.18) translate(5px, -4px); opacity: 1; }
+  66% { transform: scale(1.08) translate(-5px, 4px); opacity: 0.8; }
 }
 
 .filter-pill-badge {
