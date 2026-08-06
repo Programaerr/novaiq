@@ -148,57 +148,20 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     // dir="ltr" is forced here on purpose, independent of the active language — the whole
-    // point is that the navbar's physical layout (menu button on the left, drawer opening
-    // from the left, account/login on the right) never mirrors when switching languages, so
-    // the site doesn't visually "jump" every time someone toggles AR/EN. Only the drawer's
-    // own text content flips reading direction internally (see dir on the drawer panel).
+    // point is that the navbar's physical layout never mirrors when switching languages, so
+    // the site doesn't visually "jump" every time someone toggles AR/EN. The two side groups
+    // below are deliberately ordered to match the site's native Arabic (RTL) reading layout —
+    // menu/language on the physical right, account/login on the physical left — and then kept
+    // permanently fixed in that arrangement regardless of language. Only the drawer's own text
+    // content flips reading direction internally (see dir on the drawer panel).
     <header dir="ltr" className="fixed top-3 left-0 right-0 z-50 w-full max-w-7xl mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
       <div className="bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl p-3 sm:px-6 shadow-2xl shadow-black flex items-center justify-between gap-3 relative">
-        
-        {/* Side 1: Menu & Navigation Triggers */}
-        <div className="flex items-center gap-1.5 relative z-10">
-          <button
-            ref={menuButtonRef}
-            onClick={() => setMenuDrawerOpen(!menuDrawerOpen)}
-            aria-label={isAr ? (menuDrawerOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (menuDrawerOpen ? 'Close menu' : 'Open menu')}
-            aria-expanded={menuDrawerOpen}
-            className={`group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 ${
-              menuDrawerOpen ? 'text-white' : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            <AnimatedMenuIcon open={menuDrawerOpen} />
-          </button>
 
-          {/* Language toggle — moved out of the drawer to sit right in the main bar, so
-              switching language is a single always-visible tap instead of needing the
-              drawer opened first. */}
-          <button
-            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-            title={isAr ? 'تبديل اللغة' : 'Switch language'}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold cursor-pointer transition-colors"
-          >
-            <Globe className="w-4 h-4" />
-            <span className="font-mono">{isAr ? 'AR' : 'EN'}</span>
-          </button>
-        </div>
-
-        {/* Center: Brand Logo — absolutely positioned against the bar (which is `relative`)
-            instead of just being the middle flex child, so it stays pixel-perfect centered
-            regardless of how wide the menu button or account button happen to be (their
-            widths differ by auth state and language, which would otherwise nudge it off-center). */}
-        <a
-          href="/"
-          onClick={(e) => handleNavClick('home', e)}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group z-10"
-        >
-          <NovaiqLogo size={34} showText={true} animated />
-        </a>
-
-        {/* Side 2: Account — before login, a single "Login" entry point (Google sign-in
-            covers both login and first-time sign-up in one click, so a separate "Sign Up"
-            button would just be a second path to the exact same screen); once signed in,
-            one "My Account" button (own contracts, or the control panel if the account is
-            an admin — AdminPage decides which). */}
+        {/* Side 1 (physical left): Account — before login, a single "Login" entry point
+            (Google sign-in covers both login and first-time sign-up in one click, so a
+            separate "Sign Up" button would just be a second path to the exact same screen);
+            once signed in, one "My Account" button (own contracts, or the control panel if
+            the account is an admin — AdminPage decides which). */}
         <div className="flex items-center gap-2 relative z-10">
           {isLoggedIn === undefined ? (
             <div
@@ -240,6 +203,45 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </div>
 
+        {/* Center: Brand Logo — absolutely positioned against the bar (which is `relative`)
+            instead of just being the middle flex child, so it stays pixel-perfect centered
+            regardless of how wide the menu button or account button happen to be (their
+            widths differ by auth state and language, which would otherwise nudge it off-center). */}
+        <a
+          href="/"
+          onClick={(e) => handleNavClick('home', e)}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group z-10"
+        >
+          <NovaiqLogo size={34} showText={true} animated />
+        </a>
+
+        {/* Side 2 (physical right): Menu & Language toggle */}
+        <div className="flex items-center gap-1.5 relative z-10">
+          {/* Language toggle — moved out of the drawer to sit right in the main bar, so
+              switching language is a single always-visible tap instead of needing the
+              drawer opened first. */}
+          <button
+            onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+            title={isAr ? 'تبديل اللغة' : 'Switch language'}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold cursor-pointer transition-colors"
+          >
+            <Globe className="w-4 h-4" />
+            <span className="font-mono">{isAr ? 'AR' : 'EN'}</span>
+          </button>
+
+          <button
+            ref={menuButtonRef}
+            onClick={() => setMenuDrawerOpen(!menuDrawerOpen)}
+            aria-label={isAr ? (menuDrawerOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (menuDrawerOpen ? 'Close menu' : 'Open menu')}
+            aria-expanded={menuDrawerOpen}
+            className={`group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 ${
+              menuDrawerOpen ? 'text-white' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <AnimatedMenuIcon open={menuDrawerOpen} />
+          </button>
+        </div>
+
       </div>
 
       {/* Floating Side Drawer Menu — deliberately a sibling of the glass pill above, not
@@ -251,7 +253,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div
           ref={drawerRef}
           dir={isAr ? 'rtl' : 'ltr'}
-          className="absolute top-full mt-3 left-3 sm:left-6 w-80 max-h-[75vh] overflow-y-auto bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in"
+          className="absolute top-full mt-3 right-3 sm:right-6 w-80 max-h-[75vh] overflow-y-auto bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in"
         >
           {/* No close control here — the toggle button already becomes an X once the
               drawer is open, so a second one here would just be the same action twice.
