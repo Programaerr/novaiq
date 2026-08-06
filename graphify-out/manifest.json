@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786031874.3945293,
-    "ast_hash": "38350c7023a9f1187f5d68bed94555b2",
+    "mtime": 1786032445.0419104,
+    "ast_hash": "da264fcc3fc14a9efcfb8b8c16f57d6b",
     "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
@@ -172,6 +172,16 @@
   "src/components/ToastHost.tsx": {
     "mtime": 1785806902.2014768,
     "ast_hash": "d8765df3829f2b8f2ac3ce9fa2408686",
+    "semantic_hash": ""
+  },
+  "src/components/sandbox/SandboxChrome.tsx": {
+    "mtime": 1786032303.4838789,
+    "ast_hash": "2319fed21009ec77f6f3f801f263314e",
+    "semantic_hash": ""
+  },
+  "src/data/sandboxDemoData.ts": {
+    "mtime": 1786032303.4797306,
+    "ast_hash": "cc8d29002b190e30f77f3fee16e4610c",
     "semantic_hash": ""
   },
   "src/data/templatesData.ts": {
@@ -362,16 +372,6 @@
   "src/assets/images/novaiq-logo-cropped.png": {
     "mtime": 1785756973.8125572,
     "ast_hash": "741dccb135d5ae4fec30ad40d16261c0",
-    "semantic_hash": ""
-  },
-  "src/components/sandbox/SandboxChrome.tsx": {
-    "mtime": 1786032303.4838789,
-    "ast_hash": "2319fed21009ec77f6f3f801f263314e",
-    "semantic_hash": ""
-  },
-  "src/data/sandboxDemoData.ts": {
-    "mtime": 1786032303.4797306,
-    "ast_hash": "cc8d29002b190e30f77f3fee16e4610c",
     "semantic_hash": ""
   }
 }

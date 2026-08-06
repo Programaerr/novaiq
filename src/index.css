@@ -166,30 +166,44 @@
    this one sits low-contrast against a dark toolbar so the definition has to come entirely
    from the shadow, not a border). Depth comes from two stacked outer shadows (a tight drop
    shadow + a wide heavily-blurred low-opacity ambient glow) plus a pair of 1px inset
-   highlight/shade lines standing in for a glossy top bevel — a gradient background would've
-   fought the spec's "pure white background" requirement, so the gloss lives in box-shadow
-   instead of the background itself. */
+   highlight/shade lines standing in for a glossy top bevel. Icon/text/badge use currentColor
+   so a single `color` change on hover flips them along with the background — one property to
+   invert instead of three. */
 .filter-pill-btn {
+  /* isolate: gives this button its own stacking context so the mist layer's z-index:-1
+     below only tucks behind the button's own opaque surface, not behind the whole toolbar
+     bar (which has no stacking context of its own and would otherwise swallow it). */
+  isolation: isolate;
   background: #FFFFFF;
+  color: #111111;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     inset 0 -1px 1px rgba(0, 0, 0, 0.05),
     0 8px 20px rgba(0, 0, 0, 0.22),
     0 0 36px rgba(0, 0, 0, 0.12);
-  transition: box-shadow 250ms ease, transform 250ms ease;
+  transition: background 250ms ease, color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
 }
 
-.filter-pill-btn:hover {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.05),
-    0 10px 26px rgba(0, 0, 0, 0.28),
-    0 0 46px rgba(0, 0, 0, 0.18);
-  transform: scale(1.03);
+/* Hover mist — a real blurred layer sitting outside the button's own box (inset: -28px),
+   not a box-shadow ring hugging the edge. filter:blur (not box-shadow) is what lets it read
+   as drifting fog rather than a static glow, and the keyframe drifts/breathes it continuously
+   while hovered instead of holding one fixed shape. */
+.filter-pill-btn::before {
+  content: '';
+  position: absolute;
+  inset: -28px;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15) 55%, transparent 75%);
+  filter: blur(18px);
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 300ms ease;
 }
 
-.filter-pill-btn:active {
-  transform: scale(0.98);
+.filter-pill-btn:hover::before {
+  opacity: 1;
+  animation: filter-pill-mist 2.4s ease-in-out infinite;
 }
 
 .filter-pill-btn.is-active {
@@ -198,6 +212,41 @@
     inset 0 -1px 1px rgba(0, 0, 0, 0.05),
     0 10px 26px rgba(0, 0, 0, 0.3),
     0 0 50px rgba(0, 0, 0, 0.22);
+}
+
+/* Hover inverts the whole pill (white/black -> black/white), so the ambient glow inverts
+   too — a black bloom would disappear against a black pill, a white one reads as the
+   surface catching light instead. Declared after .is-active so hover wins when both apply
+   (same selector specificity; source order breaks the tie). */
+.filter-pill-btn:hover {
+  background: #0A0A0A;
+  color: #FFFFFF;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.4),
+    0 10px 26px rgba(0, 0, 0, 0.45);
+  transform: scale(1.03);
+}
+
+.filter-pill-btn:active {
+  transform: scale(0.98);
+}
+
+@keyframes filter-pill-mist {
+  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.65; }
+  33% { transform: scale(1.18) translate(5px, -4px); opacity: 1; }
+  66% { transform: scale(1.08) translate(-5px, 4px); opacity: 0.8; }
+}
+
+.filter-pill-badge {
+  background: #111111;
+  color: #FFFFFF;
+  transition: background 250ms ease, color 250ms ease;
+}
+
+.filter-pill-btn:hover .filter-pill-badge {
+  background: #FFFFFF;
+  color: #111111;
 }
 
 .white-btn-glow:hover {

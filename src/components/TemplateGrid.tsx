@@ -248,10 +248,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 showFilterPanel || activeFiltersCount > 0 ? 'is-active' : ''
               }`}
             >
-              <Sparkle className="w-3.5 h-3.5 text-[#111111] fill-[#111111] shrink-0" />
-              <span className="font-semibold text-[#111111]">{currentLang === 'ar' ? 'تصفية' : 'Filter'}</span>
+              <Sparkle className="w-3.5 h-3.5 text-current fill-current shrink-0" />
+              <span className="font-semibold text-current">{currentLang === 'ar' ? 'تصفية' : 'Filter'}</span>
               {activeFiltersCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-[#111111] text-white text-[10px] font-black flex items-center justify-center">
+                <span className="filter-pill-badge w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center">
                   {activeFiltersCount}
                 </span>
               )}
