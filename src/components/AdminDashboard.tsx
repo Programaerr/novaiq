@@ -784,6 +784,7 @@ function PricingRow({
   const [title, setTitle] = useState(template.title);
   const [previewImage, setPreviewImage] = useState(template.previewImage);
   const [imageBroken, setImageBroken] = useState(false);
+  const [demoUrl, setDemoUrl] = useState(template.demoUrl || '');
   const [basePriceIQD, setBasePriceIQD] = useState(String(template.basePriceIQD));
   const [specPrices, setSpecPrices] = useState<Record<string, string>>(() =>
     Object.fromEntries(template.specificationsOptions.map((s) => [s.id, String(s.priceIQD)]))
@@ -794,10 +795,11 @@ function PricingRow({
   useEffect(() => {
     setTitle(template.title);
     setPreviewImage(template.previewImage);
+    setDemoUrl(template.demoUrl || '');
     setBasePriceIQD(String(template.basePriceIQD));
     setSpecPrices(Object.fromEntries(template.specificationsOptions.map((s) => [s.id, String(s.priceIQD)])));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [template.title, template.previewImage, template.basePriceIQD, template.specificationsOptions.map((s) => s.priceIQD).join(',')]);
+  }, [template.title, template.previewImage, template.demoUrl, template.basePriceIQD, template.specificationsOptions.map((s) => s.priceIQD).join(',')]);
 
   const handleSave = async () => {
     if (isSaving) return;
@@ -806,6 +808,7 @@ function PricingRow({
       await savePricingOverride(template.id, {
         title: title.trim() || template.title,
         previewImage: previewImage.trim() || template.previewImage,
+        demoUrl: demoUrl.trim(),
         basePriceIQD: Number(basePriceIQD) || 0,
         basePriceUSD: toUSD(Number(basePriceIQD) || 0),
         specPriceIQD: Object.fromEntries(Object.entries(specPrices).map(([id, v]) => [id, Number(v) || 0])),
@@ -883,6 +886,24 @@ function PricingRow({
                   placeholder="https://..."
                   className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
                 />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+                  {isAr ? 'رابط الموقع الفعلي (اختياري)' : 'Live Site URL (optional)'}
+                </label>
+                <input
+                  type="text"
+                  dir="ltr"
+                  value={demoUrl}
+                  onChange={(e) => setDemoUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
+                />
+                <p className="mt-1 text-[10px] text-zinc-500">
+                  {isAr
+                    ? 'إذا تركته فارغاً، لن يظهر زر "زيارة الموقع" في بطاقة القالب.'
+                    : 'Leave empty to hide the "Visit Site" button on the template card.'}
+                </p>
               </div>
             </div>
             {previewImage && !imageBroken ? (

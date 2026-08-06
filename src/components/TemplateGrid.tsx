@@ -14,7 +14,8 @@ import {
   ArrowUpDown,
   ChevronLeft,
   ChevronRight,
-  Info
+  Info,
+  ExternalLink
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
@@ -589,6 +590,22 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         <span>{getTranslation('selectForContract', currentLang)}</span>
                       </button>
                     </div>
+
+                    {/* Optional external live-site link — set by the admin per template
+                        (Pricing tab). Hidden entirely when empty, same "empty = hidden,
+                        filled = shown" convention as the footer social links. */}
+                    {template.demoUrl && (
+                      <a
+                        href={template.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full py-2 rounded-xl bg-transparent hover:bg-white/5 text-zinc-400 hover:text-white border border-dashed border-zinc-800 hover:border-zinc-600 text-[11px] font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>{currentLang === 'ar' ? 'زيارة الموقع الفعلي' : 'Visit Live Site'}</span>
+                      </a>
+                    )}
 
                   </div>
 
