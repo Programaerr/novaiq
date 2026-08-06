@@ -33,7 +33,8 @@ export const PageBackBar: React.FC<PageBackBarProps> = ({ language, title, onBac
       style={{ top: 'calc(var(--nav-bottom, 74px) + var(--stack-gap))' }}
       className="fixed left-0 right-0 z-40 w-full max-w-7xl mx-auto px-3 sm:px-6 pointer-events-none"
     >
-      <div className="page-in pointer-events-auto flex items-center gap-2 bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-2xl shadow-black">
+      {/* Shadowless for the same reason as the Navbar above it — see the note there. */}
+      <div className="page-in pointer-events-auto flex items-center gap-2 bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5">
         <button
           type="button"
           onClick={onBack}
