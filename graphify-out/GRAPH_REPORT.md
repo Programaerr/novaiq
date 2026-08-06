@@ -1,7 +1,7 @@
 # Graph Report - novaiq  (2026-08-06)
 
 ## Corpus Check
-- 69 files · ~101,145 words
+- 69 files · ~101,239 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6a51155d`
+- Built from commit: `8fba41d6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
