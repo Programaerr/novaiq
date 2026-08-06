@@ -275,7 +275,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 and stays lit while the field has focus (a text field is "active" for as long
                 as someone is typing in it, not just while the cursor rests on it). */}
             <div className="search-neu relative w-full sm:w-80 sm:ms-auto rounded-full">
-              <span className="nq-btn-beam" aria-hidden="true" />
+              <span className="nq-btn-beam nq-btn-beam--dark" aria-hidden="true" />
               <Search className="w-4 h-4 text-zinc-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
@@ -514,7 +514,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         }}
                         className="nq-btn w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
                       >
-                        <span className="nq-btn-beam" aria-hidden="true" />
+                        <span className="nq-btn-beam nq-btn-beam--dark" aria-hidden="true" />
                         <FileSignature className="w-3.5 h-3.5 text-black" />
                         <span>{getTranslation('selectForContract', currentLang)}</span>
                       </button>

@@ -442,6 +442,22 @@
   );
 }
 
+/* A white beam disappears on a white/pale surface (the search field, the white "select
+   template" button) — this swaps just the conic-gradient's color to black so the beam stays
+   visible there instead of vanishing into the body it's supposed to be tracing. */
+.nq-btn-beam--dark::before {
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    #111111 10%,
+    transparent 25%,
+    transparent 50%,
+    #111111 60%,
+    transparent 75%,
+    transparent
+  );
+}
+
 .nq-btn:hover .nq-btn-beam,
 .nq-btn:focus-visible .nq-btn-beam,
 .nq-btn:active .nq-btn-beam {
