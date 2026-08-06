@@ -393,6 +393,7 @@ export default function App() {
             <Suspense fallback={<PageLoader />}>
               <TemplateGrid
                 language={language}
+                currency={currency}
                 onSelectTemplateForContract={handleSelectTemplateForContract}
                 onOpenStandalonePreview={(template) => setStandalonePreviewTemplate(template)}
               />
@@ -405,6 +406,7 @@ export default function App() {
             <Suspense fallback={<PageLoader />}>
               <ContractBuilderGate
                 language={language}
+                currency={currency}
                 selectedTemplate={selectedTemplateForContract}
                 onContractGenerated={handleContractGenerated}
                 initialCustomFeaturesText={initialCustomFeaturesText}
@@ -417,7 +419,7 @@ export default function App() {
         {activePage === 'orders' && (
           <div className="page-in">
             <Suspense fallback={<PageLoader />}>
-              <AdminPage language={language} />
+              <AdminPage language={language} currency={currency} />
             </Suspense>
           </div>
         )}
