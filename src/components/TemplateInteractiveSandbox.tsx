@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Template } from '../types';
+import { Language } from '../lib/i18n';
+import { Currency, formatPrice } from '../lib/currency';
 import { PriceInput } from './PriceInput';
 import {
   X,
@@ -64,6 +66,8 @@ interface TemplateInteractiveSandboxProps {
   chromeless?: boolean;
   /** Starting palette, so a frame opens on the colour the customer already picked outside it. */
   initialThemeColor?: ThemeColor;
+  language?: Language;
+  currency?: Currency;
 }
 
 /** A row in the customer's in-site account area, built from whatever the template's own demo
