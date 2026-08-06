@@ -540,41 +540,8 @@
       "why": "bridges separate communities; peripheral node `FooterProps` unexpectedly reaches hub `Language`"
     }
   ],
-  "questions": [
-    {
-      "type": "bridge_node",
-      "question": "Why does `dependencies` connect `dependencies` to `ErrorBoundary`, `devDependencies`?",
-      "why": "High betweenness centrality (0.242) - this node is a cross-community bridge."
-    },
-    {
-      "type": "bridge_node",
-      "question": "Why does `generateContractPDF()` connect `CustomerDashboard.tsx` to `AdminDashboard.tsx`, `dependencies`?",
-      "why": "High betweenness centrality (0.143) - this node is a cross-community bridge."
-    },
-    {
-      "type": "bridge_node",
-      "question": "Why does `jspdf` connect `dependencies` to `CustomerDashboard.tsx`?",
-      "why": "High betweenness centrality (0.141) - this node is a cross-community bridge."
-    },
-    {
-      "type": "isolated_nodes",
-      "question": "What connects `name`, `private`, `version` to the rest of the system?",
-      "why": "129 weakly-connected nodes found - possible documentation gaps or missing edges."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `AdminDashboard.tsx` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.08140610545790934 - nodes in this community are weakly interconnected."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `CustomerDashboard.tsx` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.1207897793263647 - nodes in this community are weakly interconnected."
-    },
-    {
-      "type": "low_cohesion",
-      "question": "Should `TemplateInteractiveSandbox.tsx` be split into smaller, more focused modules?",
-      "why": "Cohesion score 0.05609756097560976 - nodes in this community are weakly interconnected."
-    }
-  ]
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
 }
