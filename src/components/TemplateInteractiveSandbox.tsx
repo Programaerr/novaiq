@@ -89,7 +89,7 @@ import {
   THEME_COLOR_HEX,
   THEME_COLOR_LABEL_AR,
 } from '../data/sandboxDemoData';
-import { ResponsivePreview, SiteMenuIcon, VIEWPORT_PRESETS } from './sandbox/SandboxChrome';
+import { ResponsivePreview, SiteMenuIcon, SiteTopBar, VIEWPORT_PRESETS } from './sandbox/SandboxChrome';
 import type { ViewportChoice } from './sandbox/SandboxChrome';
 
 // Re-exported for callers that reach the palette through the sandbox (TemplateLivePage).
@@ -1653,17 +1653,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               />
             </div>
 
-            {/* Glass header — logo lockup on one side, the sections menu on the other. */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-              <div className="group flex items-center gap-3">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark relative w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <Building2 className="w-5 h-5" />
-                </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {renderSiteTopBar(<Building2 className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
             {/* Dynamic Body */}
             {activeTab === 'home' && (
@@ -1912,20 +1902,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               aria-hidden="true"
             />
 
-            {/* Terminal-style Navigation Bar — sharp corners, monospace prompt instead of
-                a soft logo lockup */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3 sm:p-3.5 rounded-lg bg-black/60 backdrop-blur-xl border border-emerald-500/20 shadow-xl font-mono`}>
-              <div className="group flex items-center gap-2.5">
-                <span className="text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">~/Logo</span>
-                <div className={`navbar-logo-mark w-9 h-9 rounded-md ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg`}>
-                  <Terminal className="w-4.5 h-4.5" />
-                </div>
-                <span className="navbar-logo-word text-sm sm:text-base text-emerald-400 tracking-tight" dir="ltr">
-                  Design<span className="animate-pulse">▊</span>
-                </span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {/* Same bar as every other demo, but keeping this one's terminal prompt as its
+                wordmark — the shell aesthetic is this template's whole pitch. */}
+            {renderSiteTopBar(<Terminal className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, '~/Logo', true)}
 
             {techTab === 'home' && (
               <div className="space-y-4 sm:space-y-5 animate-fade-in">
@@ -2125,17 +2104,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
         return (
           <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-              <div className="group flex items-center gap-2.5">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <Building2 className="w-5 h-5" />
-                </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {renderSiteTopBar(<Building2 className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
             {realTab === 'home' && (
               <div className="space-y-4 sm:space-y-6 animate-fade-in">
@@ -2336,26 +2305,19 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-HEALTH-05':
       case 'galaxy-health': {
         const healthTab = ['home', 'doctors', 'booking', 'results', 'consultation'].includes(activeTab) ? activeTab : 'home';
+        const searchedDoctors = SAMPLE_DOCTORS.filter((d) => matchesSiteSearch(d.name, d.specialty));
 
         return (
           <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-              <div className="group flex items-center gap-2.5">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <Stethoscope className="w-5 h-5" />
-                </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {renderSiteTopBar(<Stethoscope className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
             {healthTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HEALTH-05'])}
 
-            {healthTab === 'doctors' && (
+            {healthTab === 'doctors' && searchedDoctors.length === 0 && renderNoSearchResults('أي طبيب')}
+
+            {healthTab === 'doctors' && searchedDoctors.length > 0 && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                {SAMPLE_DOCTORS.map((doc) => (
+                {searchedDoctors.map((doc) => (
                   <div key={doc.id} className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3 hover:border-white/25 transition-all">
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${doc.imageBg} shrink-0 flex items-center justify-center text-white font-bold text-lg`}>
                       {doc.name.replace('د. ', '').charAt(0)}
@@ -2497,21 +2459,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
       case 'NVQ-FOOD-07': {
         const foodTab = ['home', 'menu', 'order', 'reservation'].includes(activeTab) ? activeTab : 'home';
-        const filteredMenu = menuCategoryFilter === 'all' ? SAMPLE_MENU_ITEMS : SAMPLE_MENU_ITEMS.filter(m => m.category === menuCategoryFilter);
+        const filteredMenu = (menuCategoryFilter === 'all' ? SAMPLE_MENU_ITEMS : SAMPLE_MENU_ITEMS.filter(m => m.category === menuCategoryFilter))
+          .filter(m => matchesSiteSearch(m.name, m.description));
 
         return (
           <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-              <div className="group flex items-center gap-2.5">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <ChefHat className="w-5 h-5" />
-                </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {renderSiteTopBar(<ChefHat className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
             {foodTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-FOOD-07'])}
 
@@ -2534,6 +2487,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </button>
                   ))}
                 </div>
+
+                {filteredMenu.length === 0 && renderNoSearchResults('أي طبق')}
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-4`}>
                   {filteredMenu.map((item) => (
@@ -2653,21 +2608,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-EDU-08': {
         const eduTab = ['home', 'courses', 'enroll', 'dashboard'].includes(activeTab) ? activeTab : 'home';
         const selectedCourse = SAMPLE_COURSES.find(c => c.id === selectedCourseId) || SAMPLE_COURSES[0];
-        const filteredCourses = courseCategoryFilter === 'all' ? SAMPLE_COURSES : SAMPLE_COURSES.filter(c => c.category === courseCategoryFilter);
+        const filteredCourses = (courseCategoryFilter === 'all' ? SAMPLE_COURSES : SAMPLE_COURSES.filter(c => c.category === courseCategoryFilter))
+          .filter(c => matchesSiteSearch(c.title, c.instructor, c.level));
 
         return (
           <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-              <div className="group flex items-center gap-2.5">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <GraduationCap className="w-5 h-5" />
-                </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {renderSiteTopBar(<GraduationCap className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
             {eduTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-EDU-08'])}
 
@@ -2690,6 +2636,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                     </button>
                   ))}
                 </div>
+
+                {filteredCourses.length === 0 && renderNoSearchResults('أي دورة')}
 
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4`}>
                   {filteredCourses.map((course) => (
@@ -2796,26 +2744,19 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         const selectedRoom = SAMPLE_ROOMS.find(r => r.id === selectedRoomId) || SAMPLE_ROOMS[0];
         const nightsPreview = computeNights(checkInDate, checkOutDate);
         const latestBooking = hotelBookings[0];
+        const searchedRooms = SAMPLE_ROOMS.filter((r) => matchesSiteSearch(r.name, ...r.amenities));
 
         return (
           <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-              <div className="group flex items-center gap-2.5">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <Hotel className="w-5 h-5" />
-                </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {renderSiteTopBar(<Hotel className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
             {hotelTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-HOTEL-09'])}
 
-            {hotelTab === 'rooms' && (
+            {hotelTab === 'rooms' && searchedRooms.length === 0 && renderNoSearchResults('أي غرفة')}
+
+            {hotelTab === 'rooms' && searchedRooms.length > 0 && (
               <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
-                {SAMPLE_ROOMS.map((room) => (
+                {searchedRooms.map((room) => (
                   <div key={room.id} className="rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden hover:border-white/25 transition-all">
                     <div className={`h-24 bg-gradient-to-br ${room.imageBg} flex items-center justify-center`}>
                       <Hotel className="w-7 h-7 text-white/70" />
@@ -2916,22 +2857,37 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
         return (
           <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-              <div className="group flex items-center gap-2.5">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <Truck className="w-5 h-5" />
-                </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {renderSiteTopBar(<Truck className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
             {logisticsTab === 'home' && renderCompanyHome(COMPANY_PROFILES['NVQ-LOG-10'])}
 
             {logisticsTab === 'tracking' && (
               <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
+                {/* Header search feeds this tab rather than filtering a grid — a shipment is
+                    looked up, not browsed, so matches are offered as one-tap picks that fill
+                    the tracking field below. */}
+                {siteSearch.trim() && (
+                  <div className="space-y-2">
+                    {SAMPLE_SHIPMENTS.filter((s) => matchesSiteSearch(s.trackingNumber, s.origin, s.destination, s.status)).map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => {
+                          setTrackingInput(s.trackingNumber);
+                          setFoundShipment(s);
+                          setSiteSearch('');
+                          cosmicAudio.playTick();
+                        }}
+                        className="w-full text-right p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/25 transition-colors cursor-pointer flex items-center justify-between gap-3"
+                      >
+                        <span className="font-mono font-bold text-white">{s.trackingNumber}</span>
+                        <span className="text-[11px] text-slate-400 truncate">{s.origin} ← {s.destination}</span>
+                      </button>
+                    ))}
+                    {SAMPLE_SHIPMENTS.filter((s) => matchesSiteSearch(s.trackingNumber, s.origin, s.destination, s.status)).length === 0 &&
+                      renderNoSearchResults('أي شحنة')}
+                  </div>
+                )}
+
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -3043,17 +2999,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
         return (
           <div className="space-y-6 text-slate-100">
-            {/* Navigation Bar */}
-            <div className={`sticky top-1 sm:top-2 z-20 flex flex-row items-center justify-between gap-3 m-1 sm:m-2 p-3.5 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl`}>
-              <div className="group flex items-center gap-2.5">
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">Logo</span>
-                <div className={`navbar-logo-mark w-11 h-11 rounded-2xl ${themeStyle.primaryBg} flex items-center justify-center ${themeStyle.onPrimary} shrink-0 shadow-lg ring-1 ring-white/20`}>
-                  <Wallet className="w-5 h-5" />
-                </div>
-                <span className="navbar-logo-word font-extrabold text-sm sm:text-base text-white tracking-wide">Design</span>
-              </div>
-              {renderSiteMenuButton()}
-            </div>
+            {renderSiteTopBar(<Wallet className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
 
             {fintechTab === 'home' && (
               <div className="space-y-4 sm:space-y-6 animate-fade-in">
@@ -3254,6 +3200,57 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     }
   })();
 
+  // What this template's visitors would actually be searching for. Naming the real thing
+  // ("ابحث عن طبيب أو تخصص") rather than a generic "ابحث" is most of what makes each demo
+  // read as its own business instead of one shell restyled ten times.
+  const siteSearchPlaceholder = (() => {
+    switch (template.id) {
+      case 'NVQ-HEALTH-05': return 'ابحث عن طبيب أو تخصص';
+      case 'NVQ-HOTEL-09': return 'ابحث عن غرفة أو جناح';
+      case 'NVQ-EDU-08': return 'ابحث عن دورة أو مدرب';
+      case 'NVQ-LOG-10': return 'ابحث برقم الشحنة';
+      case 'NVQ-FOOD-07': return 'ابحث في قائمة الطعام';
+      case 'NVQ-REAL-04': return 'ابحث عن عقار أو منطقة';
+      case 'NVQ-FINTECH-06': return 'ابحث عن عملية أو بطاقة';
+      case 'NVQ-TECH-03': return 'ابحث في الوثائق والمزايا';
+      case 'NVQ-CORP-01': return 'ابحث عن خدمة أو مشروع';
+      default: return 'ابحث في الموقع';
+    }
+  })();
+
+  // One box, one piece of state — each template reads it against its own list further down,
+  // so a query typed in the clinic filters doctors while the same box in the hotel filters
+  // rooms. The store keeps `storeSearch` since its filtering is bound up with sort/category.
+  const [siteSearch, setSiteSearch] = useState('');
+
+  // Typing then switching sections would otherwise leave a section filtered by a query the
+  // visitor can no longer see the point of.
+  useEffect(() => {
+    setSiteSearch('');
+  }, [activeTab]);
+
+  const matchesSiteSearch = (...fields: Array<string | number | undefined | null>) => {
+    const q = siteSearch.trim().toLowerCase();
+    if (!q) return true;
+    return fields.some((f) => String(f ?? '').toLowerCase().includes(q));
+  };
+
+  /** Shown in place of a list the visitor's query filtered down to nothing. */
+  const renderNoSearchResults = (what: string) => (
+    <div className="p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-center space-y-2">
+      <p className="text-sm font-bold text-white">لا توجد نتائج مطابقة</p>
+      <p className="text-[11px] text-slate-400">
+        ما لقينا {what} يطابق «{siteSearch}». جرّب كلمة أخرى.
+      </p>
+      <button
+        onClick={() => setSiteSearch('')}
+        className="mt-1 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-[11px] font-bold text-white cursor-pointer transition-colors"
+      >
+        مسح البحث
+      </button>
+    </div>
+  );
+
   // Built from the template's own live demo state, so whatever the visitor just did on the
   // site — filled a cart, booked a room, enrolled in a course — is what their account shows.
   const accountRecords: AccountRecord[] = (() => {
@@ -3406,6 +3403,41 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         {activeNavLabel || 'القائمة'}
       </span>
     </button>
+  );
+
+  /**
+   * The store's cart sits in this slot; every other template gets the equivalent thing its own
+   * business would put there — the clinic's appointments, the hotel's bookings — reusing
+   * `recordsLabel` so the header and the account area can't drift apart into two names for the
+   * same list.
+   */
+  const renderSiteRecordsButton = () => (
+    <button
+      onClick={() => {
+        setAuthView(account ? 'account' : 'login');
+        cosmicAudio.playTick();
+      }}
+      className={`relative px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 hover:border-white/25 flex items-center gap-2.5 transition-all text-xs text-white font-extrabold cursor-pointer group shadow-lg ${isNarrowViewport ? '' : 'lg:px-3.5 lg:py-2'}`}
+    >
+      <User className="w-4 h-4 text-slate-300 group-hover:text-white transition-colors shrink-0" />
+      <span className={`hidden text-[11px] whitespace-nowrap ${isNarrowViewport ? '' : 'lg:inline'}`}>{recordsLabel}</span>
+    </button>
+  );
+
+  /** One call per template so each header stays a single line at its own call site. */
+  const renderSiteTopBar = (logoMark: React.ReactNode, logoName: string, logoNameLtr?: boolean) => (
+    <SiteTopBar
+      logoMark={logoMark}
+      logoName={logoName}
+      logoNameLtr={logoNameLtr}
+      logoMarkClass={`${themeStyle.primaryBg} ${themeStyle.onPrimary}`}
+      searchValue={siteSearch}
+      onSearchChange={setSiteSearch}
+      searchPlaceholder={siteSearchPlaceholder}
+      menuButton={renderSiteMenuButton()}
+      actionSlot={renderSiteRecordsButton()}
+      isNarrow={isNarrowViewport}
+    />
   );
 
   const renderSiteDrawer = () => {
