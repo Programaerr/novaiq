@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
-import { formatPrice } from '../lib/currency';
+import { formatPrice, Currency } from '../lib/currency';
 import { showToast } from '../lib/toast';
 import { loadContractDraft, saveContractDraft, clearContractDraft } from '../lib/contractDraft';
 
@@ -25,6 +25,7 @@ interface ContractBuilderProps {
   selectedTemplate: Template | null;
   onContractGenerated: (contract: ContractData) => void;
   language?: Language;
+  currency?: Currency;
   initialCustomFeaturesText?: string;
   initialPrimaryColor?: string;
   accountEmail?: string | null;
@@ -43,6 +44,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   selectedTemplate,
   onContractGenerated,
   language = 'ar' as Language,
+  currency = 'IQD',
   initialCustomFeaturesText,
   initialPrimaryColor,
   accountEmail,
@@ -596,7 +598,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </option>
                   {templatesData.map((t) => (
                     <option key={t.id} value={t.id}>
-                      {t.title} ({formatPrice(t.basePriceIQD, lang)})
+                      {t.title} ({formatPrice(t.basePriceIQD, lang, currency)})
                     </option>
                   ))}
                 </select>
@@ -678,7 +680,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                               <span className="text-xs font-medium text-zinc-200">{spec.label}</span>
                             </div>
                             <span className="text-xs font-mono font-bold text-white">
-                              +{formatPrice(spec.priceIQD || 0, lang)}
+                              +{formatPrice(spec.priceIQD || 0, lang, currency)}
                             </span>
                           </div>
                         );
@@ -873,16 +875,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 font-mono">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
                     <span>{isAr ? 'سعر القالب الأساسي:' : 'Base Template Price:'}</span>
-                    <span>{formatPrice(basePriceIQD, lang)}</span>
+                    <span>{formatPrice(basePriceIQD, lang, currency)}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-zinc-400">
                     <span>{isAr ? 'إجمالي الإضافات المختارة:' : 'Selected Add-ons Total:'}</span>
-                    <span>+{formatPrice(selectedSpecsPriceIQD, lang)}</span>
+                    <span>+{formatPrice(selectedSpecsPriceIQD, lang, currency)}</span>
                   </div>
                   <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-base font-bold text-white">
                     <span>{getTranslation('totalCostSummary', lang)}</span>
                     <span className="text-xl text-white font-extrabold">
-                      {formatPrice(totalPriceIQD, lang)}
+                      {formatPrice(totalPriceIQD, lang, currency)}
                     </span>
                   </div>
                 </div>
