@@ -123,10 +123,17 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
 
       {phoneTab === 'order' && (
         <div className="p-5 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 space-y-4 animate-fade-in text-xs">
-          <h4 className="text-sm font-bold text-white flex items-center gap-2">
-            <Smartphone className={`w-4 h-4 ${themeStyle.primaryText}`} />
-            <span>طلب: {selectedPhone.name}</span>
-          </h4>
+          <div className="flex items-center gap-3">
+            <img
+              src={selectedPhone.image}
+              alt={selectedPhone.name}
+              className={`w-14 h-14 rounded-xl object-cover border border-white/10 bg-gradient-to-b ${selectedPhone.imageBg}`}
+            />
+            <div>
+              <h4 className="text-sm font-bold text-white">طلب: {selectedPhone.name}</h4>
+              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/45">{selectedPhone.brand}</p>
+            </div>
+          </div>
 
           {/* Choices on one side, what they cost on the other — the pickers are narrow, and
               left alone in a full-width card they stranded half the row empty on desktop. */}
