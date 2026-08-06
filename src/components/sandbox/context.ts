@@ -17,12 +17,11 @@ export interface SandboxTheme {
   gradient: string;
   /** Text/icon colour that stays legible *on* primaryBg — monochrome's is white, so this flips to black there. */
   onPrimary: string;
-  /** Fill for a chip/roundel sitting *on top of* primaryBg, and the icon colour inside it.
-   *  A white roundel is the obvious choice on the mid-tone themes but disappears on
-   *  monochrome's white button, so the pair inverts there rather than each call site
-   *  re-deriving it. */
-  onPrimaryChipBg: string;
-  onPrimaryChipText: string;
+  /** A solid button sitting on a *light* surface (the white property cards), where primaryBg
+   *  can't be reused directly: the mid-tone palettes read fine on white, but monochrome's
+   *  primaryBg is itself white and would vanish into the card. Only monochrome differs. */
+  solidOnLight: string;
+  solidOnLightText: string;
 }
 
 export interface SandboxCtx {
@@ -78,8 +77,8 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         badgeBg: 'bg-purple-500/20 text-purple-300',
         gradient: 'from-purple-950/80 via-slate-900 to-slate-950',
         onPrimary: 'text-white',
-        onPrimaryChipBg: 'bg-white',
-        onPrimaryChipText: 'text-zinc-900',
+        solidOnLight: 'bg-purple-600 hover:bg-purple-500',
+        solidOnLightText: 'text-white',
       };
     case 'cyan':
       return {
@@ -89,8 +88,8 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         badgeBg: 'bg-cyan-500/20 text-cyan-300',
         gradient: 'from-cyan-950/80 via-slate-900 to-slate-950',
         onPrimary: 'text-white',
-        onPrimaryChipBg: 'bg-white',
-        onPrimaryChipText: 'text-zinc-900',
+        solidOnLight: 'bg-cyan-600 hover:bg-cyan-500',
+        solidOnLightText: 'text-white',
       };
     case 'amber':
       return {
@@ -100,8 +99,8 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         badgeBg: 'bg-amber-500/20 text-amber-300',
         gradient: 'from-amber-950/80 via-slate-900 to-slate-950',
         onPrimary: 'text-white',
-        onPrimaryChipBg: 'bg-white',
-        onPrimaryChipText: 'text-zinc-900',
+        solidOnLight: 'bg-amber-600 hover:bg-amber-500',
+        solidOnLightText: 'text-white',
       };
     case 'rose':
       return {
@@ -111,8 +110,8 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         badgeBg: 'bg-rose-500/20 text-rose-300',
         gradient: 'from-rose-950/80 via-slate-900 to-slate-950',
         onPrimary: 'text-white',
-        onPrimaryChipBg: 'bg-white',
-        onPrimaryChipText: 'text-zinc-900',
+        solidOnLight: 'bg-rose-600 hover:bg-rose-500',
+        solidOnLightText: 'text-white',
       };
     case 'monochrome':
       return {
@@ -126,8 +125,8 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         // is the one theme whose primaryBg is actually white, so that same white text/icon
         // goes invisible on it unless call sites swap in onPrimary instead.
         onPrimary: 'text-black',
-        onPrimaryChipBg: 'bg-zinc-900',
-        onPrimaryChipText: 'text-white',
+        solidOnLight: 'bg-zinc-900 hover:bg-black',
+        solidOnLightText: 'text-white',
       };
     case 'emerald':
     default:
@@ -138,8 +137,8 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         badgeBg: 'bg-emerald-500/20 text-emerald-300',
         gradient: 'from-emerald-950/80 via-slate-900 to-slate-950',
         onPrimary: 'text-white',
-        onPrimaryChipBg: 'bg-white',
-        onPrimaryChipText: 'text-zinc-900',
+        solidOnLight: 'bg-emerald-600 hover:bg-emerald-500',
+        solidOnLightText: 'text-white',
       };
   }
 }
