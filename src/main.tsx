@@ -28,3 +28,21 @@ createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </StrictMode>,
 );
+
+// Completes and retires the boot progress bar declared in index.html (see the note there).
+// The rAF pair waits for the frame after the one this render commits in, so the bar's 100%
+// and its fade start once there is genuinely something painted behind it — finishing it
+// synchronously here would clear it while the page was still blank.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    const bar = document.getElementById('boot-progress');
+    if (!bar) return;
+    bar.classList.add('is-done');
+    // Removed rather than left hidden, so a permanently-invisible fixed element isn't sitting
+    // over the top edge of every page for the rest of the session.
+    bar.addEventListener('transitionend', () => bar.remove(), { once: true });
+    // Fallback for the case where the opacity transition never fires (a background tab, or
+    // reduced-motion settings that collapse the duration to zero).
+    window.setTimeout(() => bar.remove(), 1500);
+  });
+});
