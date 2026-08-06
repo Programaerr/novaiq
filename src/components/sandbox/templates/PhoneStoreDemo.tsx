@@ -86,13 +86,15 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
       {phoneTab === 'phones' && searchedPhones.length > 0 && (
         // pt-16 on the grid and mt-14 on each card reserve the space the photo pokes up into;
         // without it the first row's product would be cut off by the section above.
-        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-x-4 gap-y-16 pt-16 animate-fade-in text-xs`}>
+        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-x-4 gap-y-16 pt-14 animate-fade-in text-xs`}>
           {searchedPhones.map((phone) => (
             // Light product card: the photo floats clear of the card's top edge, the stock line
             // runs vertically up the side, and the buy row anchors the bottom.
             <article
               key={phone.id}
-              className="group relative rounded-[28px] bg-zinc-100 px-5 pb-5 pt-24 shadow-2xl shadow-black/40"
+              // pt-32 clears the part of the photo that hangs *into* the card (h-36 minus the
+              // -top-12 overhang), so the title never runs under it.
+              className="group relative rounded-[28px] bg-zinc-100 px-5 pb-5 pt-32 shadow-2xl shadow-black/40"
             >
               <img
                 src={phone.image}
@@ -100,7 +102,7 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
                 loading="lazy"
                 // Physical left-1/2 on purpose: centring is symmetric, so a logical `start-`
                 // would only add an RTL flip that has to be undone again.
-                className="absolute -top-14 left-1/2 -translate-x-1/2 w-[60%] h-36 sm:h-40 object-cover rounded-2xl shadow-xl shadow-black/40 transition-transform duration-500 group-hover:-translate-y-1"
+                className="absolute -top-12 left-1/2 -translate-x-1/2 w-[60%] h-32 sm:h-36 object-cover rounded-2xl shadow-xl shadow-black/40 transition-transform duration-500 group-hover:-translate-y-1"
               />
 
               {/* Vertical stock rail, mirroring the reference's LIMITED STOCK edge label. */}
