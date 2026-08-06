@@ -410,6 +410,10 @@
     "semantic_hash": ""
   },
   "src/lib/useSignaturePad.ts": {
+<<<<<<< HEAD
+    "mtime": 1786032972.73359,
+    "ast_hash": "bf5eea1cd9fe092d0df08ccb72146cf8",
+=======
     "mtime": 1786032848.6212752,
     "ast_hash": "667899096b6fc157feacb9271ac5a499",
     "semantic_hash": ""
@@ -417,6 +421,7 @@
   "src/components/TemplateFilterPanel.tsx": {
     "mtime": 1786033313.4693303,
     "ast_hash": "b5bb167e30afb6c5ed7916c48c0fabc3",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
     "semantic_hash": ""
   },
   "src/lib/useScrollBehavior.ts": {

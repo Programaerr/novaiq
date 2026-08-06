@@ -1025,8 +1025,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_admindashboard",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "admindashboard.tsx"
     },
     {
@@ -1051,8 +1051,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_tab",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "tab"
     },
     {
@@ -1063,8 +1063,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_admindashboard",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "admindashboard()"
     },
     {
@@ -1075,7 +1075,11 @@
       "_origin": "ast",
       "id": "src_components_adminlogin",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "adminlogin.tsx"
     },
     {
@@ -1088,7 +1092,11 @@
       "_origin": "ast",
       "id": "src_components_adminlogin_adminloginprops",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "adminloginprops"
     },
     {
@@ -1100,7 +1108,11 @@
       "_origin": "ast",
       "id": "src_components_adminlogin_googleicon",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "googleicon()"
     },
     {
@@ -1112,7 +1124,11 @@
       "_origin": "ast",
       "id": "src_components_adminlogin_adminlogin",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "adminlogin()"
     },
     {
@@ -1123,7 +1139,11 @@
       "_origin": "ast",
       "id": "src_components_adminpage",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "adminpage.tsx"
     },
     {
@@ -1148,7 +1168,11 @@
       "_origin": "ast",
       "id": "src_components_adminpage_adminpage",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "adminpage()"
     },
     {
@@ -1290,8 +1314,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_contractprintdocument_contractprintdocumentprops",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "contractprintdocumentprops"
     },
     {
@@ -1323,8 +1347,18 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_cookieconsent",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "App.tsx",
+=======
+      "community": 11,
+      "community_name": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "cookieconsent.tsx"
     },
     {
@@ -1336,8 +1370,18 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_cookieconsent_cookieconsentprops",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "App.tsx",
+=======
+      "community": 11,
+      "community_name": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "cookieconsentprops"
     },
     {
@@ -1348,8 +1392,18 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_cookieconsent_cookieconsent",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "App.tsx",
+=======
+      "community": 11,
+      "community_name": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "cookieconsent()"
     },
     {
@@ -1454,8 +1508,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_customerdashboard_customerdashboard",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "customerdashboard()"
     },
     {
@@ -1599,8 +1653,18 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_footer",
+<<<<<<< HEAD
       "community": 10,
       "community_name": "showToast",
+=======
+<<<<<<< HEAD
+      "community": 10,
+      "community_name": "showToast",
+=======
+      "community": 3,
+      "community_name": "Language",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "footer.tsx"
     },
     {
@@ -1612,8 +1676,18 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_footer_footerprops",
+<<<<<<< HEAD
       "community": 10,
       "community_name": "showToast",
+=======
+<<<<<<< HEAD
+      "community": 10,
+      "community_name": "showToast",
+=======
+      "community": 3,
+      "community_name": "Language",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "footerprops"
     },
     {
@@ -1671,8 +1745,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialog.tsx"
     },
     {
@@ -1684,8 +1758,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog_logoutconfirmdialogprops",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialogprops"
     },
     {
@@ -1696,8 +1770,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog_logoutconfirmdialog",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialog()"
     },
     {
@@ -1707,8 +1781,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_milestonetimeline",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "audio.ts",
+=======
       "community": 3,
       "community_name": "Language",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "milestonetimeline.tsx"
     },
     {
@@ -1720,8 +1799,13 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimelineprops",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "audio.ts",
+=======
       "community": 3,
       "community_name": "Language",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "milestonetimelineprops"
     },
     {
@@ -1732,8 +1816,18 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimeline",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "audio.ts",
+=======
+      "community": 3,
+      "community_name": "Language",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "milestonetimeline()"
     },
     {
@@ -1886,8 +1980,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_policypage",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypage.tsx"
     },
     {
@@ -1899,8 +1993,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_policypage_policypageprops",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypageprops"
     },
     {
@@ -1912,8 +2006,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_policypage_section",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "section"
     },
     {
@@ -1923,8 +2017,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_policypage_privacy_sections",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "privacy_sections"
     },
     {
@@ -1934,8 +2028,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_components_policypage_terms_sections",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "terms_sections"
     },
     {
@@ -1946,8 +2040,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_policypage_policypage",
-      "community": 3,
-      "community_name": "Language",
+      "community": 17,
+      "community_name": "PolicyPage.tsx",
       "norm_label": "policypage()"
     },
     {
@@ -2252,7 +2346,11 @@
       "_origin": "ast",
       "id": "src_components_admin_memberstab",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "memberstab.tsx"
     },
     {
@@ -2264,7 +2362,11 @@
       "_origin": "ast",
       "id": "src_components_admin_memberstab_memberstab",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "memberstab()"
     },
     {
@@ -2367,7 +2469,11 @@
       "_origin": "ast",
       "id": "src_components_admin_teamtab",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "teamtab.tsx"
     },
     {
@@ -2379,7 +2485,11 @@
       "_origin": "ast",
       "id": "src_components_admin_teamtab_teamtab",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "teamtab()"
     },
     {
@@ -2412,8 +2522,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admin_shared_stattile",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 12,
+      "community_name": "PricingTab.tsx",
       "norm_label": "stattile()"
     },
     {
@@ -2962,7 +3072,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "adminusers.ts"
     },
     {
@@ -2975,7 +3089,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_manageduser",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "manageduser"
     },
     {
@@ -2987,7 +3105,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_authedfetch",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "authedfetch()"
     },
     {
@@ -2999,7 +3121,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listallusers",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "listallusers()"
     },
     {
@@ -3011,7 +3137,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listregularsubscribers",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "listregularsubscribers()"
     },
     {
@@ -3023,7 +3153,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_setuserdisabled",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "setuserdisabled()"
     },
     {
@@ -3035,7 +3169,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_deleteuseraccount",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "deleteuseraccount()"
     },
     {
@@ -3048,7 +3186,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_teammember",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "teammember"
     },
     {
@@ -3060,7 +3202,11 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listteammembers",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "listteammembers()"
     },
     {
@@ -3070,8 +3216,13 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_audio",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "audio.ts",
+=======
       "community": 3,
       "community_name": "Language",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "audio.ts"
     },
     {
@@ -3084,7 +3235,11 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine",
       "community": 7,
+<<<<<<< HEAD
+      "community_name": "audio.ts",
+=======
       "community_name": "CosmicAudioEngine",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "cosmicaudioengine"
     },
     {
@@ -3096,7 +3251,11 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playwarp",
       "community": 7,
+<<<<<<< HEAD
+      "community_name": "audio.ts",
+=======
       "community_name": "CosmicAudioEngine",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": ".playwarp()"
     },
     {
@@ -3108,7 +3267,11 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playping",
       "community": 7,
+<<<<<<< HEAD
+      "community_name": "audio.ts",
+=======
       "community_name": "CosmicAudioEngine",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": ".playping()"
     },
     {
@@ -3120,7 +3283,11 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playtick",
       "community": 7,
+<<<<<<< HEAD
+      "community_name": "audio.ts",
+=======
       "community_name": "CosmicAudioEngine",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": ".playtick()"
     },
     {
@@ -3132,7 +3299,11 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_toggleambient",
       "community": 7,
+<<<<<<< HEAD
+      "community_name": "audio.ts",
+=======
       "community_name": "CosmicAudioEngine",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": ".toggleambient()"
     },
     {
@@ -3144,7 +3315,11 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_isambienton",
       "community": 7,
+<<<<<<< HEAD
+      "community_name": "audio.ts",
+=======
       "community_name": "CosmicAudioEngine",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": ".isambienton()"
     },
     {
@@ -3154,8 +3329,13 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudio",
+<<<<<<< HEAD
+      "community": 7,
+      "community_name": "audio.ts",
+=======
       "community": 3,
       "community_name": "Language",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "cosmicaudio"
     },
     {
@@ -3166,7 +3346,11 @@
       "_origin": "ast",
       "id": "src_lib_auth",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "auth.ts"
     },
     {
@@ -3177,7 +3361,11 @@
       "_origin": "ast",
       "id": "src_lib_auth_googleprovider",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "googleprovider"
     },
     {
@@ -3189,7 +3377,11 @@
       "_origin": "ast",
       "id": "src_lib_auth_loginwithgoogle",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "loginwithgoogle()"
     },
     {
@@ -3200,8 +3392,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_auth_logoutaccount",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutaccount()"
     },
     {
@@ -3213,7 +3405,11 @@
       "_origin": "ast",
       "id": "src_lib_auth_subscribetoauthstate",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "subscribetoauthstate()"
     },
     {
@@ -3237,7 +3433,11 @@
       "_origin": "ast",
       "id": "src_lib_auth_normalizeemail",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "normalizeemail()"
     },
     {
@@ -3249,7 +3449,11 @@
       "_origin": "ast",
       "id": "src_lib_auth_isadminemail",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "isadminemail()"
     },
     {
@@ -3261,7 +3465,11 @@
       "_origin": "ast",
       "id": "src_lib_auth_addadminemail",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "addadminemail()"
     },
     {
@@ -3273,7 +3481,11 @@
       "_origin": "ast",
       "id": "src_lib_auth_autherrormessage",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "autherrormessage()"
     },
     {
@@ -3436,8 +3648,18 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_consent",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "App.tsx",
+=======
+      "community": 11,
+      "community_name": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "consent.ts"
     },
     {
@@ -3449,8 +3671,18 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_consent_consentstatus",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "App.tsx",
+=======
+      "community": 11,
+      "community_name": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "consentstatus"
     },
     {
@@ -3461,8 +3693,18 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_getconsentstatus",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "App.tsx",
+=======
+      "community": 11,
+      "community_name": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "getconsentstatus()"
     },
     {
@@ -3473,8 +3715,18 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_setconsentstatus",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "App.tsx",
+=======
+      "community": 11,
+      "community_name": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "setconsentstatus()"
     },
     {
@@ -3485,8 +3737,18 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_consent_istrackingallowed",
+<<<<<<< HEAD
       "community": 1,
       "community_name": "App.tsx",
+=======
+<<<<<<< HEAD
+      "community": 1,
+      "community_name": "App.tsx",
+=======
+      "community": 11,
+      "community_name": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "istrackingallowed()"
     },
     {
@@ -3591,8 +3853,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_lib_currency_currency_storage_key",
-      "community": 1,
-      "community_name": "App.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "currency_storage_key"
     },
     {
@@ -3638,8 +3900,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_firebase",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "firebase.ts"
     },
     {
@@ -3649,8 +3911,18 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_lib_firebase_db",
+<<<<<<< HEAD
       "community": 10,
       "community_name": "showToast",
+=======
+<<<<<<< HEAD
+      "community": 10,
+      "community_name": "showToast",
+=======
+      "community": 9,
+      "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
       "norm_label": "db"
     },
     {
@@ -3661,7 +3933,11 @@
       "_origin": "ast",
       "id": "src_lib_firebase_auth",
       "community": 9,
+<<<<<<< HEAD
+      "community_name": "AdminDashboard.tsx",
+=======
       "community_name": "auth.ts",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
       "norm_label": "auth"
     },
     {
@@ -3672,8 +3948,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_getdeletedidentifiers",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "getdeletedidentifiers()"
     },
     {
@@ -3684,8 +3960,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_markasdeleted",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "markasdeleted()"
     },
     {
@@ -3696,8 +3972,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_unmarkdeleted",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "unmarkdeleted()"
     },
     {
@@ -3708,8 +3984,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_savecontracttofirebase",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "savecontracttofirebase()"
     },
     {
@@ -3732,8 +4008,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_fetchcontractsfromfirebase",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "fetchcontractsfromfirebase()"
     },
     {
@@ -3744,8 +4020,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_subscribetocontracts",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "subscribetocontracts()"
     },
     {
@@ -3756,8 +4032,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_firebase_deletecontractfromfirebase",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 9,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "deletecontractfromfirebase()"
     },
     {
@@ -4454,8 +4730,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_types",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "types.ts"
     },
     {
@@ -4467,8 +4743,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_templatefeature",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "templatefeature"
     },
     {
@@ -4493,8 +4769,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_contractdata",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "contractdata"
     },
     {
@@ -4506,8 +4782,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_types_aiconsultationstate",
-      "community": 0,
-      "community_name": "ContractsTab.tsx",
+      "community": 3,
+      "community_name": "Language",
       "norm_label": "aiconsultationstate"
     },
     {
@@ -16880,5 +17156,13 @@
     }
   ],
   "hyperedges": [],
+<<<<<<< HEAD
   "built_at_commit": "7dc09dc088ec8773da65bca163b5853829e5991c"
+=======
+<<<<<<< HEAD
+  "built_at_commit": "5f1a0bd1ee55aff8029d0ef227bd47e4ed411a69"
+=======
+  "built_at_commit": "8846a59ac6fe16a8afbb77db87f3815a0a83d9bf"
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
 }

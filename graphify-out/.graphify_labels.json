@@ -6,10 +6,18 @@
   "4": "devDependencies",
   "5": "dependencies",
   "6": "What You Must Do When Invoked",
+<<<<<<< HEAD
+  "7": "audio.ts",
+  "8": "compilerOptions",
+  "9": "AdminDashboard.tsx",
+  "10": "showToast",
+  "11": "ErrorBoundary",
+=======
   "7": "CosmicAudioEngine",
   "8": "compilerOptions",
   "9": "auth.ts",
   "10": "showToast",
+<<<<<<< HEAD
   "11": "scripts",
   "12": "package.json",
   "13": "pageTranslator.ts",
@@ -17,6 +25,19 @@
   "15": "graphify reference: extra exports and benchmark",
   "16": "vite",
   "17": "ErrorBoundary",
+=======
+  "11": "CookieConsent.tsx",
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+  "12": "PricingTab.tsx",
+  "13": "pageTranslator.ts",
+  "14": "server.ts",
+  "15": "graphify reference: extra exports and benchmark",
+  "16": "scripts",
+<<<<<<< HEAD
+  "17": "PolicyPage.tsx",
+=======
+>>>>>>> 7dc09dc088ec8773da65bca163b5853829e5991c
+>>>>>>> 02cd2eba30b2facd84290087c8bb6b014b9b5282
   "18": "build-translations.mjs",
   "19": "graphify reference: query, path, explain",
   "20": "graphify reference: add a URL and watch a folder",
