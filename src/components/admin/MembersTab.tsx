@@ -1,5 +1,5 @@
 // Subscriber management: the non-admin account list, with disable and delete controls.
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Trash2,
   Search,

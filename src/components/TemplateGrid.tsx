@@ -22,6 +22,7 @@ import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, IQD_PER_USD, Currency } from '../lib/currency';
 import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
+import { TemplateFilterPanel } from './TemplateFilterPanel';
 
 // The interactive sandbox is the single largest component in the app (per-template demo logic
 // for all 10 templates). Loading it only when a customer actually opens a preview keeps it out
@@ -279,128 +280,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             </div>
           </div>
 
-          {/* Floating dropdown — a separate glass card positioned over whatever's below it
-              (never in normal flow), closed by clicking outside it or pressing Escape (see
-              the effect above), same idiom as the navbar's own drawer. Options are stacked
-              in one clear order (category → budget → sort) with dividers between them,
-              instead of three squeezed side-by-side columns fighting for space. */}
-          <AnimatePresence>
-            {showFilterPanel && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-                className="absolute top-full inset-x-0 mt-2 z-30 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50 overflow-hidden"
-              >
-                <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5 space-y-5">
-
-                  {activeFiltersCount > 0 && (
-                    <div className="flex justify-end -mb-1">
-                      <button
-                        onClick={resetAllFilters}
-                        className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
-                        <span>{currentLang === 'ar' ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Category */}
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-300 mb-2.5">
-                      {currentLang === 'ar' ? 'الأقسام والتصنيفات' : 'Category'}
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {categories.map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() => {
-                            setSelectedCategory(cat.id);
-                            cosmicAudio.playPing();
-                          }}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                            selectedCategory === cat.id
-                              ? 'bg-white/15 text-white border border-white/40 glow-white font-bold'
-                              : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
-                          }`}
-                        >
-                          {cat.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Budget */}
-                  <div className="pt-4 border-t border-white/10">
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-bold text-zinc-300">
-                        {currentLang === 'ar' ? 'الميزانية القصوى' : 'Maximum Budget'}
-                      </label>
-                      <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-xs font-bold border border-white/20 glow-white">
-                        {maxPriceUSD >= 10000
-                          ? (currentLang === 'ar' ? 'الكل (حتى $10,000+)' : 'All (Up to $10k+)')
-                          : `$${maxPriceUSD.toLocaleString()}`}
-                      </span>
-                    </div>
-
-                    <div className="space-y-3">
-                      <input
-                        type="range"
-                        min={300}
-                        max={10000}
-                        step={100}
-                        value={maxPriceUSD}
-                        onChange={(e) => {
-                          setMaxPriceUSD(Number(e.target.value));
-                        }}
-                        className="w-full accent-white cursor-pointer h-2 bg-white/10 rounded-lg appearance-none"
-                      />
-                      <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                        <span>$300</span>
-                        <span>$5,000</span>
-                        <span>$10,000</span>
-                      </div>
-                      <div className="text-[11px] text-zinc-400 text-center font-sans">
-                        {currentLang === 'ar'
-                          ? `تصفية القوالب بميزانية حتى: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`
-                          : `Filter up to: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sort — same chip language as Category, not a separate stacked-button
-                      list, so the two read as one consistent choice pattern. */}
-                  <div className="pt-4 border-t border-white/10">
-                    <label className="block text-xs font-bold text-zinc-300 mb-2.5">
-                      {currentLang === 'ar' ? 'ترتيب النتائج حسب' : 'Sort By'}
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {sortOptions.map((so) => (
-                        <button
-                          key={so.id}
-                          onClick={() => {
-                            setSortBy(so.id);
-                            cosmicAudio.playPing();
-                          }}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
-                            sortBy === so.id
-                              ? 'bg-white/15 text-white border border-white/40 glow-white font-bold'
-                              : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-white/25 hover:text-white'
-                          }`}
-                        >
-                          <ArrowUpDown className="w-3 h-3 shrink-0" />
-                          <span>{so.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <TemplateFilterPanel
+            open={showFilterPanel}
+            currentLang={currentLang}
+            currency={currency}
+            categories={categories}
+            sortOptions={sortOptions}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            maxPriceUSD={maxPriceUSD}
+            setMaxPriceUSD={setMaxPriceUSD}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            activeFiltersCount={activeFiltersCount}
+            resetAllFilters={resetAllFilters}
+          />
         </div>
 
         {/* Templates Coverflow — clicking any off-center card brings it to focus (same
