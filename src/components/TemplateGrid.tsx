@@ -33,6 +33,8 @@ interface TemplateGridProps {
   onOpenStandalonePreview?: (template: Template) => void;
   language?: Language;
   currency?: Currency;
+  /** Card to open on, if any — used to come back to the template a preview was opened from. */
+  focusTemplateId?: string | null;
 }
 
 export const TemplateGrid: React.FC<TemplateGridProps> = ({
@@ -40,6 +42,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   onOpenStandalonePreview,
   language = 'ar',
   currency = 'IQD',
+  focusTemplateId = null,
 }) => {
   const currentLang: Language = (language === 'en' ? 'en' : 'ar');
   // Static catalogue merged with any live admin price overrides — same shape and name as
@@ -160,6 +163,20 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   useEffect(() => {
     setActiveIndex(0);
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery]);
+
+  // Opening a standalone preview unmounts this whole component (App swaps the tree), so
+  // coming back would otherwise drop the visitor on the first card again rather than the one
+  // they were just looking at. Declared after the reset above so that on a fresh mount this
+  // runs second and wins; the `once` guard keeps it from fighting later filter changes, which
+  // should still snap to the first result.
+  const didRestoreFocus = useRef(false);
+  useEffect(() => {
+    if (didRestoreFocus.current || !focusTemplateId) return;
+    const idx = filteredTemplates.findIndex((t) => t.id === focusTemplateId);
+    if (idx === -1) return;
+    didRestoreFocus.current = true;
+    setActiveIndex(idx);
+  }, [focusTemplateId, filteredTemplates]);
 
   // Wraps rather than clamping — arrows/swipes loop continuously past either end, same
   // as the auto-advance, instead of stopping dead at the first/last card.

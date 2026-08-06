@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "src/App.tsx": {
-    "mtime": 1786034634.0528572,
-    "ast_hash": "2ee65b515bd9039d7e9559c9ea1b8fc1",
+    "mtime": 1786036501.7622647,
+    "ast_hash": "86b5298eafd55570ba2f3334991d8bfa",
     "semantic_hash": ""
   },
   "src/components/AboutSection.tsx": {
@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786034657.4961333,
-    "ast_hash": "bcc71b598a83ef13a96fd6fabacfa21a",
+    "mtime": 1786036546.5672042,
+    "ast_hash": "4690bdeeef37af3cf49f6430049ee703",
     "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
