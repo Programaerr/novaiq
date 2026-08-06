@@ -393,7 +393,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             aria-label={currentLang === 'ar' ? 'التالي' : 'Next'}
             className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 ltr:rotate-180" />
           </button>
 
           <div
@@ -590,7 +590,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             aria-label={currentLang === 'ar' ? 'السابق' : 'Previous'}
             className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 ltr:rotate-180" />
           </button>
         </div>
 
