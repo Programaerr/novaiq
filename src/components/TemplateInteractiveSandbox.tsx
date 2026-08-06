@@ -4601,10 +4601,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const livePreviewSrc = `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${themeColor}&name=${encodeURIComponent(template.title)}`;
 
   const openInNewTab = () => {
+    // Deliberately no `noopener` here — same-origin, and the opened tab uses `window.opener`
+    // to hand control back to (and close itself in favour of) this tab once the customer is
+    // done previewing, instead of leaving two full copies of the app open at once.
     window.open(
       `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${themeColor}&name=${encodeURIComponent(template.title)}`,
-      '_blank',
-      'noopener,noreferrer'
+      '_blank'
     );
     cosmicAudio.playPing();
   };
