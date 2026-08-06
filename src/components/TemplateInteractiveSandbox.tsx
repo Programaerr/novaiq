@@ -3801,13 +3801,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-3 pt-1`}>
                   <div className="bg-black/30 backdrop-blur-sm p-3.5 sm:p-4 rounded-xl border border-white/10">
                     <span className="text-xs text-slate-400 block mb-1">الرصيد الكلي المتوفر:</span>
-                    <div className={`text-xl sm:text-2xl font-bold ${themeStyle.primaryText} font-mono`}>14,250,000 د.ع</div>
+                    <div className={`text-xl sm:text-2xl font-bold ${themeStyle.primaryText} font-mono`}>{`14,250,000 ${CUR}`}</div>
                   </div>
                   <div className="bg-black/30 backdrop-blur-sm p-3.5 sm:p-4 rounded-xl border border-white/10 flex flex-col justify-between space-y-2">
                     <span className="text-xs text-slate-400 block">آخر عملية تحويل:</span>
                     <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
                       <ArrowUpRight className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>تم استلام 500,000 د.ع</span>
+                      <span>{language === 'ar' ? 'تم استلام 500,000 د.ع' : 'Received 500,000 IQD'}</span>
                     </div>
                     <span className="text-[10px] text-slate-500 font-mono">رمز المعاملة: #TX-984211</span>
                   </div>
