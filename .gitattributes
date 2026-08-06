@@ -1,0 +1,17 @@
+# graphify's outputs are generated artifacts that both of us regenerate locally, so every
+# pull tried to text-merge two independently-rebuilt graphs and injected conflict markers
+# straight into them — twice in one evening, each time leaving graph.json unparseable and the
+# `graphify query` path dead until it was rebuilt by hand.
+#
+# `-merge` makes git leave our own version in place and just flag the conflict instead of
+# splicing both sides together. The correct resolution for a generated file was never a
+# line-by-line merge anyway: rerun graphify after the merge and commit the fresh output.
+graphify-out/graph.json            -merge -diff
+graphify-out/graph.html            -merge -diff
+graphify-out/GRAPH_REPORT.md       -merge
+graphify-out/manifest.json         -merge
+graphify-out/.graphify_labels.json -merge
+graphify-out/.graphify_labels.json.sig -merge
+
+# Lockfiles have the same problem for the same reason.
+package-lock.json -merge
