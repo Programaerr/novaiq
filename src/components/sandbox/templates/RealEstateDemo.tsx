@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   ArrowUpLeft,
   CheckCircle2,
   Building2,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { cosmicAudio } from '../../../lib/audio';
 import type { SandboxCtx } from '../context';
@@ -34,6 +36,19 @@ export function RealEstateDemo({ ctx, bookingDate, propertyVisits, selectedPrope
   // Which photo each listing is showing. Purely presentational, so it stays here rather than
   // in the shell's state alongside the booking data the account page has to read.
   const [propertyShot, setPropertyShot] = useState<Record<string, number>>({});
+
+  // Only ever one finger paging one gallery at a time, so a single ref covers every card.
+  const swipeStartX = useRef<number | null>(null);
+
+  /** Moves a listing's gallery by `delta`, wrapping at both ends so it never dead-ends. */
+  const stepShot = (prop: { id: string; images: string[] }, delta: number) => {
+    setPropertyShot(prev => {
+      const n = prop.images.length;
+      const current = prev[prop.id] ?? 0;
+      return { ...prev, [prop.id]: (current + delta + n) % n };
+    });
+    cosmicAudio.playTick();
+  };
 
   // Each listing carries several photos rather than one, so the dots under the image are a
   // real gallery the visitor can page through — the same control on the reference card, but
@@ -149,7 +164,20 @@ export function RealEstateDemo({ ctx, bookingDate, propertyVisits, selectedPrope
       <div key={prop.id} className="rounded-[26px] bg-white p-2.5 shadow-2xl shadow-black/40 flex flex-col hover:-translate-y-1 transition-transform duration-300">
         {/* Photo — the card's own padding is what leaves the white border showing around it,
             so the image is inset rather than bleeding to the card edge. */}
-        <div className="relative h-52 rounded-[20px] overflow-hidden bg-zinc-200">
+        <div
+          className="group/gal relative h-52 rounded-[20px] overflow-hidden bg-zinc-200 touch-pan-y"
+          onTouchStart={(e) => { swipeStartX.current = e.touches[0].clientX; }}
+          onTouchEnd={(e) => {
+            const start = swipeStartX.current;
+            swipeStartX.current = null;
+            // Below the threshold it was a tap, or a vertical scroll that drifted sideways —
+            // paging the gallery on either of those makes the card feel twitchy to scroll past.
+            if (start === null) return;
+            const dx = e.changedTouches[0].clientX - start;
+            if (Math.abs(dx) < 40) return;
+            stepShot(prop, dx < 0 ? 1 : -1);
+          }}
+        >
           <img
             key={prop.images[shot]}
             src={prop.images[shot]}
@@ -167,6 +195,32 @@ export function RealEstateDemo({ ctx, bookingDate, propertyVisits, selectedPrope
           <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
             <Building2 className="w-5 h-5 text-zinc-900" />
           </div>
+
+          {/* Arrows are the pointer-device half of this control and would only sit there
+              unused on a phone, where the swipe above already does the job — so they're
+              desktop-only, and stay faded until the card is hovered rather than covering the
+              photo permanently. Positioned with start/end so "next" lands on the side the
+              language actually reads toward. */}
+          {!isNarrowViewport && (
+            <>
+              <button
+                type="button"
+                aria-label="الصورة السابقة"
+                onClick={(e) => { e.stopPropagation(); stepShot(prop, -1); }}
+                className="absolute start-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/45 hover:bg-black/70 backdrop-blur-md text-white flex items-center justify-center cursor-pointer opacity-0 group-hover/gal:opacity-100 transition-opacity"
+              >
+                <ChevronRight className="w-4 h-4 ltr:rotate-180" />
+              </button>
+              <button
+                type="button"
+                aria-label="الصورة التالية"
+                onClick={(e) => { e.stopPropagation(); stepShot(prop, 1); }}
+                className="absolute end-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/45 hover:bg-black/70 backdrop-blur-md text-white flex items-center justify-center cursor-pointer opacity-0 group-hover/gal:opacity-100 transition-opacity"
+              >
+                <ChevronLeft className="w-4 h-4 ltr:rotate-180" />
+              </button>
+            </>
+          )}
 
           {/* Real gallery control, not decoration — stops at the image so tapping a dot never
               also fires the card's booking action. */}
