@@ -145,7 +145,7 @@ export const TemplateLivePage: React.FC = () => {
             title={isAr ? 'العودة' : 'Back'}
             className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
             <span className="hidden sm:inline">{isAr ? 'العودة' : 'Back'}</span>
           </button>
           <button
