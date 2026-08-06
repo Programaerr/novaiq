@@ -235,23 +235,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     <section id="templates-section" className="py-4 sm:py-6 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section header. The heading/subheading pair was removed on request; the price
-            notice stays because it qualifies what the numbers on every card mean. */}
-        <div className="text-center max-w-3xl mx-auto mb-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-950/80 border border-zinc-800 text-[11px] text-zinc-400">
-            <Info className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-            <span>
-              {currentLang === 'ar'
-                ? 'السعر المعروض للقالب (التصميم) فقط، ويختلف عند طلب موقع متكامل وجاهز للعمل الفعلي'
-                : 'The price shown is for the template design only — pricing differs for a fully complete, ready-to-launch website'}
-            </span>
-          </div>
-        </div>
-
-        {/* Filter & Search bar. `relative` anchors the dropdown below it — the dropdown
-            itself is `absolute`, so opening it floats a glass panel over the templates
-            instead of pushing them down the page. */}
-        <div ref={filterBarRef} className="relative mb-6">
+        {/* Filter & Search bar — first thing on the page now, with the price notice below it.
+            `relative` anchors the dropdown below it — the dropdown itself is `absolute`, so
+            opening it floats a glass panel over the templates instead of pushing them down. */}
+        <div ref={filterBarRef} className="relative mb-4">
           {/* bg-white/5 + backdrop-blur-xl used to leave this bar almost see-through, forcing
               the heaviest (24px) blur tier to do all the work of hiding what's scrolling
               behind it — recomputed every scroll frame, which is exactly the kind of GPU cost
@@ -316,6 +303,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             activeFiltersCount={activeFiltersCount}
             resetAllFilters={resetAllFilters}
           />
+        </div>
+
+        {/* Price notice — sits under the filter bar so the controls are the first thing on
+            the page. It stays above the cards because it qualifies every price on them. */}
+        <div className="text-center max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-950/80 border border-zinc-800 text-[11px] text-zinc-400">
+            <Info className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+            <span>
+              {currentLang === 'ar'
+                ? 'السعر المعروض للقالب (التصميم) فقط، ويختلف عند طلب موقع متكامل وجاهز للعمل الفعلي'
+                : 'The price shown is for the template design only — pricing differs for a fully complete, ready-to-launch website'}
+            </span>
+          </div>
         </div>
 
         {/* Templates Coverflow — clicking any off-center card brings it to focus (same
