@@ -59,8 +59,8 @@ export const PageBackBar: React.FC<PageBackBarProps> = ({ language, title, onBac
 
         <span className="w-px h-4 bg-white/10 hidden sm:block" />
 
-        {/* zinc-500 measured only 3.9:1 against this bar's fill — under the 4.5:1 floor, which
-            is why it read as greyed-out rather than as a label. zinc-300 clears it comfortably. */}
+        {/* zinc-500 sat at 4.35:1 against this bar's fill — under the 4.5:1 floor, which is why
+            it read as greyed-out rather than as a label. zinc-300 measures 14.2:1. */}
         <span className="hidden sm:block text-xs font-semibold text-zinc-300 truncate">{title}</span>
       </div>
     </div>
