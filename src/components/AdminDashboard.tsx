@@ -145,7 +145,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
     { id: 'pricing', label: isAr ? 'الأسعار' : 'Pricing', icon: Tag },
     { id: 'team', label: isAr ? 'الفريق' : 'Team', icon: Users },
     { id: 'members', label: isAr ? 'المشتركون' : 'Subscribers', icon: UserCheck },
-    { id: 'settings', label: isAr ? 'الإعدادات' : 'Settings', icon: Settings },
+    { id: 'settings', label: isAr ? 'التواصل الاجتماعي' : 'Social Links', icon: Settings },
   ];
 
   return (
