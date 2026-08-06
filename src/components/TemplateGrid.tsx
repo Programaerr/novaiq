@@ -286,19 +286,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             </button>
 
             {/* Search Box */}
-            <div className="relative w-full sm:w-80 sm:ms-auto">
-              <Search className="w-4 h-4 text-zinc-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+            <div className="search-neu relative w-full sm:w-80 sm:ms-auto rounded-full">
+              <Search className="w-4 h-4 text-zinc-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={getTranslation('searchPlaceholder', currentLang)}
-                className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-black/20 border border-white/10 focus:border-white/40 focus:outline-none text-white text-xs sm:text-sm placeholder-zinc-500 transition-all"
+                className="w-full pr-11 pl-4 py-2.5 rounded-full bg-transparent border-none focus:outline-none text-zinc-800 text-xs sm:text-sm font-semibold placeholder-zinc-500"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs cursor-pointer"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-800 text-xs font-bold cursor-pointer"
                 >
                   {currentLang === 'ar' ? 'مسح' : 'Clear'}
                 </button>
