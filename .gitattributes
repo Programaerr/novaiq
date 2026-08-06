@@ -3,15 +3,21 @@
 # straight into them — twice in one evening, each time leaving graph.json unparseable and the
 # `graphify query` path dead until it was rebuilt by hand.
 #
-# `-merge` makes git leave our own version in place and just flag the conflict instead of
-# splicing both sides together. The correct resolution for a generated file was never a
-# line-by-line merge anyway: rerun graphify after the merge and commit the fresh output.
-graphify-out/graph.json            -merge -diff
-graphify-out/graph.html            -merge -diff
-graphify-out/GRAPH_REPORT.md       -merge
-graphify-out/manifest.json         -merge
-graphify-out/.graphify_labels.json -merge
-graphify-out/.graphify_labels.json.sig -merge
+# `merge=ours` (declared for real below via .githooks' setup, see package.json's "prepare"
+# script) makes a conflict on these paths auto-resolve to whichever side is already checked
+# out, silently, with no markers and no pause — the correct behavior for a generated file was
+# never a line-by-line merge anyway. Whoever wants a fresh graph after a pull just reruns
+# `graphify update .`; nothing here blocks GitDoc's auto-sync from continuing to run.
+graphify-out/graph.json            merge=ours -diff
+graphify-out/graph.html            merge=ours -diff
+graphify-out/GRAPH_REPORT.md       merge=ours
+graphify-out/manifest.json         merge=ours
+graphify-out/.graphify_labels.json merge=ours
+graphify-out/.graphify_labels.json.sig merge=ours
 
 # Lockfiles have the same problem for the same reason.
-package-lock.json -merge
+package-lock.json merge=ours
+
+# Shell hooks must keep LF endings on every platform — a CRLF shebang line can fail to execute
+# under Git Bash / WSL, silently turning the safety hook below into a no-op.
+.githooks/* text eol=lf

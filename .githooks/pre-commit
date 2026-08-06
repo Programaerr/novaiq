@@ -1,0 +1,31 @@
+#!/bin/sh
+# Refuses any commit that would bake unresolved conflict state into history. This is what was
+# actually missing twice in one evening: GitDoc's auto-commit-on-save doesn't check whether an
+# auto-pull just left the tree mid-conflict, so it happily committed raw `<<<<<<<` markers into
+# graphify-out/graph.json, and once into real source (TemplateInteractiveSandbox.tsx). Autosync
+# stays fully automatic — this only stops the one failure mode that corrupted files, by giving
+# a human something to look at instead of a silent bad commit.
+
+# Case 1: git itself still lists a path as unmerged (mid-conflict, resolution not staged yet).
+unmerged=$(git diff --cached --name-only --diff-filter=U)
+if [ -n "$unmerged" ]; then
+  echo "pre-commit: unresolved merge conflicts, refusing to commit:" >&2
+  echo "$unmerged" | sed 's/^/  /' >&2
+  echo "Resolve them (or for graphify-out/*, just delete and re-run: graphify update .) and commit again." >&2
+  exit 1
+fi
+
+# Case 2: a path was resolved by staging it, but literal conflict markers were left inside —
+# e.g. `merge=ours` auto-picked a side, but a manual `git add` on a still-marked-up file would
+# slip through the check above since it's no longer "unmerged" in git's eyes.
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -n "$staged" ]; then
+  hits=$(printf '%s\n' "$staged" | xargs -I{} grep -lE '^(<{7}|={7}|>{7})( |$)' {} 2>/dev/null)
+  if [ -n "$hits" ]; then
+    echo "pre-commit: conflict markers found in staged file(s), refusing to commit:" >&2
+    echo "$hits" | sed 's/^/  /' >&2
+    exit 1
+  fi
+fi
+
+exit 0
