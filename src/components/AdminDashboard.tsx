@@ -33,7 +33,7 @@ import { formatPrice, toUSD, Currency } from '../lib/currency';
 import { subscribeToContracts, deleteContractFromFirebase, updateContractFields } from '../lib/firebase';
 import { logoutAccount, addAdminEmail, authErrorMessage } from '../lib/auth';
 import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser, listTeamMembers, TeamMember } from '../lib/adminUsers';
-import { useLiveTemplates, subscribeToPricingOverrides, savePricingOverride, PricingOverride } from '../lib/pricingOverrides';
+import { useLiveTemplates, savePricingOverride } from '../lib/pricingOverrides';
 import { useSocialLinks, saveSocialLinks, SocialLinks } from '../lib/socialLinks';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
@@ -749,9 +749,6 @@ function ContractRow({
 
 function PricingTab({ isAr, language, currency }: { isAr: boolean; language: Language; currency: Currency }) {
   const templates = useLiveTemplates();
-  const [overrides, setOverrides] = useState<Record<string, PricingOverride>>({});
-
-  useEffect(() => subscribeToPricingOverrides(setOverrides), []);
 
   return (
     <div className="space-y-3">
@@ -765,7 +762,7 @@ function PricingTab({ isAr, language, currency }: { isAr: boolean; language: Lan
       </p>
       <div className="space-y-2.5">
         {templates.map((t) => (
-          <PricingRow key={t.id} template={t} isAr={isAr} language={language} currency={currency} savedOverride={overrides[t.id]} />
+          <PricingRow key={t.id} template={t} isAr={isAr} language={language} currency={currency} />
         ))}
       </div>
     </div>
@@ -777,13 +774,11 @@ function PricingRow({
   isAr,
   language,
   currency,
-  savedOverride,
 }: {
   template: ReturnType<typeof useLiveTemplates>[number];
   isAr: boolean;
   language: Language;
   currency: Currency;
-  savedOverride?: PricingOverride;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState(template.title);
