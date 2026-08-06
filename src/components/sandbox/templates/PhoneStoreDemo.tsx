@@ -94,7 +94,7 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
               key={phone.id}
               // pt-32 clears the part of the photo that hangs *into* the card (h-36 minus the
               // -top-12 overhang), so the title never runs under it.
-              className="group relative rounded-[28px] bg-zinc-100 px-5 pb-5 pt-32 shadow-2xl shadow-black/40"
+              className="group relative flex flex-col rounded-[28px] bg-zinc-100 px-5 pb-5 pt-32 shadow-2xl shadow-black/40"
             >
               <img
                 src={phone.image}
@@ -122,7 +122,9 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
                 <Heart className={`w-4 h-4 ${favorites.includes(phone.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-800'}`} />
               </button>
 
-              <div className="space-y-3">
+              {/* flex-1 + mt-auto on the buy row: descriptions differ in length, and without
+                  this the price/button line landed at a different height on each card in a row. */}
+              <div className="flex-1 flex flex-col gap-3">
                 <h4 className="text-base sm:text-lg font-bold text-zinc-900 leading-tight">{phone.name}</h4>
 
                 <div className="flex flex-wrap gap-1.5">
@@ -143,7 +145,7 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
                   الذاكرة: {phone.storageTiers.map(t => storageLabel(t.gb)).join(' · ')}
                 </p>
 
-                <div className="flex items-center justify-between gap-2 pt-1">
+                <div className="mt-auto flex items-center justify-between gap-2 pt-1">
                   <span className="leading-tight">
                     <span className="block text-[10px] text-zinc-400">يبدأ من</span>
                     <span className="font-mono text-lg font-black text-zinc-900">{price(phone.storageTiers[0].priceIQD)}</span>
