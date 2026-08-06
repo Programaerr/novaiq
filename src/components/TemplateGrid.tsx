@@ -8,7 +8,7 @@ import {
   Clock,
   Cpu,
   Globe,
-  Sparkle,
+  SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
   Info,
@@ -247,7 +247,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               }`}
             >
               <span className="filter-pill-beam" aria-hidden="true" />
-              <Sparkle className="w-3.5 h-3.5 text-current fill-current shrink-0" />
+              <SlidersHorizontal className="w-3.5 h-3.5 text-current shrink-0" />
               <span className="font-semibold text-current">{currentLang === 'ar' ? 'تصفية' : 'Filter'}</span>
               {activeFiltersCount > 0 && (
                 <span className="filter-pill-badge w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center">

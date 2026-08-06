@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "0": "Language",
   "1": "autoTranslate.ts",
   "2": "ContractsTab.tsx",
@@ -32,4 +33,34 @@
   "30": "CLAUDE.md",
   "31": ".claude/CLAUDE.md",
   "32": "extraction-spec.md"
+=======
+  "0": "ContractsTab.tsx",
+  "1": "App.tsx",
+  "2": "ContractBuilder.tsx",
+  "3": "TemplateInteractiveSandbox.tsx",
+  "4": "devDependencies",
+  "5": "PricingTab.tsx",
+  "6": "auth.ts",
+  "7": "dependencies",
+  "8": "What You Must Do When Invoked",
+  "9": "compilerOptions",
+  "10": "showToast",
+  "11": "ErrorBoundary",
+  "12": "pageTranslator.ts",
+  "13": "server.ts",
+  "14": "graphify reference: extra exports and benchmark",
+  "15": "build-translations.mjs",
+  "16": "graphify reference: query, path, explain",
+  "17": "graphify reference: add a URL and watch a folder",
+  "18": "graphify reference: commit hook and native CLAUDE.md integration",
+  "19": "graphify reference: incremental update and cluster-only",
+  "20": "vite-env.d.ts",
+  "21": "graphify reference: GitHub clone and cross-repo merge",
+  "22": "graphify reference: transcribe video and audio",
+  "23": "Run and deploy your AI Studio app",
+  "24": "CLAUDE.md",
+  "25": ".claude/CLAUDE.md",
+  "26": "extraction-spec.md",
+  "27": "vite.config.ts"
+>>>>>>> 3982e75cf54fbf85e43dcea1acc3c005b9fc1641
 }
