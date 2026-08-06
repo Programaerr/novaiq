@@ -19,13 +19,13 @@ import { NovaiqLogo } from './NovaiqLogo';
 
 // The nav toggle's icon: three uneven bars that settle toward an even split on hover, and
 // morph in place into an X on open — the same three bars animating throughout, never two
-// icons swapped for each other. The button now sits permanently on the bar's physical right
-// (see the header's forced dir="ltr" comment below), so this glyph is forced to dir="rtl"
-// on its own wrapper — independent of the header's dir — to keep the exact taper/anchor the
-// original Arabic-native design used (.nav-menu-bar's transform-origin follows [dir] in
-// index.css), instead of inheriting "ltr" and tapering toward the wrong edge.
+// icons swapped for each other. The header around it is permanently dir="ltr" (see comment
+// below), so `start-0` always anchors the bars to the physical left and tapers rightward.
+// Mirrored with scale-x-[-1] so it reads correctly for the button's fixed spot on the bar's
+// physical right, without touching the shared .nav-menu-bar transform-origin CSS that other
+// menu glyphs in the codebase (site preview drawers) still rely on following [dir] normally.
 const AnimatedMenuIcon: React.FC<{ open: boolean }> = ({ open }) => (
-  <span dir="rtl" className="relative block w-4 h-3.5" aria-hidden="true">
+  <span className="relative block w-4 h-3.5 -scale-x-100" aria-hidden="true">
     <span
       className={`nav-menu-bar absolute start-0 top-0 h-0.5 w-4 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.65,0,0.35,1)] ${
         open ? 'translate-y-[6px] rotate-45 scale-x-100' : 'translate-y-0 rotate-0 scale-x-100 group-hover:scale-x-[0.62]'
@@ -255,6 +255,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div
           ref={drawerRef}
           dir={isAr ? 'rtl' : 'ltr'}
+          data-lenis-prevent
           className="absolute top-full mt-3 right-3 sm:right-6 w-80 max-h-[75vh] overflow-y-auto bg-black/55 border border-white/15 rounded-2xl p-4 shadow-2xl backdrop-blur-xl space-y-3 z-50 animate-fade-in"
         >
           {/* No close control here — the toggle button already becomes an X once the
