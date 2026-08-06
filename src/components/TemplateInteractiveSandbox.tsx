@@ -913,12 +913,12 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   });
   const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(true);
   const [transferAmount, setTransferAmount] = useState<string>('250000');
-  const [transfersLog, setTransfersLog] = useState<Array<{ id: string; amount: string; date: string; recipient: string }>>(() => {
+  const [transfersLog, setTransfersLog] = useState<Array<{ id: string; amountIQD: number; date: string; recipient: string }>>(() => {
     try {
       const saved = localStorage.getItem('novaiq_sandbox_transfers');
       return saved ? JSON.parse(saved) : [
-        { id: 'TX-98421', amount: '500,000 د.ع', date: '2026-08-02', recipient: 'زين كاش - متجر بغداد' },
-        { id: 'TX-98420', amount: '150,000 د.ع', date: '2026-08-01', recipient: 'تحويل سريع - علي حسام' }
+        { id: 'TX-98421', amountIQD: 500000, date: '2026-08-02', recipient: 'زين كاش - متجر بغداد' },
+        { id: 'TX-98420', amountIQD: 150000, date: '2026-08-01', recipient: 'تحويل سريع - علي حسام' }
       ];
     } catch {
       return [];
@@ -1085,7 +1085,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         case 'novaiq_sandbox_hotel_bookings': syncFromStorage(setHotelBookings, event.newValue, [] as HotelBooking[]); break;
         case 'novaiq_sandbox_shipping_quotes': syncFromStorage(setSavedQuotes, event.newValue, [] as ShippingQuote[]); break;
         case 'novaiq_sandbox_property_visits': syncFromStorage(setPropertyVisits, event.newValue, [] as Array<{ id: string; propertyTitle: string; date: string; visitorName: string }>); break;
-        case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, [] as Array<{ id: string; amount: string; date: string; recipient: string }>); break;
+        case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, [] as Array<{ id: string; amountIQD: number; date: string; recipient: string }>); break;
         case 'novaiq_sandbox_account':
           setAccount((prev) => {
             const raw = event.newValue || '';
@@ -3843,7 +3843,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                           <span className="text-white font-bold block">{tx.recipient}</span>
                           <span className="text-slate-500 text-[10px] font-mono">{tx.id} • {tx.date}</span>
                         </div>
-                        <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{tx.amount}</span>
+                        <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(tx.amountIQD)}</span>
                       </div>
                     ))}
                   </div>
