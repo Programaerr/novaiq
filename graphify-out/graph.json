@@ -175,7 +175,7 @@
       "_origin": "ast",
       "id": "package_dependencies",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "dependencies"
     },
     {
@@ -186,7 +186,7 @@
       "_origin": "ast",
       "id": "package_dependencies_google_genai",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "@google/genai"
     },
     {
@@ -197,7 +197,7 @@
       "_origin": "ast",
       "id": "google_genai",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "@google/genai"
     },
     {
@@ -208,7 +208,7 @@
       "_origin": "ast",
       "id": "package_dependencies_tailwindcss_vite",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "@tailwindcss/vite"
     },
     {
@@ -219,7 +219,7 @@
       "_origin": "ast",
       "id": "tailwindcss_vite",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "@tailwindcss/vite"
     },
     {
@@ -230,7 +230,7 @@
       "_origin": "ast",
       "id": "package_dependencies_vitejs_plugin_react",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "@vitejs/plugin-react"
     },
     {
@@ -241,7 +241,7 @@
       "_origin": "ast",
       "id": "vitejs_plugin_react",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "@vitejs/plugin-react"
     },
     {
@@ -252,7 +252,7 @@
       "_origin": "ast",
       "id": "package_dependencies_dotenv",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "dotenv"
     },
     {
@@ -263,7 +263,7 @@
       "_origin": "ast",
       "id": "dotenv",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "dotenv"
     },
     {
@@ -274,7 +274,7 @@
       "_origin": "ast",
       "id": "package_dependencies_express",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "express"
     },
     {
@@ -285,7 +285,7 @@
       "_origin": "ast",
       "id": "express",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "express"
     },
     {
@@ -296,7 +296,7 @@
       "_origin": "ast",
       "id": "package_dependencies_firebase",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "firebase"
     },
     {
@@ -307,7 +307,7 @@
       "_origin": "ast",
       "id": "firebase",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "firebase"
     },
     {
@@ -318,7 +318,7 @@
       "_origin": "ast",
       "id": "package_dependencies_firebase_admin",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "firebase-admin"
     },
     {
@@ -329,7 +329,7 @@
       "_origin": "ast",
       "id": "firebase_admin",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "firebase-admin"
     },
     {
@@ -340,7 +340,7 @@
       "_origin": "ast",
       "id": "package_dependencies_html2canvas_pro",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "html2canvas-pro"
     },
     {
@@ -351,7 +351,7 @@
       "_origin": "ast",
       "id": "html2canvas_pro",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "html2canvas-pro"
     },
     {
@@ -362,7 +362,7 @@
       "_origin": "ast",
       "id": "package_dependencies_jspdf",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "jspdf"
     },
     {
@@ -373,7 +373,7 @@
       "_origin": "ast",
       "id": "jspdf",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "jspdf"
     },
     {
@@ -383,8 +383,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "package_dependencies_lenis",
-      "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community": 29,
+      "community_name": "App",
       "norm_label": "lenis"
     },
     {
@@ -394,8 +394,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "lenis",
-      "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community": 29,
+      "community_name": "App",
       "norm_label": "lenis"
     },
     {
@@ -406,7 +406,7 @@
       "_origin": "ast",
       "id": "package_dependencies_lucide_react",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "lucide-react"
     },
     {
@@ -417,7 +417,7 @@
       "_origin": "ast",
       "id": "lucide_react",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "lucide-react"
     },
     {
@@ -428,7 +428,7 @@
       "_origin": "ast",
       "id": "package_dependencies_motion",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "motion"
     },
     {
@@ -439,7 +439,7 @@
       "_origin": "ast",
       "id": "motion",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "motion"
     },
     {
@@ -450,7 +450,7 @@
       "_origin": "ast",
       "id": "package_dependencies_react",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "react"
     },
     {
@@ -461,7 +461,7 @@
       "_origin": "ast",
       "id": "react",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "react"
     },
     {
@@ -472,7 +472,7 @@
       "_origin": "ast",
       "id": "package_dependencies_react_dom",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "react-dom"
     },
     {
@@ -483,7 +483,7 @@
       "_origin": "ast",
       "id": "react_dom",
       "community": 6,
-      "community_name": "Runtime Dependencies",
+      "community_name": "dependencies",
       "norm_label": "react-dom"
     },
     {
@@ -736,7 +736,7 @@
       "_origin": "ast",
       "id": "scripts_build_translations",
       "community": 17,
-      "community_name": "Translation Build Script",
+      "community_name": "build-translations.mjs",
       "norm_label": "build-translations.mjs"
     },
     {
@@ -747,7 +747,7 @@
       "_origin": "ast",
       "id": "scripts_build_translations_src_dir",
       "community": 17,
-      "community_name": "Translation Build Script",
+      "community_name": "build-translations.mjs",
       "norm_label": "src_dir"
     },
     {
@@ -758,7 +758,7 @@
       "_origin": "ast",
       "id": "scripts_build_translations_out_file",
       "community": 17,
-      "community_name": "Translation Build Script",
+      "community_name": "build-translations.mjs",
       "norm_label": "out_file"
     },
     {
@@ -770,7 +770,7 @@
       "_origin": "ast",
       "id": "scripts_build_translations_walk",
       "community": 17,
-      "community_name": "Translation Build Script",
+      "community_name": "build-translations.mjs",
       "norm_label": "walk()"
     },
     {
@@ -782,7 +782,7 @@
       "_origin": "ast",
       "id": "scripts_build_translations_extractstrings",
       "community": 17,
-      "community_name": "Translation Build Script",
+      "community_name": "build-translations.mjs",
       "norm_label": "extractstrings()"
     },
     {
@@ -794,7 +794,7 @@
       "_origin": "ast",
       "id": "scripts_build_translations_translate",
       "community": 17,
-      "community_name": "Translation Build Script",
+      "community_name": "build-translations.mjs",
       "norm_label": "translate()"
     },
     {
@@ -806,7 +806,7 @@
       "_origin": "ast",
       "id": "scripts_build_translations_main",
       "community": 17,
-      "community_name": "Translation Build Script",
+      "community_name": "build-translations.mjs",
       "norm_label": "main()"
     },
     {
@@ -817,7 +817,7 @@
       "_origin": "ast",
       "id": "server",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "server.ts"
     },
     {
@@ -828,7 +828,7 @@
       "_origin": "ast",
       "id": "server_app",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "app"
     },
     {
@@ -840,7 +840,7 @@
       "_origin": "ast",
       "id": "server_requireadmin",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "requireadmin()"
     },
     {
@@ -852,7 +852,7 @@
       "_origin": "ast",
       "id": "server_getlocalnetworkip",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "getlocalnetworkip()"
     },
     {
@@ -863,7 +863,7 @@
       "_origin": "ast",
       "id": "server_translation_cache_file",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "translation_cache_file"
     },
     {
@@ -875,7 +875,7 @@
       "_origin": "ast",
       "id": "server_loadtranslationcache",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "loadtranslationcache()"
     },
     {
@@ -886,7 +886,7 @@
       "_origin": "ast",
       "id": "server_translationcache",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "translationcache"
     },
     {
@@ -898,7 +898,7 @@
       "_origin": "ast",
       "id": "server_persisttranslationcache",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "persisttranslationcache()"
     },
     {
@@ -910,7 +910,7 @@
       "_origin": "ast",
       "id": "server_translateone",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "translateone()"
     },
     {
@@ -922,7 +922,7 @@
       "_origin": "ast",
       "id": "server_startserver",
       "community": 12,
-      "community_name": "Dev Server & Translation API",
+      "community_name": "server.ts",
       "norm_label": "startserver()"
     },
     {
@@ -933,7 +933,7 @@
       "_origin": "ast",
       "id": "src_app",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "app.tsx"
     },
     {
@@ -944,7 +944,7 @@
       "_origin": "ast",
       "id": "src_app_templategrid",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "templategrid"
     },
     {
@@ -955,7 +955,7 @@
       "_origin": "ast",
       "id": "src_app_contractbuildergate",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "contractbuildergate"
     },
     {
@@ -966,7 +966,7 @@
       "_origin": "ast",
       "id": "src_app_contractpdfpreview",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "contractpdfpreview"
     },
     {
@@ -977,7 +977,7 @@
       "_origin": "ast",
       "id": "src_app_policypage",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "policypage"
     },
     {
@@ -988,7 +988,7 @@
       "_origin": "ast",
       "id": "src_app_templateinteractivesandbox",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "templateinteractivesandbox"
     },
     {
@@ -999,7 +999,7 @@
       "_origin": "ast",
       "id": "src_app_adminpage",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "adminpage"
     },
     {
@@ -1010,8 +1010,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_app_app",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 29,
+      "community_name": "App",
       "norm_label": "app()"
     },
     {
@@ -1022,7 +1022,7 @@
       "_origin": "ast",
       "id": "src_components_aboutsection",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "aboutsection.tsx"
     },
     {
@@ -1035,7 +1035,7 @@
       "_origin": "ast",
       "id": "src_components_aboutsection_aboutsectionprops",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "aboutsectionprops"
     },
     {
@@ -1047,7 +1047,7 @@
       "_origin": "ast",
       "id": "src_components_aboutsection_aboutsection",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "aboutsection()"
     },
     {
@@ -1058,7 +1058,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "admindashboard.tsx"
     },
     {
@@ -1071,7 +1071,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_admindashboardprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "admindashboardprops"
     },
     {
@@ -1084,7 +1084,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_tab",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "tab"
     },
     {
@@ -1095,7 +1095,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_status_flow",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "status_flow"
     },
     {
@@ -1107,7 +1107,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_stattile",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "stattile()"
     },
     {
@@ -1119,7 +1119,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_tabbutton",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "tabbutton()"
     },
     {
@@ -1131,7 +1131,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_barrow",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "barrow()"
     },
     {
@@ -1143,7 +1143,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_admindashboard",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "admindashboard()"
     },
     {
@@ -1154,8 +1154,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_overviewtab",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "overviewtab()"
     },
     {
@@ -1167,7 +1167,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_useoverviewstatstype",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "useoverviewstatstype()"
     },
     {
@@ -1178,8 +1178,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_statusarabic",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "statusarabic()"
     },
     {
@@ -1190,8 +1190,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_contractstab",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "contractstab()"
     },
     {
@@ -1204,7 +1204,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_companysignaturehandle",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "companysignaturehandle"
     },
     {
@@ -1215,7 +1215,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_companysignaturepad",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "companysignaturepad"
     },
     {
@@ -1226,8 +1226,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_contractrow",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "contractrow()"
     },
     {
@@ -1238,8 +1238,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_pricingtab",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "pricingtab()"
     },
     {
@@ -1250,8 +1250,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_admindashboard_pricingrow",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "pricingrow()"
     },
     {
@@ -1263,7 +1263,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_teamtab",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "teamtab()"
     },
     {
@@ -1275,7 +1275,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_memberstab",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "memberstab()"
     },
     {
@@ -1286,7 +1286,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_social_fields",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "social_fields"
     },
     {
@@ -1298,7 +1298,7 @@
       "_origin": "ast",
       "id": "src_components_admindashboard_settingstab",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "settingstab()"
     },
     {
@@ -1309,7 +1309,7 @@
       "_origin": "ast",
       "id": "src_components_adminlogin",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "adminlogin.tsx"
     },
     {
@@ -1322,7 +1322,7 @@
       "_origin": "ast",
       "id": "src_components_adminlogin_adminloginprops",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "adminloginprops"
     },
     {
@@ -1334,7 +1334,7 @@
       "_origin": "ast",
       "id": "src_components_adminlogin_googleicon",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "googleicon()"
     },
     {
@@ -1346,7 +1346,7 @@
       "_origin": "ast",
       "id": "src_components_adminlogin_adminlogin",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "adminlogin()"
     },
     {
@@ -1357,7 +1357,7 @@
       "_origin": "ast",
       "id": "src_components_adminpage",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "adminpage.tsx"
     },
     {
@@ -1370,7 +1370,7 @@
       "_origin": "ast",
       "id": "src_components_adminpage_adminpageprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "adminpageprops"
     },
     {
@@ -1382,7 +1382,7 @@
       "_origin": "ast",
       "id": "src_components_adminpage_adminpage",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "adminpage()"
     },
     {
@@ -1393,7 +1393,7 @@
       "_origin": "ast",
       "id": "src_components_contractbuilder",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractbuilder.tsx"
     },
     {
@@ -1406,7 +1406,7 @@
       "_origin": "ast",
       "id": "src_components_contractbuilder_contractbuilderprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractbuilderprops"
     },
     {
@@ -1417,7 +1417,7 @@
       "_origin": "ast",
       "id": "src_components_contractbuilder_preset_colors",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "preset_colors"
     },
     {
@@ -1429,7 +1429,7 @@
       "_origin": "ast",
       "id": "src_components_contractbuilder_contractbuilder",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractbuilder()"
     },
     {
@@ -1440,7 +1440,7 @@
       "_origin": "ast",
       "id": "src_components_contractbuildergate",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractbuildergate.tsx"
     },
     {
@@ -1453,7 +1453,7 @@
       "_origin": "ast",
       "id": "src_components_contractbuildergate_contractbuildergateprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractbuildergateprops"
     },
     {
@@ -1465,7 +1465,7 @@
       "_origin": "ast",
       "id": "src_components_contractbuildergate_contractbuildergate",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "contractbuildergate()"
     },
     {
@@ -1475,8 +1475,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_contractpdfpreview",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "contractpdfpreview.tsx"
     },
     {
@@ -1489,7 +1489,7 @@
       "_origin": "ast",
       "id": "src_components_contractpdfpreview_contractpdfpreviewprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractpdfpreviewprops"
     },
     {
@@ -1500,8 +1500,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_contractpdfpreview_contractpdfpreview",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "contractpdfpreview()"
     },
     {
@@ -1511,8 +1511,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_contractprintdocument",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "contractprintdocument.tsx"
     },
     {
@@ -1525,7 +1525,7 @@
       "_origin": "ast",
       "id": "src_components_contractprintdocument_contractprintdocumentprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractprintdocumentprops"
     },
     {
@@ -1535,8 +1535,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_components_contractprintdocument_contractprintdocument",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "contractprintdocument"
     },
     {
@@ -1546,8 +1546,8 @@
       "source_location": "L458",
       "_origin": "ast",
       "id": "src_components_contractprintdocument_connectedcontractprintdocument",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "connectedcontractprintdocument"
     },
     {
@@ -1558,7 +1558,7 @@
       "_origin": "ast",
       "id": "src_components_cookieconsent",
       "community": 15,
-      "community_name": "Cookie Consent",
+      "community_name": "CookieConsent.tsx",
       "norm_label": "cookieconsent.tsx"
     },
     {
@@ -1571,7 +1571,7 @@
       "_origin": "ast",
       "id": "src_components_cookieconsent_cookieconsentprops",
       "community": 15,
-      "community_name": "Cookie Consent",
+      "community_name": "CookieConsent.tsx",
       "norm_label": "cookieconsentprops"
     },
     {
@@ -1583,7 +1583,7 @@
       "_origin": "ast",
       "id": "src_components_cookieconsent_cookieconsent",
       "community": 15,
-      "community_name": "Cookie Consent",
+      "community_name": "CookieConsent.tsx",
       "norm_label": "cookieconsent()"
     },
     {
@@ -1594,7 +1594,7 @@
       "_origin": "ast",
       "id": "src_components_cosmicbackground",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "cosmicbackground.tsx"
     },
     {
@@ -1607,7 +1607,7 @@
       "_origin": "ast",
       "id": "src_components_cosmicbackground_cosmicbackgroundprops",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "cosmicbackgroundprops"
     },
     {
@@ -1618,7 +1618,7 @@
       "_origin": "ast",
       "id": "src_components_cosmicbackground_section_glow_offsets",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "section_glow_offsets"
     },
     {
@@ -1630,7 +1630,7 @@
       "_origin": "ast",
       "id": "src_components_cosmicbackground_cosmicbackground",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "cosmicbackground()"
     },
     {
@@ -1640,8 +1640,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_customerdashboard",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "customerdashboard.tsx"
     },
     {
@@ -1654,7 +1654,7 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_customerdashboardprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "customerdashboardprops"
     },
     {
@@ -1664,8 +1664,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_components_customerdashboard_status_label_ar",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "status_label_ar"
     },
     {
@@ -1676,8 +1676,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_customerdashboard_formatdate",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "formatdate()"
     },
     {
@@ -1689,7 +1689,7 @@
       "_origin": "ast",
       "id": "src_components_customerdashboard_customerdashboard",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "customerdashboard()"
     },
     {
@@ -1700,8 +1700,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_customerdashboard_customercontractrow",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "customercontractrow()"
     },
     {
@@ -1834,7 +1834,7 @@
       "_origin": "ast",
       "id": "src_components_footer",
       "community": 14,
-      "community_name": "Footer & Brand Logo",
+      "community_name": "socialLinks.ts",
       "norm_label": "footer.tsx"
     },
     {
@@ -1847,7 +1847,7 @@
       "_origin": "ast",
       "id": "src_components_footer_footerprops",
       "community": 14,
-      "community_name": "Footer & Brand Logo",
+      "community_name": "socialLinks.ts",
       "norm_label": "footerprops"
     },
     {
@@ -1859,7 +1859,7 @@
       "_origin": "ast",
       "id": "src_components_footer_footer",
       "community": 14,
-      "community_name": "Footer & Brand Logo",
+      "community_name": "socialLinks.ts",
       "norm_label": "footer()"
     },
     {
@@ -1870,7 +1870,7 @@
       "_origin": "ast",
       "id": "src_components_herosection",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "herosection.tsx"
     },
     {
@@ -1883,7 +1883,7 @@
       "_origin": "ast",
       "id": "src_components_herosection_herosectionprops",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "herosectionprops"
     },
     {
@@ -1895,7 +1895,7 @@
       "_origin": "ast",
       "id": "src_components_herosection_herosection",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "herosection()"
     },
     {
@@ -1906,7 +1906,7 @@
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialog.tsx"
     },
     {
@@ -1919,7 +1919,7 @@
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog_logoutconfirmdialogprops",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialogprops"
     },
     {
@@ -1931,7 +1931,7 @@
       "_origin": "ast",
       "id": "src_components_logoutconfirmdialog_logoutconfirmdialog",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "logoutconfirmdialog()"
     },
     {
@@ -1942,7 +1942,7 @@
       "_origin": "ast",
       "id": "src_components_milestonetimeline",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": "milestonetimeline.tsx"
     },
     {
@@ -1955,7 +1955,7 @@
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimelineprops",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": "milestonetimelineprops"
     },
     {
@@ -1967,7 +1967,7 @@
       "_origin": "ast",
       "id": "src_components_milestonetimeline_milestonetimeline",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": "milestonetimeline()"
     },
     {
@@ -1977,8 +1977,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_navbar",
-      "community": 5,
-      "community_name": "Component Props & Types",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "navbar.tsx"
     },
     {
@@ -1989,8 +1989,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_navbar_animatedmenuicon",
-      "community": 5,
-      "community_name": "Component Props & Types",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "animatedmenuicon()"
     },
     {
@@ -2003,7 +2003,7 @@
       "_origin": "ast",
       "id": "src_components_navbar_navbarprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "navbarprops"
     },
     {
@@ -2014,8 +2014,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_navbar_navbar",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "navbar()"
     },
     {
@@ -2026,7 +2026,7 @@
       "_origin": "ast",
       "id": "src_components_novaiqlogo",
       "community": 14,
-      "community_name": "Footer & Brand Logo",
+      "community_name": "socialLinks.ts",
       "norm_label": "novaiqlogo.tsx"
     },
     {
@@ -2039,7 +2039,7 @@
       "_origin": "ast",
       "id": "src_components_novaiqlogo_novaiqlogoprops",
       "community": 14,
-      "community_name": "Footer & Brand Logo",
+      "community_name": "socialLinks.ts",
       "norm_label": "novaiqlogoprops"
     },
     {
@@ -2051,7 +2051,7 @@
       "_origin": "ast",
       "id": "src_components_novaiqlogo_novaiqlogo",
       "community": 14,
-      "community_name": "Footer & Brand Logo",
+      "community_name": "socialLinks.ts",
       "norm_label": "novaiqlogo()"
     },
     {
@@ -2062,7 +2062,7 @@
       "_origin": "ast",
       "id": "src_components_pagebackbar",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "pagebackbar.tsx"
     },
     {
@@ -2075,7 +2075,7 @@
       "_origin": "ast",
       "id": "src_components_pagebackbar_pagebackbarprops",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "pagebackbarprops"
     },
     {
@@ -2087,7 +2087,7 @@
       "_origin": "ast",
       "id": "src_components_pagebackbar_pagebackbar",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "pagebackbar()"
     },
     {
@@ -2097,8 +2097,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_pageloader",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "pageloader.tsx"
     },
     {
@@ -2109,8 +2109,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_pageloader_pageloader",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "pageloader()"
     },
     {
@@ -2121,7 +2121,7 @@
       "_origin": "ast",
       "id": "src_components_policypage",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "policypage.tsx"
     },
     {
@@ -2134,7 +2134,7 @@
       "_origin": "ast",
       "id": "src_components_policypage_policypageprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "policypageprops"
     },
     {
@@ -2147,7 +2147,7 @@
       "_origin": "ast",
       "id": "src_components_policypage_section",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "section"
     },
     {
@@ -2158,7 +2158,7 @@
       "_origin": "ast",
       "id": "src_components_policypage_privacy_sections",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "privacy_sections"
     },
     {
@@ -2169,7 +2169,7 @@
       "_origin": "ast",
       "id": "src_components_policypage_terms_sections",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "terms_sections"
     },
     {
@@ -2181,7 +2181,7 @@
       "_origin": "ast",
       "id": "src_components_policypage_policypage",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "policypage()"
     },
     {
@@ -2227,8 +2227,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_templategrid",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "templategrid.tsx"
     },
     {
@@ -2238,8 +2238,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_components_templategrid_templateinteractivesandbox",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "templateinteractivesandbox"
     },
     {
@@ -2252,7 +2252,7 @@
       "_origin": "ast",
       "id": "src_components_templategrid_templategridprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "templategridprops"
     },
     {
@@ -2263,8 +2263,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_templategrid_templategrid",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "templategrid()"
     },
     {
@@ -2288,7 +2288,7 @@
       "_origin": "ast",
       "id": "src_components_templateinteractivesandbox_templateinteractivesandboxprops",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "templateinteractivesandboxprops"
     },
     {
@@ -2326,8 +2326,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_components_templateinteractivesandbox_themecolor",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "themecolor"
     },
     {
@@ -2755,8 +2755,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_templatelivepage",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "templatelivepage.tsx"
     },
     {
@@ -2766,8 +2766,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_components_templatelivepage_templateinteractivesandbox",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "templateinteractivesandbox"
     },
     {
@@ -2777,8 +2777,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_templatelivepage_theme_colors",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "theme_colors"
     },
     {
@@ -2789,8 +2789,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_templatelivepage_readstoredlanguage",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "readstoredlanguage()"
     },
     {
@@ -2801,8 +2801,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_components_templatelivepage_templatelivepage",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "templatelivepage()"
     },
     {
@@ -2813,7 +2813,7 @@
       "_origin": "ast",
       "id": "src_components_toasthost",
       "community": 16,
-      "community_name": "Toast Notifications",
+      "community_name": "toast.ts",
       "norm_label": "toasthost.tsx"
     },
     {
@@ -2825,7 +2825,7 @@
       "_origin": "ast",
       "id": "src_components_toasthost_toasthost",
       "community": 16,
-      "community_name": "Toast Notifications",
+      "community_name": "toast.ts",
       "norm_label": "toasthost()"
     },
     {
@@ -2835,8 +2835,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_data_templatesdata",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "templatesdata.ts"
     },
     {
@@ -2846,8 +2846,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_data_templatesdata_templatesdata",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "templatesdata"
     },
     {
@@ -2858,7 +2858,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "adminusers.ts"
     },
     {
@@ -2871,7 +2871,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_manageduser",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "manageduser"
     },
     {
@@ -2883,7 +2883,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_authedfetch",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "authedfetch()"
     },
     {
@@ -2895,7 +2895,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listallusers",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "listallusers()"
     },
     {
@@ -2907,7 +2907,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listregularsubscribers",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "listregularsubscribers()"
     },
     {
@@ -2919,7 +2919,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_setuserdisabled",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "setuserdisabled()"
     },
     {
@@ -2931,7 +2931,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_deleteuseraccount",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "deleteuseraccount()"
     },
     {
@@ -2944,7 +2944,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_teammember",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "teammember"
     },
     {
@@ -2956,7 +2956,7 @@
       "_origin": "ast",
       "id": "src_lib_adminusers_listteammembers",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "listteammembers()"
     },
     {
@@ -2967,7 +2967,7 @@
       "_origin": "ast",
       "id": "src_lib_audio",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": "audio.ts"
     },
     {
@@ -2980,7 +2980,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": "cosmicaudioengine"
     },
     {
@@ -2992,7 +2992,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playwarp",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": ".playwarp()"
     },
     {
@@ -3004,7 +3004,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playping",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": ".playping()"
     },
     {
@@ -3016,7 +3016,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_playtick",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": ".playtick()"
     },
     {
@@ -3028,7 +3028,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_toggleambient",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": ".toggleambient()"
     },
     {
@@ -3040,7 +3040,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudioengine_isambienton",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": ".isambienton()"
     },
     {
@@ -3051,7 +3051,7 @@
       "_origin": "ast",
       "id": "src_lib_audio_cosmicaudio",
       "community": 11,
-      "community_name": "Timeline & Audio",
+      "community_name": "MilestoneTimeline.tsx",
       "norm_label": "cosmicaudio"
     },
     {
@@ -3062,7 +3062,7 @@
       "_origin": "ast",
       "id": "src_lib_auth",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "auth.ts"
     },
     {
@@ -3073,7 +3073,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_googleprovider",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "googleprovider"
     },
     {
@@ -3085,7 +3085,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_loginwithgoogle",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "loginwithgoogle()"
     },
     {
@@ -3097,7 +3097,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_logoutaccount",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "logoutaccount()"
     },
     {
@@ -3109,7 +3109,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_subscribetoauthstate",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "subscribetoauthstate()"
     },
     {
@@ -3121,7 +3121,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_usecurrentuser",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "usecurrentuser()"
     },
     {
@@ -3133,7 +3133,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_normalizeemail",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "normalizeemail()"
     },
     {
@@ -3145,7 +3145,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_isadminemail",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "isadminemail()"
     },
     {
@@ -3157,7 +3157,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_addadminemail",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "addadminemail()"
     },
     {
@@ -3169,7 +3169,7 @@
       "_origin": "ast",
       "id": "src_lib_auth_autherrormessage",
       "community": 7,
-      "community_name": "Authentication & Admin Access",
+      "community_name": "auth.ts",
       "norm_label": "autherrormessage()"
     },
     {
@@ -3180,7 +3180,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "autotranslate.ts"
     },
     {
@@ -3192,7 +3192,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_loadcache",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "loadcache()"
     },
     {
@@ -3204,7 +3204,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_savecache",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "savecache()"
     },
     {
@@ -3215,7 +3215,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_memorycache",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "memorycache"
     },
     {
@@ -3228,7 +3228,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_pendingentry",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "pendingentry"
     },
     {
@@ -3239,7 +3239,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_pendingbatch",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "pendingbatch"
     },
     {
@@ -3251,7 +3251,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_flushbatch",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "flushbatch()"
     },
     {
@@ -3263,7 +3263,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_requesttranslation",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "requesttranslation()"
     },
     {
@@ -3274,7 +3274,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_bundled",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "bundled"
     },
     {
@@ -3286,7 +3286,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_isfullyresolved",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "isfullyresolved()"
     },
     {
@@ -3298,7 +3298,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_resolvestatic",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "resolvestatic()"
     },
     {
@@ -3310,7 +3310,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_useautotranslatelist",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "useautotranslatelist()"
     },
     {
@@ -3322,7 +3322,7 @@
       "_origin": "ast",
       "id": "src_lib_autotranslate_useautotranslate",
       "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community_name": "autoTranslate.ts",
       "norm_label": "useautotranslate()"
     },
     {
@@ -3333,7 +3333,7 @@
       "_origin": "ast",
       "id": "src_lib_consent",
       "community": 15,
-      "community_name": "Cookie Consent",
+      "community_name": "CookieConsent.tsx",
       "norm_label": "consent.ts"
     },
     {
@@ -3346,7 +3346,7 @@
       "_origin": "ast",
       "id": "src_lib_consent_consentstatus",
       "community": 15,
-      "community_name": "Cookie Consent",
+      "community_name": "CookieConsent.tsx",
       "norm_label": "consentstatus"
     },
     {
@@ -3358,7 +3358,7 @@
       "_origin": "ast",
       "id": "src_lib_consent_getconsentstatus",
       "community": 15,
-      "community_name": "Cookie Consent",
+      "community_name": "CookieConsent.tsx",
       "norm_label": "getconsentstatus()"
     },
     {
@@ -3370,7 +3370,7 @@
       "_origin": "ast",
       "id": "src_lib_consent_setconsentstatus",
       "community": 15,
-      "community_name": "Cookie Consent",
+      "community_name": "CookieConsent.tsx",
       "norm_label": "setconsentstatus()"
     },
     {
@@ -3382,7 +3382,7 @@
       "_origin": "ast",
       "id": "src_lib_consent_istrackingallowed",
       "community": 15,
-      "community_name": "Cookie Consent",
+      "community_name": "CookieConsent.tsx",
       "norm_label": "istrackingallowed()"
     },
     {
@@ -3393,7 +3393,7 @@
       "_origin": "ast",
       "id": "src_lib_contractdraft",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractdraft.ts"
     },
     {
@@ -3406,7 +3406,7 @@
       "_origin": "ast",
       "id": "src_lib_contractdraft_contractdraft",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractdraft"
     },
     {
@@ -3418,7 +3418,7 @@
       "_origin": "ast",
       "id": "src_lib_contractdraft_loadcontractdraft",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "loadcontractdraft()"
     },
     {
@@ -3430,7 +3430,7 @@
       "_origin": "ast",
       "id": "src_lib_contractdraft_savecontractdraft",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "savecontractdraft()"
     },
     {
@@ -3442,7 +3442,7 @@
       "_origin": "ast",
       "id": "src_lib_contractdraft_clearcontractdraft",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "clearcontractdraft()"
     },
     {
@@ -3452,8 +3452,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_currency",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "currency.ts"
     },
     {
@@ -3463,8 +3463,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_lib_currency_iqd_per_usd",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "iqd_per_usd"
     },
     {
@@ -3477,7 +3477,7 @@
       "_origin": "ast",
       "id": "src_lib_currency_currency",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "currency"
     },
     {
@@ -3488,7 +3488,7 @@
       "_origin": "ast",
       "id": "src_lib_currency_currency_storage_key",
       "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community_name": "App.tsx",
       "norm_label": "currency_storage_key"
     },
     {
@@ -3499,8 +3499,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_currency_readstoredcurrency",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "readstoredcurrency()"
     },
     {
@@ -3511,8 +3511,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_currency_tousd",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "tousd()"
     },
     {
@@ -3523,8 +3523,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_currency_formatprice",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "formatprice()"
     },
     {
@@ -3535,7 +3535,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "firebase.ts"
     },
     {
@@ -3546,7 +3546,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_db",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "db"
     },
     {
@@ -3557,7 +3557,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_auth",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "auth"
     },
     {
@@ -3569,7 +3569,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_getdeletedidentifiers",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "getdeletedidentifiers()"
     },
     {
@@ -3581,7 +3581,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_markasdeleted",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "markasdeleted()"
     },
     {
@@ -3593,7 +3593,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_unmarkdeleted",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "unmarkdeleted()"
     },
     {
@@ -3605,7 +3605,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_savecontracttofirebase",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "savecontracttofirebase()"
     },
     {
@@ -3617,7 +3617,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_updatecontractfields",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "updatecontractfields()"
     },
     {
@@ -3629,7 +3629,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_fetchcontractsfromfirebase",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "fetchcontractsfromfirebase()"
     },
     {
@@ -3641,7 +3641,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_subscribetocontracts",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "subscribetocontracts()"
     },
     {
@@ -3653,7 +3653,7 @@
       "_origin": "ast",
       "id": "src_lib_firebase_deletecontractfromfirebase",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "deletecontractfromfirebase()"
     },
     {
@@ -3663,8 +3663,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_i18n",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "i18n.ts"
     },
     {
@@ -3677,7 +3677,7 @@
       "_origin": "ast",
       "id": "src_lib_i18n_language",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "language"
     },
     {
@@ -3687,8 +3687,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_lib_i18n_dynamic_translations",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "dynamic_translations"
     },
     {
@@ -3699,8 +3699,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_i18n_translatetext",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "translatetext()"
     },
     {
@@ -3710,8 +3710,8 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "src_lib_i18n_ui_translations",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "ui_translations"
     },
     {
@@ -3722,8 +3722,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_i18n_gettranslation",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "gettranslation()"
     },
     {
@@ -3734,7 +3734,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "pagetranslator.ts"
     },
     {
@@ -3745,7 +3745,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_skip_tags",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "skip_tags"
     },
     {
@@ -3756,7 +3756,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_originals",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "originals"
     },
     {
@@ -3767,7 +3767,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_translations",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "translations"
     },
     {
@@ -3779,7 +3779,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_shouldskip",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "shouldskip()"
     },
     {
@@ -3791,7 +3791,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_collectarabictextnodes",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "collectarabictextnodes()"
     },
     {
@@ -3803,7 +3803,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_fetchtranslations",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "fetchtranslations()"
     },
     {
@@ -3815,7 +3815,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_applytext",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "applytext()"
     },
     {
@@ -3827,7 +3827,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_translatenodes",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "translatenodes()"
     },
     {
@@ -3839,7 +3839,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_schedulescan",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "schedulescan()"
     },
     {
@@ -3851,7 +3851,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_startobserver",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "startobserver()"
     },
     {
@@ -3863,7 +3863,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_restoreoriginals",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "restoreoriginals()"
     },
     {
@@ -3875,7 +3875,7 @@
       "_origin": "ast",
       "id": "src_lib_pagetranslator_setpagetranslation",
       "community": 10,
-      "community_name": "Auto Page Translator",
+      "community_name": "pageTranslator.ts",
       "norm_label": "setpagetranslation()"
     },
     {
@@ -3885,8 +3885,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pdfgenerator",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 5,
+      "community_name": "Language",
       "norm_label": "pdfgenerator.ts"
     },
     {
@@ -3897,8 +3897,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pdfgenerator_generatecontractpdf",
-      "community": 2,
-      "community_name": "Pricing, Translation & PDF",
+      "community": 1,
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "generatecontractpdf()"
     },
     {
@@ -3908,8 +3908,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 29,
+      "community_name": "App",
       "norm_label": "pendingcontractselection.ts"
     },
     {
@@ -3921,8 +3921,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_pendingcontractselection",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 29,
+      "community_name": "App",
       "norm_label": "pendingcontractselection"
     },
     {
@@ -3933,8 +3933,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_writependingcontractselection",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 26,
+      "community_name": "TemplateLivePage.tsx",
       "norm_label": "writependingcontractselection()"
     },
     {
@@ -3945,8 +3945,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pendingcontractselection_consumependingcontractselection",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 29,
+      "community_name": "App",
       "norm_label": "consumependingcontractselection()"
     },
     {
@@ -3956,8 +3956,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_pricingoverrides",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "pricingoverrides.ts"
     },
     {
@@ -3968,8 +3968,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_readcachedoverrides",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "readcachedoverrides()"
     },
     {
@@ -3980,8 +3980,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_writecachedoverrides",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "writecachedoverrides()"
     },
     {
@@ -3993,8 +3993,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_pricingoverride",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "pricingoverride"
     },
     {
@@ -4005,8 +4005,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_subscribetopricingoverrides",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "subscribetopricingoverrides()"
     },
     {
@@ -4017,8 +4017,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_savepricingoverride",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "savepricingoverride()"
     },
     {
@@ -4029,8 +4029,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_applypricingoverrides",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "applypricingoverrides()"
     },
     {
@@ -4041,8 +4041,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_pricingoverrides_uselivetemplates",
-      "community": 0,
-      "community_name": "App Shell & Live Pricing",
+      "community": 25,
+      "community_name": "pricingOverrides.ts",
       "norm_label": "uselivetemplates()"
     },
     {
@@ -4052,8 +4052,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_sociallinks",
-      "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "sociallinks.ts"
     },
     {
@@ -4064,8 +4064,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_readcachedlinks",
-      "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "readcachedlinks()"
     },
     {
@@ -4076,8 +4076,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_writecachedlinks",
-      "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "writecachedlinks()"
     },
     {
@@ -4089,8 +4089,8 @@
       "_callable_class": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_sociallinks",
-      "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "sociallinks"
     },
     {
@@ -4101,8 +4101,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_subscribetosociallinks",
-      "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "subscribetosociallinks()"
     },
     {
@@ -4114,7 +4114,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_savesociallinks",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "savesociallinks()"
     },
     {
@@ -4125,8 +4125,8 @@
       "_callable": true,
       "_origin": "ast",
       "id": "src_lib_sociallinks_usesociallinks",
-      "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community": 14,
+      "community_name": "socialLinks.ts",
       "norm_label": "usesociallinks()"
     },
     {
@@ -4138,7 +4138,7 @@
       "_origin": "ast",
       "id": "src_lib_sociallinks_whatsapplink",
       "community": 14,
-      "community_name": "Footer & Brand Logo",
+      "community_name": "socialLinks.ts",
       "norm_label": "whatsapplink()"
     },
     {
@@ -4149,7 +4149,7 @@
       "_origin": "ast",
       "id": "src_lib_toast",
       "community": 16,
-      "community_name": "Toast Notifications",
+      "community_name": "toast.ts",
       "norm_label": "toast.ts"
     },
     {
@@ -4162,7 +4162,7 @@
       "_origin": "ast",
       "id": "src_lib_toast_toasttype",
       "community": 16,
-      "community_name": "Toast Notifications",
+      "community_name": "toast.ts",
       "norm_label": "toasttype"
     },
     {
@@ -4175,7 +4175,7 @@
       "_origin": "ast",
       "id": "src_lib_toast_toastmessage",
       "community": 16,
-      "community_name": "Toast Notifications",
+      "community_name": "toast.ts",
       "norm_label": "toastmessage"
     },
     {
@@ -4188,7 +4188,7 @@
       "_origin": "ast",
       "id": "src_lib_toast_listener",
       "community": 16,
-      "community_name": "Toast Notifications",
+      "community_name": "toast.ts",
       "norm_label": "listener"
     },
     {
@@ -4199,7 +4199,7 @@
       "_origin": "ast",
       "id": "src_lib_toast_listeners",
       "community": 16,
-      "community_name": "Toast Notifications",
+      "community_name": "toast.ts",
       "norm_label": "listeners"
     },
     {
@@ -4211,7 +4211,7 @@
       "_origin": "ast",
       "id": "src_lib_toast_showtoast",
       "community": 1,
-      "community_name": "Admin Dashboard & Firebase Core",
+      "community_name": "AdminDashboard.tsx",
       "norm_label": "showtoast()"
     },
     {
@@ -4223,7 +4223,7 @@
       "_origin": "ast",
       "id": "src_lib_toast_subscribetotoasts",
       "community": 16,
-      "community_name": "Toast Notifications",
+      "community_name": "toast.ts",
       "norm_label": "subscribetotoasts()"
     },
     {
@@ -4267,7 +4267,7 @@
       "_origin": "ast",
       "id": "src_types",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "types.ts"
     },
     {
@@ -4280,7 +4280,7 @@
       "_origin": "ast",
       "id": "src_types_templatefeature",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "templatefeature"
     },
     {
@@ -4293,7 +4293,7 @@
       "_origin": "ast",
       "id": "src_types_template",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "template"
     },
     {
@@ -4306,7 +4306,7 @@
       "_origin": "ast",
       "id": "src_types_contractdata",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "contractdata"
     },
     {
@@ -4319,7 +4319,7 @@
       "_origin": "ast",
       "id": "src_types_aiconsultationstate",
       "community": 5,
-      "community_name": "Component Props & Types",
+      "community_name": "Language",
       "norm_label": "aiconsultationstate"
     },
     {
@@ -4330,7 +4330,7 @@
       "_origin": "ast",
       "id": "src_vite_env_d",
       "community": 19,
-      "community_name": "Vite Asset Type Declarations",
+      "community_name": "vite-env.d.ts",
       "norm_label": "vite-env.d.ts"
     },
     {
@@ -4341,7 +4341,7 @@
       "_origin": "ast",
       "id": "src_vite_env_d_jpg",
       "community": 19,
-      "community_name": "Vite Asset Type Declarations",
+      "community_name": "vite-env.d.ts",
       "norm_label": "*.jpg"
     },
     {
@@ -4352,7 +4352,7 @@
       "_origin": "ast",
       "id": "src_vite_env_d_png",
       "community": 19,
-      "community_name": "Vite Asset Type Declarations",
+      "community_name": "vite-env.d.ts",
       "norm_label": "*.png"
     },
     {
@@ -4363,7 +4363,7 @@
       "_origin": "ast",
       "id": "src_vite_env_d_svg",
       "community": 19,
-      "community_name": "Vite Asset Type Declarations",
+      "community_name": "vite-env.d.ts",
       "norm_label": "*.svg"
     },
     {
@@ -4374,7 +4374,7 @@
       "_origin": "ast",
       "id": "tsconfig",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "tsconfig.json"
     },
     {
@@ -4385,7 +4385,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "compileroptions"
     },
     {
@@ -4396,7 +4396,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_target",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "target"
     },
     {
@@ -4407,7 +4407,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_experimentaldecorators",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "experimentaldecorators"
     },
     {
@@ -4418,7 +4418,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_usedefineforclassfields",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "usedefineforclassfields"
     },
     {
@@ -4429,7 +4429,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_module",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "module"
     },
     {
@@ -4440,7 +4440,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_lib",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "lib"
     },
     {
@@ -4451,7 +4451,7 @@
       "_origin": "ast",
       "id": "ref_es2022",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "es2022"
     },
     {
@@ -4462,7 +4462,7 @@
       "_origin": "ast",
       "id": "ref_dom",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "dom"
     },
     {
@@ -4473,7 +4473,7 @@
       "_origin": "ast",
       "id": "ref_dom_iterable",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "dom.iterable"
     },
     {
@@ -4484,7 +4484,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_skiplibcheck",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "skiplibcheck"
     },
     {
@@ -4495,7 +4495,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_moduleresolution",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "moduleresolution"
     },
     {
@@ -4506,7 +4506,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_isolatedmodules",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "isolatedmodules"
     },
     {
@@ -4517,7 +4517,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_moduledetection",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "moduledetection"
     },
     {
@@ -4528,7 +4528,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_allowjs",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "allowjs"
     },
     {
@@ -4539,7 +4539,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_jsx",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "jsx"
     },
     {
@@ -4550,7 +4550,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_paths",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "paths"
     },
     {
@@ -4561,7 +4561,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_allowimportingtsextensions",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "allowimportingtsextensions"
     },
     {
@@ -4572,7 +4572,7 @@
       "_origin": "ast",
       "id": "tsconfig_compileroptions_noemit",
       "community": 8,
-      "community_name": "TypeScript Config",
+      "community_name": "compilerOptions",
       "norm_label": "noemit"
     },
     {
@@ -4583,7 +4583,7 @@
       "_origin": "ast",
       "id": "vite_config",
       "community": 21,
-      "community_name": "Vite Config",
+      "community_name": "vite.config.ts",
       "norm_label": "vite.config.ts"
     },
     {
@@ -4595,8 +4595,712 @@
       "_origin": "ast",
       "id": "vite_config_manualchunks",
       "community": 21,
-      "community_name": "Vite Config",
+      "community_name": "vite.config.ts",
       "norm_label": "manualchunks()"
+    },
+    {
+      "label": ".claude/CLAUDE.md",
+      "file_type": "document",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_claude",
+      "community": 36,
+      "community_name": ".claude/CLAUDE.md",
+      "norm_label": ".claude/claude.md"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_claude_graphify",
+      "community": 36,
+      "community_name": ".claude/CLAUDE.md",
+      "norm_label": "graphify"
+    },
+    {
+      "label": "SKILL.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "skill.md"
+    },
+    {
+      "label": "/graphify",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_graphify",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "/graphify"
+    },
+    {
+      "label": "Usage",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_usage",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "usage"
+    },
+    {
+      "label": "What graphify is for",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_what_graphify_is_for",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "what graphify is for"
+    },
+    {
+      "label": "What You Must Do When Invoked",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "what you must do when invoked"
+    },
+    {
+      "label": "Step 0 - GitHub repos and multi-path merge (only if a URL or several paths)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L61",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_0_github_repos_and_multi_path_merge_only_if_a_url_or_several_paths",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 0 - github repos and multi-path merge (only if a url or several paths)"
+    },
+    {
+      "label": "Step 1 - Ensure graphify is installed",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L65",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_1_ensure_graphify_is_installed",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 1 - ensure graphify is installed"
+    },
+    {
+      "label": "Step 2 - Detect files",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L107",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_2_detect_files",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 2 - detect files"
+    },
+    {
+      "label": "Step 2.5 - Video and audio (only if video files detected)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L144",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_2_5_video_and_audio_only_if_video_files_detected",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 2.5 - video and audio (only if video files detected)"
+    },
+    {
+      "label": "Step 3 - Extract entities and relationships",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L148",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 3 - extract entities and relationships"
+    },
+    {
+      "label": "Part A - Structural extraction for code files",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L167",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_part_a_structural_extraction_for_code_files",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "part a - structural extraction for code files"
+    },
+    {
+      "label": "Part B - Semantic extraction (parallel subagents)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L193",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_part_b_semantic_extraction_parallel_subagents",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "part b - semantic extraction (parallel subagents)"
+    },
+    {
+      "label": "Part C - Merge AST + semantic into final extraction",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L356",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_part_c_merge_ast_semantic_into_final_extraction",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "part c - merge ast + semantic into final extraction"
+    },
+    {
+      "label": "Step 4 - Build graph, cluster, analyze, generate outputs",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L390",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_4_build_graph_cluster_analyze_generate_outputs",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 4 - build graph, cluster, analyze, generate outputs"
+    },
+    {
+      "label": "Step 4.5 - Graph health check (read-only integrity gate)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L453",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_4_5_graph_health_check_read_only_integrity_gate",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 4.5 - graph health check (read-only integrity gate)"
+    },
+    {
+      "label": "Step 5 - Label communities",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L479",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_5_label_communities",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 5 - label communities"
+    },
+    {
+      "label": "Step 6 - Generate Obsidian vault (opt-in) + HTML",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L528",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_6_generate_obsidian_vault_opt_in_html",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 6 - generate obsidian vault (opt-in) + html"
+    },
+    {
+      "label": "Steps 6b-8 - Wiki, Neo4j, FalkorDB, SVG, GraphML, MCP, benchmark (only on their flags)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L548",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_steps_6b_8_wiki_neo4j_falkordb_svg_graphml_mcp_benchmark_only_on_their_flags",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "steps 6b-8 - wiki, neo4j, falkordb, svg, graphml, mcp, benchmark (only on their flags)"
+    },
+    {
+      "label": "Step 9 - Save manifest, update cost tracker, clean up, and report",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L554",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_step_9_save_manifest_update_cost_tracker_clean_up_and_report",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "step 9 - save manifest, update cost tracker, clean up, and report"
+    },
+    {
+      "label": "Interpreter guard for subcommands",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L656",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_interpreter_guard_for_subcommands",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "interpreter guard for subcommands"
+    },
+    {
+      "label": "For --update and --cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L674",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_for_update_and_cluster_only",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "for --update and --cluster-only"
+    },
+    {
+      "label": "For /graphify query",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L680",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_for_graphify_query",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "for /graphify query"
+    },
+    {
+      "label": "For /graphify add and --watch",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L692",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_for_graphify_add_and_watch",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "for /graphify add and --watch"
+    },
+    {
+      "label": "For the commit hook and native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L698",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "for the commit hook and native claude.md integration"
+    },
+    {
+      "label": "Honesty Rules",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L704",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_skill_honesty_rules",
+      "community": 24,
+      "community_name": "What You Must Do When Invoked",
+      "norm_label": "honesty rules"
+    },
+    {
+      "label": "add-watch.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_add_watch",
+      "community": 30,
+      "community_name": "graphify reference: add a URL and watch a folder",
+      "norm_label": "add-watch.md"
+    },
+    {
+      "label": "graphify reference: add a URL and watch a folder",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+      "community": 30,
+      "community_name": "graphify reference: add a URL and watch a folder",
+      "norm_label": "graphify reference: add a url and watch a folder"
+    },
+    {
+      "label": "For /graphify add",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_add_watch_for_graphify_add",
+      "community": 30,
+      "community_name": "graphify reference: add a URL and watch a folder",
+      "norm_label": "for /graphify add"
+    },
+    {
+      "label": "For --watch",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L39",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_add_watch_for_watch",
+      "community": 30,
+      "community_name": "graphify reference: add a URL and watch a folder",
+      "norm_label": "for --watch"
+    },
+    {
+      "label": "exports.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "exports.md"
+    },
+    {
+      "label": "graphify reference: extra exports and benchmark",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "graphify reference: extra exports and benchmark"
+    },
+    {
+      "label": "Step 6b - Wiki (only if --wiki flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_6b_wiki_only_if_wiki_flag",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "step 6b - wiki (only if --wiki flag)"
+    },
+    {
+      "label": "Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7_neo4j_export_only_if_neo4j_or_neo4j_push_flag",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "step 7 - neo4j export (only if --neo4j or --neo4j-push flag)"
+    },
+    {
+      "label": "Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7a_falkordb_export_only_if_falkordb_or_falkordb_push_flag",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "step 7a - falkordb export (only if --falkordb or --falkordb-push flag)"
+    },
+    {
+      "label": "Step 7b - SVG export (only if --svg flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7b_svg_export_only_if_svg_flag",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "step 7b - svg export (only if --svg flag)"
+    },
+    {
+      "label": "Step 7c - GraphML export (only if --graphml flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L53",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7c_graphml_export_only_if_graphml_flag",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "step 7c - graphml export (only if --graphml flag)"
+    },
+    {
+      "label": "Step 7d - MCP server (only if --mcp flag)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L59",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_7d_mcp_server_only_if_mcp_flag",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "step 7d - mcp server (only if --mcp flag)"
+    },
+    {
+      "label": "Step 8 - Token reduction benchmark (only if total_words > 5000)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_exports_step_8_token_reduction_benchmark_only_if_total_words_5000",
+      "community": 27,
+      "community_name": "graphify reference: extra exports and benchmark",
+      "norm_label": "step 8 - token reduction benchmark (only if total_words > 5000)"
+    },
+    {
+      "label": "extraction-spec.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_extraction_spec",
+      "community": 37,
+      "community_name": "extraction-spec.md",
+      "norm_label": "extraction-spec.md"
+    },
+    {
+      "label": "graphify reference: extraction subagent prompt",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_extraction_spec_graphify_reference_extraction_subagent_prompt",
+      "community": 37,
+      "community_name": "extraction-spec.md",
+      "norm_label": "graphify reference: extraction subagent prompt"
+    },
+    {
+      "label": "github-and-merge.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_github_and_merge",
+      "community": 33,
+      "community_name": "graphify reference: GitHub clone and cross-repo merge",
+      "norm_label": "github-and-merge.md"
+    },
+    {
+      "label": "graphify reference: GitHub clone and cross-repo merge",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+      "community": 33,
+      "community_name": "graphify reference: GitHub clone and cross-repo merge",
+      "norm_label": "graphify reference: github clone and cross-repo merge"
+    },
+    {
+      "label": "Step 0 - Clone GitHub repo(s) (only if a GitHub URL was given)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_github_and_merge_step_0_clone_github_repo_s_only_if_a_github_url_was_given",
+      "community": 33,
+      "community_name": "graphify reference: GitHub clone and cross-repo merge",
+      "norm_label": "step 0 - clone github repo(s) (only if a github url was given)"
+    },
+    {
+      "label": "hooks.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_hooks",
+      "community": 31,
+      "community_name": "graphify reference: commit hook and native CLAUDE.md integration",
+      "norm_label": "hooks.md"
+    },
+    {
+      "label": "graphify reference: commit hook and native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+      "community": 31,
+      "community_name": "graphify reference: commit hook and native CLAUDE.md integration",
+      "norm_label": "graphify reference: commit hook and native claude.md integration"
+    },
+    {
+      "label": "For git commit hook",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_hooks_for_git_commit_hook",
+      "community": 31,
+      "community_name": "graphify reference: commit hook and native CLAUDE.md integration",
+      "norm_label": "for git commit hook"
+    },
+    {
+      "label": "For native CLAUDE.md integration",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_hooks_for_native_claude_md_integration",
+      "community": 31,
+      "community_name": "graphify reference: commit hook and native CLAUDE.md integration",
+      "norm_label": "for native claude.md integration"
+    },
+    {
+      "label": "query.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query",
+      "community": 28,
+      "community_name": "graphify reference: query, path, explain",
+      "norm_label": "query.md"
+    },
+    {
+      "label": "graphify reference: query, path, explain",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "community": 28,
+      "community_name": "graphify reference: query, path, explain",
+      "norm_label": "graphify reference: query, path, explain"
+    },
+    {
+      "label": "Step 0 \u2014 Constrained query expansion (REQUIRED before traversal)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_step_0_constrained_query_expansion_required_before_traversal",
+      "community": 28,
+      "community_name": "graphify reference: query, path, explain",
+      "norm_label": "step 0 \u2014 constrained query expansion (required before traversal)"
+    },
+    {
+      "label": "Step 1 \u2014 Traversal",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L61",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_step_1_traversal",
+      "community": 28,
+      "community_name": "graphify reference: query, path, explain",
+      "norm_label": "step 1 \u2014 traversal"
+    },
+    {
+      "label": "For /graphify path",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L186",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_for_graphify_path",
+      "community": 28,
+      "community_name": "graphify reference: query, path, explain",
+      "norm_label": "for /graphify path"
+    },
+    {
+      "label": "For /graphify explain",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L254",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_query_for_graphify_explain",
+      "community": 28,
+      "community_name": "graphify reference: query, path, explain",
+      "norm_label": "for /graphify explain"
+    },
+    {
+      "label": "transcribe.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_transcribe",
+      "community": 34,
+      "community_name": "graphify reference: transcribe video and audio",
+      "norm_label": "transcribe.md"
+    },
+    {
+      "label": "graphify reference: transcribe video and audio",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+      "community": 34,
+      "community_name": "graphify reference: transcribe video and audio",
+      "norm_label": "graphify reference: transcribe video and audio"
+    },
+    {
+      "label": "Step 2.5 - Transcribe video / audio files (only if video files detected)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_transcribe_step_2_5_transcribe_video_audio_files_only_if_video_files_detected",
+      "community": 34,
+      "community_name": "graphify reference: transcribe video and audio",
+      "norm_label": "step 2.5 - transcribe video / audio files (only if video files detected)"
+    },
+    {
+      "label": "update.md",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_update",
+      "community": 32,
+      "community_name": "graphify reference: incremental update and cluster-only",
+      "norm_label": "update.md"
+    },
+    {
+      "label": "graphify reference: incremental update and cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+      "community": 32,
+      "community_name": "graphify reference: incremental update and cluster-only",
+      "norm_label": "graphify reference: incremental update and cluster-only"
+    },
+    {
+      "label": "For --update (incremental re-extraction)",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_update_for_update_incremental_re_extraction",
+      "community": 32,
+      "community_name": "graphify reference: incremental update and cluster-only",
+      "norm_label": "for --update (incremental re-extraction)"
+    },
+    {
+      "label": "For --cluster-only",
+      "file_type": "document",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L202",
+      "_origin": "ast",
+      "id": "claude_skills_graphify_references_update_for_cluster_only",
+      "community": 32,
+      "community_name": "graphify reference: incremental update and cluster-only",
+      "norm_label": "for --cluster-only"
+    },
+    {
+      "label": "CLAUDE.md",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude",
+      "community": 35,
+      "community_name": "CLAUDE.md",
+      "norm_label": "claude.md"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_graphify",
+      "community": 35,
+      "community_name": "CLAUDE.md",
+      "norm_label": "graphify"
     },
     {
       "label": "AI Studio App (NOVAIQ)",
@@ -4607,10 +5311,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_ai_studio_app",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "ai studio app (novaiq)"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "ai studio app (novaiq)",
+      "_origin": "semantic",
+      "id": "readme_ai_studio_app"
     },
     {
       "label": "Node.js Prerequisite",
@@ -4621,10 +5326,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_nodejs",
       "community": 18,
-      "community_name": "README Setup Guide",
-      "norm_label": "node.js prerequisite"
+      "community_name": ".env.local File",
+      "norm_label": "node.js prerequisite",
+      "_origin": "semantic",
+      "id": "readme_nodejs"
     },
     {
       "label": "npm install Command",
@@ -4635,10 +5341,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_npm_install",
       "community": 18,
-      "community_name": "README Setup Guide",
-      "norm_label": "npm install command"
+      "community_name": ".env.local File",
+      "norm_label": "npm install command",
+      "_origin": "semantic",
+      "id": "readme_npm_install"
     },
     {
       "label": "GEMINI_API_KEY Environment Variable",
@@ -4649,10 +5356,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_gemini_api_key",
       "community": 18,
-      "community_name": "README Setup Guide",
-      "norm_label": "gemini_api_key environment variable"
+      "community_name": ".env.local File",
+      "norm_label": "gemini_api_key environment variable",
+      "_origin": "semantic",
+      "id": "readme_gemini_api_key"
     },
     {
       "label": ".env.local File",
@@ -4663,10 +5371,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_env_local",
       "community": 18,
-      "community_name": "README Setup Guide",
-      "norm_label": ".env.local file"
+      "community_name": ".env.local File",
+      "norm_label": ".env.local file",
+      "_origin": "semantic",
+      "id": "readme_env_local"
     },
     {
       "label": "npm run dev Command",
@@ -4677,10 +5386,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "readme_npm_run_dev",
       "community": 18,
-      "community_name": "README Setup Guide",
-      "norm_label": "npm run dev command"
+      "community_name": ".env.local File",
+      "norm_label": "npm run dev command",
+      "_origin": "semantic",
+      "id": "readme_npm_run_dev"
     },
     {
       "label": "NOVAIQ App Entry (index.html)",
@@ -4691,10 +5401,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "index_novaiq",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "novaiq app entry (index.html)"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "novaiq app entry (index.html)",
+      "_origin": "semantic",
+      "id": "index_novaiq"
     },
     {
       "label": "Cairo Variable Font (self-hosted)",
@@ -4705,10 +5416,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "index_cairo_font",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "cairo variable font (self-hosted)"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "cairo variable font (self-hosted)",
+      "_origin": "semantic",
+      "id": "index_cairo_font"
     },
     {
       "label": "Tajawal Font (self-hosted)",
@@ -4719,10 +5431,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "index_tajawal_font",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "tajawal font (self-hosted)"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "tajawal font (self-hosted)",
+      "_origin": "semantic",
+      "id": "index_tajawal_font"
     },
     {
       "label": "Font Preload + font-display Optimization",
@@ -4734,10 +5447,11 @@
       "author": null,
       "contributor": null,
       "rationale": "Self-hosting Cairo & Tajawal instead of loading from Google Fonts avoids the extra third-party round-trip and the visible font swap-in delay. Preloading the woff2 files makes the browser fetch font bytes immediately in parallel with everything else, and combined with font-display:block this prevents the page from ever painting in a fallback font first. Both Arabic and Latin subsets are preloaded because the NOVAIQ wordmark itself is Latin script even though the page is in Arabic mode.",
-      "id": "index_font_preload_optimization",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "font preload + font-display optimization"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "font preload + font-display optimization",
+      "_origin": "semantic",
+      "id": "index_font_preload_optimization"
     },
     {
       "label": "src/main.tsx Entry Script",
@@ -4748,10 +5462,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "index_main_tsx",
       "community": 20,
-      "community_name": "App Root Mount",
-      "norm_label": "src/main.tsx entry script"
+      "community_name": "src/main.tsx Entry Script",
+      "norm_label": "src/main.tsx entry script",
+      "_origin": "semantic",
+      "id": "index_main_tsx"
     },
     {
       "label": "#root Mount Element",
@@ -4762,10 +5477,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "index_root_div",
       "community": 20,
-      "community_name": "App Root Mount",
-      "norm_label": "#root mount element"
+      "community_name": "src/main.tsx Entry Script",
+      "norm_label": "#root mount element",
+      "_origin": "semantic",
+      "id": "index_root_div"
     },
     {
       "label": "RTL Arabic Layout (lang=ar dir=rtl)",
@@ -4776,10 +5492,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "index_rtl_arabic_layout",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "rtl arabic layout (lang=ar dir=rtl)"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "rtl arabic layout (lang=ar dir=rtl)",
+      "_origin": "semantic",
+      "id": "index_rtl_arabic_layout"
     },
     {
       "label": "NOVAIQ Favicon Icon",
@@ -4790,10 +5507,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "index_novaiq_icon",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "novaiq favicon icon"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "novaiq favicon icon",
+      "_origin": "semantic",
+      "id": "index_novaiq_icon"
     },
     {
       "label": "Dark Theme (html class=dark)",
@@ -4804,10 +5522,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "index_dark_theme",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "dark theme (html class=dark)"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "dark theme (html class=dark)",
+      "_origin": "semantic",
+      "id": "index_dark_theme"
     },
     {
       "label": "@font-face Rules (src/index.css)",
@@ -4818,10 +5537,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "src_index_css_font_face",
       "community": 13,
-      "community_name": "index.html & Font Setup",
-      "norm_label": "@font-face rules (src/index.css)"
+      "community_name": "NOVAIQ App Entry (index.html)",
+      "norm_label": "@font-face rules (src/index.css)",
+      "_origin": "semantic",
+      "id": "src_index_css_font_face"
     },
     {
       "label": "NOVAIQ brand logo mark: an outlined/wireframe-style icon of two bracket-like pillar letterforms (resembling stylized 'H' or twin brackets) crossed by a tilted Saturn-like ring/ellipse, with the wordmark 'NOVAIQ' in a thin outlined sans-serif font beneath; rendered on a transparent/white background with a sketchy dashed-line stroke texture, suggesting a brand identity asset for the 'novaiq' project/site",
@@ -4832,10 +5552,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "src_assets_images_1785710025866_novaiq_logo",
       "community": 22,
-      "community_name": "NOVAIQ Logo Image",
-      "norm_label": "novaiq brand logo mark: an outlined/wireframe-style icon of two bracket-like pillar letterforms (resembling stylized 'h' or twin brackets) crossed by a tilted saturn-like ring/ellipse, with the wordmark 'novaiq' in a thin outlined sans-serif font beneath; rendered on a transparent/white background with a sketchy dashed-line stroke texture, suggesting a brand identity asset for the 'novaiq' project/site"
+      "community_name": "NOVAIQ brand logo mark: an outlined/wireframe-style icon of two bracket-like pillar letterforms (resembling stylized 'H' or twin brackets) crossed by a tilted Saturn-like ring/ellipse, with the wordmark 'NOVAIQ' in a thin outlined sans-serif font beneath; rendered on a transparent/white background with a sketchy dashed-line stroke texture, suggesting a brand identity asset for the 'novaiq' project/site",
+      "norm_label": "novaiq brand logo mark: an outlined/wireframe-style icon of two bracket-like pillar letterforms (resembling stylized 'h' or twin brackets) crossed by a tilted saturn-like ring/ellipse, with the wordmark 'novaiq' in a thin outlined sans-serif font beneath; rendered on a transparent/white background with a sketchy dashed-line stroke texture, suggesting a brand identity asset for the 'novaiq' project/site",
+      "_origin": "semantic",
+      "id": "src_assets_images_1785710025866_novaiq_logo"
     },
     {
       "label": "NovaIQ icon/logo mark: a stylized double-H (or interlocking bracket) letterform encircled by a tilted elliptical ring, evoking a planet's orbital ring; used as the brand icon/favicon for the NovaIQ site",
@@ -4846,10 +5567,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "src_assets_images_novaiq_icon",
       "community": 14,
-      "community_name": "Footer & Brand Logo",
-      "norm_label": "novaiq icon/logo mark: a stylized double-h (or interlocking bracket) letterform encircled by a tilted elliptical ring, evoking a planet's orbital ring; used as the brand icon/favicon for the novaiq site"
+      "community_name": "socialLinks.ts",
+      "norm_label": "novaiq icon/logo mark: a stylized double-h (or interlocking bracket) letterform encircled by a tilted elliptical ring, evoking a planet's orbital ring; used as the brand icon/favicon for the novaiq site",
+      "_origin": "semantic",
+      "id": "src_assets_images_novaiq_icon"
     },
     {
       "label": "NOVAIQ logo (cropped) - brand wordmark and icon featuring two stylized capital 'N' letterforms encircled by a tilted ring/orbit (Saturn-like) motif, with 'NOVAIQ' wordmark beneath; used as the site's brand logo",
@@ -4860,10 +5582,11 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "id": "src_assets_images_novaiq_logo_cropped",
       "community": 23,
-      "community_name": "NOVAIQ Logo (Cropped)",
-      "norm_label": "novaiq logo (cropped) - brand wordmark and icon featuring two stylized capital 'n' letterforms encircled by a tilted ring/orbit (saturn-like) motif, with 'novaiq' wordmark beneath; used as the site's brand logo"
+      "community_name": "NOVAIQ logo (cropped) - brand wordmark and icon featuring two stylized capital 'N' letterforms encircled by a tilted ring/orbit (Saturn-like) motif, with 'NOVAIQ' wordmark beneath; used as the site's brand logo",
+      "norm_label": "novaiq logo (cropped) - brand wordmark and icon featuring two stylized capital 'n' letterforms encircled by a tilted ring/orbit (saturn-like) motif, with 'novaiq' wordmark beneath; used as the site's brand logo",
+      "_origin": "semantic",
+      "id": "src_assets_images_novaiq_logo_cropped"
     }
   ],
   "links": [
@@ -14039,12 +14762,596 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_claude",
+      "target": "claude_claude_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill",
+      "target": "claude_skills_graphify_skill_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L692",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_for_graphify_add_and_watch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L680",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_for_graphify_query",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L698",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_for_the_commit_hook_and_native_claude_md_integration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L674",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_for_update_and_cluster_only",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L704",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_honesty_rules",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L656",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_interpreter_guard_for_subcommands",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_what_graphify_is_for",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_graphify",
+      "target": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L61",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_0_github_repos_and_multi_path_merge_only_if_a_url_or_several_paths",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_1_ensure_graphify_is_installed",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L144",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_2_5_video_and_audio_only_if_video_files_detected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L107",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_2_detect_files",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L148",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L453",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_4_5_graph_health_check_read_only_integrity_gate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L390",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_4_build_graph_cluster_analyze_generate_outputs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L479",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_5_label_communities",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L528",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_6_generate_obsidian_vault_opt_in_html",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L554",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_step_9_save_manifest_update_cost_tracker_clean_up_and_report",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L548",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_what_you_must_do_when_invoked",
+      "target": "claude_skills_graphify_skill_steps_6b_8_wiki_neo4j_falkordb_svg_graphml_mcp_benchmark_only_on_their_flags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L167",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "target": "claude_skills_graphify_skill_part_a_structural_extraction_for_code_files",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L193",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "target": "claude_skills_graphify_skill_part_b_semantic_extraction_parallel_subagents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/SKILL.md",
+      "source_location": "L356",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_skill_step_3_extract_entities_and_relationships",
+      "target": "claude_skills_graphify_skill_part_c_merge_ast_semantic_into_final_extraction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_add_watch",
+      "target": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+      "target": "claude_skills_graphify_references_add_watch_for_graphify_add",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/add-watch.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_add_watch_graphify_reference_add_a_url_and_watch_a_folder",
+      "target": "claude_skills_graphify_references_add_watch_for_watch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_exports",
+      "target": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_6b_wiki_only_if_wiki_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7_neo4j_export_only_if_neo4j_or_neo4j_push_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7a_falkordb_export_only_if_falkordb_or_falkordb_push_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7b_svg_export_only_if_svg_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7c_graphml_export_only_if_graphml_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L59",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_7d_mcp_server_only_if_mcp_flag",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/exports.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_exports_graphify_reference_extra_exports_and_benchmark",
+      "target": "claude_skills_graphify_references_exports_step_8_token_reduction_benchmark_only_if_total_words_5000",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/extraction-spec.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_extraction_spec",
+      "target": "claude_skills_graphify_references_extraction_spec_graphify_reference_extraction_subagent_prompt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_github_and_merge",
+      "target": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/github-and-merge.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_github_and_merge_graphify_reference_github_clone_and_cross_repo_merge",
+      "target": "claude_skills_graphify_references_github_and_merge_step_0_clone_github_repo_s_only_if_a_github_url_was_given",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_hooks",
+      "target": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+      "target": "claude_skills_graphify_references_hooks_for_git_commit_hook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/hooks.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_hooks_graphify_reference_commit_hook_and_native_claude_md_integration",
+      "target": "claude_skills_graphify_references_hooks_for_native_claude_md_integration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_query",
+      "target": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L254",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_for_graphify_explain",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L186",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_for_graphify_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_step_0_constrained_query_expansion_required_before_traversal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/query.md",
+      "source_location": "L61",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_query_graphify_reference_query_path_explain",
+      "target": "claude_skills_graphify_references_query_step_1_traversal",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_transcribe",
+      "target": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/transcribe.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_transcribe_graphify_reference_transcribe_video_and_audio",
+      "target": "claude_skills_graphify_references_transcribe_step_2_5_transcribe_video_audio_files_only_if_video_files_detected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_update",
+      "target": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L202",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+      "target": "claude_skills_graphify_references_update_for_cluster_only",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/skills/graphify/references/update.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_skills_graphify_references_update_graphify_reference_incremental_update_and_cluster_only",
+      "target": "claude_skills_graphify_references_update_for_update_incremental_re_extraction",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude",
+      "target": "claude_graphify",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "conceptually_related_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
       "source_file": "README.md",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "readme_ai_studio_app",
       "target": "index_novaiq"
     },
@@ -14055,6 +15362,7 @@
       "source_file": "README.md",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "readme_nodejs",
       "target": "readme_npm_install"
     },
@@ -14065,6 +15373,7 @@
       "source_file": "README.md",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "readme_npm_install",
       "target": "readme_gemini_api_key"
     },
@@ -14075,6 +15384,7 @@
       "source_file": "README.md",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "readme_gemini_api_key",
       "target": "readme_env_local"
     },
@@ -14085,6 +15395,7 @@
       "source_file": "README.md",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "readme_env_local",
       "target": "readme_npm_run_dev"
     },
@@ -14095,6 +15406,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_novaiq",
       "target": "index_cairo_font"
     },
@@ -14105,6 +15417,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_novaiq",
       "target": "index_dark_theme"
     },
@@ -14115,6 +15428,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_novaiq",
       "target": "index_novaiq_icon"
     },
@@ -14125,6 +15439,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_novaiq",
       "target": "index_rtl_arabic_layout"
     },
@@ -14135,6 +15450,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_novaiq",
       "target": "index_tajawal_font"
     },
@@ -14145,6 +15461,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_cairo_font",
       "target": "src_index_css_font_face"
     },
@@ -14155,6 +15472,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_font_preload_optimization",
       "target": "index_cairo_font"
     },
@@ -14165,6 +15483,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_font_preload_optimization",
       "target": "index_tajawal_font"
     },
@@ -14175,6 +15494,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_tajawal_font",
       "target": "src_index_css_font_face"
     },
@@ -14185,6 +15505,7 @@
       "source_file": "index.html",
       "source_location": null,
       "weight": 1.0,
+      "_origin": "semantic",
       "source": "index_main_tsx",
       "target": "index_root_div"
     }
@@ -14220,5 +15541,5 @@
       "source_file": "index.html"
     }
   ],
-  "built_at_commit": "5d32915d390ce65020392bda38e686d6a1e162d7"
+  "built_at_commit": "f61124361e39c70fe24ba6748d32e2a0924dbd6b"
 }
