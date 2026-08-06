@@ -1,9 +1,14 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 import {
+  BatteryFull,
+  Camera,
   CheckCircle2,
+  Cpu,
+  Heart,
   Plus,
   Minus,
   ShieldCheck,
+  ShoppingCart,
   Smartphone,
 } from 'lucide-react';
 import { SAMPLE_PHONES, PHONE_WARRANTY_IQD, COMPANY_PROFILES } from '../../../data/sandboxDemoData';
@@ -14,6 +19,10 @@ import type { SandboxCtx } from '../context';
 /** 1024 GB is sold as "1 تيرا", not "1024 غيغا" — the catalogue and the order summary both
  *  quote capacity, so the wording lives in one place. */
 export const storageLabel = (gb: number) => (gb >= 1024 ? `${gb / 1024} تيرا` : `${gb} غيغا`);
+
+/** Icon per spec *position* — every phone lists screen, then chip, then camera, so the chips
+ *  pick up the right glyph without each entry having to name one. */
+const SPEC_ICONS = [Smartphone, Cpu, Camera, BatteryFull];
 
 // The mobile-store demo: a phone catalogue, then storage/colour/quantity/warranty on the way to
 // a confirmed order. Rendered by TemplateInteractiveSandbox. Everything shared with the other
@@ -49,6 +58,14 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
   const latestOrder = phoneOrders[0];
   const searchedPhones = SAMPLE_PHONES.filter((p) => matchesSiteSearch(p.name, p.brand, ...p.specs));
 
+  // Wishlist hearts: purely a catalogue affordance, so unlike the order state the shell never
+  // reads it and it stays local to this demo.
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const toggleFavorite = (id: string) => {
+    setFavorites(prev => (prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]));
+    cosmicAudio.playTick();
+  };
+
   const pickPhone = (phone: PhoneProduct) => {
     setSelectedPhoneId(phone.id);
     setSelectedStorageGb(phone.storageTiers[0].gb);
@@ -67,55 +84,73 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
       {phoneTab === 'phones' && searchedPhones.length === 0 && renderNoSearchResults('أي هاتف')}
 
       {phoneTab === 'phones' && searchedPhones.length > 0 && (
-        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-4 animate-fade-in text-xs`}>
+        // pt-16 on the grid and mt-14 on each card reserve the space the photo pokes up into;
+        // without it the first row's product would be cut off by the section above.
+        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-x-4 gap-y-16 pt-16 animate-fade-in text-xs`}>
           {searchedPhones.map((phone) => (
-            // Product-poster card: the photo bleeds into a tinted panel and the copy sits on the
-            // same tint underneath — brand kicker, model, a highlighted claim, then the specs.
+            // Light product card: the photo floats clear of the card's top edge, the stock line
+            // runs vertically up the side, and the buy row anchors the bottom.
             <article
               key={phone.id}
-              className={`group rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-b ${phone.imageBg} hover:border-white/25 transition-all`}
+              className="group relative rounded-[28px] bg-zinc-100 px-5 pb-5 pt-24 shadow-2xl shadow-black/40"
             >
-              <div className="relative h-40 sm:h-44 overflow-hidden">
-                <img
-                  src={phone.image}
-                  alt={phone.name}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                {/* Fades the photo into the tint so the panel reads as one surface, not a banner. */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
-                {/* Badge and mark share one justified row rather than opposite corners, so they
-                    can't collide whichever way the surrounding direction resolves. */}
-                <div className="absolute top-3 inset-x-3 flex items-start justify-between gap-2">
-                  {phone.badge ? (
-                    <span className={`px-2.5 py-1 rounded-full ${themeStyle.badgeBg} ${themeStyle.primaryText} text-[10px] font-bold backdrop-blur-md`}>
-                      {phone.badge}
-                    </span>
-                  ) : <span />}
-                  {/* dir=ltr so the neutral punctuation isn't re-ordered by the RTL context. */}
-                  <span dir="ltr" className="font-mono text-[11px] tracking-[0.35em] text-white/70" aria-hidden="true">+◆–</span>
-                </div>
-              </div>
+              <img
+                src={phone.image}
+                alt={phone.name}
+                loading="lazy"
+                // Physical left-1/2 on purpose: centring is symmetric, so a logical `start-`
+                // would only add an RTL flip that has to be undone again.
+                className="absolute -top-14 left-1/2 -translate-x-1/2 w-[60%] h-36 sm:h-40 object-cover rounded-2xl shadow-xl shadow-black/40 transition-transform duration-500 group-hover:-translate-y-1"
+              />
 
-              <div className="p-4 space-y-2.5">
-                <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/45">{phone.brand}</p>
-                <h4 className="text-base sm:text-lg font-black text-white leading-tight">{phone.name}</h4>
-                <p className="inline-block px-2.5 py-1 rounded-md bg-white/10 border border-white/10 text-white font-bold">
-                  {phone.tagline}
-                </p>
-                <p className="text-slate-400 leading-relaxed">{phone.specs.join(' · ')}</p>
-                <p className="text-slate-500 text-[10px]">
+              {/* Vertical stock rail, mirroring the reference's LIMITED STOCK edge label. */}
+              <span
+                style={{ writingMode: 'vertical-rl' }}
+                className="absolute top-6 start-4 rotate-180 text-[10px] tracking-[0.35em] text-zinc-400 font-bold"
+              >
+                {phone.badge || 'متوفر الآن'}
+              </span>
+
+              <button
+                onClick={() => toggleFavorite(phone.id)}
+                aria-label={favorites.includes(phone.id) ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+                aria-pressed={favorites.includes(phone.id)}
+                className="absolute top-5 end-5 p-1.5 rounded-full hover:bg-zinc-200 cursor-pointer transition-colors"
+              >
+                <Heart className={`w-4 h-4 ${favorites.includes(phone.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-800'}`} />
+              </button>
+
+              <div className="space-y-3">
+                <h4 className="text-base sm:text-lg font-bold text-zinc-900 leading-tight">{phone.name}</h4>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {phone.specs.slice(0, 3).map((spec, idx) => {
+                    const SpecIcon = SPEC_ICONS[idx];
+                    return (
+                      <span key={spec} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-700 text-zinc-100 text-[10px]">
+                        <SpecIcon className={`w-3 h-3 ${themeStyle.primaryText}`} />
+                        {spec}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                <p className="text-zinc-500 leading-relaxed">{phone.description}</p>
+
+                <p className="text-zinc-400 text-[10px]">
                   الذاكرة: {phone.storageTiers.map(t => storageLabel(t.gb)).join(' · ')}
                 </p>
-                <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-white/10">
+
+                <div className="flex items-center justify-between gap-2 pt-1">
                   <span className="leading-tight">
-                    <span className="block text-[10px] text-slate-500">يبدأ من</span>
-                    <span className={`font-mono font-bold ${themeStyle.primaryText}`}>{price(phone.storageTiers[0].priceIQD)}</span>
+                    <span className="block text-[10px] text-zinc-400">يبدأ من</span>
+                    <span className="font-mono text-lg font-black text-zinc-900">{price(phone.storageTiers[0].priceIQD)}</span>
                   </span>
                   <button
                     onClick={() => pickPhone(phone)}
-                    className={`px-3.5 py-2 rounded-lg ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold cursor-pointer shrink-0`}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full ${themeStyle.solidOnLight} ${themeStyle.solidOnLightText} font-bold cursor-pointer shrink-0 transition-colors`}
                   >
+                    <ShoppingCart className="w-3.5 h-3.5" />
                     اشترِ الآن
                   </button>
                 </div>
@@ -135,7 +170,7 @@ export function PhoneStoreDemo({ ctx, computePhoneTotal, confirmPhoneOrder, phon
             />
             <div>
               <h4 className="text-sm font-bold text-white">طلب: {selectedPhone.name}</h4>
-              <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/45">{selectedPhone.brand}</p>
+              <p className="text-slate-400">{selectedPhone.tagline}</p>
             </div>
           </div>
 
