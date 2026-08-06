@@ -457,9 +457,14 @@ export default function App() {
             language={language}
             currency={currency}
             onClose={() => setActiveContractForPreview(null)}
-            onSavedSuccess={() => {
-              navigateTo('orders');
-            }}
+            // Used to auto-navigate to 'orders' the instant the Firebase save resolved —
+            // which happens near-instantly, so the customer got yanked away from the "here's
+            // your contract, download it now" modal to the account/orders list before they
+            // ever saw it, and had to go hunt for the same contract there to download it. The
+            // modal itself stayed mounted throughout (this never closed it), so nothing here
+            // needs to navigate anywhere: the customer already has the download button in
+            // front of them and can go to 'orders' on their own once they're done with it.
+            onSavedSuccess={() => {}}
           />
         </Suspense>
       )}
