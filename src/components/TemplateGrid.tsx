@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
-import { formatPrice, IQD_PER_USD } from '../lib/currency';
+import { formatPrice, IQD_PER_USD, Currency } from '../lib/currency';
 import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
 
@@ -33,12 +33,14 @@ interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
   onOpenStandalonePreview?: (template: Template) => void;
   language?: Language;
+  currency?: Currency;
 }
 
 export const TemplateGrid: React.FC<TemplateGridProps> = ({
   onSelectTemplateForContract,
   onOpenStandalonePreview,
   language = 'ar',
+  currency = 'IQD',
 }) => {
   const currentLang: Language = (language === 'en' ? 'en' : 'ar');
   // Static catalogue merged with any live admin price overrides — same shape and name as
@@ -338,8 +340,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       </div>
                       <div className="text-[11px] text-zinc-400 text-center font-sans pt-1 border-t border-zinc-800">
                         {currentLang === 'ar'
-                          ? `تصفية القوالب بميزانية حتى: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang)}`
-                          : `Filter up to: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang)}`}
+                          ? `تصفية القوالب بميزانية حتى: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`
+                          : `Filter up to: ${formatPrice(maxPriceUSD * IQD_PER_USD, currentLang, currency)}`}
                       </div>
                     </div>
                   </div>

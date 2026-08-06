@@ -472,6 +472,7 @@ export default function App() {
           <ContractPDFPreview
             contract={activeContractForPreview}
             language={language}
+            currency={currency}
             onClose={() => setActiveContractForPreview(null)}
             onSavedSuccess={() => {
               navigateTo('orders');
