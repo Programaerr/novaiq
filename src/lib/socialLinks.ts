@@ -21,7 +21,10 @@ export function subscribeToSocialLinks(callback: (links: SocialLinks) => void) {
   return onSnapshot(
     doc(db, SETTINGS_DOC),
     (snap) => callback((snap.data() as SocialLinks) || {}),
-    () => callback({})
+    // See the identical note in pricingOverrides.ts: never wipe already-loaded data on a
+    // transient listener error, or a brief hiccup would flash the footer's social links
+    // back to hidden until the next successful snapshot.
+    (error) => console.error('social links subscription error:', error)
   );
 }
 
