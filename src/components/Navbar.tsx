@@ -62,6 +62,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   setCurrency,
 }) => {
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
+  // Stands in for :hover on touch screens — pressing the brand plays the same reveal, then it
+  // settles back on its own. Deliberately not a toggle tied to the click: the logo is still a
+  // link home, and swallowing the first tap to open an animation would be a worse trade.
+  const [logoRevealed, setLogoRevealed] = useState(false);
+  const logoRevealTimer = useRef<number | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useRef<HTMLDivElement | null>(null);
   // undefined = the initial auth check hasn't resolved yet. Left this way (instead of
@@ -215,9 +220,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         <a
           href="/"
           onClick={(e) => handleNavClick('home', e)}
+          onTouchStart={() => {
+            setLogoRevealed(true);
+            if (logoRevealTimer.current) window.clearTimeout(logoRevealTimer.current);
+            logoRevealTimer.current = window.setTimeout(() => setLogoRevealed(false), 2200);
+          }}
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group z-10"
         >
-          <NovaiqLogo size={34} showText={true} animated />
+          <NovaiqLogo size={34} showText={true} animated revealed={logoRevealed} />
         </a>
 
         {/* Side 2 (physical right): Menu & Language toggle */}

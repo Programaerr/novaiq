@@ -625,6 +625,37 @@
     width: 26px !important;
     height: 26px !important;
   }
+
+  /* Tapped (see Navbar's touch handler): the same reveal the desktop does on hover, except
+     stacked into a column. Laid out sideways it would need ~210px of width it doesn't have
+     and would run straight into the language button; going downward it stays as narrow as the
+     mark. The lockup is absolutely positioned, so growing taller shifts nothing around it. */
+  .navbar-logo-lockup.is-revealed {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .navbar-logo-lockup.is-revealed .navbar-logo-name,
+  .navbar-logo-lockup.is-revealed .navbar-logo-word {
+    display: inline-flex;
+    opacity: 1;
+    transform: none;
+    line-height: 1;
+  }
+
+  .navbar-logo-lockup.is-revealed .navbar-logo-name {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+  }
+
+  .navbar-logo-lockup.is-revealed .navbar-logo-word {
+    font-size: 8px;
+  }
+
+  .navbar-logo-lockup.is-revealed .navbar-logo-mark-img {
+    width: 20px !important;
+    height: 20px !important;
+  }
 }
 
 /* "...▊Design" prompt — three dots pulsing in sequence (thinking/loading), then a

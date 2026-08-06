@@ -8,6 +8,9 @@ interface NovaiqLogoProps {
   // Hover-only: a terminal-style "...▊Design" prompt types itself out right after the mark.
   // Caller must put `group` on an ancestor for the hover trigger to reach this.
   animated?: boolean;
+  // Phones can't hover, so the caller drives the same reveal from a tap instead. On mobile the
+  // revealed lockup stacks into a column rather than widening into the language button.
+  revealed?: boolean;
 }
 
 export const NovaiqLogo: React.FC<NovaiqLogoProps> = ({
@@ -15,11 +18,17 @@ export const NovaiqLogo: React.FC<NovaiqLogoProps> = ({
   showText = true,
   size = 36,
   animated = false,
+  revealed = false,
 }) => {
   return (
     // dir="ltr" always — a brand lockup shouldn't mirror order in RTL the way normal
     // content does; NAME → MARK → WORD must read the same physically in Arabic or English.
-    <div dir="ltr" className={`inline-flex items-center gap-2.5 select-none ${className}`}>
+    <div
+      dir="ltr"
+      className={`navbar-logo-lockup inline-flex items-center gap-2.5 select-none ${
+        revealed ? 'is-revealed' : ''
+      } ${className}`}
+    >
       {showText && (
         <span
           className={`font-black tracking-widest text-white text-xl sm:text-2xl font-mono ${
