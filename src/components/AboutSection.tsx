@@ -60,7 +60,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
               <div
                 key={idx}
                 onMouseMove={handleSpotlightMove}
-                className="spotlight-card min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-800 hover:border-white/40 glow-white-hover text-center transition-all"
+                className="spotlight-card min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 hover:border-white/40 glow-white-hover text-center transition-all"
               >
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>

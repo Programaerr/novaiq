@@ -311,7 +311,7 @@ export default function App() {
 
             {/* Quick Overview Grid to drive leads */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
+              <div className="corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
                 <div className="flex flex-col gap-4">
                   <div className="flex-1 flex flex-col justify-start space-y-3 text-start">
                     <h3 className="text-xl sm:text-3xl font-bold text-white">
@@ -329,7 +329,7 @@ export default function App() {
                       { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
                       { value: '100%', label: isAr ? 'ملكية الكود' : 'Code ownership', fill: 100 },
                     ].map((stat, idx) => (
-                      <div key={idx} className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-800/80">
+                      <div key={idx} className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80">
                         <div className="relative w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
                             className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
@@ -359,7 +359,7 @@ export default function App() {
                     <div
                       key={idx}
                       onMouseMove={handleSpotlightMove}
-                      className="spotlight-card aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-800/80 space-y-1"
+                      className="spotlight-card aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
                     >
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>
