@@ -6,9 +6,17 @@ service cloud.firestore {
     // True only for the owner/partner — regular customers also have accounts now (see
     // src/lib/auth.ts), so "signed in" alone no longer implies "admin". Every admin-only
     // rule below checks this instead of just request.auth != null.
+    //
+    // .lower() matters: every admin doc is created (and checked client-side) via
+    // normalizeEmail() in src/lib/auth.ts, which lowercases first. request.auth.token.email
+    // is NOT lowercased by Firebase Auth — a token email with any uppercase character
+    // (e.g. "Ahmed@Gmail.com") would look up admins/Ahmed@Gmail.com here, which never
+    // exists (only admins/ahmed@gmail.com does), so this always evaluated to false and
+    // every admin write silently failed for that account while the client-side check
+    // (which does lowercase) still showed them the full dashboard as an admin.
     function isAdmin() {
       return request.auth != null &&
-        exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+        exists(/databases/$(database)/documents/admins/$(request.auth.token.email.lower()));
     }
 
     match /contracts/{document=**} {

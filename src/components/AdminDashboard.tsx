@@ -813,6 +813,14 @@ function PricingRow({
       setJustSaved(true);
       cosmicAudio.playPing();
       setTimeout(() => setJustSaved(false), 2000);
+    } catch (error) {
+      // Was silent before — a permissions failure (e.g. unpublished Firestore rules) looked
+      // identical to a successful save: the input kept whatever the admin typed, nothing
+      // told them the write never actually reached Firestore.
+      const message = (error as { code?: string })?.code === 'permission-denied'
+        ? (isAr ? 'تم الرفض: تحقق من نشر قواعد Firestore وصلاحيات حسابك كأدمن' : 'Permission denied — check that Firestore rules are published and your account is an admin')
+        : (isAr ? 'تعذر حفظ السعر، حاول مجدداً' : 'Failed to save the price — please try again');
+      showToast(message, 'error');
     } finally {
       setIsSaving(false);
     }
