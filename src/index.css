@@ -609,6 +609,22 @@
   transform: translateX(0);
 }
 
+/* Phones have no hover, so the reveal above can never fire there — yet both pieces still
+   reserved their full width beside the mark (210px of lockup for a 34px logo), which pushed
+   the absolutely-centred brand into the language and menu buttons on a 390px bar. Below sm:
+   the name is simply always shown, and the "...Design" prompt drops out entirely rather than
+   sitting there permanently invisible and taking up room. */
+@media (max-width: 639px) {
+  .navbar-logo-name {
+    opacity: 1;
+    transform: none;
+  }
+
+  .navbar-logo-word {
+    display: none;
+  }
+}
+
 /* "...▊Design" prompt — three dots pulsing in sequence (thinking/loading), then a
    terminal-style blinking cursor, then the word itself. Reads as an ongoing process
    settling on "Design", not just a static label appearing. */
