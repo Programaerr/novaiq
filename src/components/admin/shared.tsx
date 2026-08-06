@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { ContractData } from '../../types';
-import { translateText } from '../../lib/i18n';
 
 export const STATUS_FLOW: ContractData['status'][] = ['submitted', 'under_review', 'in_development', 'completed'];
 

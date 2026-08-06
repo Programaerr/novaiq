@@ -1,6 +1,6 @@
 // Live catalogue editing: per-template name, image, price and demo-link overrides that the
 // public template grid picks up over Firestore without a redeploy.
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Save,
   Loader2,

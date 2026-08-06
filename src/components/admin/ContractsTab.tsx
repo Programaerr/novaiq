@@ -1,6 +1,6 @@
 // Contract administration: the searchable list, the per-contract editor row, and the
 // company-signature pad the admin signs with.
-import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import {
   TrendingUp,
   FileCheck,

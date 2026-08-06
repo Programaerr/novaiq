@@ -1,5 +1,4 @@
 // The dashboard landing tab: status/template breakdown bars plus the newest contracts.
-import React from 'react';
 import { ContractData } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
