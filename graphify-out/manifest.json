@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "src/components/TemplateGrid.tsx": {
-    "mtime": 1786036721.2287915,
-    "ast_hash": "4d5e47539177c285ae5dbe839a88d89f",
+    "mtime": 1786037200.2994726,
+    "ast_hash": "a99c6a37146278ddbe2fb71bd9c0bb4c",
     "semantic_hash": ""
   },
   "src/components/TemplateInteractiveSandbox.tsx": {
@@ -270,8 +270,8 @@
     "semantic_hash": ""
   },
   "src/lib/i18n.ts": {
-    "mtime": 1785848256.0025425,
-    "ast_hash": "b5b80f8be19f19d8f0824f7a8492eedf",
+    "mtime": 1786037189.088545,
+    "ast_hash": "15aebe7b50a0cdf93d406078dd79cbf1",
     "semantic_hash": ""
   },
   "src/lib/pageTranslator.ts": {
