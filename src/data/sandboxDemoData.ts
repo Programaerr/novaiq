@@ -253,7 +253,13 @@ export interface PhoneProduct {
   /** Cheapest tier first: the catalogue card quotes `storageTiers[0]` as the "starting at" price. */
   storageTiers: PhoneStorageTier[];
   colors: string[];
+  /** Tint the card sits on, behind and below the photo — the poster look the cards copy. */
   imageBg: string;
+  /** Product photo. Stock shots of the right *kind* of handset, not the exact model — a real
+   *  store swaps these for its own shelf photos. */
+  image: string;
+  /** The one-line claim under the model name, in the poster's highlighted strip. */
+  tagline: string;
   specs: string[];
   badge?: string;
 }
