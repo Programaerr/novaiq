@@ -1,6 +1,7 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { Currency } from '../lib/currency';
 import { Template, ContractData } from '../types';
 import { useCurrentUser } from '../lib/auth';
 import { AdminLogin } from './AdminLogin';
@@ -10,6 +11,7 @@ interface ContractBuilderGateProps {
   selectedTemplate: Template | null;
   onContractGenerated: (contract: ContractData) => void;
   language?: Language;
+  currency?: Currency;
   initialCustomFeaturesText?: string;
   initialPrimaryColor?: string;
 }
