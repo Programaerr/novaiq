@@ -258,8 +258,10 @@ export interface PhoneProduct {
   /** Product photo. Stock shots of the right *kind* of handset, not the exact model — a real
    *  store swaps these for its own shelf photos. */
   image: string;
-  /** The one-line claim under the model name, in the poster's highlighted strip. */
+  /** The one-line claim under the model name. */
   tagline: string;
+  /** The sales paragraph on the product card — what a shop assistant would say about it. */
+  description: string;
   specs: string[];
   badge?: string;
 }
@@ -288,6 +290,7 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
     imageBg: 'from-slate-700/70 to-slate-950',
     image: UNSPLASH('photo-1616348436168-de43ad0db179'),
     tagline: 'تيتانيوم. أخف. وأقوى.',
+    description: 'هيكل تيتانيوم أخف من الجيل السابق مع شريحة A17 Pro، وكاميرا 48 ميغابكسل تصوّر بدقة عالية حتى في الإضاءة الضعيفة. الخيار الأول لمن يريد أفضل ما لدى Apple.',
     specs: ['شاشة 6.7 بوصة', 'شريحة A17 Pro', 'كاميرا 48 ميغا', 'بطارية 4441 mAh'],
   },
   {
@@ -297,6 +300,7 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
     imageBg: 'from-indigo-900/70 to-slate-950',
     image: UNSPLASH('photo-1610945265064-0e34e5519bbf'),
     tagline: 'قلم S Pen بين يديك.',
+    description: 'شاشة 6.8 بوصة وقلم S Pen مدمج داخل الجهاز، مع كاميرا 200 ميغابكسل وزوم بصري 5x. مناسب لمن يكتب ويصوّر ويعمل من هاتفه طوال اليوم.',
     specs: ['شاشة 6.8 بوصة', 'Snapdragon 8 Gen 3', 'كاميرا 200 ميغا', 'زوم بصري 5x'],
   },
   {
@@ -306,6 +310,7 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
     imageBg: 'from-sky-900/70 to-slate-950',
     image: UNSPLASH('photo-1574944985070-8f3ebc6b79d2'),
     tagline: 'كاميرا تفكّر معك.',
+    description: 'شريحة Tensor G3 تشغّل أدوات تعديل الصور بالذكاء الاصطناعي مباشرة داخل الهاتف: امسح أي شخص من الخلفية أو صحّح وجهاً مغمض العينين بضغطة واحدة.',
     specs: ['شاشة 6.7 بوصة', 'شريحة Tensor G3', 'كاميرا 50 ميغا', 'تعديل صور بالذكاء الاصطناعي'],
   },
   {
@@ -315,6 +320,7 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
     imageBg: 'from-orange-900/70 to-slate-950',
     image: UNSPLASH('photo-1567581935884-3349723552ca'),
     tagline: 'عدسات Leica بالكامل.',
+    description: 'نظام كاميرات بعدسات Leica يعطي ألواناً واقعية بدون مبالغة، وشحن سريع 120 واط يملأ البطارية في أقل من 20 دقيقة. أداء رائد بسعر أقل من المنافسين.',
     specs: ['شاشة 6.73 بوصة', 'عدسات Leica', 'شحن سريع 120 واط', 'بطارية 4880 mAh'],
   },
   {
@@ -324,6 +330,7 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
     imageBg: 'from-emerald-900/70 to-slate-950',
     image: UNSPLASH('photo-1601784551446-20c9e07cdbdb'),
     tagline: 'سرعة بلا انتظار.',
+    description: 'شاشة 120Hz ورام 12 غيغا تجعل التنقل بين التطبيقات والألعاب بدون أي تأخير، مع بطارية 5400 mAh تكفي يوماً كاملاً من الاستخدام الثقيل.',
     specs: ['شاشة 6.82 بوصة 120Hz', 'رام 12 غيغا', 'شحن 100 واط', 'بطارية 5400 mAh'],
   },
   {
@@ -333,6 +340,7 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
     imageBg: 'from-cyan-900/70 to-slate-950',
     image: UNSPLASH('photo-1580910051074-3eb694886505'),
     tagline: 'كل المزايا، بأقل سعر.',
+    description: 'يعطيك كاميرا 50 ميغابكسل وبطارية 5000 mAh ومقاومة للماء IP67 بثلث سعر الأجهزة الرائدة. الخيار العملي لمن يريد جهازاً يدوم بدون مبالغة بالسعر.',
     specs: ['شاشة 6.6 بوصة', 'كاميرا 50 ميغا', 'بطارية 5000 mAh', 'مقاوم للماء IP67'],
   },
 ];
