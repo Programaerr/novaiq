@@ -76,8 +76,9 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
         </div>
         <button
           onClick={() => setShowLogoutConfirm(true)}
-          className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors shrink-0"
+          className="nq-btn nq-btn--ghost px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shrink-0"
         >
+          <span className="nq-btn-beam" aria-hidden="true" />
           <LogOut className="w-4 h-4" />
           <span className="hidden sm:inline">{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
         </button>
@@ -252,8 +253,9 @@ function CustomerContractRow({
             <button
               onClick={handleDownload}
               disabled={isDownloading}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all border border-white"
+              className="nq-btn nq-btn--solid px-5 py-2.5 rounded-xl disabled:opacity-60 text-xs font-extrabold flex items-center gap-2 cursor-pointer"
             >
+              <span className="nq-btn-beam" aria-hidden="true" />
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               <span>{isAr ? 'تنزيل العقد PDF' : 'Download Contract PDF'}</span>
             </button>
