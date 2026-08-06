@@ -140,6 +140,87 @@ export function RealEstateDemo({ ctx, bookingDate, propertyVisits, selectedPrope
 
   const selectedProperty = SAMPLE_PROPERTIES.find(p => p.id === selectedPropertyId) || SAMPLE_PROPERTIES[0];
 
+  // One definition for both the landing page and the listings section — they showed the same
+  // cards, and two copies of this much markup would have drifted apart the first time either
+  // one was touched.
+  const renderPropertyCard = (prop: (typeof SAMPLE_PROPERTIES)[number]) => {
+    const shot = propertyShot[prop.id] ?? 0;
+    return (
+      <div key={prop.id} className="rounded-[26px] bg-white p-2.5 shadow-2xl shadow-black/40 flex flex-col hover:-translate-y-1 transition-transform duration-300">
+        {/* Photo — the card's own padding is what leaves the white border showing around it,
+            so the image is inset rather than bleeding to the card edge. */}
+        <div className="relative h-52 rounded-[20px] overflow-hidden bg-zinc-200">
+          <img
+            key={prop.images[shot]}
+            src={prop.images[shot]}
+            alt={prop.title}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover animate-fade-in"
+          />
+
+          <span className="absolute top-3 left-3 bg-black/45 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full">
+            {prop.badge}
+          </span>
+
+          <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
+            <Building2 className="w-5 h-5 text-zinc-900" />
+          </div>
+
+          {/* Real gallery control, not decoration — stops at the image so tapping a dot never
+              also fires the card's booking action. */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+            {prop.images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`صورة ${i + 1}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPropertyShot(prev => ({ ...prev, [prop.id]: i }));
+                  cosmicAudio.playTick();
+                }}
+                className={`h-1.5 rounded-full cursor-pointer transition-all ${
+                  i === shot ? 'w-5 bg-white' : 'w-1.5 bg-white/55 hover:bg-white/80'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="px-2.5 pt-4 pb-1 space-y-1 flex-1">
+          <h4 className="text-base font-extrabold text-zinc-900 leading-snug">{prop.title}</h4>
+          <p className="text-[13px] font-bold text-zinc-400">{prop.tagline}</p>
+          <p className="text-[12px] text-zinc-500 leading-relaxed pt-0.5">{prop.description}</p>
+          <div className="flex items-center gap-3 text-[11px] font-semibold text-zinc-400 pt-1.5">
+            <span>{prop.space}</span>
+            <span className="w-1 h-1 rounded-full bg-zinc-300" />
+            <span>{prop.rooms} غرف</span>
+            <span className="w-1 h-1 rounded-full bg-zinc-300" />
+            <span className="truncate">{prop.location}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-2 px-1.5 pb-1.5 pt-3">
+          <span className="px-3.5 py-2.5 rounded-full bg-zinc-100 text-zinc-900 text-[13px] font-extrabold font-mono whitespace-nowrap">
+            {price(prop.priceIQD)}
+          </span>
+
+          <button
+            onClick={() => { setSelectedPropertyId(prop.id); setActiveTab('booking'); cosmicAudio.playPing(); }}
+            className="ps-4 pe-1.5 py-1.5 rounded-full bg-zinc-900 hover:bg-black text-white font-bold cursor-pointer text-[13px] flex items-center gap-2 shrink-0 transition-colors"
+          >
+            <span>احجز معاينة</span>
+            <span className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0">
+              <ArrowUpLeft className="w-3.5 h-3.5 text-zinc-900" />
+            </span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 text-slate-100">
       {renderSiteTopBar(<Building2 className={isNarrowViewport ? 'w-4 h-4' : 'w-4 h-4 sm:w-5 sm:h-5'} />, 'Logo')}
@@ -180,6 +261,29 @@ export function RealEstateDemo({ ctx, bookingDate, propertyVisits, selectedPrope
               <div className="text-[11px] text-slate-400">تقييم رضا العملاء</div>
             </div>
           </div>
+
+          {/* The listings themselves, on the landing page — a property site that makes you
+              open a menu before showing you a single house is asking the visitor to take it on
+              faith. Same cards as the listings section, minus its filters. */}
+          <div className="space-y-3 pt-1">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <h4 className="text-base sm:text-lg font-extrabold text-white">أحدث العقارات المتاحة</h4>
+                <p className="text-[11px] text-slate-400">مختارات من فلل وبيوت وشقق جاهزة للمعاينة</p>
+              </div>
+              <button
+                onClick={() => { setActiveTab('properties'); cosmicAudio.playTick(); }}
+                className="text-[11px] font-bold text-slate-300 hover:text-white cursor-pointer flex items-center gap-1 shrink-0 transition-colors"
+              >
+                <span>عرض الكل</span>
+                <ArrowUpLeft className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-5`}>
+              {SAMPLE_PROPERTIES.map(renderPropertyCard)}
+            </div>
+          </div>
         </div>
       )}
 
@@ -215,83 +319,7 @@ export function RealEstateDemo({ ctx, bookingDate, propertyVisits, selectedPrope
           {filteredProperties.length === 0 && renderNoSearchResults('أي عقار')}
 
           <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-5`}>
-            {filteredProperties.map(prop => {
-              const shot = propertyShot[prop.id] ?? 0;
-              return (
-              <div key={prop.id} className="rounded-[26px] bg-white p-2.5 shadow-2xl shadow-black/40 flex flex-col hover:-translate-y-1 transition-transform duration-300">
-                {/* Photo — the card's own padding is what leaves the white border showing
-                    around it, so the image is inset rather than bleeding to the card edge. */}
-                <div className="relative h-52 rounded-[20px] overflow-hidden bg-zinc-200">
-                  <img
-                    key={prop.images[shot]}
-                    src={prop.images[shot]}
-                    alt={prop.title}
-                    loading="lazy"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover animate-fade-in"
-                  />
-
-                  <span className="absolute top-3 left-3 bg-black/45 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1.5 rounded-full">
-                    {prop.badge}
-                  </span>
-
-                  <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg">
-                    <Building2 className="w-5 h-5 text-zinc-900" />
-                  </div>
-
-                  {/* Real gallery control, not decoration — stops at the image so tapping a
-                      dot never also fires the card's booking action. */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-                    {prop.images.map((_, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        aria-label={`صورة ${i + 1}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPropertyShot(prev => ({ ...prev, [prop.id]: i }));
-                          cosmicAudio.playTick();
-                        }}
-                        className={`h-1.5 rounded-full cursor-pointer transition-all ${
-                          i === shot ? 'w-5 bg-white' : 'w-1.5 bg-white/55 hover:bg-white/80'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="px-2.5 pt-4 pb-1 space-y-1 flex-1">
-                  <h4 className="text-base font-extrabold text-zinc-900 leading-snug">{prop.title}</h4>
-                  <p className="text-[13px] font-bold text-zinc-400">{prop.tagline}</p>
-                  <p className="text-[12px] text-zinc-500 leading-relaxed pt-0.5">{prop.description}</p>
-                  <div className="flex items-center gap-3 text-[11px] font-semibold text-zinc-400 pt-1.5">
-                    <span>{prop.space}</span>
-                    <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                    <span>{prop.rooms} غرف</span>
-                    <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                    <span className="truncate">{prop.location}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-2 px-1.5 pb-1.5 pt-3">
-                  <span className="px-3.5 py-2.5 rounded-full bg-zinc-100 text-zinc-900 text-[13px] font-extrabold font-mono whitespace-nowrap">
-                    {price(prop.priceIQD)}
-                  </span>
-
-                  <button
-                    onClick={() => { setSelectedPropertyId(prop.id); setActiveTab('booking'); cosmicAudio.playPing(); }}
-                    className="ps-4 pe-1.5 py-1.5 rounded-full bg-zinc-900 hover:bg-black text-white font-bold cursor-pointer text-[13px] flex items-center gap-2 shrink-0 transition-colors"
-                  >
-                    <span>احجز معاينة</span>
-                    <span className="w-7 h-7 rounded-full bg-white flex items-center justify-center shrink-0">
-                      <ArrowUpLeft className="w-3.5 h-3.5 text-zinc-900" />
-                    </span>
-                  </button>
-                </div>
-              </div>
-              );
-            })}
+            {filteredProperties.map(renderPropertyCard)}
           </div>
         </div>
       )}
