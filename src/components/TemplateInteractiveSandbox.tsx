@@ -31,9 +31,9 @@ import type {
   Course,
   Enrollment,
   FoodOrderItem,
-  HotelBooking,
-  HotelRoom,
   MenuItem,
+  PhoneOrder,
+  PhoneProduct,
   Shipment,
   ShippingQuote,
   SiteAccount,
@@ -42,6 +42,7 @@ import type {
 
 import {
   COMPANY_PROFILES,
+  PHONE_WARRANTY_IQD,
   SAMPLE_PRODUCTS,
   SAMPLE_SHIPMENTS,
   SITE_IDENTITIES,
@@ -62,7 +63,7 @@ import { RealEstateDemo } from './sandbox/templates/RealEstateDemo';
 import { HealthDemo } from './sandbox/templates/HealthDemo';
 import { RestaurantDemo } from './sandbox/templates/RestaurantDemo';
 import { EducationDemo } from './sandbox/templates/EducationDemo';
-import { HotelDemo } from './sandbox/templates/HotelDemo';
+import { PhoneStoreDemo, storageLabel } from './sandbox/templates/PhoneStoreDemo';
 import { LogisticsDemo } from './sandbox/templates/LogisticsDemo';
 import { FintechDemo } from './sandbox/templates/FintechDemo';
 
@@ -239,14 +240,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [courseCategoryFilter, setCourseCategoryFilter] = useState<'all' | 'programming' | 'languages' | 'business' | 'design'>('all');
   const [studentNameInput, setStudentNameInput] = useState<string>('أحمد العراقي');
 
-  // Hospitality demo state
-  const [hotelBookings, setHotelBookings] = useState<HotelBooking[]>(() => {
-    try { return JSON.parse(localStorage.getItem('novaiq_sandbox_hotel_bookings') || '[]'); } catch { return []; }
+  // Mobile store demo state
+  const [phoneOrders, setPhoneOrders] = useState<PhoneOrder[]>(() => {
+    try { return JSON.parse(localStorage.getItem('novaiq_sandbox_phone_orders') || '[]'); } catch { return []; }
   });
-  const [selectedRoomId, setSelectedRoomId] = useState<string>('room-1');
-  const [checkInDate, setCheckInDate] = useState<string>('2026-08-20');
-  const [checkOutDate, setCheckOutDate] = useState<string>('2026-08-23');
-  const [guestsCount, setGuestsCount] = useState<number>(2);
+  const [selectedPhoneId, setSelectedPhoneId] = useState<string>('phone-1');
+  const [selectedStorageGb, setSelectedStorageGb] = useState<number>(256);
+  const [selectedColor, setSelectedColor] = useState<string>('تيتانيوم طبيعي');
+  const [phoneQuantity, setPhoneQuantity] = useState<number>(1);
+  const [warranty, setWarranty] = useState<boolean>(false);
 
   // Logistics demo state
   const [trackingInput, setTrackingInput] = useState<string>('');
@@ -295,8 +297,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   }, [enrollments]);
 
   useEffect(() => {
-    try { localStorage.setItem('novaiq_sandbox_hotel_bookings', JSON.stringify(hotelBookings)); } catch { /* ignore */ }
-  }, [hotelBookings]);
+    try { localStorage.setItem('novaiq_sandbox_phone_orders', JSON.stringify(phoneOrders)); } catch { /* ignore */ }
+  }, [phoneOrders]);
 
   useEffect(() => {
     try { localStorage.setItem('novaiq_sandbox_shipping_quotes', JSON.stringify(savedQuotes)); } catch { /* ignore */ }
@@ -358,7 +360,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         case 'novaiq_sandbox_food_order': syncFromStorage(setFoodOrder, event.newValue, [] as FoodOrderItem[]); break;
         case 'novaiq_sandbox_table_reservations': syncFromStorage(setTableReservations, event.newValue, [] as Array<{ id: string; guests: number; date: string; time: string }>); break;
         case 'novaiq_sandbox_enrollments': syncFromStorage(setEnrollments, event.newValue, [] as Enrollment[]); break;
-        case 'novaiq_sandbox_hotel_bookings': syncFromStorage(setHotelBookings, event.newValue, [] as HotelBooking[]); break;
+        case 'novaiq_sandbox_phone_orders': syncFromStorage(setPhoneOrders, event.newValue, [] as PhoneOrder[]); break;
         case 'novaiq_sandbox_shipping_quotes': syncFromStorage(setSavedQuotes, event.newValue, [] as ShippingQuote[]); break;
         case 'novaiq_sandbox_property_visits': syncFromStorage(setPropertyVisits, event.newValue, [] as Array<{ id: string; propertyTitle: string; date: string; visitorName: string }>); break;
         case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, [] as Array<{ id: string; amountIQD: number; date: string; recipient: string }>); break;
@@ -450,9 +452,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     } else if (template.id === 'NVQ-EDU-08' && enrollments.length > 0) {
       const last = enrollments[0];
       lines.push(`قام العميل بتجربة التسجيل في دورة: ${last.courseTitle} باسم الطالب التجريبي ${last.studentName}`);
-    } else if (template.id === 'NVQ-HOTEL-09' && hotelBookings.length > 0) {
-      const last = hotelBookings[0];
-      lines.push(`قام العميل بتجربة حجز غرفة: ${last.roomName} من ${last.checkIn} إلى ${last.checkOut} (${last.nights} ليالٍ) بتكلفة تقديرية ${price(last.totalIQD)}`);
+    } else if (template.id === 'NVQ-PHONE-09' && phoneOrders.length > 0) {
+      const last = phoneOrders[0];
+      lines.push(`قام العميل بتجربة طلب هاتف: ${last.phoneName} — ${storageLabel(last.storageGb)} بلون ${last.color} (عدد ${last.quantity}${last.warranty ? '، مع كفالة سنة إضافية' : ''}) بتكلفة تقديرية ${price(last.totalIQD)}`);
     } else if (template.id === 'NVQ-LOG-10') {
       if (foundShipment) lines.push(`قام العميل بتجربة تتبع شحنة تجريبية: ${foundShipment.trackingNumber} (${foundShipment.status})`);
       if (savedQuotes.length > 0) {
@@ -673,25 +675,27 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     cosmicAudio.playPing();
   };
 
-  // Hotel booking helpers
-  const computeNights = (checkIn: string, checkOut: string) => {
-    const inDate = new Date(checkIn).getTime();
-    const outDate = new Date(checkOut).getTime();
-    const diff = Math.round((outDate - inDate) / (1000 * 60 * 60 * 24));
-    return diff > 0 ? diff : 1;
+  // Mobile store helpers. The warranty is priced per device, so it multiplies by quantity the
+  // same way the handset does.
+  const computePhoneTotal = (phone: PhoneProduct, storageGb: number, quantity: number, withWarranty: boolean) => {
+    const tier = phone.storageTiers.find(t => t.gb === storageGb) || phone.storageTiers[0];
+    const perUnit = tier.priceIQD + (withWarranty ? PHONE_WARRANTY_IQD : 0);
+    return perUnit * quantity;
   };
 
-  const confirmHotelBooking = (room: HotelRoom) => {
-    const nights = computeNights(checkInDate, checkOutDate);
-    setHotelBookings(prev => [
+  const confirmPhoneOrder = (phone: PhoneProduct) => {
+    const tier = phone.storageTiers.find(t => t.gb === selectedStorageGb) || phone.storageTiers[0];
+    const color = phone.colors.includes(selectedColor) ? selectedColor : phone.colors[0];
+    setPhoneOrders(prev => [
       {
-        id: `AUR-${Math.floor(10000 + Math.random() * 90000)}`,
-        roomName: room.name,
-        checkIn: checkInDate,
-        checkOut: checkOutDate,
-        guests: guestsCount,
-        nights,
-        totalIQD: nights * room.pricePerNightIQD
+        id: `PLS-${Math.floor(10000 + Math.random() * 90000)}`,
+        phoneName: phone.name,
+        storageGb: tier.gb,
+        color,
+        quantity: phoneQuantity,
+        warranty,
+        totalIQD: computePhoneTotal(phone, tier.gb, phoneQuantity, warranty),
+        date: new Date().toLocaleDateString('ar-IQ')
       },
       ...prev
     ]);
@@ -900,21 +904,23 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           />
         );
 
-      case 'NVQ-HOTEL-09':
+      case 'NVQ-PHONE-09':
         return (
-          <HotelDemo
+          <PhoneStoreDemo
             ctx={ctx}
-            checkInDate={checkInDate}
-            checkOutDate={checkOutDate}
-            computeNights={computeNights}
-            confirmHotelBooking={confirmHotelBooking}
-            guestsCount={guestsCount}
-            hotelBookings={hotelBookings}
-            selectedRoomId={selectedRoomId}
-            setCheckInDate={setCheckInDate}
-            setCheckOutDate={setCheckOutDate}
-            setGuestsCount={setGuestsCount}
-            setSelectedRoomId={setSelectedRoomId}
+            computePhoneTotal={computePhoneTotal}
+            confirmPhoneOrder={confirmPhoneOrder}
+            phoneOrders={phoneOrders}
+            phoneQuantity={phoneQuantity}
+            selectedColor={selectedColor}
+            selectedPhoneId={selectedPhoneId}
+            selectedStorageGb={selectedStorageGb}
+            setPhoneQuantity={setPhoneQuantity}
+            setSelectedColor={setSelectedColor}
+            setSelectedPhoneId={setSelectedPhoneId}
+            setSelectedStorageGb={setSelectedStorageGb}
+            setWarranty={setWarranty}
+            warranty={warranty}
           />
         );
 
@@ -986,7 +992,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const recordsLabel = (() => {
     switch (template.id) {
       case 'NVQ-HEALTH-05': return 'مواعيدي';
-      case 'NVQ-HOTEL-09': return 'حجوزاتي';
+      case 'NVQ-PHONE-09': return 'طلباتي';
       case 'NVQ-EDU-08': return 'دوراتي';
       case 'NVQ-LOG-10': return 'شحناتي';
       case 'NVQ-FINTECH-06': return 'تحويلاتي';
@@ -1002,7 +1008,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const siteSearchPlaceholder = (() => {
     switch (template.id) {
       case 'NVQ-HEALTH-05': return 'ابحث عن طبيب أو تخصص';
-      case 'NVQ-HOTEL-09': return 'ابحث عن غرفة أو جناح';
+      case 'NVQ-PHONE-09': return 'ابحث عن هاتف أو ماركة';
       case 'NVQ-EDU-08': return 'ابحث عن دورة أو مدرب';
       case 'NVQ-LOG-10': return 'ابحث برقم الشحنة';
       case 'NVQ-FOOD-07': return 'ابحث في قائمة الطعام';
@@ -1087,11 +1093,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           meta: `تاريخ التسجيل: ${e.date}`, status: 'مسجّل ونشط',
         }));
 
-      case 'NVQ-HOTEL-09':
-        return hotelBookings.map((b) => ({
-          id: b.id, title: b.roomName, subtitle: `${b.guests} نزلاء · ${b.nights} ليالٍ`,
-          meta: `${b.checkIn} ← ${b.checkOut}`, status: 'حجز مؤكد',
-          amount: `${price(b.totalIQD)}`,
+      case 'NVQ-PHONE-09':
+        return phoneOrders.map((o) => ({
+          id: o.id, title: o.phoneName, subtitle: `${storageLabel(o.storageGb)} · ${o.color} · عدد ${o.quantity}`,
+          meta: `تاريخ الطلب: ${o.date}`, status: o.warranty ? 'مؤكد — كفالة سنتان' : 'طلب مؤكد',
+          amount: `${price(o.totalIQD)}`,
         }));
 
       case 'NVQ-LOG-10':
