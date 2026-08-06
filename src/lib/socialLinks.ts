@@ -7,6 +7,28 @@ import { db } from './firebase';
 // collection of one.
 const SETTINGS_DOC = 'settings/social';
 
+// Same reasoning as OVERRIDES_CACHE_KEY in pricingOverrides.ts: without a local cache, a
+// fresh page load shows no social links at all until the async Firestore listener responds,
+// which reads as "links disappear on reload" even though it self-corrects a moment later.
+const LINKS_CACHE_KEY = 'novaiq_social_links_cache';
+
+function readCachedLinks(): SocialLinks {
+  try {
+    const raw = localStorage.getItem(LINKS_CACHE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeCachedLinks(links: SocialLinks) {
+  try {
+    localStorage.setItem(LINKS_CACHE_KEY, JSON.stringify(links));
+  } catch {
+    // Storage unavailable (private browsing, quota) — the cache just won't persist.
+  }
+}
+
 export interface SocialLinks {
   facebook?: string;
   instagram?: string;
@@ -34,8 +56,11 @@ export async function saveSocialLinks(links: SocialLinks): Promise<void> {
 
 /** The single hook every social-links consumer (currently just the Footer) should use. */
 export function useSocialLinks(): SocialLinks {
-  const [links, setLinks] = useState<SocialLinks>({});
-  useEffect(() => subscribeToSocialLinks(setLinks), []);
+  const [links, setLinks] = useState<SocialLinks>(readCachedLinks);
+  useEffect(() => subscribeToSocialLinks((next) => {
+    writeCachedLinks(next);
+    setLinks(next);
+  }), []);
   return links;
 }
 
