@@ -162,6 +162,71 @@
   transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Filter pill button — a light glass surface sitting inside an otherwise dark toolbar, so
+   the glow has to invert too: a white bloom would be invisible against a white pill, so this
+   blooms dark instead. `.filter-pill-flare` is a real child span (not ::before/::after —
+   those are already spoken for by the ripple keyframe below reading the button's own
+   box-shadow) carrying a diagonal highlight that sweeps across on hover, clipped by the
+   button's own overflow-hidden. */
+.filter-pill-btn {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(228, 228, 235, 0.88));
+  border: 1px solid rgba(10, 10, 15, 0.35);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 0 rgba(0, 0, 0, 0);
+  transition: box-shadow 0.3s ease, background 0.3s ease, transform 0.15s ease, border-color 0.3s ease;
+}
+
+.filter-pill-btn:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(214, 214, 222, 0.92));
+  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.5), 0 0 14px rgba(0, 0, 0, 0.25);
+}
+
+.filter-pill-btn:active {
+  transform: scale(0.96);
+}
+
+.filter-pill-btn.is-active {
+  border-color: rgba(0, 0, 0, 0.55);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55), 0 0 16px rgba(0, 0, 0, 0.3);
+}
+
+.filter-pill-flare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.filter-pill-flare::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -40%;
+  width: 35%;
+  height: 220%;
+  background: linear-gradient(115deg, transparent, rgba(0, 0, 0, 0.16), transparent);
+  transform: translateX(-120%) rotate(10deg);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.filter-pill-btn:hover .filter-pill-flare::after {
+  transform: translateX(360%) rotate(10deg);
+}
+
+/* Click pulse — a dark shadow ring that blooms outward and fades, triggered by toggling
+   .is-pulsing from JS (restarted via an offsetWidth reflow so repeat clicks re-trigger the
+   animation instead of a class no-op being ignored by the browser). */
+@keyframes filter-pill-ripple {
+  0% { box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(0, 0, 0, 0.45); }
+  60% { box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 0 16px rgba(0, 0, 0, 0); }
+  100% { box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(0, 0, 0, 0); }
+}
+
+.filter-pill-btn.is-pulsing {
+  animation: filter-pill-ripple 0.5s ease-out;
+}
+
 .white-btn-glow:hover {
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 0, 0, 1), 0 0 15px rgba(255, 255, 255, 0.6);
   transform: translateY(-2px);
