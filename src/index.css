@@ -319,13 +319,16 @@
    The card carries its own #eef1f6 body rather than inheriting the demo's dark page: soft UI
    needs a mid-tone material for the light shadow to register against, which is the same
    reason .search-neu brings its own surface into the dark toolbar. Nested surfaces get
-   progressively smaller shadows (card 24px -> panel 12px -> button 10px), which is what
-   reads as them sitting *on* the card instead of floating beside it. */
+   progressively smaller shadows (panel 12px -> button 10px), which is what reads as them
+   sitting *on* the card instead of floating beside it. */
+/* The outer card is the one surface here that does NOT get the light half of the pair. The
+   pair models a surface raised out of the material *around* it — but this card sits on the
+   demo's dark page, not on pale material, so a 24px white shadow had nothing to model and
+   simply bloomed as a haze around the card's edge. The nested surfaces below keep both halves
+   because they really are raised out of this card's own #eef1f6 body. */
 .neu-card {
   background: #eef1f6;
-  box-shadow:
-    12px 12px 24px rgba(163, 177, 198, 0.55),
-    -10px -10px 24px rgba(255, 255, 255, 0.95);
+  box-shadow: 12px 12px 26px rgba(0, 0, 0, 0.45);
 }
 
 .neu-panel {
