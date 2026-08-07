@@ -337,44 +337,44 @@ export const templatesData: Template[] = [
     ]
   },
   {
-    id: 'NVQ-LOG-10',
-    title: 'كوميت للخدمات اللوجستية (Comet Express)',
-    subtitle: 'منصة إدارة الشحنات وخدمات التوصيل السريع',
-    category: 'logistics',
-    categoryLabel: 'خدمات لوجستية وتوصيل',
-    description: 'منصة رقمية لشركات الشحن والتوصيل تتيح تتبع الشحنات بخط زمني حي، وحساب تكلفة الشحن الفورية للعملاء.',
-    longDescription: 'مصمم لشركات اللوجستيات والتوصيل، يوفر تتبع حي للشحنات بمراحل تفصيلية، حاسبة تكلفة شحن فورية حسب الوزن والوجهة، لوحة تحكم لإدارة أسطول المندوبين، وإشعارات واتساب تلقائية.',
-    previewImage: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80',
+    id: 'NVQ-WATCH-10',
+    title: 'ميريديان لساعات اليد (Meridian Watches)',
+    subtitle: 'متجر ساعات فاخرة مع دليل مقاسات وخدمة نقش',
+    category: 'watches',
+    categoryLabel: 'ساعات يد ومجوهرات',
+    description: 'متجر إلكتروني لساعات اليد يعرض كل ساعة بحركتها ومقاس علبتها وخامة سوارها، مع نقش مجاني على ظهر العلبة وشهادة أصالة.',
+    longDescription: 'مصمم لمحلات الساعات الفاخرة، يعرض كل موديل بتفاصيله الحقيقية — نوع الحركة (أوتوماتيك أو كوارتز)، قطر العلبة بالمليمتر، مقاومة الماء، وخيارات السوار — مع اختيار السوار ونقش اسم على ظهر العلبة، وشهادة أصالة وكفالة دولية مع كل قطعة.',
+    previewImage: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1200&q=80',
     basePriceIQD: 1600000,
     basePriceUSD: 1103,
     deliveryWeeks: 3,
-    tags: ['لوجستيات', 'تتبع شحنات', 'حاسبة تكلفة الشحن', 'توصيل سريع'],
-    techStack: ['React 19', 'Tailwind CSS v4', 'Node Express', 'Firebase Firestore', 'Maps API'],
+    tags: ['ساعات يد', 'متجر فاخر', 'نقش على الساعة', 'شهادة أصالة'],
+    techStack: ['React 19', 'Tailwind CSS v4', 'Node Express', 'Firebase Firestore', 'Stripe / ZainCash'],
     features: [
-      'تتبع حي للشحنات بخط زمني تفصيلي لكل مرحلة',
-      'حاسبة تكلفة الشحن الفورية حسب الوزن والمسافة والوجهة',
-      'لوحة تحكم لإدارة أسطول المندوبين والشحنات النشطة',
-      'إشعارات تلقائية عبر واتساب عند كل تحديث لحالة الشحنة',
-      'دعم الشحن المحلي والدولي مع طباعة بوليصة الشحن'
+      'بطاقة منتج تعرض الحركة وقطر العلبة ومقاومة الماء لكل ساعة',
+      'اختيار السوار (جلد، ستيل، مطاط) مع تغيّر السعر مباشرة',
+      'خدمة نقش اسم أو تاريخ على ظهر العلبة قبل التسليم',
+      'شهادة أصالة وكفالة دولية سنتان مرفقة بكل طلب',
+      'تغليف هدايا وتوصيل مؤمّن لكل المحافظات'
     ],
     specificationsOptions: [
-      { id: 'spec_fleet_tracking', label: 'تتبع أسطول المندوبين على الخريطة بالوقت الحقيقي', priceIQD: 280000, recommended: true },
-      { id: 'spec_shipping_calc_api', label: 'ربط حاسبة تكلفة الشحن بأسعار شركات النقل الفعلية', priceIQD: 220000, recommended: true },
-      { id: 'spec_whatsapp_shipment_alerts', label: 'إشعارات واتساب تلقائية لكل تحديث في حالة الشحنة', priceIQD: 150000 },
-      { id: 'spec_cod_reconciliation', label: 'نظام تسوية الدفع عند الاستلام (COD) للمندوبين', priceIQD: 190000 }
+      { id: 'spec_watch_engraving', label: 'محرّك النقش: معاينة حية لاسم الزبون على ظهر العلبة', priceIQD: 280000, recommended: true },
+      { id: 'spec_watch_authenticity', label: 'شهادة أصالة رقمية برمز QR لكل قطعة مباعة', priceIQD: 220000, recommended: true },
+      { id: 'spec_watch_size_guide', label: 'دليل مقاس المعصم التفاعلي مع توصية بقطر العلبة', priceIQD: 150000 },
+      { id: 'spec_watch_service_book', label: 'سجل صيانة إلكتروني وتذكير بمواعيد خدمة الحركة', priceIQD: 190000 }
     ],
     mockScreens: [
       {
-        title: 'تتبع الشحنة الحي',
-        description: 'خط زمني تفصيلي لمراحل الشحنة من الاستلام حتى التسليم',
+        title: 'معرض الساعات',
+        description: 'بطاقة لكل موديل بحركته وقطر علبته وخيارات سواره',
         colorGrad: 'from-slate-800/60 to-slate-950',
-        contentPreview: 'Comet Express - Track Every Mile'
+        contentPreview: 'Meridian Watches - Time, Well Kept'
       },
       {
-        title: 'حاسبة تكلفة الشحن',
-        description: 'حساب فوري لتكلفة الشحن حسب الوزن والوجهة',
-        colorGrad: 'from-teal-900/60 to-slate-950',
-        contentPreview: 'Instant Shipping Quote Calculator'
+        title: 'إتمام الطلب والنقش',
+        description: 'اختيار السوار وكتابة النقش وملخص السعر قبل التأكيد',
+        colorGrad: 'from-amber-900/60 to-slate-950',
+        contentPreview: 'Engraving & Checkout'
       }
     ]
   }

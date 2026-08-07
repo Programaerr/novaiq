@@ -14,7 +14,7 @@ const DYNAMIC_TRANSLATIONS: Record<string, { en: string; ar: string }> = {
   'مطاعم وتوصيل الطلبات': { ar: 'مطاعم وتوصيل الطلبات', en: 'Restaurants & Food Delivery' },
   'تعليم ومعاهد تدريب': { ar: 'تعليم ومعاهد تدريب', en: 'Education & Training Institutes' },
   'هواتف وإلكترونيات': { ar: 'هواتف وإلكترونيات', en: 'Mobile Phones & Electronics' },
-  'خدمات لوجستية وتوصيل': { ar: 'خدمات لوجستية وتوصيل', en: 'Logistics & Delivery Services' },
+  'ساعات يد ومجوهرات': { ar: 'ساعات يد ومجوهرات', en: 'Watches & Jewellery' },
   'all': { ar: 'جميع القطاعات', en: 'All Categories' },
 
   // Statuses
@@ -64,8 +64,8 @@ const DYNAMIC_TRANSLATIONS: Record<string, { en: string; ar: string }> = {
     en: 'A complete phone store that lists every model with its specs and lets customers pick storage and colour, seeing the final price before confirming the order.'
   },
 
-  'كوميت للخدمات اللوجستية (Comet Express)': { ar: 'كوميت للخدمات اللوجستية (Comet Express)', en: 'Comet Express' },
-  'منصة إدارة الشحنات وخدمات التوصيل السريع': { ar: 'منصة إدارة الشحنات وخدمات التوصيل السريع', en: 'Shipment Management & Fast Delivery Services Platform' },
+  'ميريديان لساعات اليد (Meridian Watches)': { ar: 'ميريديان لساعات اليد (Meridian Watches)', en: 'Meridian Watches' },
+  'متجر ساعات فاخرة مع دليل مقاسات وخدمة نقش': { ar: 'متجر ساعات فاخرة مع دليل مقاسات وخدمة نقش', en: 'Luxury Watch Store with a Size Guide & Engraving Service' },
 
   // Generic Phrases
   'العراق': { ar: 'العراق', en: 'Iraq' },

@@ -34,22 +34,24 @@ import type {
   MenuItem,
   PhoneOrder,
   PhoneProduct,
-  Shipment,
-  ShippingQuote,
   SiteAccount,
   ThemeColor,
+  WatchOrder,
+  WatchProduct,
 } from '../data/sandboxDemoData';
 
 import {
   COMPANY_PROFILES,
   PHONE_WARRANTY_IQD,
   SAMPLE_PRODUCTS,
-  SAMPLE_SHIPMENTS,
   SITE_IDENTITIES,
   SITE_NAV_ITEMS,
   STORE_NAV_ITEMS,
   THEME_COLOR_HEX,
   THEME_COLOR_LABEL_AR,
+  WATCH_ENGRAVING_IQD,
+  WATCH_ENGRAVING_MAX,
+  WATCH_GIFT_WRAP_IQD,
 } from '../data/sandboxDemoData';
 import { ResponsivePreview, SiteMenuIcon, SiteTopBar, VIEWPORT_PRESETS } from './sandbox/SandboxChrome';
 import { SiteAccountArea } from './sandbox/SiteAccountArea';
@@ -64,7 +66,7 @@ import { HealthDemo } from './sandbox/templates/HealthDemo';
 import { RestaurantDemo } from './sandbox/templates/RestaurantDemo';
 import { EducationDemo } from './sandbox/templates/EducationDemo';
 import { PhoneStoreDemo, storageLabel } from './sandbox/templates/PhoneStoreDemo';
-import { LogisticsDemo } from './sandbox/templates/LogisticsDemo';
+import { WatchStoreDemo, engravingLabel } from './sandbox/templates/WatchStoreDemo';
 import { FintechDemo } from './sandbox/templates/FintechDemo';
 
 // Re-exported for callers that reach the palette through the sandbox (TemplateLivePage).
@@ -250,14 +252,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [phoneQuantity, setPhoneQuantity] = useState<number>(1);
   const [warranty, setWarranty] = useState<boolean>(false);
 
-  // Logistics demo state
-  const [trackingInput, setTrackingInput] = useState<string>('');
-  const [foundShipment, setFoundShipment] = useState<Shipment | null>(null);
-  const [quoteWeight, setQuoteWeight] = useState<string>('5');
-  const [quoteDestination, setQuoteDestination] = useState<'local' | 'regional' | 'international'>('local');
-  const [savedQuotes, setSavedQuotes] = useState<ShippingQuote[]>(() => {
-    try { return JSON.parse(localStorage.getItem('novaiq_sandbox_shipping_quotes') || '[]'); } catch { return []; }
+  // Watch store demo state
+  const [watchOrders, setWatchOrders] = useState<WatchOrder[]>(() => {
+    try { return JSON.parse(localStorage.getItem('novaiq_sandbox_watch_orders') || '[]'); } catch { return []; }
   });
+  const [selectedWatchId, setSelectedWatchId] = useState<string>('watch-1');
+  const [selectedStrapId, setSelectedStrapId] = useState<string>('leather-brown');
+  const [engraving, setEngraving] = useState<string>('');
+  const [giftWrap, setGiftWrap] = useState<boolean>(false);
+  const [watchQuantity, setWatchQuantity] = useState<number>(1);
 
   // Persist per-template demo state locally so a returning customer's choices are remembered
   useEffect(() => {
@@ -301,8 +304,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   }, [phoneOrders]);
 
   useEffect(() => {
-    try { localStorage.setItem('novaiq_sandbox_shipping_quotes', JSON.stringify(savedQuotes)); } catch { /* ignore */ }
-  }, [savedQuotes]);
+    try { localStorage.setItem('novaiq_sandbox_watch_orders', JSON.stringify(watchOrders)); } catch { /* ignore */ }
+  }, [watchOrders]);
 
   // Persist Cart
   useEffect(() => {
@@ -361,7 +364,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         case 'novaiq_sandbox_table_reservations': syncFromStorage(setTableReservations, event.newValue, [] as Array<{ id: string; guests: number; date: string; time: string }>); break;
         case 'novaiq_sandbox_enrollments': syncFromStorage(setEnrollments, event.newValue, [] as Enrollment[]); break;
         case 'novaiq_sandbox_phone_orders': syncFromStorage(setPhoneOrders, event.newValue, [] as PhoneOrder[]); break;
-        case 'novaiq_sandbox_shipping_quotes': syncFromStorage(setSavedQuotes, event.newValue, [] as ShippingQuote[]); break;
+        case 'novaiq_sandbox_watch_orders': syncFromStorage(setWatchOrders, event.newValue, [] as WatchOrder[]); break;
         case 'novaiq_sandbox_property_visits': syncFromStorage(setPropertyVisits, event.newValue, [] as Array<{ id: string; propertyTitle: string; date: string; visitorName: string }>); break;
         case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, [] as Array<{ id: string; amountIQD: number; date: string; recipient: string }>); break;
         case 'novaiq_sandbox_account':
@@ -455,12 +458,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     } else if (template.id === 'NVQ-PHONE-09' && phoneOrders.length > 0) {
       const last = phoneOrders[0];
       lines.push(`قام العميل بتجربة طلب هاتف: ${last.phoneName} — ${storageLabel(last.storageGb)} بلون ${last.color} (عدد ${last.quantity}${last.warranty ? '، مع كفالة سنة إضافية' : ''}) بتكلفة تقديرية ${price(last.totalIQD)}`);
-    } else if (template.id === 'NVQ-LOG-10') {
-      if (foundShipment) lines.push(`قام العميل بتجربة تتبع شحنة تجريبية: ${foundShipment.trackingNumber} (${foundShipment.status})`);
-      if (savedQuotes.length > 0) {
-        const q = savedQuotes[0];
-        lines.push(`قام العميل بحساب عرض سعر شحن تجريبي: وزن ${q.weight} كغم لوجهة ${q.destination} بتكلفة تقديرية ${price(q.priceIQD)}`);
-      }
+    } else if (template.id === 'NVQ-WATCH-10' && watchOrders.length > 0) {
+      const last = watchOrders[0];
+      lines.push(`قام العميل بتجربة طلب ساعة: ${last.watchName} بسوار ${last.strap} (عدد ${last.quantity}، النقش: ${engravingLabel(last.engraving)}${last.giftWrap ? '، مع تغليف هدية' : ''}) بتكلفة تقديرية ${price(last.totalIQD)}`);
     }
 
     return lines.join('\n');
@@ -703,37 +703,34 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     setActiveTab('confirmation');
   };
 
-  // Logistics helpers
-  const trackShipment = () => {
-    const match = SAMPLE_SHIPMENTS.find(s => s.trackingNumber.toLowerCase() === trackingInput.trim().toLowerCase());
-    setFoundShipment(match || {
-      id: 'ship-new',
-      trackingNumber: trackingInput.trim() || 'CMX-00000',
-      origin: '—',
-      destination: '—',
-      status: 'لم يتم العثور على الشحنة، جرّب أحد الأرقام: CMX-77201 أو CMX-77198',
-      stages: [
-        { label: 'تم استلام الشحنة', done: false },
-        { label: 'تم الفرز في المستودع', done: false },
-        { label: 'في الطريق للتسليم', done: false },
-        { label: 'تم التسليم', done: false },
-      ]
-    });
-    cosmicAudio.playPing();
+  // Watch store helpers. The watch, its strap and the engraving are all priced per piece, so
+  // they multiply by quantity; the gift box is one box for the order and does not.
+  const computeWatchTotal = (watch: WatchProduct, strapId: string, quantity: number, engravingText: string, withGiftWrap: boolean) => {
+    const strap = watch.straps.find(s => s.id === strapId) || watch.straps[0];
+    const perUnit = watch.basePriceIQD + strap.extraIQD + (engravingText.trim() ? WATCH_ENGRAVING_IQD : 0);
+    return perUnit * quantity + (withGiftWrap ? WATCH_GIFT_WRAP_IQD : 0);
   };
 
-  const computeShippingQuote = (): number => {
-    const weightNum = parseFloat(quoteWeight) || 0;
-    const multiplier = quoteDestination === 'local' ? 1 : quoteDestination === 'regional' ? 1.8 : 3;
-    return Math.round((15000 + weightNum * 3000 * multiplier) / 1000) * 1000;
-  };
-
-  const saveShippingQuote = () => {
-    setSavedQuotes(prev => [
-      { id: `QT-${Math.floor(1000 + Math.random() * 9000)}`, weight: quoteWeight, destination: quoteDestination, priceIQD: computeShippingQuote() },
+  const confirmWatchOrder = (watch: WatchProduct) => {
+    const strap = watch.straps.find(s => s.id === selectedStrapId) || watch.straps[0];
+    // Trimmed and re-clipped here rather than trusting the input's maxLength: the field can be
+    // pasted into, and the caseback's limit is a physical one.
+    const engravingText = engraving.trim().slice(0, WATCH_ENGRAVING_MAX);
+    setWatchOrders(prev => [
+      {
+        id: `MRD-${Math.floor(10000 + Math.random() * 90000)}`,
+        watchName: watch.name,
+        strap: strap.label,
+        engraving: engravingText,
+        quantity: watchQuantity,
+        giftWrap,
+        totalIQD: computeWatchTotal(watch, strap.id, watchQuantity, engravingText, giftWrap),
+        date: new Date().toLocaleDateString('ar-IQ')
+      },
       ...prev
     ]);
     cosmicAudio.playPing();
+    setActiveTab('confirmation');
   };
 
   const handleCompleteOrder = () => {
@@ -924,23 +921,23 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           />
         );
 
-      case 'NVQ-LOG-10':
+      case 'NVQ-WATCH-10':
         return (
-          <LogisticsDemo
+          <WatchStoreDemo
             ctx={ctx}
-            computeShippingQuote={computeShippingQuote}
-            foundShipment={foundShipment}
-            quoteDestination={quoteDestination}
-            quoteWeight={quoteWeight}
-            saveShippingQuote={saveShippingQuote}
-            setFoundShipment={setFoundShipment}
-            setQuoteDestination={setQuoteDestination}
-            setQuoteWeight={setQuoteWeight}
-            setSiteSearch={setSiteSearch}
-            setTrackingInput={setTrackingInput}
-            siteSearch={siteSearch}
-            trackShipment={trackShipment}
-            trackingInput={trackingInput}
+            computeWatchTotal={computeWatchTotal}
+            confirmWatchOrder={confirmWatchOrder}
+            engraving={engraving}
+            giftWrap={giftWrap}
+            selectedStrapId={selectedStrapId}
+            selectedWatchId={selectedWatchId}
+            setEngraving={setEngraving}
+            setGiftWrap={setGiftWrap}
+            setSelectedStrapId={setSelectedStrapId}
+            setSelectedWatchId={setSelectedWatchId}
+            setWatchQuantity={setWatchQuantity}
+            watchOrders={watchOrders}
+            watchQuantity={watchQuantity}
           />
         );
 
@@ -994,7 +991,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-HEALTH-05': return 'مواعيدي';
       case 'NVQ-PHONE-09': return 'طلباتي';
       case 'NVQ-EDU-08': return 'دوراتي';
-      case 'NVQ-LOG-10': return 'شحناتي';
+      case 'NVQ-WATCH-10': return 'طلباتي';
       case 'NVQ-FINTECH-06': return 'تحويلاتي';
       case 'NVQ-REAL-04': return 'معايناتي';
       case 'NVQ-TECH-03': return 'اشتراكي';
@@ -1010,7 +1007,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-HEALTH-05': return 'ابحث عن طبيب أو تخصص';
       case 'NVQ-PHONE-09': return 'ابحث عن هاتف أو ماركة';
       case 'NVQ-EDU-08': return 'ابحث عن دورة أو مدرب';
-      case 'NVQ-LOG-10': return 'ابحث برقم الشحنة';
+      case 'NVQ-WATCH-10': return 'ابحث عن ساعة أو مقاس';
       case 'NVQ-FOOD-07': return 'ابحث في قائمة الطعام';
       case 'NVQ-REAL-04': return 'ابحث عن عقار أو منطقة';
       case 'NVQ-FINTECH-06': return 'ابحث عن عملية أو بطاقة';
@@ -1100,12 +1097,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           amount: `${price(o.totalIQD)}`,
         }));
 
-      case 'NVQ-LOG-10':
-        return savedQuotes.map((q) => ({
-          id: q.id, title: `عرض شحن ${q.weight} كغم`,
-          subtitle: q.destination === 'local' ? 'داخل المحافظة' : q.destination === 'regional' ? 'بين المحافظات' : 'شحن دولي',
-          meta: 'عرض سعر محفوظ', status: 'صالح لمدة 7 أيام',
-          amount: `${price(q.priceIQD)}`,
+      case 'NVQ-WATCH-10':
+        return watchOrders.map((o) => ({
+          id: o.id, title: o.watchName, subtitle: `${o.strap} · ${engravingLabel(o.engraving)} · عدد ${o.quantity}`,
+          meta: `تاريخ الطلب: ${o.date}`, status: o.giftWrap ? 'مؤكد — تغليف هدية' : 'طلب مؤكد',
+          amount: `${price(o.totalIQD)}`,
         }));
 
       case 'NVQ-REAL-04':

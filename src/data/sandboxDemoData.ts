@@ -345,46 +345,160 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
   },
 ];
 
-// Logistics demo data
-export interface ShipmentStage {
+// Watch store demo data
+export interface WatchStrap {
+  /** Stable key the order stores; the Arabic label lives in `label` so the id can stay ASCII. */
+  id: string;
   label: string;
-  done: boolean;
+  /** Added to the watch's base price. The stock strap is 0, the upgrades cost more. */
+  extraIQD: number;
 }
 
-export interface Shipment {
+export interface WatchProduct {
   id: string;
-  trackingNumber: string;
-  origin: string;
-  destination: string;
-  status: string;
-  stages: ShipmentStage[];
+  name: string;
+  brand: string;
+  basePriceIQD: number;
+  /** First entry is the one the card opens on, and the one the "starting at" price quotes. */
+  straps: WatchStrap[];
+  /** Tint the card sits on, behind and below the photo — same poster treatment as the phones. */
+  imageBg: string;
+  /** Product photo: a watch of the right *character*, not the exact reference. A real shop
+   *  swaps these for its own case shots. */
+  image: string;
+  /** The one-line claim under the model name. */
+  tagline: string;
+  /** The sales paragraph — what someone behind the counter would actually say about it. */
+  description: string;
+  /** The four spec lines every watch carries. Kept as named fields rather than a `specs[]`
+   *  array like the phones use: a watch is compared spec-against-spec (is it automatic? how
+   *  big is the case?), so the demo needs to address each one, not just list them in order. */
+  movement: string;
+  caseSizeMm: number;
+  waterResistance: string;
+  glass: string;
+  badge?: string;
 }
 
-export interface ShippingQuote {
+export interface WatchOrder {
   id: string;
-  weight: string;
-  destination: 'local' | 'regional' | 'international';
-  priceIQD: number;
+  watchName: string;
+  strap: string;
+  /** Empty string when the customer skipped the engraving. */
+  engraving: string;
+  quantity: number;
+  giftWrap: boolean;
+  totalIQD: number;
+  date: string;
 }
 
-export const SAMPLE_SHIPMENTS: Shipment[] = [
+/** Engraving on the caseback, charged once per watch (see `confirmWatchOrder`). */
+export const WATCH_ENGRAVING_IQD = 25000;
+
+/** Gift box + insured delivery, charged once per order rather than per watch. */
+export const WATCH_GIFT_WRAP_IQD = 15000;
+
+/** Longest engraving the caseback fits — enforced by the input and re-checked on confirm. */
+export const WATCH_ENGRAVING_MAX = 20;
+
+export const SAMPLE_WATCHES: WatchProduct[] = [
   {
-    id: 'ship-1', trackingNumber: 'CMX-77201', origin: 'بغداد', destination: 'البصرة', status: 'في الطريق للتسليم',
-    stages: [
-      { label: 'تم استلام الشحنة', done: true },
-      { label: 'تم الفرز في المستودع', done: true },
-      { label: 'في الطريق للتسليم', done: true },
-      { label: 'تم التسليم', done: false },
-    ]
+    id: 'watch-1', name: 'Meridian Heritage 39', brand: 'Meridian', badge: 'الأكثر مبيعاً',
+    basePriceIQD: 1250000,
+    straps: [
+      { id: 'leather-brown', label: 'جلد بني مصنوع يدوياً', extraIQD: 0 },
+      { id: 'steel-mesh', label: 'ستيل ميلانو', extraIQD: 120000 },
+      { id: 'leather-black', label: 'جلد أسود', extraIQD: 20000 },
+    ],
+    imageBg: 'from-amber-900/60 to-slate-950',
+    image: UNSPLASH('photo-1524592094714-0f0654e20314'),
+    tagline: 'كلاسيكية لا يتقادم شكلها.',
+    description: 'علبة 39 ملم بحجم يناسب أغلب المعاصم، وحركة أوتوماتيك تعمل بحركة يدك بدون بطارية. الميناء بلون العاج مع عقارب مذهّبة — ساعة تلبسها كل يوم وتبقى مناسبة للمناسبات.',
+    movement: 'أوتوماتيك (بدون بطارية)',
+    caseSizeMm: 39,
+    waterResistance: 'مقاومة 5 بار',
+    glass: 'زجاج سافير مضاد للخدش',
   },
   {
-    id: 'ship-2', trackingNumber: 'CMX-77198', origin: 'أربيل', destination: 'بغداد', status: 'تم التسليم',
-    stages: [
-      { label: 'تم استلام الشحنة', done: true },
-      { label: 'تم الفرز في المستودع', done: true },
-      { label: 'في الطريق للتسليم', done: true },
-      { label: 'تم التسليم', done: true },
-    ]
+    id: 'watch-2', name: 'Meridian Diver 42', brand: 'Meridian', badge: 'مقاومة 30 بار',
+    basePriceIQD: 1480000,
+    straps: [
+      { id: 'steel-bracelet', label: 'سوار ستيل مصمت', extraIQD: 0 },
+      { id: 'rubber-black', label: 'مطاط أسود للغطس', extraIQD: 40000 },
+      { id: 'nato-navy', label: 'قماش NATO كحلي', extraIQD: 25000 },
+    ],
+    imageBg: 'from-sky-900/60 to-slate-950',
+    image: UNSPLASH('photo-1523170335258-f5ed11844a49'),
+    tagline: 'مصممة للماء قبل اليابسة.',
+    description: 'ساعة غطس حقيقية تتحمل 300 متر تحت الماء، بإطار دوّار باتجاه واحد لحساب وقت الغطسة وعقارب تضيء في الظلام لساعات. ثقيلة بالشكل الذي يوحي بالمتانة.',
+    movement: 'أوتوماتيك (بدون بطارية)',
+    caseSizeMm: 42,
+    waterResistance: 'مقاومة 30 بار (300 متر)',
+    glass: 'زجاج سافير مقبب',
+  },
+  {
+    id: 'watch-3', name: 'Meridian Chrono 41', brand: 'Meridian',
+    basePriceIQD: 1120000,
+    straps: [
+      { id: 'leather-racing', label: 'جلد رياضي مثقّب', extraIQD: 0 },
+      { id: 'steel-bracelet', label: 'سوار ستيل مصمت', extraIQD: 90000 },
+    ],
+    imageBg: 'from-slate-700/60 to-slate-950',
+    image: UNSPLASH('photo-1547996160-81dfa63595aa'),
+    tagline: 'ثلاث عدادات، وقياس دقيق.',
+    description: 'كرونوغراف بثلاث عدادات فرعية يقيس حتى جزء من عشرة من الثانية، مع ميناء أسود متدرّج وأرقام بيضاء واضحة. الخيار المفضل لمن يحب الشكل الرياضي.',
+    movement: 'كوارتز كرونوغراف',
+    caseSizeMm: 41,
+    waterResistance: 'مقاومة 10 بار',
+    glass: 'زجاج معدني مقوّى',
+  },
+  {
+    id: 'watch-4', name: 'Meridian Lunar 36', brand: 'Meridian', badge: 'نسائية',
+    basePriceIQD: 890000,
+    straps: [
+      { id: 'steel-rose', label: 'ستيل ذهبي وردي', extraIQD: 0 },
+      { id: 'leather-cream', label: 'جلد كريمي', extraIQD: 15000 },
+    ],
+    imageBg: 'from-rose-900/60 to-slate-950',
+    image: UNSPLASH('photo-1509048191080-d2984bad6ae5'),
+    tagline: 'أنيقة بمقاس مريح.',
+    description: 'علبة 36 ملم بلون ذهبي وردي وميناء صدفي يغيّر لمعته مع الضوء، مع مؤشر أطوار القمر. خفيفة على المعصم ومناسبة للاستخدام اليومي والمناسبات معاً.',
+    movement: 'كوارتز سويسري',
+    caseSizeMm: 36,
+    waterResistance: 'مقاومة 3 بار',
+    glass: 'زجاج سافير',
+  },
+  {
+    id: 'watch-5', name: 'Meridian Field 38', brand: 'Meridian',
+    basePriceIQD: 640000,
+    straps: [
+      { id: 'nato-khaki', label: 'قماش NATO كاكي', extraIQD: 0 },
+      { id: 'leather-brown', label: 'جلد بني مصنوع يدوياً', extraIQD: 30000 },
+    ],
+    imageBg: 'from-emerald-900/60 to-slate-950',
+    image: UNSPLASH('photo-1533139502658-0198f920d8e8'),
+    tagline: 'تُقرأ بلمحة، في أي ضوء.',
+    description: 'ساعة ميدانية بأرقام كبيرة وطلاء مضيء على كل المؤشرات، تقرأ الوقت منها بلمحة واحدة. خفيفة ومتينة وسعرها في متناول من يشتري ساعته الأولى.',
+    movement: 'كوارتز',
+    caseSizeMm: 38,
+    waterResistance: 'مقاومة 10 بار',
+    glass: 'زجاج معدني مقوّى',
+  },
+  {
+    id: 'watch-6', name: 'Meridian Slim 40', brand: 'Meridian', badge: 'الأنحف',
+    basePriceIQD: 760000,
+    straps: [
+      { id: 'leather-black', label: 'جلد أسود', extraIQD: 0 },
+      { id: 'steel-mesh', label: 'ستيل ميلانو', extraIQD: 70000 },
+    ],
+    imageBg: 'from-indigo-900/60 to-slate-950',
+    image: UNSPLASH('photo-1622434641406-a158123450f9'),
+    tagline: 'تختفي تحت كمّ القميص.',
+    description: 'سماكة 7 ملم فقط تجعلها تنزلق تحت كمّ القميص بدون أن تعلق، بميناء نظيف بلا أرقام. الخيار الأنسب للبس الرسمي والاجتماعات.',
+    movement: 'كوارتز سويسري',
+    caseSizeMm: 40,
+    waterResistance: 'مقاومة 3 بار',
+    glass: 'زجاج سافير',
   },
 ];
 
@@ -538,36 +652,36 @@ export const COMPANY_PROFILES: Record<string, CompanyProfile> = {
     },
   },
 
-  'NVQ-LOG-10': {
-    name: 'Comet Express',
-    badge: 'خدمات شحن ولوجستيات',
-    headline: 'شحنتك تصل بسرعة، وتعرف مكانها كل لحظة',
+  'NVQ-WATCH-10': {
+    name: 'Meridian Watches',
+    badge: 'ساعات يد أصلية',
+    headline: 'ساعة تُلبس اليوم، وتُورَّث بعد سنين',
     description:
-      'كوميت إكسبرس شركة شحن وتوصيل تغطي جميع محافظات العراق، بأسطول من 120 مركبة ومستودعات فرز في 5 مدن، وخدمة الدفع عند الاستلام مع تسوية يومية للتجار.',
-    primaryCta: { label: 'تتبّع شحنتك', tab: 'tracking' },
-    secondaryCta: { label: 'احسب تكلفة الشحن', tab: 'calculator' },
+      'ميريديان معرض ساعات يد أصلية في بغداد، يعرض حركات أوتوماتيك وكوارتز سويسرية بشهادة أصالة وكفالة دولية سنتان. نغيّر لك السوار بالمقاس، وننقش الاسم على ظهر العلبة قبل التسليم.',
+    primaryCta: { label: 'تصفّح الساعات', tab: 'watches' },
+    secondaryCta: { label: 'اطلب ساعتك', tab: 'order' },
     stats: [
-      { value: '18', label: 'محافظة مغطاة' },
-      { value: '120', label: 'مركبة توصيل' },
-      { value: '48 س', label: 'متوسط زمن التسليم' },
-      { value: '99.2%', label: 'شحنات وصلت بنجاح' },
+      { value: '140+', label: 'موديل معروض' },
+      { value: 'سنتان', label: 'كفالة دولية' },
+      { value: '18', label: 'محافظة نوصل لها' },
+      { value: '4.9/5', label: 'تقييم الزبائن' },
     ],
     services: [
-      { title: 'تتبّع لحظي للشحنة', description: 'تابع شحنتك في كل مرحلة من الاستلام حتى التسليم النهائي.' },
-      { title: 'حاسبة تكلفة فورية', description: 'اعرف تكلفة الشحن قبل الإرسال حسب الوزن والوجهة.' },
-      { title: 'الدفع عند الاستلام', description: 'حصّل قيمة بضاعتك من الزبون مع تسوية مالية يومية موثقة.' },
-      { title: 'إشعارات واتساب تلقائية', description: 'الزبون يستلم تحديثاً بكل تغيير في حالة شحنته.' },
+      { title: 'شهادة أصالة مع كل قطعة', description: 'رقم تسلسلي موثّق وبطاقة كفالة دولية مختومة بتاريخ الشراء.' },
+      { title: 'نقش على ظهر العلبة', description: 'اسم أو تاريخ أو عبارة قصيرة، تُنقش قبل التغليف بدون تأخير التسليم.' },
+      { title: 'تغيير السوار بالمقاس', description: 'جلد أو ستيل أو مطاط، نضبطه على مقاس معصمك في المعرض مجاناً.' },
+      { title: 'صيانة الحركة', description: 'ورشة معتمدة لتنظيف وتزييت الحركات الأوتوماتيك كل 3 - 5 سنوات.' },
     ],
     testimonial: {
-      quote: 'أدير متجراً إلكترونياً وأرسل يومياً أكثر من 40 طرداً. التسوية اليومية والتتبع وفّرا عليّ موظفاً كاملاً.',
-      author: 'مصطفى الساعدي',
-      role: 'صاحب متجر إلكتروني',
+      quote: 'اشتريت ساعة هدية لأخي مع نقش تاريخ تخرجه على ظهرها. وصلت بعلبة هدية خلال يومين والنقش طلع أنظف مما توقعت.',
+      author: 'حيدر الربيعي',
+      role: 'زبون - Meridian Heritage 39',
     },
     contact: {
       phone: '07703334444',
-      email: 'support@cometexpress.iq',
-      address: 'بغداد - الدورة، المنطقة الصناعية',
-      hours: 'السبت - الخميس، 8 صباحاً - 8 مساءً',
+      email: 'sales@meridianwatches.iq',
+      address: 'بغداد - المنصور، شارع الأميرات',
+      hours: 'السبت - الخميس، 10 صباحاً - 10 مساءً',
     },
   },
 };
@@ -685,11 +799,11 @@ export const SITE_NAV_ITEMS: Record<string, Array<{ id: string; label: string }>
     { id: 'order', label: 'إتمام الطلب' },
     { id: 'confirmation', label: 'تأكيد الطلب' },
   ],
-  'NVQ-LOG-10': [
+  'NVQ-WATCH-10': [
     { id: 'home', label: 'الرئيسية' },
-    { id: 'tracking', label: 'تتبع الشحنة' },
-    { id: 'calculator', label: 'حاسبة التكلفة' },
-    { id: 'fleet', label: 'الأسطول' },
+    { id: 'watches', label: 'الساعات' },
+    { id: 'order', label: 'إتمام الطلب' },
+    { id: 'confirmation', label: 'تأكيد الطلب' },
   ],
 };
 
