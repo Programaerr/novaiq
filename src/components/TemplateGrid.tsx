@@ -491,6 +491,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
+                      {/* No .glow-white-hover here any more: it bloomed a white 22px
+                          box-shadow around the button on hover, which read as haze once the
+                          pill beside it started lighting a crisp beam on its own outline. The
+                          beam and the surface shift carry the hover without it. */}
                       <button
                         onClick={() => {
                           if (onOpenStandalonePreview) {
@@ -500,7 +504,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           }
                           cosmicAudio.playPing();
                         }}
-                        className="nq-btn w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 glow-white-hover text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="nq-btn w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <span className="nq-btn-beam" aria-hidden="true" />
                         <Globe className="w-3.5 h-3.5 text-zinc-300" />
