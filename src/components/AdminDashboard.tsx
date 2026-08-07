@@ -68,7 +68,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
     };
   }, [contracts]);
 
-  const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
+  const tabs: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
     { id: 'contracts', label: isAr ? 'إدارة العقود' : 'Contracts', icon: FileCheck },
     { id: 'pricing', label: isAr ? 'الأسعار' : 'Pricing', icon: Tag },

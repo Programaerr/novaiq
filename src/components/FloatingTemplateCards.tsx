@@ -27,16 +27,19 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const show = () => setShowCanvas(true);
-    const id =
-      'requestIdleCallback' in window
-        ? window.requestIdleCallback(show, { timeout: 1800 })
-        : window.setTimeout(show, 400);
+    // Checked via `typeof window.x` rather than `'x' in window`: the `in` form narrows
+    // `window` itself, and since lib.dom declares requestIdleCallback the else branch
+    // narrows to `never` and every call on it fails to compile.
+    const hasIdle = typeof window.requestIdleCallback === 'function';
+    const id = hasIdle
+      ? window.requestIdleCallback(show, { timeout: 1800 })
+      : window.setTimeout(show, 400);
 
     return () => {
-      if ('cancelIdleCallback' in window && typeof id === 'number') {
+      if (hasIdle) {
         window.cancelIdleCallback(id);
       } else {
-        window.clearTimeout(id as number);
+        window.clearTimeout(id);
       }
     };
   }, []);

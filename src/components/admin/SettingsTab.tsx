@@ -17,7 +17,7 @@ import { showToast } from '../../lib/toast';
 
 const SOCIAL_FIELDS: Array<{
   id: keyof SocialLinks;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   labelAr: string;
   labelEn: string;
   placeholder: string;
