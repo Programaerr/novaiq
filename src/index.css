@@ -587,50 +587,9 @@
   to { transform: translate3d(-380px, 300px, 0); }
 }
 
-/* Floating 3D template cards (Hero, below the guarantee wheel).
-   Three nested elements, each owning exactly one transform, because a CSS animation on
-   `transform` always beats an inline `transform` — stacking the bob and the tilt on one
-   element would let the keyframes silently erase the tilt every frame:
-     .float3d-slot  → `perspective` only. It sits on each card individually rather than on
-                      a shared stage, so every card gets its own vanishing point and reads
-                      as a separate 3D object instead of one flat scene sliced into thirds.
-     .float3d-bob   → the idle drift animation (keyframes own this transform).
-     .float3d-face  → the resting side-tilt and the click-to-front state (inline transform
-                      from React, eased by transition). */
-.float3d-slot {
-  perspective: 900px;
-}
-
-.float3d-bob {
-  animation: float3d-bob 7s ease-in-out infinite;
-  animation-delay: var(--bob-delay, 0s);
-  will-change: transform;
-}
-
-@keyframes float3d-bob {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, -12px, 0); }
-}
-
-.float3d-face {
-  transform-style: preserve-3d;
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease, opacity 0.45s ease;
-  will-change: transform, filter;
-  cursor: pointer;
-  /* A long press on an image otherwise raises the OS "save/copy image" sheet on mobile,
-     which is what these are being tapped for — suppress it here and via onContextMenu. */
-  -webkit-touch-callout: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-/* Light catching the tilted face: a fixed diagonal sheen plus a soft edge highlight on the
-   side the tilt turns toward, which is what sells the surface as angled rather than flat. */
-.float3d-sheen {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 28%, rgba(255, 255, 255, 0) 55%),
-    linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 45%);
-}
+/* The hero's floating template cards are a real WebGL scene now (TemplateCards3D.tsx) —
+   their depth, tilt, lighting and focus-blur are all three.js, so the CSS-transform
+   approximation that used to live here is gone rather than left behind unused. */
 
 /* Card entrance. Animates only opacity + transform, both of which the compositor can run
    off the main thread, so a grid of cards appearing never competes with scrolling. */
