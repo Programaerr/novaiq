@@ -1,105 +1,72 @@
-import React, { useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { templatesData } from '../data/templatesData';
+
+// three.js + fiber + drei + postprocessing are a large dependency. Kept behind React.lazy
+// so they land in their own chunk and never block the initial page parse, and only mounted
+// once the browser goes idle after first paint — the hero's text and CTA are what matter
+// on load, not the WebGL scene under them.
+const TemplateCards3D = lazy(() => import('./TemplateCards3D'));
 
 interface FloatingTemplateCardsProps {
   language: 'ar' | 'en';
   onExploreTemplates: () => void;
 }
 
-// Each card carries its own resting pose and drift timing. Nothing is uniform on purpose:
-// matching angles and a shared bob phase would make three cards read as one rigid object,
-// which is exactly what stops a row like this from looking like separate floating pieces.
-const CARDS = templatesData.slice(0, 3).map((template, i) => ({
-  template,
-  pose: [
-    { ry: -18, rx: 7, rz: -5 },
-    { ry: -13, rx: 5, rz: 3 },
-    { ry: -20, rx: 8, rz: -2 },
-  ][i],
-  // Vertical offset applied as margin (never transform) so it can't collide with the bob
-  // keyframes or the tilt — the three suspended heights are what read as "falling".
-  offsetY: [0, 26, 8][i],
-  bobDelay: [0, -2.6, -4.9][i],
-}));
+const STATIC_PREVIEW = templatesData.slice(0, 3);
 
 export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   language,
   onExploreTemplates,
 }) => {
-  const [active, setActive] = useState<number | null>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = !!useReducedMotion();
+  const [showCanvas, setShowCanvas] = useState(false);
 
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 95%', 'end 15%'] });
-  const rawY = useTransform(scrollYProgress, [0, 1], [40, -20]);
-  const y = reduceMotion ? 0 : rawY;
+  useEffect(() => {
+    // A WebGL scene runs its own render loop regardless of what CSS animations honour, so
+    // reduced-motion has to be checked before mounting it, not styled around afterwards.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const show = () => setShowCanvas(true);
+    const id =
+      'requestIdleCallback' in window
+        ? window.requestIdleCallback(show, { timeout: 1800 })
+        : window.setTimeout(show, 400);
+
+    return () => {
+      if ('cancelIdleCallback' in window && typeof id === 'number') {
+        window.cancelIdleCallback(id);
+      } else {
+        window.clearTimeout(id as number);
+      }
+    };
+  }, []);
 
   return (
-    <motion.div
-      ref={sectionRef}
-      style={{ y }}
-      className="w-full max-w-4xl mx-auto mt-16 sm:mt-28 flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-14"
-    >
-      {/* Cards — image only, no text inside, each its own 3D object. */}
-      <div className="shrink-0 flex items-center gap-4 sm:gap-5">
-        {CARDS.map(({ template, pose, offsetY, bobDelay }, i) => {
-          const isActive = active === i;
-          const isDimmed = active !== null && !isActive;
-
-          const face = isActive
-            ? {
-                transform: 'rotateY(0deg) rotateX(0deg) rotateZ(0deg) translateZ(70px) scale(1.06)',
-                filter: 'none',
-                opacity: 1,
-              }
-            : {
-                transform: `rotateY(${pose.ry}deg) rotateX(${pose.rx}deg) rotateZ(${pose.rz}deg)`,
-                filter: isDimmed ? 'blur(6px)' : 'none',
-                opacity: isDimmed ? 0.45 : 1,
-              };
-
-          return (
-            <div
-              key={template.id}
-              className="float3d-slot"
-              style={{ marginTop: offsetY, zIndex: isActive ? 30 : 10 }}
-            >
-              <div
-                className="float3d-bob"
-                style={{ '--bob-delay': `${bobDelay}s` } as React.CSSProperties}
-              >
-                <div
-                  role="button"
-                  tabIndex={0}
-                  aria-label={template.title}
-                  onClick={() => setActive(isActive ? null : i)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setActive(isActive ? null : i);
-                    }
-                  }}
-                  onContextMenu={(e) => e.preventDefault()}
-                  className="float3d-face relative w-24 h-32 sm:w-32 sm:h-44 rounded-xl border border-zinc-700 bg-zinc-950 overflow-hidden shadow-[0_28px_40px_-18px_rgba(0,0,0,0.95)]"
-                  style={face}
-                >
-                  <img
-                    src={template.previewImage}
-                    alt=""
-                    aria-hidden="true"
-                    draggable={false}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover pointer-events-none"
-                  />
-                  <span className="float3d-sheen absolute inset-0 pointer-events-none" aria-hidden="true" />
-                </div>
-              </div>
-            </div>
-          );
-        })}
+    <div className="w-full max-w-5xl mx-auto mt-16 sm:mt-24 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-10">
+      {/* 3D stage. The fixed height is reserved up front so the hero never reflows when the
+          canvas finishes loading. */}
+      <div className="w-full sm:w-[26rem] h-64 sm:h-80 shrink-0 select-none">
+        {showCanvas ? (
+          <Suspense fallback={null}>
+            <TemplateCards3D />
+          </Suspense>
+        ) : (
+          // Static stand-in for reduced-motion and for the moment before the canvas mounts.
+          <div className="w-full h-full flex items-center justify-center gap-3">
+            {STATIC_PREVIEW.map((tpl) => (
+              <img
+                key={tpl.id}
+                src={tpl.previewImage}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+                loading="lazy"
+                decoding="async"
+                className="w-24 h-32 sm:w-28 sm:h-40 object-cover rounded-xl border border-zinc-700 opacity-80"
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Text + single CTA, fully separate from the cards. */}
@@ -122,6 +89,6 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
           {language === 'ar' ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 };
