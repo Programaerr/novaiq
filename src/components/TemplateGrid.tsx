@@ -507,15 +507,24 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         <span>{currentLang === 'ar' ? 'موقع منفصل' : 'Full Site'}</span>
                       </button>
 
+                      {/* Wears the toolbar's Filter pill outright (.filter-pill-btn +
+                          .filter-pill-beam) instead of .nq-btn: same bevelled white surface,
+                          same inversion to black on hover, same undulating beam. Only the
+                          geometry stays this card's own — full width, py-2.5, rounded-xl — so
+                          it still lines up with "Full Site" in the grid beside it.
+                          Deliberately carries no bg/text/border utility: the pill owns all
+                          three and flips them together, and a Tailwind border-white would stay
+                          white once the body goes black. The icon takes text-current for the
+                          same reason. */}
                       <button
                         onClick={() => {
                           onSelectTemplateForContract(template);
                           cosmicAudio.playWarp();
                         }}
-                        className="nq-btn w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
+                        className="filter-pill-btn relative w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
                       >
-                        <span className="nq-btn-beam nq-btn-beam--dark" aria-hidden="true" />
-                        <FileSignature className="w-3.5 h-3.5 text-black" />
+                        <span className="filter-pill-beam" aria-hidden="true" />
+                        <FileSignature className="w-3.5 h-3.5 text-current shrink-0" />
                         <span>{getTranslation('selectForContract', currentLang)}</span>
                       </button>
                     </div>
