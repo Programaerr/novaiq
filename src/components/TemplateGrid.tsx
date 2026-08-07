@@ -330,13 +330,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             its buttons; only the centered card is actually interactive, enforced via the
             pointerEvents toggle below rather than guessing which inner element was clicked. */}
         <div className="flex items-center justify-center gap-2 sm:gap-6 mt-8 sm:mt-10">
+          {/* Both arrows wear the toolbar's Filter pill (.filter-pill-btn +
+              .filter-pill-beam), same as the card's "Choose template" action, so every
+              control on this page answers a pointer identically. Only w-10 h-10 rounded-full
+              is theirs — the pill brings the surface, the inversion and the beam, and the
+              chevron takes text-current so it flips with the body instead of staying white
+              on a white circle. The old bg/border/glow-white-hover utilities are gone for
+              that reason: they fought the pill rather than layering on it. */}
           <button
             type="button"
             onClick={() => goToOffset(1)}
             aria-label={currentLang === 'ar' ? 'التالي' : 'Next'}
-            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+            className="filter-pill-btn relative hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
           >
-            <ChevronRight className="w-4 h-4 ltr:rotate-180" />
+            <span className="filter-pill-beam" aria-hidden="true" />
+            <ChevronRight className="w-4 h-4 ltr:rotate-180 text-current" />
           </button>
 
           <div
@@ -562,9 +570,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             type="button"
             onClick={() => goToOffset(-1)}
             aria-label={currentLang === 'ar' ? 'السابق' : 'Previous'}
-            className="hidden sm:flex shrink-0 w-10 h-10 rounded-full bg-zinc-950/90 border border-zinc-800 items-center justify-center text-white hover:border-white/50 glow-white-hover transition-all cursor-pointer"
+            className="filter-pill-btn relative hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
           >
-            <ChevronLeft className="w-4 h-4 ltr:rotate-180" />
+            <span className="filter-pill-beam" aria-hidden="true" />
+            <ChevronLeft className="w-4 h-4 ltr:rotate-180 text-current" />
           </button>
         </div>
 
