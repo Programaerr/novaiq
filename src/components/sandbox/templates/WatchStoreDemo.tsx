@@ -93,13 +93,20 @@ export function WatchStoreDemo({ ctx, computeWatchTotal, confirmWatchOrder, engr
             // needs a *matched pair* per surface — a light shadow up-left and a dark one
             // down-right — and splitting that pair across arbitrary class strings is how it
             // ends up flattened on one element and not another.
-            <article key={watch.id} className="group neu-card rounded-[28px] p-4 flex flex-col gap-4">
-              <div className="relative rounded-[20px] overflow-hidden">
+            // aspect-square, so the card is a true square at whatever width the column gives
+            // it. The photo takes the leftover height (flex-1 + min-h-0) instead of a fixed
+            // h-44: with a fixed photo the card's height was set by its content and the cards
+            // came out wide letterboxes, and hard-coding a height per breakpoint would only be
+            // square at the one viewport it was measured on. min-h-0 is required — a flex item
+            // will not shrink below its content without it, and the image would push the card
+            // taller than its own aspect ratio.
+            <article key={watch.id} className="group neu-card rounded-[28px] p-4 flex flex-col gap-4 aspect-square">
+              <div className="relative rounded-[20px] overflow-hidden flex-1 min-h-0">
                 <img
                   src={watch.image}
                   alt={watch.name}
                   loading="lazy"
-                  className="w-full h-40 sm:h-44 object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
                 {/* Scrim, not a flat tint: the name sits over photos that range from a white
@@ -133,11 +140,10 @@ export function WatchStoreDemo({ ctx, computeWatchTotal, confirmWatchOrder, engr
                 </div>
               </div>
 
-              {/* Spec panel + action, the reference's lower slab. flex-1 on the card's content
-                  column would not help here — the panel is the last child, so mt-auto on it is
-                  what keeps the buy button on one line across a row of cards whose taglines
-                  wrap to different heights. */}
-              <div className="neu-panel rounded-[20px] p-4 flex items-center gap-3 mt-auto">
+              {/* Spec panel + action, the reference's lower slab. shrink-0 so the square card
+                  takes its height out of the photo above rather than crushing this panel — the
+                  specs are the part a buyer actually compares between cards. */}
+              <div className="neu-panel rounded-[20px] p-4 flex items-center gap-3 shrink-0">
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-slate-600 truncate">{watch.brand} · {watch.glass}</p>
                   <p className="text-slate-400 text-[10px] truncate">{watch.straps.map(s => s.label).join(' · ')}</p>
