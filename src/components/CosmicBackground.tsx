@@ -68,6 +68,12 @@ export const CosmicBackground: React.FC<CosmicBackgroundProps> = ({
       {/* Dark Vignette & Radial Mask Layer to guarantee maximum readability & high contrast */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.85)_100%)]" />
+
+      {/* Drifting star field — painted above the vignette on purpose: the vignette exists to
+          dim the grid/glow layers for text contrast, but stars are meant to read as the
+          brightest thing in the sky, not another layer it darkens. See .star-layer. */}
+      <div className="star-layer star-layer--far" />
+      <div className="star-layer star-layer--near" />
     </div>
   );
 };

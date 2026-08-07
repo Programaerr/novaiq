@@ -455,14 +455,8 @@
     #111111 60%,
     transparent 75%,
     transparent
-    
   );
-
 }
-.nq-btn-beam--template::before {
-  background: conic-gradient(from 0deg, transparent, #000000 10%, transparent 10%);
-}
-
 
 .nq-btn:hover .nq-btn-beam,
 .nq-btn:focus-visible .nq-btn-beam,
@@ -539,6 +533,58 @@
 @keyframes pulse-glow {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.6; }
+}
+
+/* Drifting star field for CosmicBackground — two tiled radial-gradient layers translated
+   with transform3d (compositor-only, no per-frame paint) instead of a canvas/particle
+   loop, so it stays free even on low-end GPUs. Each layer is 200% of the viewport and
+   tiles seamlessly, so translating it by exactly one tile length loops with no jump cut. */
+.star-layer {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background-repeat: repeat;
+  will-change: transform;
+}
+
+.star-layer--far {
+  background-image:
+    radial-gradient(1.5px 1.5px at 40px 60px, rgba(255, 255, 255, 0.95) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 120px 20px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(2px 2px at 200px 140px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 260px 80px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 300px 220px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 70px 190px, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
+    radial-gradient(1px 1px at 170px 250px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 250px 30px, rgba(255, 255, 255, 0.75) 50%, transparent 51%);
+  background-size: 300px 300px;
+  opacity: 0.7;
+  animation: star-drift-far 220s linear infinite;
+}
+
+.star-layer--near {
+  background-image:
+    radial-gradient(2px 2px at 30px 90px, rgba(255, 255, 255, 1) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 160px 40px, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 240px 190px, rgba(255, 255, 255, 1) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 340px 60px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(2px 2px at 90px 260px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 200px 320px, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 300px 300px, rgba(255, 255, 255, 0.85) 50%, transparent 51%);
+  background-size: 380px 380px;
+  opacity: 0.85;
+  animation: star-drift-near 150s linear infinite reverse;
+}
+
+@keyframes star-drift-far {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-300px, -300px, 0); }
+}
+
+@keyframes star-drift-near {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-380px, 300px, 0); }
 }
 
 /* Card entrance. Animates only opacity + transform, both of which the compositor can run
