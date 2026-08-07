@@ -99,7 +99,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     { id: 'all', label: getTranslation('allCategories', currentLang) },
     { id: 'corporate', label: translateText('شركات ومؤسسات', currentLang) },
     { id: 'ecommerce', label: translateText('تجارة إلكترونية', currentLang) },
-    { id: 'tech', label: translateText('تقنية وسحابة', currentLang) },
+    { id: 'cars', label: translateText('معارض سيارات', currentLang) },
     { id: 'realestate', label: translateText('عقارات وتطوير', currentLang) },
     { id: 'healthcare', label: translateText('خدمات وطب', currentLang) },
     { id: 'fintech', label: translateText('فينتك وخدمات مالية', currentLang) },

@@ -34,7 +34,9 @@ import type {
   MenuItem,
   PhoneOrder,
   PhoneProduct,
+  CarModel,
   SiteAccount,
+  TestDriveBooking,
   ThemeColor,
   WatchOrder,
   WatchProduct,
@@ -43,6 +45,7 @@ import type {
 import {
   COMPANY_PROFILES,
   PHONE_WARRANTY_IQD,
+  SAMPLE_CARS,
   SAMPLE_PRODUCTS,
   SITE_IDENTITIES,
   SITE_NAV_ITEMS,
@@ -60,7 +63,7 @@ import type { SandboxCtx } from './sandbox/context';
 import { themeClassesFor } from './sandbox/context';
 import { StoreDemo } from './sandbox/templates/StoreDemo';
 import { CorporateDemo } from './sandbox/templates/CorporateDemo';
-import { SaasDemo } from './sandbox/templates/SaasDemo';
+import { CarDealerDemo, monthlyInstalment } from './sandbox/templates/CarDealerDemo';
 import { RealEstateDemo } from './sandbox/templates/RealEstateDemo';
 import { HealthDemo } from './sandbox/templates/HealthDemo';
 import { RestaurantDemo } from './sandbox/templates/RestaurantDemo';
@@ -177,10 +180,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [customerCity, setCustomerCity] = useState<string>('بغداد - الكرادة');
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'zaincash' | 'mastercard'>('cod');
 
-  // Interactive demo states for other templates
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>(() => {
-    try { return (localStorage.getItem('novaiq_sandbox_plan') as 'monthly' | 'yearly') || 'monthly'; } catch { return 'monthly'; }
+  // Car dealership demo state
+  const [selectedCarId, setSelectedCarId] = useState<string>('car-1');
+  const [downPaymentPct, setDownPaymentPct] = useState<number>(30);
+  const [financeMonths, setFinanceMonths] = useState<number>(36);
+  const [testDriveDate, setTestDriveDate] = useState<string>('2026-08-15');
+  const [testDriveBookings, setTestDriveBookings] = useState<TestDriveBooking[]>(() => {
+    try { return JSON.parse(localStorage.getItem('novaiq_sandbox_test_drives') || '[]'); } catch { return []; }
   });
+
+  // Interactive demo states for other templates
   const [bookingDate, setBookingDate] = useState<string>('2026-08-15');
   const [selectedPropertyFilter, setSelectedPropertyFilter] = useState<string>(() => {
     try { return localStorage.getItem('novaiq_sandbox_property_filter') || 'all'; } catch { return 'all'; }
@@ -264,8 +273,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
   // Persist per-template demo state locally so a returning customer's choices are remembered
   useEffect(() => {
-    try { localStorage.setItem('novaiq_sandbox_plan', selectedPlan); } catch { /* ignore */ }
-  }, [selectedPlan]);
+    try { localStorage.setItem('novaiq_sandbox_test_drives', JSON.stringify(testDriveBookings)); } catch { /* ignore */ }
+  }, [testDriveBookings]);
 
   useEffect(() => {
     try { localStorage.setItem('novaiq_sandbox_property_filter', selectedPropertyFilter); } catch { /* ignore */ }
@@ -367,6 +376,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         case 'novaiq_sandbox_watch_orders': syncFromStorage(setWatchOrders, event.newValue, [] as WatchOrder[]); break;
         case 'novaiq_sandbox_property_visits': syncFromStorage(setPropertyVisits, event.newValue, [] as Array<{ id: string; propertyTitle: string; date: string; visitorName: string }>); break;
         case 'novaiq_sandbox_transfers': syncFromStorage(setTransfersLog, event.newValue, [] as Array<{ id: string; amountIQD: number; date: string; recipient: string }>); break;
+        case 'novaiq_sandbox_test_drives': syncFromStorage(setTestDriveBookings, event.newValue, [] as TestDriveBooking[]); break;
         case 'novaiq_sandbox_account':
           setAccount((prev) => {
             const raw = event.newValue || '';
@@ -382,9 +392,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         // Stored as bare strings rather than JSON, and each one feeds the customization
         // summary that travels into the contract — so they have to survive being changed
         // inside a device frame just like the list-shaped state above.
-        case 'novaiq_sandbox_plan':
-          if (event.newValue === 'monthly' || event.newValue === 'yearly') setSelectedPlan(event.newValue);
-          break;
         case 'novaiq_sandbox_orgsize':
           if (event.newValue === 'medium' || event.newValue === 'large' || event.newValue === 'holding') setOrgSize(event.newValue);
           break;
@@ -429,8 +436,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     } else if (template.id === 'NVQ-CORP-01') {
       const sizeLabel = orgSize === 'medium' ? 'مؤسسة متوسطة' : orgSize === 'large' ? 'مؤسسة كبرى' : 'مجموعة قابضة';
       lines.push(`حجم المؤسسة المختار في حاسبة التكلفة التفاعلية: ${sizeLabel}`);
-    } else if (template.id === 'NVQ-TECH-03') {
-      lines.push(`نوع الاشتراك المفضل من المعاينة: ${selectedPlan === 'monthly' ? 'اشتراك شهري' : 'اشتراك سنوي (خصم 20%)'}`);
+    } else if (template.id === 'NVQ-CARS-03') {
+      const car = SAMPLE_CARS.find(c => c.id === selectedCarId) || SAMPLE_CARS[0];
+      lines.push(`السيارة المختارة في حاسبة التقسيط: ${car.name} — دفعة أولى ${downPaymentPct}% على ${financeMonths} شهراً بقسط تقديري ${price(monthlyInstalment(car.priceIQD, downPaymentPct, financeMonths))}`);
+      if (testDriveBookings.length > 0) {
+        const b = testDriveBookings[0];
+        lines.push(`قام العميل بتجربة حجز قيادة تجريبي: ${b.carName} بتاريخ ${b.date}`);
+      }
     } else if (template.id === 'NVQ-REAL-04') {
       const filterLabel = selectedPropertyFilter === 'villas' ? 'الفلل الفاخرة' : selectedPropertyFilter === 'apartments' ? 'الشقق والمكاتب' : 'جميع العقارات';
       lines.push(`تصنيف العقارات الذي اهتم به العميل: ${filterLabel}`);
@@ -703,6 +715,22 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     setActiveTab('confirmation');
   };
 
+  // Car dealership helper. The booking is what the shell reads for the account page, so it is
+  // owned here rather than inside the demo.
+  const bookTestDrive = (car: CarModel) => {
+    setTestDriveBookings(prev => [
+      {
+        id: `TD-${Math.floor(1000 + Math.random() * 9000)}`,
+        carName: car.name,
+        date: testDriveDate,
+        customerName,
+        branch: 'بغداد - المنصور، شارع المعارض',
+      },
+      ...prev
+    ]);
+    cosmicAudio.playPing();
+  };
+
   // Watch store helpers. The watch, its strap and the engraving are all priced per piece, so
   // they multiply by quantity; the gift box is one box for the order and does not.
   const computeWatchTotal = (watch: WatchProduct, strapId: string, quantity: number, engravingText: string, withGiftWrap: boolean) => {
@@ -821,13 +849,20 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           />
         );
 
-      case 'NVQ-TECH-03':
-      case 'nebula-saas':
+      case 'NVQ-CARS-03':
         return (
-          <SaasDemo
+          <CarDealerDemo
             ctx={ctx}
-            selectedPlan={selectedPlan}
-            setSelectedPlan={setSelectedPlan}
+            bookTestDrive={bookTestDrive}
+            downPaymentPct={downPaymentPct}
+            financeMonths={financeMonths}
+            selectedCarId={selectedCarId}
+            setDownPaymentPct={setDownPaymentPct}
+            setFinanceMonths={setFinanceMonths}
+            setSelectedCarId={setSelectedCarId}
+            setTestDriveDate={setTestDriveDate}
+            testDriveBookings={testDriveBookings}
+            testDriveDate={testDriveDate}
           />
         );
 
@@ -994,7 +1029,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-WATCH-10': return 'طلباتي';
       case 'NVQ-FINTECH-06': return 'تحويلاتي';
       case 'NVQ-REAL-04': return 'معايناتي';
-      case 'NVQ-TECH-03': return 'اشتراكي';
+      case 'NVQ-CARS-03': return 'حجوزاتي';
       default: return 'طلباتي';
     }
   })();
@@ -1011,7 +1046,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-FOOD-07': return 'ابحث في قائمة الطعام';
       case 'NVQ-REAL-04': return 'ابحث عن عقار أو منطقة';
       case 'NVQ-FINTECH-06': return 'ابحث عن عملية أو بطاقة';
-      case 'NVQ-TECH-03': return 'ابحث في الوثائق والمزايا';
+      case 'NVQ-CARS-03': return 'ابحث عن سيارة أو موديل';
       case 'NVQ-CORP-01': return 'ابحث عن خدمة أو مشروع';
       default: return 'ابحث في الموقع';
     }
@@ -1124,14 +1159,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         }];
       }
 
-      case 'NVQ-TECH-03':
-        return [{
-          id: 'SUB-2210',
-          title: selectedPlan === 'monthly' ? 'الخطة الاحترافية — اشتراك شهري' : 'الخطة الاحترافية — اشتراك سنوي',
-          subtitle: 'مساحة عمل الإنتاج',
-          meta: selectedPlan === 'monthly' ? 'يتجدد تلقائياً كل 30 يوماً' : 'يتجدد سنوياً بخصم 20%',
-          status: 'اشتراك نشط',
-        }];
+      case 'NVQ-CARS-03':
+        return testDriveBookings.map((b) => ({
+          id: b.id, title: b.carName, subtitle: `الفرع: ${b.branch}`,
+          meta: `موعد التجربة: ${b.date}`, status: 'بانتظار تأكيد المعرض',
+        }));
 
       default:
         return [];
