@@ -10,7 +10,11 @@ export const STATUS_FLOW: ContractData['status'][] = ['submitted', 'under_review
 
 export const PAYMENT_STATUS_FLOW: NonNullable<ContractData['paymentStatus']>[] = ['unpaid', 'partial', 'paid'];
 
-export function StatTile({ icon: Icon, label, value, accent }: { icon: React.ElementType; label: string; value: string; accent?: string }) {
+// Icons are typed as "a component accepting className" rather than React.ElementType.
+// @react-three/fiber augments the global JSX namespace with three.js elements, and
+// ElementType widens to include those — none of which accept className, so the prop
+// collapses to `never` at the call site. Naming the one prop we pass keeps it honest.
+export function StatTile({ icon: Icon, label, value, accent }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; accent?: string }) {
   // Financial figures (profit/loss, totals) can run to 8+ digits — a fixed text-xl with
   // `truncate` silently clipped those behind an ellipsis, hiding the actual number. A smaller,
   // responsive size plus wrapping instead of truncating means a big number is always fully
@@ -34,7 +38,7 @@ export function TabButton({
   onClick,
   full,
 }: {
-  tabItem: { id: string; label: string; icon: React.ElementType };
+  tabItem: { id: string; label: string; icon: React.ComponentType<{ className?: string }> };
   active: boolean;
   onClick: () => void;
   full?: boolean;
