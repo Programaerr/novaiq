@@ -996,22 +996,31 @@
   }
 }
 
-/* Windows Fluent "reveal" for the About section's capability cards.
-   Two separate lights, which is what the Windows effect actually is:
-     - a *border* reveal that lights the edge nearest the pointer, on every card in the group
-       at once — a card the pointer never entered still lights the side facing it. That
-       cross-card proximity is the part that reads as Windows rather than as a plain hover.
-     - a *hover* light, the soft wash under the pointer, on the hovered card only.
-   --rx/--ry are the pointer's position in each card's own coordinates, written by the single
-   container-level handler in AboutSection.
-   Deliberately NOT the halo this section had removed before: nothing animates on its own,
-   and nothing bleeds outside the card — the border light is clipped to a 1px ring and the
-   wash is clipped to the card's own face. */
+/* Windows Fluent "reveal". The full Windows effect is two separate lights:
+     1. a *border* reveal that lights the edge nearest the pointer, on every card in the group
+        at once — a card the pointer never entered still lights the side facing it. That
+        cross-card proximity is what reads as Windows rather than as a plain hover.
+     2. a *hover* light, the soft wash under the pointer, on the hovered card only.
+
+   Light 1 is `.reveal-border` here, fed --rx/--ry by useRevealGroup().
+   Light 2 already existed as `.spotlight-card` (fed --spot-x/--spot-y by useSpotlight), so
+   cards that want both wear both classes — and the two live on different pseudo-elements
+   precisely so they can. `.reveal-card` is the standalone variant for cards with no
+   spotlight of their own: same ring, plus a gentler wash.
+
+   Deliberately not the halo the About section had removed before: nothing animates on its
+   own, and nothing bleeds outside the card — the border light is clipped to a 1px ring and
+   the wash is clipped to the card's own face. */
+.reveal-border,
 .reveal-card {
   position: relative;
+}
+
+.reveal-card {
   isolation: isolate;
 }
 
+.reveal-border::after,
 .reveal-card::before,
 .reveal-card::after {
   content: '';
@@ -1023,9 +1032,10 @@
   transition: opacity 260ms ease;
 }
 
-/* Border reveal. Same ring trick as .filter-pill-beam — the mask pair (full box minus
-   content box) erases everything but the 1px padding strip, so the gradient survives only
-   on the outline itself. */
+/* The ring itself. Same trick as .filter-pill-beam — the mask pair (full box minus content
+   box) erases everything but the 1px padding strip, so the gradient survives only on the
+   outline. */
+.reveal-border::after,
 .reveal-card::before {
   z-index: 1;
   padding: 1px;
@@ -1041,7 +1051,7 @@
   mask-composite: exclude;
 }
 
-/* Hover light. Kept under the card's own content (which carries z-10) so it washes the
+/* Standalone wash. Kept under the card's own content (which carries z-10) so it lights the
    surface without dimming the text. */
 .reveal-card::after {
   z-index: 0;
@@ -1052,6 +1062,7 @@
   );
 }
 
+.reveal-group.is-live .reveal-border::after,
 .reveal-group.is-live .reveal-card::before {
   opacity: 1;
 }
@@ -1063,6 +1074,7 @@
 /* Touch devices have no pointer to reveal toward, and the vars would stay at their 50%
    fallback — a permanent glow dead-centre on every card, which is not the effect. */
 @media (hover: none) {
+  .reveal-border::after,
   .reveal-card::before,
   .reveal-card::after {
     display: none;

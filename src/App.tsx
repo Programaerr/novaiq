@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 
 import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { useSpotlight } from './lib/useSpotlight';
+import { useRevealGroup } from './lib/useRevealGroup';
 import { Navbar } from './components/Navbar';
 import { PageBackBar } from './components/PageBackBar';
 import { HeroSection } from './components/HeroSection';
@@ -222,6 +223,8 @@ export default function App() {
   }, []);
 
   const spotlight = useSpotlight<HTMLDivElement>();
+  // Border half of the Fluent reveal; useSpotlight above already owns the surface wash.
+  const revealGroup = useRevealGroup<HTMLDivElement>();
 
   if (standalonePreviewTemplate) {
     return (
@@ -306,7 +309,13 @@ export default function App() {
 
             {/* Quick Overview Grid to drive leads */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl">
+              {/* The reveal group is this whole panel, not each grid — so moving across the
+                  copy on one side already lights the near edges of the cards on the other,
+                  which is the cross-card proximity the effect is for. */}
+              <div
+                ref={revealGroup}
+                className="reveal-group corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+              >
                 <div className="flex flex-col gap-4">
                   <div className="flex-1 flex flex-col justify-start space-y-3 text-start">
                     <h3 className="text-xl sm:text-3xl font-bold text-white">
@@ -327,7 +336,7 @@ export default function App() {
                       <div
                         key={idx}
                         {...spotlight}
-                        className="spotlight-card group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
+                        className="spotlight-card reveal-border group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
                       >
                         <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
@@ -358,7 +367,7 @@ export default function App() {
                     <div
                       key={idx}
                       {...spotlight}
-                      className="spotlight-card aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
+                      className="spotlight-card reveal-border aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
                     >
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>

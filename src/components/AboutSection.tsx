@@ -1,61 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { useRevealGroup } from '../lib/useRevealGroup';
 
 interface AboutSectionProps {
   language?: Language;
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
-  const revealGroup = useRef<HTMLDivElement | null>(null);
-
-  // Drives the Windows-style reveal on the capability cards (see .reveal-card in index.css).
-  // One listener on the row, not one per card: every card needs the pointer's position even
-  // while it sits over a *different* card, which is what lights the near edges of its
-  // neighbours. Each card gets the position in its own coordinates, so a card far from the
-  // pointer receives coordinates outside its own box and its gradient falls off to nothing —
-  // the proximity falloff comes for free from the gradient rather than from any distance math.
-  useEffect(() => {
-    const group = revealGroup.current;
-    // A device without a real pointer never fires these; the CSS hides the layers there too.
-    if (!group || !window.matchMedia('(hover: hover)').matches) return;
-
-    let frame = 0;
-
-    const paint = (clientX: number, clientY: number) => {
-      const cards = group.querySelectorAll<HTMLElement>('.reveal-card');
-      // Measure every card first, then write — interleaving reads and writes would force a
-      // fresh layout on each card, every frame.
-      const rects = [...cards].map((el) => el.getBoundingClientRect());
-      cards.forEach((el, i) => {
-        el.style.setProperty('--rx', `${clientX - rects[i].left}px`);
-        el.style.setProperty('--ry', `${clientY - rects[i].top}px`);
-      });
-    };
-
-    const onMove = (e: PointerEvent) => {
-      // Coalesce to one paint per frame — pointermove can fire well above the refresh rate.
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        paint(e.clientX, e.clientY);
-      });
-    };
-
-    const onEnter = () => group.classList.add('is-live');
-    const onLeave = () => group.classList.remove('is-live');
-
-    group.addEventListener('pointermove', onMove);
-    group.addEventListener('pointerenter', onEnter);
-    group.addEventListener('pointerleave', onLeave);
-
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      group.removeEventListener('pointermove', onMove);
-      group.removeEventListener('pointerenter', onEnter);
-      group.removeEventListener('pointerleave', onLeave);
-    };
-  }, []);
+  const revealGroup = useRevealGroup<HTMLDivElement>();
 
   return (
     <section id="about-section" className="py-10 sm:py-14 relative">
