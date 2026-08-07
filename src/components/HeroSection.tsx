@@ -25,38 +25,40 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 }) => {
   // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
   // for real photography until the client supplies per-guarantee images.
+  //
+  // Each of these used to carry a bright white overlay layer on top of its base gradient —
+  // a diagonal sheen band, a radial hotspot pair, a conic sweep. Those were the glare on the
+  // cube's faces: they blew out the middle of every face and left the icon and text sitting
+  // in a white haze. Only the base gradient survives now, so each face is a clean, evenly
+  // lit surface and what's printed on it stays fully legible.
   const guarantees = [
     {
       Icon: Clock,
       title: language === 'ar' ? 'تسليم سريع ومنظم' : 'Fast Delivery',
       desc: language === 'ar' ? 'منهجية برمجية واضحة ومحددة' : 'Clear timeline & sprints',
-      bgImage:
-        'linear-gradient(115deg, transparent 0%, transparent 42%, rgba(255,255,255,0.4) 50%, transparent 58%, transparent 100%), linear-gradient(135deg, #3f3f46, #09090b)',
-      bgSize: 'auto, cover',
+      bgImage: 'linear-gradient(135deg, #3f3f46, #09090b)',
+      bgSize: 'cover',
     },
     {
       Icon: ShieldCheck,
       title: language === 'ar' ? 'مواصفات برمجية دقيقة' : 'Verified Specs',
       desc: language === 'ar' ? 'حقوق الكود كاملة مع الحفظ' : 'Full code ownership',
-      bgImage:
-        'linear-gradient(rgba(255,255,255,0.28) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.28) 1px, transparent 1px), linear-gradient(160deg, #27272a, #000)',
-      bgSize: '22px 22px, 22px 22px, cover',
+      bgImage: 'linear-gradient(160deg, #27272a, #000)',
+      bgSize: 'cover',
     },
     {
       Icon: Award,
       title: language === 'ar' ? 'دعم فني متكامل' : 'Full Support',
       desc: language === 'ar' ? 'متابعة دورية حسب الاتفاق' : 'Ongoing technical SLA',
-      bgImage:
-        'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.45), transparent 45%), radial-gradient(circle at 72% 68%, rgba(255,255,255,0.22), transparent 50%), linear-gradient(180deg, #3f3f46, #000)',
-      bgSize: 'cover, cover, cover',
+      bgImage: 'linear-gradient(180deg, #3f3f46, #000)',
+      bgSize: 'cover',
     },
     {
       Icon: Globe2,
       title: language === 'ar' ? 'أداء فائق السرعة' : 'Blazing Performance',
       desc: language === 'ar' ? 'أحدث التقنيات لسرعة استثنائية' : 'Modern web tech stacks',
-      bgImage:
-        'conic-gradient(from 0deg, rgba(255,255,255,0.3), transparent 20%, rgba(255,255,255,0.18) 40%, transparent 60%, rgba(255,255,255,0.25) 80%, transparent 100%), radial-gradient(circle, #27272a, #000)',
-      bgSize: 'cover, cover',
+      bgImage: 'radial-gradient(circle, #27272a, #000)',
+      bgSize: 'cover',
     },
   ];
 
@@ -195,8 +197,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                       hover, cutting their contrast. A plain border highlight communicates
                       "hovered" without dimming what's actually on the face. */}
                   <div className="group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-700 text-center hover:border-white/50 hover:bg-zinc-900/90 transition-all shadow-xl">
+                    {/* Full opacity, not the 40% it faded to before: at 40% the face's image
+                        was a washed-out ghost of itself blended with the card fill underneath.
+                        Its gradient is dark enough on its own that the white text above it
+                        keeps its contrast at full strength. */}
                     <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-500 pointer-events-none"
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                       style={{ backgroundImage: bgImage, backgroundSize: bgSize }}
                     />
                     <div className="relative z-10 w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-700 flex items-center justify-center text-white">
