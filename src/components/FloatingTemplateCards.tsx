@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { templatesData } from '../data/templatesData';
 
-// three.js + fiber + drei + postprocessing are a large dependency. Kept behind React.lazy
+// three.js + fiber + drei are a large dependency. Kept behind React.lazy
 // so they land in their own chunk and never block the initial page parse, and only mounted
 // once the browser goes idle after first paint — the hero's text and CTA are what matter
 // on load, not the WebGL scene under them.
@@ -48,7 +48,7 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
     <div className="w-full max-w-5xl mx-auto mt-16 sm:mt-24 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-10">
       {/* 3D stage. The fixed height is reserved up front so the hero never reflows when the
           canvas finishes loading. */}
-      <div className="w-full sm:w-[26rem] h-64 sm:h-80 shrink-0 select-none">
+      <div className="w-full sm:w-[30rem] h-72 sm:h-[26rem] shrink-0 select-none">
         {showCanvas ? (
           <Suspense fallback={null}>
             <TemplateCards3D />
