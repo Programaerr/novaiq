@@ -377,6 +377,11 @@ export interface WatchProduct {
   caseSizeMm: number;
   waterResistance: string;
   glass: string;
+  /** Exactly three, for the card's stat row. Written out rather than derived from the four
+   *  specs above: that row is three narrow columns, and the full spec strings ("أوتوماتيك
+   *  (بدون بطارية)") wrap to three lines in it. Slicing them apart in the component would put
+   *  the layout at the mercy of the punctuation inside a data string. */
+  cardStats: { value: string; label: string }[];
   badge?: string;
 }
 
@@ -418,6 +423,11 @@ export const SAMPLE_WATCHES: WatchProduct[] = [
     caseSizeMm: 39,
     waterResistance: 'مقاومة 5 بار',
     glass: 'زجاج سافير مضاد للخدش',
+    cardStats: [
+      { value: '39 ملم', label: 'قطر العلبة' },
+      { value: 'أوتوماتيك', label: 'الحركة' },
+      { value: '5 بار', label: 'مقاومة الماء' },
+    ],
   },
   {
     id: 'watch-2', name: 'Meridian Diver 42', brand: 'Meridian', badge: 'مقاومة 30 بار',
@@ -435,6 +445,11 @@ export const SAMPLE_WATCHES: WatchProduct[] = [
     caseSizeMm: 42,
     waterResistance: 'مقاومة 30 بار (300 متر)',
     glass: 'زجاج سافير مقبب',
+    cardStats: [
+      { value: '42 ملم', label: 'قطر العلبة' },
+      { value: 'أوتوماتيك', label: 'الحركة' },
+      { value: '30 بار', label: 'مقاومة الماء' },
+    ],
   },
   {
     id: 'watch-3', name: 'Meridian Chrono 41', brand: 'Meridian',
@@ -451,6 +466,11 @@ export const SAMPLE_WATCHES: WatchProduct[] = [
     caseSizeMm: 41,
     waterResistance: 'مقاومة 10 بار',
     glass: 'زجاج معدني مقوّى',
+    cardStats: [
+      { value: '41 ملم', label: 'قطر العلبة' },
+      { value: 'كرونوغراف', label: 'الحركة' },
+      { value: '10 بار', label: 'مقاومة الماء' },
+    ],
   },
   {
     id: 'watch-4', name: 'Meridian Lunar 36', brand: 'Meridian', badge: 'نسائية',
@@ -467,6 +487,11 @@ export const SAMPLE_WATCHES: WatchProduct[] = [
     caseSizeMm: 36,
     waterResistance: 'مقاومة 3 بار',
     glass: 'زجاج سافير',
+    cardStats: [
+      { value: '36 ملم', label: 'قطر العلبة' },
+      { value: 'كوارتز', label: 'الحركة' },
+      { value: '3 بار', label: 'مقاومة الماء' },
+    ],
   },
   {
     id: 'watch-5', name: 'Meridian Field 38', brand: 'Meridian',
@@ -483,6 +508,11 @@ export const SAMPLE_WATCHES: WatchProduct[] = [
     caseSizeMm: 38,
     waterResistance: 'مقاومة 10 بار',
     glass: 'زجاج معدني مقوّى',
+    cardStats: [
+      { value: '38 ملم', label: 'قطر العلبة' },
+      { value: 'كوارتز', label: 'الحركة' },
+      { value: '10 بار', label: 'مقاومة الماء' },
+    ],
   },
   {
     id: 'watch-6', name: 'Meridian Slim 40', brand: 'Meridian', badge: 'الأنحف',
@@ -499,6 +529,11 @@ export const SAMPLE_WATCHES: WatchProduct[] = [
     caseSizeMm: 40,
     waterResistance: 'مقاومة 3 بار',
     glass: 'زجاج سافير',
+    cardStats: [
+      { value: '40 ملم', label: 'قطر العلبة' },
+      { value: 'كوارتز', label: 'الحركة' },
+      { value: '7 ملم', label: 'سماكة العلبة' },
+    ],
   },
 ];
 

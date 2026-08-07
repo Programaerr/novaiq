@@ -310,6 +310,52 @@
     inset -3px -3px 7px rgba(255, 255, 255, 0.95);
 }
 
+/* Neumorphic product card — the soft-UI look .search-neu already uses, but as a full card:
+   one sheet of pale material with the panels and the button pressed *out* of it rather than
+   drawn on top. The illusion is entirely the paired shadows — a dark one down-right and a
+   light one up-left, as if a single light sat above-left — so both are required on every
+   surface here; drop either and the element flattens into a plain rounded rectangle.
+
+   The card carries its own #eef1f6 body rather than inheriting the demo's dark page: soft UI
+   needs a mid-tone material for the light shadow to register against, which is the same
+   reason .search-neu brings its own surface into the dark toolbar. Nested surfaces get
+   progressively smaller shadows (card 24px -> panel 12px -> button 10px), which is what
+   reads as them sitting *on* the card instead of floating beside it. */
+.neu-card {
+  background: #eef1f6;
+  box-shadow:
+    12px 12px 24px rgba(163, 177, 198, 0.55),
+    -10px -10px 24px rgba(255, 255, 255, 0.95);
+}
+
+.neu-panel {
+  background: #eef1f6;
+  box-shadow:
+    6px 6px 12px rgba(163, 177, 198, 0.5),
+    -5px -5px 12px rgba(255, 255, 255, 0.95);
+}
+
+.neu-btn {
+  background: #eef1f6;
+  box-shadow:
+    5px 5px 10px rgba(163, 177, 198, 0.6),
+    -4px -4px 10px rgba(255, 255, 255, 0.95);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.neu-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Pressed, not dimmed: the outer shadows swap for inner ones, so the button sinks into the
+   same sheet it was raised from. A colour change would break the material illusion. */
+.neu-btn:active {
+  transform: scale(0.97);
+  box-shadow:
+    inset 4px 4px 8px rgba(163, 177, 198, 0.7),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.95);
+}
+
 /* Hover inverts the whole pill (white/black -> black/white), so the ambient glow inverts
    too — a black bloom would disappear against a black pill, a white one reads as the
    surface catching light instead. Declared after .is-active so hover wins when both apply
