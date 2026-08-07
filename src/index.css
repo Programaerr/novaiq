@@ -587,39 +587,23 @@
   to { transform: translate3d(-380px, 300px, 0); }
 }
 
-/* Floating 3D template cards (Hero, below the guarantee wheel). Two transform layers on
-   purpose, kept on separate elements: the outer motion.div owns the scroll-linked parallax
-   (set from JS via inline style), the inner .float-card owns the idle bob animation (set
-   from CSS via @keyframes) — a CSS animation targeting `transform` always wins the cascade
-   over an inline `transform`, so stacking both on one element would let the bob silently
-   erase the scroll parallax every frame. .tilt-card holds the constant 3D fan tilt as its
-   own untouched transform so hover can ease it without fighting either motion layer. */
-.float-card-stage {
-  perspective: 1400px;
+/* 3D template card stack (Hero, below the guarantee wheel). `perspective` lives on the
+   stage so every card's `translateZ` reads as real depth instead of a flat scale change.
+   Cards are absolutely positioned on top of each other inside a fixed-size stage — the fan
+   is pure transform (translate/rotateZ/translateZ), so bringing one to front on hover/touch
+   is just swapping that one card's transform, never a layout reflow. */
+.card-stack-stage {
+  position: relative;
+  perspective: 1600px;
 }
 
-.float-card {
-  animation: float-bob 6s ease-in-out infinite;
-  will-change: transform;
-}
-
-.float-card--a { animation-delay: 0s; }
-.float-card--b { animation-delay: -3.4s; }
-.float-card--c { animation-delay: -1.7s; }
-
-@keyframes float-bob {
-  0%, 100% { transform: translateY(0) rotateZ(0deg); }
-  50% { transform: translateY(-14px) rotateZ(1deg); }
-}
-
-.tilt-card {
-  transform: rotateY(var(--tilt-y, 0deg)) rotateX(4deg);
+.card-stack-item {
+  position: absolute;
+  inset: 0;
   transform-style: preserve-3d;
-  transition: transform 0.4s ease;
-}
-
-.tilt-card:hover {
-  transform: rotateY(calc(var(--tilt-y, 0deg) * 0.35)) rotateX(0deg) translateY(-2px) scale(1.015);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s ease, opacity 0.5s ease;
+  will-change: transform, filter;
+  cursor: pointer;
 }
 
 /* Card entrance. Animates only opacity + transform, both of which the compositor can run

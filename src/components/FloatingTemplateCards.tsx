@@ -1,120 +1,114 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from 'motion/react';
+import React, { useRef, useState } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { templatesData } from '../data/templatesData';
-import { Template } from '../types';
 
 interface FloatingTemplateCardsProps {
   language: 'ar' | 'en';
   onExploreTemplates: () => void;
 }
 
-const FEATURED = templatesData.slice(0, 3);
-// Arranged as a shallow 3D fan (left/center/right) rather than all facing flat.
-const TILTS = [-8, 0, 8];
-const BOB_CLASSES = ['float-card--a', 'float-card--b', 'float-card--c'];
-// Center card travels furthest on scroll — the depth difference between cards is what
-// reads as "floating in space" rather than the row just sliding as one flat unit.
-const DEPTHS = [36, 64, 36];
+const STACK = templatesData.slice(0, 4);
 
-interface FloatingCardProps {
-  template: Template;
-  language: 'ar' | 'en';
-  onExploreTemplates: () => void;
-  tilt: number;
-  depth: number;
-  bobClass: string;
-  scrollYProgress: MotionValue<number>;
-  reduceMotion: boolean;
+// Resting fan: each card sits further back (translateZ), nudged down/aside and rotated a
+// touch more than the one in front of it — a hand-of-photos stack, not a flat grid. The
+// active card jumps to the very front (positive translateZ, no rotation, larger scale);
+// every other card gets pushed back further and blurred, so the one you're on is the only
+// thing left in sharp focus.
+function getCardTransform(index: number, active: number | null) {
+  if (active === index) {
+    return {
+      transform: 'translate3d(0px, -14px, 120px) rotateZ(0deg) scale(1.12)',
+      zIndex: 40,
+      filter: 'none',
+      opacity: 1,
+    };
+  }
+
+  const isDimmed = active !== null;
+  const restX = index * 20;
+  const restY = index * 14;
+  const restZ = index * -50;
+  const restRotate = index * 6;
+
+  return {
+    transform: `translate3d(${restX}px, ${restY}px, ${isDimmed ? restZ - 40 : restZ}px) rotateZ(${restRotate}deg) scale(${1 - index * 0.06})`,
+    zIndex: 30 - index,
+    filter: isDimmed ? 'blur(7px)' : 'none',
+    opacity: isDimmed ? 0.5 : 1,
+  };
 }
 
-// Split into its own component so each card can call useTransform with its own depth —
-// calling it inside the parent's .map() would violate the rules of hooks.
-const FloatingCard: React.FC<FloatingCardProps> = ({
-  template,
-  language,
-  onExploreTemplates,
-  tilt,
-  depth,
-  bobClass,
-  scrollYProgress,
-  reduceMotion,
-}) => {
-  const rawY = useTransform(scrollYProgress, [0, 1], [depth, -depth]);
-  const y = reduceMotion ? 0 : rawY;
-
-  return (
-    <motion.div style={{ y }}>
-      <div className={`float-card ${bobClass}`}>
-        <div
-          className="tilt-card group relative rounded-2xl border border-zinc-700 bg-zinc-950 overflow-hidden shadow-2xl hover:border-white/40"
-          style={{ '--tilt-y': `${tilt}deg` } as React.CSSProperties}
-        >
-          <div className="aspect-video overflow-hidden">
-            <img
-              src={template.previewImage}
-              alt={template.title}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          <div className="p-4 text-start">
-            <h3 className="text-sm font-bold text-white mb-1 truncate">{template.title}</h3>
-            <p className="text-[11px] text-zinc-400 leading-relaxed mb-3 line-clamp-2">{template.subtitle}</p>
-
-            <button
-              type="button"
-              onClick={onExploreTemplates}
-              className="nq-btn nq-btn--solid w-full px-4 py-2 rounded-full font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span className="nq-btn-beam" aria-hidden="true" />
-              <span>{language === 'ar' ? 'استكشاف القوالب' : 'Explore Templates'}</span>
-              {language === 'ar' ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// Floating 3D showcase row — sits under the guarantee wheel in the Hero. Each card fan-tilts
-// in 3D (perspective + rotateY/rotateX), bobs continuously in place (CSS keyframes), and
-// drifts at its own depth as the page scrolls past (motion's useScroll). Fully static under
-// prefers-reduced-motion: the CSS bob freezes via the site-wide reduced-motion override, and
-// the scroll parallax is short-circuited to 0 here since that's a JS-driven transform the
-// global CSS override can't reach.
 export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   language,
   onExploreTemplates,
 }) => {
-  const stageRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const reduceMotion = !!useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: stageRef,
-    offset: ['start 95%', 'end 15%'],
-  });
+
+  // The whole block drifts gently as it scrolls past — the "distinctive movement" beyond
+  // the stack's own hover interaction — kept on an ancestor element so it never fights the
+  // per-card transforms above.
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 95%', 'end 15%'] });
+  const rawY = useTransform(scrollYProgress, [0, 1], [40, -20]);
+  const y = reduceMotion ? 0 : rawY;
 
   return (
-    <div
-      ref={stageRef}
-      className="float-card-stage w-full max-w-5xl mx-auto mt-16 sm:mt-24 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-7"
+    <motion.div
+      ref={sectionRef}
+      style={{ y }}
+      className="w-full max-w-4xl mx-auto mt-16 sm:mt-24 flex flex-col sm:flex-row items-center gap-10 sm:gap-14"
     >
-      {FEATURED.map((tpl, i) => (
-        <FloatingCard
-          key={tpl.id}
-          template={tpl}
-          language={language}
-          onExploreTemplates={onExploreTemplates}
-          tilt={TILTS[i]}
-          depth={DEPTHS[i]}
-          bobClass={BOB_CLASSES[i]}
-          scrollYProgress={scrollYProgress}
-          reduceMotion={reduceMotion}
-        />
-      ))}
-    </div>
+      {/* Card stack — physically separate from the text, on the flow's start side (right
+          in this site's default RTL) so the 3D effect reads as its own object. */}
+      <div
+        className="card-stack-stage shrink-0 w-48 h-60 sm:w-56 sm:h-72"
+        onMouseLeave={() => setActive(null)}
+        onTouchEnd={() => setActive(null)}
+      >
+        {STACK.map((tpl, i) => {
+          const { transform, zIndex, filter, opacity } = getCardTransform(i, active);
+          return (
+            <div
+              key={tpl.id}
+              className="card-stack-item rounded-2xl border border-zinc-700 bg-zinc-950 overflow-hidden shadow-2xl"
+              style={{ transform, zIndex, filter, opacity }}
+              onMouseEnter={() => setActive(i)}
+              onTouchStart={() => setActive(i)}
+            >
+              <img
+                src={tpl.previewImage}
+                alt={tpl.title}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Text + single CTA, entirely separate from the cards. */}
+      <div className="text-center sm:text-start max-w-sm">
+        <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-2">
+          {language === 'ar' ? 'قوالب جاهزة لكل قطاع' : 'Ready Templates, Every Industry'}
+        </h3>
+        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed mb-5">
+          {language === 'ar'
+            ? 'تصفح مجموعة قوالبنا الاحترافية المصممة خصيصاً لقطاعك، وابدأ مشروعك خلال أيام بدل أسابيع.'
+            : 'Browse our professional templates built for your industry, and launch your project in days instead of weeks.'}
+        </p>
+        <button
+          type="button"
+          onClick={onExploreTemplates}
+          className="nq-btn nq-btn--solid px-6 py-3 rounded-full font-extrabold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span className="nq-btn-beam" aria-hidden="true" />
+          <span>{language === 'ar' ? 'استكشاف القوالب' : 'Explore Templates'}</span>
+          {language === 'ar' ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+        </button>
+      </div>
+    </motion.div>
   );
 };
