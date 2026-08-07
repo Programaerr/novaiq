@@ -85,7 +85,13 @@ export function SiteAccountArea({ view, ...props }: SiteAccountAreaProps & { vie
           <p className="text-[11px] text-slate-400">بوابة العملاء الخاصة بـ {siteIdentity.name}</p>
         </div>
 
-        <form onSubmit={handleSiteLogin} className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3.5 shadow-xl">
+        {/* autoComplete="off" throughout — this is the sandbox demo's fake login, not a
+            real account. Without it, Chrome treats the field like any other password
+            input: it offers to save the credential and, if what got typed happens to
+            match an entry in its breach corpus, throws up a "change your password" sheet
+            on the way out. Neither makes sense for a value nobody is actually meant to
+            keep. */}
+        <form onSubmit={handleSiteLogin} autoComplete="off" className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3.5 shadow-xl">
           <label className="block space-y-1.5">
             <span className="text-[11px] font-bold text-slate-300">البريد الإلكتروني</span>
             <span className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-black/40 border border-slate-700 focus-within:border-slate-500 transition-colors">
@@ -96,6 +102,7 @@ export function SiteAccountArea({ view, ...props }: SiteAccountAreaProps & { vie
                 onChange={(e) => { setLoginEmail(e.target.value); setLoginError(''); }}
                 placeholder="you@example.com"
                 dir="ltr"
+                autoComplete="off"
                 className="flex-1 bg-transparent text-xs text-white outline-none placeholder:text-slate-600 min-w-0"
               />
             </span>
@@ -111,6 +118,7 @@ export function SiteAccountArea({ view, ...props }: SiteAccountAreaProps & { vie
                 onChange={(e) => { setLoginPassword(e.target.value); setLoginError(''); }}
                 placeholder="••••••••"
                 dir="ltr"
+                autoComplete="new-password"
                 className="flex-1 bg-transparent text-xs text-white outline-none placeholder:text-slate-600 min-w-0"
               />
               <button
