@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "skills": {
+    "r3f-animation": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-animation/SKILL.md",
+      "computedHash": "c9e9ec609496aa89f44757212e220f601ca1387e38644a47603c5fb415eb2bb5"
+    },
+    "r3f-fundamentals": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-fundamentals/SKILL.md",
+      "computedHash": "45fdccb223eb747d7194d200e3f219820ada0cc6fa0226103de96261a22fdb3c"
+    },
+    "r3f-geometry": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-geometry/SKILL.md",
+      "computedHash": "2ab2668ab8e03769efe4a8962533b7e23d8f5fbd46c87f26101572ca63441014"
+    },
+    "r3f-interaction": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-interaction/SKILL.md",
+      "computedHash": "702bc09fc0c20a325b93bacd5fc1361eae04b46dcb90534c04bd3c87a5cf52d7"
+    },
+    "r3f-lighting": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-lighting/SKILL.md",
+      "computedHash": "1ceb9cb1c883419c880a470c7b15597683f2051f3ec6d193723a14285b18baf9"
+    },
+    "r3f-loaders": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-loaders/SKILL.md",
+      "computedHash": "efc962e611bbde7f7c1b2d9ba8259b36c72c6adffc3f0a7d4f73354c4d9a2fde"
+    },
+    "r3f-materials": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-materials/SKILL.md",
+      "computedHash": "f8143ce23054807308dea32cb20e21b9d903909f87bc601a73cf19cb96136b05"
+    },
+    "r3f-physics": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-physics/SKILL.md",
+      "computedHash": "0c3021872a32f7ce3a87d0ab1a260380de0b21b0d13a2ac64108ff1db13aaa5f"
+    },
+    "r3f-postprocessing": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-postprocessing/SKILL.md",
+      "computedHash": "6dcd0f2df52c1e8b2f4805d6ace1a43738c58a06d4ee2f884b665c504647a00c"
+    },
+    "r3f-shaders": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-shaders/SKILL.md",
+      "computedHash": "160c354cf7dfe915c81107bf1253ad3e4550f79dc9572186099dd422d51c6d07"
+    },
+    "r3f-textures": {
+      "source": "EnzeD/r3f-skills",
+      "sourceType": "github",
+      "skillPath": "skills/r3f-textures/SKILL.md",
+      "computedHash": "62a1e9279a81566d4606ff915dbf81d068e4112755771aa9ba45ee533e0c0d2f"
+    }
+  }
+}
