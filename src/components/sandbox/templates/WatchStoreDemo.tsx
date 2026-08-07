@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import {
   CheckCircle2,
-  Droplets,
   Gem,
   Gift,
   Heart,
-  Maximize2,
   Minus,
   PenLine,
   Plus,
   ShoppingCart,
-  Timer,
   Watch,
 } from 'lucide-react';
 import {
@@ -23,15 +20,6 @@ import {
 import type { WatchOrder, WatchProduct } from '../../../data/sandboxDemoData';
 import { cosmicAudio } from '../../../lib/audio';
 import type { SandboxCtx } from '../context';
-
-/** The three specs the catalogue card shows, as {icon, value} pairs. A watch is shopped for by
- *  comparing these against each other, so they get glyphs rather than a plain list — and the
- *  case diameter is the one buyers ask for first, so it leads. */
-const specChips = (watch: WatchProduct) => [
-  { Icon: Maximize2, text: `${watch.caseSizeMm} ملم` },
-  { Icon: Timer, text: watch.movement },
-  { Icon: Droplets, text: watch.waterResistance },
-];
 
 /** An engraving is optional, so "no engraving" has to be a real state rather than an empty
  *  string the summary would render as a blank row. Both the order card and the confirmation
@@ -97,81 +85,80 @@ export function WatchStoreDemo({ ctx, computeWatchTotal, confirmWatchOrder, engr
       {watchTab === 'watches' && searchedWatches.length === 0 && renderNoSearchResults('أي ساعة')}
 
       {watchTab === 'watches' && searchedWatches.length > 0 && (
-        // pt-14 on the grid and the -top-12 photo below reserve the space the case shot pokes
-        // up into; without it the first row's watch is clipped by the section above.
-        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-x-4 gap-y-16 pt-14 animate-fade-in text-xs`}>
+        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-5 animate-fade-in text-xs`}>
           {searchedWatches.map((watch) => (
-            // Light product card, same treatment as the phone store so the two catalogues in
-            // this sandbox read as one design language.
-            <article
-              key={watch.id}
-              // pt-32 clears the part of the photo that hangs *into* the card, so the model
-              // name never runs under it.
-              className="group relative flex flex-col rounded-[28px] bg-zinc-100 px-5 pb-5 pt-32 shadow-2xl shadow-black/40"
-            >
-              <img
-                src={watch.image}
-                alt={watch.name}
-                loading="lazy"
-                // Physical left-1/2 on purpose: centring is symmetric, so a logical `start-`
-                // would only add an RTL flip that has to be undone again.
-                className="absolute -top-12 left-1/2 -translate-x-1/2 w-[60%] h-32 sm:h-36 object-cover rounded-2xl shadow-xl shadow-black/40 transition-transform duration-500 group-hover:-translate-y-1"
-              />
+            // Neumorphic product card: one sheet of pale material with the photo inset into it
+            // and the spec panel + buy button pressed back out. The shadows live in .neu-card /
+            // .neu-panel / .neu-btn (index.css) rather than in utilities here, because soft UI
+            // needs a *matched pair* per surface — a light shadow up-left and a dark one
+            // down-right — and splitting that pair across arbitrary class strings is how it
+            // ends up flattened on one element and not another.
+            <article key={watch.id} className="group neu-card rounded-[28px] p-4 flex flex-col gap-4">
+              <div className="relative rounded-[20px] overflow-hidden">
+                <img
+                  src={watch.image}
+                  alt={watch.name}
+                  loading="lazy"
+                  className="w-full h-40 sm:h-44 object-cover transition-transform duration-500 group-hover:scale-105"
+                />
 
-              {/* Vertical edge label — the badge when the model has one, the glass spec
-                  otherwise, since sapphire vs mineral is a real selling point on a watch. */}
-              <span
-                style={{ writingMode: 'vertical-rl' }}
-                className="absolute top-6 start-4 rotate-180 text-[10px] tracking-[0.35em] text-zinc-400 font-bold"
-              >
-                {watch.badge || 'متوفر الآن'}
-              </span>
+                {/* Scrim, not a flat tint: the name sits over photos that range from a white
+                    studio background to a near-black one, and only a bottom-weighted gradient
+                    keeps it legible on both without dimming the whole image. */}
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/80 via-black/35 to-transparent pointer-events-none" />
 
-              <button
-                onClick={() => toggleFavorite(watch.id)}
-                aria-label={favorites.includes(watch.id) ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
-                aria-pressed={favorites.includes(watch.id)}
-                className="absolute top-5 end-5 p-1.5 rounded-full hover:bg-zinc-200 cursor-pointer transition-colors"
-              >
-                <Heart className={`w-4 h-4 ${favorites.includes(watch.id) ? 'fill-rose-500 text-rose-500' : 'text-zinc-800'}`} />
-              </button>
+                <button
+                  onClick={() => toggleFavorite(watch.id)}
+                  aria-label={favorites.includes(watch.id) ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+                  aria-pressed={favorites.includes(watch.id)}
+                  className="absolute top-3 end-3 p-2 rounded-full bg-black/35 backdrop-blur-sm hover:bg-black/55 cursor-pointer transition-colors"
+                >
+                  <Heart className={`w-3.5 h-3.5 ${favorites.includes(watch.id) ? 'fill-rose-500 text-rose-500' : 'text-white'}`} />
+                </button>
 
-              {/* flex-1 + mt-auto on the buy row: descriptions differ in length, and without
-                  this the price/button line landed at a different height on each card in a row. */}
-              <div className="flex-1 flex flex-col gap-3">
-                <div>
-                  <h4 className="text-base sm:text-lg font-bold text-zinc-900 leading-tight">{watch.name}</h4>
-                  <p className="text-zinc-500 text-[11px] mt-0.5">{watch.tagline}</p>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {specChips(watch).map(({ Icon, text }) => (
-                    <span key={text} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-700 text-zinc-100 text-[10px]">
-                      <Icon className={`w-3 h-3 ${themeStyle.primaryText}`} />
-                      {text}
-                    </span>
-                  ))}
-                </div>
-
-                <p className="text-zinc-500 leading-relaxed">{watch.description}</p>
-
-                <p className="text-zinc-400 text-[10px]">
-                  السوار: {watch.straps.map(s => s.label).join(' · ')}
-                </p>
-
-                <div className="mt-auto flex items-center justify-between gap-2 pt-1">
-                  <span className="leading-tight">
-                    <span className="block text-[10px] text-zinc-400">يبدأ من</span>
-                    <span className="font-mono text-lg font-black text-zinc-900">{price(watch.basePriceIQD)}</span>
+                {watch.badge && (
+                  <span className="absolute top-3 start-3 px-2.5 py-1 rounded-full bg-white/25 backdrop-blur-sm text-white text-[10px] font-bold">
+                    {watch.badge}
                   </span>
-                  <button
-                    onClick={() => pickWatch(watch)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full ${themeStyle.solidOnLight} ${themeStyle.solidOnLightText} font-bold cursor-pointer shrink-0 transition-colors`}
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    اشترِ الآن
-                  </button>
+                )}
+
+                <div className="absolute inset-x-4 bottom-3 flex items-end justify-between gap-3">
+                  <div className="min-w-0">
+                    <h4 className="text-sm sm:text-base font-bold text-white leading-tight truncate">{watch.name}</h4>
+                    <p className="text-white/70 text-[11px] truncate">{watch.tagline}</p>
+                  </div>
+                  <span className="shrink-0 px-3 py-1.5 rounded-full bg-white/25 backdrop-blur-sm text-white font-mono font-bold text-[11px]">
+                    {price(watch.basePriceIQD)}
+                  </span>
                 </div>
+              </div>
+
+              {/* Spec panel + action, the reference's lower slab. flex-1 on the card's content
+                  column would not help here — the panel is the last child, so mt-auto on it is
+                  what keeps the buy button on one line across a row of cards whose taglines
+                  wrap to different heights. */}
+              <div className="neu-panel rounded-[20px] p-4 flex items-center gap-3 mt-auto">
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-slate-600 truncate">{watch.brand} · {watch.glass}</p>
+                  <p className="text-slate-400 text-[10px] truncate">{watch.straps.map(s => s.label).join(' · ')}</p>
+
+                  <div className="mt-2.5 pt-2.5 border-t border-slate-300/70 grid grid-cols-3 gap-1">
+                    {watch.cardStats.map((stat) => (
+                      <div key={stat.label} className="min-w-0">
+                        <div className="font-bold text-slate-600 text-[11px] truncate">{stat.value}</div>
+                        <div className="text-slate-400 text-[9px] truncate">{stat.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => pickWatch(watch)}
+                  aria-label={`اشترِ ${watch.name}`}
+                  className="neu-btn w-12 h-12 rounded-full shrink-0 flex items-center justify-center cursor-pointer"
+                >
+                  <ShoppingCart className="w-4 h-4 text-slate-600" />
+                </button>
               </div>
             </article>
           ))}
