@@ -457,11 +457,12 @@
     transparent
     
   );
-  .nq-btn-beam--template::before {
-  background: conic-gradient(from 0deg, transparent, #22d3ee 10%, transparent 30%);
-}
 
 }
+.nq-btn-beam--template::before {
+  background: conic-gradient(from 0deg, transparent, #000000 10%, transparent 10%);
+}
+
 
 .nq-btn:hover .nq-btn-beam,
 .nq-btn:focus-visible .nq-btn-beam,
