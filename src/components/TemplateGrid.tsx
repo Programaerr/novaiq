@@ -512,7 +512,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           onSelectTemplateForContract(template);
                           cosmicAudio.playWarp();
                         }}
-                        className="nq-btn w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
+                        className="nq-btn w-full py-2.5 rounded-xl bg-black hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
                       >
                         <span className="nq-btn-beam nq-btn-beam--dark" aria-hidden="true" />
                         <FileSignature className="w-3.5 h-3.5 text-black" />
