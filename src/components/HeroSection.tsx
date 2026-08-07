@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { FloatingTemplateCards } from './FloatingTemplateCards';
 
 const WHEEL_STEP = 90;
 
@@ -226,6 +227,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <ChevronLeft className="w-4 h-4 ltr:rotate-180" />
           </button>
         </div>
+
+        {/* Floating 3D template cards — see FloatingTemplateCards for the tilt/bob/scroll
+            layering. */}
+        <FloatingTemplateCards language={language} onExploreTemplates={onExploreTemplates} />
 
       </div>
     </section>
