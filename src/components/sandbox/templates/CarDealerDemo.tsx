@@ -77,78 +77,84 @@ export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonth
       {carTab === 'cars' && searchedCars.length === 0 && renderNoSearchResults('أي سيارة')}
 
       {carTab === 'cars' && searchedCars.length > 0 && (
-        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-5 animate-fade-in text-xs`}>
+        // pt-20 reserves the strip the car photo hangs up into; without it the first row's
+        // bonnet is clipped by the section above.
+        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2')} gap-x-5 gap-y-8 pt-20 animate-fade-in text-xs`}>
           {searchedCars.map((car) => (
-            // The reference card: a pale sheet, the car floating in a soft radial well at the
-            // top, then the spec chips, the big model name, the grey trim line and the blurb.
-            <article
-              key={car.id}
-              className="group relative flex flex-col rounded-[26px] bg-white p-4 shadow-2xl shadow-black/40"
-            >
-              {/* Radial well rather than a flat panel: the reference lights the car from behind,
-                  which is what separates the body from the card without drawing a border. */}
-              <div
-                className="rounded-[18px] p-3 overflow-hidden"
-                style={{ background: 'radial-gradient(circle at 50% 38%, #ffffff 0%, #e7eaee 72%)' }}
-              >
+            // The manufacturer-style card: the car sits on white *above* the sheet, then the
+            // model name, the pill row, three headline figures each over its own label, the
+            // grey consumption fine print, an underlined spec link and one black action.
+            <article key={car.id} className="relative flex flex-col rounded-[26px] bg-white px-6 pb-6 pt-24 shadow-2xl shadow-black/40">
+              {/* The photo overhangs the card's top edge, which is what makes it read as a
+                  product shot rather than a banner. object-contain on white, never cover: these
+                  are side profiles and cover would crop them into an unrecognisable slab. The
+                  white plate behind it is deliberate — the source photos are location shots,
+                  not cut-outs, so the plate is what keeps the row visually consistent. */}
+              <div className="absolute -top-16 inset-x-4 h-36 rounded-2xl bg-white overflow-hidden">
                 <img
                   src={car.image}
                   alt={car.name}
                   loading="lazy"
-                  className="w-full h-36 sm:h-40 object-cover rounded-xl transition-transform duration-500 group-hover:scale-[1.04]"
+                  className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
                 />
               </div>
 
               {car.badge && (
-                <span className="absolute top-7 end-7 px-2.5 py-1 rounded-full bg-zinc-900/85 backdrop-blur-sm text-white text-[10px] font-bold">
+                <span className="absolute top-6 end-6 px-2.5 py-1 rounded-full bg-zinc-900 text-white text-[10px] font-bold">
                   {car.badge}
                 </span>
               )}
 
-              {/* flex-1 + mt-auto on the action row: the blurbs differ in length, and without it
-                  the price line sat at a different height on each card in a row. */}
-              <div className="flex-1 flex flex-col pt-4">
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[10px] font-semibold">
-                    {/* The swatch is the colour itself, so it needs a hairline ring or a white
-                        car disappears into the chip. */}
-                    <span className="w-2.5 h-2.5 rounded-full ring-1 ring-zinc-300 shrink-0" style={{ background: car.colorHex }} />
-                    {car.color}
-                  </span>
-                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[10px] font-semibold">
-                    <Gauge className="w-3 h-3" />
-                    {car.acceleration}
-                  </span>
-                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[10px] font-semibold">
-                    <Cog className="w-3 h-3" />
-                    {car.transmission}
-                  </span>
-                </div>
+              {/* font-normal, not bold: the reference sets the model name large and light, and
+                  the weight is what separates it from the figures below it. */}
+              <h4 className="text-2xl sm:text-3xl font-normal text-zinc-900 leading-tight">{car.name}</h4>
+              <p className="mt-1 font-mono text-sm font-bold text-zinc-900">{price(car.priceIQD)}</p>
 
-                <h4 className="mt-3 text-lg sm:text-xl font-extrabold text-zinc-900 leading-tight">{car.name}</h4>
-                <p className="text-base font-bold text-zinc-400 leading-tight">{car.trim}</p>
-                <p className="mt-2 text-zinc-500 leading-relaxed">{car.description}</p>
-
-                <div className="mt-auto pt-4 flex items-end justify-between gap-2">
-                  <span className="leading-tight">
-                    <span className="block text-[10px] text-zinc-400">موديل {car.year} · السعر</span>
-                    <span className="font-mono text-base font-black text-zinc-900">{price(car.priceIQD)}</span>
+              {/* Year first and filled black, the rest hollow grey — the reference uses that one
+                  dark pill to anchor the row, and it is the model year that dates a car. */}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="px-3 py-1.5 rounded-full bg-zinc-900 text-white text-[11px] font-semibold">{car.year}</span>
+                {[car.fuelType, car.drivetrain, car.transmission].map((chip) => (
+                  <span key={chip} className="px-3 py-1.5 rounded-full bg-zinc-100 text-zinc-700 text-[11px] font-semibold">
+                    {chip}
                   </span>
-                  <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={() => pickCar(car, 'testdrive')}
-                      className="px-3 py-2 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold cursor-pointer transition-colors"
-                    >
-                      تجربة قيادة
-                    </button>
-                    <button
-                      onClick={() => pickCar(car, 'finance')}
-                      className={`px-3.5 py-2 rounded-full ${themeStyle.solidOnLight} ${themeStyle.solidOnLightText} font-bold cursor-pointer transition-colors`}
-                    >
-                      قسّطها
-                    </button>
+                ))}
+              </div>
+
+              <div className="mt-5 space-y-4">
+                {[
+                  { value: car.acceleration, label: 'التسارع من 0 إلى 100 كم/س' },
+                  { value: car.power, label: 'القدرة (كيلوواط) / القدرة (حصان)' },
+                  { value: car.topSpeed, label: 'السرعة القصوى' },
+                ].map((stat) => (
+                  <div key={stat.label}>
+                    <div className="text-xl sm:text-2xl font-normal text-zinc-900 leading-tight">{stat.value}</div>
+                    <div className="text-zinc-400 text-[11px]">{stat.label}</div>
                   </div>
-                </div>
+                ))}
+              </div>
+
+              {/* mt-auto here rather than on the button: the blurb-free layout still varies in
+                  height because the pill row wraps to two lines on some cars, and this is what
+                  keeps the black action on one line across a row. */}
+              <div className="mt-auto pt-6">
+                <p className="text-zinc-400 text-[11px] leading-relaxed">
+                  استهلاك الوقود المدمج: {car.fuel}، انبعاثات CO2 المدمجة: {car.co2}
+                </p>
+
+                <button
+                  onClick={() => pickCar(car, 'testdrive')}
+                  className="mt-4 text-zinc-900 underline underline-offset-4 font-semibold cursor-pointer hover:text-zinc-600 transition-colors"
+                >
+                  المواصفات الفنية وحجز تجربة قيادة
+                </button>
+
+                <button
+                  onClick={() => pickCar(car, 'finance')}
+                  className="mt-4 w-full py-4 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-sm cursor-pointer transition-colors"
+                >
+                  استعرض بالتفصيل
+                </button>
               </div>
             </article>
           ))}

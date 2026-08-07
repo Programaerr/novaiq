@@ -360,13 +360,19 @@ export interface CarModel {
   trim: string;
   /** The sales paragraph — what someone on the showroom floor would say about it. */
   description: string;
-  /** The three chips along the top of the card: colour, then the two specs that sell it. */
+  /** Paint name and its hex, for the colour chip on the finance view. */
   color: string;
-  /** Hex for the colour dot beside the colour chip. */
   colorHex: string;
-  acceleration: string;
+  /** The card's pill row, after the model year: fuel type, drivetrain, transmission. */
+  fuelType: string;
   transmission: string;
-  /** The full spec table on the detail/finance view. */
+  /** The card's three headline figures, each a value with its own label underneath. */
+  acceleration: string;
+  power: string;
+  topSpeed: string;
+  /** The card's grey fine print, quoted the way a manufacturer's spec sheet does. */
+  co2: string;
+  /** The full spec table on the finance view. */
   engine: string;
   drivetrain: string;
   fuel: string;
@@ -396,7 +402,9 @@ export const SAMPLE_CARS: CarModel[] = [
     trim: 'F SPORT · دفع رباعي',
     description: 'الخيار الأول في العراق لمن يريد سيارة تتحمل الطريق الخارجي والمدينة معاً. محرك V6 تويين تيربو بعزم عالٍ، ونظام تعليق يمتص المطبات بدون أن تشعر بها.',
     color: 'أبيض لؤلؤي', colorHex: '#F1F1EF',
-    acceleration: '6.9 ثانية', transmission: 'أوتوماتيك 10 سرعات',
+    fuelType: 'بنزين', transmission: 'أوتوماتيك 10 سرعات',
+    acceleration: '6.9 ثانية', power: '305 كيلوواط / 415 حصان', topSpeed: '210 كم/س',
+    co2: '315 غم/كم',
     engine: 'V6 تويين تيربو 3.5 لتر', drivetrain: 'دفع رباعي دائم', fuel: '13.5 لتر/100 كم', seats: 7,
     badge: 'الأكثر طلباً',
   },
@@ -406,7 +414,9 @@ export const SAMPLE_CARS: CarModel[] = [
     trim: 'AMG Line · الفئة الفاخرة',
     description: 'سيارة الصف الأول للمدير التنفيذي: عزل صوتي شبه تام، مقاعد خلفية بتدليك وتبريد، ونظام تعليق هوائي يقرأ الطريق أمامه ويستعد للمطب قبل الوصول له.',
     color: 'أسود أوبسيديان', colorHex: '#12141A',
-    acceleration: '4.9 ثانية', transmission: 'أوتوماتيك 9 سرعات',
+    fuelType: 'بنزين هجين', transmission: 'أوتوماتيك 9 سرعات',
+    acceleration: '4.9 ثانية', power: '320 كيلوواط / 435 حصان', topSpeed: '250 كم/س',
+    co2: '196 غم/كم',
     engine: '6 سلندر مصفوف 3.0 لتر مع نظام هجين خفيف', drivetrain: 'دفع رباعي 4MATIC', fuel: '8.4 لتر/100 كم', seats: 5,
     badge: 'الفئة الفاخرة',
   },
@@ -416,7 +426,9 @@ export const SAMPLE_CARS: CarModel[] = [
     trim: 'LT Crew Cab · بيك أب',
     description: 'بيك أب بمقصورة كاملة لخمسة أشخاص وحوض يتحمل الحمل اليومي. مناسب لأصحاب الأعمال والمقاولات، ومحركه V8 يسحب مقطورة بدون جهد.',
     color: 'أبيض صيفي', colorHex: '#EDEDEA',
-    acceleration: '7.1 ثانية', transmission: 'أوتوماتيك 8 سرعات',
+    fuelType: 'بنزين', transmission: 'أوتوماتيك 8 سرعات',
+    acceleration: '7.1 ثانية', power: '265 كيلوواط / 355 حصان', topSpeed: '180 كم/س',
+    co2: '343 غم/كم',
     engine: 'V8 سعة 5.3 لتر', drivetrain: 'دفع رباعي قابل للفصل', fuel: '14.7 لتر/100 كم', seats: 5,
   },
   {
@@ -425,18 +437,23 @@ export const SAMPLE_CARS: CarModel[] = [
     trim: 'Long Range · كهربائية بالكامل',
     description: 'كهربائية بالكامل بمدى 620 كم للشحنة الواحدة، وبدون زيت أو فلتر أو صيانة دورية للمحرك. تشحنها من البيت ليلاً وتصبح جاهزة في الصباح.',
     color: 'أزرق ديب', colorHex: '#1B3A6B',
-    acceleration: '4.4 ثانية', transmission: 'ناقل أحادي السرعة',
+    fuelType: 'كهربائية', transmission: 'ناقل أحادي السرعة',
+    acceleration: '4.4 ثانية', power: '290 كيلوواط / 394 حصان', topSpeed: '201 كم/س',
+    co2: '0 غم/كم',
     engine: 'محركان كهربائيان (دفع رباعي)', drivetrain: 'دفع رباعي كهربائي', fuel: 'كهربائية — 620 كم للشحنة', seats: 5,
     badge: 'كهربائية',
   },
   {
-    id: 'car-5', name: 'Porsche Macan', brand: 'Porsche', year: 2023, priceIQD: 118000000,
-    image: UNSPLASH('photo-1615836426606-c16238a6bfb4'),
-    trim: 'S · كروس أوفر رياضي',
-    description: 'حجم عملي للمدينة بأداء سيارة رياضية. تعليق رياضي وتوجيه دقيق يعطيك إحساس السيارة الصغيرة، مع ارتفاع كافٍ للمطبات وشوارع بغداد.',
-    color: 'أبيض كاررا', colorHex: '#F4F4F2',
-    acceleration: '5.1 ثانية', transmission: 'أوتوماتيك PDK 7 سرعات',
-    engine: 'V6 تيربو 2.9 لتر', drivetrain: 'دفع رباعي', fuel: '9.8 لتر/100 كم', seats: 5,
+    id: 'car-5', name: 'Porsche 718 Cayman', brand: 'Porsche', year: 2024, priceIQD: 118000000,
+    image: UNSPLASH('photo-1662470721792-b1bafa45dfd1'),
+    trim: 'S · كوبيه رياضي بمحرك أوسط',
+    description: 'محرك في وسط السيارة بدل المقدمة، وهذا ما يعطيها توازناً لا تجده في أي كوبيه بسعرها. مقعدان وصندوقان — أمامي وخلفي — يكفيان لسفرة نهاية أسبوع.',
+    color: 'أسود ليلي', colorHex: '#141416',
+    fuelType: 'بنزين', transmission: 'أوتوماتيك PDK / يدوي',
+    acceleration: '5.1 ثانية', power: '220 كيلوواط / 300 حصان', topSpeed: '275 كم/س',
+    co2: '220 غم/كم',
+    engine: '4 سلندر بوكسر تيربو 2.0 لتر', drivetrain: 'دفع خلفي', fuel: '9.7 لتر/100 كم', seats: 2,
+    badge: 'رياضية',
   },
   {
     id: 'car-6', name: 'Cadillac ATS', brand: 'Cadillac', year: 2022, priceIQD: 47000000,
@@ -444,7 +461,9 @@ export const SAMPLE_CARS: CarModel[] = [
     trim: 'Luxury · سيدان رياضي',
     description: 'مدخل عملي إلى فئة السيدان الرياضي: توزيع وزن متوازن وتوجيه حاد، بسعر أقل بكثير من منافسيها الألمان. الخيار الأنسب لأول سيارة فاخرة.',
     color: 'أسود معدني', colorHex: '#1A1A1D',
-    acceleration: '5.6 ثانية', transmission: 'أوتوماتيك 8 سرعات',
+    fuelType: 'بنزين', transmission: 'أوتوماتيك 8 سرعات',
+    acceleration: '5.6 ثانية', power: '205 كيلوواط / 276 حصان', topSpeed: '235 كم/س',
+    co2: '219 غم/كم',
     engine: '4 سلندر تيربو 2.0 لتر', drivetrain: 'دفع خلفي', fuel: '9.4 لتر/100 كم', seats: 5,
     badge: 'أفضل سعر',
   },
