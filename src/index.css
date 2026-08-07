@@ -1076,22 +1076,26 @@
   opacity: 1;
 }
 
-/* The hovered card gets its *whole* outline, brightest at the pointer. Two things make that
+/* The hovered card gets its *whole* outline, brightest at the pointer. Three things make that
    work where the neighbour gradient above would not:
-     - the radius is --rr, the card's own diagonal (written per card by useRevealGroup), so
-       the gradient spans the card no matter where inside it the pointer sits. A fixed 170px
-       simply never reached the corners of a 286x407 roadmap card.
+     - it is an *ellipse* sized to the card (--rw/--rh, written per card by useRevealGroup),
+       not a circle. These cards are far taller than they are wide, and a circle reaches the
+       side edges long before the bottom one — measured 190 vs 174 out of 255 with the pointer
+       dead centre. Scaling each axis by the card's own dimension puts every edge at the same
+       relative position in the gradient, so they light evenly.
+     - it spans the whole card, so a pointer parked in the middle still reaches every edge; a
+       fixed radius never reached the corners of a 286x407 roadmap card.
      - the outermost stop is a visible white rather than `transparent`, so the far edge has a
        floor and never falls to nothing.
-   Neighbours deliberately keep the tight, fading gradient — that is what keeps the
+   Neighbours deliberately keep the tight, fading circle above — that is what keeps the
    cross-card reveal directional instead of lighting every card equally. */
 .reveal-border:hover::after,
 .reveal-card:hover::before {
   background: radial-gradient(
-    var(--rr, 420px) circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.6) 35%,
-    rgba(255, 255, 255, 0.38) 100%
+    ellipse var(--rw, 420px) var(--rh, 420px) at var(--rx, 50%) var(--ry, 50%),
+    rgba(255, 255, 255, 0.98),
+    rgba(255, 255, 255, 0.8) 30%,
+    rgba(255, 255, 255, 0.5) 100%
   );
 }
 

@@ -35,11 +35,14 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
         const r = rects[i];
         el.style.setProperty('--rx', `${clientX - r.left}px`);
         el.style.setProperty('--ry', `${clientY - r.top}px`);
-        // The hovered card's light is sized to the card, not to a fixed radius: from the
-        // middle of a tall card a fixed 170px never reached the far corners, so they stayed
-        // dark. The diagonal is the worst-case corner-to-corner distance, so every edge is
-        // inside the gradient wherever the pointer sits.
-        el.style.setProperty('--rr', `${Math.round(Math.hypot(r.width, r.height))}px`);
+        // The hovered card's light is an ellipse matched to the card, not a circle: these
+        // cards are much taller than they are wide, and a circular light reaches the side
+        // edges well before the bottom one — measured ~190 vs ~174 out of 255 with the
+        // pointer dead centre, which is exactly the "the bottom doesn't light up" gap.
+        // Scaling each axis by the card's own dimension puts every edge at the same relative
+        // position in the gradient, so they light evenly whatever the card's aspect ratio.
+        el.style.setProperty('--rw', `${Math.round(r.width)}px`);
+        el.style.setProperty('--rh', `${Math.round(r.height)}px`);
       });
     };
 
