@@ -1025,7 +1025,11 @@
 .reveal-card::after {
   content: '';
   position: absolute;
-  inset: 0;
+  /* -1px, not 0. An absolutely positioned child is laid out against the *padding* box, so
+     inset:0 drew the ring one pixel inside the card's own 1px border — a bright line beside
+     a dark line rather than on it, which is what made the unlit sides look wrong. Pulling it
+     out by the border width puts the ring exactly on the border box. */
+  inset: -1px;
   border-radius: inherit;
   opacity: 0;
   pointer-events: none;
@@ -1082,7 +1086,7 @@
       rgba(255, 255, 255, 0.15) 45%,
       transparent 72%
     ),
-    linear-gradient(rgba(255, 255, 255, 0.24) 0 0);
+    linear-gradient(rgba(255, 255, 255, 0.38) 0 0);
 }
 
 .reveal-card:hover::after {
