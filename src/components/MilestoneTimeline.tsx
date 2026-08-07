@@ -11,6 +11,7 @@ import {
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
 import { useSpotlight } from '../lib/useSpotlight';
+import { useRevealGroup } from '../lib/useRevealGroup';
 
 interface MilestoneTimelineProps {
   onCreateContract: () => void;
@@ -19,6 +20,8 @@ interface MilestoneTimelineProps {
 
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateContract, language = 'ar' }) => {
   const cardSpotlight = useSpotlight<HTMLDivElement>();
+  // Border half of the Fluent reveal; cardSpotlight above already owns the surface wash.
+  const revealGroup = useRevealGroup<HTMLDivElement>();
 
   const milestones = [
     {
@@ -84,14 +87,17 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
         </div>
 
         {/* Milestones Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 relative">
+        <div ref={revealGroup} className="reveal-group grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 relative">
           {milestones.map((ms, index) => {
             const Icon = ms.icon;
             return (
               <div
                 key={index}
                 {...cardSpotlight}
-                className="spotlight-track bg-zinc-950 border border-zinc-700 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group hover:border-zinc-600 transition-all shadow-xl"
+                // reveal-border rather than the card's own overflow clip: the ring is masked
+                // to the outline, so it works on a card that must stay overflow-visible for
+                // the badge poking past its top edge.
+                className="spotlight-track reveal-border bg-zinc-950 border border-zinc-700 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group transition-all shadow-xl"
               >
 
                 {/* Background phase-number — fades in on card hover (simple hover, no
