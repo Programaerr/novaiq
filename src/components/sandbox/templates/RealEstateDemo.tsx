@@ -319,28 +319,9 @@ export function RealEstateDemo({ ctx, bookingDate, propertyVisits, selectedPrope
             </div>
           </div>
 
-          {/* The listings themselves, on the landing page — a property site that makes you
-              open a menu before showing you a single house is asking the visitor to take it on
-              faith. Same cards as the listings section, minus its filters. */}
-          <div className="space-y-3 pt-1">
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <h4 className="text-base sm:text-lg font-extrabold text-white">أحدث العقارات المتاحة</h4>
-                <p className="text-[11px] text-slate-400">مختارات من فلل وبيوت وشقق جاهزة للمعاينة</p>
-              </div>
-              <button
-                onClick={() => { setActiveTab('properties'); cosmicAudio.playTick(); }}
-                className="text-[11px] font-bold text-slate-300 hover:text-white cursor-pointer flex items-center gap-1 shrink-0 transition-colors"
-              >
-                <span>عرض الكل</span>
-                <ArrowUpLeft className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-5`}>
-              {SAMPLE_PROPERTIES.map(renderPropertyCard)}
-            </div>
-          </div>
+          {/* The property cards were duplicated here too; removed on request, so the landing
+              page ends on the stats and the cards live only in the listings section. The hero's
+              own "تصفح العقارات المتاحة" button above is still the way through to them. */}
         </div>
       )}
 
