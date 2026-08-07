@@ -4,7 +4,19 @@ import { AdaptiveDpr, RoundedBox, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { templatesData } from '../data/templatesData';
 
-const CARDS = templatesData.slice(0, 6);
+const CARD_COUNT = 6;
+
+// Fisher-Yates on a copy. Copying matters: templatesData is a shared module-level import
+// that the templates page renders from too, so shuffling it in place would silently
+// reorder that page as a side effect of visiting the home page.
+function shuffled<T>(items: readonly T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
 
 // Scattered on purpose — no row, no grid. Each card gets its own spot, depth, angle and
 // float phase so the group reads as loose pieces drifting in space rather than a lineup.
@@ -132,10 +144,13 @@ const Card: React.FC<CardProps> = ({ url, pose, isActive, isDimmed, onSelect }) 
   );
 };
 
-const Scene: React.FC<{ active: number | null; setActive: (i: number | null) => void }> = ({
-  active,
-  setActive,
-}) => (
+interface SceneProps {
+  active: number | null;
+  setActive: (i: number | null) => void;
+  deck: { id: string; url: string; pose: (typeof POSES)[number] }[];
+}
+
+const Scene: React.FC<SceneProps> = ({ active, setActive, deck }) => (
   <>
     {/* Key + rim + fill. The key light is what produces the moving sheen across each card
         as it drifts; the rim separates the dark card bodies from the dark page behind. */}
@@ -144,11 +159,11 @@ const Scene: React.FC<{ active: number | null; setActive: (i: number | null) => 
     <directionalLight position={[-6, 2, 4]} intensity={0.9} color="#a1a1aa" />
     <pointLight position={[0, -3, 5]} intensity={20} distance={16} color="#ffffff" />
 
-    {CARDS.map((tpl, i) => (
+    {deck.map((card, i) => (
       <Card
-        key={tpl.id}
-        url={tpl.previewImage}
-        pose={POSES[i]}
+        key={card.id}
+        url={card.url}
+        pose={card.pose}
         isActive={active === i}
         isDimmed={active !== null && active !== i}
         onSelect={() => setActive(active === i ? null : i)}
@@ -164,6 +179,15 @@ const Scene: React.FC<{ active: number | null; setActive: (i: number | null) => 
 export const TemplateCards3D: React.FC = () => {
   const [active, setActive] = useState<number | null>(null);
 
+  // Reshuffled per mount — which six of the ten templates appear, and which scattered spot
+  // each one takes. The home page unmounts when the visitor navigates away, so leaving and
+  // coming back genuinely deals a new arrangement rather than the same picture every time.
+  const deck = useMemo(() => {
+    const picks = shuffled(templatesData).slice(0, CARD_COUNT);
+    const spots = shuffled(POSES);
+    return picks.map((tpl, i) => ({ id: tpl.id, url: tpl.previewImage, pose: spots[i] }));
+  }, []);
+
   return (
     <Canvas
       camera={{ position: [0, 0, 6], fov: 46 }}
@@ -176,7 +200,7 @@ export const TemplateCards3D: React.FC = () => {
       style={{ touchAction: 'pan-y' }}
     >
       <Suspense fallback={null}>
-        <Scene active={active} setActive={setActive} />
+        <Scene active={active} setActive={setActive} deck={deck} />
       </Suspense>
     </Canvas>
   );
