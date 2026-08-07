@@ -112,13 +112,23 @@ export function SiteAccountArea({ view, ...props }: SiteAccountAreaProps & { vie
             <span className="text-[11px] font-bold text-slate-300">كلمة المرور</span>
             <span className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-black/40 border border-slate-700 focus-within:border-slate-500 transition-colors">
               <KeyRound className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              {/* Deliberately never type="password": that's what puts a browser's
+                  password manager on this field at all, which is how a fake demo
+                  credential ends up triggering a real "this password was found in a data
+                  breach" prompt on the way out. Masking is done ourselves with
+                  -webkit-text-security instead — visually identical, but the field never
+                  registers as a real login field to begin with. Firefox doesn't support
+                  that property and shows plain text; acceptable here since this is a
+                  sandbox demo, not an account with anything to protect. */}
               <input
-                type={loginPasswordVisible ? 'text' : 'password'}
+                type="text"
+                inputMode="text"
                 value={loginPassword}
                 onChange={(e) => { setLoginPassword(e.target.value); setLoginError(''); }}
                 placeholder="••••••••"
                 dir="ltr"
-                autoComplete="new-password"
+                autoComplete="off"
+                style={loginPasswordVisible ? undefined : ({ WebkitTextSecurity: 'disc' } as React.CSSProperties)}
                 className="flex-1 bg-transparent text-xs text-white outline-none placeholder:text-slate-600 min-w-0"
               />
               <button
