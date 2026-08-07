@@ -1043,11 +1043,16 @@
 .reveal-card::before {
   z-index: 1;
   padding: 1px;
+  /* 320px, not 170px. This is the gradient a *neighbouring* card gets, and the pointer is
+     never closer to it than the width of the card it is actually on plus the grid gap — from
+     the middle of a 286px card that is 167px away, which a 170px radius reached with exactly
+     nothing. The falloff still has to reach zero, so a card two along stays dark and the
+     reveal keeps a direction. */
   background: radial-gradient(
-    170px circle at var(--rx, 50%) var(--ry, 50%),
+    320px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.15) 45%,
-    transparent 72%
+    rgba(255, 255, 255, 0.18) 45%,
+    transparent 78%
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -1071,22 +1076,23 @@
   opacity: 1;
 }
 
-/* The tracked light alone can't reach the far edge of a tall card — a 170px radius does not
-   span a 430px roadmap card, so its bottom border stayed dark while the pointer was anywhere
-   near the top, which reads as the effect being broken there rather than as falloff. The
-   hovered card therefore also gets a flat, even lift across its whole outline, with the
-   tracked light riding on top of it as the part the eye follows. Neighbours keep the tracked
-   light only, which is what keeps the cross-card reveal directional. */
+/* The hovered card gets its *whole* outline, brightest at the pointer. Two things make that
+   work where the neighbour gradient above would not:
+     - the radius is --rr, the card's own diagonal (written per card by useRevealGroup), so
+       the gradient spans the card no matter where inside it the pointer sits. A fixed 170px
+       simply never reached the corners of a 286x407 roadmap card.
+     - the outermost stop is a visible white rather than `transparent`, so the far edge has a
+       floor and never falls to nothing.
+   Neighbours deliberately keep the tight, fading gradient — that is what keeps the
+   cross-card reveal directional instead of lighting every card equally. */
 .reveal-border:hover::after,
 .reveal-card:hover::before {
-  background:
-    radial-gradient(
-      170px circle at var(--rx, 50%) var(--ry, 50%),
-      rgba(255, 255, 255, 0.9),
-      rgba(255, 255, 255, 0.15) 45%,
-      transparent 72%
-    ),
-    linear-gradient(rgba(255, 255, 255, 0.38) 0 0);
+  background: radial-gradient(
+    var(--rr, 420px) circle at var(--rx, 50%) var(--ry, 50%),
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.6) 35%,
+    rgba(255, 255, 255, 0.38) 100%
+  );
 }
 
 .reveal-card:hover::after {

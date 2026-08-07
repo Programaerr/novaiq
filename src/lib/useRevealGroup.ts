@@ -32,8 +32,14 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
       // layout per card on every frame.
       const rects = [...cards].map((el) => el.getBoundingClientRect());
       cards.forEach((el, i) => {
-        el.style.setProperty('--rx', `${clientX - rects[i].left}px`);
-        el.style.setProperty('--ry', `${clientY - rects[i].top}px`);
+        const r = rects[i];
+        el.style.setProperty('--rx', `${clientX - r.left}px`);
+        el.style.setProperty('--ry', `${clientY - r.top}px`);
+        // The hovered card's light is sized to the card, not to a fixed radius: from the
+        // middle of a tall card a fixed 170px never reached the far corners, so they stayed
+        // dark. The diagonal is the worst-case corner-to-corner distance, so every edge is
+        // inside the gradient wherever the pointer sits.
+        el.style.setProperty('--rr', `${Math.round(Math.hypot(r.width, r.height))}px`);
       });
     };
 
