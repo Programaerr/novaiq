@@ -51,10 +51,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 desc: language === 'ar' ? 'تحديثات استقرار ومتابعة فنية بحسب الاتفاق المبرم بين الطرفين.' : 'System updates and technical follow-ups according to mutual agreement.'
               }
             ].map((item, idx) => (
-              {/* No hover glow on these: glow-white-hover threw a white bloom around the whole
-                  card and spotlight-card washed a light across its face, which together were
-                  the halo this section was asked to lose. The border brightening alone still
-                  answers the pointer. */}
+              // No hover glow on these: glow-white-hover threw a white bloom around the whole
+              // card and spotlight-card washed a light across its face, which together were
+              // the halo this section was asked to lose. The border brightening alone still
+              // answers the pointer.
               <div
                 key={idx}
                 className="min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 hover:border-white/40 text-center transition-all"
