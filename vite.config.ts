@@ -28,7 +28,8 @@ export default defineConfig(() => {
         // rarely-needed libraries (jsPDF here, ~340KB) to download on every single page
         // view. Excluding it keeps the true "only pay for it when you click into a
         // contract PDF" behavior that React.lazy() is supposed to provide.
-        resolveDependencies: (_filename, deps) => deps.filter((dep) => !dep.includes('vendor-pdf')),
+        resolveDependencies: (_filename, deps) =>
+          deps.filter((dep) => !dep.includes('vendor-pdf') && !dep.includes('vendor-three')),
       },
       rollupOptions: {
         output: {
@@ -36,6 +37,15 @@ export default defineConfig(() => {
           // rarely-changing chunks independently of frequently-changing app code.
           manualChunks(id) {
             if (!id.includes('node_modules')) return undefined;
+            // three.js and its R3F ecosystem power one optional hero decoration and
+            // nothing else. Without its own bucket the whole ~1MB stack falls through to
+            // the eager `vendor` chunk below and every visitor downloads a 3D engine
+            // before the page can paint, which is exactly what lazy-loading the scene
+            // component was meant to prevent. Matched on the node_modules path segment so
+            // a bare substring like "three" can't catch unrelated package names.
+            if (/node_modules\/(three|three-stdlib|three-mesh-bvh|@react-three|postprocessing|maath)\//.test(id)) {
+              return 'vendor-three';
+            }
             if (id.includes('firebase')) return 'vendor-firebase';
             // jsPDF itself carries the ORIGINAL html2canvas as a transitive dependency
             // (for its optional .html() method, which we never call) — matching only
