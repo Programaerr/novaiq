@@ -996,6 +996,79 @@
   }
 }
 
+/* Windows Fluent "reveal" for the About section's capability cards.
+   Two separate lights, which is what the Windows effect actually is:
+     - a *border* reveal that lights the edge nearest the pointer, on every card in the group
+       at once — a card the pointer never entered still lights the side facing it. That
+       cross-card proximity is the part that reads as Windows rather than as a plain hover.
+     - a *hover* light, the soft wash under the pointer, on the hovered card only.
+   --rx/--ry are the pointer's position in each card's own coordinates, written by the single
+   container-level handler in AboutSection.
+   Deliberately NOT the halo this section had removed before: nothing animates on its own,
+   and nothing bleeds outside the card — the border light is clipped to a 1px ring and the
+   wash is clipped to the card's own face. */
+.reveal-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.reveal-card::before,
+.reveal-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+/* Border reveal. Same ring trick as .filter-pill-beam — the mask pair (full box minus
+   content box) erases everything but the 1px padding strip, so the gradient survives only
+   on the outline itself. */
+.reveal-card::before {
+  z-index: 1;
+  padding: 1px;
+  background: radial-gradient(
+    170px circle at var(--rx, 50%) var(--ry, 50%),
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.15) 45%,
+    transparent 72%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+/* Hover light. Kept under the card's own content (which carries z-10) so it washes the
+   surface without dimming the text. */
+.reveal-card::after {
+  z-index: 0;
+  background: radial-gradient(
+    130px circle at var(--rx, 50%) var(--ry, 50%),
+    rgba(255, 255, 255, 0.07),
+    transparent 66%
+  );
+}
+
+.reveal-group.is-live .reveal-card::before {
+  opacity: 1;
+}
+
+.reveal-card:hover::after {
+  opacity: 1;
+}
+
+/* Touch devices have no pointer to reveal toward, and the vars would stay at their 50%
+   fallback — a permanent glow dead-centre on every card, which is not the effect. */
+@media (hover: none) {
+  .reveal-card::before,
+  .reveal-card::after {
+    display: none;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

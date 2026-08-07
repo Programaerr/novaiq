@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 
@@ -7,6 +7,56 @@ interface AboutSectionProps {
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
+  const revealGroup = useRef<HTMLDivElement | null>(null);
+
+  // Drives the Windows-style reveal on the capability cards (see .reveal-card in index.css).
+  // One listener on the row, not one per card: every card needs the pointer's position even
+  // while it sits over a *different* card, which is what lights the near edges of its
+  // neighbours. Each card gets the position in its own coordinates, so a card far from the
+  // pointer receives coordinates outside its own box and its gradient falls off to nothing —
+  // the proximity falloff comes for free from the gradient rather than from any distance math.
+  useEffect(() => {
+    const group = revealGroup.current;
+    // A device without a real pointer never fires these; the CSS hides the layers there too.
+    if (!group || !window.matchMedia('(hover: hover)').matches) return;
+
+    let frame = 0;
+
+    const paint = (clientX: number, clientY: number) => {
+      const cards = group.querySelectorAll<HTMLElement>('.reveal-card');
+      // Measure every card first, then write — interleaving reads and writes would force a
+      // fresh layout on each card, every frame.
+      const rects = [...cards].map((el) => el.getBoundingClientRect());
+      cards.forEach((el, i) => {
+        el.style.setProperty('--rx', `${clientX - rects[i].left}px`);
+        el.style.setProperty('--ry', `${clientY - rects[i].top}px`);
+      });
+    };
+
+    const onMove = (e: PointerEvent) => {
+      // Coalesce to one paint per frame — pointermove can fire well above the refresh rate.
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        paint(e.clientX, e.clientY);
+      });
+    };
+
+    const onEnter = () => group.classList.add('is-live');
+    const onLeave = () => group.classList.remove('is-live');
+
+    group.addEventListener('pointermove', onMove);
+    group.addEventListener('pointerenter', onEnter);
+    group.addEventListener('pointerleave', onLeave);
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      group.removeEventListener('pointermove', onMove);
+      group.removeEventListener('pointerenter', onEnter);
+      group.removeEventListener('pointerleave', onLeave);
+    };
+  }, []);
+
   return (
     <section id="about-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,7 +86,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
 
           {/* Concise Capabilities List — nested under the intro instead of split into a
               side-by-side column, so the whole card reads as one centered block. */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 max-w-4xl mx-auto">
+          <div ref={revealGroup} className="reveal-group grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 max-w-4xl mx-auto">
             {[
               {
                 title: language === 'ar' ? 'تطوير منصات برمجية متكاملة' : 'Full-Stack Platform Engineering',
@@ -51,13 +101,15 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 desc: language === 'ar' ? 'تحديثات استقرار ومتابعة فنية بحسب الاتفاق المبرم بين الطرفين.' : 'System updates and technical follow-ups according to mutual agreement.'
               }
             ].map((item, idx) => (
-              // No hover glow on these: glow-white-hover threw a white bloom around the whole
-              // card and spotlight-card washed a light across its face, which together were
-              // the halo this section was asked to lose. The border brightening alone still
-              // answers the pointer.
+              // Still no glow-white-hover / spotlight-card here — those threw a bloom around
+              // the whole card and washed light across its whole face, which was the halo this
+              // section was asked to lose. `reveal-card` is the opposite shape of effect: it
+              // only lights where the pointer actually is, and never outside the card's edge.
+              // `hover:border-white/40` is gone with it — brightening the entire border at once
+              // fought the reveal, whose whole point is that one side is brighter than the rest.
               <div
                 key={idx}
-                className="min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 hover:border-white/40 text-center transition-all"
+                className="reveal-card min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 text-center transition-all"
               >
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>
