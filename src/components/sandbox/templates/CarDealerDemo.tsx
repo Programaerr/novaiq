@@ -5,7 +5,6 @@ import {
   Car,
   Cog,
   Fuel,
-  Gauge,
   Users,
 } from 'lucide-react';
 import {
