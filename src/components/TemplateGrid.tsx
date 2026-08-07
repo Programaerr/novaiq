@@ -514,7 +514,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         }}
                         className="nq-btn w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
                       >
-                        <span className="nq-btn-beam nq-btn-beam--dark" aria-hidden="true" />
+                        {/* White, not the dark variant the search field uses: this beam is
+                            drawn in the 2px ring just *outside* the button, which sits on the
+                            dark template card — a black beam there vanished into the card. */}
+                        <span className="nq-btn-beam" aria-hidden="true" />
                         <FileSignature className="w-3.5 h-3.5 text-black" />
                         <span>{getTranslation('selectForContract', currentLang)}</span>
                       </button>
