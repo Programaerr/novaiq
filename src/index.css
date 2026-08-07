@@ -1067,6 +1067,24 @@
   opacity: 1;
 }
 
+/* The tracked light alone can't reach the far edge of a tall card — a 170px radius does not
+   span a 430px roadmap card, so its bottom border stayed dark while the pointer was anywhere
+   near the top, which reads as the effect being broken there rather than as falloff. The
+   hovered card therefore also gets a flat, even lift across its whole outline, with the
+   tracked light riding on top of it as the part the eye follows. Neighbours keep the tracked
+   light only, which is what keeps the cross-card reveal directional. */
+.reveal-border:hover::after,
+.reveal-card:hover::before {
+  background:
+    radial-gradient(
+      170px circle at var(--rx, 50%) var(--ry, 50%),
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 255, 255, 0.15) 45%,
+      transparent 72%
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.24) 0 0);
+}
+
 .reveal-card:hover::after {
   opacity: 1;
 }
