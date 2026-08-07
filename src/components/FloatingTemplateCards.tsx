@@ -8,36 +8,21 @@ interface FloatingTemplateCardsProps {
   onExploreTemplates: () => void;
 }
 
-const STACK = templatesData.slice(0, 4);
-
-// Resting fan: each card sits further back (translateZ), nudged down/aside and rotated a
-// touch more than the one in front of it — a hand-of-photos stack, not a flat grid. The
-// active card jumps to the very front (positive translateZ, no rotation, larger scale);
-// every other card gets pushed back further and blurred, so the one you're on is the only
-// thing left in sharp focus.
-function getCardTransform(index: number, active: number | null) {
-  if (active === index) {
-    return {
-      transform: 'translate3d(0px, -14px, 120px) rotateZ(0deg) scale(1.12)',
-      zIndex: 40,
-      filter: 'none',
-      opacity: 1,
-    };
-  }
-
-  const isDimmed = active !== null;
-  const restX = index * 20;
-  const restY = index * 14;
-  const restZ = index * -50;
-  const restRotate = index * 6;
-
-  return {
-    transform: `translate3d(${restX}px, ${restY}px, ${isDimmed ? restZ - 40 : restZ}px) rotateZ(${restRotate}deg) scale(${1 - index * 0.06})`,
-    zIndex: 30 - index,
-    filter: isDimmed ? 'blur(7px)' : 'none',
-    opacity: isDimmed ? 0.5 : 1,
-  };
-}
+// Each card carries its own resting pose and drift timing. Nothing is uniform on purpose:
+// matching angles and a shared bob phase would make three cards read as one rigid object,
+// which is exactly what stops a row like this from looking like separate floating pieces.
+const CARDS = templatesData.slice(0, 3).map((template, i) => ({
+  template,
+  pose: [
+    { ry: -18, rx: 7, rz: -5 },
+    { ry: -13, rx: 5, rz: 3 },
+    { ry: -20, rx: 8, rz: -2 },
+  ][i],
+  // Vertical offset applied as margin (never transform) so it can't collide with the bob
+  // keyframes or the tilt — the three suspended heights are what read as "falling".
+  offsetY: [0, 26, 8][i],
+  bobDelay: [0, -2.6, -4.9][i],
+}));
 
 export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   language,
@@ -47,9 +32,6 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   const sectionRef = useRef<HTMLDivElement>(null);
   const reduceMotion = !!useReducedMotion();
 
-  // The whole block drifts gently as it scrolls past — the "distinctive movement" beyond
-  // the stack's own hover interaction — kept on an ancestor element so it never fights the
-  // per-card transforms above.
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 95%', 'end 15%'] });
   const rawY = useTransform(scrollYProgress, [0, 1], [40, -20]);
   const y = reduceMotion ? 0 : rawY;
@@ -58,38 +40,69 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
     <motion.div
       ref={sectionRef}
       style={{ y }}
-      className="w-full max-w-4xl mx-auto mt-16 sm:mt-24 flex flex-col sm:flex-row items-center gap-10 sm:gap-14"
+      className="w-full max-w-4xl mx-auto mt-16 sm:mt-28 flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-14"
     >
-      {/* Card stack — physically separate from the text, on the flow's start side (right
-          in this site's default RTL) so the 3D effect reads as its own object. */}
-      <div
-        className="card-stack-stage shrink-0 w-48 h-60 sm:w-56 sm:h-72"
-        onMouseLeave={() => setActive(null)}
-        onTouchEnd={() => setActive(null)}
-      >
-        {STACK.map((tpl, i) => {
-          const { transform, zIndex, filter, opacity } = getCardTransform(i, active);
+      {/* Cards — image only, no text inside, each its own 3D object. */}
+      <div className="shrink-0 flex items-center gap-4 sm:gap-5">
+        {CARDS.map(({ template, pose, offsetY, bobDelay }, i) => {
+          const isActive = active === i;
+          const isDimmed = active !== null && !isActive;
+
+          const face = isActive
+            ? {
+                transform: 'rotateY(0deg) rotateX(0deg) rotateZ(0deg) translateZ(70px) scale(1.06)',
+                filter: 'none',
+                opacity: 1,
+              }
+            : {
+                transform: `rotateY(${pose.ry}deg) rotateX(${pose.rx}deg) rotateZ(${pose.rz}deg)`,
+                filter: isDimmed ? 'blur(6px)' : 'none',
+                opacity: isDimmed ? 0.45 : 1,
+              };
+
           return (
             <div
-              key={tpl.id}
-              className="card-stack-item rounded-2xl border border-zinc-700 bg-zinc-950 overflow-hidden shadow-2xl"
-              style={{ transform, zIndex, filter, opacity }}
-              onMouseEnter={() => setActive(i)}
-              onTouchStart={() => setActive(i)}
+              key={template.id}
+              className="float3d-slot"
+              style={{ marginTop: offsetY, zIndex: isActive ? 30 : 10 }}
             >
-              <img
-                src={tpl.previewImage}
-                alt={tpl.title}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover"
-              />
+              <div
+                className="float3d-bob"
+                style={{ '--bob-delay': `${bobDelay}s` } as React.CSSProperties}
+              >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label={template.title}
+                  onClick={() => setActive(isActive ? null : i)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setActive(isActive ? null : i);
+                    }
+                  }}
+                  onContextMenu={(e) => e.preventDefault()}
+                  className="float3d-face relative w-24 h-32 sm:w-32 sm:h-44 rounded-xl border border-zinc-700 bg-zinc-950 overflow-hidden shadow-[0_28px_40px_-18px_rgba(0,0,0,0.95)]"
+                  style={face}
+                >
+                  <img
+                    src={template.previewImage}
+                    alt=""
+                    aria-hidden="true"
+                    draggable={false}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover pointer-events-none"
+                  />
+                  <span className="float3d-sheen absolute inset-0 pointer-events-none" aria-hidden="true" />
+                </div>
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Text + single CTA, entirely separate from the cards. */}
+      {/* Text + single CTA, fully separate from the cards. */}
       <div className="text-center sm:text-start max-w-sm">
         <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-2">
           {language === 'ar' ? 'قوالب جاهزة لكل قطاع' : 'Ready Templates, Every Industry'}
