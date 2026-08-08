@@ -457,16 +457,18 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           </button>
 
           {/* Taller than the card it holds, on purpose. The track clips (overflow-hidden)
-              and the card is centered in it, so anything the card's own height plus its
-              reflection exceeds gets cut off top *and* bottom — which is what was slicing
-              the taller templates. The tallest card here runs ~630px with a full feature
-              list, two action rows and the optional live-site link, and the reflection adds
-              a little under it. */}
+              and the card is centered in it, so anything the card's own height exceeds gets
+              cut off top *and* bottom. Measured at the card widths below, the tallest
+              template runs 599px on desktop and 521px on mobile — a full feature list, two
+              action rows and the optional live-site link — so this clears the worst case at
+              both breakpoints with room to spare. It had to be raised well past this while
+              the cards were narrower: less width meant more wrapping, and the same content
+              stood ~630px tall. */}
           <div
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
             style={{ perspective: '1800px' }}
-            className="relative w-full max-w-4xl h-155 sm:h-182.5 overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+            className="relative w-full max-w-4xl h-[600px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -627,7 +629,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 {/* Card Content */}
                 <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-5">
                   
-                  <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-colors">
+                  {/* The border brightens on hover and that is all — no glow-white-hover.
+                      Its white bloom around the box is the haze this card has been asked to
+                      lose, here and on the feature list below. */}
+                  <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 transition-colors">
                     <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed line-clamp-2">
                       {displayDesc}
                     </p>
@@ -651,7 +656,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   </div>
 
                   {/* Features Checklist */}
-                  <ul className="space-y-1.5 text-xs text-zinc-300 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/80 hover:border-white/30 glow-white-hover transition-colors">
+                  <ul className="space-y-1.5 text-xs text-zinc-300 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/80 hover:border-white/30 transition-colors">
                     {template.features.slice(0, 3).map((feat, i) => (
                       <li key={i} className="flex items-center gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />
