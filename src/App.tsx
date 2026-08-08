@@ -305,7 +305,11 @@ export default function App() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {/* The reveal group is this whole panel, not each grid — so moving across the
                   copy on one side already lights the near edges of the cards on the other,
-                  which is the cross-card proximity the effect is for. */}
+                  which is the cross-card proximity the effect is for.
+
+                  No background of its own: the panel is a frame, and the page's own drifting
+                  starfield reads straight through it. The `bg-zinc-950/80` that used to be
+                  here was near-black anyway, so what it mostly did was hide the stars. */}
               <div
                 ref={revealGroup}
                 className="reveal-group corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
