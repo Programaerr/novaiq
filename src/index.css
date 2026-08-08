@@ -210,12 +210,13 @@
      anything other than the box origin would displace the whole orbit by that much. */
   top: 0;
   left: 0;
+  /* Flex, and the flame taken out of flow below, so this box is exactly the rocket. That
+     matters because the path is anchored to the box's centre: with the flame in the flow the
+     anchor fell midway between the two, which rode the rocket itself a good 30px ahead of
+     the border it is supposed to be skimming — most visible at a corner, where it overshot
+     the turn before starting it. */
   display: flex;
   align-items: center;
-  /* The page is dir="rtl", which lays a flex row right-to-left and puts the flame out in
-     front of the ship. This row is not text — it is the ship's own frame, where -X is
-     behind by definition — so it is pinned to physical order. */
-  direction: ltr;
   offset-path: border-box;
   offset-rotate: auto;
   offset-distance: 0%;
@@ -235,12 +236,18 @@
    already turned the ship onto its heading, so a flame laid to its left is behind it
    wherever it is and however it is banking, with nothing to keep in sync. */
 .orbit-flame {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  /* `right`, a physical property, rather than a flex sibling: the page is dir="rtl", which
+     lays a flex row right-to-left and put the flame out in front of the ship. Here it hangs
+     off the ship's own box, whose -X is behind it by definition, whatever the page's
+     direction. The negative margin overlaps the nozzle so the flame emerges from inside the
+     ship rather than starting at a seam beside it. */
+  right: 100%;
+  margin-right: calc(-4px * var(--ship-scale));
   width: calc(46px * var(--ship-scale));
   height: calc(18px * var(--ship-scale));
-  /* Overlaps the nozzle slightly so the flame emerges from inside the ship rather than
-     starting at a seam beside it. */
-  margin-right: calc(-4px * var(--ship-scale));
+  transform: translateY(-50%);
 }
 
 /* Volume comes from stacking three ellipses that differ in every axis at once — size,
