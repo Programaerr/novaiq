@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
-import { useSpotlight } from '../lib/useSpotlight';
 import { useRevealGroup } from '../lib/useRevealGroup';
 
 interface MilestoneTimelineProps {
@@ -19,8 +18,9 @@ interface MilestoneTimelineProps {
 }
 
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateContract, language = 'ar' }) => {
-  const cardSpotlight = useSpotlight<HTMLDivElement>();
-  // Border half of the Fluent reveal; cardSpotlight above already owns the surface wash.
+  // Border only. These cards used to carry a pointer-tracked wash across their face as
+  // well (useSpotlight); it is gone at the customer's request, and the light on the card
+  // is now the fixed glow at its foot plus this ring.
   const revealGroup = useRevealGroup<HTMLDivElement>();
 
   const milestones = [
@@ -95,18 +95,17 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
             return (
               <div
                 key={index}
-                {...cardSpotlight}
                 // No overflow:hidden on the card, deliberately. `.reveal-border` draws its
                 // ring at inset:-1px — outside the padding box — and the card's own overflow
                 // would clip that away. The card's light is a `background` instead (the
                 // border-radius clips it for free) and the two layers that genuinely need
                 // clipping sit in the absolutely positioned wrapper below.
-                className="milestone-card spotlight-track reveal-border border border-white/10 rounded-[26px] p-7 flex flex-col relative group transition-all shadow-xl"
+                className="milestone-card reveal-border border border-white/10 rounded-[26px] p-7 flex flex-col relative group transition-all shadow-xl"
               >
 
                 <div className="absolute inset-0 rounded-[26px] overflow-hidden pointer-events-none">
-                  <span className="milestone-stars" />
-                  <span className="spotlight-glow" />
+                  <span className="milestone-stars milestone-stars--far" />
+                  <span className="milestone-stars milestone-stars--near" />
                 </div>
 
                 {/* z-10 on the whole content column rather than on pieces of it: absolutely

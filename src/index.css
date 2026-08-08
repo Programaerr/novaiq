@@ -609,6 +609,31 @@
   50% { opacity: 0.6; }
 }
 
+/* The two star patterns are variables because the page background is not the only thing
+   that paints this sky — the roadmap cards paint it inside themselves too (.milestone-stars
+   below). Held in one place so the two can't drift apart: a card whose stars are a
+   different size, density or brightness from the page's reads as a hole punched in it
+   rather than as a window onto the same sky. */
+:root {
+  --stars-far:
+    radial-gradient(1.5px 1.5px at 40px 60px, rgba(255, 255, 255, 0.95) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 120px 20px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(2px 2px at 200px 140px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 260px 80px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 300px 220px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 70px 190px, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
+    radial-gradient(1px 1px at 170px 250px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 250px 30px, rgba(255, 255, 255, 0.75) 50%, transparent 51%);
+  --stars-near:
+    radial-gradient(2px 2px at 30px 90px, rgba(255, 255, 255, 1) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 160px 40px, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 240px 190px, rgba(255, 255, 255, 1) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 340px 60px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(2px 2px at 90px 260px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 200px 320px, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 300px 300px, rgba(255, 255, 255, 0.85) 50%, transparent 51%);
+}
+
 /* Drifting star field for CosmicBackground — two tiled radial-gradient layers translated
    with transform3d (compositor-only, no per-frame paint) instead of a canvas/particle
    loop, so it stays free even on low-end GPUs. Each layer is 200% of the viewport and
@@ -623,29 +648,14 @@
 }
 
 .star-layer--far {
-  background-image:
-    radial-gradient(1.5px 1.5px at 40px 60px, rgba(255, 255, 255, 0.95) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 120px 20px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
-    radial-gradient(2px 2px at 200px 140px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 260px 80px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 300px 220px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
-    radial-gradient(1px 1px at 70px 190px, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
-    radial-gradient(1px 1px at 170px 250px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 250px 30px, rgba(255, 255, 255, 0.75) 50%, transparent 51%);
+  background-image: var(--stars-far);
   background-size: 300px 300px;
   opacity: 0.7;
   animation: star-drift-far 220s linear infinite;
 }
 
 .star-layer--near {
-  background-image:
-    radial-gradient(2px 2px at 30px 90px, rgba(255, 255, 255, 1) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 160px 40px, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
-    radial-gradient(2.5px 2.5px at 240px 190px, rgba(255, 255, 255, 1) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 340px 60px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
-    radial-gradient(2px 2px at 90px 260px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 200px 320px, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 300px 300px, rgba(255, 255, 255, 0.85) 50%, transparent 51%);
+  background-image: var(--stars-near);
   background-size: 380px 380px;
   opacity: 0.85;
   animation: star-drift-near 150s linear infinite reverse;
@@ -847,31 +857,38 @@
     #08080a;
 }
 
-/* Stars, positioned in percentages with no repeat rather than as a tiled pattern: one
-   386px-tall card would show a 190px tile twice over and the eye finds that grid instantly.
-   Masked away toward the foot of the card — they'd be washed out by the glow down there
-   anyway, and the mask is cheaper than fighting it with per-dot opacity. */
+/* The same sky the page behind the card has: both patterns, both tile sizes, both layer
+   opacities, taken straight from the variables .star-layer uses so they stay identical by
+   construction rather than by somebody remembering to update two places.
+
+   What they don't take is the drift. That needs a box twice the card's size to translate
+   inside, and eight of those — two per card — become eight promoted compositor layers for
+   a motion nobody reads inside a 286px card. */
 .milestone-stars {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-repeat: no-repeat;
-  background-image:
-    radial-gradient(1.6px 1.6px at 14% 9%, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
-    radial-gradient(1.2px 1.2px at 33% 18%, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
-    radial-gradient(2px 2px at 58% 7%, rgba(255, 255, 255, 1) 50%, transparent 51%),
-    radial-gradient(1.3px 1.3px at 78% 15%, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
-    radial-gradient(1.6px 1.6px at 91% 27%, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
-    radial-gradient(1.2px 1.2px at 22% 31%, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
-    radial-gradient(1.8px 1.8px at 68% 34%, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
-    radial-gradient(1.2px 1.2px at 45% 44%, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 8% 49%, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
-    radial-gradient(1.2px 1.2px at 86% 52%, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
-    radial-gradient(1.4px 1.4px at 30% 61%, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
-    radial-gradient(1.2px 1.2px at 62% 66%, rgba(255, 255, 255, 0.45) 50%, transparent 51%);
-  -webkit-mask: linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%);
-  mask: linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%);
+  background-repeat: repeat;
 }
+
+.milestone-stars--far {
+  background-image: var(--stars-far);
+  background-size: 300px 300px;
+  opacity: 0.7;
+}
+
+.milestone-stars--near {
+  background-image: var(--stars-near);
+  background-size: 380px 380px;
+  opacity: 0.85;
+}
+
+/* Four equal-width cards side by side would otherwise start their tiles at the same origin
+   and show the identical arrangement four times over, which the eye catches at once. The
+   offsets are prime-ish and unrelated to either tile size so no pair lines up again. */
+.milestone-card:nth-child(4n + 2) .milestone-stars { background-position: 143px 67px; }
+.milestone-card:nth-child(4n + 3) .milestone-stars { background-position: 61px 211px; }
+.milestone-card:nth-child(4n + 4) .milestone-stars { background-position: 229px 133px; }
 
 /* Corner sweep — a white light band that travels from the top-left corner to the
    bottom-right corner and loops, automatically, independent of text direction (it's a
