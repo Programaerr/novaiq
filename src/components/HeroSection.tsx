@@ -138,33 +138,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             : 'At NOVAIQ, we build high-performance, secure digital platforms. Explore our ready-made templates for your business, or contact us to build a custom application tailored exactly to your needs.'}
         </p>
 
-        {/* Primary Action Buttons - Seamless SPA transition */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-20 sm:mb-24 w-full">
-          
-          <button
-            onClick={onExploreTemplates}
-            className="nq-btn nq-btn--solid w-full sm:w-auto px-8 py-3.5 rounded-full font-extrabold text-sm flex items-center justify-center gap-2.5 cursor-pointer"
-          >
-            <span className="nq-btn-beam" aria-hidden="true" />
-            <Rocket className="w-4 h-4" />
-            <span>{language === 'ar' ? 'استكشاف القوالب الجاهزة' : 'Explore Ready Templates'}</span>
-          </button>
-
-          <button
-            onClick={onCreateContract}
-            className="nq-btn nq-btn--solid w-full sm:w-auto px-8 py-3.5 rounded-full font-extrabold text-sm flex items-center justify-center gap-2.5 cursor-pointer tracking-wider"
-          >
-            <span className="nq-btn-beam" aria-hidden="true" />
-            <FileText className="w-4 h-4" />
-            <span>{language === 'ar' ? 'ابدأ مشروعك' : 'START YOUR Project'}</span>
-          </button>
-        </div>
+        {/* The pair of primary buttons that used to sit here is gone at the customer's
+            request. The spacing they carried is not: it separated the copy above from the
+            wheel below, so it stays on the block that follows them. */}
 
         {/* Key Guarantees Wheel — a 3D cube of cards the visitor spins by dragging
             (mouse or touch) or with the arrow buttons pinned to the far edges of the
             row. DOM order is reversed on purpose: the page is dir="rtl", so the first
             child lands on the physical right. */}
-        <div className="flex items-center justify-center sm:justify-between w-full max-w-xs sm:max-w-xl lg:max-w-2xl mx-auto">
+        <div className="mt-14 sm:mt-16 flex items-center justify-center sm:justify-between w-full max-w-xs sm:max-w-xl lg:max-w-2xl mx-auto">
           <button
             type="button"
             onClick={() => rotateBy(-WHEEL_STEP)}

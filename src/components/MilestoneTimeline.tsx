@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Calendar,
   CheckCircle2,
@@ -24,7 +24,8 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
   // the card is now the fixed glow at its foot plus this ring.
   const revealGroup = useRevealGroup<HTMLDivElement>();
   // Keeps each card's stars still while the page scrolls past, the way the page's own sky is.
-  useStarParallax();
+  const section = useRef<HTMLElement>(null);
+  useStarParallax(section);
 
   const milestones = [
     {
@@ -74,7 +75,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
   ];
 
   return (
-    <section id="timeline-section" className="py-10 sm:py-14 relative">
+    <section ref={section} id="timeline-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}

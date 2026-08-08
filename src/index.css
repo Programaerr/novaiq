@@ -861,29 +861,80 @@
    opacities, taken straight from the variables .star-layer uses so they stay identical by
    construction rather than by somebody remembering to update two places.
 
-   And it holds still while the page scrolls, like the fixed layer it is borrowed from —
-   useStarParallax() feeds the shift in, this transform applies it. The overhang at the top
-   is what the shift travels into: it never exceeds one tile (380px), so 400px of it is
-   always enough to keep the card covered. */
+   And it holds still while the page scrolls past, like the fixed layer it is borrowed from:
+   the card slides down through the sky rather than carrying its own patch of it along. The
+   overhang at the top is the room that shift travels into — one tile per layer is exactly
+   enough, because the shift is taken modulo the tile. */
 .milestone-stars {
   position: absolute;
-  inset: -400px 0 0 0;
+  inset: 0;
   pointer-events: none;
   background-repeat: repeat;
   will-change: transform;
 }
 
 .milestone-stars--far {
+  top: -300px;
   background-image: var(--stars-far);
   background-size: 300px 300px;
   opacity: 0.7;
+}
+
+.milestone-stars--near {
+  top: -380px;
+  background-image: var(--stars-near);
+  background-size: 380px 380px;
+  opacity: 0.85;
+}
+
+/* Cancelling the page's scroll is a sawtooth: travel one tile, snap back, repeat — and
+   because the pattern repeats on exactly that tile, the snap is invisible.
+
+   Expressed as a scroll-driven animation rather than as a scroll handler writing transforms,
+   which is what this replaces and why it stuttered. A scroll on a phone is run by the
+   compositor; JS that answers it runs on the main thread and therefore always lands a frame
+   late, so the stars visibly juddered against the card they sit in. Handing the whole thing
+   to `animation-timeline` puts it back on the compositor with the scroll it is cancelling,
+   and there is no per-frame work left to be late.
+
+   Each iteration has to span exactly one tile of scrolling, so the count is the document's
+   scroll range divided by the tile — useStarParallax() measures that once and writes it as
+   --star-iters-*, not per frame. If the page's height changes and nobody recomputes it, the
+   sky drifts slowly against the true scroll: on a field of identical stars, undetectable. */
+@keyframes star-scroll-far {
+  to { transform: translate3d(0, 300px, 0); }
+}
+
+@keyframes star-scroll-near {
+  to { transform: translate3d(0, 380px, 0); }
+}
+
+@supports (animation-timeline: scroll()) {
+  .milestone-stars {
+    animation-timeline: scroll(root block);
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+  }
+
+  .milestone-stars--far {
+    animation-name: star-scroll-far;
+    animation-iteration-count: var(--star-iters-far, 1);
+  }
+
+  .milestone-stars--near {
+    animation-name: star-scroll-near;
+    animation-iteration-count: var(--star-iters-near, 1);
+  }
+}
+
+/* Browsers without scroll-driven animations get the same effect from useStarParallax()'s
+   fallback, which feeds --star-y-* per frame. The two cannot fight: where the animation
+   exists it wins the cascade outright, and the hook leaves the variables alone there. */
+.milestone-stars--far {
   transform: translate3d(0, var(--star-y-far, 0px), 0);
 }
 
 .milestone-stars--near {
-  background-image: var(--stars-near);
-  background-size: 380px 380px;
-  opacity: 0.85;
   transform: translate3d(0, var(--star-y-near, 0px), 0);
 }
 
