@@ -875,6 +875,9 @@
    out too strong, not the geometry. Measured down the face, luminance now runs roughly 9 at
    the top through 13, 24, 45 and ~68 at the foot. */
 .milestone-card {
+  /* No opaque base color any more — the card used to sit on a solid #08080a fill under
+     this gradient, which hid the real cosmic background (and this card's own .milestone-
+     stars window onto it) behind a flat near-black instead of letting it show through. */
   background:
     radial-gradient(
       135% 115% at 50% 116%,
@@ -882,8 +885,7 @@
       rgba(255, 255, 255, 0.14) 40%,
       rgba(255, 255, 255, 0.035) 70%,
       rgba(255, 255, 255, 0) 100%
-    ),
-    #08080a;
+    );
 }
 
 /* The same sky the page behind the card has: both patterns, both tile sizes, both layer

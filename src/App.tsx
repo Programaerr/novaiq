@@ -308,7 +308,7 @@ export default function App() {
                   which is the cross-card proximity the effect is for. */}
               <div
                 ref={revealGroup}
-                className="reveal-group corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch bg-zinc-950/80 border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+                className="reveal-group corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex-1 flex flex-col justify-start space-y-3 text-start">

@@ -19,7 +19,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
         {/* No electric-frame here on purpose — its pulsing border glow was the "light around
             the card" effect asked to be removed from this section. A static border keeps the
             card visibly separated from the page without animating on its own. */}
-        <div className="bg-zinc-950 p-5 sm:p-6 rounded-3xl border border-zinc-700 relative overflow-hidden shadow-2xl">
+        <div className="p-5 sm:p-6 rounded-3xl border border-zinc-700 relative overflow-hidden shadow-2xl">
           
           <div className="max-w-3xl mx-auto text-center space-y-4">
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
