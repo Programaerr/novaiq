@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Rocket } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useRevealGroup } from '../lib/useRevealGroup';
 
@@ -16,30 +16,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
     <section id="about-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* No overflow-hidden any more: the ship below rides the border box itself, so half
-            of it is outside the padding box a clip would cut at, and its glow reaches further
-            still. Nothing in this panel needed the clip. */}
-        <div className="p-5 sm:p-6 rounded-3xl border border-zinc-700 relative shadow-2xl">
-
-          {/* Flies the panel's outline — see .orbit in index.css. rotate-45 because the
-              lucide rocket is drawn pointing up-right and the motion path steers whatever
-              points along +X, so another 45° clockwise brings its nose onto the heading. */}
-          <div className="orbit" aria-hidden="true">
-            {/* The flame is inside the ship and before it in the row, so it burns out of the
-                nozzle and the ship's own rotation keeps it there — no second thing to steer.
-                Three ellipses, not one: a white core inside a warm middle inside a wide
-                blurred envelope is what gives it depth instead of a flat shape. See
-                .orbit-flame. The rocket is 20px on phones and 28px above, the same 1.4 the
-                flame scales by, so the two stay in proportion. */}
-            <span className="orbit-ship">
-              <span className="orbit-flame">
-                <span className="orbit-flame-plume" />
-                <span className="orbit-flame-inner" />
-                <span className="orbit-flame-core" />
-              </span>
-              <Rocket className="w-5 h-5 sm:w-7 sm:h-7 rotate-45" strokeWidth={1.5} />
-            </span>
-          </div>
+        {/* A static border and nothing on it. Every animated frame treatment this panel has
+            been given has been taken off again — a pulsing halo, then a lightning arc, then a
+            ship in orbit — so the plain outline is the settled answer, not an untried one. */}
+        <div className="p-5 sm:p-6 rounded-3xl border border-zinc-700 relative overflow-hidden shadow-2xl">
 
           
           <div className="max-w-3xl mx-auto text-center space-y-4">
