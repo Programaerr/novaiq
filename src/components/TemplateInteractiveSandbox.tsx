@@ -1521,7 +1521,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         </div>
 
         {/* Center Color Picker & Viewport Switcher Controls */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           
           {/* Color Theme Selector Dropdown / Bar */}
           <div className="relative">
