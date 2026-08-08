@@ -127,14 +127,14 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                     icon badge's own fixed right-6 in both languages. justify-start flips
                     with dir, so in English this used to land on the opposite side from
                     the icon instead of staying grouped with it the way it does in Arabic. */}
-                <div className="flex items-center">
+                <div className="relative z-10 flex items-center">
                   <span className="font-mono text-xs font-bold text-zinc-200 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 ml-auto">
                     {ms.weeks}
                   </span>
                 </div>
 
                 {/* Title */}
-                <div>
+                <div className="relative z-10">
                   <h3 className="text-lg font-bold text-white mb-2">
                     {ms.phaseTitle}
                   </h3>
@@ -155,8 +155,15 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                 {/* Bottom Step Indicator — which span renders first swaps with the
                     physical side justify-between assigns it (RTL: first child = right),
                     so which language draws "Phase X of 4" the DOM keeps it pinned to the
-                    same physical side as Arabic instead of trading places with "X Weeks". */}
-                <div className="pt-4 border-t border-zinc-900 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                    same physical side as Arabic instead of trading places with "X Weeks".
+                    relative z-10 (added along with the two blocks above): without an
+                    explicit z-index, this plain in-flow text painted *behind* the glow
+                    wrapper above despite coming later in the markup — position:absolute
+                    content always paints after non-positioned siblings regardless of
+                    source order. That put the glow layer visually on top of this row,
+                    which is what read as the text going dark/unlit near the bottom of the
+                    card instead of catching the light like the rest of it. */}
+                <div className="relative z-10 pt-4 border-t border-zinc-900 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
                   {language === 'ar' ? (
                     <>
                       <span>{`المرحلة ${index + 1} من 4`}</span>

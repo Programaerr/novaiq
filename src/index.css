@@ -752,7 +752,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(220px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.14), transparent 70%);
+  background: radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.22), transparent 70%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -769,8 +769,17 @@
    `overflow: hidden`. Drop this inside whatever inner layer already clips to the card's
    shape (--spot-x/--spot-y are custom properties, so they inherit down from the card that
    actually received the pointer events). Trigger class lives on that outer card. */
+/* isolation: isolate scopes z-index comparisons to this card alone. Without it, the glow
+   wrapper below (position:absolute, z-index:auto) still paints ABOVE the card's plain
+   in-flow text siblings regardless of DOM order — positioned elements always paint after
+   non-positioned ones in the same stacking context, no matter which comes first in the
+   markup. That put the glow layer on top of the bottom weeks/phase text instead of under
+   it. Isolating the card, then giving that text its own `relative z-10` (see
+   MilestoneTimeline.tsx), pins the paint order explicitly instead of leaving it to this
+   default. */
 .spotlight-track {
   position: relative;
+  isolation: isolate;
 }
 
 .spotlight-glow {
