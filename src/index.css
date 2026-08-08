@@ -792,15 +792,22 @@
       card's shape and wherever the pointer is, so there is no circle to see — only falloff.
       It also means the pool naturally widens as the pointer nears an edge, the way a real
       light spreads, and no JS has to measure anything. */
+/* No `overflow: hidden` here, and that is load-bearing rather than an omission. The only
+   thing it was ever clipping is ::before, which `border-radius: inherit` rounds by itself —
+   but every card wearing this class also wears `.reveal-border`, whose ring sits at
+   inset:-1px, *outside* the padding box that overflow clips to. So the clip was quietly
+   erasing the edge light on each of these cards: measured on the productivity tiles, the
+   border read an identical 51 on the side nearest the pointer and the side furthest from
+   it — the static border colour, with no reveal on it at all. */
 .spotlight-card {
   position: relative;
-  overflow: hidden;
 }
 
 .spotlight-card::before {
   content: '';
   position: absolute;
   inset: 0;
+  border-radius: inherit;
   background: radial-gradient(
     circle at var(--spot-x, 50%) var(--spot-y, 50%),
     rgba(255, 255, 255, 0.13),
