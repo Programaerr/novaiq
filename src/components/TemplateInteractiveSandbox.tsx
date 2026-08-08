@@ -1018,9 +1018,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     );
   }, [template]);
 
-  const siteHost = siteIdentity.contact.email.split('@')[1] || 'novaiq.space';
-  const previewAddress = `https://${siteHost}`;
-
   const recordsLabel = (() => {
     switch (template.id) {
       case 'NVQ-HEALTH-05': return 'مواعيدي';
@@ -1514,9 +1511,8 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           <div className="h-5 w-px bg-zinc-800 hidden sm:block shrink-0" />
           <div className="min-w-0">
             <h3 className="text-xs sm:text-sm font-bold text-white truncate max-w-[130px] sm:max-w-xs">
-              موقع حي: {template.title}
+              {template.title}
             </h3>
-            <p className="text-[10px] text-zinc-400 font-mono truncate hidden sm:block" dir="ltr">{previewAddress}</p>
           </div>
         </div>
 
