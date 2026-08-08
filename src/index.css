@@ -193,22 +193,30 @@
 .solid-shimmer::after {
   content: '';
   position: absolute;
-  inset: -1px;
+  inset: -1.5px;
   border-radius: inherit;
-  padding: 1px;
+  /* 1.5px, not 1px. The panel is over a thousand pixels around, and a hairline that thin
+     simply loses against it — the glint has to have some body to register at that scale. */
+  padding: 1.5px;
+  /* No stop goes to zero: the dark stretches are dim, not absent, so the whole outline stays
+     lit and the bright bands ride over a floor rather than switching a dead line on. */
   background: linear-gradient(
     115deg,
-    rgba(255, 255, 255, 0) 8%,
-    rgba(255, 255, 255, 0.9) 22%,
-    rgba(255, 255, 255, 0.15) 38%,
-    rgba(255, 255, 255, 0) 52%,
-    rgba(255, 255, 255, 0.55) 70%,
-    rgba(255, 255, 255, 0) 86%
+    rgba(255, 255, 255, 0.22) 6%,
+    rgba(255, 255, 255, 1) 22%,
+    rgba(255, 255, 255, 0.4) 38%,
+    rgba(255, 255, 255, 0.25) 52%,
+    rgba(255, 255, 255, 0.95) 70%,
+    rgba(255, 255, 255, 0.22) 88%
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
+  /* The halo is what carries it at a distance; a bare 1.5px line reads as a border that
+     changes brightness, not as light. Applied once and cached — only opacity animates, so
+     this is never re-rasterized per frame. */
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
   pointer-events: none;
   animation: solid-shimmer 4.5s ease-in-out infinite;
 }
@@ -216,16 +224,16 @@
 /* Not a symmetric fade up and down: it rises, dips short of dark, rises again and only then
    falls away. A single smooth swell reads as breathing; this reads as a glint. */
 @keyframes solid-shimmer {
-  0%, 100% { opacity: 0.12; }
-  38% { opacity: 0.95; }
-  52% { opacity: 0.35; }
-  70% { opacity: 0.8; }
+  0%, 100% { opacity: 0.3; }
+  38% { opacity: 1; }
+  52% { opacity: 0.55; }
+  70% { opacity: 0.92; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .solid-shimmer::after {
     animation: none;
-    opacity: 0.4;
+    opacity: 0.55;
   }
 }
 
