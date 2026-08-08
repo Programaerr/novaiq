@@ -1153,33 +1153,23 @@
   }
 }
 
-/* Windows Fluent "reveal". The full Windows effect is two separate lights:
-     1. a *border* reveal that lights the edge nearest the pointer, on every card in the group
-        at once — a card the pointer never entered still lights the side facing it. That
-        cross-card proximity is what reads as Windows rather than as a plain hover.
-     2. a *hover* light, the soft wash under the pointer, on the hovered card only.
+/* Windows Fluent "reveal": the edge nearest the pointer lights up, on every card in the
+   group at once — a card the pointer never entered still lights the side facing it. That
+   cross-card proximity is what reads as Windows rather than as a plain hover. Fed --rx/--ry
+   by useRevealGroup().
 
-   Light 1 is `.reveal-border` here, fed --rx/--ry by useRevealGroup().
-   Light 2 already existed as `.spotlight-card` (fed --spot-x/--spot-y by useSpotlight), so
-   cards that want both wear both classes — and the two live on different pseudo-elements
-   precisely so they can. `.reveal-card` is the standalone variant for cards with no
-   spotlight of their own: same ring, plus a gentler wash.
-
-   Deliberately not the halo the About section had removed before: nothing animates on its
-   own, and nothing bleeds outside the card — the border light is clipped to a 1px ring and
-   the wash is clipped to the card's own face. */
-.reveal-border,
-.reveal-card {
+   The edge, and only the edge. There used to be a `.reveal-card` variant that added a soft
+   radial wash across the card's face as well, on the grounds that Windows pairs the border
+   reveal with a hover light. In practice that wash read as a blurred white smudge sitting on
+   the card rather than as light, and it is the third such effect this page has shed
+   (glow-white-hover, then spotlight-card, then this). The ring is the part that actually
+   looks like the thing it is imitating: a 1px outline, clipped, nothing bleeding past the
+   card's edge, nothing animating on its own. */
+.reveal-border {
   position: relative;
 }
 
-.reveal-card {
-  isolation: isolate;
-}
-
-.reveal-border::after,
-.reveal-card::before,
-.reveal-card::after {
+.reveal-border::after {
   content: '';
   position: absolute;
   /* -1px, not 0. An absolutely positioned child is laid out against the *padding* box, so
@@ -1196,8 +1186,7 @@
 /* The ring itself. Same trick as .filter-pill-beam — the mask pair (full box minus content
    box) erases everything but the 1px padding strip, so the gradient survives only on the
    outline. */
-.reveal-border::after,
-.reveal-card::before {
+.reveal-border::after {
   z-index: 1;
   padding: 1px;
   /* This is the gradient a *neighbouring* card gets, and the pointer is never closer to it
@@ -1218,20 +1207,7 @@
   mask-composite: exclude;
 }
 
-/* Standalone wash. Kept under the card's own content (which carries z-10) so it lights the
-   surface without dimming the text. */
-.reveal-card::after {
-  z-index: 0;
-  background: radial-gradient(
-    var(--spot-r, 170px) circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 0.32),
-    rgba(255, 255, 255, 0.07) 45%,
-    rgba(255, 255, 255, 0.018) 100%
-  );
-}
-
-.reveal-group.is-live .reveal-border::after,
-.reveal-group.is-live .reveal-card::before {
+.reveal-group.is-live .reveal-border::after {
   opacity: 1;
 }
 
@@ -1243,8 +1219,7 @@
    unambiguously a line (~117) while the peak still triples it, which keeps the light clearly
    travelling along the border rather than switching the whole card on at once — the failure
    mode of the old never-below-0.38 version this replaced. */
-.reveal-border:hover::after,
-.reveal-card:hover::before {
+.reveal-border:hover::after {
   background: radial-gradient(
     230px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 1),
@@ -1253,16 +1228,10 @@
   );
 }
 
-.reveal-card:hover::after {
-  opacity: 1;
-}
-
 /* Touch devices have no pointer to reveal toward, and the vars would stay at their 50%
    fallback — a permanent glow dead-centre on every card, which is not the effect. */
 @media (hover: none) {
-  .reveal-border::after,
-  .reveal-card::before,
-  .reveal-card::after {
+  .reveal-border::after {
     display: none;
   }
 }

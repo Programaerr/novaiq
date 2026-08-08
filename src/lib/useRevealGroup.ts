@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Drives the Windows/Fluent *border* reveal across a row of cards (see `.reveal-border` and
- * `.reveal-card` in index.css).
+ * Drives the Windows/Fluent *border* reveal across a row of cards (see `.reveal-border` in
+ * index.css).
  *
- * Returns a ref to put on the container. Every descendant carrying `.reveal-border` or
- * `.reveal-card` gets the pointer's position written into its own `--rx`/`--ry`.
+ * Returns a ref to put on the container. Every descendant carrying `.reveal-border` gets the
+ * pointer's position written into its own `--rx`/`--ry`.
  *
  * One listener on the container rather than one per card, because that is the whole effect:
  * a card needs the pointer's position even while it sits over a *different* card, which is
@@ -27,7 +27,7 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     let frame = 0;
 
     const paint = (clientX: number, clientY: number) => {
-      const cards = group.querySelectorAll<HTMLElement>('.reveal-border, .reveal-card');
+      const cards = group.querySelectorAll<HTMLElement>('.reveal-border');
       // Measure every card first, then write. Interleaving the two would force a fresh
       // layout per card on every frame.
       const rects = [...cards].map((el) => el.getBoundingClientRect());
@@ -35,9 +35,6 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
         const r = rects[i];
         el.style.setProperty('--rx', `${clientX - r.left}px`);
         el.style.setProperty('--ry', `${clientY - r.top}px`);
-        // Same card-relative radius useSpotlight writes, so a card's wash covers the same
-        // proportion of it whatever its shape — see the note there.
-        el.style.setProperty('--spot-r', `${Math.max(120, Math.max(r.width, r.height) * 0.40)}px`);
       });
     };
 

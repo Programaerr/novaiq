@@ -54,15 +54,17 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 desc: language === 'ar' ? 'تحديثات استقرار ومتابعة فنية بحسب الاتفاق المبرم بين الطرفين.' : 'System updates and technical follow-ups according to mutual agreement.'
               }
             ].map((item, idx) => (
-              // Still no glow-white-hover / spotlight-card here — those threw a bloom around
-              // the whole card and washed light across its whole face, which was the halo this
-              // section was asked to lose. `reveal-card` is the opposite shape of effect: it
-              // only lights where the pointer actually is, and never outside the card's edge.
-              // `hover:border-white/40` is gone with it — brightening the entire border at once
-              // fought the reveal, whose whole point is that one side is brighter than the rest.
+              // The edge light and nothing else — `reveal-border`, not the `reveal-card` that
+              // used to be here, which added a soft radial wash across the card's face on top
+              // of the ring. That wash was the last of the halo effects this section has been
+              // asked to lose (glow-white-hover and spotlight-card went the same way), and it
+              // is not the Windows reveal being imitated either: that one lights the *edge*
+              // nearest the pointer. `hover:border-white/40` is long gone for a related reason
+              // — brightening the whole border at once fights a light whose entire point is
+              // that one side of it is brighter than the rest.
               <div
                 key={idx}
-                className="reveal-card min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 text-center transition-all"
+                className="reveal-border min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 text-center transition-all"
               >
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>
