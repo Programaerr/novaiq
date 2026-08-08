@@ -82,6 +82,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // longer exist.
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  // Live pixel offset while the pointer is down, added straight into every card's
+  // translateX so the whole coverflow tracks the finger/mouse in real time instead of
+  // only jumping after release (same rotation-follows-pointer idea as .wheel3d-stage
+  // in HeroSection.tsx, ported from degrees to pixels).
+  const [dragPx, setDragPx] = useState(0);
   const dragRef = useRef<{ startX: number } | null>(null);
 
   // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
@@ -206,13 +211,25 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     dragRef.current = { startX: e.clientX };
     setIsDragging(true);
+    setDragPx(0);
   };
 
-  const handleTrackPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleTrackPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    setDragPx(e.clientX - dragRef.current.startX);
+  };
+
+  // Also wired to onPointerLeave: without capture (see the comment above on why this
+  // never calls setPointerCapture), a release outside the track's bounds never reaches
+  // onPointerUp here. Before dragPx existed that just meant a missed swipe; now it would
+  // leave the whole coverflow visually shifted by the last live offset forever, so a
+  // drag that leaves the track has to be closed the same way one that ends on it does.
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current) return;
     const dx = e.clientX - dragRef.current.startX;
     dragRef.current = null;
     setIsDragging(false);
+    setDragPx(0);
     if (Math.abs(dx) < 40) return;
     goToOffset(dx > 0 ? -1 : 1);
   };
@@ -349,7 +366,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
           <div
             onPointerDown={handleTrackPointerDown}
-            onPointerUp={handleTrackPointerUp}
+            onPointerMove={handleTrackPointerMove}
+            onPointerUp={endDrag}
+            onPointerLeave={endDrag}
+            style={{ perspective: '1800px' }}
             className="relative w-full max-w-4xl h-[600px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
           {filteredTemplates.map((template, index) => {
@@ -375,26 +395,43 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // back into range, which is what showed up as the image/text flashing blank.
             const cappedDistance = Math.min(distance, 3);
             const clampedOffset = isVisible ? offset : Math.sign(offset) * 3;
+            // Real depth instead of the size-only illusion scale() used to fake alone:
+            // pushed back in Z per step away from center, and angled toward the
+            // centerline like a physical cover-flow shelf (mirrored by sign so the two
+            // sides lean toward each other, not the same way). scale() stays layered on
+            // top rather than replaced — perspective's own foreshortening depends on the
+            // exact px chosen for perspective/translateZ, which isn't something to tune
+            // blind; the already-accepted 0.82/0.68 sizing is the safe, known-good part
+            // of this and rotateY/translateZ are purely additive to it.
+            const rotY = isActive ? 0 : offset > 0 ? -16 : 16;
+            const stepPx = isMobile ? 180 : 235;
+            const livePx = isDragging ? dragPx : 0;
 
             return (
               <div
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${clampedOffset * (isMobile ? 180 : 235)}px) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
+                  transform: `translate(-50%, -50%) translateX(${clampedOffset * stepPx + livePx}px) translateZ(${-cappedDistance * 90}px) rotateY(${rotY}deg) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // Position/scale glide in slow motion; opacity settles fast on its own —
                   // otherwise the incoming card visibly fades up out of a haze for the
                   // whole 1.6s, instead of just sliding into place already at full clarity.
-                  transition: 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
+                  // Suspended entirely while dragging so the live pointer offset above
+                  // tracks the finger/mouse 1:1 instead of chasing it on a 1.6s easing.
+                  transition: isDragging ? 'none' : 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
                   pointerEvents: isVisible ? undefined : 'none',
                 }}
                 className={`absolute top-1/2 left-1/2 w-[300px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
+                {/* Idle float — see the .template-card-bob comment in index.css for why
+                    this has to be a separate element from the positioning div above it.
+                    Staggered per card so the whole shelf doesn't bob in lockstep. */}
+                <div className="template-card-bob" style={{ animationDelay: `${(index % 5) * 0.4}s` }}>
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
-                  className="bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 flex flex-col group shadow-2xl"
+                  className={`bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 flex flex-col group shadow-2xl ${isActive ? 'template-card-reflect' : ''}`}
                 >
 
                 {/* Card Image Banner */}
@@ -559,6 +596,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
                   </div>
 
+                </div>
                 </div>
                 </div>
               </div>

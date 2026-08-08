@@ -762,6 +762,35 @@
   backface-visibility: hidden;
 }
 
+/* Templates coverflow (TemplateGrid) — idle float for whichever cards are on stage.
+   A separate inner wrapper, not the card's own element: the card's own transform is
+   set inline per-frame from JS (coverflow position/depth/angle), and a CSS `animation`
+   targeting that same `transform` on that same element would just fight the inline
+   value instead of composing with it. Nesting this one level in means the two never
+   touch the same property on the same node — the outer div carries position, this one
+   only ever adds a small translateY on top of it. */
+@keyframes template-card-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.template-card-bob {
+  animation: template-card-bob 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .template-card-bob {
+    animation: none;
+  }
+}
+
+/* Glossy floor reflection under the focused card only — one mirrored compositor layer,
+   so keeping it to a single card at a time is what keeps it cheap. Unsupported in
+   Firefox, which just renders the card without one; nothing else depends on it. */
+.template-card-reflect {
+  -webkit-box-reflect: below 8px linear-gradient(to bottom, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 35%, rgba(255, 255, 255, 0) 60%);
+}
+
 /* Stat bar meters — the fill grows a little further on hover, in step with the "+"
    revealed next to the number, to read as the metric ticking up. */
 .stat-bar-fill {
