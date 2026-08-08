@@ -23,11 +23,12 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
 
           {/* Flies the panel's outline — see .orbit-ship. The trail comes first in the DOM so
               it lands to the ship's left, which the path's auto-rotation keeps behind it.
-              -rotate-45 because the lucide rocket is drawn pointing up-right, and the motion
-              path steers whatever points along +X. */}
+              rotate-45 because the lucide rocket is drawn pointing up-right and the motion
+              path steers whatever points along +X — another 45° clockwise brings its nose
+              onto the heading. */}
           <div className="orbit-ship" aria-hidden="true">
             <span className="orbit-ship-trail" />
-            <Rocket className="w-5 h-5 -rotate-45" strokeWidth={1.5} />
+            <Rocket className="w-5 h-5 rotate-45" strokeWidth={1.5} />
           </div>
 
           

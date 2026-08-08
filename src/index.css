@@ -194,6 +194,10 @@
   left: 0;
   display: flex;
   align-items: center;
+  /* The page is dir="rtl", which lays a flex row right-to-left and put the trail out in
+     front of the ship. This row is not text — it is the ship's own frame, where -X is
+     behind by definition — so it is pinned to physical order. */
+  direction: ltr;
   color: #ffffff;
   offset-path: border-box;
   offset-rotate: auto;
