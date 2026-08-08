@@ -37,20 +37,24 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 // stroke outward and the blur spreads further still, and anything beyond the
                 // region is cut rather than drawn.
                 <filter key={id} id={id} x="-20%" y="-20%" width="140%" height="140%">
-                  {/* Anisotropic on purpose — a much lower frequency across than down makes
-                      the tears run along the line the way a discharge does, instead of
-                      pebbling it evenly in both directions. */}
+                  {/* `turbulence`, not `fractalNoise`: fractal noise is smooth and rounded and
+                      displaced the line into a wobble, like a hand-drawn rectangle. Turbulence
+                      has hard ridges where its bands cross zero, and those are what snap the
+                      stroke into angular forks instead of curves. Three octaves adds the fine
+                      splintering on top of the coarse throw. Anisotropic — a much lower
+                      frequency across than down — so the tears run along the line the way a
+                      discharge does rather than pebbling it evenly. */}
                   <feTurbulence
-                    type="fractalNoise"
-                    baseFrequency="0.012 0.05"
-                    numOctaves={2}
+                    type="turbulence"
+                    baseFrequency="0.02 0.09"
+                    numOctaves={3}
                     seed={seed}
                     result="noise"
                   />
                   <feDisplacementMap
                     in="SourceGraphic"
                     in2="noise"
-                    scale={9}
+                    scale={14}
                     xChannelSelector="R"
                     yChannelSelector="G"
                     result="bolt"

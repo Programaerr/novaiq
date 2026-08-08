@@ -193,6 +193,11 @@
 .electric-frame {
   position: absolute;
   inset: 0;
+  /* Both required. An <svg> with no width/height attributes falls back to its intrinsic
+     300x150, and inset alone does not override that — the frame drew at postage-stamp size
+     in the panel's top corner until these were added. */
+  width: 100%;
+  height: 100%;
   /* The stroke straddles the rect's edge and the corona spreads past it, both of which sit
      outside this box — an SVG viewport clips its own overflow by default. */
   overflow: visible;
