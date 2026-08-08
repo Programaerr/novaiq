@@ -821,6 +821,53 @@
   opacity: 1;
 }
 
+/* Roadmap card — a dark body with a soft light rising from below its own bottom edge.
+   Painted as a `background` rather than as an overlay child so the card's border-radius
+   clips it for free: the card cannot use overflow:hidden, because that would also clip its
+   `.reveal-border` ring, which sits at inset:-1px *outside* the padding box.
+
+   The gradient's centre is at 124% — past the card, not inside it. Only the falloff lands
+   on the card, which is the whole trick: the reference art is a saturated blue whose hot
+   core can sit in frame, and a white one cannot, because the card's own text is white and
+   would dissolve into it. Peak brightness on the card face works out at luminance ~55. */
+.milestone-card {
+  background:
+    radial-gradient(
+      130% 92% at 50% 124%,
+      rgba(255, 255, 255, 0.26) 0%,
+      rgba(255, 255, 255, 0.115) 40%,
+      rgba(255, 255, 255, 0.03) 68%,
+      rgba(255, 255, 255, 0) 100%
+    ),
+    #08080a;
+}
+
+/* Stars, positioned in percentages with no repeat rather than as a tiled pattern: one
+   386px-tall card would show a 190px tile twice over and the eye finds that grid instantly.
+   Masked away toward the foot of the card — they'd be washed out by the glow down there
+   anyway, and the mask is cheaper than fighting it with per-dot opacity. */
+.milestone-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(1.6px 1.6px at 14% 9%, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 33% 18%, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
+    radial-gradient(2px 2px at 58% 7%, rgba(255, 255, 255, 1) 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 78% 15%, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
+    radial-gradient(1.6px 1.6px at 91% 27%, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 22% 31%, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
+    radial-gradient(1.8px 1.8px at 68% 34%, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 45% 44%, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 8% 49%, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 86% 52%, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 30% 61%, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 62% 66%, rgba(255, 255, 255, 0.45) 50%, transparent 51%);
+  -webkit-mask: linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%);
+  mask: linear-gradient(to bottom, #000 0%, #000 42%, transparent 88%);
+}
+
 /* Corner sweep — a white light band that travels from the top-left corner to the
    bottom-right corner and loops, automatically, independent of text direction (it's a
    screen-space diagonal, not a logical start/end). */
