@@ -1120,10 +1120,10 @@
      reaching it. The floor stays low enough that the reveal is still clearly directional,
      brightest near the pointer and dim (not equal) everywhere else. */
   background: radial-gradient(
-    320px circle at var(--rx, 50%) var(--ry, 50%),
+    240px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.18) 45%,
-    rgba(255, 255, 255, 0.05) 100%
+    rgba(255, 255, 255, 0.16) 42%,
+    rgba(255, 255, 255, 0.03) 100%
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
