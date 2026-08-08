@@ -1213,7 +1213,11 @@
    unambiguously a line (~117) while the peak still triples it, which keeps the light clearly
    travelling along the border rather than switching the whole card on at once — the failure
    mode of the old never-below-0.38 version this replaced. */
-.reveal-border:hover::after {
+/* `.is-touched` is the same statement as `:hover` for a finger, which has none — the hook
+   works out which card the pointer is inside and says so. Without it the card under the
+   finger would light like one of its own neighbours. */
+.reveal-border:hover::after,
+.reveal-border.is-touched::after {
   background: radial-gradient(
     230px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 1),
