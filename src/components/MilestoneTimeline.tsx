@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   Calendar,
   CheckCircle2,
@@ -11,7 +11,6 @@ import {
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
 import { useRevealGroup } from '../lib/useRevealGroup';
-import { useStarParallax } from '../lib/useStarParallax';
 
 interface MilestoneTimelineProps {
   onCreateContract: () => void;
@@ -23,9 +22,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
   // wash across their face as well; it is gone at the customer's request, and the light on
   // the card is now the fixed glow at its foot plus this ring.
   const revealGroup = useRevealGroup<HTMLDivElement>();
-  // Keeps each card's stars still while the page scrolls past, the way the page's own sky is.
-  const section = useRef<HTMLElement>(null);
-  useStarParallax(section);
 
   const milestones = [
     {
@@ -75,7 +71,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
   ];
 
   return (
-    <section ref={section} id="timeline-section" className="py-10 sm:py-14 relative">
+    <section id="timeline-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -106,11 +102,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                 // clipping sit in the absolutely positioned wrapper below.
                 className="milestone-card reveal-border border border-white/10 rounded-[26px] p-7 flex flex-col relative group transition-all shadow-xl"
               >
-
-                <div className="absolute inset-0 rounded-[26px] overflow-hidden pointer-events-none">
-                  <span className="milestone-stars milestone-stars--far" />
-                  <span className="milestone-stars milestone-stars--near" />
-                </div>
 
                 {/* z-10 on the whole content column rather than on pieces of it: absolutely
                     positioned content paints after non-positioned siblings whatever the

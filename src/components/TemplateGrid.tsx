@@ -446,10 +446,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 }}
                 className={`absolute top-1/2 left-1/2 w-60 sm:w-75 ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
-                {/* Idle float — see the .template-card-bob comment in index.css for why
-                    this has to be a separate element from the positioning div above it.
-                    Staggered per card so the whole shelf doesn't bob in lockstep. */}
-                <div className="template-card-bob" style={{ animationDelay: `${(index % 5) * 0.4}s` }}>
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
                   className={`bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 flex flex-col group shadow-2xl ${isActive ? 'template-card-reflect' : ''}`}
@@ -617,7 +613,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
                   </div>
 
-                </div>
                 </div>
                 </div>
               </div>

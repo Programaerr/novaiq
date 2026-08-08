@@ -609,11 +609,7 @@
   50% { opacity: 0.6; }
 }
 
-/* The two star patterns are variables because the page background is not the only thing
-   that paints this sky — the roadmap cards paint it inside themselves too (.milestone-stars
-   below). Held in one place so the two can't drift apart: a card whose stars are a
-   different size, density or brightness from the page's reads as a hole punched in it
-   rather than as a window onto the same sky. */
+/* Shared star pattern for the page's own cosmic background (.star-layer below). */
 :root {
   --stars-far:
     radial-gradient(1.5px 1.5px at 40px 60px, rgba(255, 255, 255, 0.95) 50%, transparent 51%),
@@ -762,28 +758,6 @@
   backface-visibility: hidden;
 }
 
-/* Templates coverflow (TemplateGrid) — idle float for whichever cards are on stage.
-   A separate inner wrapper, not the card's own element: the card's own transform is
-   set inline per-frame from JS (coverflow position/depth/angle), and a CSS `animation`
-   targeting that same `transform` on that same element would just fight the inline
-   value instead of composing with it. Nesting this one level in means the two never
-   touch the same property on the same node — the outer div carries position, this one
-   only ever adds a small translateY on top of it. */
-@keyframes template-card-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.template-card-bob {
-  animation: template-card-bob 5s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .template-card-bob {
-    animation: none;
-  }
-}
-
 /* Glossy floor reflection under the focused card only — one mirrored compositor layer,
    so keeping it to a single card at a time is what keeps it cheap. Unsupported in
    Firefox, which just renders the card without one; nothing else depends on it. */
@@ -875,9 +849,10 @@
    out too strong, not the geometry. Measured down the face, luminance now runs roughly 9 at
    the top through 13, 24, 45 and ~68 at the foot. */
 .milestone-card {
-  /* No opaque base color any more — the card used to sit on a solid #08080a fill under
-     this gradient, which hid the real cosmic background (and this card's own .milestone-
-     stars window onto it) behind a flat near-black instead of letting it show through. */
+  /* No opaque base color any more, and no per-card simulated star window either (that was
+     .milestone-stars — deleted along with useStarParallax): both used to stand in for the
+     real cosmic background behind the page. Transparent, this card's actual backdrop is
+     that real background showing straight through, not a lookalike copy of it. */
   background:
     radial-gradient(
       135% 115% at 50% 116%,
@@ -887,94 +862,6 @@
       rgba(255, 255, 255, 0) 100%
     );
 }
-
-/* The same sky the page behind the card has: both patterns, both tile sizes, both layer
-   opacities, taken straight from the variables .star-layer uses so they stay identical by
-   construction rather than by somebody remembering to update two places.
-
-   And it holds still while the page scrolls past, like the fixed layer it is borrowed from:
-   the card slides down through the sky rather than carrying its own patch of it along. The
-   overhang at the top is the room that shift travels into — one tile per layer is exactly
-   enough, because the shift is taken modulo the tile. */
-.milestone-stars {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-repeat: repeat;
-  will-change: transform;
-}
-
-.milestone-stars--far {
-  top: -300px;
-  background-image: var(--stars-far);
-  background-size: 300px 300px;
-  opacity: 0.7;
-}
-
-.milestone-stars--near {
-  top: -380px;
-  background-image: var(--stars-near);
-  background-size: 380px 380px;
-  opacity: 0.85;
-}
-
-/* Cancelling the page's scroll is a sawtooth: travel one tile, snap back, repeat — and
-   because the pattern repeats on exactly that tile, the snap is invisible.
-
-   Expressed as a scroll-driven animation rather than as a scroll handler writing transforms,
-   which is what this replaces and why it stuttered. A scroll on a phone is run by the
-   compositor; JS that answers it runs on the main thread and therefore always lands a frame
-   late, so the stars visibly juddered against the card they sit in. Handing the whole thing
-   to `animation-timeline` puts it back on the compositor with the scroll it is cancelling,
-   and there is no per-frame work left to be late.
-
-   Each iteration has to span exactly one tile of scrolling, so the count is the document's
-   scroll range divided by the tile — useStarParallax() measures that once and writes it as
-   --star-iters-*, not per frame. If the page's height changes and nobody recomputes it, the
-   sky drifts slowly against the true scroll: on a field of identical stars, undetectable. */
-@keyframes star-scroll-far {
-  to { transform: translate3d(0, 300px, 0); }
-}
-
-@keyframes star-scroll-near {
-  to { transform: translate3d(0, 380px, 0); }
-}
-
-@supports (animation-timeline: scroll()) {
-  .milestone-stars {
-    animation-timeline: scroll(root block);
-    animation-timing-function: linear;
-    animation-fill-mode: both;
-  }
-
-  .milestone-stars--far {
-    animation-name: star-scroll-far;
-    animation-iteration-count: var(--star-iters-far, 1);
-  }
-
-  .milestone-stars--near {
-    animation-name: star-scroll-near;
-    animation-iteration-count: var(--star-iters-near, 1);
-  }
-}
-
-/* Browsers without scroll-driven animations get the same effect from useStarParallax()'s
-   fallback, which feeds --star-y-* per frame. The two cannot fight: where the animation
-   exists it wins the cascade outright, and the hook leaves the variables alone there. */
-.milestone-stars--far {
-  transform: translate3d(0, var(--star-y-far, 0px), 0);
-}
-
-.milestone-stars--near {
-  transform: translate3d(0, var(--star-y-near, 0px), 0);
-}
-
-/* Four equal-width cards side by side would otherwise start their tiles at the same origin
-   and show the identical arrangement four times over, which the eye catches at once. The
-   offsets are prime-ish and unrelated to either tile size so no pair lines up again. */
-.milestone-card:nth-child(4n + 2) .milestone-stars { background-position: 143px 67px; }
-.milestone-card:nth-child(4n + 3) .milestone-stars { background-position: 61px 211px; }
-.milestone-card:nth-child(4n + 4) .milestone-stars { background-position: 229px 133px; }
 
 /* Cards drift gently on the same scroll that drives the stars behind them — view(), not
    scroll(): a per-card "how far through the viewport am I" progress, not the whole
