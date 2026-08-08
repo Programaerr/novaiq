@@ -146,15 +146,16 @@ export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonth
                   ))}
                 </div>
 
-                {/* .neu-btn, the same class the watch store's cart button wears: it carries the
-                    raise, and on :active swaps its outer shadows for inner ones so the button
-                    sinks into the surface instead of just dimming. It brings its own near-white
-                    body, which is why no bg-* utility is set here — a bg-white would override
-                    it and the pressed state would lose the material it presses into. */}
+                {/* .neu-btn gives this the same press the watch store's cart button has — on
+                    :active the outer shadows become inner ones and the button sinks rather than
+                    just dimming. --on-dark drops the raised white shadow (it bloomed as haze on
+                    this dark card) and, more importantly, releases the body colour so
+                    primaryBg can supply it: the button re-tints with the customer's palette
+                    instead of staying near-white in every theme. */}
                 <div className="pt-6">
                   <button
                     onClick={() => pickCar(car, 'finance')}
-                    className="neu-btn neu-btn--on-dark w-full py-3.5 rounded-full text-zinc-900 font-bold text-sm cursor-pointer"
+                    className={`neu-btn neu-btn--on-dark w-full py-3.5 rounded-full ${themeStyle.primaryBg} ${themeStyle.onPrimary} font-bold text-sm cursor-pointer`}
                   >
                     استعرض واحجز
                   </button>
