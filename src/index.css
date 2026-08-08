@@ -339,11 +339,18 @@
 }
 
 .neu-btn {
-  background: #eef1f6;
   box-shadow:
     5px 5px 10px rgba(163, 177, 198, 0.6),
     -4px -4px 10px rgba(255, 255, 255, 0.95);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+/* The pale body belongs to the button *on pale material* only. Scoped with :not() rather than
+   left on .neu-btn and overridden later, because Tailwind's bg-* utilities and a bare .neu-btn
+   have the same specificity — source order would decide, index.css comes after the Tailwind
+   import, and the palette class on the dark-card variant would silently lose every time. */
+.neu-btn:not(.neu-btn--on-dark) {
+  background: #eef1f6;
 }
 
 .neu-btn:hover {
@@ -361,11 +368,20 @@
 
 /* Same button on a dark card. The raised pair models a surface lifted out of the pale material
    around it, and on a dark card there is no such material — the light half just bloomed as a
-   white haze around the button, the same failure .neu-card had. Only the resting shadow goes:
-   .neu-btn:active is (0,2,0) to this rule's (0,1,0), so the press still sinks, and those inset
-   shadows fall on the button's own pale body where they are still correct. */
+   white haze around the button, the same failure .neu-card had. So the resting shadow goes, and
+   the body comes from the template's palette instead (see the :not() rule above). */
 .neu-btn--on-dark {
   box-shadow: none;
+}
+
+/* The press has to be re-tuned for a coloured body: the pale variant's inset pair is a light
+   grey-blue over near-white, and on an emerald or purple button it reads as dirt rather than
+   depth. Black for the shadow side, a thin white for the lit side. Declared after
+   .neu-btn:active — same (0,2,0) specificity, so source order is what makes this one win. */
+.neu-btn--on-dark:active {
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.5),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.14);
 }
 
 /* Hover inverts the whole pill (white/black -> black/white), so the ambient glow inverts
