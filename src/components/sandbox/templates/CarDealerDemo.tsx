@@ -84,7 +84,10 @@ export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonth
             // The manufacturer-style card: the car sits on white *above* the sheet, then the
             // model name, the pill row, three headline figures each over its own label, the
             // grey consumption fine print, an underlined spec link and one black action.
-            <article key={car.id} className="relative flex flex-col rounded-[22px] bg-white px-5 pb-5 pt-[4.75rem] shadow-2xl shadow-black/40">
+            // pt has to clear the part of the photo that hangs *into* the card — the plate is
+            // h-32 (128px) starting 44px above the top edge, so 84px of it sits over the card
+            // and anything less than that runs the model name under the photo.
+            <article key={car.id} className="relative flex flex-col rounded-[22px] bg-white px-5 pb-5 pt-24 shadow-2xl shadow-black/40">
               {/* The photo overhangs the card's top edge, which is what makes it read as a
                   product shot rather than a banner. object-cover filling the full plate, not
                   contain: the reference floats a cut-out car on white, but these are location
