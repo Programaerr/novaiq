@@ -86,8 +86,9 @@ export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonth
             // grey consumption fine print, an underlined spec link and one black action.
             // pt has to clear the part of the photo that hangs *into* the card — the plate is
             // h-32 (128px) starting 44px above the top edge, so 84px of it sits over the card
-            // and anything less than that runs the model name under the photo.
-            <article key={car.id} className="relative flex flex-col rounded-[22px] bg-white px-5 pb-5 pt-24 shadow-2xl shadow-black/40">
+            // and anything less than that runs the model name under the photo. pt-28 leaves a
+            // measured 28px of air below the photo on top of that clearance.
+            <article key={car.id} className="relative flex flex-col rounded-[22px] bg-white px-6 pb-7 pt-28 shadow-2xl shadow-black/40">
               {/* The photo overhangs the card's top edge, which is what makes it read as a
                   product shot rather than a banner. object-cover filling the full plate, not
                   contain: the reference floats a cut-out car on white, but these are location
@@ -112,20 +113,23 @@ export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonth
               {/* font-normal, not bold: the reference sets the model name large and light, and
                   the weight is what separates it from the figures below it. */}
               <h4 className="text-lg sm:text-xl font-normal text-zinc-900 leading-tight">{car.name}</h4>
-              <p className="mt-0.5 font-mono text-[13px] font-bold text-zinc-900">{price(car.priceIQD)}</p>
+              <p className="mt-2 font-mono text-[13px] font-bold text-zinc-900">{price(car.priceIQD)}</p>
 
               {/* Year first and filled black, the rest hollow grey — the reference uses that one
                   dark pill to anchor the row, and it is the model year that dates a car. */}
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
-                <span className="px-2.5 py-1 rounded-full bg-zinc-900 text-white text-[10px] font-semibold">{car.year}</span>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <span className="px-3 py-1.5 rounded-full bg-zinc-900 text-white text-[10px] font-semibold">{car.year}</span>
                 {[car.fuelType, car.drivetrain, car.transmission].map((chip) => (
-                  <span key={chip} className="px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-700 text-[10px] font-semibold">
+                  <span key={chip} className="px-3 py-1.5 rounded-full bg-zinc-100 text-zinc-700 text-[10px] font-semibold">
                     {chip}
                   </span>
                 ))}
               </div>
 
-              <div className="mt-4 space-y-2.5">
+              {/* space-y-5 between the figures and mt-1 under each value: the reference reads as
+                  three separate facts, and at tighter spacing a value ran into the label of the
+                  block below it and the three merged into one grey column. */}
+              <div className="mt-8 space-y-7">
                 {[
                   { value: car.acceleration, label: 'التسارع من 0 إلى 100 كم/س' },
                   { value: car.power, label: 'القدرة (كيلوواط) / القدرة (حصان)' },
@@ -133,7 +137,7 @@ export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonth
                 ].map((stat) => (
                   <div key={stat.label}>
                     <div className="text-base sm:text-lg font-normal text-zinc-900 leading-tight">{stat.value}</div>
-                    <div className="text-zinc-400 text-[10px]">{stat.label}</div>
+                    <div className="mt-1 text-zinc-400 text-[10px] leading-relaxed">{stat.label}</div>
                   </div>
                 ))}
               </div>
@@ -141,21 +145,21 @@ export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonth
               {/* mt-auto here rather than on the button: the blurb-free layout still varies in
                   height because the pill row wraps to two lines on some cars, and this is what
                   keeps the black action on one line across a row. */}
-              <div className="mt-auto pt-4">
+              <div className="mt-auto pt-10">
                 <p className="text-zinc-400 text-[10px] leading-relaxed">
                   استهلاك الوقود المدمج: {car.fuel}، انبعاثات CO2 المدمجة: {car.co2}
                 </p>
 
                 <button
                   onClick={() => pickCar(car, 'testdrive')}
-                  className="mt-3 text-zinc-900 underline underline-offset-4 font-semibold text-[11px] cursor-pointer hover:text-zinc-600 transition-colors"
+                  className="mt-6 text-zinc-900 underline underline-offset-4 font-semibold text-[11px] cursor-pointer hover:text-zinc-600 transition-colors"
                 >
                   المواصفات الفنية وحجز تجربة قيادة
                 </button>
 
                 <button
                   onClick={() => pickCar(car, 'finance')}
-                  className="mt-3 w-full py-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs cursor-pointer transition-colors"
+                  className="mt-6 w-full py-4 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs cursor-pointer transition-colors"
                 >
                   استعرض بالتفصيل
                 </button>
