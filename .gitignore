@@ -30,11 +30,24 @@ graphify-out/
 # nothing in the site depends on them.
 #
 # Deliberately NOT excluded, so both setups keep behaving the same without hand-syncing:
-#   .claude/settings.json   — the graphify hook-guard config; static and rarely edited
-#   .claude/skills/         — the graphify skill
-#   .agents/skills/         — the react-three-fiber skill pack
+#   .claude/settings.json    — the graphify hook-guard config; static and rarely edited
+#   .claude/skills/graphify/ — the graphify skill; installed by graphify itself, not npx skills
+#   .agents/skills/          — the react-three-fiber skill pack; single tracked copy, see below
 #
 # To hand these rules to a collaborator, send them the standalone setup file rather than
 # committing these back: novaiq-claude-setup.md, kept outside the repo.
 /CLAUDE.md
 /.claude/CLAUDE.md
+
+# .claude/skills/r3f-* were meant to be symlinks into .agents/skills/r3f-* (that's what
+# `npx skills add` creates locally — one real copy, plus a Claude-Code-specific pointer to
+# it), but git on Windows dereferenced them at commit time and checked in the full file
+# content twice instead of a symlink. Two independently-committed copies of the same skill
+# is exactly the shared-generated-directory problem graphify-out/ already ran into above:
+# either of us reinstalling or updating the skill pack updates only one copy, and the stale
+# other one becomes a guaranteed future conflict. .agents/skills/ stays tracked as the one
+# real copy (portable, no symlink involved); each of us just runs
+# `npx skills add EnzeD/r3f-skills` locally once to get our own correct local symlink at
+# .claude/skills/r3f-* — that command is a no-op if .agents/skills/ already has the content
+# from git, it only needs to (re)create the local pointer.
+.claude/skills/r3f-*
