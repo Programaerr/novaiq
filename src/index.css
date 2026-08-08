@@ -829,13 +829,6 @@
   opacity: 1;
 }
 
-/* No pointer to reveal toward, and --rx/--ry would sit at their 50% fallback: a permanent
-   glow dead-centre on every card, which is not the effect. Same reason as the ring's. */
-@media (hover: none) {
-  .reveal-face::before {
-    display: none;
-  }
-}
 
 /* Roadmap card — a dark body with a soft light rising from below its own bottom edge.
    Painted as a `background` rather than as an overlay child so the card's border-radius
@@ -1227,14 +1220,6 @@
     rgba(255, 255, 255, 0.55) 40%,
     rgba(255, 255, 255, 0.28) 100%
   );
-}
-
-/* Touch devices have no pointer to reveal toward, and the vars would stay at their 50%
-   fallback — a permanent glow dead-centre on every card, which is not the effect. */
-@media (hover: none) {
-  .reveal-border::after {
-    display: none;
-  }
 }
 
 /* Custom Scrollbar */

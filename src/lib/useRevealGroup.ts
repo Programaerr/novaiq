@@ -13,14 +13,21 @@ import { useEffect, useRef } from 'react';
  * between them. A card far from the pointer simply receives coordinates outside its own box,
  * so its gradient falls off to nothing on its own — the proximity falloff is the gradient's,
  * not distance math we have to write.
+ *
+ * Pointer events, not mouse events, so a finger drives this exactly as a mouse does: on touch
+ * the enter/leave pair straddles the press rather than a hover, so the light appears under
+ * the finger, follows it, and fades when it lifts. This used to bail out on `(hover: none)`
+ * devices entirely, on the grounds that with no pointer --rx/--ry sit at their 50% fallback
+ * and every card would glow dead-centre for ever. That is what `is-live` is for — nothing is
+ * lit until a real pointer position has been written — so the guard was costing touch users
+ * the effect to solve a problem the class already solved.
  */
 export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);
 
   useEffect(() => {
     const group = ref.current;
-    // No real pointer means nothing to reveal toward, and the CSS hides the layer there too.
-    if (!group || !window.matchMedia('(hover: hover)').matches) return;
+    if (!group) return;
 
     let frame = 0;
 
@@ -53,12 +60,17 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     group.addEventListener('pointermove', onMove);
     group.addEventListener('pointerenter', onEnter);
     group.addEventListener('pointerleave', onLeave);
+    // A finger that starts scrolling has its pointer stream cancelled by the browser: no
+    // further pointermove arrives, so without this the light would freeze mid-card and stay
+    // there while the page slid away underneath it.
+    group.addEventListener('pointercancel', onLeave);
 
     return () => {
       if (frame) cancelAnimationFrame(frame);
       group.removeEventListener('pointermove', onMove);
       group.removeEventListener('pointerenter', onEnter);
       group.removeEventListener('pointerleave', onLeave);
+      group.removeEventListener('pointercancel', onLeave);
     };
   }, []);
 
