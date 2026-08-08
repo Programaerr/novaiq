@@ -582,7 +582,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className="relative h-32 sm:h-44 overflow-hidden bg-black cursor-pointer group/img"
+                  className="relative h-36 sm:h-48 overflow-hidden bg-black cursor-pointer group/img"
                 >
                   <img
                     src={template.previewImage}
