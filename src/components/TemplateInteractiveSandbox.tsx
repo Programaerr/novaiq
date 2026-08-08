@@ -1505,10 +1505,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={onClose}
-            className="nq-btn p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 flex items-center gap-1.5 text-xs font-bold cursor-pointer shrink-0"
+            className="nq-btn nq-btn--solid p-2 sm:px-3 sm:py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold cursor-pointer shrink-0"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
-            <ArrowLeft className="w-4 h-4 text-zinc-300 ltr:rotate-180" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180" />
             <span className="hidden sm:inline">العودة</span>
           </button>
           <div className="h-5 w-px bg-zinc-800 hidden sm:block shrink-0" />
