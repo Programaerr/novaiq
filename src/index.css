@@ -773,12 +773,16 @@
   height: var(--fill-hover);
 }
 
-/* The hover-light half of the Windows/Fluent reveal — the face of the card lightens under
-   the pointer while `.reveal-border` lights its edge. --spot-x/--spot-y are pushed straight
-   to the DOM by useSpotlight() (mouse via onMouseMove, touch via onTouchMove), so it tracks
-   every frame without a React re-render. Touch screens have no :hover, so
-   onTouchStart/onTouchEnd toggle `spotlight-touch` as the "lit while a finger is down"
-   signal.
+/* The face half of the Fluent reveal, opted into alongside `.reveal-border`: the edge
+   nearest the pointer lights, and so does the surface under it.
+
+   Fed --rx/--ry from useRevealGroup, i.e. the *group's* pointer, not each card's own — and
+   lit whenever the pointer is anywhere in the group rather than on `:hover`. That is the
+   difference between a light and a highlight: a per-card hover switches off the instant the
+   pointer crosses a gap, so the pool died at one card's edge and reappeared on the next.
+   Reading one shared position means a card whose neighbour is being hovered lights its own
+   facing edge too, and the pool carries across the gap unbroken — the same cross-card
+   proximity the ring has always had.
 
    Two things separate this from the version before it, which read as a blurred white smudge
    parked on the card rather than as light:
@@ -790,26 +794,28 @@
       card, so its own edge fell inside the card and drew a visible disc. Omitting the size
       means `farthest-corner`: the gradient always ends past the far corner, whatever the
       card's shape and wherever the pointer is, so there is no circle to see — only falloff.
-      It also means the pool naturally widens as the pointer nears an edge, the way a real
-      light spreads, and no JS has to measure anything. */
-/* No `overflow: hidden` here, and that is load-bearing rather than an omission. The only
-   thing it was ever clipping is ::before, which `border-radius: inherit` rounds by itself —
-   but every card wearing this class also wears `.reveal-border`, whose ring sits at
-   inset:-1px, *outside* the padding box that overflow clips to. So the clip was quietly
-   erasing the edge light on each of these cards: measured on the productivity tiles, the
-   border read an identical 51 on the side nearest the pointer and the side furthest from
-   it — the static border colour, with no reveal on it at all. */
-.spotlight-card {
+      It is also what makes the carry-over decay correctly, with no distance maths written
+      anywhere: a card further from the pointer gets a centre further outside its own box,
+      so less and less of the bright end of the gradient lands on it.
+
+   No `overflow: hidden`, which is load-bearing rather than an omission. `border-radius:
+   inherit` rounds ::before by itself, and the clip would take `.reveal-border`'s ring with
+   it — that ring sits at inset:-1px, outside the padding box overflow clips to. It had been
+   doing exactly that on the productivity tiles, which carried both classes: the border there
+   measured an identical 51 on the side nearest the pointer and the side furthest from it,
+   the static border colour with no reveal on it at all. */
+.reveal-face {
   position: relative;
 }
 
-.spotlight-card::before {
+.reveal-face::before {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 0;
   border-radius: inherit;
   background: radial-gradient(
-    circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 0.13),
     rgba(255, 255, 255, 0.05) 45%,
     rgba(255, 255, 255, 0) 100%
@@ -819,9 +825,16 @@
   pointer-events: none;
 }
 
-.spotlight-card:hover::before,
-.spotlight-card.spotlight-touch::before {
+.reveal-group.is-live .reveal-face::before {
   opacity: 1;
+}
+
+/* No pointer to reveal toward, and --rx/--ry would sit at their 50% fallback: a permanent
+   glow dead-centre on every card, which is not the effect. Same reason as the ring's. */
+@media (hover: none) {
+  .reveal-face::before {
+    display: none;
+  }
 }
 
 /* Roadmap card — a dark body with a soft light rising from below its own bottom edge.
@@ -1151,13 +1164,8 @@
    cross-card proximity is what reads as Windows rather than as a plain hover. Fed --rx/--ry
    by useRevealGroup().
 
-   The edge, and only the edge. There used to be a `.reveal-card` variant that added a soft
-   radial wash across the card's face as well, on the grounds that Windows pairs the border
-   reveal with a hover light. In practice that wash read as a blurred white smudge sitting on
-   the card rather than as light, and it is the third such effect this page has shed
-   (glow-white-hover, then spotlight-card, then this). The ring is the part that actually
-   looks like the thing it is imitating: a 1px outline, clipped, nothing bleeding past the
-   card's edge, nothing animating on its own. */
+   The edge only. Cards that should also lift their face under the pointer opt into
+   `.reveal-face` alongside this; the roadmap cards deliberately do not. */
 .reveal-border {
   position: relative;
 }

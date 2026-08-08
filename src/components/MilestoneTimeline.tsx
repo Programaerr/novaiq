@@ -19,9 +19,9 @@ interface MilestoneTimelineProps {
 }
 
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateContract, language = 'ar' }) => {
-  // Border only. These cards used to carry a pointer-tracked wash across their face as
-  // well (useSpotlight); it is gone at the customer's request, and the light on the card
-  // is now the fixed glow at its foot plus this ring.
+  // Border only — no `.reveal-face` on these cards. They used to carry a pointer-tracked
+  // wash across their face as well; it is gone at the customer's request, and the light on
+  // the card is now the fixed glow at its foot plus this ring.
   const revealGroup = useRevealGroup<HTMLDivElement>();
   // Keeps each card's stars still while the page scrolls past, the way the page's own sky is.
   useStarParallax();

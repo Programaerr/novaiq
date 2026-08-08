@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 'react';
 import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
-import { useSpotlight } from './lib/useSpotlight';
 import { useRevealGroup } from './lib/useRevealGroup';
 import { Navbar } from './components/Navbar';
 import { PageBackBar } from './components/PageBackBar';
@@ -222,8 +221,7 @@ export default function App() {
     return () => observer.disconnect();
   }, []);
 
-  const spotlight = useSpotlight<HTMLDivElement>();
-  // Border half of the Fluent reveal; useSpotlight above already owns the surface wash.
+  // Drives both halves of the Fluent reveal — ring and face — across the tiles below.
   const revealGroup = useRevealGroup<HTMLDivElement>();
 
   if (standalonePreviewTemplate) {
@@ -335,8 +333,7 @@ export default function App() {
                     ].map((stat, idx) => (
                       <div
                         key={idx}
-                        {...spotlight}
-                        className="spotlight-card reveal-border group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
+                        className="reveal-face reveal-border group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
                       >
                         <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
@@ -366,8 +363,7 @@ export default function App() {
                   ].map((x, idx) => (
                     <div
                       key={idx}
-                      {...spotlight}
-                      className="spotlight-card reveal-border aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
+                      className="reveal-face reveal-border aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
                     >
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>

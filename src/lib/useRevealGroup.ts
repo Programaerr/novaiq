@@ -1,20 +1,18 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Drives the Windows/Fluent *border* reveal across a row of cards (see `.reveal-border` in
- * index.css).
+ * Drives the Windows/Fluent reveal across a row of cards — both halves of it: `.reveal-border`
+ * for the edge nearest the pointer and `.reveal-face` for the surface under it (index.css).
  *
- * Returns a ref to put on the container. Every descendant carrying `.reveal-border` gets the
+ * Returns a ref to put on the container. Every descendant carrying either class gets the
  * pointer's position written into its own `--rx`/`--ry`.
  *
  * One listener on the container rather than one per card, because that is the whole effect:
  * a card needs the pointer's position even while it sits over a *different* card, which is
- * what lights the near edge of its neighbours. A card far from the pointer simply receives
- * coordinates outside its own box, so its gradient falls off to nothing on its own — the
- * proximity falloff is the gradient's, not distance math we have to write.
- *
- * Pair it with `useSpotlight` when the card should also wash its face under the pointer;
- * this hook deliberately only owns the edge.
+ * what lights the near edge of its neighbours and carries the face light across the gap
+ * between them. A card far from the pointer simply receives coordinates outside its own box,
+ * so its gradient falls off to nothing on its own — the proximity falloff is the gradient's,
+ * not distance math we have to write.
  */
 export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);
@@ -27,7 +25,7 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     let frame = 0;
 
     const paint = (clientX: number, clientY: number) => {
-      const cards = group.querySelectorAll<HTMLElement>('.reveal-border');
+      const cards = group.querySelectorAll<HTMLElement>('.reveal-border, .reveal-face');
       // Measure every card first, then write. Interleaving the two would force a fresh
       // layout per card on every frame.
       const rects = [...cards].map((el) => el.getBoundingClientRect());
