@@ -16,10 +16,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
     <section id="about-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* A static border and nothing on it. Every animated frame treatment this panel has
-            been given has been taken off again — a pulsing halo, then a lightning arc, then a
-            ship in orbit — so the plain outline is the settled answer, not an untried one. */}
-        <div className="p-5 sm:p-6 rounded-3xl border border-zinc-700 relative overflow-hidden shadow-2xl">
+        {/* The border itself glints — see .solid-shimmer. No overflow-hidden: the shimmer
+            ring sits at inset:-1px, on the border and therefore outside the padding box a
+            clip would cut at. Nothing in this panel needed the clip. */}
+        <div className="solid-shimmer p-5 sm:p-6 rounded-3xl border border-zinc-700 shadow-2xl">
 
           
           <div className="max-w-3xl mx-auto text-center space-y-4">

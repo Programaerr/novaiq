@@ -175,177 +175,57 @@
   box-shadow: 0 0 22px rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-/* A ship in orbit around the panel — it flies the panel's own outline, corners and all.
-   `offset-path: border-box` is what makes that literal rather than approximated: the path is
-   the containing block's border box *including its border-radius*, so the ship rounds the
-   corners exactly where the panel does and the whole thing survives any change to the
-   panel's width or radius without a number here needing to follow.
+/* Shimmer on a solid border — light catching the outline, not a beam driving round it.
+   The ring is the same mask pair used by .reveal-border and .filter-pill-beam: the full box
+   minus the content box leaves only the 1px edge strip, so the gradient survives on the
+   outline and nowhere else. inset:-1px puts it *on* the border rather than one pixel inside
+   it, which is a bright line beside a dark one and reads as a second frame.
 
-   `offset-rotate: auto` turns the ship to face along its heading, which is also why the
-   trail can simply be laid to its left: whatever the ship is doing, -X is behind it.
-
-   Animating offset-distance is a transform under the hood, so the orbit runs on the
-   compositor — no layout, no paint per frame. */
-/* display: contents so this groups the ship and its exhaust for the shared timing below
-   without becoming a box — in particular without becoming a containing block, which would
-   take `border-box` away from the panel and hand it to this wrapper instead. */
-.orbit {
-  display: contents;
-  --orbit-dur: 26s;
-  /* One number for the ship and its flame together, so growing one cannot leave the other
-     behind. Phones keep 1: the panel there is a fraction of the desktop's width and a bigger
-     ship would crowd the border it is meant to skim. */
-  --ship-scale: 1;
+   The gradient is fixed and only the opacity animates, which is the whole performance story:
+   a moving highlight would repaint the ring every frame, whereas an opacity animation is
+   composited and costs nothing per frame. Uneven on purpose — two bright bands at 115° with
+   dark between them — so the pulse reads as light glinting off a frame rather than the whole
+   outline blinking on and off together. */
+.solid-shimmer {
+  position: relative;
 }
 
-@media (min-width: 640px) {
-  .orbit {
-    --ship-scale: 1.4;
-  }
-}
-
-.orbit-ship {
+.solid-shimmer::after {
+  content: '';
   position: absolute;
-  /* Required. The offset transform is applied on top of the element's normal position, so
-     anything other than the box origin would displace the whole orbit by that much. */
-  top: 0;
-  left: 0;
-  /* Flex, and the flame taken out of flow below, so this box is exactly the rocket. That
-     matters because the path is anchored to the box's centre: with the flame in the flow the
-     anchor fell midway between the two, which rode the rocket itself a good 30px ahead of
-     the border it is supposed to be skimming — most visible at a corner, where it overshot
-     the turn before starting it. */
-  display: flex;
-  align-items: center;
-  offset-path: border-box;
-  offset-rotate: auto;
-  offset-distance: 0%;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 8%,
+    rgba(255, 255, 255, 0.9) 22%,
+    rgba(255, 255, 255, 0.15) 38%,
+    rgba(255, 255, 255, 0) 52%,
+    rgba(255, 255, 255, 0.55) 70%,
+    rgba(255, 255, 255, 0) 86%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
   pointer-events: none;
-  color: #ffffff;
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.55));
-  animation: orbit-ship var(--orbit-dur) linear infinite;
-  animation-delay: calc(0s - var(--orbit-dur));
+  animation: solid-shimmer 4.5s ease-in-out infinite;
 }
 
-@keyframes orbit-ship {
-  to { offset-distance: 100%; }
-}
-
-/* Exhaust — burning out of the ship's own nozzle rather than strung along the path behind
-   it. Being a child of the ship is what makes that true at every moment: offset-rotate has
-   already turned the ship onto its heading, so a flame laid to its left is behind it
-   wherever it is and however it is banking, with nothing to keep in sync. */
-.orbit-flame {
-  position: absolute;
-  top: 50%;
-  /* `right`, a physical property, rather than a flex sibling: the page is dir="rtl", which
-     lays a flex row right-to-left and put the flame out in front of the ship. Here it hangs
-     off the ship's own box, whose -X is behind it by definition, whatever the page's
-     direction. The negative margin overlaps the nozzle so the flame emerges from inside the
-     ship rather than starting at a seam beside it. */
-  right: 100%;
-  margin-right: calc(-4px * var(--ship-scale));
-  width: calc(46px * var(--ship-scale));
-  height: calc(18px * var(--ship-scale));
-  transform: translateY(-50%);
-}
-
-/* Volume comes from stacking three ellipses that differ in every axis at once — size,
-   colour temperature and blur. A flame is not a shape with an edge; it is a hot core you
-   can almost see through a cooler, softer envelope, and reading it as solid depends on the
-   envelope being blurred far more than the core. Anchored right-centre so each one grows
-   away from the nozzle instead of around its own middle. */
-.orbit-flame > span {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  transform-origin: right center;
-  border-radius: 50%;
-  animation: orbit-flame-pulse var(--flick, 260ms) ease-in-out infinite;
-  animation-delay: var(--flick-delay, 0s);
-}
-
-.orbit-flame-plume {
-  width: 100%;
-  height: 100%;
-  --a: 0.75;
-  background: radial-gradient(
-    ellipse at 100% 50%,
-    rgba(255, 196, 120, 0.8) 0%,
-    rgba(255, 150, 60, 0.34) 42%,
-    rgba(255, 120, 40, 0) 74%
-  );
-  filter: blur(calc(4px * var(--ship-scale)));
-  --flick: 330ms;
-  --flick-delay: -80ms;
-}
-
-.orbit-flame-inner {
-  width: 62%;
-  height: 62%;
-  --a: 0.9;
-  background: radial-gradient(
-    ellipse at 100% 50%,
-    rgba(255, 242, 214, 0.95) 0%,
-    rgba(255, 190, 110, 0.5) 46%,
-    rgba(255, 160, 70, 0) 76%
-  );
-  filter: blur(calc(1.8px * var(--ship-scale)));
-  --flick: 220ms;
-  --flick-delay: -140ms;
-}
-
-.orbit-flame-core {
-  width: 30%;
-  height: 34%;
-  --a: 1;
-  background: radial-gradient(
-    ellipse at 100% 50%,
-    #ffffff 0%,
-    rgba(255, 236, 205, 0.9) 55%,
-    rgba(255, 210, 150, 0) 82%
-  );
-  filter: blur(calc(0.7px * var(--ship-scale)));
-  --flick: 170ms;
-  --flick-delay: -40ms;
-}
-
-/* Combustion is not periodic and neither is this: it surges long, overshoots, collapses
-   well below its own resting brightness, then recovers. scaleX and scaleY move against
-   each other so the flame necks and swells rather than simply zooming, and the three layers
-   run at three different rates so the plume never pulses as one body. */
-@keyframes orbit-flame-pulse {
-  0%, 100% {
-    transform: translateY(-50%) scale(1, 1);
-    opacity: var(--a, 0.8);
-  }
-  35% {
-    transform: translateY(-50%) scale(1.24, 0.84);
-    opacity: calc(var(--a, 0.8) * 1.18);
-  }
-  60% {
-    transform: translateY(-50%) scale(0.8, 1.14);
-    opacity: calc(var(--a, 0.8) * 0.66);
-  }
-  85% {
-    transform: translateY(-50%) scale(1.1, 0.93);
-    opacity: calc(var(--a, 0.8) * 1.06);
-  }
-}
-
-/* Without motion-path support the ship has no orbit to fly and would simply sit in the
-   panel's top-left corner, so it is not drawn at all. */
-@supports not (offset-path: border-box) {
-  .orbit-ship {
-    display: none;
-  }
+/* Not a symmetric fade up and down: it rises, dips short of dark, rises again and only then
+   falls away. A single smooth swell reads as breathing; this reads as a glint. */
+@keyframes solid-shimmer {
+  0%, 100% { opacity: 0.12; }
+  38% { opacity: 0.95; }
+  52% { opacity: 0.35; }
+  70% { opacity: 0.8; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .orbit-ship,
-  .orbit-flame > span {
+  .solid-shimmer::after {
     animation: none;
+    opacity: 0.4;
   }
 }
 
