@@ -7,7 +7,7 @@ const DYNAMIC_TRANSLATIONS: Record<string, { en: string; ar: string }> = {
   // looks up DYNAMIC_TRANSLATIONS by the Arabic string callers pass in, not by an English slug)
   'شركات ومؤسسات': { ar: 'شركات ومؤسسات', en: 'Corporate & Enterprise' },
   'تجارة إلكترونية': { ar: 'تجارة إلكترونية', en: 'E-Commerce' },
-  'تقنية وسحابة': { ar: 'تقنية وسحابة', en: 'Tech & Cloud Services' },
+  'معارض سيارات': { ar: 'معارض سيارات', en: 'Car Dealerships' },
   'عقارات وتطوير': { ar: 'عقارات وتطوير', en: 'Real Estate & Development' },
   'خدمات وطب': { ar: 'خدمات وطب', en: 'Healthcare & Medical' },
   'فينتك وخدمات مالية': { ar: 'فينتك وخدمات مالية', en: 'FinTech & Digital Banking' },
@@ -39,8 +39,8 @@ const DYNAMIC_TRANSLATIONS: Record<string, { en: string; ar: string }> = {
     en: 'A unique cosmic shopping experience with an advanced recommendation engine and verified payment gateways.'
   },
 
-  'نيبولا التقني والسحابي (Nebula Tech)': { ar: 'نيبولا التقني والسحابي (Nebula Tech)', en: 'Nebula Tech & Cloud' },
-  'واجهة تطبيقات SaaS والحلول البرمجية السحابية': { ar: 'واجهة تطبيقات SaaS والحلول البرمجية السحابية', en: 'SaaS Applications & Cloud Software Solutions Interface' },
+  'أوتوستيلار لمعارض السيارات (AutoStellar)': { ar: 'أوتوستيلار لمعارض السيارات (AutoStellar)', en: 'AutoStellar Car Showrooms' },
+  'معرض سيارات مع حاسبة تقسيط وحجز تجربة قيادة': { ar: 'معرض سيارات مع حاسبة تقسيط وحجز تجربة قيادة', en: 'Car Showroom with an Instalment Calculator & Test-Drive Booking' },
 
   'كوزموس العقاري (Cosmos)': { ar: 'كوزموس العقاري (Cosmos)', en: 'Cosmos Real Estate' },
   'منصة التطوير العقاري والمجمعات المكتملة': { ar: 'منصة التطوير العقاري والمجمعات المكتملة', en: 'Real Estate Development & Housing Complexes Platform' },

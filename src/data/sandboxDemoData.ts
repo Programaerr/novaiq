@@ -345,6 +345,130 @@ export const SAMPLE_PHONES: PhoneProduct[] = [
   },
 ];
 
+// Car dealership demo data
+export interface CarModel {
+  id: string;
+  /** Model as the showroom writes it on the windscreen, e.g. "Lexus LX 600". */
+  name: string;
+  brand: string;
+  year: number;
+  priceIQD: number;
+  /** Product shot. A stock photo of the actual model where one exists — a real dealer swaps
+   *  these for its own lot photos, which is why nothing here depends on the framing. */
+  image: string;
+  /** The one-line claim under the model name, the reference card's grey second line. */
+  trim: string;
+  /** The sales paragraph — what someone on the showroom floor would say about it. */
+  description: string;
+  /** Paint name and its hex, for the colour chip on the finance view. */
+  color: string;
+  colorHex: string;
+  /** The card's pill row, after the model year: fuel type, drivetrain, transmission. */
+  fuelType: string;
+  transmission: string;
+  /** The card's three headline figures, each a value with its own label underneath. */
+  acceleration: string;
+  power: string;
+  topSpeed: string;
+  /** The card's grey fine print, quoted the way a manufacturer's spec sheet does. */
+  co2: string;
+  /** The full spec table on the finance view. */
+  engine: string;
+  drivetrain: string;
+  fuel: string;
+  seats: number;
+  badge?: string;
+}
+
+export interface TestDriveBooking {
+  id: string;
+  carName: string;
+  date: string;
+  customerName: string;
+  branch: string;
+}
+
+/** Finance terms the calculator offers, in months. */
+export const CAR_FINANCE_TERMS = [12, 24, 36, 48] as const;
+
+/** Annual rate the demo's instalment maths uses. A real dealer wires this to its bank; it is a
+ *  named constant so the number a customer sees and the number the summary quotes cannot drift. */
+export const CAR_ANNUAL_RATE = 0.09;
+
+export const SAMPLE_CARS: CarModel[] = [
+  {
+    id: 'car-1', name: 'Lexus LX 600', brand: 'Lexus', year: 2024, priceIQD: 145000000,
+    image: UNSPLASH('photo-1779983625011-e9c207710d11'),
+    trim: 'F SPORT · دفع رباعي',
+    description: 'الخيار الأول في العراق لمن يريد سيارة تتحمل الطريق الخارجي والمدينة معاً. محرك V6 تويين تيربو بعزم عالٍ، ونظام تعليق يمتص المطبات بدون أن تشعر بها.',
+    color: 'أبيض لؤلؤي', colorHex: '#F1F1EF',
+    fuelType: 'بنزين', transmission: 'أوتوماتيك 10 سرعات',
+    acceleration: '6.9 ثانية', power: '305 كيلوواط / 415 حصان', topSpeed: '210 كم/س',
+    co2: '315 غم/كم',
+    engine: 'V6 تويين تيربو 3.5 لتر', drivetrain: 'دفع رباعي دائم', fuel: '13.5 لتر/100 كم', seats: 7,
+    badge: 'الأكثر طلباً',
+  },
+  {
+    id: 'car-2', name: 'Mercedes-Benz S 500', brand: 'Mercedes-Benz', year: 2024, priceIQD: 178000000,
+    image: UNSPLASH('photo-1610099610040-ab19f3a5ec35'),
+    trim: 'AMG Line · الفئة الفاخرة',
+    description: 'سيارة الصف الأول للمدير التنفيذي: عزل صوتي شبه تام، مقاعد خلفية بتدليك وتبريد، ونظام تعليق هوائي يقرأ الطريق أمامه ويستعد للمطب قبل الوصول له.',
+    color: 'أسود أوبسيديان', colorHex: '#12141A',
+    fuelType: 'بنزين هجين', transmission: 'أوتوماتيك 9 سرعات',
+    acceleration: '4.9 ثانية', power: '320 كيلوواط / 435 حصان', topSpeed: '250 كم/س',
+    co2: '196 غم/كم',
+    engine: '6 سلندر مصفوف 3.0 لتر مع نظام هجين خفيف', drivetrain: 'دفع رباعي 4MATIC', fuel: '8.4 لتر/100 كم', seats: 5,
+    badge: 'الفئة الفاخرة',
+  },
+  {
+    id: 'car-3', name: 'Chevrolet Silverado', brand: 'Chevrolet', year: 2023, priceIQD: 92000000,
+    image: UNSPLASH('photo-1628464682320-6a9ae020cb2b'),
+    trim: 'LT Crew Cab · بيك أب',
+    description: 'بيك أب بمقصورة كاملة لخمسة أشخاص وحوض يتحمل الحمل اليومي. مناسب لأصحاب الأعمال والمقاولات، ومحركه V8 يسحب مقطورة بدون جهد.',
+    color: 'أبيض صيفي', colorHex: '#EDEDEA',
+    fuelType: 'بنزين', transmission: 'أوتوماتيك 8 سرعات',
+    acceleration: '7.1 ثانية', power: '265 كيلوواط / 355 حصان', topSpeed: '180 كم/س',
+    co2: '343 غم/كم',
+    engine: 'V8 سعة 5.3 لتر', drivetrain: 'دفع رباعي قابل للفصل', fuel: '14.7 لتر/100 كم', seats: 5,
+  },
+  {
+    id: 'car-4', name: 'Tesla Model 3', brand: 'Tesla', year: 2024, priceIQD: 68000000,
+    image: UNSPLASH('photo-1786013555557-44cb0269da7f'),
+    trim: 'Long Range · كهربائية بالكامل',
+    description: 'كهربائية بالكامل بمدى 620 كم للشحنة الواحدة، وبدون زيت أو فلتر أو صيانة دورية للمحرك. تشحنها من البيت ليلاً وتصبح جاهزة في الصباح.',
+    color: 'أزرق ديب', colorHex: '#1B3A6B',
+    fuelType: 'كهربائية', transmission: 'ناقل أحادي السرعة',
+    acceleration: '4.4 ثانية', power: '290 كيلوواط / 394 حصان', topSpeed: '201 كم/س',
+    co2: '0 غم/كم',
+    engine: 'محركان كهربائيان (دفع رباعي)', drivetrain: 'دفع رباعي كهربائي', fuel: 'كهربائية — 620 كم للشحنة', seats: 5,
+    badge: 'كهربائية',
+  },
+  {
+    id: 'car-5', name: 'Porsche 718 Cayman', brand: 'Porsche', year: 2024, priceIQD: 118000000,
+    image: UNSPLASH('photo-1662470721792-b1bafa45dfd1'),
+    trim: 'S · كوبيه رياضي بمحرك أوسط',
+    description: 'محرك في وسط السيارة بدل المقدمة، وهذا ما يعطيها توازناً لا تجده في أي كوبيه بسعرها. مقعدان وصندوقان — أمامي وخلفي — يكفيان لسفرة نهاية أسبوع.',
+    color: 'أسود ليلي', colorHex: '#141416',
+    fuelType: 'بنزين', transmission: 'أوتوماتيك PDK / يدوي',
+    acceleration: '5.1 ثانية', power: '220 كيلوواط / 300 حصان', topSpeed: '275 كم/س',
+    co2: '220 غم/كم',
+    engine: '4 سلندر بوكسر تيربو 2.0 لتر', drivetrain: 'دفع خلفي', fuel: '9.7 لتر/100 كم', seats: 2,
+    badge: 'رياضية',
+  },
+  {
+    id: 'car-6', name: 'Cadillac ATS', brand: 'Cadillac', year: 2022, priceIQD: 47000000,
+    image: UNSPLASH('photo-1589148938909-4d241c91ee52'),
+    trim: 'Luxury · سيدان رياضي',
+    description: 'مدخل عملي إلى فئة السيدان الرياضي: توزيع وزن متوازن وتوجيه حاد، بسعر أقل بكثير من منافسيها الألمان. الخيار الأنسب لأول سيارة فاخرة.',
+    color: 'أسود معدني', colorHex: '#1A1A1D',
+    fuelType: 'بنزين', transmission: 'أوتوماتيك 8 سرعات',
+    acceleration: '5.6 ثانية', power: '205 كيلوواط / 276 حصان', topSpeed: '235 كم/س',
+    co2: '219 غم/كم',
+    engine: '4 سلندر تيربو 2.0 لتر', drivetrain: 'دفع خلفي', fuel: '9.4 لتر/100 كم', seats: 5,
+    badge: 'أفضل سعر',
+  },
+];
+
 // Watch store demo data
 export interface WatchStrap {
   /** Stable key the order stores; the Arabic label lives in `label` so the id can stay ASCII. */
@@ -719,6 +843,39 @@ export const COMPANY_PROFILES: Record<string, CompanyProfile> = {
       hours: 'السبت - الخميس، 10 صباحاً - 10 مساءً',
     },
   },
+
+  'NVQ-CARS-03': {
+    name: 'AutoStellar',
+    badge: 'معرض سيارات ووكيل معتمد',
+    headline: 'سيارتك الجاية، بسعرها وقسطها واضحين من أول زيارة',
+    description:
+      'أوتوستيلار معرض سيارات في بغداد يعرض السيارات الجديدة والمستوردة بسعر معلن وفحص فني كامل قبل التسليم، مع تقسيط يبدأ من دفعة أولى 20% وتجربة قيادة قبل الشراء بلا التزام.',
+    primaryCta: { label: 'تصفّح المعرض', tab: 'cars' },
+    secondaryCta: { label: 'احسب قسطك', tab: 'finance' },
+    stats: [
+      { value: '+320', label: 'سيارة في المعرض' },
+      { value: '20%', label: 'أقل دفعة أولى' },
+      { value: '48', label: 'شهراً أقصى تقسيط' },
+      { value: '150', label: 'نقطة فحص قبل التسليم' },
+    ],
+    services: [
+      { title: 'فحص فني من 150 نقطة', description: 'تقرير مكتوب بحالة المحرك والقير والهيكل قبل ما توقّع أي ورقة.' },
+      { title: 'تقسيط بدون تعقيد', description: 'دفعة أولى تبدأ من 20% وأقساط حتى 48 شهراً، والقسط يظهر لك قبل التقديم.' },
+      { title: 'تجربة قيادة مجانية', description: 'احجز موعداً وجرّب السيارة على الطريق قبل أي التزام بالشراء.' },
+      { title: 'استبدال سيارتك القديمة', description: 'نقيّم سيارتك الحالية ونحسم قيمتها مباشرة من سعر الجديدة.' },
+    ],
+    testimonial: {
+      quote: 'جربت السيارة قبل الشراء وطلع تقرير الفحص مكتوب بالتفصيل. القسط الشهري كان نفس الرقم الي حسبوه لي بالموقع بالضبط.',
+      author: 'سيف العزاوي',
+      role: 'زبون - Lexus LX 600',
+    },
+    contact: {
+      phone: '07707778899',
+      email: 'sales@autostellar.iq',
+      address: 'بغداد - المنصور، شارع المعارض',
+      hours: 'السبت - الخميس، 9 صباحاً - 9 مساءً',
+    },
+  },
 };
 
 // The five templates above carry a full CompanyProfile. The remaining five drive their own
@@ -744,16 +901,6 @@ export const SITE_IDENTITIES: Record<string, { name: string; badge: string; cont
       email: 'support@orionstore.iq',
       address: 'بغداد - الكرادة، مجمع أوريون',
       hours: 'الطلبات على مدار الساعة | الدعم 9 صباحاً - 10 مساءً',
-    },
-  },
-  'NVQ-TECH-03': {
-    name: 'Nebula Cloud',
-    badge: 'منصة برمجيات سحابية',
-    contact: {
-      phone: '07707778899',
-      email: 'hello@nebulacloud.iq',
-      address: 'بغداد - زيونة، مركز الابتكار التقني',
-      hours: 'دعم فني 24/7 عبر المنصة',
     },
   },
   'NVQ-REAL-04': {
@@ -790,12 +937,11 @@ export const SITE_NAV_ITEMS: Record<string, Array<{ id: string; label: string }>
     { id: 'calculator', label: 'حاسبة المشروع' },
     { id: 'contact', label: 'اتصل بنا' },
   ],
-  'NVQ-TECH-03': [
-    { id: 'home', label: '~/home' },
-    { id: 'features', label: '~/features' },
-    { id: 'docs', label: '~/docs' },
-    { id: 'pricing', label: '~/pricing' },
-    { id: 'dashboard', label: '~/dashboard' },
+  'NVQ-CARS-03': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'cars', label: 'المعرض' },
+    { id: 'finance', label: 'حاسبة التقسيط' },
+    { id: 'testdrive', label: 'تجربة قيادة' },
   ],
   'NVQ-REAL-04': [
     { id: 'home', label: 'الرئيسية' },

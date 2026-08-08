@@ -79,35 +79,35 @@ export const templatesData: Template[] = [
     ]
   },
   {
-    id: 'NVQ-TECH-03',
-    title: 'نيبولا التقني والسحابي (Nebula Tech)',
-    subtitle: 'واجهة تطبيقات SaaS والحلول البرمجية السحابية',
-    category: 'tech',
-    categoryLabel: 'تقنية وسحابة',
-    description: 'تصميم فائق الدقة مع أنيميشنز مستقبليّة للمؤسسات التقنية ومزودي خدمات السحابة والبنية التحتية.',
-    longDescription: 'مصمم خصيصاً لشركات البرمجيات وحلول SaaS، حيث يقدم جداول الباقات والتسعير المبتكرة، وعروض تجريبية حية للمنتج، وبوابة وثائق API التفاعلية.',
-    previewImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
+    id: 'NVQ-CARS-03',
+    title: 'أوتوستيلار لمعارض السيارات (AutoStellar)',
+    subtitle: 'معرض سيارات مع حاسبة تقسيط وحجز تجربة قيادة',
+    category: 'cars',
+    categoryLabel: 'معارض سيارات',
+    description: 'معرض سيارات إلكتروني يعرض كل سيارة بمحركها وناقل حركتها واستهلاك وقودها، مع حاسبة تقسيط فورية وحجز تجربة قيادة.',
+    longDescription: 'مصمم لمعارض ووكلاء السيارات، يعرض كل سيارة ببطاقة مواصفات كاملة (المحرك، ناقل الحركة، الدفع، استهلاك الوقود، سنة الصنع)، مع حاسبة أقساط تحسب الدفعة الأولى والقسط الشهري لحظياً، ونموذج حجز تجربة قيادة يصل مباشرة إلى صالة العرض.',
+    previewImage: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80',
     basePriceIQD: 1900000,
     basePriceUSD: 1310,
     deliveryWeeks: 4,
-    tags: ['SaaS', 'وثائق API', 'خطط تسعير', 'أنيميشن متقدم'],
+    tags: ['معرض سيارات', 'حاسبة تقسيط', 'تجربة قيادة', 'مقارنة مواصفات'],
     techStack: ['React 19', 'TypeScript', 'Tailwind CSS', 'Motion/React', 'Node Express'],
     features: [
-      'حاسبة باقات اشتراك تفاعلية مع تجربة مجانية',
-      'مركز توثيق البرمجيات ووثائق API مع إمكانية تجربة الكود',
-      'رسوم متحركة فضائية تفاعلية تعبر عن سرعة المعالجة',
-      'نظام إدارة حسابات المستخدمين ولوحة العميل'
+      'بطاقة سيارة بمواصفات كاملة: المحرك، ناقل الحركة، الدفع، والاستهلاك',
+      'حاسبة تقسيط فورية تحسب الدفعة الأولى والقسط الشهري',
+      'حجز تجربة قيادة بموعد يصل مباشرة إلى صالة العرض',
+      'مقارنة بين سيارتين جنباً إلى جنب قبل القرار'
     ],
     specificationsOptions: [
-      { id: 'spec_live_playground', label: 'منطقة تجربة الكود البرمجي التفاعلية Live Playground', priceIQD: 240000, recommended: true },
-      { id: 'spec_sub_billing', label: 'نظام الاشتراكات الفلترية الدورية (تجديد تلقائي)', priceIQD: 300000, recommended: true }
+      { id: 'spec_finance_bank', label: 'ربط حاسبة التقسيط بنِسب التمويل الفعلية للمصارف', priceIQD: 240000, recommended: true },
+      { id: 'spec_trade_in', label: 'نظام تقييم سيارتك القديمة (Trade-in) واحتسابها من السعر', priceIQD: 300000, recommended: true }
     ],
     mockScreens: [
       {
-        title: 'واجهة المنصة السحابية',
-        description: 'مؤشرات الأداء ورسوم بيانية تفاعلية في الوقت الحقيقي',
-        colorGrad: 'from-purple-900/70 to-slate-950',
-        contentPreview: 'Nebula Cloud Engine v4.0'
+        title: 'صالة العرض الرقمية',
+        description: 'بطاقة لكل سيارة بصورتها ومواصفاتها وسعرها',
+        colorGrad: 'from-slate-800/70 to-slate-950',
+        contentPreview: 'AutoStellar — Showroom'
       }
     ]
   },
