@@ -175,6 +175,50 @@
   box-shadow: 0 0 22px rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
+/* Electric frame — the panel's own outline, struck by lightning rather than lit by a lamp.
+   The jaggedness is real geometry, not a texture: an SVG turbulence field displaces the
+   stroke of a plain rounded rectangle, so the line tears off its path in exactly the ragged,
+   forking way an arc does. A blurred copy of that displaced line merges back underneath it
+   as the corona. See <svg class="electric-frame"> in AboutSection.
+
+   Crackle comes from swapping between three filters whose turbulence seeds differ, on a
+   steps(1) animation — about seven changes a second. Deliberately not an <animate> on the
+   seed itself, for two reasons. Electricity does not ease; it jumps, and a stepped swap
+   reads far more like an arc than a smooth morph. And a CSS animation is something
+   prefers-reduced-motion can actually switch off, which SMIL is not.
+
+   The rate is the cost control. Every swap re-runs the turbulence over the panel, but
+   between swaps the filtered layer is cached and merely composited — so this runs at ~7
+   filter passes a second instead of the 60 an animated seed would demand. */
+.electric-frame {
+  position: absolute;
+  inset: 0;
+  /* The stroke straddles the rect's edge and the corona spreads past it, both of which sit
+     outside this box — an SVG viewport clips its own overflow by default. */
+  overflow: visible;
+  pointer-events: none;
+}
+
+.electric-frame-bolt {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 1.6;
+  filter: url(#nq-arc-a);
+  animation: electric-arc 420ms steps(1) infinite;
+}
+
+@keyframes electric-arc {
+  0%, 33% { filter: url(#nq-arc-a); }
+  34%, 66% { filter: url(#nq-arc-b); }
+  67%, 100% { filter: url(#nq-arc-c); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .electric-frame-bolt {
+    animation: none;
+  }
+}
+
 /* Black Glow on White Buttons */
 .white-btn-glow {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 0, 0, 0.9);

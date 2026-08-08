@@ -16,10 +16,60 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
     <section id="about-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* No electric-frame here on purpose — its pulsing border glow was the "light around
-            the card" effect asked to be removed from this section. A static border keeps the
-            card visibly separated from the page without animating on its own. */}
-        <div className="p-5 sm:p-6 rounded-3xl border border-zinc-700 relative overflow-hidden shadow-2xl">
+        {/* No overflow-hidden any more: the arc below is drawn on this border and throws its
+            corona to both sides of it, and a clip at the padding box would shear off the
+            outer half — the half that makes it read as light coming off the edge rather than
+            a pattern printed inside it. Nothing in this panel needed the clip. */}
+        <div className="p-5 sm:p-6 rounded-3xl border border-zinc-700 relative shadow-2xl">
+
+          {/* Electric frame. The rounded rect matches the panel's own rounded-3xl (24px), so
+              the arc rides the border it is electrifying instead of cutting its corners.
+              Three seeds, one per filter — the CSS in .electric-frame-bolt swaps between
+              them, which is what crackles. */}
+          <svg className="electric-frame" aria-hidden="true">
+            <defs>
+              {[
+                { id: 'nq-arc-a', seed: 2 },
+                { id: 'nq-arc-b', seed: 7 },
+                { id: 'nq-arc-c', seed: 13 },
+              ].map(({ id, seed }) => (
+                // The filter region is grown well past the element: displacement pushes the
+                // stroke outward and the blur spreads further still, and anything beyond the
+                // region is cut rather than drawn.
+                <filter key={id} id={id} x="-20%" y="-20%" width="140%" height="140%">
+                  {/* Anisotropic on purpose — a much lower frequency across than down makes
+                      the tears run along the line the way a discharge does, instead of
+                      pebbling it evenly in both directions. */}
+                  <feTurbulence
+                    type="fractalNoise"
+                    baseFrequency="0.012 0.05"
+                    numOctaves={2}
+                    seed={seed}
+                    result="noise"
+                  />
+                  <feDisplacementMap
+                    in="SourceGraphic"
+                    in2="noise"
+                    scale={9}
+                    xChannelSelector="R"
+                    yChannelSelector="G"
+                    result="bolt"
+                  />
+                  <feGaussianBlur in="bolt" stdDeviation={3} result="corona" />
+                  {/* The corona twice, then the bolt on top: the glow needs to be brighter
+                      than one pass of a 3px blur leaves it, and stacking the same result is
+                      cheaper than a second blur at a wider radius. */}
+                  <feMerge>
+                    <feMergeNode in="corona" />
+                    <feMergeNode in="corona" />
+                    <feMergeNode in="bolt" />
+                  </feMerge>
+                </filter>
+              ))}
+            </defs>
+            <rect className="electric-frame-bolt" width="100%" height="100%" rx="24" ry="24" />
+          </svg>
+
           
           <div className="max-w-3xl mx-auto text-center space-y-4">
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
