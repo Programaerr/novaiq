@@ -247,7 +247,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // the residual back to zero.
   useEffect(() => {
     if (!isDragging) return;
-    const step = isMobile ? 145 : 190;
+    const step = isMobile ? 180 : 235;
     const n = filteredTemplates.length;
     let frame = 0;
     let offset = 0;
@@ -500,12 +500,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // blind; the already-accepted 0.82/0.68 sizing is the safe, known-good part
             // of this and rotateY/translateZ are purely additive to it.
             const rotY = isActive ? 0 : offset > 0 ? -16 : 16;
-            // Kept in the same ratio to card width as before the shrink (0.6 mobile /
-            // 0.618 desktop) so the spacing between cards still reads the same relative
-            // to their new smaller size, instead of opening into wider-looking gaps.
-            // Mirrors the `step` the drag effect above computes — both describe the same
-            // one-card travel distance.
-            const stepPx = isMobile ? 145 : 190;
+            // Holds the same ratio to card width it always has (0.6 mobile / 0.618 desktop),
+            // so the gap between cards reads the same however wide they are. Mirrors the
+            // `step` the drag effect above computes — both describe the same one-card
+            // travel distance, and they have to agree or a drag lands off-centre.
+            const stepPx = isMobile ? 180 : 235;
 
             return (
               <div
@@ -516,7 +515,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // effect above. Folded into the transform here rather than applied to a
                   // wrapper so the whole strip moves as one, and so a card's resting
                   // position and its drag offset stay a single composited transform.
-                  transform: `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px))) translateZ(${-cappedDistance * 72}px) rotateY(${rotY}deg)`,
+                  transform: `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px))) translateZ(${-cappedDistance * 90}px) rotateY(${rotY}deg)`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.55s, matched to the scale transition on the wrapper below. It used to
@@ -549,7 +548,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // *rendered* too. A fully transparent element is already skipped at paint
                   // time, so what was left to win here was small and this is what it cost.
                 }}
-                className={`absolute top-1/2 left-1/2 w-60 sm:w-75 ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute top-1/2 left-1/2 w-[300px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 {/* Scale lives here, one level in from the positional transform above,
                     precisely so it can keep its own transition while that one is switched
