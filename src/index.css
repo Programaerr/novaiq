@@ -762,7 +762,7 @@
    so keeping it to a single card at a time is what keeps it cheap. Unsupported in
    Firefox, which just renders the card without one; nothing else depends on it. */
 .template-card-reflect {
-  -webkit-box-reflect: below 8px linear-gradient(to bottom, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 35%, rgba(255, 255, 255, 0) 60%);
+  -webkit-box-reflect: below 4px linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.04) 28%, rgba(255, 255, 255, 0) 45%);
 }
 
 /* Stat bar meters — the fill grows a little further on hover, in step with the "+"
@@ -1211,17 +1211,29 @@
    unambiguously a line (~117) while the peak still triples it, which keeps the light clearly
    travelling along the border rather than switching the whole card on at once — the failure
    mode of the old never-below-0.38 version this replaced. */
-/* `.is-touched` is the same statement as `:hover` for a finger, which has none — the hook
-   works out which card the pointer is inside and says so. Without it the card under the
-   finger would light like one of its own neighbours. */
-.reveal-border:hover::after,
-.reveal-border.is-touched::after {
+.reveal-border:hover::after {
   background: radial-gradient(
     230px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 1),
     rgba(255, 255, 255, 0.55) 40%,
     rgba(255, 255, 255, 0.28) 100%
   );
+}
+
+/* Touch devices get neither half of the reveal, and get it removed rather than merely
+   switched off. `opacity: 0` would still leave the browser rasterizing a large radial
+   gradient through a `mask-composite` pair per card — the single most expensive thing on
+   this page, on the weakest hardware it runs on, for an effect that cannot mean anything
+   without a cursor to follow. `display: none` takes them out of the render tree outright.
+   useRevealGroup() gates on the same query and attaches no listeners at all there, so
+   nothing writes --rx/--ry either. This pair is also what fixed the roadmap cards blinking
+   on rapid taps: with no per-tap re-light there is no repaint to catch a composited card
+   mid-rasterization. See the hook's own comment for the full account. */
+@media (hover: none), (pointer: coarse) {
+  .reveal-face::before,
+  .reveal-border::after {
+    display: none;
+  }
 }
 
 /* Custom Scrollbar */

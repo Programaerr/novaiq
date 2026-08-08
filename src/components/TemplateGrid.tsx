@@ -82,12 +82,16 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // longer exist.
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  // Live pixel offset while the pointer is down, added straight into every card's
-  // translateX so the whole coverflow tracks the finger/mouse in real time instead of
-  // only jumping after release (same rotation-follows-pointer idea as .wheel3d-stage
-  // in HeroSection.tsx, ported from degrees to pixels).
-  const [dragPx, setDragPx] = useState(0);
   const dragRef = useRef<{ startX: number } | null>(null);
+  // The live drag offset is published as a CSS variable on the track and read by every
+  // card's own transform, rather than held in React state. State would re-render all ten
+  // card subtrees on every pointermove — the exact per-frame main-thread work that shows
+  // up as stutter on a weak device. One custom property write on one element instead, and
+  // the cards' transforms update straight from it.
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const setDragOffset = (px: number) => {
+    trackRef.current?.style.setProperty('--drag-x', `${px}px`);
+  };
 
   // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
   // card doesn't overlap its neighbors (a fixed desktop-sized offset would).
