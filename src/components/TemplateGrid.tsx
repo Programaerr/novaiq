@@ -214,25 +214,46 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     setDragPx(0);
   };
 
-  const handleTrackPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current) return;
-    setDragPx(e.clientX - dragRef.current.startX);
-  };
+  // Move/up are tracked on `window`, not as onPointerMove/onPointerUp props on the track
+  // element — a real swipe routinely carries the pointer outside the track's own bounds
+  // (fast or diagonal drags near its edge do this constantly), and an element-scoped
+  // listener simply stops receiving events the instant that happens. An earlier version of
+  // this used onPointerLeave to close the gesture in that case, but pointerleave fires the
+  // moment the pointer exits the bounds — including mid-drag, while the button/finger is
+  // still down — which was ending swipes prematurely and inconsistently instead of only on
+  // an actual release. That's what made "which card ends up centered" occasionally wrong.
+  //
+  // Global listeners fix this at the root: onPointerDown below stays on the track (that's
+  // still the right place to detect "a drag started here"), but once isDragging flips on,
+  // this effect owns move/up for the rest of the gesture regardless of where the pointer
+  // travels or lets go — the same reason a text selection or a native <input type="range">
+  // keeps tracking past its own edges. Still no setPointerCapture (see the comment on
+  // handleTrackPointerDown's history above): these are separate, non-capturing listeners,
+  // so a tap that starts and ends on a button's own bounds is never touched by this at all.
+  useEffect(() => {
+    if (!isDragging) return;
 
-  // Also wired to onPointerLeave: without capture (see the comment above on why this
-  // never calls setPointerCapture), a release outside the track's bounds never reaches
-  // onPointerUp here. Before dragPx existed that just meant a missed swipe; now it would
-  // leave the whole coverflow visually shifted by the last live offset forever, so a
-  // drag that leaves the track has to be closed the same way one that ends on it does.
-  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current) return;
-    const dx = e.clientX - dragRef.current.startX;
-    dragRef.current = null;
-    setIsDragging(false);
-    setDragPx(0);
-    if (Math.abs(dx) < 40) return;
-    goToOffset(dx > 0 ? -1 : 1);
-  };
+    const onMove = (e: PointerEvent) => {
+      if (!dragRef.current) return;
+      setDragPx(e.clientX - dragRef.current.startX);
+    };
+
+    const onUp = (e: PointerEvent) => {
+      if (!dragRef.current) return;
+      const dx = e.clientX - dragRef.current.startX;
+      dragRef.current = null;
+      setIsDragging(false);
+      setDragPx(0);
+      if (Math.abs(dx) >= 40) goToOffset(dx > 0 ? -1 : 1);
+    };
+
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerup', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+  }, [isDragging]);
 
   // Auto-advance one card every 8s, in slow motion (see the 1.6s transition below) — loops
   // back to the first card after the last one. Paused while the visitor is dragging, and
@@ -366,9 +387,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
           <div
             onPointerDown={handleTrackPointerDown}
-            onPointerMove={handleTrackPointerMove}
-            onPointerUp={endDrag}
-            onPointerLeave={endDrag}
             style={{ perspective: '1800px' }}
             className="relative w-full max-w-4xl h-[520px] sm:h-[600px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
