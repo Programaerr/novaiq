@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
 import {
@@ -89,6 +89,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // up as stutter on a weak device. One custom property write on one element instead, and
   // the cards' transforms update straight from it.
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const dragOffsetRef = useRef(0);
   const setDragOffset = (px: number) => {
     trackRef.current?.style.setProperty('--drag-x', `${px}px`);
   };
@@ -255,14 +256,25 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       frame = 0;
       const drag = dragRef.current;
       if (!drag) return;
-      const steps = Math.round(offset / step);
-      if (steps !== 0 && n > 0) {
+      const steps = n > 1 ? Math.round(offset / step) : 0;
+      if (steps !== 0) {
         drag.startX += steps * step;
         offset -= steps * step;
+        dragOffsetRef.current = offset;
+        // Deliberately does NOT publish --drag-x here. Changing the index is a React state
+        // update that lands on a later frame, while a style write lands immediately — so
+        // pushing the rebased residual now would draw every card against positions still
+        // computed from the *old* index, a full card's step out of place, until React caught
+        // up. That one-frame mismatch is exactly the previous card flashing into view before
+        // the new one takes the middle. The layout effect below publishes it in the same
+        // commit as the index instead, so the two are always painted together.
+        //
         // Dragging right (positive) walks backwards through the list, same direction the
         // release-time swipe used to resolve to.
         setActiveIndex((i) => (((i - steps) % n) + n) % n);
+        return;
       }
+      dragOffsetRef.current = offset;
       setDragOffset(offset);
     };
 
@@ -289,16 +301,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     };
   }, [isDragging, isMobile, filteredTemplates.length]);
 
+  // The other half of the pact above: publishes whatever offset the gesture is currently at,
+  // after every render and synchronously before the browser paints. That timing is the whole
+  // point — a committed index and the residual that belongs with it reach the screen in one
+  // frame, so the strip never draws itself in a position neither of them describes.
+  useLayoutEffect(() => {
+    if (!isDragging) return;
+    trackRef.current?.style.setProperty('--drag-x', `${dragOffsetRef.current}px`);
+  });
+
   // Settling the residual offset home, once the drag is over. Deliberately not done inside
-  // onUp: that runs while the cards still carry `transition: none` (isDragging is only
-  // flipped in the same call, and React has not re-rendered yet), so zeroing it there would
-  // snap rather than glide. A frame later the re-render has restored the transform
-  // transition, and the same write animates instead.
+  // onUp: that runs while the cards still carry the drag's own transition rules (isDragging
+  // is only flipped in the same call, and React has not re-rendered yet), so zeroing it
+  // there would snap rather than glide. A frame later the re-render has restored the
+  // transform transition, and the same write animates instead.
   useEffect(() => {
     if (isDragging) return;
     const el = trackRef.current;
     if (!el) return;
-    const id = requestAnimationFrame(() => el.style.setProperty('--drag-x', '0px'));
+    const id = requestAnimationFrame(() => {
+      dragOffsetRef.current = 0;
+      el.style.setProperty('--drag-x', '0px');
+    });
     return () => cancelAnimationFrame(id);
   }, [isDragging]);
 
