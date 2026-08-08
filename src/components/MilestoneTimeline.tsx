@@ -87,74 +87,44 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
         </div>
 
         {/* Milestones Grid */}
-        <div ref={revealGroup} className="reveal-group grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 relative">
+        {/* Even gaps now the icon sits inside the card: gap-y used to be double gap-x purely
+            to clear the badge that poked above each card's top edge. */}
+        <div ref={revealGroup} className="reveal-group grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
           {milestones.map((ms, index) => {
             const Icon = ms.icon;
             return (
               <div
                 key={index}
                 {...cardSpotlight}
-                // reveal-border rather than the card's own overflow clip: the ring is masked
-                // to the outline, so it works on a card that must stay overflow-visible for
-                // the badge poking past its top edge.
-                // px-6 pt-11 pb-4, not p-6 pt-11: the uniform 24px bottom padding was the
-                // gap the "2 Weeks / Phase X of 4" row sat inside before hitting the card's
-                // own border — no amount of glow tuning could remove it, since it was empty
-                // padding, not a lighting problem. Tightened it to 16px so the text sits
-                // close to the border instead of leaving a visible dead strip beneath it.
-                className="spotlight-track reveal-border bg-zinc-950 border border-zinc-700 rounded-[32px] px-6 pt-11 pb-4 flex flex-col justify-between space-y-6 relative group transition-all shadow-xl"
+                // No overflow:hidden on the card, deliberately. `.reveal-border` draws its
+                // ring at inset:-1px — outside the padding box — and the card's own overflow
+                // would clip that away. The card's light is a `background` instead (the
+                // border-radius clips it for free) and the two layers that genuinely need
+                // clipping sit in the absolutely positioned wrapper below.
+                className="milestone-card spotlight-track reveal-border border border-white/10 rounded-[26px] p-7 flex flex-col relative group transition-all shadow-xl"
               >
 
-                {/* Background phase-number — fades in on card hover (simple hover, no
-                    cursor tracking), clipped to its own layer so the card itself can stay
-                    overflow-visible for the floating badge below to poke past its top
-                    edge. Plain opacity only, no blur() — a blurred descendant's paint
-                    still escaped this wrapper's overflow-hidden + rounded corner clip in
-                    testing, which read as the number bleeding out over the badge above it.
-                    The pointer-tracked spotlight glow (.spotlight-glow) lives in this same
-                    clipped layer for the same reason — .spotlight-card's own overflow:hidden
-                    isn't an option on the card itself here. */}
-                <div className="absolute inset-0 rounded-[32px] overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 rounded-[26px] overflow-hidden pointer-events-none">
+                  <span className="milestone-stars" />
                   <span className="spotlight-glow" />
-                  <span className="absolute top-2 left-9 text-[5.5rem] font-black text-white leading-none select-none font-mono opacity-0 group-hover:opacity-20 transition-opacity duration-500">
-                    {index + 1}
-                  </span>
-                  {/* Counterweight to that number. The number is a big white shape lighting
-                      the top of the card on hover, and the foot of the card had nothing of
-                      the kind — so the bottom always read as dead next to it no matter how
-                      the pointer glow was tuned, because the two were never lit by the same
-                      thing. This is the bottom's half of that pair: same hover trigger, same
-                      fade, so both ends come up together. */}
-                  <span className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white/[0.13] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
 
-                {/* Floating icon badge — pops above the card's top edge instead of
-                    sitting inline, matching the reference card's badge treatment. */}
-                <div className="absolute -top-7 right-6 w-14 h-14 rounded-full bg-white flex items-center justify-center text-black shadow-lg z-10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(255,255,255,0.5)]">
-                  <Icon className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
-                </div>
+                {/* z-10 on the whole content column rather than on pieces of it: absolutely
+                    positioned content paints after non-positioned siblings whatever the
+                    source order, so without this the glow layer above would sit on top of
+                    the text and the card would read as unlit wherever the two overlap. */}
+                <div className="relative z-10 flex flex-col h-full">
 
-                {/* Weeks Banner — margin-right:auto (physical, not the logical
-                    justify-start/-end pair) keeps this pinned to the same side as the
-                    icon badge's own fixed right-6 in both languages. justify-start flips
-                    with dir, so in English this used to land on the opposite side from
-                    the icon instead of staying grouped with it the way it does in Arabic. */}
-                <div className="relative z-10 flex items-center">
-                  <span className="font-mono text-xs font-bold text-zinc-200 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 ml-auto">
-                    {ms.weeks}
-                  </span>
-                </div>
+                  <Icon className="w-8 h-8 text-white shrink-0 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
 
-                {/* Title */}
-                <div className="relative z-10">
-                  <h3 className="text-lg font-bold text-white mb-2">
+                  <h3 className="mt-9 text-xl font-bold text-white leading-snug">
                     {ms.phaseTitle}
                   </h3>
-                  <p className="text-xs text-zinc-400 font-semibold mb-4">
+                  <p className="mt-2 text-xs text-zinc-400 font-semibold">
                     {ms.status}
                   </p>
 
-                  <ul className="space-y-2 text-xs text-zinc-300">
+                  <ul className="mt-5 space-y-2 text-xs text-zinc-300">
                     {ms.tasks.map((task, tIdx) => (
                       <li key={tIdx} className="flex items-start gap-2">
                         <CheckCircle2 className="w-4 h-4 text-white shrink-0 mt-0.5" />
@@ -162,31 +132,37 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                       </li>
                     ))}
                   </ul>
-                </div>
 
-                {/* Bottom Step Indicator — which span renders first swaps with the
-                    physical side justify-between assigns it (RTL: first child = right),
-                    so which language draws "Phase X of 4" the DOM keeps it pinned to the
-                    same physical side as Arabic instead of trading places with "X Weeks".
-                    relative z-10 (added along with the two blocks above): without an
-                    explicit z-index, this plain in-flow text painted *behind* the glow
-                    wrapper above despite coming later in the markup — position:absolute
-                    content always paints after non-positioned siblings regardless of
-                    source order. That put the glow layer visually on top of this row,
-                    which is what read as the text going dark/unlit near the bottom of the
-                    card instead of catching the light like the rest of it. */}
-                <div className="relative z-10 pt-4 border-t border-zinc-900 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
-                  {language === 'ar' ? (
-                    <>
-                      <span>{`المرحلة ${index + 1} من 4`}</span>
-                      <span className="text-white font-bold">2 أسابيع</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-white font-bold">2 Weeks</span>
-                      <span>{`Phase ${index + 1} of 4`}</span>
-                    </>
-                  )}
+                  {/* mt-auto pins this to the foot of the card however long the phase's task
+                      list runs, so the four cards' figures and links line up across the row
+                      instead of each sitting wherever its own list happened to end. */}
+                  <div className="mt-auto pt-8">
+                    <div className="font-mono text-2xl font-extrabold text-white tracking-tight">
+                      {ms.weeks}
+                    </div>
+                    <p className="mt-1 font-mono text-[11px] text-zinc-400">
+                      {language === 'ar'
+                        ? `المرحلة ${index + 1} من 4 · 2 أسابيع`
+                        : `Phase ${index + 1} of 4 · 2 Weeks`}
+                    </p>
+
+                    <button
+                      onClick={() => {
+                        onCreateContract();
+                        cosmicAudio.playWarp();
+                      }}
+                      className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-white underline underline-offset-[6px] decoration-white/40 hover:decoration-white transition-colors cursor-pointer"
+                    >
+                      <span>{language === 'ar' ? 'ابدأ مشروعك' : 'Start Your Project'}</span>
+                      {/* The arrow leads the eye toward where the text is heading, so it
+                          points and travels with the writing direction, not against it. */}
+                      <ArrowLeft
+                        className={`w-4 h-4 transition-transform duration-300 ${
+                          language === 'en' ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
 
               </div>
