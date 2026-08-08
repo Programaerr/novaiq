@@ -359,7 +359,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               much denser fill (55% black) at a cheaper 12px blur — same frosted look, far
               less to recompute per frame. Reusing that proven combo here instead of a bespoke
               one. */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 shadow-xl shadow-black/20 p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 shadow-xl shadow-black/20 p-4 sm:p-5">
             <button
               onClick={() => {
                 setShowFilterPanel(!showFilterPanel);
@@ -383,7 +383,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 the toolbar's two controls answer a pointer the same way. It lights on hover
                 and stays lit while the field has focus (a text field is "active" for as long
                 as someone is typing in it, not just while the cursor rests on it). */}
-            <div className="search-neu relative w-full sm:w-80 sm:ms-auto rounded-full">
+            <div className="search-neu relative w-full sm:w-72 sm:ms-auto rounded-full">
               <span className="nq-btn-beam nq-btn-beam--dark" aria-hidden="true" />
               <Search className="w-4 h-4 text-zinc-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
@@ -391,7 +391,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={getTranslation('searchPlaceholder', currentLang)}
-                className="w-full pr-11 pl-4 py-2.5 rounded-full bg-transparent border-none focus:outline-none text-zinc-800 text-xs sm:text-sm font-semibold placeholder-zinc-500"
+                className="w-full pr-11 pl-4 py-2 rounded-full bg-transparent border-none focus:outline-none text-zinc-800 text-xs sm:text-sm font-semibold placeholder-zinc-500"
               />
               {searchQuery && (
                 <button
