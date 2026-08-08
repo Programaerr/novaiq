@@ -883,7 +883,28 @@
     animation-timeline: view();
     animation-timing-function: linear;
     animation-fill-mode: both;
+    /* Declared up front so the compositor gives this card one stable layer and keeps it.
+       Without the hint the layer is created reactively, and it is then liable to be thrown
+       away and rebuilt the moment something inside it needs repainting — which on these
+       cards is a touch, see below. */
+    will-change: transform;
   }
+}
+
+/* These four cards are the only place on the site where two expensive things sit on the same
+   element: a scroll-driven transform animation (above) and the reveal ring, which is a large
+   radial gradient carved to a 1px outline by a `mask-composite` pair. Fading that ring in on
+   touch meant re-rasterizing the mask *inside* a layer the compositor was already animating,
+   and the layer was being dropped and rebuilt to do it. On a card that is deliberately fully
+   transparent — no opaque fill of its own since the roadmap was made to show the real sky
+   through it — a layer that is mid-rebuild has nothing to draw, so the whole card read as
+   vanishing and snapping back under the finger.
+   Promoting the ring to its own layer is what separates them: the gradient and its mask are
+   rasterized once, and the fade becomes a blend of a ready texture rather than a repaint that
+   drags the card's animated layer down with it. Scoped to these cards on purpose — everywhere
+   else the ring shares an element with nothing, and does not need a layer of its own. */
+.milestone-card.reveal-border::after {
+  will-change: opacity;
 }
 
 @media (prefers-reduced-motion: reduce) {
