@@ -209,21 +209,50 @@ export const TemplateCards3D: React.FC = () => {
   // picture. The templates shown stay the same six — only where they hang changes.
   const scatter = useMemo(() => buildScatter(), []);
 
+  // A WebGL canvas does not stop when it scrolls out of view. R3F's default frameloop is
+  // "always", so this scene was re-rendering six textured, damped cards every single frame
+  // for as long as the home page stayed mounted — including the entire time the visitor was
+  // reading the roadmap or the About section far below it, competing for the main thread and
+  // the GPU with whatever they were actually looking at. That is the single largest thing
+  // this page asks of a device, spent almost entirely on pixels nobody is looking at.
+  //
+  // Gated on visibility instead: "always" while the stage is near the viewport, "never" once
+  // it isn't. The margin starts it a little before it scrolls in, so it is already running by
+  // the time it is on screen rather than waking up visibly.
+  const holder = useRef<HTMLDivElement>(null);
+  const [onScreen, setOnScreen] = useState(true);
+
+  useEffect(() => {
+    const el = holder.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), {
+      rootMargin: '200px 0px',
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <Canvas
-      camera={{ position: [0, 0, 6], fov: 46 }}
-      dpr={[1, 1.75]}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      // Clicking empty space drops the current pick, so there is always a way back out
-      // without having to find the same card again.
-      onPointerMissed={() => setActive(null)}
-      onContextMenu={(e) => e.preventDefault()}
-      style={{ touchAction: 'pan-y' }}
-    >
-      <Suspense fallback={null}>
-        <Scene active={active} setActive={setActive} scatter={scatter} />
-      </Suspense>
-    </Canvas>
+    <div ref={holder} className="w-full h-full">
+      <Canvas
+        frameloop={onScreen ? 'always' : 'never'}
+        camera={{ position: [0, 0, 6], fov: 46 }}
+        dpr={[1, 1.75]}
+        // powerPreference "default", not "high-performance": that hint asks a laptop to wake
+        // its discrete GPU for what is a decorative scene, and it is exactly the kind of
+        // request that shortens battery life for no visible gain here.
+        gl={{ antialias: true, alpha: true, powerPreference: 'default' }}
+        // Clicking empty space drops the current pick, so there is always a way back out
+        // without having to find the same card again.
+        onPointerMissed={() => setActive(null)}
+        onContextMenu={(e) => e.preventDefault()}
+        style={{ touchAction: 'pan-y' }}
+      >
+        <Suspense fallback={null}>
+          <Scene active={active} setActive={setActive} scatter={scatter} />
+        </Suspense>
+      </Canvas>
+    </div>
   );
 };
 
