@@ -842,16 +842,17 @@
    would dissolve into it.
 
    The vertical radius is 115%, i.e. larger than the card, so the light climbs most of the
-   way up rather than banding along the bottom edge. Measured down the face, luminance runs
-   roughly 9 at the top through 17, 33, 63 and ~95 at the foot — clearly a light, and still
-   past 6:1 contrast under the white text that sits in the brightest part of it. */
+   way up rather than banding along the bottom edge — the reach is what makes it read as a
+   light rather than as a band, so it is the alpha that was pulled back when the glow came
+   out too strong, not the geometry. Measured down the face, luminance now runs roughly 9 at
+   the top through 13, 24, 45 and ~68 at the foot. */
 .milestone-card {
   background:
     radial-gradient(
       135% 115% at 50% 116%,
-      rgba(255, 255, 255, 0.46) 0%,
-      rgba(255, 255, 255, 0.2) 40%,
-      rgba(255, 255, 255, 0.05) 70%,
+      rgba(255, 255, 255, 0.33) 0%,
+      rgba(255, 255, 255, 0.14) 40%,
+      rgba(255, 255, 255, 0.035) 70%,
       rgba(255, 255, 255, 0) 100%
     ),
     #08080a;
@@ -861,26 +862,30 @@
    opacities, taken straight from the variables .star-layer uses so they stay identical by
    construction rather than by somebody remembering to update two places.
 
-   What they don't take is the drift. That needs a box twice the card's size to translate
-   inside, and eight of those — two per card — become eight promoted compositor layers for
-   a motion nobody reads inside a 286px card. */
+   And it holds still while the page scrolls, like the fixed layer it is borrowed from —
+   useStarParallax() feeds the shift in, this transform applies it. The overhang at the top
+   is what the shift travels into: it never exceeds one tile (380px), so 400px of it is
+   always enough to keep the card covered. */
 .milestone-stars {
   position: absolute;
-  inset: 0;
+  inset: -400px 0 0 0;
   pointer-events: none;
   background-repeat: repeat;
+  will-change: transform;
 }
 
 .milestone-stars--far {
   background-image: var(--stars-far);
   background-size: 300px 300px;
   opacity: 0.7;
+  transform: translate3d(0, var(--star-y-far, 0px), 0);
 }
 
 .milestone-stars--near {
   background-image: var(--stars-near);
   background-size: 380px 380px;
   opacity: 0.85;
+  transform: translate3d(0, var(--star-y-near, 0px), 0);
 }
 
 /* Four equal-width cards side by side would otherwise start their tiles at the same origin

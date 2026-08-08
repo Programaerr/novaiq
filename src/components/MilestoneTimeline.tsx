@@ -11,6 +11,7 @@ import {
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
 import { useRevealGroup } from '../lib/useRevealGroup';
+import { useStarParallax } from '../lib/useStarParallax';
 
 interface MilestoneTimelineProps {
   onCreateContract: () => void;
@@ -22,6 +23,8 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
   // well (useSpotlight); it is gone at the customer's request, and the light on the card
   // is now the fixed glow at its foot plus this ring.
   const revealGroup = useRevealGroup<HTMLDivElement>();
+  // Keeps each card's stars still while the page scrolls past, the way the page's own sky is.
+  useStarParallax();
 
   const milestones = [
     {
