@@ -299,11 +299,7 @@ export default function App() {
         {activePage === 'home' && (
           <div className="page-in space-y-20 sm:space-y-24">
             {/* Hero Banner */}
-            <HeroSection
-              onExploreTemplates={() => navigateTo('templates')}
-              onCreateContract={() => navigateTo('custom-request')}
-              language={language}
-            />
+            <HeroSection language={language} />
 
             {/* Quick Overview Grid to drive leads */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

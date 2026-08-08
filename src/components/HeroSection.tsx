@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Rocket,
-  FileText,
   ShieldCheck,
   Clock,
   Globe2,
@@ -12,17 +10,13 @@ import {
 
 const WHEEL_STEP = 90;
 
+// No navigation callbacks any more: the two buttons that used them are gone, and nothing
+// else in the hero routes anywhere. The navbar and the section CTAs still do.
 interface HeroSectionProps {
-  onExploreTemplates: () => void;
-  onCreateContract: () => void;
   language: 'ar' | 'en';
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({
-  onExploreTemplates,
-  onCreateContract,
-  language,
-}) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
   // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
   // for real photography until the client supplies per-guarantee images.
   //
