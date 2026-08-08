@@ -7,6 +7,7 @@ import { PageBackBar } from './components/PageBackBar';
 import { HeroSection } from './components/HeroSection';
 import { FloatingTemplateCards } from './components/FloatingTemplateCards';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
+import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
 import { Footer } from './components/Footer';
 import { CookieConsent } from './components/CookieConsent';
@@ -382,10 +383,13 @@ export default function App() {
             />
 
             {/* Structured Timeline */}
-            <MilestoneTimeline
-              language={language}
-              onCreateContract={() => navigateTo('custom-request')}
-            />
+            <MilestoneTimeline language={language} />
+
+            {/* Bridges the timeline and about sections rather than living inside either,
+                so it reads as a shared next step and not "the end of the roadmap." */}
+            <div className="py-10 sm:py-14">
+              <ProjectCtaButton language={language} onCreateContract={() => navigateTo('custom-request')} />
+            </div>
 
             {/* About Section */}
             <AboutSection language={language} />
@@ -434,10 +438,10 @@ export default function App() {
 
         {activePage === 'timeline' && (
           <div className="page-in">
-            <MilestoneTimeline
-              language={language}
-              onCreateContract={() => navigateTo('custom-request')}
-            />
+            <MilestoneTimeline language={language} />
+            <div className="py-10 sm:py-14">
+              <ProjectCtaButton language={language} onCreateContract={() => navigateTo('custom-request')} />
+            </div>
           </div>
         )}
 

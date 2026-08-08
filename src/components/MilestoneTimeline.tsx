@@ -2,22 +2,18 @@ import React from 'react';
 import {
   Calendar,
   CheckCircle2,
-  Rocket,
   Code2,
   Cpu,
   ShieldCheck,
-  ArrowLeft
 } from 'lucide-react';
-import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
 import { useRevealGroup } from '../lib/useRevealGroup';
 
 interface MilestoneTimelineProps {
-  onCreateContract: () => void;
   language?: Language;
 }
 
-export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateContract, language = 'ar' }) => {
+export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language = 'ar' }) => {
   // Border only — no `.reveal-face` on these cards. They used to carry a pointer-tracked
   // wash across their face as well; it is gone at the customer's request, and the light on
   // the card is now the fixed glow at its foot plus this ring.
@@ -156,22 +152,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
               </div>
             );
           })}
-        </div>
-
-        {/* Bottom Callout */}
-        <div className="mt-28 sm:mt-36 flex justify-center">
-          <button
-            onClick={() => {
-              onCreateContract();
-              cosmicAudio.playWarp();
-            }}
-            className="nq-btn nq-btn--solid px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full font-extrabold uppercase tracking-[0.1em] inline-flex items-center cursor-pointer"
-          >
-            <span className="nq-btn-beam" aria-hidden="true" />
-            <Rocket className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span>{language === 'ar' ? 'ابدأ تنفيذ مشروعك ووقع العقد الآن' : 'Start Your Project & Sign Contract Now'}</span>
-            <ArrowLeft className={`w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
-          </button>
         </div>
 
       </div>
