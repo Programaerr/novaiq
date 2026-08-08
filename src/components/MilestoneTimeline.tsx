@@ -114,6 +114,13 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                   <span className="absolute top-2 left-9 text-[5.5rem] font-black text-white leading-none select-none font-mono opacity-0 group-hover:opacity-20 transition-opacity duration-500">
                     {index + 1}
                   </span>
+                  {/* Counterweight to that number. The number is a big white shape lighting
+                      the top of the card on hover, and the foot of the card had nothing of
+                      the kind — so the bottom always read as dead next to it no matter how
+                      the pointer glow was tuned, because the two were never lit by the same
+                      thing. This is the bottom's half of that pair: same hover trigger, same
+                      fade, so both ends come up together. */}
+                  <span className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white/[0.13] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </div>
 
                 {/* Floating icon badge — pops above the card's top edge instead of
