@@ -215,7 +215,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     dragRef.current = { startX: e.clientX };
     setIsDragging(true);
-    setDragPx(0);
+    setDragOffset(0);
   };
 
   // Move/up are tracked on `window`, not as onPointerMove/onPointerUp props on the track
@@ -224,39 +224,82 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // listener simply stops receiving events the instant that happens. An earlier version of
   // this used onPointerLeave to close the gesture in that case, but pointerleave fires the
   // moment the pointer exits the bounds — including mid-drag, while the button/finger is
-  // still down — which was ending swipes prematurely and inconsistently instead of only on
-  // an actual release. That's what made "which card ends up centered" occasionally wrong.
+  // still down — which was ending swipes prematurely instead of only on an actual release.
   //
-  // Global listeners fix this at the root: onPointerDown below stays on the track (that's
-  // still the right place to detect "a drag started here"), but once isDragging flips on,
-  // this effect owns move/up for the rest of the gesture regardless of where the pointer
-  // travels or lets go — the same reason a text selection or a native <input type="range">
-  // keeps tracking past its own edges. Still no setPointerCapture (see the comment on
-  // handleTrackPointerDown's history above): these are separate, non-capturing listeners,
-  // so a tap that starts and ends on a button's own bounds is never touched by this at all.
+  // Global listeners fix that at the root: onPointerDown stays on the track (that is still
+  // the right place to detect "a drag started here"), but once isDragging flips on, this
+  // effect owns move/up for the rest of the gesture regardless of where the pointer travels
+  // or lets go — the same reason a text selection or a native <input type="range"> keeps
+  // tracking past its own edges. Still no setPointerCapture (see handleTrackPointerDown's
+  // history above): these are separate, non-capturing listeners, so a tap that starts and
+  // ends on a button's own bounds is never touched by this at all.
+  //
+  // The index moves *during* the drag, not on release. Every time the drag passes half a
+  // card's step, the neighbour that has reached the middle becomes the active card there
+  // and then, and the start point advances by exactly that step so the residual offset
+  // carries on from where it was. Both halves matter: committing the index is what makes
+  // the centered card genuinely the selected one (so letting go anywhere keeps whatever is
+  // in the middle, instead of the whole strip springing back to where the drag began), and
+  // moving startX in the same breath is what keeps the motion continuous — the card that
+  // just became active is drawn at the same pixel before and after the hand-off, so nothing
+  // jumps at the moment of commit. Release then has nothing left to decide; it only settles
+  // the residual back to zero.
   useEffect(() => {
     if (!isDragging) return;
+    const step = isMobile ? 145 : 190;
+    const n = filteredTemplates.length;
+    let frame = 0;
+    let offset = 0;
 
-    const onMove = (e: PointerEvent) => {
-      if (!dragRef.current) return;
-      setDragPx(e.clientX - dragRef.current.startX);
+    const apply = () => {
+      frame = 0;
+      const drag = dragRef.current;
+      if (!drag) return;
+      const steps = Math.round(offset / step);
+      if (steps !== 0 && n > 0) {
+        drag.startX += steps * step;
+        offset -= steps * step;
+        // Dragging right (positive) walks backwards through the list, same direction the
+        // release-time swipe used to resolve to.
+        setActiveIndex((i) => (((i - steps) % n) + n) % n);
+      }
+      setDragOffset(offset);
     };
 
-    const onUp = (e: PointerEvent) => {
-      if (!dragRef.current) return;
-      const dx = e.clientX - dragRef.current.startX;
+    const onMove = (e: PointerEvent) => {
+      const drag = dragRef.current;
+      if (!drag) return;
+      offset = e.clientX - drag.startX;
+      if (!frame) frame = requestAnimationFrame(apply);
+    };
+
+    const onUp = () => {
       dragRef.current = null;
       setIsDragging(false);
-      setDragPx(0);
-      if (Math.abs(dx) >= 40) goToOffset(dx > 0 ? -1 : 1);
     };
 
     window.addEventListener('pointermove', onMove, { passive: true });
     window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
     return () => {
+      if (frame) cancelAnimationFrame(frame);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
     };
+  }, [isDragging, isMobile, filteredTemplates.length]);
+
+  // Settling the residual offset home, once the drag is over. Deliberately not done inside
+  // onUp: that runs while the cards still carry `transition: none` (isDragging is only
+  // flipped in the same call, and React has not re-rendered yet), so zeroing it there would
+  // snap rather than glide. A frame later the re-render has restored the transform
+  // transition, and the same write animates instead.
+  useEffect(() => {
+    if (isDragging) return;
+    const el = trackRef.current;
+    if (!el) return;
+    const id = requestAnimationFrame(() => el.style.setProperty('--drag-x', '0px'));
+    return () => cancelAnimationFrame(id);
   }, [isDragging]);
 
   // Auto-advance one card every 8s, in slow motion (see the 1.6s transition below) — loops
@@ -389,10 +432,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             <ChevronRight className="w-4 h-4 ltr:rotate-180 text-current" />
           </button>
 
+          {/* Taller than the card it holds, on purpose. The track clips (overflow-hidden)
+              and the card is centered in it, so anything the card's own height plus its
+              reflection exceeds gets cut off top *and* bottom — which is what was slicing
+              the taller templates. The tallest card here runs ~630px with a full feature
+              list, two action rows and the optional live-site link, and the reflection adds
+              a little under it. */}
           <div
+            ref={trackRef}
             onPointerDown={handleTrackPointerDown}
             style={{ perspective: '1800px' }}
-            className="relative w-full max-w-4xl h-[520px] sm:h-[600px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+            className="relative w-full max-w-4xl h-155 sm:h-182.5 overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -429,27 +479,55 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // Kept in the same ratio to card width as before the shrink (0.6 mobile /
             // 0.618 desktop) so the spacing between cards still reads the same relative
             // to their new smaller size, instead of opening into wider-looking gaps.
+            // Mirrors the `step` the drag effect above computes — both describe the same
+            // one-card travel distance.
             const stepPx = isMobile ? 145 : 190;
-            const livePx = isDragging ? dragPx : 0;
 
             return (
               <div
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${clampedOffset * stepPx + livePx}px) translateZ(${-cappedDistance * 72}px) rotateY(${rotY}deg) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
+                  // --drag-x is the live gesture offset, published on the track by the drag
+                  // effect above. Folded into the transform here rather than applied to a
+                  // wrapper so the whole strip moves as one, and so a card's resting
+                  // position and its drag offset stay a single composited transform.
+                  transform: `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px))) translateZ(${-cappedDistance * 72}px) rotateY(${rotY}deg)`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
-                  // Position/scale glide in slow motion; opacity settles fast on its own —
+                  // Position glides in slow motion; opacity settles fast on its own —
                   // otherwise the incoming card visibly fades up out of a haze for the
                   // whole 1.6s, instead of just sliding into place already at full clarity.
-                  // Suspended entirely while dragging so the live pointer offset above
-                  // tracks the finger/mouse 1:1 instead of chasing it on a 1.6s easing.
-                  transition: isDragging ? 'none' : 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
+                  // The transform half is suspended while dragging so the offset tracks the
+                  // finger/mouse 1:1 instead of chasing it on a 1.6s easing; opacity keeps
+                  // its transition throughout, since a card that takes the middle mid-drag
+                  // should still brighten smoothly rather than pop.
+                  transition: isDragging
+                    ? 'opacity 0.35s ease'
+                    : 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
                   pointerEvents: isVisible ? undefined : 'none',
+                  // Out-of-range cards stay mounted (unmounting them made every <img>
+                  // reload on the way back in — see the note above), but there is no reason
+                  // to keep compositing and painting them at zero opacity. With ten
+                  // templates that is most of the strip; hidden, they cost nothing per
+                  // frame and their images stay in memory either way.
+                  visibility: isVisible ? undefined : 'hidden',
                 }}
                 className={`absolute top-1/2 left-1/2 w-60 sm:w-75 ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
+                {/* Scale lives here, one level in from the positional transform above,
+                    precisely so it can keep its own transition while that one is switched
+                    off mid-drag. The index now commits as the drag crosses each half-step,
+                    so a neighbour becomes the active card *during* the gesture — on a
+                    single element it would jump 0.82 → 1 in one frame at that moment. Split
+                    across two, the position still tracks the finger exactly and the size
+                    eases into it. */}
+                <div
+                  style={{
+                    transform: `scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
+                    transition: 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)',
+                  }}
+                >
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
                   className={`bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 flex flex-col group shadow-2xl ${isActive ? 'template-card-reflect' : ''}`}
@@ -617,6 +695,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
                   </div>
 
+                </div>
                 </div>
                 </div>
               </div>
