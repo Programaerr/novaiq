@@ -52,6 +52,12 @@ interface CarDealerDemoProps {
 export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonths, selectedCarId, setDownPaymentPct, setFinanceMonths, setSelectedCarId, setTestDriveDate, testDriveBookings, testDriveDate }: CarDealerDemoProps) {
   const { activeTab, gridCols, isNarrowViewport, matchesSiteSearch, price, renderCompanyHome, renderNoSearchResults, renderSiteTopBar, setActiveTab, themeStyle } = ctx;
 
+  // Read once into a local: the card paints this colour twice — its own background and the end
+  // stop of the gradient that dissolves the photo into it — and a seam appears the moment those
+  // two stop being the same value. It comes from the theme rather than a constant here so the
+  // cards re-tint with the customer's palette pick instead of staying green in every theme.
+  const cardBg = themeStyle.cardSurface;
+
   const carTab = ['home', 'cars', 'finance', 'testdrive'].includes(activeTab) ? activeTab : 'home';
   const selectedCar = SAMPLE_CARS.find(c => c.id === selectedCarId) || SAMPLE_CARS[0];
   const searchedCars = SAMPLE_CARS.filter((c) =>
@@ -76,93 +82,83 @@ export function CarDealerDemo({ ctx, bookTestDrive, downPaymentPct, financeMonth
       {carTab === 'cars' && searchedCars.length === 0 && renderNoSearchResults('أي سيارة')}
 
       {carTab === 'cars' && searchedCars.length > 0 && (
-        // pt-16 reserves the strip the car photo hangs up into; without it the first row's
-        // bonnet is clipped by the section above. Three columns on a wide viewport rather than
-        // two — the card carries no blurb, so at two columns it was mostly empty width.
-        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-x-4 gap-y-7 pt-16 animate-fade-in text-xs`}>
+        <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-5 animate-fade-in text-xs`}>
           {searchedCars.map((car) => (
-            // The manufacturer-style card: the car sits on white *above* the sheet, then the
-            // model name, the pill row, three headline figures each over its own label, the
-            // grey consumption fine print, an underlined spec link and one black action.
-            // pt has to clear the part of the photo that hangs *into* the card — the plate is
-            // h-32 (128px) starting 44px above the top edge, so 84px of it sits over the card
-            // and anything less than that runs the model name under the photo. pt-28 leaves a
-            // measured 28px of air below the photo on top of that clearance.
-            <article key={car.id} className="relative flex flex-col rounded-[22px] bg-white px-6 pb-7 pt-28 shadow-2xl shadow-black/40">
-              {/* The photo overhangs the card's top edge, which is what makes it read as a
-                  product shot rather than a banner. object-cover filling the full plate, not
-                  contain: the reference floats a cut-out car on white, but these are location
-                  photos, and contain letterboxed each one into a small window with its own
-                  scenery showing — visibly worse than filling the plate. Swap in cut-out PNGs
-                  and contain becomes the right call. */}
-              <div className="absolute -top-11 inset-x-3 h-32 rounded-2xl overflow-hidden bg-white shadow-lg shadow-black/20">
+            // The reference card: one dark sheet with the photo filling its top and dissolving
+            // into the body, then the name beside a price pill, the blurb, two fact pills and a
+            // white action across the bottom.
+            <article
+              key={car.id}
+              className="group relative flex flex-col rounded-[26px] overflow-hidden shadow-2xl shadow-black/50 aspect-square"
+              style={{ background: cardBg }}
+            >
+              {/* The photo takes the height the text does not (flex-1 + min-h-0), which is what
+                  keeps the card square while the blurbs run to different lengths: a longer
+                  description eats into the photo rather than pushing the card past its ratio.
+                  min-h-0 is required — a flex item will not shrink below its content without it
+                  and the image would win.
+
+                  overflow-hidden here, not only on the card: the hover zoom grows the image in
+                  every direction, and the card's own clip is 8px lower than this box because the
+                  body below is pulled up over it with -mt-8. Without a clip of its own the
+                  enlarged photo slid down into that gap and showed through behind the title. */}
+              <div className="relative flex-1 min-h-0 overflow-hidden">
                 <img
                   src={car.image}
                   alt={car.name}
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              </div>
-
-              {car.badge && (
-                <span className="absolute top-5 end-5 px-2 py-0.5 rounded-full bg-zinc-900 text-white text-[9px] font-bold">
-                  {car.badge}
-                </span>
-              )}
-
-              {/* font-normal, not bold: the reference sets the model name large and light, and
-                  the weight is what separates it from the figures below it. */}
-              <h4 className="text-lg sm:text-xl font-normal text-zinc-900 leading-tight">{car.name}</h4>
-              <p className="mt-2 font-mono text-[13px] font-bold text-zinc-900">{price(car.priceIQD)}</p>
-
-              {/* Year first and filled black, the rest hollow grey — the reference uses that one
-                  dark pill to anchor the row, and it is the model year that dates a car. */}
-              <div className="mt-5 flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 rounded-full bg-zinc-900 text-white text-[10px] font-semibold">{car.year}</span>
-                {[car.fuelType, car.drivetrain, car.transmission].map((chip) => (
-                  <span key={chip} className="px-3 py-1.5 rounded-full bg-zinc-100 text-zinc-700 text-[10px] font-semibold">
-                    {chip}
+                {/* The fade is what removes the seam between photo and card in the reference —
+                    the photo does not stop, it dissolves. The gradient's end colour has to be
+                    the card's exact background, which is why both read from one constant
+                    instead of two hand-matched hex strings that drift apart on the next edit. */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: `linear-gradient(to bottom, transparent 45%, ${cardBg} 100%)` }}
+                />
+                {car.badge && (
+                  <span className="absolute top-3 start-3 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-sm text-white text-[10px] font-bold">
+                    {car.badge}
                   </span>
-                ))}
+                )}
               </div>
 
-              {/* space-y-5 between the figures and mt-1 under each value: the reference reads as
-                  three separate facts, and at tighter spacing a value ran into the label of the
-                  block below it and the three merged into one grey column. */}
-              <div className="mt-8 space-y-7">
-                {[
-                  { value: car.acceleration, label: 'التسارع من 0 إلى 100 كم/س' },
-                  { value: car.power, label: 'القدرة (كيلوواط) / القدرة (حصان)' },
-                  { value: car.topSpeed, label: 'السرعة القصوى' },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <div className="text-base sm:text-lg font-normal text-zinc-900 leading-tight">{stat.value}</div>
-                    <div className="mt-1 text-zinc-400 text-[10px] leading-relaxed">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
+              {/* -mt-8 pulls the text up into the faded tail of the photo, the way the reference
+                  sets its title over the water rather than below it. shrink-0: the body keeps
+                  its natural height and the photo above absorbs the difference, so the white
+                  action lands at the same distance from the bottom on every card. */}
+              <div className="relative -mt-8 flex shrink-0 flex-col px-5 pb-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-lg font-bold text-white leading-tight">{car.name}</h4>
+                  <span className="shrink-0 px-3 py-1.5 rounded-full bg-black/45 backdrop-blur-sm font-mono text-[11px] font-bold text-white">
+                    {price(car.priceIQD)}
+                  </span>
+                </div>
 
-              {/* mt-auto here rather than on the button: the blurb-free layout still varies in
-                  height because the pill row wraps to two lines on some cars, and this is what
-                  keeps the black action on one line across a row. */}
-              <div className="mt-auto pt-10">
-                <p className="text-zinc-400 text-[10px] leading-relaxed">
-                  استهلاك الوقود المدمج: {car.fuel}، انبعاثات CO2 المدمجة: {car.co2}
-                </p>
+                <p className="mt-3 text-zinc-400 leading-relaxed">{car.description}</p>
 
-                <button
-                  onClick={() => pickCar(car, 'testdrive')}
-                  className="mt-6 text-zinc-900 underline underline-offset-4 font-semibold text-[11px] cursor-pointer hover:text-zinc-600 transition-colors"
-                >
-                  المواصفات الفنية وحجز تجربة قيادة
-                </button>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {[car.fuelType, car.transmission].map((tag) => (
+                    <span key={tag} className="px-3 py-1.5 rounded-lg bg-white/10 text-zinc-200 text-[10px] font-semibold">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
 
-                <button
-                  onClick={() => pickCar(car, 'finance')}
-                  className="mt-6 w-full py-4 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs cursor-pointer transition-colors"
-                >
-                  استعرض بالتفصيل
-                </button>
+                {/* .neu-btn, the same class the watch store's cart button wears: it carries the
+                    raise, and on :active swaps its outer shadows for inner ones so the button
+                    sinks into the surface instead of just dimming. It brings its own near-white
+                    body, which is why no bg-* utility is set here — a bg-white would override
+                    it and the pressed state would lose the material it presses into. */}
+                <div className="pt-6">
+                  <button
+                    onClick={() => pickCar(car, 'finance')}
+                    className="neu-btn neu-btn--on-dark w-full py-3.5 rounded-full text-zinc-900 font-bold text-sm cursor-pointer"
+                  >
+                    استعرض واحجز
+                  </button>
+                </div>
               </div>
             </article>
           ))}

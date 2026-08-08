@@ -359,6 +359,15 @@
     inset -3px -3px 7px rgba(255, 255, 255, 0.95);
 }
 
+/* Same button on a dark card. The raised pair models a surface lifted out of the pale material
+   around it, and on a dark card there is no such material — the light half just bloomed as a
+   white haze around the button, the same failure .neu-card had. Only the resting shadow goes:
+   .neu-btn:active is (0,2,0) to this rule's (0,1,0), so the press still sinks, and those inset
+   shadows fall on the button's own pale body where they are still correct. */
+.neu-btn--on-dark {
+  box-shadow: none;
+}
+
 /* Hover inverts the whole pill (white/black -> black/white), so the ambient glow inverts
    too — a black bloom would disappear against a black pill, a white one reads as the
    surface catching light instead. Declared after .is-active so hover wins when both apply
