@@ -4,6 +4,13 @@ function setSpotPosition(el: HTMLElement, clientX: number, clientY: number) {
   const rect = el.getBoundingClientRect();
   el.style.setProperty('--spot-x', `${clientX - rect.left}px`);
   el.style.setProperty('--spot-y', `${clientY - rect.top}px`);
+  // Radius scales with the card instead of being a fixed pixel size. A single fixed radius
+  // cannot serve both shapes this site uses: it looked right on the short cards (~180px) it
+  // was tuned against, but the roadmap cards are ~450px tall, so the same circle covered
+  // barely a third of one and their bottom stayed unlit wherever the pointer went — which
+  // read as the glow being broken on that section specifically. The floor keeps small cards
+  // from getting a glow so tight it looks like a dot.
+  el.style.setProperty('--spot-r', `${Math.max(160, Math.max(rect.width, rect.height) * 0.55)}px`);
 }
 
 /**

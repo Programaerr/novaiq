@@ -35,6 +35,9 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
         const r = rects[i];
         el.style.setProperty('--rx', `${clientX - r.left}px`);
         el.style.setProperty('--ry', `${clientY - r.top}px`);
+        // Same card-relative radius useSpotlight writes, so a card's wash covers the same
+        // proportion of it whatever its shape — see the note there.
+        el.style.setProperty('--spot-r', `${Math.max(160, Math.max(r.width, r.height) * 0.55)}px`);
       });
     };
 
