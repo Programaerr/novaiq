@@ -1589,7 +1589,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               the other three hand the site a real device viewport of its own. */}
           {/* Screen-width switcher. No device mock-ups — each choice simply lays the site out
               at that width so the customer can see how it reflows on their audience's screens. */}
-          <div className={`flex items-center gap-0.5 bg-black rounded-xl border border-zinc-800 ${isNarrowViewport ? 'p-0.5 text-[10px]' : 'p-1 text-xs'}`}>
+          <div className={`flex items-center gap-1 bg-black rounded-xl border border-zinc-800 ${isNarrowViewport ? 'p-0.5 text-[10px]' : 'p-1 text-xs'}`}>
             {([
               { key: 'full', label: 'شاشتك', title: 'العرض على شاشتك الحالية' },
               { key: 'desktop', label: 'كمبيوتر', title: 'عرض بعرض 1280 بكسل' },
@@ -1600,12 +1600,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
                 key={key}
                 onClick={() => { setViewport(key); cosmicAudio.playTick(); }}
                 title={title}
-                className={`rounded-lg transition-all cursor-pointer whitespace-nowrap ${isNarrowViewport ? 'px-1.5 py-1' : 'px-2.5 py-1 sm:py-1.5'} ${
+                className={`nq-btn rounded-lg cursor-pointer whitespace-nowrap ${isNarrowViewport ? 'px-1.5 py-1' : 'px-2.5 py-1 sm:py-1.5'} ${
                   viewport === key
-                    ? 'bg-zinc-800 text-white font-bold border border-white glow-white'
+                    ? 'nq-btn--solid font-bold'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
+                <span className="nq-btn-beam" aria-hidden="true" />
                 {label}
               </button>
             ))}
