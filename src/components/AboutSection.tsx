@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Rocket } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useRevealGroup } from '../lib/useRevealGroup';
 
@@ -16,63 +16,19 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
     <section id="about-section" className="py-10 sm:py-14 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* No overflow-hidden any more: the arc below is drawn on this border and throws its
-            corona to both sides of it, and a clip at the padding box would shear off the
-            outer half — the half that makes it read as light coming off the edge rather than
-            a pattern printed inside it. Nothing in this panel needed the clip. */}
+        {/* No overflow-hidden any more: the ship below rides the border box itself, so half
+            of it is outside the padding box a clip would cut at, and its glow reaches further
+            still. Nothing in this panel needed the clip. */}
         <div className="p-5 sm:p-6 rounded-3xl border border-zinc-700 relative shadow-2xl">
 
-          {/* Electric frame. The rounded rect matches the panel's own rounded-3xl (24px), so
-              the arc rides the border it is electrifying instead of cutting its corners.
-              Three seeds, one per filter — the CSS in .electric-frame-bolt swaps between
-              them, which is what crackles. */}
-          <svg className="electric-frame" aria-hidden="true">
-            <defs>
-              {[
-                { id: 'nq-arc-a', seed: 2 },
-                { id: 'nq-arc-b', seed: 7 },
-                { id: 'nq-arc-c', seed: 13 },
-              ].map(({ id, seed }) => (
-                // The filter region is grown well past the element: displacement pushes the
-                // stroke outward and the blur spreads further still, and anything beyond the
-                // region is cut rather than drawn.
-                <filter key={id} id={id} x="-20%" y="-20%" width="140%" height="140%">
-                  {/* `turbulence`, not `fractalNoise`: fractal noise is smooth and rounded and
-                      displaced the line into a wobble, like a hand-drawn rectangle. Turbulence
-                      has hard ridges where its bands cross zero, and those are what snap the
-                      stroke into angular forks instead of curves. Three octaves adds the fine
-                      splintering on top of the coarse throw. Anisotropic — a much lower
-                      frequency across than down — so the tears run along the line the way a
-                      discharge does rather than pebbling it evenly. */}
-                  <feTurbulence
-                    type="turbulence"
-                    baseFrequency="0.02 0.09"
-                    numOctaves={3}
-                    seed={seed}
-                    result="noise"
-                  />
-                  <feDisplacementMap
-                    in="SourceGraphic"
-                    in2="noise"
-                    scale={14}
-                    xChannelSelector="R"
-                    yChannelSelector="G"
-                    result="bolt"
-                  />
-                  <feGaussianBlur in="bolt" stdDeviation={3} result="corona" />
-                  {/* The corona twice, then the bolt on top: the glow needs to be brighter
-                      than one pass of a 3px blur leaves it, and stacking the same result is
-                      cheaper than a second blur at a wider radius. */}
-                  <feMerge>
-                    <feMergeNode in="corona" />
-                    <feMergeNode in="corona" />
-                    <feMergeNode in="bolt" />
-                  </feMerge>
-                </filter>
-              ))}
-            </defs>
-            <rect className="electric-frame-bolt" width="100%" height="100%" rx="24" ry="24" />
-          </svg>
+          {/* Flies the panel's outline — see .orbit-ship. The trail comes first in the DOM so
+              it lands to the ship's left, which the path's auto-rotation keeps behind it.
+              -rotate-45 because the lucide rocket is drawn pointing up-right, and the motion
+              path steers whatever points along +X. */}
+          <div className="orbit-ship" aria-hidden="true">
+            <span className="orbit-ship-trail" />
+            <Rocket className="w-5 h-5 -rotate-45" strokeWidth={1.5} />
+          </div>
 
           
           <div className="max-w-3xl mx-auto text-center space-y-4">
