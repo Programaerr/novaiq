@@ -186,50 +186,69 @@
 
    Animating offset-distance is a transform under the hood, so the orbit runs on the
    compositor — no layout, no paint per frame. */
-.orbit-ship {
+/* display: contents so this groups the ship and its exhaust for the shared timing below
+   without becoming a box — in particular without becoming a containing block, which would
+   take `border-box` away from the panel and hand it to this wrapper instead. */
+.orbit {
+  display: contents;
+  --orbit-dur: 26s;
+}
+
+.orbit-ship,
+.orbit-spark {
   position: absolute;
   /* Required. The offset transform is applied on top of the element's normal position, so
      anything other than the box origin would displace the whole orbit by that much. */
   top: 0;
   left: 0;
-  display: flex;
-  align-items: center;
-  /* The page is dir="rtl", which lays a flex row right-to-left and put the trail out in
-     front of the ship. This row is not text — it is the ship's own frame, where -X is
-     behind by definition — so it is pinned to physical order. */
-  direction: ltr;
-  color: #ffffff;
   offset-path: border-box;
   offset-rotate: auto;
   offset-distance: 0%;
-  animation: orbit-ship 26s linear infinite;
+  animation: orbit-ship var(--orbit-dur) linear infinite;
+  /* A negative delay of one whole period is the same phase as none at all, so subtracting
+     the lag from it puts each spark that far *behind* the ship while every element is
+     already running. A plain positive delay would park the sparks at 0% until their turn
+     came, which is a pile-up in the panel's top-left corner for the first half-second. */
+  animation-delay: calc(var(--lag, 0s) - var(--orbit-dur));
   pointer-events: none;
+}
+
+.orbit-ship {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.55));
+}
+
+/* Exhaust, as a string of sparks flying the path themselves rather than one bar drawn
+   behind the ship. A bar is rigid: it can only ever be a straight line tangent to wherever
+   the ship is, so at every corner it swung out across the turn instead of following it.
+   Each spark has its own place on the same path, so the trail bends through the corners
+   exactly as the ship does. */
+.orbit-spark {
+  width: var(--size, 4px);
+  height: var(--size, 4px);
+  margin: calc(var(--size, 4px) / -2) 0 0 calc(var(--size, 4px) / -2);
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+/* Without motion-path support none of this has an orbit to fly and it would all sit in the
+   panel's top-left corner, so it is not drawn at all. */
+@supports not (offset-path: border-box) {
+  .orbit-ship,
+  .orbit-spark {
+    display: none;
+  }
 }
 
 @keyframes orbit-ship {
   to { offset-distance: 100%; }
 }
 
-/* Exhaust. Sits behind the ship in the ship's own frame, which the auto-rotation then
-   carries around the circuit for free. */
-.orbit-ship-trail {
-  width: 54px;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(to left, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
-}
-
-/* Without motion-path support the ship has no orbit to fly and would simply sit in the
-   panel's top-left corner, so it is not drawn at all. */
-@supports not (offset-path: border-box) {
-  .orbit-ship {
-    display: none;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .orbit-ship {
+  .orbit-ship,
+  .orbit-spark {
     animation: none;
   }
 }
