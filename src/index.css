@@ -1126,20 +1126,17 @@
 .reveal-card::before {
   z-index: 1;
   padding: 1px;
-  /* 320px, not 170px. This is the gradient a *neighbouring* card gets, and the pointer is
-     never closer to it than the width of the card it is actually on plus the grid gap — from
-     the middle of a 286px card that is 167px away, which a 170px radius reached with exactly
-     nothing. Ends on a dim floor rather than `transparent`: on a tall card (the roadmap
-     cards are ~400px) that floor is the difference between the ring fading out partway down
-     and it running the full length of the card — a hard cut to transparent partway along an
-     edge is what read as the light stopping short of the card's own bottom corner instead of
-     reaching it. The floor stays low enough that the reveal is still clearly directional,
-     brightest near the pointer and dim (not equal) everywhere else. */
+  /* This is the gradient a *neighbouring* card gets, and the pointer is never closer to it
+     than the width of the card it is actually on plus the grid gap — from the middle of a
+     286px card that is 167px away, which a 170px radius reached with exactly nothing, hence
+     240px. The last stop is a floor, not `transparent`: past the gradient's own radius that
+     colour continues to the far corner, so the floor is literally what the unlit three
+     quarters of the outline are drawn in. */
   background: radial-gradient(
     240px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.16) 42%,
-    rgba(255, 255, 255, 0.03) 100%
+    rgba(255, 255, 255, 0.28) 42%,
+    rgba(255, 255, 255, 0.14) 100%
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -1164,19 +1161,21 @@
   opacity: 1;
 }
 
-/* The hovered card lights only the stretch of outline the pointer is actually near.
-   Deliberately NOT the card's own diagonal (--rr) with a bright floor, which is what the
-   previous version used: spanning the whole card and never falling below 0.38 meant every
-   edge lit at once the moment the pointer entered, so the card read as uniformly outlined
-   and the effect lost all sense of direction. A fixed radius smaller than the card, fading
-   to near-nothing, is what makes the light track the pointer along the border instead. */
+/* The hovered card: brightest where the pointer is, but the outline stays *drawn the whole
+   way round*. Those are two separate requirements and the earlier 0.04 floor only met the
+   first — measured on a roadmap card with the pointer at its top corner, the lit stretch
+   came out at luminance 255 against 72 for the other three sides, and next to a 255 edge a
+   72 one does not read as dim, it reads as missing. The floor is now high enough to be
+   unambiguously a line (~117) while the peak still triples it, which keeps the light clearly
+   travelling along the border rather than switching the whole card on at once — the failure
+   mode of the old never-below-0.38 version this replaced. */
 .reveal-border:hover::after,
 .reveal-card:hover::before {
   background: radial-gradient(
     230px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 1),
-    rgba(255, 255, 255, 0.45) 40%,
-    rgba(255, 255, 255, 0.04) 100%
+    rgba(255, 255, 255, 0.55) 40%,
+    rgba(255, 255, 255, 0.28) 100%
   );
 }
 
