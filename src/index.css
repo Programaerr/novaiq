@@ -1113,13 +1113,17 @@
   /* 320px, not 170px. This is the gradient a *neighbouring* card gets, and the pointer is
      never closer to it than the width of the card it is actually on plus the grid gap — from
      the middle of a 286px card that is 167px away, which a 170px radius reached with exactly
-     nothing. The falloff still has to reach zero, so a card two along stays dark and the
-     reveal keeps a direction. */
+     nothing. Ends on a dim floor rather than `transparent`: on a tall card (the roadmap
+     cards are ~400px) that floor is the difference between the ring fading out partway down
+     and it running the full length of the card — a hard cut to transparent partway along an
+     edge is what read as the light stopping short of the card's own bottom corner instead of
+     reaching it. The floor stays low enough that the reveal is still clearly directional,
+     brightest near the pointer and dim (not equal) everywhere else. */
   background: radial-gradient(
     320px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 0.9),
     rgba(255, 255, 255, 0.18) 45%,
-    transparent 78%
+    rgba(255, 255, 255, 0.05) 100%
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
