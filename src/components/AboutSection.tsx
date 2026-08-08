@@ -25,37 +25,18 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
               lucide rocket is drawn pointing up-right and the motion path steers whatever
               points along +X, so another 45° clockwise brings its nose onto the heading. */}
           <div className="orbit" aria-hidden="true">
-            {/* Sparks first, so they paint under the ship where they overlap it. The lag is
-                what places each one on the path: at this orbit's speed the set spans about
-                60px of plume behind the ship, and it scales with the panel, since a smaller
-                panel means a shorter circuit covered in the same 26s.
-
-                Everything else here is the flame reading right rather than merely trailing.
-                It is hottest and tightest at the nozzle and breaks up going back, so size
-                and brightness fall off while --spread (how far the flicker throws it off
-                axis) rises. The tint follows the same gradient a real exhaust does —
-                white-hot at the throat, warm through the middle, ashen at the tail — kept
-                shallow enough not to turn a monochrome page amber. The flicker rate and
-                phase differ per spark on purpose: one shared rhythm reads as a pulsing
-                string of beads, not as combustion. */}
-            {Array.from({ length: 12 }, (_, i) => (
-              <span
-                key={i}
-                className="orbit-spark"
-                style={{
-                  '--lag': `${(i + 1) * 0.05}s`,
-                  '--size': `calc(${(6.4 - i * 0.42).toFixed(2)}px * var(--ship-scale))`,
-                  '--o': (0.62 - i * 0.045).toFixed(2),
-                  '--spread': (0.5 + i * 0.22).toFixed(2),
-                  '--tint': i < 3 ? '#ffffff' : i < 6 ? '#ffeccd' : i < 9 ? '#ffd6a3' : '#e4ded6',
-                  '--flick': `${180 + (i % 4) * 55}ms`,
-                  '--flick-delay': `${-i * 37}ms`,
-                } as React.CSSProperties}
-              />
-            ))}
-            {/* 20px on phones, 28px above — the same 1.4 the flame scales by, so the two
-                stay in proportion. */}
+            {/* The flame is inside the ship and before it in the row, so it burns out of the
+                nozzle and the ship's own rotation keeps it there — no second thing to steer.
+                Three ellipses, not one: a white core inside a warm middle inside a wide
+                blurred envelope is what gives it depth instead of a flat shape. See
+                .orbit-flame. The rocket is 20px on phones and 28px above, the same 1.4 the
+                flame scales by, so the two stay in proportion. */}
             <span className="orbit-ship">
+              <span className="orbit-flame">
+                <span className="orbit-flame-plume" />
+                <span className="orbit-flame-inner" />
+                <span className="orbit-flame-core" />
+              </span>
               <Rocket className="w-5 h-5 sm:w-7 sm:h-7 rotate-45" strokeWidth={1.5} />
             </span>
           </div>

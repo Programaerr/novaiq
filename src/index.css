@@ -204,99 +204,136 @@
   }
 }
 
-.orbit-ship,
-.orbit-spark {
+.orbit-ship {
   position: absolute;
   /* Required. The offset transform is applied on top of the element's normal position, so
      anything other than the box origin would displace the whole orbit by that much. */
   top: 0;
   left: 0;
+  display: flex;
+  align-items: center;
   offset-path: border-box;
   offset-rotate: auto;
   offset-distance: 0%;
   pointer-events: none;
-}
-
-.orbit-ship {
-  display: flex;
-  align-items: center;
   color: #ffffff;
   filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.55));
   animation: orbit-ship var(--orbit-dur) linear infinite;
   animation-delay: calc(0s - var(--orbit-dur));
 }
 
-/* Exhaust, as a string of sparks flying the path themselves rather than one bar drawn
-   behind the ship. A bar is rigid: it can only ever be a straight line tangent to wherever
-   the ship is, so at every corner it swung out across the turn instead of following it.
-   Each spark has its own place on the same path, so the trail bends through the corners
-   exactly as the ship does.
-
-   Two animations at once, on properties that don't collide: the orbit drives offset-distance
-   and the flame drives transform and opacity. Because offset-rotate has already turned the
-   spark onto its heading, and `transform` applies inside that rotated frame, the flame's
-   translateY throws it *sideways off the plume's axis* wherever the ship happens to be —
-   which is the turbulence, and it costs no maths of its own. */
-.orbit-spark {
-  width: var(--size, 4px);
-  height: var(--size, 4px);
-  margin: calc(var(--size, 4px) / -2) 0 0 calc(var(--size, 4px) / -2);
-  border-radius: 999px;
-  color: var(--tint, #ffffff);
-  background: currentColor;
-  box-shadow: 0 0 calc(var(--size, 4px) * 1.8) currentColor;
-  animation-name: orbit-ship, orbit-flame;
-  animation-duration: var(--orbit-dur), var(--flick, 240ms);
-  animation-timing-function: linear, ease-in-out;
-  animation-iteration-count: infinite, infinite;
-  /* A negative delay of one whole period is the same phase as none at all, so subtracting
-     the lag from it puts each spark that far *behind* the ship while every element is
-     already running. A plain positive delay would park the sparks at 0% until their turn
-     came, which is a pile-up in the panel's top-left corner for the first half-second. The
-     flame's delay is negative for the same reason, and differs per spark so the plume
-     sputters unevenly instead of pulsing as one body. */
-  animation-delay: calc(var(--lag, 0s) - var(--orbit-dur)), var(--flick-delay, 0s);
-}
-
-/* Combustion is not periodic and neither is this: it surges, overshoots, collapses well
-   below its own resting brightness, then recovers. Amplitude is scaled per spark by
-   --spread, small at the nozzle where the flow is still tight and growing down the plume as
-   it breaks up. */
-@keyframes orbit-flame {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-    opacity: var(--o, 0.5);
-  }
-  30% {
-    transform: translateY(calc(var(--spread, 1) * -1.6px)) scale(1.32);
-    opacity: calc(var(--o, 0.5) * 1.45);
-  }
-  55% {
-    transform: translateY(calc(var(--spread, 1) * 1.1px)) scale(0.7);
-    opacity: calc(var(--o, 0.5) * 0.45);
-  }
-  80% {
-    transform: translateY(calc(var(--spread, 1) * -0.5px)) scale(1.14);
-    opacity: calc(var(--o, 0.5) * 1.15);
-  }
-}
-
-/* Without motion-path support none of this has an orbit to fly and it would all sit in the
-   panel's top-left corner, so it is not drawn at all. */
-@supports not (offset-path: border-box) {
-  .orbit-ship,
-  .orbit-spark {
-    display: none;
-  }
-}
-
 @keyframes orbit-ship {
   to { offset-distance: 100%; }
 }
 
+/* Exhaust — burning out of the ship's own nozzle rather than strung along the path behind
+   it. Being a child of the ship is what makes that true at every moment: offset-rotate has
+   already turned the ship onto its heading, so a flame laid to its left is behind it
+   wherever it is and however it is banking, with nothing to keep in sync. */
+.orbit-flame {
+  position: relative;
+  width: calc(46px * var(--ship-scale));
+  height: calc(18px * var(--ship-scale));
+  /* Overlaps the nozzle slightly so the flame emerges from inside the ship rather than
+     starting at a seam beside it. */
+  margin-right: calc(-4px * var(--ship-scale));
+}
+
+/* Volume comes from stacking three ellipses that differ in every axis at once — size,
+   colour temperature and blur. A flame is not a shape with an edge; it is a hot core you
+   can almost see through a cooler, softer envelope, and reading it as solid depends on the
+   envelope being blurred far more than the core. Anchored right-centre so each one grows
+   away from the nozzle instead of around its own middle. */
+.orbit-flame > span {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  transform-origin: right center;
+  border-radius: 50%;
+  animation: orbit-flame-pulse var(--flick, 260ms) ease-in-out infinite;
+  animation-delay: var(--flick-delay, 0s);
+}
+
+.orbit-flame-plume {
+  width: 100%;
+  height: 100%;
+  --a: 0.75;
+  background: radial-gradient(
+    ellipse at 100% 50%,
+    rgba(255, 196, 120, 0.8) 0%,
+    rgba(255, 150, 60, 0.34) 42%,
+    rgba(255, 120, 40, 0) 74%
+  );
+  filter: blur(calc(4px * var(--ship-scale)));
+  --flick: 330ms;
+  --flick-delay: -80ms;
+}
+
+.orbit-flame-inner {
+  width: 62%;
+  height: 62%;
+  --a: 0.9;
+  background: radial-gradient(
+    ellipse at 100% 50%,
+    rgba(255, 242, 214, 0.95) 0%,
+    rgba(255, 190, 110, 0.5) 46%,
+    rgba(255, 160, 70, 0) 76%
+  );
+  filter: blur(calc(1.8px * var(--ship-scale)));
+  --flick: 220ms;
+  --flick-delay: -140ms;
+}
+
+.orbit-flame-core {
+  width: 30%;
+  height: 34%;
+  --a: 1;
+  background: radial-gradient(
+    ellipse at 100% 50%,
+    #ffffff 0%,
+    rgba(255, 236, 205, 0.9) 55%,
+    rgba(255, 210, 150, 0) 82%
+  );
+  filter: blur(calc(0.7px * var(--ship-scale)));
+  --flick: 170ms;
+  --flick-delay: -40ms;
+}
+
+/* Combustion is not periodic and neither is this: it surges long, overshoots, collapses
+   well below its own resting brightness, then recovers. scaleX and scaleY move against
+   each other so the flame necks and swells rather than simply zooming, and the three layers
+   run at three different rates so the plume never pulses as one body. */
+@keyframes orbit-flame-pulse {
+  0%, 100% {
+    transform: translateY(-50%) scale(1, 1);
+    opacity: var(--a, 0.8);
+  }
+  35% {
+    transform: translateY(-50%) scale(1.24, 0.84);
+    opacity: calc(var(--a, 0.8) * 1.18);
+  }
+  60% {
+    transform: translateY(-50%) scale(0.8, 1.14);
+    opacity: calc(var(--a, 0.8) * 0.66);
+  }
+  85% {
+    transform: translateY(-50%) scale(1.1, 0.93);
+    opacity: calc(var(--a, 0.8) * 1.06);
+  }
+}
+
+/* Without motion-path support the ship has no orbit to fly and would simply sit in the
+   panel's top-left corner, so it is not drawn at all. */
+@supports not (offset-path: border-box) {
+  .orbit-ship {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .orbit-ship,
-  .orbit-spark {
+  .orbit-flame > span {
     animation: none;
   }
 }
