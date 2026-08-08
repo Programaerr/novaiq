@@ -1589,7 +1589,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               the other three hand the site a real device viewport of its own. */}
           {/* Screen-width switcher. No device mock-ups — each choice simply lays the site out
               at that width so the customer can see how it reflows on their audience's screens. */}
-          <div className={`flex items-center gap-1 bg-black rounded-xl border border-zinc-800 ${isNarrowViewport ? 'p-0.5 text-[10px]' : 'p-1 text-xs'}`}>
+          <div className={`ml-[5px] flex items-center gap-1 bg-black rounded-xl border border-zinc-800 ${isNarrowViewport ? 'p-0.5 text-[10px]' : 'p-1 text-xs'}`}>
             {([
               { key: 'full', label: 'شاشتك', title: 'العرض على شاشتك الحالية' },
               { key: 'desktop', label: 'كمبيوتر', title: 'عرض بعرض 1280 بكسل' },
