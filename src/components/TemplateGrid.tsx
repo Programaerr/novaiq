@@ -370,7 +370,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             onPointerUp={endDrag}
             onPointerLeave={endDrag}
             style={{ perspective: '1800px' }}
-            className="relative w-full max-w-4xl h-[600px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+            className="relative w-full max-w-4xl h-[520px] sm:h-[600px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -404,7 +404,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // blind; the already-accepted 0.82/0.68 sizing is the safe, known-good part
             // of this and rotateY/translateZ are purely additive to it.
             const rotY = isActive ? 0 : offset > 0 ? -16 : 16;
-            const stepPx = isMobile ? 180 : 235;
+            // Kept in the same ratio to card width as before the shrink (0.6 mobile /
+            // 0.618 desktop) so the spacing between cards still reads the same relative
+            // to their new smaller size, instead of opening into wider-looking gaps.
+            const stepPx = isMobile ? 145 : 190;
             const livePx = isDragging ? dragPx : 0;
 
             return (
@@ -412,7 +415,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${clampedOffset * stepPx + livePx}px) translateZ(${-cappedDistance * 90}px) rotateY(${rotY}deg) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
+                  transform: `translate(-50%, -50%) translateX(${clampedOffset * stepPx + livePx}px) translateZ(${-cappedDistance * 72}px) rotateY(${rotY}deg) scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // Position/scale glide in slow motion; opacity settles fast on its own —
@@ -423,7 +426,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   transition: isDragging ? 'none' : 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
                   pointerEvents: isVisible ? undefined : 'none',
                 }}
-                className={`absolute top-1/2 left-1/2 w-[300px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute top-1/2 left-1/2 w-60 sm:w-75 ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 {/* Idle float — see the .template-card-bob comment in index.css for why
                     this has to be a separate element from the positioning div above it.
@@ -444,7 +447,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className="relative h-40 sm:h-56 overflow-hidden bg-black cursor-pointer group/img"
+                  className="relative h-32 sm:h-44 overflow-hidden bg-black cursor-pointer group/img"
                 >
                   <img
                     src={template.previewImage}

@@ -974,6 +974,37 @@
 .milestone-card:nth-child(4n + 3) .milestone-stars { background-position: 61px 211px; }
 .milestone-card:nth-child(4n + 4) .milestone-stars { background-position: 229px 133px; }
 
+/* Cards drift gently on the same scroll that drives the stars behind them — view(), not
+   scroll(): a per-card "how far through the viewport am I" progress, not the whole
+   document's. Makes the section read as one interactive cosmic scene the cards belong to,
+   instead of a static grid sitting in front of a sky that's the only thing moving. Same
+   compositor reasoning as the stars above (see the comment on .milestone-stars): handed to
+   animation-timeline so it can't lag a frame behind real scroll input the way a scroll
+   listener would. On mobile's single-column stack each card has its own entry/exit point,
+   so they drift in a natural stagger; in the desktop grid, cards sharing a row share the
+   same vertical bounds and so drift in lockstep. No JS fallback needed for unsupported
+   browsers — unlike cancelling the star pattern, a card that just holds still is still
+   correct, only less lively. */
+@keyframes milestone-card-drift {
+  from { transform: translateY(48px); }
+  to { transform: translateY(-48px); }
+}
+
+@supports (animation-timeline: view()) {
+  .milestone-card {
+    animation-name: milestone-card-drift;
+    animation-timeline: view();
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .milestone-card {
+    animation: none;
+  }
+}
+
 /* Corner sweep — a white light band that travels from the top-left corner to the
    bottom-right corner and loops, automatically, independent of text direction (it's a
    screen-space diagonal, not a logical start/end). */
