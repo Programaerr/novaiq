@@ -133,8 +133,11 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                   </ul>
 
                   {/* mt-auto pins this to the foot of the card however long the phase's task
-                      list runs, so the four cards' figures and links line up across the row
-                      instead of each sitting wherever its own list happened to end. */}
+                      list runs, so the four cards' figures line up across the row instead of
+                      each sitting wherever its own list happened to end. The per-card
+                      "Start Your Project" link that used to close this block is gone at the
+                      customer's request; the section's own button below is the one route out
+                      of here now. */}
                   <div className="mt-auto pt-8">
                     {/* Not font-mono, unlike the smaller version of this line it replaces:
                         the mono face letter-spaces Arabic, which at 11px was a quirk and at
@@ -147,23 +150,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                         ? `المرحلة ${index + 1} من 4 · 2 أسابيع`
                         : `Phase ${index + 1} of 4 · 2 Weeks`}
                     </p>
-
-                    <button
-                      onClick={() => {
-                        onCreateContract();
-                        cosmicAudio.playWarp();
-                      }}
-                      className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-white underline underline-offset-[6px] decoration-white/40 hover:decoration-white transition-colors cursor-pointer"
-                    >
-                      <span>{language === 'ar' ? 'ابدأ مشروعك' : 'Start Your Project'}</span>
-                      {/* The arrow leads the eye toward where the text is heading, so it
-                          points and travels with the writing direction, not against it. */}
-                      <ArrowLeft
-                        className={`w-4 h-4 transition-transform duration-300 ${
-                          language === 'en' ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'
-                        }`}
-                      />
-                    </button>
                   </div>
                 </div>
 
