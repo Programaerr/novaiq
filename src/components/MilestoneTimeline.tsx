@@ -97,7 +97,12 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                 // reveal-border rather than the card's own overflow clip: the ring is masked
                 // to the outline, so it works on a card that must stay overflow-visible for
                 // the badge poking past its top edge.
-                className="spotlight-track reveal-border bg-zinc-950 border border-zinc-700 rounded-[32px] p-6 pt-11 flex flex-col justify-between space-y-6 relative group transition-all shadow-xl"
+                // px-6 pt-11 pb-4, not p-6 pt-11: the uniform 24px bottom padding was the
+                // gap the "2 Weeks / Phase X of 4" row sat inside before hitting the card's
+                // own border — no amount of glow tuning could remove it, since it was empty
+                // padding, not a lighting problem. Tightened it to 16px so the text sits
+                // close to the border instead of leaving a visible dead strip beneath it.
+                className="spotlight-track reveal-border bg-zinc-950 border border-zinc-700 rounded-[32px] px-6 pt-11 pb-4 flex flex-col justify-between space-y-6 relative group transition-all shadow-xl"
               >
 
                 {/* Background phase-number — fades in on card hover (simple hover, no
