@@ -11,14 +11,24 @@ Rules:
 
 ## ast-grep
 
-Each collaborator installs it once per machine: `npm i -g @ast-grep/cli` (it's a search tool, deliberately not a `package.json` dependency — it isn't needed to build or run the site).
+Usage and syntax live in the global `~/.claude/CLAUDE.md` search ladder — not repeated here.
+Install once per machine: `npm i -g @ast-grep/cli` (a search tool, deliberately not a
+`package.json` dependency — it isn't needed to build or run the site).
 
-Searches the syntax tree rather than the text, so finding one element inside a large `.tsx` costs a few matched lines instead of the whole file:
+Worth reaching for here specifically: the long JSX-heavy components (`TemplateGrid.tsx`,
+`TemplateInteractiveSandbox.tsx`, `HeroSection.tsx`, `sandbox/templates/*`) whose `className`s
+are template literals spanning several lines — the exact case where a text search returns the
+wrong line and tempts a full-file read.
 
-```
-ast-grep run -p '<button $$$>' -l tsx src/components/TemplateGrid.tsx
-```
+## Verification cost in this repo
 
-The `run` subcommand is required — a bare `ast-grep -p ...` silently prints nothing.
+`vite build` here takes 30–90s and the useful signal is the chunk table, so run it only for
+dependency/config/chunking changes (see the global verification table). Two project specifics:
 
-This file's components are long and JSX-heavy (`TemplateGrid.tsx`, `TemplateInteractiveSandbox.tsx`, the `sandbox/templates/*` demos), and their `className`s are frequently template literals spanning several lines — exactly the case where a text search returns the wrong line. Reach for this before opening one of them.
+- **CSS-only edits need no check at all.** `src/index.css` is not read by `tsc`, and Tailwind
+  classes are scanned at build time — a gradient, colour, or radius value cannot fail either.
+- **Heavy optional deps need both halves.** A new large dependency needs a `manualChunks`
+  bucket in `vite.config.ts` *and* an entry in the `modulePreload.resolveDependencies`
+  exclusion list; miss the second and it still downloads eagerly. `vendor-three` and
+  `vendor-pdf` are the worked examples. Only the printed chunk sizes reveal this — exit 0 will
+  not.
