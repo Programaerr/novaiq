@@ -826,17 +826,22 @@
    clips it for free: the card cannot use overflow:hidden, because that would also clip its
    `.reveal-border` ring, which sits at inset:-1px *outside* the padding box.
 
-   The gradient's centre is at 124% — past the card, not inside it. Only the falloff lands
+   The gradient's centre is at 116% — past the card, not inside it. Only the falloff lands
    on the card, which is the whole trick: the reference art is a saturated blue whose hot
    core can sit in frame, and a white one cannot, because the card's own text is white and
-   would dissolve into it. Peak brightness on the card face works out at luminance ~55. */
+   would dissolve into it.
+
+   The vertical radius is 115%, i.e. larger than the card, so the light climbs most of the
+   way up rather than banding along the bottom edge. Measured down the face, luminance runs
+   roughly 9 at the top through 17, 33, 63 and ~95 at the foot — clearly a light, and still
+   past 6:1 contrast under the white text that sits in the brightest part of it. */
 .milestone-card {
   background:
     radial-gradient(
-      130% 92% at 50% 124%,
-      rgba(255, 255, 255, 0.26) 0%,
-      rgba(255, 255, 255, 0.115) 40%,
-      rgba(255, 255, 255, 0.03) 68%,
+      135% 115% at 50% 116%,
+      rgba(255, 255, 255, 0.46) 0%,
+      rgba(255, 255, 255, 0.2) 40%,
+      rgba(255, 255, 255, 0.05) 70%,
       rgba(255, 255, 255, 0) 100%
     ),
     #08080a;

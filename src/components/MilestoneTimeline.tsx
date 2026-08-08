@@ -137,10 +137,13 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                       list runs, so the four cards' figures and links line up across the row
                       instead of each sitting wherever its own list happened to end. */}
                   <div className="mt-auto pt-8">
-                    <div className="font-mono text-2xl font-extrabold text-white tracking-tight">
+                    {/* Not font-mono, unlike the smaller version of this line it replaces:
+                        the mono face letter-spaces Arabic, which at 11px was a quirk and at
+                        24px pulls "الأسبوع 1 - 2" apart into loose glyphs. */}
+                    <div className="text-2xl font-extrabold text-white tracking-tight">
                       {ms.weeks}
                     </div>
-                    <p className="mt-1 font-mono text-[11px] text-zinc-400">
+                    <p className="mt-1 text-[11px] text-zinc-400">
                       {language === 'ar'
                         ? `المرحلة ${index + 1} من 4 · 2 أسابيع`
                         : `Phase ${index + 1} of 4 · 2 Weeks`}
