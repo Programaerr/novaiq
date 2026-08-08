@@ -14,13 +14,6 @@ import Lenis from 'lenis';
 export function useSmoothScroll() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    // Never on touch. A phone already scrolls on the compositor, driven by the OS, which is
-    // as smooth as scrolling gets and costs the main thread nothing. Lenis cannot improve on
-    // that — it can only take the job away from the compositor and hand it to a rAF loop
-    // that runs for the entire visit, which is how a page that scrolled fine natively starts
-    // tearing. The docstring above already says this only changes wheel/trackpad feel; this
-    // makes the code agree with it instead of paying for a loop that had nothing to do.
-    if (window.matchMedia('(pointer: coarse)').matches) return;
 
     const lenis = new Lenis({
       duration: 1.1,

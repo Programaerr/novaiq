@@ -359,7 +359,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               much denser fill (55% black) at a cheaper 12px blur — same frosted look, far
               less to recompute per frame. Reusing that proven combo here instead of a bespoke
               one. */}
-          <div className="glass-bar flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 shadow-xl shadow-black/20 p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 shadow-xl shadow-black/20 p-3 sm:p-4">
             <button
               onClick={() => {
                 setShowFilterPanel(!showFilterPanel);

@@ -238,10 +238,7 @@ export const TemplateCards3D: React.FC = () => {
         frameloop={onScreen ? 'always' : 'never'}
         camera={{ position: [0, 0, 6], fov: 46 }}
         dpr={[1, 1.75]}
-        // powerPreference "default", not "high-performance": that hint asks a laptop to wake
-        // its discrete GPU for what is a decorative scene, and it is exactly the kind of
-        // request that shortens battery life for no visible gain here.
-        gl={{ antialias: true, alpha: true, powerPreference: 'default' }}
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         // Clicking empty space drops the current pick, so there is always a way back out
         // without having to find the same card again.
         onPointerMissed={() => setActive(null)}

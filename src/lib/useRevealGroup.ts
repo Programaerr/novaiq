@@ -14,33 +14,30 @@ import { useEffect, useRef } from 'react';
  * so its gradient falls off to nothing on its own — the proximity falloff is the gradient's,
  * not distance math we have to write.
  *
- * ## Mouse only, deliberately
+ * Mouse and touch are handled by two separate sets of listeners, which looks redundant next
+ * to pointer events' whole promise of unifying them, and is not:
  *
- * This is a cursor effect, and a touchscreen has no cursor. It used to run on touch too, via
- * a second set of touch listeners, and that was the source of two separate bugs on phones:
+ *   - A finger that starts to drag has its *pointer* stream cancelled, because the browser
+ *     has decided the gesture belongs to the scroller. `touchmove` keeps firing throughout.
+ *     Since the ask is that the light follow the finger, the light has to outlive that
+ *     handover, so touch reads touch events and the pointer handlers ignore `touch` entirely
+ *     rather than the two fighting over the same gesture.
+ *   - Touch has no hover, so its lifecycle is the press: lit on touchstart, released on
+ *     touchend. Which also means `is-live` cannot wait for the first *move* to know where
+ *     the light goes — touchstart paints before it lights the group, or the first frame
+ *     lands dead-centre on every card, at --rx/--ry's 50% fallback.
  *
- *   - Every `touchstart` painted synchronously and re-lit the group, so rapid taps restarted
- *     the 260ms opacity transition over and over. On a card that is also running a
- *     scroll-driven transform (the roadmap cards' drift), that repaint pressure showed up as
- *     the card visibly blinking out and back.
- *   - Phones are the weakest hardware the site runs on, and they were being asked to
- *     rasterize a large masked radial gradient per card per frame for an effect that has no
- *     meaning without a pointer to follow.
- *
- * Gating on `(hover: hover) and (pointer: fine)` removes both at the root rather than tuning
- * around them: on touch, nothing here attaches at all, and the matching `@media` block in
- * index.css takes the pseudo-elements out of the render tree entirely so their masks are
- * never rasterized either. Touch devices keep the cards' own static borders.
+ * Touch listeners are passive: this must never be able to hold up a scroll.
  *
  * ## No layout reads per frame
  *
- * The naive version measured every card with getBoundingClientRect() inside the rAF, which is
- * a forced synchronous layout on every single frame of every pointer move — with four to ten
- * cards in a group, the dominant cost of the whole effect and the reason it stuttered on
- * weaker machines. Card positions relative to their group do not change as the pointer moves,
- * so they are measured once and cached; a frame then needs only arithmetic and style writes.
- * Anything that *can* invalidate the cache (scroll, resize) just flags it, and the next frame
- * re-measures at most once.
+ * Card rects used to be measured inside the rAF, one getBoundingClientRect() per card per
+ * frame — a forced synchronous layout on every frame of every pointer move, and with four to
+ * ten cards in a group the dominant cost of the whole effect. Positions relative to the group
+ * do not change as the pointer moves, so they are measured once and cached; a frame then
+ * needs only arithmetic and style writes. Anything that can invalidate the cache (scroll,
+ * resize) just flags it, and the next frame re-measures at most once. Purely an internal
+ * change — the effect itself is unchanged on every device.
  */
 export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);
@@ -48,8 +45,6 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
   useEffect(() => {
     const group = ref.current;
     if (!group) return;
-    // No cursor, no cursor effect. See the note above — this is what keeps phones out of it.
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
     let frame = 0;
     let stale = true;
@@ -59,6 +54,9 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     // Each card's box relative to the group's own origin — fixed as long as nothing reflows,
     // which is what lets a frame skip measuring entirely.
     let boxes: Array<{ x: number; y: number; w: number; h: number }> = [];
+    // The card the pointer is currently inside, if any. `:hover` says this for a mouse but
+    // has nothing to say for a finger, so it is tracked here and mirrored as `.is-touched`.
+    let inside: HTMLElement | null = null;
 
     const measure = () => {
       const gr = group.getBoundingClientRect();
@@ -76,10 +74,19 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
       if (stale) measure();
       const gx = clientX - groupX;
       const gy = clientY - groupY;
+      let hit: HTMLElement | null = null;
       for (let i = 0; i < cards.length; i++) {
         const b = boxes[i];
-        cards[i].style.setProperty('--rx', `${gx - b.x}px`);
-        cards[i].style.setProperty('--ry', `${gy - b.y}px`);
+        const x = gx - b.x;
+        const y = gy - b.y;
+        cards[i].style.setProperty('--rx', `${x}px`);
+        cards[i].style.setProperty('--ry', `${y}px`);
+        if (x >= 0 && x <= b.w && y >= 0 && y <= b.h) hit = cards[i];
+      }
+      if (hit !== inside) {
+        inside?.classList.remove('is-touched');
+        hit?.classList.add('is-touched');
+        inside = hit;
       }
     };
 
@@ -96,36 +103,63 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
       });
     };
 
-    // Classes toggled straight on the node rather than through state: these fire on every
+    // Classes toggled straight on the nodes rather than through state: these fire on every
     // enter/leave and a re-render of the whole section per hover would be wasted work.
-    const onEnter = (e: PointerEvent) => {
-      paint(e.clientX, e.clientY);
+    const light = (clientX: number, clientY: number) => {
+      paint(clientX, clientY);
       group.classList.add('is-live');
     };
 
-    const onLeave = () => {
+    const leave = () => {
       group.classList.remove('is-live');
+      inside?.classList.remove('is-touched');
+      inside = null;
     };
 
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') schedule(e.clientX, e.clientY);
+    };
+    const onPointerEnter = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') light(e.clientX, e.clientY);
+    };
+    const onPointerLeave = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') leave();
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) light(t.clientX, t.clientY);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) schedule(t.clientX, t.clientY);
+    };
+
+    // Cached boxes are viewport-relative, so both of these move them. Flag-only handlers:
+    // the re-measure itself happens inside the next frame's paint, at most once.
     const invalidate = () => {
       stale = true;
     };
 
-    const onMove = (e: PointerEvent) => schedule(e.clientX, e.clientY);
-
-    group.addEventListener('pointermove', onMove);
-    group.addEventListener('pointerenter', onEnter);
-    group.addEventListener('pointerleave', onLeave);
-    // Cached boxes are viewport-relative, so both of these move them. Flag-only handlers:
-    // the re-measure itself happens inside the next frame's paint, at most once.
+    group.addEventListener('pointermove', onPointerMove);
+    group.addEventListener('pointerenter', onPointerEnter);
+    group.addEventListener('pointerleave', onPointerLeave);
+    group.addEventListener('touchstart', onTouchStart, { passive: true });
+    group.addEventListener('touchmove', onTouchMove, { passive: true });
+    group.addEventListener('touchend', leave, { passive: true });
+    group.addEventListener('touchcancel', leave, { passive: true });
     window.addEventListener('scroll', invalidate, { passive: true });
     window.addEventListener('resize', invalidate);
 
     return () => {
       if (frame) cancelAnimationFrame(frame);
-      group.removeEventListener('pointermove', onMove);
-      group.removeEventListener('pointerenter', onEnter);
-      group.removeEventListener('pointerleave', onLeave);
+      group.removeEventListener('pointermove', onPointerMove);
+      group.removeEventListener('pointerenter', onPointerEnter);
+      group.removeEventListener('pointerleave', onPointerLeave);
+      group.removeEventListener('touchstart', onTouchStart);
+      group.removeEventListener('touchmove', onTouchMove);
+      group.removeEventListener('touchend', leave);
+      group.removeEventListener('touchcancel', leave);
       window.removeEventListener('scroll', invalidate);
       window.removeEventListener('resize', invalidate);
     };

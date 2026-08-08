@@ -26,17 +26,6 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
     // reduced-motion has to be checked before mounting it, not styled around afterwards.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // Phones never get the canvas at all. This is the heaviest thing on the site — a live
-    // three.js scene with six textured cards — and a mid-range Android spends the whole page
-    // fighting it, which is what showed up as the site stuttering everywhere rather than
-    // just here. It is decorative, and the static preview below is a genuine substitute for
-    // it, so the honest trade is to not run it on the hardware that cannot afford it.
-    // `pointer: coarse` is the phone/tablet test; the core count catches weak laptops and
-    // cheap Chromebooks that report a fine pointer but have no headroom either.
-    const coarse = window.matchMedia('(pointer: coarse)').matches;
-    const weak = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4;
-    if (coarse || weak) return;
-
     const show = () => setShowCanvas(true);
     // Checked via `typeof window.x` rather than `'x' in window`: the `in` form narrows
     // `window` itself, and since lib.dom declares requestIdleCallback the else branch

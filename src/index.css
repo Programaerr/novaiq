@@ -1211,46 +1211,17 @@
    unambiguously a line (~117) while the peak still triples it, which keeps the light clearly
    travelling along the border rather than switching the whole card on at once — the failure
    mode of the old never-below-0.38 version this replaced. */
-.reveal-border:hover::after {
+/* `.is-touched` is the same statement as `:hover` for a finger, which has none — the hook
+   works out which card the pointer is inside and says so. Without it the card under the
+   finger would light like one of its own neighbours. */
+.reveal-border:hover::after,
+.reveal-border.is-touched::after {
   background: radial-gradient(
     230px circle at var(--rx, 50%) var(--ry, 50%),
     rgba(255, 255, 255, 1),
     rgba(255, 255, 255, 0.55) 40%,
     rgba(255, 255, 255, 0.28) 100%
   );
-}
-
-/* Touch devices get neither half of the reveal, and get it removed rather than merely
-   switched off. `opacity: 0` would still leave the browser rasterizing a large radial
-   gradient through a `mask-composite` pair per card — the single most expensive thing on
-   this page, on the weakest hardware it runs on, for an effect that cannot mean anything
-   without a cursor to follow. `display: none` takes them out of the render tree outright.
-   useRevealGroup() gates on the same query and attaches no listeners at all there, so
-   nothing writes --rx/--ry either. This pair is also what fixed the roadmap cards blinking
-   on rapid taps: with no per-tap re-light there is no repaint to catch a composited card
-   mid-rasterization. See the hook's own comment for the full account. */
-@media (hover: none), (pointer: coarse) {
-  .reveal-face::before,
-  .reveal-border::after {
-    display: none;
-  }
-}
-
-/* Glass bars (the navbar pill, the page back bar) — the two elements that are `fixed` and
-   therefore have the entire page scrolling behind them.
-   `backdrop-filter` is not painted once: the browser re-samples and re-blurs whatever sits
-   behind the element every frame its backdrop changes, which for a fixed bar means every
-   frame of every scroll, on every page. On a phone GPU that is a standing cost the visitor
-   pays for the whole visit, and it is a large part of why scrolling felt torn there.
-   A denser flat fill buys the same "you cannot read the content through this" separation
-   for nothing per frame — the blur was only ever doing the work the opacity now does.
-   Desktop keeps the real glass. */
-@media (pointer: coarse) {
-  .glass-bar {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    background-color: rgba(0, 0, 0, 0.88);
-  }
 }
 
 /* Custom Scrollbar */
