@@ -14,13 +14,20 @@ import { useEffect, useRef } from 'react';
  * so its gradient falls off to nothing on its own — the proximity falloff is the gradient's,
  * not distance math we have to write.
  *
- * Pointer events, not mouse events, so a finger drives this exactly as a mouse does: on touch
- * the enter/leave pair straddles the press rather than a hover, so the light appears under
- * the finger, follows it, and fades when it lifts. This used to bail out on `(hover: none)`
- * devices entirely, on the grounds that with no pointer --rx/--ry sit at their 50% fallback
- * and every card would glow dead-centre for ever. That is what `is-live` is for — nothing is
- * lit until a real pointer position has been written — so the guard was costing touch users
- * the effect to solve a problem the class already solved.
+ * Mouse and touch are handled by two separate sets of listeners, which looks redundant next
+ * to pointer events' whole promise of unifying them, and is not:
+ *
+ *   - A finger that starts to drag has its *pointer* stream cancelled, because the browser
+ *     has decided the gesture belongs to the scroller. `touchmove` keeps firing throughout.
+ *     Since the ask is that the light follow the finger, the light has to outlive that
+ *     handover, so touch reads touch events and the pointer handlers ignore `touch` entirely
+ *     rather than the two fighting over the same gesture.
+ *   - Touch has no hover, so its lifecycle is the press: lit on touchstart, released on
+ *     touchend. Which also means `is-live` cannot wait for the first *move* to know where
+ *     the light goes — touchstart paints before it lights the group, or the first frame
+ *     lands dead-centre on every card, at --rx/--ry's 50% fallback.
+ *
+ * Touch listeners are passive: this must never be able to hold up a scroll.
  */
 export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);
@@ -30,47 +37,89 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     if (!group) return;
 
     let frame = 0;
+    // The card the pointer is currently inside, if any. `:hover` says this for a mouse but
+    // has nothing to say for a finger, so it is tracked here and mirrored as `.is-touched`.
+    let inside: HTMLElement | null = null;
 
     const paint = (clientX: number, clientY: number) => {
       const cards = group.querySelectorAll<HTMLElement>('.reveal-border, .reveal-face');
       // Measure every card first, then write. Interleaving the two would force a fresh
       // layout per card on every frame.
       const rects = [...cards].map((el) => el.getBoundingClientRect());
+      let hit: HTMLElement | null = null;
       cards.forEach((el, i) => {
         const r = rects[i];
         el.style.setProperty('--rx', `${clientX - r.left}px`);
         el.style.setProperty('--ry', `${clientY - r.top}px`);
+        if (clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom) {
+          hit = el;
+        }
       });
+      if (hit !== inside) {
+        inside?.classList.remove('is-touched');
+        (hit as HTMLElement | null)?.classList.add('is-touched');
+        inside = hit;
+      }
     };
 
-    const onMove = (e: PointerEvent) => {
-      // pointermove can fire well above the refresh rate; coalesce to one paint per frame.
+    // Move events can fire well above the refresh rate; coalesce to one paint per frame.
+    const schedule = (clientX: number, clientY: number) => {
       if (frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
-        paint(e.clientX, e.clientY);
+        paint(clientX, clientY);
       });
     };
 
-    // Class toggled straight on the node rather than through state: this fires on every
+    // Classes toggled straight on the nodes rather than through state: these fire on every
     // enter/leave and a re-render of the whole section per hover would be wasted work.
-    const onEnter = () => group.classList.add('is-live');
-    const onLeave = () => group.classList.remove('is-live');
+    const light = (clientX: number, clientY: number) => {
+      paint(clientX, clientY);
+      group.classList.add('is-live');
+    };
 
-    group.addEventListener('pointermove', onMove);
-    group.addEventListener('pointerenter', onEnter);
-    group.addEventListener('pointerleave', onLeave);
-    // A finger that starts scrolling has its pointer stream cancelled by the browser: no
-    // further pointermove arrives, so without this the light would freeze mid-card and stay
-    // there while the page slid away underneath it.
-    group.addEventListener('pointercancel', onLeave);
+    const leave = () => {
+      group.classList.remove('is-live');
+      inside?.classList.remove('is-touched');
+      inside = null;
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') schedule(e.clientX, e.clientY);
+    };
+    const onPointerEnter = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') light(e.clientX, e.clientY);
+    };
+    const onPointerLeave = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') leave();
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) light(t.clientX, t.clientY);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) schedule(t.clientX, t.clientY);
+    };
+
+    group.addEventListener('pointermove', onPointerMove);
+    group.addEventListener('pointerenter', onPointerEnter);
+    group.addEventListener('pointerleave', onPointerLeave);
+    group.addEventListener('touchstart', onTouchStart, { passive: true });
+    group.addEventListener('touchmove', onTouchMove, { passive: true });
+    group.addEventListener('touchend', leave, { passive: true });
+    group.addEventListener('touchcancel', leave, { passive: true });
 
     return () => {
       if (frame) cancelAnimationFrame(frame);
-      group.removeEventListener('pointermove', onMove);
-      group.removeEventListener('pointerenter', onEnter);
-      group.removeEventListener('pointerleave', onLeave);
-      group.removeEventListener('pointercancel', onLeave);
+      group.removeEventListener('pointermove', onPointerMove);
+      group.removeEventListener('pointerenter', onPointerEnter);
+      group.removeEventListener('pointerleave', onPointerLeave);
+      group.removeEventListener('touchstart', onTouchStart);
+      group.removeEventListener('touchmove', onTouchMove);
+      group.removeEventListener('touchend', leave);
+      group.removeEventListener('touchcancel', leave);
     };
   }, []);
 
