@@ -326,7 +326,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return () => cancelAnimationFrame(id);
   }, [isDragging]);
 
-  // Auto-advance one card every 8s, in slow motion (see the 1.6s transition below) — loops
+  // Auto-advance one card every 8s (see the 0.55s transition below) — loops
   // back to the first card after the last one. Paused while the visitor is dragging, and
   // skipped entirely under reduced-motion. Depending on `activeIndex` restarts the 8s clock
   // after any manual click/arrow/swipe, so autoplay never fights the visitor's own input.
@@ -519,16 +519,23 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   transform: `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px))) translateZ(${-cappedDistance * 72}px) rotateY(${rotY}deg)`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
-                  // Position glides in slow motion; opacity settles fast on its own —
-                  // otherwise the incoming card visibly fades up out of a haze for the
-                  // whole 1.6s, instead of just sliding into place already at full clarity.
+                  // 0.55s, matched to the scale transition on the wrapper below. It used to
+                  // be 1.6s against that 0.45s, and three different durations for one
+                  // movement is what made a flip read as unfinished: the incoming card
+                  // reached full size and full brightness in under half a second and then
+                  // kept drifting toward the middle for another second, so it looked like
+                  // the wrong card was sitting in the centre. Position and size now arrive
+                  // together and the card lands where it belongs, at once. Opacity stays
+                  // slightly ahead on purpose — otherwise the card fades up out of a haze
+                  // rather than sliding in already clear.
+                  //
                   // The transform half is suspended while dragging so the offset tracks the
-                  // finger/mouse 1:1 instead of chasing it on a 1.6s easing; opacity keeps
-                  // its transition throughout, since a card that takes the middle mid-drag
+                  // finger/mouse 1:1 rather than chasing it on an easing; opacity keeps its
+                  // transition throughout, since a card that takes the middle mid-drag
                   // should still brighten smoothly rather than pop.
                   transition: isDragging
                     ? 'opacity 0.35s ease'
-                    : 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
+                    : 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
                   pointerEvents: isVisible ? undefined : 'none',
                   // Out-of-range cards stay mounted (unmounting them made every <img>
                   // reload on the way back in — see the note above), but each one still
@@ -555,7 +562,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 <div
                   style={{
                     transform: `scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
-                    transition: 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)',
+                    // Same 0.55s and same curve as the positional transform above — see the
+                    // note there on why the two must agree.
+                    transition: 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                 >
                 <div
