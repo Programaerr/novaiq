@@ -761,7 +761,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(var(--spot-r, 170px) circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1) 40%, transparent 72%);
+  background: radial-gradient(var(--spot-r, 170px) circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.07) 45%, rgba(255, 255, 255, 0.018) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -794,7 +794,7 @@
 .spotlight-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(var(--spot-r, 170px) circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1) 40%, transparent 72%);
+  background: radial-gradient(var(--spot-r, 170px) circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.07) 45%, rgba(255, 255, 255, 0.018) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -1137,9 +1137,9 @@
   z-index: 0;
   background: radial-gradient(
     var(--spot-r, 170px) circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 0.34),
-    rgba(255, 255, 255, 0.1) 40%,
-    transparent 72%
+    rgba(255, 255, 255, 0.32),
+    rgba(255, 255, 255, 0.07) 45%,
+    rgba(255, 255, 255, 0.018) 100%
   );
 }
 

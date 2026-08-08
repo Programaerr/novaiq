@@ -10,7 +10,12 @@ function setSpotPosition(el: HTMLElement, clientX: number, clientY: number) {
   // barely a third of one and their bottom stayed unlit wherever the pointer went — which
   // read as the glow being broken on that section specifically. The floor keeps small cards
   // from getting a glow so tight it looks like a dot.
-  el.style.setProperty('--spot-r', `${Math.max(160, Math.max(rect.width, rect.height) * 0.55)}px`);
+  //
+  // This only sizes the *bright* core. Reaching the card's far corners is the job of the
+  // gradient's final stop, which ends on a barely-there white rather than `transparent` —
+  // a radial-gradient extends its last colour outward forever, so that faint floor covers
+  // the whole card and there is no black wedge left between the lit circle and the border.
+  el.style.setProperty('--spot-r', `${Math.max(120, Math.max(rect.width, rect.height) * 0.40)}px`);
 }
 
 /**
