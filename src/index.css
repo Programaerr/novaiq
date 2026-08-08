@@ -761,7 +761,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.22), transparent 70%);
+  background: radial-gradient(170px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1) 40%, transparent 72%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -794,7 +794,7 @@
 .spotlight-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(220px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.14), transparent 70%);
+  background: radial-gradient(170px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1) 40%, transparent 72%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -1136,9 +1136,10 @@
 .reveal-card::after {
   z-index: 0;
   background: radial-gradient(
-    130px circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 0.07),
-    transparent 66%
+    170px circle at var(--rx, 50%) var(--ry, 50%),
+    rgba(255, 255, 255, 0.34),
+    rgba(255, 255, 255, 0.1) 40%,
+    transparent 72%
   );
 }
 
@@ -1147,22 +1148,19 @@
   opacity: 1;
 }
 
-/* The hovered card gets its *whole* outline, brightest at the pointer. Two things make that
-   work where the neighbour gradient above would not:
-     - the radius is --rr, the card's own diagonal (written per card by useRevealGroup), so
-       the gradient spans the card no matter where inside it the pointer sits. A fixed 170px
-       simply never reached the corners of a 286x407 roadmap card.
-     - the outermost stop is a visible white rather than `transparent`, so the far edge has a
-       floor and never falls to nothing.
-   Neighbours deliberately keep the tight, fading gradient — that is what keeps the
-   cross-card reveal directional instead of lighting every card equally. */
+/* The hovered card lights only the stretch of outline the pointer is actually near.
+   Deliberately NOT the card's own diagonal (--rr) with a bright floor, which is what the
+   previous version used: spanning the whole card and never falling below 0.38 meant every
+   edge lit at once the moment the pointer entered, so the card read as uniformly outlined
+   and the effect lost all sense of direction. A fixed radius smaller than the card, fading
+   to near-nothing, is what makes the light track the pointer along the border instead. */
 .reveal-border:hover::after,
 .reveal-card:hover::before {
   background: radial-gradient(
-    var(--rr, 420px) circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.6) 35%,
-    rgba(255, 255, 255, 0.38) 100%
+    230px circle at var(--rx, 50%) var(--ry, 50%),
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0.45) 40%,
+    rgba(255, 255, 255, 0.04) 100%
   );
 }
 
