@@ -100,7 +100,12 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ onCreateCo
                 // would clip that away. The card's light is a `background` instead (the
                 // border-radius clips it for free) and the two layers that genuinely need
                 // clipping sit in the absolutely positioned wrapper below.
-                className="milestone-card reveal-border border border-white/10 rounded-[26px] p-7 flex flex-col relative group transition-all shadow-xl"
+                // transition-colors, not transition-all: `all` includes `transform`, and
+                // these cards run a scroll-driven transform animation (.milestone-card's
+                // drift). Declaring a transition on the same property an animation is
+                // continuously driving makes the style system reconcile the two every
+                // frame for no benefit — nothing here animates transform on a state change.
+                className="milestone-card reveal-border border border-white/10 rounded-[26px] p-7 flex flex-col relative group transition-colors shadow-xl"
               >
 
                 {/* z-10 on the whole content column rather than on pieces of it: absolutely

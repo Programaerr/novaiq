@@ -507,11 +507,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     : 'transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
                   pointerEvents: isVisible ? undefined : 'none',
                   // Out-of-range cards stay mounted (unmounting them made every <img>
-                  // reload on the way back in — see the note above), but there is no reason
-                  // to keep compositing and painting them at zero opacity. With ten
-                  // templates that is most of the strip; hidden, they cost nothing per
-                  // frame and their images stay in memory either way.
-                  visibility: isVisible ? undefined : 'hidden',
+                  // reload on the way back in — see the note above), but each one still
+                  // carries a 3D transform, so each one still costs a compositor layer. On
+                  // a weak GPU ten of those is real memory pressure. Hidden, they cost
+                  // nothing and their images stay loaded either way.
+                  //
+                  // >= 4 rather than the `isVisible` cut at 2, because `visibility` is not
+                  // interpolable: flipping it the moment a card leaves range would yank it
+                  // away mid-fade, while its opacity was still transitioning 0.28 -> 0. By
+                  // distance 3 that fade has already finished and the card is fully
+                  // transparent, so hiding it one step later is imperceptible.
+                  visibility: distance >= 4 ? 'hidden' : undefined,
                 }}
                 className={`absolute top-1/2 left-1/2 w-60 sm:w-75 ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
