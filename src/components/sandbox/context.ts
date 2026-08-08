@@ -22,6 +22,12 @@ export interface SandboxTheme {
    *  primaryBg is itself white and would vanish into the card. Only monochrome differs. */
   solidOnLight: string;
   solidOnLightText: string;
+  /** A dark card body tinted toward the palette's hue — a raw hex, not a Tailwind class, and
+   *  the only field here that is. The car catalogue card paints this value twice, as its own
+   *  background and as the end stop of the gradient that dissolves the photo into it, and the
+   *  two have to be the same colour to the byte or a seam appears where the photo stops. A
+   *  class name cannot be handed to a gradient stop, so the hex travels instead. */
+  cardSurface: string;
 }
 
 export interface SandboxCtx {
@@ -79,6 +85,7 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         onPrimary: 'text-white',
         solidOnLight: 'bg-purple-600 hover:bg-purple-500',
         solidOnLightText: 'text-white',
+        cardSurface: '#272334',
       };
     case 'cyan':
       return {
@@ -90,6 +97,7 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         onPrimary: 'text-white',
         solidOnLight: 'bg-cyan-600 hover:bg-cyan-500',
         solidOnLightText: 'text-white',
+        cardSurface: '#1d2c30',
       };
     case 'amber':
       return {
@@ -101,6 +109,7 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         onPrimary: 'text-white',
         solidOnLight: 'bg-amber-600 hover:bg-amber-500',
         solidOnLightText: 'text-white',
+        cardSurface: '#302719',
       };
     case 'rose':
       return {
@@ -112,6 +121,7 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         onPrimary: 'text-white',
         solidOnLight: 'bg-rose-600 hover:bg-rose-500',
         solidOnLightText: 'text-white',
+        cardSurface: '#33232a',
       };
     case 'monochrome':
       return {
@@ -127,6 +137,7 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         onPrimary: 'text-black',
         solidOnLight: 'bg-zinc-900 hover:bg-black',
         solidOnLightText: 'text-white',
+        cardSurface: '#232325',
       };
     case 'emerald':
     default:
@@ -139,6 +150,7 @@ export function themeClassesFor(themeColor: ThemeColor): SandboxTheme {
         onPrimary: 'text-white',
         solidOnLight: 'bg-emerald-600 hover:bg-emerald-500',
         solidOnLightText: 'text-white',
+        cardSurface: '#232c28',
       };
   }
 }
