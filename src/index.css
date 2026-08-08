@@ -1236,6 +1236,23 @@
   }
 }
 
+/* Glass bars (the navbar pill, the page back bar) — the two elements that are `fixed` and
+   therefore have the entire page scrolling behind them.
+   `backdrop-filter` is not painted once: the browser re-samples and re-blurs whatever sits
+   behind the element every frame its backdrop changes, which for a fixed bar means every
+   frame of every scroll, on every page. On a phone GPU that is a standing cost the visitor
+   pays for the whole visit, and it is a large part of why scrolling felt torn there.
+   A denser flat fill buys the same "you cannot read the content through this" separation
+   for nothing per frame — the blur was only ever doing the work the opacity now does.
+   Desktop keeps the real glass. */
+@media (pointer: coarse) {
+  .glass-bar {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: rgba(0, 0, 0, 0.88);
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

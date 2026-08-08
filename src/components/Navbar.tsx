@@ -182,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         // the bar's own bottom edge, darkening whatever sat beneath it (the back bar, the top
         // of the page content) rather than reading as depth. The white/15 border already
         // separates the bar from the page, so the shadow was only ever costing contrast.
-        className="bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl pt-3 pb-2 px-3 sm:p-3 sm:px-6 flex items-center justify-between gap-3 relative"
+        className="glass-bar bg-black/55 backdrop-blur-md border border-white/15 rounded-2xl sm:rounded-3xl pt-3 pb-2 px-3 sm:p-3 sm:px-6 flex items-center justify-between gap-3 relative"
       >
 
         {/* Side 1 (physical left): Account — before login, a single "Login" entry point
