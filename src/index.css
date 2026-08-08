@@ -773,11 +773,25 @@
   height: var(--fill-hover);
 }
 
-/* Windows/Fluent-style spotlight — a soft light that follows the pointer inside the
-   card. --spot-x/--spot-y are pushed straight to the DOM by useSpotlight() (mouse via
-   onMouseMove, touch via onTouchMove), so the glow tracks every frame without a React
-   re-render. Touch screens have no :hover, so onTouchStart/onTouchEnd toggle the
-   `spotlight-touch` class as the equivalent "lit while a finger is down" signal. */
+/* The hover-light half of the Windows/Fluent reveal — the face of the card lightens under
+   the pointer while `.reveal-border` lights its edge. --spot-x/--spot-y are pushed straight
+   to the DOM by useSpotlight() (mouse via onMouseMove, touch via onTouchMove), so it tracks
+   every frame without a React re-render. Touch screens have no :hover, so
+   onTouchStart/onTouchEnd toggle `spotlight-touch` as the "lit while a finger is down"
+   signal.
+
+   Two things separate this from the version before it, which read as a blurred white smudge
+   parked on the card rather than as light:
+
+   1. It is dim. 0.13 peaking over black is a sheen, where the old 0.32 was a shape. In the
+      real thing the *edge* is the bright element and the face barely lifts; making the face
+      compete with the border is what turned it into a blob.
+   2. It has no size of its own. The old gradient was a fixed ~140px circle inside a 190px
+      card, so its own edge fell inside the card and drew a visible disc. Omitting the size
+      means `farthest-corner`: the gradient always ends past the far corner, whatever the
+      card's shape and wherever the pointer is, so there is no circle to see — only falloff.
+      It also means the pool naturally widens as the pointer nears an edge, the way a real
+      light spreads, and no JS has to measure anything. */
 .spotlight-card {
   position: relative;
   overflow: hidden;
@@ -787,7 +801,12 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(var(--spot-r, 170px) circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.07) 45%, rgba(255, 255, 255, 0.018) 100%);
+  background: radial-gradient(
+    circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(255, 255, 255, 0.13),
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(255, 255, 255, 0) 100%
+  );
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -795,39 +814,6 @@
 
 .spotlight-card:hover::before,
 .spotlight-card.spotlight-touch::before {
-  opacity: 1;
-}
-
-/* Same mechanic as .spotlight-card, but as a real child element instead of a pseudo-element
-   on the card itself — for cards whose own box must stay `overflow: visible` (e.g. a badge
-   that intentionally pokes past the card's edge) and so can't take .spotlight-card's own
-   `overflow: hidden`. Drop this inside whatever inner layer already clips to the card's
-   shape (--spot-x/--spot-y are custom properties, so they inherit down from the card that
-   actually received the pointer events). Trigger class lives on that outer card. */
-/* isolation: isolate scopes z-index comparisons to this card alone. Without it, the glow
-   wrapper below (position:absolute, z-index:auto) still paints ABOVE the card's plain
-   in-flow text siblings regardless of DOM order — positioned elements always paint after
-   non-positioned ones in the same stacking context, no matter which comes first in the
-   markup. That put the glow layer on top of the bottom weeks/phase text instead of under
-   it. Isolating the card, then giving that text its own `relative z-10` (see
-   MilestoneTimeline.tsx), pins the paint order explicitly instead of leaving it to this
-   default. */
-.spotlight-track {
-  position: relative;
-  isolation: isolate;
-}
-
-.spotlight-glow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(var(--spot-r, 170px) circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.07) 45%, rgba(255, 255, 255, 0.018) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.spotlight-track:hover .spotlight-glow,
-.spotlight-track.spotlight-touch .spotlight-glow {
   opacity: 1;
 }
 

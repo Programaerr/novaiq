@@ -2,13 +2,16 @@ import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useRevealGroup } from '../lib/useRevealGroup';
+import { useSpotlight } from '../lib/useSpotlight';
 
 interface AboutSectionProps {
   language?: Language;
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
+  // The two halves of the Fluent reveal: the edge nearest the pointer, and the face under it.
   const revealGroup = useRevealGroup<HTMLDivElement>();
+  const spotlight = useSpotlight<HTMLDivElement>();
 
   return (
     <section id="about-section" className="py-10 sm:py-14 relative">
@@ -54,17 +57,17 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 desc: language === 'ar' ? 'تحديثات استقرار ومتابعة فنية بحسب الاتفاق المبرم بين الطرفين.' : 'System updates and technical follow-ups according to mutual agreement.'
               }
             ].map((item, idx) => (
-              // The edge light and nothing else — `reveal-border`, not the `reveal-card` that
-              // used to be here, which added a soft radial wash across the card's face on top
-              // of the ring. That wash was the last of the halo effects this section has been
-              // asked to lose (glow-white-hover and spotlight-card went the same way), and it
-              // is not the Windows reveal being imitated either: that one lights the *edge*
-              // nearest the pointer. `hover:border-white/40` is long gone for a related reason
-              // — brightening the whole border at once fights a light whose entire point is
-              // that one side of it is brighter than the rest.
+              // Both halves of the reveal, the same pair the productivity panel wears:
+              // `reveal-border` lights the edge nearest the pointer, `spotlight-card` lifts
+              // the face under it. The face light used to be a `reveal-card` variant tuned
+              // far brighter, which read as a white smudge sitting on the card — see the
+              // note on .spotlight-card for what that took. `hover:border-white/40` is long
+              // gone for a related reason: brightening the whole border at once fights a
+              // light whose entire point is that one side of it is brighter than the rest.
               <div
                 key={idx}
-                className="reveal-border min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 text-center transition-all"
+                {...spotlight}
+                className="spotlight-card reveal-border min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 text-center transition-all"
               >
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>
