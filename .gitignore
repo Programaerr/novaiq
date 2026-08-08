@@ -21,3 +21,20 @@ _*.png
 # with it). Untracked, it can never appear in a merge at all — same treatment as node_modules/
 # or dist/. Each of us just runs `graphify update .` locally whenever we want a current graph.
 graphify-out/
+
+# Claude instruction files — untracked on purpose, same reasoning as graphify-out/ above.
+# These are rewritten almost every working session (they are where working rules and
+# token-saving conventions get tuned), and with GitDoc auto-committing on save, two people
+# editing them independently means a guaranteed merge conflict where one person's rules
+# silently replace the other's. They are personal working preferences, not build inputs —
+# nothing in the site depends on them.
+#
+# Deliberately NOT excluded, so both setups keep behaving the same without hand-syncing:
+#   .claude/settings.json   — the graphify hook-guard config; static and rarely edited
+#   .claude/skills/         — the graphify skill
+#   .agents/skills/         — the react-three-fiber skill pack
+#
+# To hand these rules to a collaborator, send them the standalone setup file rather than
+# committing these back: novaiq-claude-setup.md, kept outside the repo.
+/CLAUDE.md
+/.claude/CLAUDE.md
