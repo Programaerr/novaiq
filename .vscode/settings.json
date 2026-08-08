@@ -1,3 +1,5 @@
 {
-    "gitdoc.enabled": true
+    "gitdoc.enabled": true,
+    "dart.flutterWebRenderer": "auto",
+    "workbench.browser.enableRemoteProxy": true
 }
