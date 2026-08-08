@@ -863,17 +863,15 @@
     );
 }
 
-/* Cards drift gently on the same scroll that drives the stars behind them — view(), not
-   scroll(): a per-card "how far through the viewport am I" progress, not the whole
-   document's. Makes the section read as one interactive cosmic scene the cards belong to,
-   instead of a static grid sitting in front of a sky that's the only thing moving. Same
-   compositor reasoning as the stars above (see the comment on .milestone-stars): handed to
-   animation-timeline so it can't lag a frame behind real scroll input the way a scroll
-   listener would. On mobile's single-column stack each card has its own entry/exit point,
-   so they drift in a natural stagger; in the desktop grid, cards sharing a row share the
-   same vertical bounds and so drift in lockstep. No JS fallback needed for unsupported
-   browsers — unlike cancelling the star pattern, a card that just holds still is still
-   correct, only less lively. */
+/* Cards drift gently on scroll — view(), not scroll(): a per-card "how far through the
+   viewport am I" progress, not the whole document's. Makes the section read as one
+   interactive cosmic scene the cards belong to, instead of a static grid sitting in front
+   of a sky that's the only thing moving. Handed to animation-timeline rather than a scroll
+   listener so it runs on the compositor and can't lag a frame behind real scroll input. On
+   mobile's single-column stack each card has its own entry/exit point, so they drift in a
+   natural stagger; in the desktop grid, cards sharing a row share the same vertical bounds
+   and so drift in lockstep. No JS fallback needed for unsupported browsers — a card that
+   just holds still there is still correct, only less lively. */
 @keyframes milestone-card-drift {
   from { transform: translateY(48px); }
   to { transform: translateY(-48px); }
