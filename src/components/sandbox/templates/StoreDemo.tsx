@@ -273,6 +273,15 @@ export function StoreDemo({ ctx, addToCart, cart, customerCity, customerName, cu
         </div>
       </div>
 
+      {/* NOVAIQ's own catalogue name for this template — a preview-only label, not part of
+          the fictional store's own branding, so it sits below the store's own navbar rather
+          than inside it. Mirrors SiteTopBar's topLabel, which the other nine demos get through
+          `ctx.renderSiteTopBar`; this one hand-rolls its own navbar instead of going through
+          that shared component, so it needs its own copy of the label. */}
+      <div className="text-center text-xs sm:text-sm font-bold text-white -mt-3">
+        {ctx.template.title}
+      </div>
+
       {/* Products Grid */}
       <div className={`grid ${gridCols('grid-cols-1', 'sm:grid-cols-2 lg:grid-cols-3')} gap-6`}>
         {sortedProducts.map((prod, prodIndex) => (
