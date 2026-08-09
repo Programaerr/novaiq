@@ -139,6 +139,10 @@ export const SiteTopBar: React.FC<{
   /** For wordmarks that are latin//path-like ("~/Logo") — RTL would otherwise reorder them
    *  into "Logo/~", since the surrounding document runs right-to-left. */
   logoNameLtr?: boolean;
+  /** NOVAIQ's own catalogue name for this template — a preview-only label, not part of the
+   *  fictional site's own branding, so it gets a thin strip of its own inside the same
+   *  rounded/bordered shell rather than sharing the logo row with the demo's own identity. */
+  topLabel?: React.ReactNode;
   searchValue: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder: string;
@@ -150,6 +154,7 @@ export const SiteTopBar: React.FC<{
   logoName,
   logoMarkClass,
   logoNameLtr,
+  topLabel,
   searchValue,
   onSearchChange,
   searchPlaceholder,
@@ -160,8 +165,9 @@ export const SiteTopBar: React.FC<{
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   return (
-    <div className="sticky top-1 sm:top-2 z-30 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
-      <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrow ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
+    <div className="sticky top-1 sm:top-2 z-30 mb-6 select-none">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 rounded-2xl overflow-hidden">
+        <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrow ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
         {/* Right cluster: sections menu, then search. */}
         <div className="flex items-center gap-2 shrink-0">
           {menuButton}
@@ -233,6 +239,13 @@ export const SiteTopBar: React.FC<{
         {/* Left cluster: whatever this template's business actually does. */}
         <div className="flex items-center gap-2 shrink-0">{actionSlot}</div>
       </div>
+      </div>
+
+      {topLabel && (
+        <div className="text-center text-xs sm:text-sm font-bold text-white mt-2">
+          {topLabel}
+        </div>
+      )}
     </div>
   );
 };

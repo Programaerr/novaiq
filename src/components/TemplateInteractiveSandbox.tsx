@@ -1257,6 +1257,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       logoMark={logoMark}
       logoName={logoName}
       logoNameLtr={logoNameLtr}
+      topLabel={template.title}
       logoMarkClass={`${themeStyle.primaryBg} ${themeStyle.onPrimary}`}
       searchValue={siteSearch}
       onSearchChange={setSiteSearch}
@@ -1458,9 +1459,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     <>
       {renderSiteDrawer()}
       <div className="space-y-4 sm:space-y-5">
-        <h2 className="text-center text-sm sm:text-base font-bold text-white">
-          {template.title}
-        </h2>
         {authView === 'login'
           ? renderLoginPage()
           : authView === 'account'
