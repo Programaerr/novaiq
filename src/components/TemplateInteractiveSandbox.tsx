@@ -1587,20 +1587,22 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               { key: 'desktop', label: 'كمبيوتر', title: 'عرض بعرض 1280 بكسل' },
               { key: 'tablet', label: 'تابلت', title: 'عرض بعرض 834 بكسل' },
               { key: 'mobile', label: 'جوال', title: 'عرض بعرض 390 بكسل' },
-            ] as const).map(({ key, label, title }) => (
-              <button
-                key={key}
-                onClick={() => { setViewport(key); cosmicAudio.playTick(); }}
-                title={title}
-                className={`nq-btn rounded-lg cursor-pointer whitespace-nowrap ${isNarrowViewport ? 'px-1.5 py-1' : 'px-2.5 py-1 sm:py-1.5'} ${
-                  viewport === key
-                    ? 'nq-btn--solid font-bold'
-                    : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                <span className="nq-btn-beam" aria-hidden="true" />
-                {label}
-              </button>
+            ] as const).map(({ key, label, title }, idx) => (
+              <React.Fragment key={key}>
+                {idx > 0 && <span className="w-px h-4 bg-zinc-800 shrink-0" aria-hidden="true" />}
+                <button
+                  onClick={() => { setViewport(key); cosmicAudio.playTick(); }}
+                  title={title}
+                  className={`nq-btn rounded-lg cursor-pointer whitespace-nowrap ${isNarrowViewport ? 'px-1.5 py-1' : 'px-2.5 py-1 sm:py-1.5'} ${
+                    viewport === key
+                      ? 'nq-btn--solid font-bold'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <span className="nq-btn-beam" aria-hidden="true" />
+                  {label}
+                </button>
+              </React.Fragment>
             ))}
           </div>
 
