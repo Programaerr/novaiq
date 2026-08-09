@@ -1616,13 +1616,19 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         </div>
       </div>
 
-      {/* The live site — inline at the visitor's own screen size, or pinned to a chosen width. */}
-      <div
-        data-lenis-prevent
-        className={`flex-1 min-h-0 w-full flex flex-col items-center justify-start p-2 sm:p-4 bg-black/30 backdrop-blur-sm ${
-          viewport === 'full' ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'
-        }`}
-      >
+      {/* The live site — inline at the visitor's own screen size, or pinned to a chosen width.
+          Star layers sit on this outer, non-scrolling wrapper rather than inside the scrollable
+          pane itself — as a descendant of an overflow-auto box they'd scroll away with the
+          content instead of reading as a fixed backdrop the way CosmicBackground's do site-wide. */}
+      <div className="relative flex-1 min-h-0 w-full overflow-hidden">
+        <div className="star-layer star-layer--far" />
+        <div className="star-layer star-layer--near" />
+        <div
+          data-lenis-prevent
+          className={`relative z-10 h-full w-full flex flex-col items-center justify-start p-2 sm:p-4 bg-black/30 backdrop-blur-sm ${
+            viewport === 'full' ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'
+          }`}
+        >
         {viewport === 'full' ? (
           <div className="w-full min-h-full bg-black/30 backdrop-blur-sm text-slate-100 p-3 sm:p-8 max-w-7xl mx-auto">
             {renderLiveSite()}
@@ -1635,6 +1641,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             themeColor={themeColor}
           />
         )}
+        </div>
       </div>
 
       {/* Floating Bottom Action Bar */}
