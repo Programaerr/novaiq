@@ -1518,9 +1518,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           <div className="relative">
             <button
               onClick={() => setShowColorPicker(!showColorPicker)}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-800 flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-all"
+              className="nq-btn nq-btn--solid p-2 sm:px-3 sm:py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold cursor-pointer"
               title="تخصيص ألوان القالب المباشرة"
             >
+              <span className="nq-btn-beam" aria-hidden="true" />
               <Palette className="w-3.5 h-3.5 text-amber-400" />
               <span className="hidden lg:inline text-[11px]">ألوان القالب</span>
             </button>
@@ -1648,10 +1649,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
           <button
             onClick={() => onSelectForContract(template, buildCustomizationSummary(), THEME_COLOR_HEX[themeColor])}
-            className="flex-1 sm:flex-initial px-4 sm:px-5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold white-btn-glow flex items-center justify-center gap-1.5 cursor-pointer border border-white"
+            className="nq-btn nq-btn--solid flex-1 sm:flex-initial px-4 sm:px-5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
           >
+            <span className="nq-btn-beam" aria-hidden="true" />
             <span>طلب واستخراج العقد</span>
-            <ArrowLeft className="w-4 h-4 text-black ltr:rotate-180" />
+            <ArrowLeft className="w-4 h-4 ltr:rotate-180" />
           </button>
         </div>
       </div>
