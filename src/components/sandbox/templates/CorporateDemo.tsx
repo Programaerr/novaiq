@@ -112,13 +112,11 @@ export function CorporateDemo({ ctx, corpDetail, orgSize, setCorpDetail, setOrgS
 
   return (
     <div className="relative space-y-6 text-slate-100">
-      {/* Ambient cosmic glows behind the glass UI — cheap radial gradients, not a
-          full-surface blur filter, so this stays smooth even on weak devices. */}
+      {/* Ambient cosmic glow behind the glass UI — a cheap radial gradient, not a
+          full-surface blur filter, so this stays smooth even on weak devices. The purple
+          companion glow that used to sit top-right is gone; it bled through the sandbox's
+          own glass toolbar as an unrelated tint the toolbar was never designed to sit on. */}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-3xl select-none" aria-hidden="true">
-        <div
-          className="absolute -top-20 -right-10 w-72 h-72 rounded-full"
-          style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(139,92,246,0.35) 0%, rgba(88,28,135,0.14) 45%, rgba(0,0,0,0) 78%)' }}
-        />
         <div
           className="absolute top-1/3 -left-16 w-64 h-64 rounded-full"
           style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(63,63,70,0.30) 0%, rgba(39,39,42,0.14) 45%, rgba(0,0,0,0) 78%)' }}
