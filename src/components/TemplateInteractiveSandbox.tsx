@@ -1522,7 +1522,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
               title="تخصيص ألوان القالب المباشرة"
             >
               <span className="nq-btn-beam" aria-hidden="true" />
-              <Palette className="w-3.5 h-3.5 text-amber-400" />
+              <Palette className="w-3.5 h-3.5" />
               <span className="hidden lg:inline text-[11px]">ألوان القالب</span>
             </button>
 
