@@ -1607,8 +1607,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           <button
             onClick={openInNewTab}
             title="فتح القالب في تبويب مستقل بأعلى جودة"
-            className="p-1.5 sm:px-3 sm:py-2 rounded-xl bg-zinc-900 text-zinc-300 hover:text-white border border-zinc-800 text-[11px] font-bold flex items-center gap-1.5 cursor-pointer glow-white-hover transition-colors"
+            className="nq-btn nq-btn--solid p-1.5 sm:px-3 sm:py-2 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer"
           >
+            <span className="nq-btn-beam" aria-hidden="true" />
             <Eye className="w-4 h-4" />
             <span className="hidden xl:inline">فتح كموقع مستقل</span>
             <ExternalLink className="w-3 h-3 hidden xl:inline" />
