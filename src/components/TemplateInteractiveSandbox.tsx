@@ -1458,6 +1458,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     <>
       {renderSiteDrawer()}
       <div className="space-y-4 sm:space-y-5">
+        <h2 className="text-center text-sm sm:text-base font-bold text-white">
+          {template.title}
+        </h2>
         {authView === 'login'
           ? renderLoginPage()
           : authView === 'account'
@@ -1508,12 +1511,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             <ArrowLeft className="w-4 h-4 ltr:rotate-180" />
             <span className="hidden sm:inline">العودة</span>
           </button>
-          <div className="h-5 w-px bg-zinc-800 hidden sm:block shrink-0" />
-          <div className="min-w-0">
-            <h3 className="text-xs sm:text-sm font-bold text-white truncate max-w-[130px] sm:max-w-xs">
-              {template.title}
-            </h3>
-          </div>
         </div>
 
         {/* Center Color Picker & Viewport Switcher Controls */}
