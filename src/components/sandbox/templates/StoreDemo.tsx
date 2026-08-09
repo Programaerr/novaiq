@@ -278,7 +278,7 @@ export function StoreDemo({ ctx, addToCart, cart, customerCity, customerName, cu
           than inside it. Mirrors SiteTopBar's topLabel, which the other nine demos get through
           `ctx.renderSiteTopBar`; this one hand-rolls its own navbar instead of going through
           that shared component, so it needs its own copy of the label. */}
-      <div className="text-center text-xs sm:text-sm font-bold text-white -mt-3">
+      <div className="text-center text-xs sm:text-sm font-bold text-white">
         {ctx.template.title}
       </div>
 
