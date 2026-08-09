@@ -13,3 +13,4 @@ package-lock.json -merge
 # Shell hooks must keep LF endings on every platform — a CRLF shebang line can fail to execute
 # under Git Bash / WSL, silently turning the safety hook below into a no-op.
 .githooks/* text eol=lf
+graphify-out/graph.json merge=graphify
