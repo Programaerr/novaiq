@@ -74,9 +74,11 @@ export default function App() {
   const [initialCustomFeaturesText, setInitialCustomFeaturesText] = useState<string>('');
   const [initialPrimaryColor, setInitialPrimaryColor] = useState<string>('');
 
-  // Dynamic active background image computation
-  const activeBgImage = (activePage === 'custom-request' && selectedTemplateForContract ? selectedTemplateForContract.previewImage : null)
-    || (standalonePreviewTemplate ? standalonePreviewTemplate.previewImage : null);
+  // Dynamic active background image computation. The standalone preview sandbox used to feed
+  // its own template photo in here too, tinting the cosmic background behind it — but that tint
+  // is whatever color the photo happens to be, purple included, bleeding through the sandbox's
+  // own glass toolbar in a way nothing there was designed to sit on top of.
+  const activeBgImage = activePage === 'custom-request' && selectedTemplateForContract ? selectedTemplateForContract.previewImage : null;
 
   useSmoothScroll();
   useSectionScrollSpy(activePage, setActiveSection);
