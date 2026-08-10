@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
+import { isLowEndDevice } from '../lib/deviceQuality';
 import {
   Search,
   CheckCircle2,
@@ -38,6 +39,7 @@ const ARC_ANGLE_STEP_DEG = 16;
 const ARC_RADIUS = 620;
 const ARC_STEP_PX = ARC_RADIUS * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
 const FLAT_STEP_PX_MOBILE = 156;
+const FLAT_STEP_PX_DESKTOP = 230;
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
@@ -115,13 +117,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
   // card doesn't overlap its neighbors (a fixed desktop-sized offset would).
   const [isMobile, setIsMobile] = useState(false);
+  // Low-end devices (weak GPU / battery saver / reduced-motion, per deviceQuality.ts) get the
+  // flat slide even on desktop: a desktop fanshot's per-frame 3D work — perspective, per-card
+  // translateZ recession and depth-sorted repainting — is exactly what stalls an integrated
+  // GPU mid-drag. The flat strip is pure 2D translateX and survives even the weakest hardware.
+  const [isLowEnd, setIsLowEnd] = useState(false);
   useEffect(() => {
+    setIsLowEnd(isLowEndDevice());
     const mq = window.matchMedia('(max-width: 639px)');
     setIsMobile(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
+  const flatGeometry = isMobile || isLowEnd;
+  const flatStepPx = isMobile ? FLAT_STEP_PX_MOBILE : FLAT_STEP_PX_DESKTOP;
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -265,7 +275,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // the residual back to zero.
   useEffect(() => {
     if (!isDragging) return;
-    const step = isMobile ? FLAT_STEP_PX_MOBILE : ARC_STEP_PX;
+    const step = flatGeometry ? flatStepPx : ARC_STEP_PX;
     const n = filteredTemplates.length;
     let frame = 0;
     let offset = 0;
@@ -533,40 +543,38 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // flat coverflow geometry (straight sideways slide, single rotateY lean toward
             // centre); only sm and up gets the arc.
             let transform: string;
-            if (isMobile) {
-              const stepPx = FLAT_STEP_PX_MOBILE;
-              // Pure 2D on phones. The old geometry bolted translateZ + rotateY onto this
-              // same slide so mobile could share the desktop's 3D fan — but under the track's
-              // 1800px perspective those layers cross-fade with the card's own opacity fade
-              // and image mask during every release, and on mobile Chrome that pairing is
-              // exactly what flashes the card blank and back mid-glide. A 2D translateX
-              // cannot z-recede or blink; the desktop fan is unaffected.
-              transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px)))`;
+            if (flatGeometry) {
+              // Pure 2D on phones AND on low-end desktops. The old geometry bolted translateZ
+              // + rotateY + a track perspective onto this same slide so it could share the
+              // desktop's 3D fan — but under that perspective the layers cross-fade with the
+              // card's own opacity fade and image mask during every release, and on mobile
+              // Chrome that pairing flashes the card blank, while the depth work itself stalls
+              // a weak integrated GPU on the desktop. A 2D translateX can't z-recede, blink,
+              // or drop those frames; the capable-desktop fan is handled below.
+              transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * flatStepPx}px + var(--drag-x, 0px)))`;
             } else {
               // Each step out is a point on a shared arc, not a straight sideways slide: an
               // angle proportional to distance from center, translated into a horizontal
               // reach (sin) and a downward dip (1 - cos) around a pivot below the strip, the
-              // same way a hand of physical cards fans out. rotateZ below uses the identical
-              // angle, so a card always leans in the exact direction it's displaced toward —
-              // the arc and the tilt can't disagree with each other.
+              // same way a hand of physical cards fans out. rotateZ uses the identical angle,
+              // so a card always leans in the exact direction it's displaced toward — the arc
+              // and the tilt can't disagree with each other.
               //
-              // rotateZ alone reads as a flat cutout laid on the arc, not an object sitting
-              // in it — rotateY (turning each card in depth, around its own vertical axis)
-              // plus a real translateZ recession are what the perspective() on the track
-              // actually has something to foreshorten, which is what makes the fan read as
-              // three-dimensional instead of a paper cutout. Both are driven off the same
-              // angle as the arc so all three axes agree on which way each card is turning.
+              // Deliberately 2D: no translateZ recession, no rotateY and no perspective on
+              // the track. Depth-sorting and re-projected transforms are exactly the per-frame
+              // GPU work that turns a mid-drag into dropped frames and a stalling machine on
+              // an integrated graphics card; the flat arc still reads as a fan of cards, but
+              // every transform here is a plain 2D compositor op that any GPU carries.
               const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
               const angleRad = (angleDeg * Math.PI) / 180;
               const arcX = ARC_RADIUS * Math.sin(angleRad);
               const arcY = ARC_RADIUS * (1 - Math.cos(angleRad));
-              const rotYDeg = angleDeg * 0.7;
               // The arc is static here; the drag's orbital glide is applied on the track as a
               // whole rotation about this same arc's pivot (see the track's transform-origin,
               // ARC_RADIUS below the strip), so a hand-fan doesn't slide sideways flat — it
               // swings around the circle beneath it, and releases back into place on the same
               // 0.9s glide as the cards themselves.
-              transform = `translate(-50%, -50%) translateX(${arcX}px) translateY(${arcY}px) translateZ(${-cappedDistance * 90}px) rotateZ(${angleDeg}deg) rotateY(${rotYDeg}deg)`;
+              transform = `translate(-50%, -50%) translateX(${arcX}px) translateY(${arcY}px) rotateZ(${angleDeg}deg)`;
             }
 
             return (
