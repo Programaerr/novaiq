@@ -335,11 +335,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // transform transition, and the same write animates instead.
   useEffect(() => {
     if (isDragging) return;
-    const el = trackRef.current;
-    if (!el) return;
+    if (!trackRef.current) return;
     const id = requestAnimationFrame(() => {
       dragOffsetRef.current = 0;
-      el.style.setProperty('--drag-x', '0px');
+      setDragOffset(0);
     });
     return () => cancelAnimationFrame(id);
   }, [isDragging]);
@@ -486,7 +485,24 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
-            style={{ perspective: '1800px' }}
+            style={{
+              perspective: '1800px',
+              // Desktop holds the drag as a rotation of the whole fan about the arc's pivot
+              // (ARC_RADIUS=620px below the strip centre), so a hand-drag swings the cards
+              // around the circle; on release the same 0.9s glide as the cards carries the
+              // angle back to rest. The transform transition is suppressed mid-gesture so the
+              // fan tracks the pointer 1:1, exactly like the per-card transform handling
+              // below. Mobile stays flat (no rotation), reading only --drag-x.
+              ...(isMobile
+                ? {}
+                : {
+                    transform: 'rotate(var(--drag-angle-deg, 0deg))',
+                    transformOrigin: `50% calc(50% + ${ARC_RADIUS}px)`,
+                    transition: isDragging
+                      ? 'none'
+                      : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
+                  }),
+            }}
             className="relative w-full max-w-4xl h-[600px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
           {filteredTemplates.map((template, index) => {
