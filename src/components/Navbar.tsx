@@ -277,11 +277,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       </div>
 
-      {/* Floating Side Drawer Menu — deliberately a sibling of the glass pill above, not
-          nested inside it. A backdrop-blur element nested inside another backdrop-blur
-          element samples the ANCESTOR's own blurred/darkened layer instead of the real page
-          behind both of them — it renders as a flat dark box with no visible glass effect.
-          Positioned relative to <header> (which has no filter of its own) instead. */}
+      {/* Floating Side Drawer Menu — a sibling of the glass pill above, not nested inside it.
+          Both use the static .glass-bar material, so there is no backdrop-filter nesting to
+          worry about any more (a nested backdrop-blur used to sample the ancestor's own
+          blurred layer instead of the real page, rendering as a flat dark box). The pill stays
+          separately positioned against the <header>. */}
       {menuDrawerOpen && (
         <div
           ref={drawerRef}
