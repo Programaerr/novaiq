@@ -580,7 +580,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className={`relative h-full rounded-[28px] bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/30 transition-colors duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5 ${isActive ? 'template-card-reflect' : ''}`}
+                  className="relative h-full rounded-[28px] bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/30 transition-colors duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5"
                 >
                   {/* The photo sits inset inside the frame's own padding — a bezel margin all
                       round, like a phone case holding its screen — rather than bleeding to
