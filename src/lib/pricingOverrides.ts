@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
-import { db } from './firebase';
 import { templatesData } from '../data/templatesData';
 import { Template } from '../types';
 
