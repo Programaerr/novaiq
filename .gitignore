@@ -51,3 +51,4 @@ graphify-out/
 # .claude/skills/r3f-* — that command is a no-op if .agents/skills/ already has the content
 # from git, it only needs to (re)create the local pointer.
 .claude/skills/r3f-*
+.opencode
