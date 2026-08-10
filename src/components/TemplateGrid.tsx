@@ -26,15 +26,18 @@ const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
 );
 
-// Coverflow fan geometry — shared between the card positions below and the drag-snap
-// threshold in the pointer handler, so the two describe the same one-card travel distance
-// instead of drifting apart the way two separately hand-tuned constants eventually do.
-// Cards arc like a hand of cards spread from a pivot below the strip: each step out is a
-// horizontal step, a small downward dip, and a rotation to match the arc's tangent, rather
-// than the flat sideways slide a straight coverflow uses.
+// Coverflow geometry — shared between the card positions below and the drag-snap threshold
+// in the pointer handler, so the two describe the same one-card travel distance instead of
+// drifting apart the way two separately hand-tuned constants eventually do. Desktop fans the
+// cards along an arc, like a hand of cards spread from a pivot below the strip: each step out
+// is a horizontal step, a small downward dip, and a rotation to match the arc's tangent.
+// Mobile keeps the original flat coverflow instead — a plain sideways slide — since a phone's
+// cards are already close to full-width and an arc's extra horizontal reach would just push
+// neighbours off-screen there.
 const ARC_ANGLE_STEP_DEG = 16;
-const arcRadius = (isMobile: boolean) => (isMobile ? 460 : 620);
-const arcStepPx = (radius: number) => radius * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
+const ARC_RADIUS = 620;
+const ARC_STEP_PX = ARC_RADIUS * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
+const FLAT_STEP_PX_MOBILE = 156;
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
@@ -255,7 +258,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // the residual back to zero.
   useEffect(() => {
     if (!isDragging) return;
-    const step = arcStepPx(arcRadius(isMobile));
+    const step = isMobile ? FLAT_STEP_PX_MOBILE : ARC_STEP_PX;
     const n = filteredTemplates.length;
     let frame = 0;
     let offset = 0;
@@ -500,36 +503,48 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // back into range, which is what showed up as the image/text flashing blank.
             const cappedDistance = Math.min(distance, 3);
             const clampedOffset = isVisible ? offset : Math.sign(offset) * 3;
-            // Each step out is a point on a shared arc, not a straight sideways slide: an
-            // angle proportional to distance from center, translated into a horizontal
-            // reach (sin) and a downward dip (1 - cos) around a pivot below the strip, the
-            // same way a hand of physical cards fans out. rotateZ below uses the identical
-            // angle, so a card always leans in the exact direction it's displaced toward —
-            // the arc and the tilt can't disagree with each other.
-            //
-            // rotateZ alone reads as a flat cutout laid on the arc, not an object sitting in
-            // it — rotateY (turning each card in depth, around its own vertical axis) plus a
-            // real translateZ recession are what the perspective() on the track actually has
-            // something to foreshorten, which is what makes the fan read as three-dimensional
-            // instead of a paper cutout. Both are driven off the same angle as the arc so all
-            // three axes agree on which way each card is turning.
-            const radius = arcRadius(isMobile);
-            const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
-            const angleRad = (angleDeg * Math.PI) / 180;
-            const arcX = radius * Math.sin(angleRad);
-            const arcY = radius * (1 - Math.cos(angleRad));
-            const rotYDeg = angleDeg * 0.7;
+            // The arc/3D fan is a desktop-only upgrade — on a phone the cards are already
+            // close to full-width, so the extra horizontal reach an arc needs just pushes
+            // neighbours off-screen instead of fanning them out. Mobile keeps the original
+            // flat coverflow geometry (straight sideways slide, single rotateY lean toward
+            // centre); only sm and up gets the arc.
+            let transform: string;
+            if (isMobile) {
+              const stepPx = FLAT_STEP_PX_MOBILE;
+              const rotY = isActive ? 0 : offset > 0 ? -16 : 16;
+              // --drag-x is the live gesture offset, published on the track by the drag
+              // effect above. Folded into the transform here rather than applied to a
+              // wrapper so the whole strip moves as one, and so a card's resting position
+              // and its drag offset stay a single composited transform.
+              transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px))) translateZ(${-cappedDistance * 90}px) rotateY(${rotY}deg)`;
+            } else {
+              // Each step out is a point on a shared arc, not a straight sideways slide: an
+              // angle proportional to distance from center, translated into a horizontal
+              // reach (sin) and a downward dip (1 - cos) around a pivot below the strip, the
+              // same way a hand of physical cards fans out. rotateZ below uses the identical
+              // angle, so a card always leans in the exact direction it's displaced toward —
+              // the arc and the tilt can't disagree with each other.
+              //
+              // rotateZ alone reads as a flat cutout laid on the arc, not an object sitting
+              // in it — rotateY (turning each card in depth, around its own vertical axis)
+              // plus a real translateZ recession are what the perspective() on the track
+              // actually has something to foreshorten, which is what makes the fan read as
+              // three-dimensional instead of a paper cutout. Both are driven off the same
+              // angle as the arc so all three axes agree on which way each card is turning.
+              const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
+              const angleRad = (angleDeg * Math.PI) / 180;
+              const arcX = ARC_RADIUS * Math.sin(angleRad);
+              const arcY = ARC_RADIUS * (1 - Math.cos(angleRad));
+              const rotYDeg = angleDeg * 0.7;
+              transform = `translate(-50%, -50%) translateX(calc(${arcX}px + var(--drag-x, 0px))) translateY(${arcY}px) translateZ(${-cappedDistance * 90}px) rotateZ(${angleDeg}deg) rotateY(${rotYDeg}deg)`;
+            }
 
             return (
               <div
                 key={template.id}
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
-                  // --drag-x is the live gesture offset, published on the track by the drag
-                  // effect above. Folded into the transform here rather than applied to a
-                  // wrapper so the whole strip moves as one, and so a card's resting
-                  // position and its drag offset stay a single composited transform.
-                  transform: `translate(-50%, -50%) translateX(calc(${arcX}px + var(--drag-x, 0px))) translateY(${arcY}px) translateZ(${-cappedDistance * 90}px) rotateZ(${angleDeg}deg) rotateY(${rotYDeg}deg)`,
+                  transform,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.55s, matched to the scale transition on the wrapper below. It used to
