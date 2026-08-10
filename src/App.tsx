@@ -315,7 +315,7 @@ export default function App() {
                   here was near-black anyway, so what it mostly did was hide the stars. */}
               <div
                 ref={revealGroup}
-                className="reveal-group corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+                className="below-fold reveal-group corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex-1 flex flex-col justify-start space-y-3 text-start">
@@ -379,22 +379,26 @@ export default function App() {
             {/* Floating 3D template cards — placed right after the speed/efficiency pitch
                 above, where "our templates give you an 80% head start" has just been made
                 and showing the actual templates is the natural next beat. */}
-            <FloatingTemplateCards
-              language={language}
-              onExploreTemplates={() => navigateTo('templates')}
-            />
+            <div className="below-fold">
+              <FloatingTemplateCards
+                language={language}
+                onExploreTemplates={() => navigateTo('templates')}
+              />
+            </div>
 
             {/* Structured Timeline */}
             <MilestoneTimeline language={language} />
 
             {/* Bridges the timeline and about sections rather than living inside either,
                 so it reads as a shared next step and not "the end of the roadmap." */}
-            <div className="py-10 sm:py-14">
+            <div className="below-fold py-10 sm:py-14">
               <ProjectCtaButton language={language} onCreateContract={() => navigateTo('custom-request')} />
             </div>
 
             {/* About Section */}
-            <AboutSection language={language} />
+            <div className="below-fold">
+              <AboutSection language={language} />
+            </div>
           </div>
         )}
 
