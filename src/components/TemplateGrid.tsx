@@ -95,7 +95,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // longer exist.
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const dragRef = useRef<{ startX: number } | null>(null);
+  const dragRef = useRef<{ startX: number; startY: number } | null>(null);
+  // Set when a pointerup ends a gesture that actually travelled (a drag, not a tap). The
+  // browser then synthesizes a `click` on whatever card the pointer released over — which is
+  // frequently the card that just became active after the drag's own commit, and that click
+  // fires the card's "open preview" handler and yanks the whole grid away before the rotation
+  // has visibly settled. The track's onClickCapture below swallows exactly that one click.
+  const suppressClickRef = useRef(false);
   // The live drag offset is published as a CSS variable on the track and read by every
   // card's own transform, rather than held in React state. State would re-render all ten
   // card subtrees on every pointermove — the exact per-frame main-thread work that shows
@@ -242,7 +248,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // click and the button silently stops working. A plain start-X plus a pointerup that
   // lands somewhere reasonable is enough for swipe detection without that trade-off.
   const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    dragRef.current = { startX: e.clientX };
+    dragRef.current = { startX: e.clientX, startY: e.clientY };
+    // A fresh gesture is a fresh intent: clear any un-consumed suppression so a genuine tap
+    // (released without moving) is never swallowed by a stale flag from the previous drag.
+    suppressClickRef.current = false;
     setIsDragging(true);
     setDragOffset(0);
   };
@@ -335,7 +344,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       if (!frame) frame = requestAnimationFrame(apply);
     };
 
-    const onUp = () => {
+    const onUp = (e: PointerEvent) => {
+      // A pointer that moved more than a few pixels is a drag, not a tap — and a drag whose
+      // release lands on a card synthesizes a click there (see suppressClickRef above), which
+      // would fire that card's own buttons and tear the grid away mid-settle. The capture
+      // handler on the track eats exactly one such post-drag click.
+      const drag = dragRef.current;
+      suppressClickRef.current =
+        drag !== null && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 6;
       dragRef.current = null;
       setIsDragging(false);
       // Safety net so a short drag still lands on the card it started to reveal — and ONLY a
@@ -530,6 +546,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
+            onClickCapture={(e) => {
+              // Swallow the single, purely synthetic click that follows a real drag's release
+              // (see suppressClickRef). Capture phase + stopPropagation so neither the card's
+              // "center me" handler nor its "open preview" handler ever sees it. A genuine tap
+              // leaves suppressClickRef false (no movement) and sails through untouched.
+              if (suppressClickRef.current) {
+                e.preventDefault();
+                e.stopPropagation();
+                suppressClickRef.current = false;
+              }
+            }}
             style={{
               // No perspective on the track at all anymore (see the arc note above): the fan
               // is pure 2D, so the browser has nothing to re-project or depth-sort per frame.
