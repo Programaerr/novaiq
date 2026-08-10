@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { templatesData } from '../data/templatesData';
+import { isLowEndDevice } from '../lib/deviceQuality';
 
 // three.js + fiber + drei are a large dependency. Kept behind React.lazy
 // so they land in their own chunk and never block the initial page parse, and only mounted
@@ -24,7 +25,12 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   useEffect(() => {
     // A WebGL scene runs its own render loop regardless of what CSS animations honour, so
     // reduced-motion has to be checked before mounting it, not styled around afterwards.
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Same for low-end GPUs — a continuous 60fps WebGL render loop on a weak device just
+    // keeps competing with scroll for the same bus; the static preview reads the same.
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      isLowEndDevice()
+    ) return;
 
     const show = () => setShowCanvas(true);
     // Checked via `typeof window.x` rather than `'x' in window`: the `in` form narrows
