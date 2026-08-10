@@ -371,7 +371,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               inner glow, painted once and never invalidated during scroll — same frosted look,
               zero per-frame recompute. reusing that proven combo here instead of a bespoke
               one. */}
-          <div className="glass-bar flex flex-col sm:flex-row items-center gap-3 rounded-2xl border border-white/10 shadow-xl shadow-black/20 p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4">
             <button
               onClick={() => {
                 setShowFilterPanel(!showFilterPanel);
