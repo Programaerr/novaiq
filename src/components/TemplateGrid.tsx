@@ -361,7 +361,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             The explicit `z-40` is what keeps that panel above the coverflow: the cards below
             carry their own z-index (up to 10) and, sitting later in the DOM, would otherwise
             paint straight over a menu whose own stacking order was still `auto`. */}
-        <div ref={filterBarRef} className="relative z-40 mb-4">
+        <div ref={filterBarRef} className="sticky top-3 sm:top-3 z-40 mb-4">
           {/* bg-white/5 + backdrop-blur-xl used to leave this bar almost see-through, forcing
               the heaviest (24px) blur tier to do all the work of hiding what's scrolling
               behind it — recomputed every scroll frame, which is exactly the kind of GPU cost
