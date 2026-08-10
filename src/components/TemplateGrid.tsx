@@ -26,6 +26,16 @@ const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
 );
 
+// Coverflow fan geometry — shared between the card positions below and the drag-snap
+// threshold in the pointer handler, so the two describe the same one-card travel distance
+// instead of drifting apart the way two separately hand-tuned constants eventually do.
+// Cards arc like a hand of cards spread from a pivot below the strip: each step out is a
+// horizontal step, a small downward dip, and a rotation to match the arc's tangent, rather
+// than the flat sideways slide a straight coverflow uses.
+const ARC_ANGLE_STEP_DEG = 16;
+const arcRadius = (isMobile: boolean) => (isMobile ? 460 : 620);
+const arcStepPx = (radius: number) => radius * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
+
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
   onOpenStandalonePreview?: (template: Template) => void;
@@ -245,7 +255,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // the residual back to zero.
   useEffect(() => {
     if (!isDragging) return;
-    const step = isMobile ? 180 : 235;
+    const step = arcStepPx(arcRadius(isMobile));
     const n = filteredTemplates.length;
     let frame = 0;
     let offset = 0;
@@ -466,7 +476,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
             style={{ perspective: '1800px' }}
-            className="relative w-full max-w-4xl h-[600px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing"
+            className="relative w-full max-w-4xl h-[600px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -490,20 +500,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // back into range, which is what showed up as the image/text flashing blank.
             const cappedDistance = Math.min(distance, 3);
             const clampedOffset = isVisible ? offset : Math.sign(offset) * 3;
-            // Real depth instead of the size-only illusion scale() used to fake alone:
-            // pushed back in Z per step away from center, and angled toward the
-            // centerline like a physical cover-flow shelf (mirrored by sign so the two
-            // sides lean toward each other, not the same way). scale() stays layered on
-            // top rather than replaced — perspective's own foreshortening depends on the
-            // exact px chosen for perspective/translateZ, which isn't something to tune
-            // blind; the already-accepted 0.82/0.68 sizing is the safe, known-good part
-            // of this and rotateY/translateZ are purely additive to it.
-            const rotY = isActive ? 0 : offset > 0 ? -16 : 16;
-            // Holds the same ratio to card width it always has (0.6 mobile / 0.618 desktop),
-            // so the gap between cards reads the same however wide they are. Mirrors the
-            // `step` the drag effect above computes — both describe the same one-card
-            // travel distance, and they have to agree or a drag lands off-centre.
-            const stepPx = isMobile ? 156 : 204;
+            // Each step out is a point on a shared arc, not a straight sideways slide: an
+            // angle proportional to distance from center, translated into a horizontal
+            // reach (sin) and a downward dip (1 - cos) around a pivot below the strip, the
+            // same way a hand of physical cards fans out. rotateZ below uses the identical
+            // angle, so a card always leans in the exact direction it's displaced toward —
+            // the arc and the tilt can't disagree with each other. A little translateZ is
+            // layered on top purely for stacking depth, foreshortened by the perspective()
+            // on the track; it is not what draws the curve.
+            const radius = arcRadius(isMobile);
+            const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
+            const angleRad = (angleDeg * Math.PI) / 180;
+            const arcX = radius * Math.sin(angleRad);
+            const arcY = radius * (1 - Math.cos(angleRad));
 
             return (
               <div
@@ -514,7 +523,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // effect above. Folded into the transform here rather than applied to a
                   // wrapper so the whole strip moves as one, and so a card's resting
                   // position and its drag offset stay a single composited transform.
-                  transform: `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px))) translateZ(${-cappedDistance * 90}px) rotateY(${rotY}deg)`,
+                  transform: `translate(-50%, -50%) translateX(calc(${arcX}px + var(--drag-x, 0px))) translateY(${arcY}px) translateZ(${-cappedDistance * 40}px) rotateZ(${angleDeg}deg)`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.55s, matched to the scale transition on the wrapper below. It used to
