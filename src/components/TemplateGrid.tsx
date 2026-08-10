@@ -667,22 +667,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         needs, mirroring the reference's name + tagline + one button. Dark and
                         translucent rather than frosted: the photo still reads through it, but
                         without a backdrop-filter that would have to be built per card. */}
-                    <div className="absolute inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 p-3.5 sm:p-4 rounded-2xl bg-zinc-950/80 border border-white/15 shadow-xl">
+                    <div className="absolute inset-x-2.5 bottom-2.5 sm:inset-x-4 sm:bottom-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-zinc-950/80 border border-white/15 shadow-xl">
                       <div className="flex items-center gap-1.5">
-                        <h3 className="text-white font-bold text-base sm:text-lg line-clamp-1">{displayTitle}</h3>
-                        <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
+                        <h3 className="text-white font-bold text-sm sm:text-lg line-clamp-1">{displayTitle}</h3>
+                        <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
                       </div>
-                      <p className="text-zinc-300 text-[11px] sm:text-xs leading-relaxed line-clamp-2 mt-1">
+                      <p className="text-zinc-300 text-[10px] sm:text-xs leading-snug sm:leading-relaxed line-clamp-2 mt-0.5 sm:mt-1">
                         {displaySubtitle}
                       </p>
 
-                      <div className="flex items-center justify-between gap-2 mt-3">
-                        <div className="flex items-center gap-3 text-[10px] sm:text-[11px] text-zinc-300 font-semibold">
-                          <span className="flex items-center gap-1">
+                      {/* Meta and action stack on phones and only sit side by side from sm up.
+                          On a 260px card all three (weeks, price, button) sharing one row left
+                          each too little width to hold together, so "3 أسابيع" and the price's
+                          currency suffix each broke onto their own line mid-phrase. Stacking
+                          gives the row its full width back; whitespace-nowrap then guarantees
+                          neither value can split again regardless of how long a price gets. */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-2 mt-2 sm:mt-3">
+                        <div className="flex items-center gap-2.5 sm:gap-3 text-[9px] sm:text-[11px] text-zinc-300 font-semibold">
+                          <span className="flex items-center gap-1 whitespace-nowrap">
                             <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
                             {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
                           </span>
-                          <span className="font-mono font-bold text-white">
+                          <span className="font-mono font-bold text-white whitespace-nowrap">
                             {formatPrice(template.basePriceIQD, currentLang, currency)}
                           </span>
                         </div>
@@ -698,10 +704,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                             onSelectTemplateForContract(template);
                             cosmicAudio.playWarp();
                           }}
-                          className="filter-pill-btn relative shrink-0 px-3.5 py-2 rounded-full text-[11px] font-bold flex items-center gap-1.5 cursor-pointer"
+                          className="filter-pill-btn relative shrink-0 w-full sm:w-auto px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                         >
                           <span className="filter-pill-beam" aria-hidden="true" />
-                          <FileSignature className="w-3.5 h-3.5 text-current shrink-0" />
+                          <FileSignature className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-current shrink-0" />
                           <span>{getTranslation('selectForContract', currentLang)}</span>
                         </button>
                       </div>
