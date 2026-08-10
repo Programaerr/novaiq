@@ -280,19 +280,22 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     let frame = 0;
     let offset = 0;
 
+    // How many whole cards a given pixel offset covers, snapped at a chosen completion
+    // fraction. Symmetric in sign: the bare Math.round() this used to be was asymmetric
+    // (Math.round(-0.5) === -0), so dragging *left* needed ~75% of a step while right
+    // switched at 50%. Magnitude-then-sign makes both directions equal, and sharing the
+    // helper between the live drag and the release snap keeps the two thresholds honest.
+    const stepsFor = (px: number, snap: number) =>
+      n > 1 ? Math.sign(px) * Math.floor(Math.abs(px) / step + snap) : 0;
+
     const apply = () => {
       frame = 0;
       const drag = dragRef.current;
       if (!drag) return;
-      // As soon as the neighbour has been dragged halfway toward centre it IS the prominent
-      // card, so the strip commits to it there and then — no need to wait for a release.
-      // The half must be computed symmetrically: the bare Math.round() this was written with
-      // rounds negatives toward zero (Math.round(-0.5) === -0), so dragging *left* silently
-      // needed a ~75%-of-the-way shove before it switched while dragging right switched at
-      // 50% — one direction always lagged behind where the eye saw the second card already
-      // sitting. Rounding the magnitude and re-applying the sign makes both directions switch
-      // at the same halfway point.
-      const steps = n > 1 ? Math.sign(offset) * Math.round(Math.abs(offset) / step) : 0;
+      // As soon as the neighbour has been dragged a good chunk of the way (40% — the +0.6
+      // snap completes at 0.4) toward centre it IS the prominent card, so the strip commits
+      // to it there and then, no waiting for a release.
+      const steps = stepsFor(offset, 0.6);
       if (steps !== 0) {
         drag.startX += steps * step;
         offset -= steps * step;
@@ -324,6 +327,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     const onUp = () => {
       dragRef.current = null;
       setIsDragging(false);
+      // Safety net so a short drag still lands on the card it started to reveal: the live
+      // commit above switches at ~40% of a step, but a quick mouse flick under that leaves
+      // the neighbour fully visible without ever crossing it. Snap any release that at least
+      // 20%-completed the step forward (or backward), so "it emerged but didn't switch" can't
+      // happen — every gesture ends on whichever card it actually pulled toward. Since this
+      // runs in the same handler as setIsDragging(false), the settle effect below zeroes the
+      // residual and the cards glide (0.9s) into the new arrangement in one transition.
+      const snapped = stepsFor(offset, 0.8);
+      if (snapped !== 0) {
+        setActiveIndex((i) => (((i - snapped) % n) + n) % n);
+      }
     };
 
     window.addEventListener('pointermove', onMove, { passive: true });
