@@ -288,7 +288,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           dir={isAr ? 'rtl' : 'ltr'}
           data-lenis-prevent
           style={{ overscrollBehavior: 'contain' }}
-          className="glass-bar absolute top-full mt-3 right-3 sm:right-6 w-80 max-h-[75vh] overflow-y-auto border border-white/15 rounded-2xl p-4 shadow-2xl space-y-3 z-50 animate-fade-in"
+          className="glass-bar glass-bar--blur absolute top-full mt-3 right-3 sm:right-6 w-80 max-h-[75vh] overflow-y-auto border border-white/15 rounded-2xl p-4 shadow-2xl space-y-3 z-50 animate-fade-in"
         >
           {/* No close control here — the toggle button already becomes an X once the
               drawer is open, so a second one here would just be the same action twice.
