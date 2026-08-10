@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { doc, setDoc, onSnapshot } from 'firebase/firestore';
-import { db } from './firebase';
 
 // A single settings document (not per-template like pricing_overrides) — there's only ever
 // one set of company social accounts, so one doc keyed by a fixed ID is simpler than a
