@@ -38,17 +38,38 @@ export interface SocialLinks {
 }
 
 export function subscribeToSocialLinks(callback: (links: SocialLinks) => void) {
-  return onSnapshot(
-    doc(db, SETTINGS_DOC),
-    (snap) => callback((snap.data() as SocialLinks) || {}),
-    // See the identical note in pricingOverrides.ts: never wipe already-loaded data on a
-    // transient listener error, or a brief hiccup would flash the footer's social links
-    // back to hidden until the next successful snapshot.
-    (error) => console.error('social links subscription error:', error)
-  );
+  // Deferred Firebase load — the Footer already renders from localStorage cache first, so
+  // visitors never touching Firestore don't pull the SDK into the eager home bundle.
+  let unsubscribe: (() => void) | null = null;
+  let cancelled = false;
+
+  import('firebase/firestore')
+    .then(async ({ doc, onSnapshot }) => {
+      if (cancelled) return;
+      const { db } = await import('./firebase');
+      if (cancelled) return;
+      unsubscribe = onSnapshot(
+        doc(db, SETTINGS_DOC),
+        (snap) => callback((snap.data() as SocialLinks) || {}),
+        // See the identical note in pricingOverrides.ts: never wipe already-loaded data on a
+        // transient listener error, or a brief hiccup would flash the footer's social links
+        // back to hidden until the next successful snapshot.
+        (error) => console.error('social links subscription error:', error)
+      );
+    })
+    .catch((error) => console.error('social links subscription error:', error));
+
+  return () => {
+    cancelled = true;
+    unsubscribe?.();
+  };
 }
 
 export async function saveSocialLinks(links: SocialLinks): Promise<void> {
+  const [{ doc, setDoc }, { db }] = await Promise.all([
+    import('firebase/firestore'),
+    import('./firebase'),
+  ]);
   await setDoc(doc(db, SETTINGS_DOC), links, { merge: true });
 }
 
