@@ -54,7 +54,11 @@ export const TemplateFilterPanel: React.FC<TemplateFilterPanelProps> = ({
             // than as a second row of the bar.
             className="absolute top-full start-0 mt-3 z-50 w-full sm:w-[26rem] max-w-[calc(100vw-2rem)] rounded-2xl bg-black/85 backdrop-blur-xl border border-white/20 ring-1 ring-black/60 shadow-2xl shadow-black/70 overflow-hidden"
           >
-            <div className="max-h-[70vh] overflow-y-auto p-4 sm:p-5 space-y-5">
+            <div
+              data-lenis-prevent
+              style={{ overscrollBehavior: 'contain' }}
+              className="max-h-[70vh] overflow-y-auto p-4 sm:p-5 space-y-5"
+            >
 
               {activeFiltersCount > 0 && (
                 <div className="flex justify-end -mb-1">
