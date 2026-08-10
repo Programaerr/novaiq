@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
-import { db } from './firebase';
 import { templatesData } from '../data/templatesData';
 import { Template } from '../types';
 
@@ -46,26 +44,48 @@ export interface PricingOverride {
 }
 
 export function subscribeToPricingOverrides(callback: (overrides: Record<string, PricingOverride>) => void) {
-  return onSnapshot(
-    collection(db, OVERRIDES_COLLECTION),
-    (snapshot) => {
-      const result: Record<string, PricingOverride> = {};
-      snapshot.forEach((docSnap) => {
-        result[docSnap.id] = docSnap.data() as PricingOverride;
-      });
-      callback(result);
-    },
-    // Deliberately does NOT call callback({}) here. A transient listener error (a brief
-    // network blip, the token refreshing, the listener being re-negotiated) firing *after*
-    // real overrides already loaded would otherwise wipe every live price/name/link back to
-    // the static defaults — exactly the "shows Saved, then reverts to the old price" bug.
-    // Logged so a genuine, persistent failure (e.g. unpublished Firestore rules) is still
-    // visible in the console instead of failing completely silently.
-    (error) => console.error('pricing_overrides subscription error:', error)
-  );
+  // Firebase (and its ~120KB gzipped footprint) is deferred until this is actually called —
+  // the home page already renders the live Overrided prices from the localStorage cache below,
+  // so a visitor who never reaches a page that needs Firestore doesn't pay for the SDK at all.
+  let unsubscribe: (() => void) | null = null;
+  let cancelled = false;
+
+  import('firebase/firestore')
+    .then(async ({ collection, onSnapshot }) => {
+      if (cancelled) return;
+      const { db } = await import('./firebase');
+      if (cancelled) return;
+      unsubscribe = onSnapshot(
+        collection(db, OVERRIDES_COLLECTION),
+        (snapshot) => {
+          const result: Record<string, PricingOverride> = {};
+          snapshot.forEach((docSnap) => {
+            result[docSnap.id] = docSnap.data() as PricingOverride;
+          });
+          callback(result);
+        },
+        // Deliberately does NOT call callback({}) here. A transient listener error (a brief
+        // network blip, the token refreshing, the listener being re-negotiated) firing *after*
+        // real overrides already loaded would otherwise wipe every live price/name/link back to
+        // the static defaults — exactly the "shows Saved, then reverts to the old price" bug.
+        // Logged so a genuine, persistent failure (e.g. unpublished Firestore rules) is still
+        // visible in the console instead of failing completely silently.
+        (error) => console.error('pricing_overrides subscription error:', error)
+      );
+    })
+    .catch((error) => console.error('pricing_overrides subscription error:', error));
+
+  return () => {
+    cancelled = true;
+    unsubscribe?.();
+  };
 }
 
 export async function savePricingOverride(templateId: string, override: PricingOverride): Promise<void> {
+  const [{ doc, setDoc }, { db }] = await Promise.all([
+    import('firebase/firestore'),
+    import('./firebase'),
+  ]);
   await setDoc(doc(db, OVERRIDES_COLLECTION, templateId), override, { merge: true });
 }
 
