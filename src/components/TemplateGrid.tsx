@@ -615,7 +615,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   {/* The photo sits inset inside the frame's own padding — a bezel margin all
                       round, like a phone case holding its screen — rather than bleeding to
                       the card's own edges the way it did before. */}
-                  <div className="relative w-full h-full rounded-[20px] overflow-hidden">
+                  <div
+                    className="relative w-full h-full rounded-[20px] overflow-hidden"
+                    // Safari drops border-radius + overflow-hidden clipping on an element
+                    // sitting under a 3D-transformed ancestor (this card's own rotateY /
+                    // translateZ / the track's perspective) — it never shows up in Chrome
+                    // devtools or headless screenshots, only on a real iPhone, which is why
+                    // the bottom panel could overflow past this frame there and nowhere else.
+                    // Forcing Safari onto its mask-based clip path instead of the broken
+                    // overflow-hidden path is the standard fix for this.
+                    style={{ WebkitMaskImage: '-webkit-radial-gradient(white, black)' }}
+                  >
                     <img
                       src={template.previewImage}
                       alt={displayTitle}
