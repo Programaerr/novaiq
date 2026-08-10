@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Lenis from 'lenis';
+import { isLowEndDevice } from './deviceQuality';
 
 // Scroll behaviour for the whole app, kept out of App.tsx: neither hook touches App's own
 // state beyond the arguments below, and together they were the longest stretch of App's body
@@ -8,12 +9,17 @@ import Lenis from 'lenis';
 /**
  * Buttery-smooth wheel scrolling (iOS-style momentum) for mouse/trackpad input — touch
  * devices already get native momentum scrolling from the OS, so this only changes the feel
- * of wheel-driven scrolling. Skipped under reduced-motion; elements marked
+ * of wheel-driven scrolling. Skipped under reduced-motion and on low-end devices (a native
+ * wheel scroll is more predictable than an extra rAF-driven transform pass on a GPU that is
+ * already struggling with the page's own animated layers); elements marked
  * `data-lenis-prevent` (modals, admin tables, the PDF preview) keep native scroll intact.
  */
 export function useSmoothScroll() {
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      isLowEndDevice()
+    ) return;
 
     const lenis = new Lenis({
       duration: 1.1,
