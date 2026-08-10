@@ -379,10 +379,12 @@ export default function App() {
             {/* Floating 3D template cards — placed right after the speed/efficiency pitch
                 above, where "our templates give you an 80% head start" has just been made
                 and showing the actual templates is the natural next beat. */}
-            <FloatingTemplateCards
-              language={language}
-              onExploreTemplates={() => navigateTo('templates')}
-            />
+            <div className="below-fold">
+              <FloatingTemplateCards
+                language={language}
+                onExploreTemplates={() => navigateTo('templates')}
+              />
+            </div>
 
             {/* Structured Timeline */}
             <MilestoneTimeline language={language} />
