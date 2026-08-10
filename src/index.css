@@ -728,6 +728,17 @@
   to { transform: translate3d(-380px, 300px, 0); }
 }
 
+/* Low-end tier (set once in main.tsx by applyDeviceClass). The star field is two 200%-of-
+   viewport layers animating transform on the compositor for the entire session — fine on a
+   real GPU, but on a weak one it is a permanent render pipeline stealing bus bandwidth from
+   scroll for a parallax nobody notices after the first second. Freezing it leaves the exact
+   same field (the drift is one 300px tile over 220s, i.e. ~1.4px/frame of nearly-static
+   motion) with a static starfield that reads identically. */
+html[data-device='low'] .star-layer--far,
+html[data-device='low'] .star-layer--near {
+  animation: none;
+}
+
 /* The hero's floating template cards are a real WebGL scene now (TemplateCards3D.tsx) —
    their depth, tilt, lighting and focus-blur are all three.js, so the CSS-transform
    approximation that used to live here is gone rather than left behind unused. */
