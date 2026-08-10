@@ -7,12 +7,10 @@ import {
   FileSignature,
   Clock,
   Cpu,
-  Globe,
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
-  Info,
-  ExternalLink
+  Info
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
@@ -473,7 +471,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
             const displaySubtitle = translateText(template.subtitle, currentLang);
-            const displayDesc = translateText(template.description, currentLang);
             const displayCategory = translateText(template.categoryLabel, currentLang);
 
             // Shortest circular distance, not plain index subtraction — so wrapping past
@@ -550,7 +547,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // *rendered* too. A fully transparent element is already skipped at paint
                   // time, so what was left to win here was small and this is what it cost.
                 }}
-                className={`absolute top-1/2 left-1/2 w-[300px] sm:w-[380px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute top-1/2 left-1/2 w-[300px] sm:w-[380px] h-[460px] sm:h-[560px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 {/* Scale lives here, one level in from the positional transform above,
                     precisely so it can keep its own transition while that one is switched
@@ -566,14 +563,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     // note there on why the two must agree.
                     transition: 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
+                  className="h-full"
                 >
+                {/* One full-bleed frame instead of image-plus-panel-below: the photo fills
+                    the whole card and everything the card needs to say floats over it in a
+                    single glass strip, the same "profile card" read the design was asked to
+                    match. Price, features and tech stack aren't gone — they're one tap away
+                    in the full preview this card opens, so nothing is actually lost. */}
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
-                  className={`bg-zinc-950 rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 flex flex-col group shadow-2xl ${isActive ? 'template-card-reflect' : ''}`}
-                >
-
-                {/* Card Image Banner */}
-                <div
                   onClick={() => {
                     if (onOpenStandalonePreview) {
                       onOpenStandalonePreview(template);
@@ -582,162 +580,63 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className="relative h-36 sm:h-48 overflow-hidden bg-black cursor-pointer group/img"
+                  className={`relative h-full rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 cursor-pointer group shadow-2xl ${isActive ? 'template-card-reflect' : ''}`}
                 >
                   <img
                     src={template.previewImage}
                     alt={displayTitle}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700 opacity-80 group-hover/img:opacity-100"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
 
-                  {/* Top Badge Tag — stacked above the delivery badge on mobile (both hug
-                      the right edge) since the two pills' combined width can exceed the
-                      300px-wide mobile card and collide; back to opposite corners once
-                      there's enough room on desktop's 380px card. */}
-                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/90 border border-zinc-700 text-white text-[10px] sm:text-[11px] font-bold">
+                  {/* Category badge */}
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] sm:text-[11px] font-bold">
                     {displayCategory}
                   </div>
 
-                  {/* Delivery Time Badge */}
-                  <div className="absolute top-10 right-3 sm:top-4 sm:right-auto sm:left-4 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/90 border border-zinc-800 text-white text-[10px] sm:text-[11px] font-bold">
-                    <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
-                    <span>{getTranslation('deliveryTime', currentLang)} {template.deliveryWeeks} {translateText('أسابيع', currentLang)}</span>
-                  </div>
-
-                  {/* Hover Overlay Button */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity bg-black/70">
-                    <span className="px-4 py-2 rounded-xl bg-white text-black text-xs font-bold flex items-center gap-2 shadow-2xl scale-95 group-hover/img:scale-100 transition-transform">
-                      <Globe className="w-4 h-4 text-black" />
-                      <span>{currentLang === 'ar' ? 'معاينة موقع منفصل' : 'Open Standalone Site'}</span>
-                    </span>
-                  </div>
-
-                  {/* Title overlay */}
-                  <div className="absolute bottom-3 right-4 left-4">
-                    <h3 className="text-xl font-bold text-white line-clamp-1">
-                      {displayTitle}
-                    </h3>
-                    <p className="text-xs text-zinc-400 font-light line-clamp-1">
+                  {/* Bottom glass panel — name, one-line pitch and the single action this
+                      card needs, mirroring the reference's name + tagline + one button. */}
+                  <div className="absolute inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 p-3.5 sm:p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 shadow-xl">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-white font-bold text-base sm:text-lg line-clamp-1">{displayTitle}</h3>
+                      <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
+                    </div>
+                    <p className="text-zinc-300 text-[11px] sm:text-xs leading-relaxed line-clamp-2 mt-1">
                       {displaySubtitle}
                     </p>
-                  </div>
-                </div>
 
-                {/* Card Content */}
-                <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-5">
-                  
-                  {/* The border brightens on hover and that is all — no glow-white-hover.
-                      Its white bloom around the box is the haze this card has been asked to
-                      lose, here and on the feature list below. */}
-                  <div className="p-3.5 rounded-xl bg-black/60 border border-zinc-800/80 hover:border-white/30 transition-colors">
-                    <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed line-clamp-2">
-                      {displayDesc}
-                    </p>
-                  </div>
-
-                  {/* Tech Stack Pills */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {template.techStack.slice(0, 4).map((tech, i) => (
-                      <span
-                        key={i}
-                        className="px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-300 border border-zinc-800 text-[10px] font-mono"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                    {template.techStack.length > 4 && (
-                      <span className="px-2 py-1 rounded-lg bg-zinc-900 text-zinc-300 border border-zinc-800 text-[10px]">
-                        +{template.techStack.length - 4}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Features Checklist */}
-                  <ul className="space-y-1.5 text-xs text-zinc-300 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/80 hover:border-white/30 transition-colors">
-                    {template.features.slice(0, 3).map((feat, i) => (
-                      <li key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />
-                        <span className="line-clamp-1">{translateText(feat, currentLang)}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Price & Action Buttons */}
-                  <div className="pt-4 border-t border-zinc-800 flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-zinc-400">{currentLang === 'ar' ? 'التكلفة الأساسية للقالب:' : 'Base Template Cost:'}</span>
-                      <div className="text-left">
-                        <span className="text-lg font-bold text-white font-mono">
+                    <div className="flex items-center justify-between gap-2 mt-3">
+                      <div className="flex items-center gap-3 text-[10px] sm:text-[11px] text-zinc-300 font-semibold">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
+                          {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
+                        </span>
+                        <span className="font-mono font-bold text-white">
                           {formatPrice(template.basePriceIQD, currentLang, currency)}
                         </span>
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      {/* No .glow-white-hover here any more: it bloomed a white 22px
-                          box-shadow around the button on hover, which read as haze once the
-                          pill beside it started lighting a crisp beam on its own outline. The
-                          beam and the surface shift carry the hover without it. */}
-                      <button
-                        onClick={() => {
-                          if (onOpenStandalonePreview) {
-                            onOpenStandalonePreview(template);
-                          } else {
-                            setPreviewTemplate(template);
-                          }
-                          cosmicAudio.playPing();
-                        }}
-                        className="nq-btn w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-500 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <span className="nq-btn-beam" aria-hidden="true" />
-                        <Globe className="w-3.5 h-3.5 text-zinc-300" />
-                        <span>{currentLang === 'ar' ? 'موقع منفصل' : 'Full Site'}</span>
-                      </button>
 
                       {/* Wears the toolbar's Filter pill outright (.filter-pill-btn +
-                          .filter-pill-beam) instead of .nq-btn: same bevelled white surface,
-                          same inversion to black on hover, same undulating beam. Only the
-                          geometry stays this card's own — full width, py-2.5, rounded-xl — so
-                          it still lines up with "Full Site" in the grid beside it.
-                          Deliberately carries no bg/text/border utility: the pill owns all
-                          three and flips them together, and a Tailwind border-white would stay
-                          white once the body goes black. The icon takes text-current for the
-                          same reason. */}
+                          .filter-pill-beam): same bevelled white surface, same inversion to
+                          black on hover, same undulating beam every other primary action on
+                          this page carries. Stops the click from bubbling to the card's own
+                          onClick above it, since the two now sit nested. */}
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           onSelectTemplateForContract(template);
                           cosmicAudio.playWarp();
                         }}
-                        className="filter-pill-btn relative w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="filter-pill-btn relative shrink-0 px-3.5 py-2 rounded-full text-[11px] font-bold flex items-center gap-1.5 cursor-pointer"
                       >
                         <span className="filter-pill-beam" aria-hidden="true" />
                         <FileSignature className="w-3.5 h-3.5 text-current shrink-0" />
                         <span>{getTranslation('selectForContract', currentLang)}</span>
                       </button>
                     </div>
-
-                    {/* Optional external live-site link — set by the admin per template
-                        (Pricing tab). Hidden entirely when empty, same "empty = hidden,
-                        filled = shown" convention as the footer social links. */}
-                    {template.demoUrl && (
-                      <a
-                        href={template.demoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full py-2 rounded-xl bg-transparent hover:bg-white/5 text-zinc-400 hover:text-white border border-dashed border-zinc-800 hover:border-zinc-600 text-[11px] font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                        <span>{currentLang === 'ar' ? 'زيارة الموقع الفعلي' : 'Visit Live Site'}</span>
-                      </a>
-                    )}
-
                   </div>
-
-                </div>
                 </div>
                 </div>
               </div>
