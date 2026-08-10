@@ -496,14 +496,16 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
             style={{
-              perspective: '1800px',
-              // Desktop holds the drag as a rotation of the whole fan about the arc's pivot
-              // (ARC_RADIUS=620px below the strip centre), so a hand-drag swings the cards
-              // around the circle; on release the same 0.9s glide as the cards carries the
-              // angle back to rest. The transform transition is suppressed mid-gesture so the
-              // fan tracks the pointer 1:1, exactly like the per-card transform handling
-              // below. Mobile stays flat (no rotation), reading only --drag-x.
-              ...(isMobile
+              // No perspective on the track at all anymore (see the arc note above): the fan
+              // is pure 2D, so the browser has nothing to re-project or depth-sort per frame.
+              // The drag lives on the track as a rotation of the whole fan about the arc's
+              // pivot (ARC_RADIUS=620px below the strip centre), so a hand-drag swings the
+              // cards around the circle; on release the same 0.9s glide as the cards carries
+              // the angle back to rest. The transform transition is suppressed mid-gesture so
+              // the fan tracks the pointer 1:1, exactly like the per-card transform handling
+              // below. Flat geometry (phones + low-end desktops) skips the rotation entirely,
+              // reading only --drag-x.
+              ...(flatGeometry
                 ? {}
                 : {
                     transform: 'rotate(var(--drag-angle-deg, 0deg))',
