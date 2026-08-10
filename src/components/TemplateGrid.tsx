@@ -279,6 +279,16 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     const n = filteredTemplates.length;
     let frame = 0;
     let offset = 0;
+    // Whether this gesture has already handed the strip to another card mid-drag. The live
+    // commit advances `startX` by a full step even when the pointer has covered less than
+    // one, so the residual offset after a commit carries the OPPOSITE sign of the travel
+    // that caused it (drag right, residual comes back negative). The release-only snap must
+    // not re-evaluate that reversed residual as a fresh backward drag — it would un-commit
+    // the exact card that just took the middle, which is the "popped up but never settles
+    // into center" the snap was supposed to fix. Once committed, the index is already right;
+    // release just settles the residual home. Only a gesture that never committed needs the
+    // snap, to catch a short pull that revealed the neighbour without crossing the threshold.
+    let committed = false;
 
     // How many whole cards a given pixel offset covers, snapped at a chosen completion
     // fraction. Symmetric in sign: the bare Math.round() this used to be was asymmetric
@@ -297,6 +307,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       // to it there and then, no waiting for a release.
       const steps = stepsFor(offset, 0.6);
       if (steps !== 0) {
+        committed = true;
         drag.startX += steps * step;
         offset -= steps * step;
         dragOffsetRef.current = offset;
@@ -327,16 +338,18 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     const onUp = () => {
       dragRef.current = null;
       setIsDragging(false);
-      // Safety net so a short drag still lands on the card it started to reveal: the live
-      // commit above switches at ~40% of a step, but a quick mouse flick under that leaves
-      // the neighbour fully visible without ever crossing it. Snap any release that at least
-      // 20%-completed the step forward (or backward), so "it emerged but didn't switch" can't
-      // happen — every gesture ends on whichever card it actually pulled toward. Since this
-      // runs in the same handler as setIsDragging(false), the settle effect below zeroes the
-      // residual and the cards glide (0.9s) into the new arrangement in one transition.
-      const snapped = stepsFor(offset, 0.8);
-      if (snapped !== 0) {
-        setActiveIndex((i) => (((i - snapped) % n) + n) % n);
+      // Safety net so a short drag still lands on the card it started to reveal — and ONLY a
+      // short drag. If the strip already committed a card mid-drag (see the `committed` flag
+      // above), setting it again here is actively harmful: the commit rebased `startX` past
+      // the pointer, so this residual is the MIRROR of the drag that caused it, and snapping
+      // on it re-owns the card in the opposite direction, undoing the commit. Skip the snap
+      // in that case — the active card is already the right one, and the settle effect below
+      // glides its residual to zero, so it lands in the middle in one clean 0.9s rotation.
+      if (!committed) {
+        const snapped = stepsFor(offset, 0.8);
+        if (snapped !== 0) {
+          setActiveIndex((i) => (((i - snapped) % n) + n) % n);
+        }
       }
     };
 
