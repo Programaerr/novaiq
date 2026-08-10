@@ -117,6 +117,21 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     }
   });
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
+  const colorPickerRef = useRef<HTMLDivElement | null>(null);
+
+  // Closes the color picker the moment the visitor's attention goes anywhere else — another
+  // control, the demo content, another menu — rather than leaving it floating open until they
+  // happen to hit the same toggle button again.
+  useEffect(() => {
+    if (!showColorPicker) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+        setShowColorPicker(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [showColorPicker]);
 
   const [viewport, setViewport] = useState<ViewportChoice>('full');
 
@@ -1515,7 +1530,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         <div className="flex items-center gap-3 shrink-0">
           
           {/* Color Theme Selector Dropdown / Bar */}
-          <div className="relative">
+          <div className="relative" ref={colorPickerRef}>
             <button
               onClick={() => setShowColorPicker(!showColorPicker)}
               className="nq-btn nq-btn--solid p-2 sm:px-3 sm:py-1.5 rounded-xl flex items-center gap-1.5 text-xs font-bold cursor-pointer"
