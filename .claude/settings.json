@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "C:/Users/MR.Rich/AppData/Local/Programs/Python/Python313/Scripts/graphify.EXE hook-guard search"
+            "command": "C:/Users/medo1/.local/bin/graphify.EXE hook-guard search"
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "C:/Users/MR.Rich/AppData/Local/Programs/Python/Python313/Scripts/graphify.EXE hook-guard read"
+            "command": "C:/Users/medo1/.local/bin/graphify.EXE hook-guard read"
           }
         ]
       }
