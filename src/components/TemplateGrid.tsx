@@ -337,7 +337,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return () => cancelAnimationFrame(id);
   }, [isDragging]);
 
-  // Auto-advance one card every 8s (see the 0.55s transition below) — loops
+  // Auto-advance one card every 8s (see the 0.9s transition below) — loops
   // back to the first card after the last one. Paused while the visitor is dragging, and
   // skipped entirely under reduced-motion. Depending on `activeIndex` restarts the 8s clock
   // after any manual click/arrow/swipe, so autoplay never fights the visitor's own input.
@@ -547,23 +547,23 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   transform,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
-                  // 0.55s, matched to the scale transition on the wrapper below. It used to
-                  // be 1.6s against that 0.45s, and three different durations for one
-                  // movement is what made a flip read as unfinished: the incoming card
-                  // reached full size and full brightness in under half a second and then
-                  // kept drifting toward the middle for another second, so it looked like
-                  // the wrong card was sitting in the centre. Position and size now arrive
-                  // together and the card lands where it belongs, at once. Opacity stays
-                  // slightly ahead on purpose — otherwise the card fades up out of a haze
-                  // rather than sliding in already clear.
+                  // 0.9s, matched to the scale transition on the wrapper below — slow enough
+                  // to read as a deliberate glide rather than the instant-feeling 0.55s this
+                  // used to run at, but not so slow it feels sluggish to use. Opacity keeps
+                  // the same ratio ahead of it (0.55s here vs the 0.35s it used to be)
+                  // rather than staying fixed, otherwise a 0.9s glide with a 0.35s fade would
+                  // finish brightening long before the card stops moving, and the last third
+                  // of the glide would look like it's dragging a fully-lit card rather than
+                  // still arriving. Position and size still arrive together — see the note
+                  // on the scale transition below for why that part hasn't changed.
                   //
                   // The transform half is suspended while dragging so the offset tracks the
                   // finger/mouse 1:1 rather than chasing it on an easing; opacity keeps its
                   // transition throughout, since a card that takes the middle mid-drag
                   // should still brighten smoothly rather than pop.
                   transition: isDragging
-                    ? 'opacity 0.35s ease'
-                    : 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease',
+                    ? 'opacity 0.55s ease'
+                    : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s ease',
                   pointerEvents: isVisible ? undefined : 'none',
                   // Do NOT add `visibility: hidden` (or `content-visibility`) to the
                   // out-of-range cards. It looks like free performance — they are at zero
@@ -589,9 +589,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 <div
                   style={{
                     transform: `scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
-                    // Same 0.55s and same curve as the positional transform above — see the
+                    // Same 0.9s and same curve as the positional transform above — see the
                     // note there on why the two must agree.
-                    transition: 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)',
+                    transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"
                 >
@@ -610,7 +610,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className="relative h-full rounded-[28px] bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/30 transition-colors duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5"
+                  // transition-[border-color] rather than transition-colors: the hover
+                  // border-brightening is the only thing here meant to fade — transition-
+                  // colors would also catch the bg-zinc-900/70 -> bg-white/5 swap below,
+                  // which is what made the glass frame fade in over 300ms after a card
+                  // becomes active instead of appearing complete the instant it does.
+                  className={`relative h-full rounded-[28px] border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5 ${isActive ? 'bg-white/5 backdrop-blur-xl' : 'bg-zinc-900/70'}`}
                 >
                   {/* The photo sits inset inside the frame's own padding — a bezel margin all
                       round, like a phone case holding its screen — rather than bleeding to
@@ -635,14 +640,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
 
-                    {/* Category badge */}
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] sm:text-[11px] font-bold">
+                    {/* Category badge — solid instead of blurred on every non-focused card:
+                        with up to five cards visible at once, that many animated
+                        backdrop-blur layers is what was making the transition stutter on
+                        real phones (never showed up in devtools, since a blur that expensive
+                        only bites once the GPU actually has five of them in flight at 60fps).
+                        The focused card is the only one anyone's actually reading, so it's
+                        the only one that keeps the frosted look. */}
+                    <div className={`absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full border border-white/10 text-white text-[10px] sm:text-[11px] font-bold ${isActive ? 'bg-black/60 backdrop-blur-md' : 'bg-black/80'}`}>
                       {displayCategory}
                     </div>
 
                     {/* Bottom glass panel — name, one-line pitch and the single action this
-                        card needs, mirroring the reference's name + tagline + one button. */}
-                    <div className="absolute inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 p-3.5 sm:p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 shadow-xl">
+                        card needs, mirroring the reference's name + tagline + one button.
+                        Same solid-unless-focused trade-off as the badge above. */}
+                    <div className={`absolute inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 p-3.5 sm:p-4 rounded-2xl border border-white/15 shadow-xl ${isActive ? 'bg-white/10 backdrop-blur-xl' : 'bg-zinc-950/85'}`}>
                       <div className="flex items-center gap-1.5">
                         <h3 className="text-white font-bold text-base sm:text-lg line-clamp-1">{displayTitle}</h3>
                         <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
