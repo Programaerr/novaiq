@@ -101,8 +101,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // the cards' transforms update straight from it.
   const trackRef = useRef<HTMLDivElement | null>(null);
   const dragOffsetRef = useRef(0);
+  // Publishes a gesture offset to the track as two CSS variables: --drag-x (px) drives the
+  // flat mobile slide, and --drag-angle-deg rotates the whole desktop fan about the arc's
+  // pivot (ARC_RADIUS below the strip) so the drag swings cards around the circle instead of
+  // shoving the strip sideways. At any breakpoint only one is read, so the other is inert.
   const setDragOffset = (px: number) => {
-    trackRef.current?.style.setProperty('--drag-x', `${px}px`);
+    const el = trackRef.current;
+    if (!el) return;
+    el.style.setProperty('--drag-x', `${px}px`);
+    el.style.setProperty('--drag-angle-deg', `${(px * 180) / (Math.PI * ARC_RADIUS)}deg`);
   };
 
   // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
@@ -318,7 +325,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // frame, so the strip never draws itself in a position neither of them describes.
   useLayoutEffect(() => {
     if (!isDragging) return;
-    trackRef.current?.style.setProperty('--drag-x', `${dragOffsetRef.current}px`);
+    setDragOffset(dragOffsetRef.current);
   });
 
   // Settling the residual offset home, once the drag is over. Deliberately not done inside
@@ -512,12 +519,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             let transform: string;
             if (isMobile) {
               const stepPx = FLAT_STEP_PX_MOBILE;
-              const rotY = isActive ? 0 : offset > 0 ? -16 : 16;
-              // --drag-x is the live gesture offset, published on the track by the drag
-              // effect above. Folded into the transform here rather than applied to a
-              // wrapper so the whole strip moves as one, and so a card's resting position
-              // and its drag offset stay a single composited transform.
-              transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px))) translateZ(${-cappedDistance * 90}px) rotateY(${rotY}deg)`;
+              // Pure 2D on phones. The old geometry bolted translateZ + rotateY onto this
+              // same slide so mobile could share the desktop's 3D fan — but under the track's
+              // 1800px perspective those layers cross-fade with the card's own opacity fade
+              // and image mask during every release, and on mobile Chrome that pairing is
+              // exactly what flashes the card blank and back mid-glide. A 2D translateX
+              // cannot z-recede or blink; the desktop fan is unaffected.
+              transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px)))`;
             } else {
               // Each step out is a point on a shared arc, not a straight sideways slide: an
               // angle proportional to distance from center, translated into a horizontal
@@ -537,7 +545,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               const arcX = ARC_RADIUS * Math.sin(angleRad);
               const arcY = ARC_RADIUS * (1 - Math.cos(angleRad));
               const rotYDeg = angleDeg * 0.7;
-              transform = `translate(-50%, -50%) translateX(calc(${arcX}px + var(--drag-x, 0px))) translateY(${arcY}px) translateZ(${-cappedDistance * 90}px) rotateZ(${angleDeg}deg) rotateY(${rotYDeg}deg)`;
+              // The arc is static here; the drag's orbital glide is applied on the track as a
+              // whole rotation about this same arc's pivot (see the track's transform-origin,
+              // ARC_RADIUS below the strip), so a hand-fan doesn't slide sideways flat — it
+              // swings around the circle beneath it, and releases back into place on the same
+              // 0.9s glide as the cards themselves.
+              transform = `translate(-50%, -50%) translateX(${arcX}px) translateY(${arcY}px) translateZ(${-cappedDistance * 90}px) rotateZ(${angleDeg}deg) rotateY(${rotYDeg}deg)`;
             }
 
             return (
