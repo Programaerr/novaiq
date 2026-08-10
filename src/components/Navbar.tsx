@@ -221,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
           ) : (
             <a
-              href="?page=orders&mode=login"
+              href="?page=orders&amp;mode=login"
               onClick={(e) => goToAccount('login', e)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-zinc-200 text-black border border-white transition-all cursor-pointer white-btn-glow"
             >
