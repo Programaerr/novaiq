@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Visibility gate for anything that would otherwise keep running while the visitor is
 // looking elsewhere: auto-advance carousels, interval-driven effects, scroll rigs. If a
@@ -10,13 +10,13 @@ import { useCallback, useRef, useState } from 'react';
 export function useInView<T extends HTMLElement = HTMLDivElement>(
   options: IntersectionObserverInit & { initiallyVisible?: boolean } = {}
 ) {
+  const ref = useRef<T | null>(null);
   // Default to visible until the first observation, so a first paint is never wrongly
   // suppressed by an observer that has not fired yet.
-  const ref = useRef<T | null>(null);
   const [isInView, setIsInView] = useState(options.initiallyVisible ?? true);
 
-  const callbackRef = useCallback((node: T | null) => {
-    ref.current = node;
+  useEffect(() => {
+    const node = ref.current;
     if (!node) return;
     if (typeof IntersectionObserver === 'undefined') {
       setIsInView(true);
@@ -27,9 +27,9 @@ export function useInView<T extends HTMLElement = HTMLDivElement>(
       { rootMargin: options.rootMargin, threshold: options.threshold }
     );
     observer.observe(node);
-    // The observer instance is owned by the element, so it lives as long as the node does.
-    (node as T & { __nqInViewObserver?: IntersectionObserver }).__nqInViewObserver = observer;
-  }, [options.rootMargin, options.threshold]);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  return [callbackRef, isInView] as const;
+  return [ref, isInView] as const;
 }
