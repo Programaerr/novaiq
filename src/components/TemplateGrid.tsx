@@ -676,13 +676,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         {displaySubtitle}
                       </p>
 
-                      {/* Meta and action stack on phones and only sit side by side from sm up.
-                          On a 260px card all three (weeks, price, button) sharing one row left
-                          each too little width to hold together, so "3 أسابيع" and the price's
-                          currency suffix each broke onto their own line mid-phrase. Stacking
-                          gives the row its full width back; whitespace-nowrap then guarantees
-                          neither value can split again regardless of how long a price gets. */}
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-2 mt-2 sm:mt-3">
+                      {/* Meta above, action below — stacked at every width, not just on phones.
+                          Weeks, price and button sharing one row left each too little space to
+                          hold together, so "3 أسابيع" and the price's currency suffix each
+                          broke onto their own line mid-phrase. Desktop is no better off than
+                          mobile here despite its wider card: measured against the panel's own
+                          inner width, that row needs ~270px and only has ~246px. Stacking
+                          gives each its full width; whitespace-nowrap then guarantees neither
+                          value can split again regardless of how long a price gets. */}
+                      <div className="flex flex-col gap-2 mt-2 sm:mt-3">
                         <div className="flex items-center gap-2.5 sm:gap-3 text-[9px] sm:text-[11px] text-zinc-300 font-semibold">
                           <span className="flex items-center gap-1 whitespace-nowrap">
                             <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
@@ -704,7 +706,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                             onSelectTemplateForContract(template);
                             cosmicAudio.playWarp();
                           }}
-                          className="filter-pill-btn relative shrink-0 w-full sm:w-auto px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                          className="filter-pill-btn relative shrink-0 w-full px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
                         >
                           <span className="filter-pill-beam" aria-hidden="true" />
                           <FileSignature className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-current shrink-0" />
