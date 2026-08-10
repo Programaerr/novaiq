@@ -702,7 +702,6 @@
   width: 200%;
   height: 200%;
   background-repeat: repeat;
-  will-change: transform;
 }
 
 .star-layer--far {
