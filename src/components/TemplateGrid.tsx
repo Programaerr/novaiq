@@ -580,61 +580,66 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className={`relative h-full rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 transition-colors duration-300 cursor-pointer group shadow-2xl ${isActive ? 'template-card-reflect' : ''}`}
+                  className={`relative h-full rounded-[28px] bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/30 transition-colors duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5 ${isActive ? 'template-card-reflect' : ''}`}
                 >
-                  <img
-                    src={template.previewImage}
-                    alt={displayTitle}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
+                  {/* The photo sits inset inside the frame's own padding — a bezel margin all
+                      round, like a phone case holding its screen — rather than bleeding to
+                      the card's own edges the way it did before. */}
+                  <div className="relative w-full h-full rounded-[20px] overflow-hidden">
+                    <img
+                      src={template.previewImage}
+                      alt={displayTitle}
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
 
-                  {/* Category badge */}
-                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] sm:text-[11px] font-bold">
-                    {displayCategory}
-                  </div>
-
-                  {/* Bottom glass panel — name, one-line pitch and the single action this
-                      card needs, mirroring the reference's name + tagline + one button. */}
-                  <div className="absolute inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 p-3.5 sm:p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 shadow-xl">
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="text-white font-bold text-base sm:text-lg line-clamp-1">{displayTitle}</h3>
-                      <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
+                    {/* Category badge */}
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] sm:text-[11px] font-bold">
+                      {displayCategory}
                     </div>
-                    <p className="text-zinc-300 text-[11px] sm:text-xs leading-relaxed line-clamp-2 mt-1">
-                      {displaySubtitle}
-                    </p>
 
-                    <div className="flex items-center justify-between gap-2 mt-3">
-                      <div className="flex items-center gap-3 text-[10px] sm:text-[11px] text-zinc-300 font-semibold">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
-                          {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
-                        </span>
-                        <span className="font-mono font-bold text-white">
-                          {formatPrice(template.basePriceIQD, currentLang, currency)}
-                        </span>
+                    {/* Bottom glass panel — name, one-line pitch and the single action this
+                        card needs, mirroring the reference's name + tagline + one button. */}
+                    <div className="absolute inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 p-3.5 sm:p-4 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/15 shadow-xl">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="text-white font-bold text-base sm:text-lg line-clamp-1">{displayTitle}</h3>
+                        <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
                       </div>
+                      <p className="text-zinc-300 text-[11px] sm:text-xs leading-relaxed line-clamp-2 mt-1">
+                        {displaySubtitle}
+                      </p>
 
-                      {/* Wears the toolbar's Filter pill outright (.filter-pill-btn +
-                          .filter-pill-beam): same bevelled white surface, same inversion to
-                          black on hover, same undulating beam every other primary action on
-                          this page carries. Stops the click from bubbling to the card's own
-                          onClick above it, since the two now sit nested. */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectTemplateForContract(template);
-                          cosmicAudio.playWarp();
-                        }}
-                        className="filter-pill-btn relative shrink-0 px-3.5 py-2 rounded-full text-[11px] font-bold flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <span className="filter-pill-beam" aria-hidden="true" />
-                        <FileSignature className="w-3.5 h-3.5 text-current shrink-0" />
-                        <span>{getTranslation('selectForContract', currentLang)}</span>
-                      </button>
+                      <div className="flex items-center justify-between gap-2 mt-3">
+                        <div className="flex items-center gap-3 text-[10px] sm:text-[11px] text-zinc-300 font-semibold">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
+                            {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
+                          </span>
+                          <span className="font-mono font-bold text-white">
+                            {formatPrice(template.basePriceIQD, currentLang, currency)}
+                          </span>
+                        </div>
+
+                        {/* Wears the toolbar's Filter pill outright (.filter-pill-btn +
+                            .filter-pill-beam): same bevelled white surface, same inversion to
+                            black on hover, same undulating beam every other primary action on
+                            this page carries. Stops the click from bubbling to the card's own
+                            onClick above it, since the two now sit nested. */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectTemplateForContract(template);
+                            cosmicAudio.playWarp();
+                          }}
+                          className="filter-pill-btn relative shrink-0 px-3.5 py-2 rounded-full text-[11px] font-bold flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <span className="filter-pill-beam" aria-hidden="true" />
+                          <FileSignature className="w-3.5 h-3.5 text-current shrink-0" />
+                          <span>{getTranslation('selectForContract', currentLang)}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
