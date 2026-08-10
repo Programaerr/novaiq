@@ -272,38 +272,43 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // history above): these are separate, non-capturing listeners, so a tap that starts and
   // ends on a button's own bounds is never touched by this at all.
   //
-  // The index moves *during* the drag, not on release. Every time the drag passes half a
-  // card's step, the neighbour that has reached the middle becomes the active card there
-  // and then, and the start point advances by exactly that step so the residual offset
-  // carries on from where it was. Both halves matter: committing the index is what makes
-  // the centered card genuinely the selected one (so letting go anywhere keeps whatever is
-  // in the middle, instead of the whole strip springing back to where the drag began), and
-  // moving startX in the same breath is what keeps the motion continuous — the card that
-  // just became active is drawn at the same pixel before and after the hand-off, so nothing
-  // jumps at the moment of commit. Release then has nothing left to decide; it only settles
-  // the residual back to zero.
+  // The index moves *during* the drag, not on release. The pointer's signed travel decides
+  // which card owns the middle, and the strip hands over the moment the appropriate card has
+  // been pulled a good chunk of the way toward center (see the snap fraction used inside).
+  // Committing the index mid-gesture is what makes the centered card genuinely the selected
+  // one — letting go anywhere keeps whatever is in the middle, instead of the whole strip
+  // springing back to where the drag began — and the residual offset then just glides home
+  // on release. The travel stays anchored to the original pointerdown so the commit
+  // direction always follows the finger; see the note inside on why that anchor matters.
+  //
+  // Card counts are computed symmetrically: the bare Math.round() this used to be was
+  // asymmetric (Math.round(-0.5) === -0), so dragging *left* silently needed ~75% of a step
+  // while dragging right switched at 50% — one direction always lagged where the eye saw the
+  // second card already sitting. Magnitude-then-sign makes both directions switch at the
+  // same completion fraction, and sharing the helper between the live drag and the release
+  // snap keeps the two thresholds honest.
   useEffect(() => {
     if (!isDragging) return;
     const step = flatGeometry ? flatStepPx : ARC_STEP_PX;
     const n = filteredTemplates.length;
     let frame = 0;
+    // `travel` is the pointer's full signed displacement since the gesture started, NEVER
+    // rebased. `committed` is how many whole cards the strip has handed over so far (signed,
+    // so it grows in the direction the pointer is actually travelling). The visible offset
+    // is always `travel - committed * step`.
+    //
+    // The old model advanced `drag.startX` by a full step at every commit, which silently
+    // INVERTED the residual: continue dragging the same direction and the very next
+    // pointermove read a reversed, now-positive offset, crossed the commit threshold again,
+    // and walked the commit BACKWARD — a just-activated card flipping back out mid-gesture.
+    // That is the "second card popped up but the rotation never completes" failure: the
+    // strip commits, then un-commits one pointer event later, and with no further movement
+    // the release settles onto the original card. Anchoring everything to monotonic travel
+    // makes the commit direction follow the finger, never the residual's sign.
+    let travel = 0;
+    let committed = 0;
     let offset = 0;
-    // Whether this gesture has already handed the strip to another card mid-drag. The live
-    // commit advances `startX` by a full step even when the pointer has covered less than
-    // one, so the residual offset after a commit carries the OPPOSITE sign of the travel
-    // that caused it (drag right, residual comes back negative). The release-only snap must
-    // not re-evaluate that reversed residual as a fresh backward drag — it would un-commit
-    // the exact card that just took the middle, which is the "popped up but never settles
-    // into center" the snap was supposed to fix. Once committed, the index is already right;
-    // release just settles the residual home. Only a gesture that never committed needs the
-    // snap, to catch a short pull that revealed the neighbour without crossing the threshold.
-    let committed = false;
 
-    // How many whole cards a given pixel offset covers, snapped at a chosen completion
-    // fraction. Symmetric in sign: the bare Math.round() this used to be was asymmetric
-    // (Math.round(-0.5) === -0), so dragging *left* needed ~75% of a step while right
-    // switched at 50%. Magnitude-then-sign makes both directions equal, and sharing the
-    // helper between the live drag and the release snap keeps the two thresholds honest.
     const stepsFor = (px: number, snap: number) =>
       n > 1 ? Math.sign(px) * Math.floor(Math.abs(px) / step + snap) : 0;
 
@@ -311,14 +316,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       frame = 0;
       const drag = dragRef.current;
       if (!drag) return;
-      // As soon as the neighbour has been dragged a good chunk of the way (40% — the +0.6
-      // snap completes at 0.4) toward centre it IS the prominent card, so the strip commits
-      // to it there and then, no waiting for a release.
-      const steps = stepsFor(offset, 0.6);
+      // The whole-card target is the travel-based count; the diff vs `committed` is what to
+      // add now. Because `stepsFor` is monotonic in travel, forward drags only ever add
+      // commits (and a genuine reverse drag subtracts) — never a flip in mid-direction.
+      const target = stepsFor(travel, 0.6);
+      const steps = target - committed;
       if (steps !== 0) {
-        committed = true;
-        drag.startX += steps * step;
-        offset -= steps * step;
+        committed = target;
+        offset = travel - committed * step;
         dragOffsetRef.current = offset;
         // Deliberately does NOT publish --drag-x here. Changing the index is a React state
         // update that lands on a later frame, while a style write lands immediately — so
@@ -327,12 +332,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
         // up. That one-frame mismatch is exactly the previous card flashing into view before
         // the new one takes the middle. The layout effect below publishes it in the same
         // commit as the index instead, so the two are always painted together.
-        //
-        // Dragging right (positive) walks backwards through the list, same direction the
-        // release-time swipe used to resolve to.
         setActiveIndex((i) => (((i - steps) % n) + n) % n);
         return;
       }
+      offset = travel - committed * step;
       dragOffsetRef.current = offset;
       setDragOffset(offset);
     };
@@ -340,7 +343,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     const onMove = (e: PointerEvent) => {
       const drag = dragRef.current;
       if (!drag) return;
-      offset = e.clientX - drag.startX;
+      travel = e.clientX - drag.startX;
       if (!frame) frame = requestAnimationFrame(apply);
     };
 
@@ -354,18 +357,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
         drag !== null && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 6;
       dragRef.current = null;
       setIsDragging(false);
-      // Safety net so a short drag still lands on the card it started to reveal — and ONLY a
-      // short drag. If the strip already committed a card mid-drag (see the `committed` flag
-      // above), setting it again here is actively harmful: the commit rebased `startX` past
-      // the pointer, so this residual is the MIRROR of the drag that caused it, and snapping
-      // on it re-owns the card in the opposite direction, undoing the commit. Skip the snap
-      // in that case — the active card is already the right one, and the settle effect below
-      // glides its residual to zero, so it lands in the middle in one clean 0.9s rotation.
-      if (!committed) {
-        const snapped = stepsFor(offset, 0.8);
-        if (snapped !== 0) {
-          setActiveIndex((i) => (((i - snapped) % n) + n) % n);
-        }
+      // Catch a short pull that revealed the neighbour without committing, and complete any
+      // commit the drag itself was one unit short of. Same monotonic formula as apply, so a
+      // release can never reverse a commit that already happened — it can only round the
+      // gesture up to the card it was actually aiming at (or leave it, for a sub-20% nudge).
+      const target = stepsFor(travel, 0.8);
+      const steps = target - committed;
+      if (steps !== 0) {
+        committed = target;
+        offset = travel - committed * step;
+        dragOffsetRef.current = offset;
+        setActiveIndex((i) => (((i - steps) % n) + n) % n);
       }
     };
 
