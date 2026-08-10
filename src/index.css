@@ -764,6 +764,21 @@
   animation: page-in 0.3s ease-out both;
 }
 
+/* Low-end device lag fix: sections below the first viewport were being painted,
+   animated (corner-sweep, star drift, reveal, milestones) and composited at page load
+   even though the visitor had not scrolled to them — doing the whole page's work up
+   front is what made weak devices stutter while scrolling down. `content-visibility:auto`
+   makes the browser skip rendering/animation of offscreen content entirely and only do
+   the work when the section is about to scroll into view. The section then renders and
+   animates exactly as before — nothing is removed, accelerated, or changed visually. */
+.below-fold {
+  content-visibility: auto;
+  /* Establishes a stable reservation per section so the scrollbar does not jump while
+     the browser skips their offscreen paint (the `auto` keyword keeps the *measured*
+     height once the section has been rendered on screen). */
+  contain-intrinsic-size: auto 640px;
+}
+
 .animate-pulse-glow {
   animation: pulse-glow 8s ease-in-out infinite;
 }
