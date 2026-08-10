@@ -547,23 +547,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   transform,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
-                  // 0.9s, matched to the scale transition on the wrapper below — slow enough
-                  // to read as a deliberate glide rather than the instant-feeling 0.55s this
-                  // used to run at, but not so slow it feels sluggish to use. Opacity keeps
-                  // the same ratio ahead of it (0.55s here vs the 0.35s it used to be)
-                  // rather than staying fixed, otherwise a 0.9s glide with a 0.35s fade would
-                  // finish brightening long before the card stops moving, and the last third
-                  // of the glide would look like it's dragging a fully-lit card rather than
-                  // still arriving. Position and size still arrive together — see the note
-                  // on the scale transition below for why that part hasn't changed.
+                  // 0.9s for the glide, matched to the scale transition on the wrapper below —
+                  // slow enough to read as a deliberate motion instead of the instant-feeling
+                  // 0.55s this used to run at. Opacity is deliberately much shorter (0.3s) and
+                  // NOT matched to it: sampled frame-by-frame, a 0.55s opacity fade running
+                  // alongside a 0.9s slide put the outgoing and incoming card at similar
+                  // high-ish opacity (both ~0.7–0.85) for a good third of the transition —
+                  // two overlapping cards that are each mostly-but-not-fully visible reads as
+                  // a muddy double exposure, which is worse the longer that window lasts.
+                  // Cutting opacity down to 0.3s means each card reaches its resting opacity
+                  // well before the slide is even half done, so for the back half of the
+                  // glide the incoming card is already fully opaque and simply sliding over
+                  // the outgoing one — a clean overlap instead of a translucent one. Position
+                  // and size still arrive together — see the note on the scale transition
+                  // below for why that part hasn't changed.
                   //
                   // The transform half is suspended while dragging so the offset tracks the
                   // finger/mouse 1:1 rather than chasing it on an easing; opacity keeps its
                   // transition throughout, since a card that takes the middle mid-drag
                   // should still brighten smoothly rather than pop.
                   transition: isDragging
-                    ? 'opacity 0.55s ease'
-                    : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s ease',
+                    ? 'opacity 0.3s ease'
+                    : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease',
                   pointerEvents: isVisible ? undefined : 'none',
                   // Do NOT add `visibility: hidden` (or `content-visibility`) to the
                   // out-of-range cards. It looks like free performance — they are at zero
