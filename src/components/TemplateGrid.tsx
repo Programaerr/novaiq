@@ -284,7 +284,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       frame = 0;
       const drag = dragRef.current;
       if (!drag) return;
-      const steps = n > 1 ? Math.round(offset / step) : 0;
+      // As soon as the neighbour has been dragged halfway toward centre it IS the prominent
+      // card, so the strip commits to it there and then — no need to wait for a release.
+      // The half must be computed symmetrically: the bare Math.round() this was written with
+      // rounds negatives toward zero (Math.round(-0.5) === -0), so dragging *left* silently
+      // needed a ~75%-of-the-way shove before it switched while dragging right switched at
+      // 50% — one direction always lagged behind where the eye saw the second card already
+      // sitting. Rounding the magnitude and re-applying the sign makes both directions switch
+      // at the same halfway point.
+      const steps = n > 1 ? Math.sign(offset) * Math.round(Math.abs(offset) / step) : 0;
       if (steps !== 0) {
         drag.startX += steps * step;
         offset -= steps * step;
