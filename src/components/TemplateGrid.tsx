@@ -503,7 +503,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // so the gap between cards reads the same however wide they are. Mirrors the
             // `step` the drag effect above computes — both describe the same one-card
             // travel distance, and they have to agree or a drag lands off-centre.
-            const stepPx = isMobile ? 180 : 235;
+            const stepPx = isMobile ? 156 : 204;
 
             return (
               <div
@@ -547,7 +547,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // *rendered* too. A fully transparent element is already skipped at paint
                   // time, so what was left to win here was small and this is what it cost.
                 }}
-                className={`absolute top-1/2 left-1/2 w-[300px] sm:w-[380px] h-[460px] sm:h-[560px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute top-1/2 left-1/2 w-[260px] sm:w-[330px] h-[400px] sm:h-[480px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 {/* Scale lives here, one level in from the positional transform above,
                     precisely so it can keep its own transition while that one is switched
@@ -580,7 +580,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  className={`relative h-full rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 glow-white-hover transition-colors duration-300 cursor-pointer group shadow-2xl ${isActive ? 'template-card-reflect' : ''}`}
+                  className={`relative h-full rounded-3xl overflow-hidden border border-zinc-800 hover:border-white/50 transition-colors duration-300 cursor-pointer group shadow-2xl ${isActive ? 'template-card-reflect' : ''}`}
                 >
                   <img
                     src={template.previewImage}
