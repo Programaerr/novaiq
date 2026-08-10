@@ -367,10 +367,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               behind it — recomputed every scroll frame, which is exactly the kind of GPU cost
               CosmicBackground's own glow comment warns about. Navbar's pill and PageBackBar
               solve the identical "glass bar sitting over scrolling content" problem with a
-              much denser fill (55% black) at a cheaper 12px blur — same frosted look, far
-              less to recompute per frame. Reusing that proven combo here instead of a bespoke
+              static .glass-bar material: a translucent near-black fill with a catch-light and
+              inner glow, painted once and never invalidated during scroll — same frosted look,
+              zero per-frame recompute. reusing that proven combo here instead of a bespoke
               one. */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 shadow-xl shadow-black/20 p-4 sm:p-5">
+          <div className="glass-bar flex flex-col sm:flex-row items-center gap-3 rounded-2xl border border-white/10 shadow-xl shadow-black/20 p-4 sm:p-5">
             <button
               onClick={() => {
                 setShowFilterPanel(!showFilterPanel);
