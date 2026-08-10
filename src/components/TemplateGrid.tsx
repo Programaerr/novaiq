@@ -615,12 +615,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     }
                     cosmicAudio.playPing();
                   }}
-                  // transition-[border-color] rather than transition-colors: the hover
-                  // border-brightening is the only thing here meant to fade — transition-
-                  // colors would also catch the bg-zinc-900/70 -> bg-white/5 swap below,
-                  // which is what made the glass frame fade in over 300ms after a card
-                  // becomes active instead of appearing complete the instant it does.
-                  className={`relative h-full rounded-[28px] border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5 ${isActive ? 'bg-white/5 backdrop-blur-xl' : 'bg-zinc-900/70'}`}
+                  // Surface styling here is deliberately NOT conditional on isActive, and
+                  // carries no backdrop-blur. Both of those were tried and both flicker: a
+                  // background that changes the instant a card becomes active is a hard swap
+                  // mid-motion, and toggling backdrop-filter on/off makes the browser build
+                  // and tear down a compositor layer at that same moment — the card visibly
+                  // blanks and re-appears. Constant styling means the layer is created once
+                  // and simply moves, which is also why the earlier five-simultaneous-blurs
+                  // stutter on real phones doesn't come back. transition-[border-color], not
+                  // transition-colors, for the same family of reason: only the hover border
+                  // is meant to fade, and a broader transition would animate the surface too.
+                  className="relative h-full rounded-[28px] bg-white/5 border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5"
                 >
                   {/* The photo sits inset inside the frame's own padding — a bezel margin all
                       round, like a phone case holding its screen — rather than bleeding to
@@ -652,21 +657,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
 
-                    {/* Category badge — solid instead of blurred on every non-focused card:
-                        with up to five cards visible at once, that many animated
-                        backdrop-blur layers is what was making the transition stutter on
-                        real phones (never showed up in devtools, since a blur that expensive
-                        only bites once the GPU actually has five of them in flight at 60fps).
-                        The focused card is the only one anyone's actually reading, so it's
-                        the only one that keeps the frosted look. */}
-                    <div className={`absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full border border-white/10 text-white text-[10px] sm:text-[11px] font-bold ${isActive ? 'bg-black/60 backdrop-blur-md' : 'bg-black/80'}`}>
+                    {/* Category badge — flat translucent, same on every card. See the note on
+                        the bezel above for why nothing here keys off isActive or blurs. */}
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/70 border border-white/10 text-white text-[10px] sm:text-[11px] font-bold">
                       {displayCategory}
                     </div>
 
-                    {/* Bottom glass panel — name, one-line pitch and the single action this
-                        card needs, mirroring the reference's name + tagline + one button.
-                        Same solid-unless-focused trade-off as the badge above. */}
-                    <div className={`absolute inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 p-3.5 sm:p-4 rounded-2xl border border-white/15 shadow-xl ${isActive ? 'bg-white/10 backdrop-blur-xl' : 'bg-zinc-950/85'}`}>
+                    {/* Bottom panel — name, one-line pitch and the single action this card
+                        needs, mirroring the reference's name + tagline + one button. Dark and
+                        translucent rather than frosted: the photo still reads through it, but
+                        without a backdrop-filter that would have to be built per card. */}
+                    <div className="absolute inset-x-3 bottom-3 sm:inset-x-4 sm:bottom-4 p-3.5 sm:p-4 rounded-2xl bg-zinc-950/80 border border-white/15 shadow-xl">
                       <div className="flex items-center gap-1.5">
                         <h3 className="text-white font-bold text-base sm:text-lg line-clamp-1">{displayTitle}</h3>
                         <CheckCircle2 className="w-4 h-4 text-white shrink-0" />
