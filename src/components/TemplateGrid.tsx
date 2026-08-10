@@ -505,14 +505,20 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // reach (sin) and a downward dip (1 - cos) around a pivot below the strip, the
             // same way a hand of physical cards fans out. rotateZ below uses the identical
             // angle, so a card always leans in the exact direction it's displaced toward —
-            // the arc and the tilt can't disagree with each other. A little translateZ is
-            // layered on top purely for stacking depth, foreshortened by the perspective()
-            // on the track; it is not what draws the curve.
+            // the arc and the tilt can't disagree with each other.
+            //
+            // rotateZ alone reads as a flat cutout laid on the arc, not an object sitting in
+            // it — rotateY (turning each card in depth, around its own vertical axis) plus a
+            // real translateZ recession are what the perspective() on the track actually has
+            // something to foreshorten, which is what makes the fan read as three-dimensional
+            // instead of a paper cutout. Both are driven off the same angle as the arc so all
+            // three axes agree on which way each card is turning.
             const radius = arcRadius(isMobile);
             const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
             const angleRad = (angleDeg * Math.PI) / 180;
             const arcX = radius * Math.sin(angleRad);
             const arcY = radius * (1 - Math.cos(angleRad));
+            const rotYDeg = angleDeg * 0.7;
 
             return (
               <div
@@ -523,7 +529,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // effect above. Folded into the transform here rather than applied to a
                   // wrapper so the whole strip moves as one, and so a card's resting
                   // position and its drag offset stay a single composited transform.
-                  transform: `translate(-50%, -50%) translateX(calc(${arcX}px + var(--drag-x, 0px))) translateY(${arcY}px) translateZ(${-cappedDistance * 40}px) rotateZ(${angleDeg}deg)`,
+                  transform: `translate(-50%, -50%) translateX(calc(${arcX}px + var(--drag-x, 0px))) translateY(${arcY}px) translateZ(${-cappedDistance * 90}px) rotateZ(${angleDeg}deg) rotateY(${rotYDeg}deg)`,
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.55s, matched to the scale transition on the wrapper below. It used to
