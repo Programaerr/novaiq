@@ -27,7 +27,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
               {language === 'ar' ? (
                 <>شركة برمجية متخصصة في تطوير <span className="text-white underline decoration-zinc-700 underline-offset-8">المواقع والتطبيقات الإلكترونية</span></>
               ) : (
-                <>Software Firm Specializing in <span className="text-white underline decoration-zinc-700 underline-offset-8">Websites & Digital Applications</span></>
+                <>Software Firm Specializing in <span className="text-white underline decoration-zinc-700 underline-offset-8">Websites &amp; Digital Applications</span></>
               )}
             </h2>
 

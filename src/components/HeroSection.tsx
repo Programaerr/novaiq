@@ -121,7 +121,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
           {language === 'ar' ? (
             <>برمجة وتطوير <span className="text-white underline decoration-zinc-700 decoration-2 underline-offset-8 font-black">التطبيقات والمواقع</span> المتكاملة</>
           ) : (
-            <>Premium <span className="text-white underline decoration-zinc-700 decoration-2 underline-offset-8 font-black">Web & Mobile</span> App Development</>
+            <>Premium <span className="text-white underline decoration-zinc-700 decoration-2 underline-offset-8 font-black">Web &amp; Mobile</span> App Development</>
           )}
         </h1>
 
