@@ -387,7 +387,9 @@ export default function App() {
             </div>
 
             {/* Structured Timeline */}
-            <MilestoneTimeline language={language} />
+            <div className="below-fold">
+              <MilestoneTimeline language={language} />
+            </div>
 
             {/* Bridges the timeline and about sections rather than living inside either,
                 so it reads as a shared next step and not "the end of the roadmap." */}
