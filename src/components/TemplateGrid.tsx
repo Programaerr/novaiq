@@ -633,8 +633,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     // devtools or headless screenshots, only on a real iPhone, which is why
                     // the bottom panel could overflow past this frame there and nowhere else.
                     // Forcing Safari onto its mask-based clip path instead of the broken
-                    // overflow-hidden path is the standard fix for this.
-                    style={{ WebkitMaskImage: '-webkit-radial-gradient(white, black)' }}
+                    // overflow-hidden path is the standard fix for this — but the textbook
+                    // version of it, -webkit-radial-gradient(white, black), is an actual
+                    // gradient: on a tall narrow card like this one its default
+                    // farthest-corner sizing fades to black along the side edges well before
+                    // it reaches the corners, which is a real, visible dark band down both
+                    // sides, not a rendering glitch. Both stops white makes it a true no-op
+                    // gradient — still a mask-image, so Safari still takes the fixed code
+                    // path, but nothing in it actually fades.
+                    style={{ WebkitMaskImage: '-webkit-radial-gradient(white, white)' }}
                   >
                     <img
                       src={template.previewImage}
