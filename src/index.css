@@ -820,13 +820,6 @@
   backface-visibility: hidden;
 }
 
-/* Glossy floor reflection under the focused card only — one mirrored compositor layer,
-   so keeping it to a single card at a time is what keeps it cheap. Unsupported in
-   Firefox, which just renders the card without one; nothing else depends on it. */
-.template-card-reflect {
-  -webkit-box-reflect: below 4px linear-gradient(to bottom, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.04) 28%, rgba(255, 255, 255, 0) 45%);
-}
-
 /* Stat bar meters — the fill grows a little further on hover, in step with the "+"
    revealed next to the number, to read as the metric ticking up. */
 .stat-bar-fill {
