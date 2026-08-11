@@ -649,6 +649,16 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
                   transform,
+                  // Promotes each card to its own compositor layer, permanently, so the
+                  // card's render — masked, shadowed, image-filled — is rasterized once and
+                  // then moved. Without the hint the browser re-rasterizes every card inside
+                  // the rotating track on each drag frame (the track itself is deliberately
+                  // NOT promoted: its children change opacity constantly, and a promoted
+                  // parent would re-bake the whole fan into one texture per change). This is
+                  // the same lesson the milestone-card ring learned: promote the moving leaf,
+                  // not the animated parent. Two transitions fight on this element, transform
+                  // (0.9s) and opacity (0.3s), so both properties are named.
+                  willChange: 'transform, opacity',
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
