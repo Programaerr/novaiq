@@ -110,17 +110,17 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
           const dy = y < 0 ? -y : y > b.h ? y - b.h : 0;
           if (dx * dx + dy * dy > REACH_SQ) continue;
         }
-        // Quantised to a 6px grid, and skipped outright when the rounded value has not
-        // moved. Every write invalidates the element's gradient, and `.reveal-border`'s is
-        // then carved to an outline by a `mask-composite` pair — an operation browsers do
-        // not GPU-accelerate, so it lands on the main thread at full cost. The gradient it
-        // is positioning is a soft 240px circle: displacing its centre by up to 6px changes
-        // it by 2.5% of its own radius, which is not a difference the eye can find on a
-        // blurred falloff. Pointer streams routinely report sub-pixel deltas, and without
-        // this every one of them bought a full masked repaint to move a soft glow by a
-        // fraction of a pixel.
-        const qx = Math.round(x / 6) * 6;
-        const qy = Math.round(y / 6) * 6;
+        // Quantised to a 2px grid, and skipped outright when the rounded value has not
+        // moved. What a write costs now is a style recalc on the card and a compositor
+        // transform on the light — no painting at all, since the disc these coordinates
+        // move is a static texture (see `.rv` in index.css). That is why the grid is 2px
+        // rather than the 6px it needed when this same write forced a masked gradient to be
+        // regenerated: the expensive part is gone, so the quantisation only has to absorb
+        // the sub-pixel noise that pointer streams emit, not ration real work. At 2px the
+        // motion is smooth to the eye and every genuinely redundant event still costs
+        // nothing.
+        const qx = Math.round(x / 2) * 2;
+        const qy = Math.round(y / 2) * 2;
         if (!force && qx === lastX[i] && qy === lastY[i]) continue;
         lastX[i] = qx;
         lastY[i] = qy;
