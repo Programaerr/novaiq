@@ -1676,6 +1676,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         ) : (
           <ResponsivePreview
             width={VIEWPORT_PRESETS[viewport].width}
+            maxHeight={VIEWPORT_PRESETS[viewport].maxHeight}
             src={livePreviewSrc}
             title={`معاينة حية: ${template.title}`}
             themeColor={themeColor}

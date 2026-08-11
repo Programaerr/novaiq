@@ -9,10 +9,16 @@ import { Search, X } from 'lucide-react';
 // of screen actually gets.
 export type ViewportChoice = 'full' | 'desktop' | 'tablet' | 'mobile';
 
-export const VIEWPORT_PRESETS: Record<Exclude<ViewportChoice, 'full'>, { label: string; width: number }> = {
-  desktop: { label: 'كمبيوتر', width: 1280 },
-  tablet: { label: 'تابلت', width: 834 },
-  mobile: { label: 'جوال', width: 390 },
+// Width is the viewport the template is genuinely laid out at. Height is a *ceiling*, not a
+// fixed size — the real height of that class of device, used only to stop the frame growing
+// past it. See `frameHeight` below for what that ceiling does and why it matters.
+export const VIEWPORT_PRESETS: Record<
+  Exclude<ViewportChoice, 'full'>,
+  { label: string; width: number; maxHeight: number }
+> = {
+  desktop: { label: 'كمبيوتر', width: 1280, maxHeight: 800 },
+  tablet: { label: 'تابلت', width: 834, maxHeight: 1112 },
+  mobile: { label: 'جوال', width: 390, maxHeight: 844 },
 };
 
 /**
@@ -24,16 +30,13 @@ export const VIEWPORT_PRESETS: Record<Exclude<ViewportChoice, 'full'>, { label: 
  * layout, squeezed. An iframe genuinely is 390px wide, so the template's own breakpoints do
  * the work and the preview can be trusted.
  */
-// Ceiling on the iframe's logical height — see the note on `frameHeight` below for why an
-// uncapped one blanked the desktop preset on phones.
-const MAX_FRAME_HEIGHT = 1600;
-
 export const ResponsivePreview: React.FC<{
   width: number;
+  maxHeight: number;
   src: string;
   title: string;
   themeColor: string;
-}> = ({ width, src, title, themeColor }) => {
+}> = ({ width, maxHeight, src, title, themeColor }) => {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [stage, setStage] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
@@ -66,24 +69,38 @@ export const ResponsivePreview: React.FC<{
   // view into a short wide sliver, which is worse at the one job this has.
   const scale = stage.w > 0 ? Math.min(stage.w / width, 1) : 1;
 
-  // The one thing that had to be bounded. Before this cap the logical height was simply
-  // `stage.h / scale`, and at the scale a 1280px desktop preset needs on a phone (~0.27) that
-  // asked for a frame around 1300-2000px tall — a couple of million pixels to lay out and
-  // rasterize for a thumbnail a few hundred pixels wide. Mobile browsers limit how large a
-  // frame they will render and dropped it outright, which is why "كمبيوتر" came up blank on a
-  // phone. Capped, the frame stays renderable everywhere; on a desktop the scale is near 1 so
-  // `stage.h / scale` never approaches this and nothing about that case changes.
-  const frameHeight = stage.h > 0 ? Math.min(stage.h / scale, MAX_FRAME_HEIGHT) : 0;
+  // The frame fills the stage, but never grows past the real height of the device it is
+  // imitating. One `min` settles both cases that used to need different treatment:
+  //
+  //  · On a wide screen the scale is near 1, so `stage.h / scale` is roughly the stage's own
+  //    height and lands well under the ceiling. The frame fills the panel and scrolls for the
+  //    rest, exactly as before — a website preview, not a device photo.
+  //  · On a phone showing the desktop preset the scale is ~0.27, so `stage.h / scale` asks for
+  //    something near 1300px tall. The ceiling cuts that to 800, and 1280x800 is both a real
+  //    desktop viewport and barely half the pixels. That is what makes it render at all: the
+  //    uncapped frame was ~2 million pixels to lay out and rasterize for a thumbnail a few
+  //    hundred pixels wide, and mobile browsers cap frame size and simply dropped it, which is
+  //    why every preset came up blank on a phone.
+  //
+  // It also produces exactly the shape the preview should have: capped, the box takes the
+  // device's own proportions, so picking "كمبيوتر" on a phone gives a wide landscape rectangle
+  // that reads as a computer screen instead of a phone-shaped column.
+  const frameHeight = stage.h > 0 ? Math.min(stage.h / scale, maxHeight) : 0;
 
   return (
     <div className="flex-1 min-h-0 w-full flex flex-col items-center gap-2">
-      <div ref={stageRef} className="flex-1 min-h-0 w-full flex items-start justify-center">
+      {/* items-center, and a floor under the stage. Centred so a frame shorter than the panel
+          (the capped case above) sits in the middle rather than clinging to the top, and
+          min-h-0 alone is not enough of a guarantee on a phone, where the surrounding chrome
+          stacks taller and can squeeze a flex child to nothing. */}
+      <div ref={stageRef} className="flex-1 min-h-50 w-full flex items-center justify-center">
         {stage.h > 0 && (
           <div
             className="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-black"
-            // Height follows the frame once the cap bites, so the box never claims more room
-            // than the frame inside it actually fills.
-            style={{ width: width * scale, height: Math.min(stage.h, frameHeight * scale) }}
+            // Derived from the frame, never from the stage: the box is exactly as tall as the
+            // scaled frame inside it, so nothing can extend past the panel and disappear under
+            // the action bar below it.
+            style={{ width: width * scale, height: frameHeight * scale }}
           >
             <iframe
               ref={iframeRef}
