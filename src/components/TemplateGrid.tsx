@@ -48,6 +48,14 @@ const ARC_STEP_PX = ARC_RADIUS * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
 const FLAT_STEP_PX_MOBILE = 156;
 const FLAT_STEP_PX_DESKTOP = 230;
 
+// Full width the fan occupies at scale 1, outer card edge to outer card edge — measured on a
+// rendered fan, since the outermost card contributes its own rotated half-width on top of the
+// arc displacement. When the track is narrower than this the whole fan is scaled down to fit
+// rather than being clipped, which is what left "half a card missing" on anything under a
+// wide desktop. Scaling the rendered fan (not the radius) keeps the radius, the drag's
+// px-to-degrees conversion and the track's transform-origin describing the same circle.
+const FAN_NATURAL_WIDTH = 1192;
+
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
   onOpenStandalonePreview?: (template: Template) => void;
@@ -124,7 +132,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     const el = trackRef.current;
     if (!el) return;
     el.style.setProperty('--drag-x', `${px}px`);
-    el.style.setProperty('--drag-angle-deg', `${(px * 180) / (Math.PI * ARC_RADIUS)}deg`);
+    // Against the *rendered* radius, not the nominal one: when the fan is scaled down to fit
+    // a narrower track, the circle the cards visibly ride is scaled with it, so converting
+    // against the unscaled radius would swing them slower than the pointer travels.
+    el.style.setProperty(
+      '--drag-angle-deg',
+      `${(px * 180) / (Math.PI * ARC_RADIUS * fanScaleRef.current)}deg`,
+    );
   };
 
   // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
@@ -145,6 +159,27 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   }, []);
   const flatGeometry = isMobile || isLowEnd;
   const flatStepPx = isMobile ? FLAT_STEP_PX_MOBILE : FLAT_STEP_PX_DESKTOP;
+
+  // How much the fan has to shrink to fit the track it is actually in. Measured from the
+  // element rather than inferred from a breakpoint: the track is `w-full` under a max-width,
+  // so the same viewport gives it a different width depending on the page's own padding, and
+  // guessing that is exactly how the outer cards ended up clipped. Never scales above 1 —
+  // a wide desktop shows the fan at its designed size, narrower ones shrink it to fit.
+  const [trackWidth, setTrackWidth] = useState(0);
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    setTrackWidth(el.clientWidth);
+    const ro = new ResizeObserver(([entry]) => setTrackWidth(entry.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const fanScale = flatGeometry || !trackWidth ? 1 : Math.min(1, trackWidth / FAN_NATURAL_WIDTH);
+  // setDragOffset runs from a pointermove closure that outlives this render, so it reads the
+  // scale from a ref rather than capturing the value — otherwise a resize mid-gesture would
+  // leave the drag converting against a stale radius.
+  const fanScaleRef = useRef(1);
+  fanScaleRef.current = fanScale;
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -296,7 +331,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // snap keeps the two thresholds honest.
   useEffect(() => {
     if (!isDragging) return;
-    const step = flatGeometry ? flatStepPx : ARC_STEP_PX;
+    // Scaled with the fan for the same reason the drag angle is: the threshold has to be the
+    // distance a card visibly travels on screen, which shrinks when the fan does.
+    const step = flatGeometry ? flatStepPx : ARC_STEP_PX * fanScale;
     const n = filteredTemplates.length;
     let frame = 0;
     // `travel` is the pointer's full signed displacement since the gesture started, NEVER
