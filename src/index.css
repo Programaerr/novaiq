@@ -1414,46 +1414,74 @@ html[data-device='low'] [class*='backdrop-blur'] {
   position: relative;
 }
 
-.reveal-border::after {
-  content: '';
-  position: absolute;
-  /* -1px, not 0. An absolutely positioned child is laid out against the *padding* box, so
-     inset:0 drew the ring one pixel inside the card's own 1px border — a bright line beside
-     a dark line rather than on it, which is what made the unlit sides look wrong. Pulling it
-     out by the border width puts the ring exactly on the border box. */
-  inset: -1px;
-  border-radius: inherit;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 260ms ease;
-}
+/* The ring's own geometry now lives on `.rv--ring` above — inset:-1px, not 0, because an
+   absolutely positioned child is laid out against the *padding* box, so inset:0 drew the
+   ring one pixel inside the card's own 1px border: a bright line beside a dark line rather
+   than on it, which is what made the unlit sides look wrong. Pulling it out by the border
+   width puts the ring exactly on the border box. */
 
 /* The ring itself. Same trick as .filter-pill-beam — the mask pair (full box minus content
    box) erases everything but the 1px padding strip, so the gradient survives only on the
    outline. */
-.reveal-border::after {
-  z-index: 1;
+/* The ring. The mask pair (full box minus content box) erases everything but the 1px
+   padding strip, so whatever is behind it survives only on the outline.
+
+   The mask itself is unchanged from the old version, and that is deliberate: a mask is
+   not expensive to *have*, it is expensive to re-apply, and it only has to be re-applied
+   when what it is masking changes. Here nothing under it ever changes — the floor colour
+   is a flat rgba and the moving light is a separate composited layer — so the mask is
+   resolved once and then reused. Previously the gradient beneath it was rewritten every
+   frame, which forced the whole mask-composite pass to run again each time, and that is
+   the cost that has gone. */
+.rv--ring {
+  inset: -1px;
   padding: 1px;
-  /* This is the gradient a *neighbouring* card gets, and the pointer is never closer to it
-     than the width of the card it is actually on plus the grid gap — from the middle of a
-     286px card that is 167px away, which a 170px radius reached with exactly nothing, hence
-     240px. The last stop is a floor, not `transparent`: past the gradient's own radius that
-     colour continues to the far corner, so the floor is literally what the unlit three
-     quarters of the outline are drawn in. */
-  background: radial-gradient(
-    240px circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.28) 42%,
-    rgba(255, 255, 255, 0.14) 100%
-  );
+  z-index: 1;
+  /* The floor. The outline stays drawn the whole way round even where the pointer is
+     nowhere near it, so a card reads as having a border rather than a three-quarters
+     missing one. Flat and static — one paint, ever. It replaces the old gradient's
+     trailing colour stop, which achieved the same thing but had to be regenerated with
+     the rest of the gradient on every move. */
+  background: rgba(255, 255, 255, 0.14);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
 }
 
-.reveal-group.is-live .reveal-border::after {
-  opacity: 1;
+.rv--ring::before {
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.28) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* The hovered card: brighter floor and a brighter travelling light, so the lit stretch
+   still clearly outruns the rest of the outline rather than switching the whole card on
+   at once. Both are plain colour swaps on hover — one repaint when the pointer arrives,
+   not one per frame while it moves.
+
+   `.is-touched` is the same statement as `:hover` for a finger, which has none — the hook
+   works out which card the pointer is inside and says so. Without it the card under the
+   finger would light like one of its own neighbours. */
+.reveal-border:hover .rv--ring,
+.reveal-border.is-touched .rv--ring {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.reveal-border:hover .rv--ring::before,
+.reveal-border.is-touched .rv--ring::before {
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 /* The hovered card: brightest where the pointer is, but the outline stays *drawn the whole
