@@ -1,12 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  ShieldCheck,
-  Clock,
-  Globe2,
-  Award,
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
+import { ShieldCheck, Clock, Globe2, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLowEndDevice } from '../lib/deviceQuality';
 
 const WHEEL_STEP = 90;
 
