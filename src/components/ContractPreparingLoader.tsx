@@ -1,5 +1,5 @@
-import React from 'react';
-import { ShieldCheck } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ShieldCheck, RefreshCw } from 'lucide-react';
 import { Language } from '../lib/i18n';
 
 interface ContractPreparingLoaderProps {
@@ -15,9 +15,23 @@ interface ContractPreparingLoaderProps {
  */
 export const ContractPreparingLoader: React.FC<ContractPreparingLoaderProps> = ({ language = 'ar' }) => {
   const isAr = language === 'ar';
+
+  // A spinner promises that something is still coming. When the thing it is waiting on is a
+  // network request that has stalled rather than failed, nothing ever contradicts that promise
+  // and the customer is left on a full-screen overlay with no exit, which is exactly what
+  // "انها عالقة" describes. Nothing here can make a stalled request finish — but leaving
+  // someone with no information and no way out is a separate failure from the network's, and
+  // this one is ours to fix. After fifteen seconds it stops claiming to be nearly done and
+  // offers the only action that actually helps.
+  const [isSlow, setIsSlow] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsSlow(true), 15000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/94">
-      <div className="flex flex-col items-center gap-4 text-center px-6">
+      <div className="flex flex-col items-center gap-4 text-center px-6 max-w-sm">
         <div className="relative w-14 h-14 flex items-center justify-center">
           <div className="absolute inset-0 rounded-full border-2 border-zinc-800 border-t-white animate-spin" />
           <ShieldCheck className="w-6 h-6 text-white" />
@@ -27,9 +41,27 @@ export const ContractPreparingLoader: React.FC<ContractPreparingLoaderProps> = (
             {isAr ? 'جارِ تجهيز عقدك الإلكتروني...' : 'Preparing your electronic contract...'}
           </p>
           <p className="text-xs text-zinc-400">
-            {isAr ? 'لحظات ونعرض لك نسخة العقد الجاهزة للتنزيل' : 'One moment — your downloadable contract is almost ready'}
+            {isSlow
+              ? isAr
+                ? 'الاتصال بطيء ويستغرق وقتاً أطول من المعتاد. عقدك محفوظ ولن يضيع — يمكنك إعادة التحميل والوصول إليه من "طلباتي".'
+                : 'The connection is slow and this is taking longer than usual. Your contract is saved and will not be lost — you can reload and find it under "My Orders".'
+              : isAr
+                ? 'لحظات ونعرض لك نسخة العقد الجاهزة للتنزيل'
+                : 'One moment — your downloadable contract is almost ready'}
           </p>
         </div>
+
+        {isSlow && (
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="nq-btn nq-btn--solid px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
+          >
+            <span className="nq-btn-beam" aria-hidden="true" />
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>{isAr ? 'إعادة التحميل' : 'Reload'}</span>
+          </button>
+        )}
       </div>
     </div>
   );
