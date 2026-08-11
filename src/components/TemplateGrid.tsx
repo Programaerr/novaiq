@@ -424,7 +424,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
     };
-  }, [isDragging, flatGeometry, flatStepPx, filteredTemplates.length]);
+  }, [isDragging, flatGeometry, flatStepPx, fanScale, filteredTemplates.length]);
 
   // The other half of the pact above: publishes whatever offset the gesture is currently at,
   // after every render and synchronously before the browser paints. That timing is the whole
@@ -602,7 +602,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 ? {}
                 : {
                     transform: 'rotate(var(--drag-angle-deg, 0deg))',
-                    transformOrigin: `50% calc(50% + ${ARC_RADIUS}px)`,
+                    // Pivot follows the fan's scale — the cards ride a circle of
+                    // ARC_RADIUS * fanScale once the fan is shrunk to fit, and rotating about
+                    // the unscaled pivot would swing them about a point they are not drawn
+                    // around, which reads as the whole strip sliding rather than fanning.
+                    transformOrigin: `50% calc(50% + ${ARC_RADIUS * fanScale}px)`,
                     transition: isDragging
                       ? 'none'
                       : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
@@ -615,6 +619,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // reach their full un-projected width, so the same radius needs more room than it
             // did. Heights are trimmed to what the cards actually occupy.
             className="relative w-full max-w-7xl h-[440px] sm:h-[560px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
+          >
+          {/* Shrink-to-fit layer. Every card is positioned against the fan's natural size, and
+              this one transform brings the whole shape down to whatever width the track really
+              has — so the outermost card is never clipped, at any viewport, without a single
+              per-card measurement. A plain scale on one element is also the cheapest way to do
+              it: it composites, and it leaves the arc maths below untouched. */}
+          <div
+            className="absolute inset-0"
+            style={fanScale === 1 ? undefined : { transform: `scale(${fanScale})`, transformOrigin: '50% 50%' }}
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
