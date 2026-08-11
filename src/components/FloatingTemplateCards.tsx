@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { templatesData } from '../data/templatesData';
-import { isLowEndDevice } from '../lib/deviceQuality';
+import { useLowEndDevice } from '../lib/deviceQuality';
 
 // three.js + fiber + drei are a large dependency. Kept behind React.lazy
 // so they land in their own chunk and never block the initial page parse, and only mounted
@@ -20,17 +20,19 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   language,
   onExploreTemplates,
 }) => {
+  const lowEnd = useLowEndDevice();
   const [showCanvas, setShowCanvas] = useState(false);
 
   useEffect(() => {
     // A WebGL scene runs its own render loop regardless of what CSS animations honour, so
-    // reduced-motion has to be checked before mounting it, not styled around afterwards.
-    // Same for low-end GPUs — a continuous 60fps WebGL render loop on a weak device just
-    // keeps competing with scroll for the same bus; the static preview reads the same.
-    if (
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-      isLowEndDevice()
-    ) return;
+    // the low-end tier (hardware guess at startup, + the runtime jank probe on weak devices)
+    // has to be checked before mounting it, not styled around afterwards. The tier is live —
+    // if it downgrades mid-session, the canvas unmounts and the static preview above takes
+    // back over rather than keeping a 60fps render loop nobody can run smoothly.
+    if (lowEnd) {
+      setShowCanvas(false);
+      return;
+    }
 
     const show = () => setShowCanvas(true);
     // Checked via `typeof window.x` rather than `'x' in window`: the `in` form narrows
@@ -48,7 +50,7 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
         window.clearTimeout(id);
       }
     };
-  }, []);
+  }, [lowEnd]);
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-16 sm:mt-24 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-10">
