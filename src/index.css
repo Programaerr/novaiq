@@ -734,19 +734,17 @@
    per-frame rasterization cost that reads as stutter on a mid-range GPU (the repro device, a
    Dimensity 8200, had an 8-core CPU and still hit it — the CPU was never the bottleneck).
 
-   Rework — two tiers instead of one:
-   · .glass-bar -- the universal static material, a translucent near-black base with a top-edge
-     catch-light and a faint inner glow, painted once and never invalidated during scroll.
-     This is what low-end devices get: over the site's near-black cosmic background it is
-     visually indistinguishable from a real blur (there is nothing colourful behind the bar to
-     smear), at zero per-frame cost. Always safe, so it is the default.
-   · .glass-bar--blur -- the same material, plus a real frosted backdrop-filter, enabled ONLY
-     when the device was not classified low-end by applyDeviceClass(). The blur region is the
-     slim pill itself (max-w-7xl, a couple of dozen px tall) — a trivially small re-sample a
-     real GPU absorbs while scrolling, which is why it can stay live rather than being frozen.
-     On a weak GPU the [data-device='low'] selector simply removes it and the bar looks the
-     same. Border, radius and drop shadow stay in the JSX (Tailwind), so these classes only
-     ever set background + inset highlights + the blur itself. */
+   The material is what does the work, not the blur:
+   · .glass-bar -- a translucent near-black base with a top-edge catch-light and a faint inner
+     glow, painted once and never invalidated during scroll. Over this site's near-black cosmic
+     background it is already close to indistinguishable from a real blur, because there is
+     nothing colourful behind the bar for a blur to smear. It carries the look on its own.
+   · .glass-bar--blur -- the same material plus a real frosted backdrop-filter on top, for the
+     genuine frosted read. The blur region is only the slim pill itself (max-w-7xl, a couple of
+     dozen px tall), so the per-frame re-sample stays small enough to keep live rather than
+     having to be withheld from anyone.
+   Border, radius and drop shadow stay in the JSX (Tailwind), so these classes only ever set
+   background + inset highlights + the blur itself. */
 .glass-bar,
 .glass-bar--blur {
   background:
