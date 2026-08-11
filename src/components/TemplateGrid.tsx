@@ -571,11 +571,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }),
             }}
-            // max-w-6xl, not 4xl: at 4xl the outermost card on each side was clipped by ~68px
-            // (measured), which is the "half a card missing" the fan showed on wide screens.
-            // Heights are trimmed to what the cards actually occupy — the track used to
-            // reserve room for a much taller card than these are now.
-            className="relative w-full max-w-6xl h-[440px] sm:h-[560px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
+            // max-w-7xl, not 4xl: at 4xl the outermost card on each side was clipped by ~68px
+            // (measured), which is the "half a card missing" the fan showed. It needs to be
+            // this wide specifically because the fan is flat now — the perspective that used
+            // to sit on this track foreshortened the outer cards inward, and without it they
+            // reach their full un-projected width, so the same radius needs more room than it
+            // did. Heights are trimmed to what the cards actually occupy.
+            className="relative w-full max-w-7xl h-[440px] sm:h-[560px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
