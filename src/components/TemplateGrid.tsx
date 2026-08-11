@@ -531,21 +531,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             {/* Search Box — carries the same rotating beam as the Filter pill beside it, so
                 the toolbar's two controls answer a pointer the same way. It lights on hover
                 and stays lit while the field has focus (a text field is "active" for as long
-                as someone is typing in it, not just while the cursor rests on it). */}
-            <div className="search-neu relative w-full sm:w-72 sm:ms-auto rounded-full">
-              <span className="nq-btn-beam nq-btn-beam--dark" aria-hidden="true" />
-              <Search className="w-4 h-4 text-zinc-500 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                as someone is typing in it, not just while the cursor rests on it).
+                Everything inside it inverted along with the surface (see .search-cosmic): the
+                body went from a pale soft-UI sheet to a lit near-black one, and dark-on-pale
+                text left where it was would simply have gone invisible. The white beam
+                replaces the --dark variant for the same reason in reverse. */}
+            <div className="search-cosmic relative w-full sm:w-72 sm:ms-auto rounded-full">
+              <span className="nq-btn-beam" aria-hidden="true" />
+              <Search className="w-4 h-4 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={getTranslation('searchPlaceholder', currentLang)}
-                className="w-full pr-11 pl-4 py-2 rounded-full bg-transparent border-none focus:outline-none text-zinc-800 text-xs sm:text-sm font-semibold placeholder-zinc-500"
+                // placeholder-zinc-400, not the zinc-500 this used to carry: against the new
+                // near-black body zinc-500 measures 4.0:1, under the 4.5:1 floor — the same
+                // trap the back bar's title fell into. zinc-400 measures 7.4:1.
+                className="w-full pr-11 pl-4 py-2 rounded-full bg-transparent border-none focus:outline-none text-zinc-100 text-xs sm:text-sm font-semibold placeholder-zinc-400"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-800 text-xs font-bold cursor-pointer"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs font-bold cursor-pointer"
                 >
                   {currentLang === 'ar' ? 'مسح' : 'Clear'}
                 </button>

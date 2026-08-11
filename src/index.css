@@ -330,56 +330,80 @@
     0 0 50px rgba(0, 0, 0, 0.22);
 }
 
-/* Neumorphic search field — the soft-UI look, where the control reads as pressed out of a
-   single sheet of material rather than drawn on top of it. That illusion is entirely the
-   paired shadows: a dark one down-right and a light one up-left, as if one fixed light source
-   sat above-left. Both are required — drop either and it flattens into an ordinary pill.
-   It carries its own pale surface instead of inheriting the toolbar's dark glass, since the
-   effect needs a mid-tone body for the light shadow to register against. */
-.search-neu {
-  background: linear-gradient(145deg, #f4f4f7, #d8d8e1);
+/* Deep-space search field. This toolbar sits on a starfield, and this control used to be the
+   one pale, soft-UI object on it — a sheet of grey plastic laid over the sky. Same pill,
+   rebuilt out of the page's own material: a near-black body lit from above, a bright limb
+   catching that light along its top edge, and a bloom that rises from inside it on focus the
+   way an instrument lights when it takes input.
+
+   Monochrome on purpose. Nothing else on this site carries an accent colour, and a blue or
+   cyan "space" glow here would be the only hue on the page — it would read as a stray
+   component someone pasted in rather than as this page's own field. Depth and light do the
+   work that a colour would otherwise be asked to do.
+
+   Two layers stack in `background`, painted first-on-top:
+     1. starlight falloff — a wide radial bloom hung above the pill, strongest at its top edge
+        and gone before the middle. This is what gives the body a direction of light, and it is
+        the difference between a lit object and a flat dark fill.
+     2. the body — lighter at the top, near-black at the bottom, so the surface reads as curved.
+   The box-shadows then supply the limb: a 1px inset white line along the top (the lit edge), a
+   hairline ring around the whole shape so it stays legible against the sky behind it, and a
+   wide soft drop shadow that lifts it off the stars. */
+.search-cosmic {
+  background:
+    radial-gradient(140% 120% at 50% -30%, rgba(255, 255, 255, 0.13), transparent 55%),
+    linear-gradient(180deg, #1a1b20 0%, #0b0c0f 100%);
   box-shadow:
-    6px 6px 14px rgba(0, 0, 0, 0.5),
-    -3px -3px 10px rgba(255, 255, 255, 0.07),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.95),
-    inset -3px -3px 6px rgba(148, 148, 166, 0.55);
-  transition: box-shadow 0.25s ease, background 0.25s ease;
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+    0 0 0 1px rgba(255, 255, 255, 0.09),
+    0 10px 28px rgba(0, 0, 0, 0.6);
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
 }
 
 /* The search field borrows the button system's beam (see .nq-btn-beam) so the toolbar's
-   two controls respond identically. :focus-within rather than :focus for the same reason as
-   the rule below — the inner <input> is what actually takes focus. */
-.search-neu:hover .nq-btn-beam,
-.search-neu:focus-within .nq-btn-beam {
+   two controls respond identically. It takes the white beam, not the --dark one it used to:
+   that variant exists solely to keep the beam visible on a *pale* body, and against this
+   near-black surface a black beam traces nothing at all. */
+.search-cosmic:hover .nq-btn-beam,
+.search-cosmic:focus-within .nq-btn-beam {
   opacity: 1;
 }
 
-.search-neu:hover .nq-btn-beam::before,
-.search-neu:focus-within .nq-btn-beam::before {
+.search-cosmic:hover .nq-btn-beam::before,
+.search-cosmic:focus-within .nq-btn-beam::before {
   animation: nq-beam-spin 2s ease-in-out infinite;
 }
 
-/* Focus presses it inward — outer shadows shrink, inner ones deepen, the same sheet now
-   dented rather than raised. :focus-within, not :focus, because the input inside takes the
-   focus while this wrapper is what's actually styled. */
-.search-neu:focus-within {
-  background: linear-gradient(145deg, #e4e4ec, #eeeef3);
+/* Focus lights it from within: the top limb brightens, the hairline ring firms up into a
+   visible edge, and a soft halo pushes out into the page. Deliberately brightness rather than
+   a colour shift or a browser outline — the field is dark on a dark page, so luminance is the
+   only channel that can carry focus without introducing a hue. :focus-within, not :focus,
+   because the inner <input> is what actually takes focus while this wrapper is what's styled;
+   the input's own outline stays suppressed, so this rule IS the focus indicator and has to be
+   unmistakable, not decorative. */
+.search-cosmic:focus-within {
+  background:
+    radial-gradient(140% 120% at 50% -30%, rgba(255, 255, 255, 0.2), transparent 58%),
+    linear-gradient(180deg, #202127 0%, #0d0e12 100%);
   box-shadow:
-    3px 3px 8px rgba(0, 0, 0, 0.4),
-    -2px -2px 8px rgba(255, 255, 255, 0.05),
-    inset 4px 4px 8px rgba(140, 140, 160, 0.6),
-    inset -3px -3px 7px rgba(255, 255, 255, 0.95);
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 26px rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.3),
+    0 10px 30px rgba(0, 0, 0, 0.65),
+    0 0 26px rgba(255, 255, 255, 0.1);
 }
 
-/* Neumorphic product card — the soft-UI look .search-neu already uses, but as a full card:
-   one sheet of pale material with the panels and the button pressed *out* of it rather than
-   drawn on top. The illusion is entirely the paired shadows — a dark one down-right and a
-   light one up-left, as if a single light sat above-left — so both are required on every
-   surface here; drop either and the element flattens into a plain rounded rectangle.
+/* Neumorphic product card — soft UI as a full card: one sheet of pale material with the
+   panels and the button pressed *out* of it rather than drawn on top. The illusion is entirely
+   the paired shadows — a dark one down-right and a light one up-left, as if a single light sat
+   above-left — so both are required on every surface here; drop either and the element
+   flattens into a plain rounded rectangle.
 
    The card carries its own #eef1f6 body rather than inheriting the demo's dark page: soft UI
-   needs a mid-tone material for the light shadow to register against, which is the same
-   reason .search-neu brings its own surface into the dark toolbar. Nested surfaces get
+   needs a mid-tone material for the light shadow to register against, which is why this is the
+   only place on the site still built that way — the toolbar's search field used to be, and was
+   rebuilt as a lit dark surface once it stopped making sense there. Nested surfaces get
    progressively smaller shadows (panel 12px -> button 10px), which is what reads as them
    sitting *on* the card instead of floating beside it. */
 /* The outer card is the one surface here that does NOT get the light half of the pair. The
@@ -774,7 +798,7 @@ html[data-device='low'] .nq-btn-beam::before {
 
 html[data-device='low'] .filter-pill-btn,
 html[data-device='low'] .nq-btn,
-html[data-device='low'] .search-neu,
+html[data-device='low'] .search-cosmic,
 html[data-device='low'] .white-btn-glow {
   transition: transform 250ms ease;
 }
