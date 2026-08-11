@@ -449,6 +449,15 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     placeholder={getTranslation('crNumberPlaceholder', lang)}
                     className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
                   />
+                  {/* Said outright rather than left to the absence of a `*`: plenty of clients
+                      here are individuals or new businesses with no commercial register at
+                      all, and a blank field with no explanation reads as something they are
+                      missing rather than something they can skip. */}
+                  <p className="text-[11px] text-zinc-400 mt-1">
+                    {isAr
+                      ? 'يمكنك تركه فارغاً إذا لم يكن لديك سجل تجاري.'
+                      : 'Leave blank if you do not have a commercial register.'}
+                  </p>
                 </div>
 
                 <div>

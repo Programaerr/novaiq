@@ -207,7 +207,7 @@ export const UI_TRANSLATIONS = {
 
     companyNameLabel: 'اسم الشركة / المؤسسة:',
     companyNamePlaceholder: 'مثال: شركة النجوم للتطوير المحدودة',
-    crNumberLabel: 'رقم السجل التجاري / الهوية:',
+    crNumberLabel: 'رقم السجل التجاري / الهوية (اختياري):',
     crNumberPlaceholder: 'مثال: 104928374',
     repNameLabel: 'اسم الممثل المخول بالتوقيع:',
     repNamePlaceholder: 'اسم المدير أو الممثل الرسمي',
@@ -321,7 +321,7 @@ export const UI_TRANSLATIONS = {
 
     companyNameLabel: 'Company / Organization Name:',
     companyNamePlaceholder: 'e.g. Stella Development Ltd.',
-    crNumberLabel: 'Commercial Register / ID Number:',
+    crNumberLabel: 'Commercial Register / ID Number (optional):',
     crNumberPlaceholder: 'e.g. 104928374',
     repNameLabel: 'Authorized Representative Name:',
     repNamePlaceholder: 'Official Name / Director',
