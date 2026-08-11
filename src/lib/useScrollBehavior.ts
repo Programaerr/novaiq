@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Lenis from 'lenis';
-import { isLowEndDevice } from './deviceQuality';
+import { useLowEndDevice } from './deviceQuality';
 
 // Scroll behaviour for the whole app, kept out of App.tsx: neither hook touches App's own
 // state beyond the arguments below, and together they were the longest stretch of App's body
@@ -15,10 +15,12 @@ import { isLowEndDevice } from './deviceQuality';
  * `data-lenis-prevent` (modals, admin tables, the PDF preview) keep native scroll intact.
  */
 export function useSmoothScroll() {
+  const lowEnd = useLowEndDevice();
+
   useEffect(() => {
     if (
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
-      isLowEndDevice()
+      lowEnd ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) return;
 
     const lenis = new Lenis({
@@ -37,7 +39,7 @@ export function useSmoothScroll() {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
-  }, []);
+  }, [lowEnd]);
 }
 
 /**

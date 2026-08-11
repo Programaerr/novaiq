@@ -123,13 +123,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
   // card doesn't overlap its neighbors (a fixed desktop-sized offset would).
   const [isMobile, setIsMobile] = useState(false);
-  // Low-end devices (weak GPU / battery saver / reduced-motion, per deviceQuality.ts) get the
-  // flat slide even on desktop: a desktop fanshot's per-frame 3D work — perspective, per-card
-  // translateZ recession and depth-sorted repainting — is exactly what stalls an integrated
-  // GPU mid-drag. The flat strip is pure 2D translateX and survives even the weakest hardware.
-  const [isLowEnd, setIsLowEnd] = useState(false);
+  // Live tier (hardware guess at startup, runtime jank probe after load) — a weak GPU gets
+  // the flat slide even on desktop: a desktop fanshot's per-frame 3D work — perspective,
+  // per-card translateZ recession and depth-sorted repainting — is exactly what stalls an
+  // integrated GPU mid-drag. The flat strip is pure 2D translateX and survives any hardware.
+  // A hook (not a one-shot bool) so a late downgrade hands the grid over mid-session.
+  const isLowEnd = useLowEndDevice();
   useEffect(() => {
-    setIsLowEnd(isLowEndDevice());
     const mq = window.matchMedia('(max-width: 639px)');
     setIsMobile(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
@@ -658,7 +658,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // the same lesson the milestone-card ring learned: promote the moving leaf,
                   // not the animated parent. Two transitions fight on this element, transform
                   // (0.9s) and opacity (0.3s), so both properties are named.
-                  willChange: 'transform, opacity',
+                  //
+                  // Not on low-end devices: there the flat 2D strip has no depth to keep
+                  // crisp, and every promoted layer is a texture the weak GPU must composite
+                  // at all times — the trade flips to pure cost. Two transitions fight on
+                  // this element, transform (0.9s) and opacity (0.3s), so both are named.
+                  willChange: isLowEnd ? undefined : 'transform, opacity',
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
@@ -712,8 +717,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     // note there on why the two must agree. Also on its own layer, like the
                     // card holding it: it animates its own scale for 0.9s on every commit,
                     // and without the hint that glide would re-rasterize the image inside
-                    // the card's layer texture on every frame of the animation.
-                    willChange: 'transform',
+                    // the card's layer texture on every frame of the animation. Skipped on
+                    // low-end devices where the flat 2D strip has no depth to protect.
+                    willChange: isLowEnd ? undefined : 'transform',
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"
@@ -771,7 +777,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       alt={displayTitle}
                       loading="lazy"
                       decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      className="tpl-cover-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
 
