@@ -24,10 +24,6 @@ const PROBE_DELAY_MS = 1800;
 let lowEnd = false;
 const listeners = new Set<() => void>();
 
-export function isLowEndDevice(): boolean {
-  return lowEnd;
-}
-
 // Live tier for React consumers — re-renders (and re-reads) if the jank probe downgrades
 // after mount, so components built for capable GPUs hand themselves over to the lite path
 // the moment the sticker is applied.
