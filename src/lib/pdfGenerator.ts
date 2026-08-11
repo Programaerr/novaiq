@@ -6,7 +6,7 @@ import { ContractData } from '../types';
 // hardcoded in English — jsPDF's built-in fonts have no Arabic glyphs, so an Arabic version
 // of the same approach would render as blank boxes. Instead, this captures the already
 // correctly-translated, correctly-RTL on-screen contract document (rendered by the browser,
-// with real Arabic font + shaping) as an image, scaled to fit a single A4 page. This also
+// with real Arabic font + shaping) as an image, fitted to A4 width and paginated. This also
 // guarantees the PDF can never drift out of sync with what the client sees on screen.
 // Uses the `-pro` fork rather than plain html2canvas: Tailwind v4's default palette is
 // defined in oklch(), which the original library's CSS parser throws on ("Attempting to
@@ -34,21 +34,40 @@ export async function generateContractPDF(element: HTMLElement, contract: Contra
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  // Scaled to fit entirely within one page — width-fit alone (the old behavior) let a
-  // long contract (many add-ons, long custom notes, a long company name) overflow the
-  // page height and spill onto a second page. Taking the smaller of the width-fit and
-  // height-fit scale guarantees the whole document always lands on a single A4 page,
-  // shrinking proportionally on the rare contract that's naturally taller than one page
-  // instead of ever paginating.
-  const widthFitScale = pageWidth / canvas.width;
-  const heightFitScale = pageHeight / canvas.height;
-  const scale = Math.min(widthFitScale, heightFitScale);
+  // Fit to width, then paginate.
+  //
+  // This used to take the smaller of the width-fit and height-fit scale, so that however long
+  // the contract ran it always landed on exactly one A4 page. That was reasonable while the
+  // terms section was four clauses; with a full agreement it is not, because "always one page"
+  // is achieved by shrinking — a two-page contract squeezed into 297mm is still entirely
+  // present and no longer readable, which is the worst possible outcome for the one document
+  // a client is meant to actually read before signing.
+  //
+  // Width-fitting instead keeps the type at a constant legible size no matter how long the
+  // agreement is, and lets the overflow become a second page — which is what a contract of
+  // this length genuinely is. Short contracts are unaffected: they still finish inside the
+  // first page and no second one is ever added.
+  const scale = pageWidth / canvas.width; // mm per canvas pixel
+  const sliceHeightPx = Math.max(1, Math.floor(pageHeight / scale)); // canvas px that fill a page
 
-  const imgWidth = canvas.width * scale;
-  const imgHeight = canvas.height * scale;
-  const imgData = canvas.toDataURL('image/png');
+  for (let offsetPx = 0, page = 0; offsetPx < canvas.height; offsetPx += sliceHeightPx, page++) {
+    const height = Math.min(sliceHeightPx, canvas.height - offsetPx);
 
-  doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    const slice = document.createElement('canvas');
+    slice.width = canvas.width;
+    slice.height = height;
+    const ctx = slice.getContext('2d');
+    if (!ctx) break;
+    // The captured canvas is already opaque white, but the final slice is usually shorter
+    // than a full page; without this its remainder stays transparent, which some PDF viewers
+    // render as black rather than as paper.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, slice.width, slice.height);
+    ctx.drawImage(canvas, 0, offsetPx, canvas.width, height, 0, 0, canvas.width, height);
+
+    if (page > 0) doc.addPage();
+    doc.addImage(slice.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, height * scale);
+  }
 
   const cleanCompanyName = (contract.companyName || 'Company').replace(/[^a-zA-Z0-9_\-]/g, '_');
   const filename = `NOVAIQ_Contract_${cleanCompanyName}_${contract.contractNumber}.pdf`;
