@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
-import { useLowEndDevice } from '../lib/deviceQuality';
 import {
   Search,
   CheckCircle2,
@@ -149,7 +148,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // per-card translateZ recession and depth-sorted repainting — is exactly what stalls an
   // integrated GPU mid-drag. The flat strip is pure 2D translateX and survives any hardware.
   // A hook (not a one-shot bool) so a late downgrade hands the grid over mid-session.
-  const isLowEnd = useLowEndDevice();
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
     setIsMobile(mq.matches);
@@ -157,7 +155,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
-  const flatGeometry = isMobile || isLowEnd;
+  const flatGeometry = isMobile;
   const flatStepPx = isMobile ? FLAT_STEP_PX_MOBILE : FLAT_STEP_PX_DESKTOP;
 
   // How much the fan has to shrink to fit the track it is actually in. Measured from the
@@ -717,7 +715,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // a stall long enough to swallow the animation whole and leave the card
                   // appearing to teleport. Holding a texture that is never looked at is
                   // cheap; building one during a gesture is not.
-                  willChange: isLowEnd ? undefined : 'transform, opacity',
+                  willChange: 'transform, opacity',
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
@@ -774,7 +772,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     // the card's layer texture on every frame of the animation. Constant for
                     // the same reason as the card above: a will-change that flips mid-drag
                     // rebuilds the layer instead of reusing it.
-                    willChange: isLowEnd ? undefined : 'transform',
+                    willChange: 'transform',
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"

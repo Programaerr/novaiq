@@ -728,80 +728,6 @@
   to { transform: translate3d(-380px, 300px, 0); }
 }
 
-/* Low-end tier (set once in main.tsx by applyDeviceClass). The star field is two 200%-of-
-   viewport layers animating transform on the compositor for the entire session — fine on a
-   real GPU, but on a weak one it is a permanent render pipeline stealing bus bandwidth from
-   scroll for a parallax nobody notices after the first second. Freezing it leaves the exact
-   same field (the drift is one 300px tile over 220s, i.e. ~1.4px/frame of nearly-static
-   motion) with a static starfield that reads identically. */
-html[data-device='low'] .star-layer--far,
-html[data-device='low'] .star-layer--near {
-  animation: none;
-}
-
-/* The rest of the low-end tier. Two kinds of reduction, both dropping the per-frame work
-   while keeping the resting look identical:
-
-   · FREEZE infinite loops that nobody is watching closely — the hero glow pulse, the
-     About panel's glinting border, the roadmap drift, the demo-card wave. A frozen frame
-     of each is visually indistinguishable from its animated self.
-   · STRIP repaint-heavy hover transitions (box-shadow/background/color fades re-rasterize
-     the element every hover frame) down to the compositor-only transform lift, and pause
-     the rotating beam gradients. The surface swap still snaps instantly, so every hover
-     still reads — just without renting the whole frame while it fades. */
-html[data-device='low'] .animate-pulse-glow {
-  animation: none;
-  opacity: 0.45;
-}
-
-html[data-device='low'] .solid-shimmer::after {
-  animation: none;
-  opacity: 0.55;
-}
-
-html[data-device='low'] .corner-sweep::before {
-  display: none;
-}
-
-html[data-device='low'] .product-card-wave,
-html[data-device='low'] .milestone-card {
-  animation: none;
-}
-
-html[data-device='low'] .filter-pill-beam::before,
-html[data-device='low'] .nq-btn-beam::before {
-  animation: none;
-}
-
-html[data-device='low'] .filter-pill-btn,
-html[data-device='low'] .nq-btn,
-html[data-device='low'] .search-neu,
-html[data-device='low'] .white-btn-glow {
-  transition: transform 250ms ease;
-}
-
-/* The hero wheel keeps its real 3D spin, just over a shorter glide — less time the GPU
-   spends rasterizing the preserve-3d turn, same destination and same look when it rests. */
-html[data-device='low'] .wheel3d-ring {
-  transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-/* The coverflow image's hover zoom re-rasterizes the card's own (previously promoted)
-   layer texture per hover frame; on weak hardware it snaps instead. */
-html[data-device='low'] .tpl-cover-img {
-  transform: none !important;
-  transition: none !important;
-}
-
-/* backdrop-filter is the heaviest single ask a phone GPU faces — every frosted panel
-   re-samples the content sliding beneath it. Stripped on the low tier: the panels keep
-   their translucent fill and border, so they still read as glass, just without the
-   per-frame Gaussian sampling. */
-html[data-device='low'] [class*='backdrop-blur'] {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
 /* Engineered navbar glass (.glass-bar). The original design used `backdrop-filter: blur()`
    directly on the floating chrome — but a backdrop-filter on a fixed header re-samples and
    re-blurs the content sliding beneath it on every scroll frame, which is exactly the kind of
@@ -831,11 +757,14 @@ html[data-device='low'] [class*='backdrop-blur'] {
     inset 0 0 24px rgba(255, 255, 255, 0.02);
 }
 
-/* Real frosted blur, only on devices that can carry it. Reduced-motion already maps to
-   data-device='low' in deviceQuality.ts, so a user who asked for less motion gets the static
-   material here too. */
+/* Real frosted blur, wherever the browser supports it. It used to be withheld from devices
+   the old capability classifier had labelled weak — but that classifier latched on the first
+   momentary hitch and never let go, so one image decode during load could strip the glass off
+   the navbar for the rest of the visit. The blur region here is the slim pill itself, a couple
+   of dozen px tall, which is a trivially small re-sample; the costs worth chasing were never
+   this one. */
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  html:not([data-device='low']) .glass-bar--blur {
+  .glass-bar--blur {
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     backdrop-filter: blur(14px) saturate(140%);
   }
