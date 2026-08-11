@@ -126,6 +126,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // longer exist.
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  // True while the rack is actually moving — a drag, or the glide that follows an index
+  // change — and false once it has settled. It exists only to decide when the cards are worth
+  // promoting to their own compositor layers.
+  //
+  // They used to be promoted permanently. That is correct for smoothness and wrong for memory:
+  // `will-change` holds a texture allocated for as long as it is set, so ten cards plus ten
+  // scale wrappers at 330x480 pinned roughly 13MB of GPU memory for a rack that spends almost
+  // all of its life perfectly still. Gating it on something that changes DURING a gesture was
+  // tried and was worse than either — layers were built and destroyed on every step commit,
+  // and building one forces the card, image and all, to be rasterized synchronously mid-drag.
+  // Motion is the right boundary: it flips twice per interaction, never inside one, so the
+  // layers exist for exactly as long as they earn their keep and the memory is returned after.
+  const [isMoving, setIsMoving] = useState(false);
   const dragRef = useRef<{ startX: number; startY: number } | null>(null);
   // Set when a pointerup ends a gesture that actually travelled (a drag, not a tap). The
   // browser then synthesizes a `click` on whatever card the pointer released over — which is
@@ -458,6 +471,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     setDragOffset(dragOffsetRef.current);
   });
 
+  // Raises `isMoving` for the whole of any motion and lowers it once everything has come to
+  // rest. Dragging holds it up directly; an index change (a tap, an arrow, the autoplay) holds
+  // it for the length of the 0.9s glide that follows, with a margin so the layers outlive the
+  // transition rather than being dropped in its last frame. Re-running on every index change
+  // restarts the timer, so a fast sequence of taps stays one continuous promoted stretch
+  // instead of thrashing layers between them.
+  useEffect(() => {
+    setIsMoving(true);
+    if (isDragging) return;
+    const id = window.setTimeout(() => setIsMoving(false), 1100);
+    return () => window.clearTimeout(id);
+  }, [activeIndex, isDragging]);
+
   // Settling the residual offset home, once the drag is over. Deliberately not done inside
   // onUp: that runs while the cards still carry the drag's own transition rules (isDragging
   // is only flipped in the same call, and React has not re-rendered yet), so zeroing it
@@ -723,7 +749,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // those in the same frame is a stall long enough to swallow the animation
                   // whole and leave the card appearing to teleport. Holding a texture that is
                   // never looked at is cheap; building one during a gesture is not.
-                  willChange: 'transform, opacity',
+                  willChange: isMoving ? 'transform, opacity' : undefined,
                   // Depth already does most of the ranking in the rack — the side cards are
                   // turned and set back, so they read as further away without help. Opacity
                   // only has to finish the job, hence 0.7/0.4 rather than the harder 0.55/0.28
@@ -794,7 +820,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     // the card's layer texture on every frame of the animation. Constant for
                     // the same reason as the card above: a will-change that flips mid-drag
                     // rebuilds the layer instead of reusing it.
-                    willChange: 'transform',
+                    willChange: isMoving ? 'transform' : undefined,
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"
