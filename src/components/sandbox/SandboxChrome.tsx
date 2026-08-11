@@ -114,6 +114,19 @@ export const ResponsivePreview: React.FC<{
                 );
               }}
               style={{
+                // Pinned to the box's physical top-left, which is the same corner
+                // `transform-origin: top left` scales from. As a normal in-flow block it was
+                // not: the frame is deliberately wider than the box that holds it (390px of
+                // site inside a 343px box, then scaled down to fit), and an overflowing block
+                // in an RTL context is laid out from the *right* edge, so its left edge sat at
+                // a negative offset — 343 - 390 = -47px. Scaling from a corner that is already
+                // 47px off-screen drags the whole preview left with it, which clipped the
+                // start of every row and left a gap down the other side. Taking it out of flow
+                // makes the origin the box's corner in every writing direction, so what is
+                // rendered is exactly the frame, aligned to the frame.
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 width,
                 height: frameHeight,
                 transform: `scale(${scale})`,
