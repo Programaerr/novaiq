@@ -54,6 +54,10 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     // Each card's box relative to the group's own origin — fixed as long as nothing reflows,
     // which is what lets a frame skip measuring entirely.
     let boxes: Array<{ x: number; y: number; w: number; h: number }> = [];
+    // Last value actually written to each card, so an unchanged one can be skipped. NaN
+    // seeds a first write for every card regardless of where the pointer entered.
+    let lastX: number[] = [];
+    let lastY: number[] = [];
     // The card the pointer is currently inside, if any. `:hover` says this for a mouse but
     // has nothing to say for a finger, so it is tracked here and mirrored as `.is-touched`.
     let inside: HTMLElement | null = null;
@@ -67,6 +71,10 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
         const r = el.getBoundingClientRect();
         return { x: r.left - gr.left, y: r.top - gr.top, w: r.width, h: r.height };
       });
+      // Card list can change with the layout, so the skip-cache is rebuilt alongside it —
+      // a stale entry would suppress the first write to a card that has genuinely moved.
+      lastX = new Array(cards.length).fill(NaN);
+      lastY = new Array(cards.length).fill(NaN);
       stale = false;
     };
 
@@ -102,8 +110,22 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
           const dy = y < 0 ? -y : y > b.h ? y - b.h : 0;
           if (dx * dx + dy * dy > REACH_SQ) continue;
         }
-        cards[i].style.setProperty('--rx', `${x}px`);
-        cards[i].style.setProperty('--ry', `${y}px`);
+        // Quantised to a 6px grid, and skipped outright when the rounded value has not
+        // moved. Every write invalidates the element's gradient, and `.reveal-border`'s is
+        // then carved to an outline by a `mask-composite` pair — an operation browsers do
+        // not GPU-accelerate, so it lands on the main thread at full cost. The gradient it
+        // is positioning is a soft 240px circle: displacing its centre by up to 6px changes
+        // it by 2.5% of its own radius, which is not a difference the eye can find on a
+        // blurred falloff. Pointer streams routinely report sub-pixel deltas, and without
+        // this every one of them bought a full masked repaint to move a soft glow by a
+        // fraction of a pixel.
+        const qx = Math.round(x / 6) * 6;
+        const qy = Math.round(y / 6) * 6;
+        if (!force && qx === lastX[i] && qy === lastY[i]) continue;
+        lastX[i] = qx;
+        lastY[i] = qy;
+        cards[i].style.setProperty('--rx', `${qx}px`);
+        cards[i].style.setProperty('--ry', `${qy}px`);
       }
       if (hit !== inside) {
         inside?.classList.remove('is-touched');
