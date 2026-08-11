@@ -174,8 +174,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     // from the measured bottom edge, so this one value is all that needs changing.
     <header dir="ltr" className="fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-7xl mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
       {/* pb trimmed below pt on mobile only (sm+ restores the even p-3) — shrinks the bar's
-          own footprint from its bottom edge so it clears whatever sits just beneath it on
-          small screens (e.g. PageBackBar) without moving its top position at all. */}
+          own footprint from its bottom edge so it clears the page content just beneath it on
+          small screens without moving its top position at all. */}
       <div
         ref={barRef}
         // No drop shadow: shadow-2xl shadow-black cast a wide, fully opaque smear well past
@@ -288,20 +288,29 @@ export const Navbar: React.FC<NavbarProps> = ({
           dir={isAr ? 'rtl' : 'ltr'}
           data-lenis-prevent
           style={{ overscrollBehavior: 'contain' }}
-          className="glass-bar glass-bar--blur absolute top-full mt-3 right-3 sm:right-6 w-80 max-h-[75vh] overflow-y-auto border border-white/15 rounded-2xl p-4 shadow-2xl space-y-3 z-50 animate-fade-in"
+          // Sized down from w-80/p-4/space-y-3, which rendered 320x503 — on a 393px phone that
+          // was 81% of the width and 59% of the screen height for what is a seven-item list.
+          // The width only came down a notch (w-72): the currency row below has a label and a
+          // value pill side by side and needs ~240px of inner width to hold them on one line,
+          // so the real saving is vertical, taken out of each row rather than out of the panel.
+          className="glass-bar glass-bar--blur absolute top-full mt-3 right-3 sm:right-6 w-72 max-h-[75vh] overflow-y-auto border border-white/15 rounded-2xl p-3 shadow-2xl space-y-2 z-50 animate-fade-in"
         >
           {/* No close control here — the toggle button already becomes an X once the
               drawer is open, so a second one here would just be the same action twice.
               Clicking outside the drawer, or Escape, close it instead (see the effect
               above). */}
-          <div className="pb-3 border-b border-zinc-800">
-            <span className="text-xs font-bold text-white flex items-center gap-2">
-              <Compass className="w-4 h-4 text-white" />
+          <div className="pb-2 border-b border-zinc-800">
+            <span className="text-[11px] font-bold text-white flex items-center gap-2">
+              <Compass className="w-3.5 h-3.5 text-white" />
               <span>{isAr ? 'أقسام منصة NOVAIQ' : 'NOVAIQ Pages'}</span>
             </span>
           </div>
 
-          <div className="space-y-1">
+          {/* Row height is what the panel's height actually is — seven of these are the whole
+              list. The icon tile sets the floor (it is taller than the label beside it), so it
+              comes down with the padding; trimming only the padding around a 32px tile would
+              have bought almost nothing. 48px per row before, 40 now. */}
+          <div className="space-y-0.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activePage === item.id;
@@ -310,18 +319,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={item.id}
                   href={item.href}
                   onClick={(e) => handleNavClick(item.id, e)}
-                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer ${
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] transition-all cursor-pointer ${
                     isActive
                       ? 'bg-white text-black font-bold shadow-lg'
                       : 'text-zinc-300 font-medium hover:bg-zinc-900 hover:text-white'
                   }`}
                 >
                   <span
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all ${
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all ${
                       isActive ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-3.5 h-3.5" />
                   </span>
                   <span>{item.label}</span>
                 </a>
@@ -333,16 +342,26 @@ export const Navbar: React.FC<NavbarProps> = ({
               switching to English must not silently convert every price to dollars. USD
               only ever shows by an explicit choice made here. No backdrop-blur of its own:
               the drawer panel it sits inside already blurs the page behind it. */}
-          <div className="pt-2 border-t border-zinc-800">
+          <div className="pt-1.5 border-t border-zinc-800">
             <button
               onClick={() => setCurrency(currency === 'IQD' ? 'USD' : 'IQD')}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 text-xs font-medium cursor-pointer transition-colors shadow-lg glow-white-hover"
+              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-white/10 text-zinc-100 text-[11px] font-medium cursor-pointer transition-colors shadow-lg glow-white-hover"
             >
-              <span className="flex items-center gap-2.5">
-                <DollarSign className="w-4 h-4 text-zinc-300" />
+              <span className="flex items-center gap-2 shrink-0">
+                <DollarSign className="w-3.5 h-3.5 text-zinc-300" />
                 <span>{isAr ? 'عملة عرض الأسعار' : 'Display Currency'}</span>
               </span>
-              <span className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-mono text-[11px] font-bold border border-white/10">
+              {/* No font-mono here. A monospace family carries no Arabic glyphs, so the browser
+                  falls back per-character for "دينار عراقي" — which breaks the cursive joins and
+                  pads every letter out to the mono advance width, exactly the stretched,
+                  disconnected look this had. It survived unnoticed while the label was only ever
+                  read as a currency code; it is a whole Arabic phrase. The page font shapes it
+                  properly, and the Latin "(IQD)" reads fine in it too.
+                  whitespace-nowrap, and the label beside it shrink-0: this row is the one place
+                  in the panel where two pieces of text compete for a single line, and it is why
+                  the panel is not narrower than w-72. Without these the value wraps mid-phrase
+                  as soon as the longer English string ("Iraqi Dinar (IQD)") is in play. */}
+              <span className="px-2 py-0.5 rounded-lg bg-white/10 text-white text-[11px] font-bold border border-white/10 whitespace-nowrap">
                 {currency === 'IQD' ? (isAr ? 'دينار عراقي (IQD)' : 'Iraqi Dinar (IQD)') : (isAr ? 'دولار أمريكي (USD)' : 'US Dollar (USD)')}
               </span>
             </button>

@@ -131,22 +131,21 @@
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
 
-    /* Vertical rhythm for the two stacked floating bars (Navbar, then PageBackBar under it).
-       These are the only two numbers involved: --nav-bottom and --backbar-bottom are measured
-       and written here at runtime by useFloatingBarBottom, so each bar sits exactly
-       --stack-gap below the one above it, and page content starts --content-gap below the
-       lowest bar. Nothing downstream hardcodes a breakpoint offset any more.
+    /* Vertical rhythm below the floating Navbar. --nav-bottom is measured and written here at
+       runtime by useFloatingBarBottom, and page content starts --content-gap below it, so
+       nothing downstream hardcodes a breakpoint offset.
 
-       Mobile keeps the tighter values the current layout was tuned to; sm+ opens both up
-       slightly, which is also where the Navbar itself lifts a few px (see Navbar.tsx) — the
-       net effect is a noticeably tighter stack on large screens with mobile left as-is. */
-    --stack-gap: 0.375rem;
+       There used to be a second variable beside this one, --stack-gap, spacing a Back/Home bar
+       between the Navbar and the content. That bar is gone and with it the only thing that
+       ever read the variable, so the stack is one bar deep and one gap wide.
+
+       Mobile keeps the tighter value the current layout was tuned to; sm+ opens it up
+       slightly, which is also where the Navbar itself lifts a few px (see Navbar.tsx). */
     --content-gap: 0.75rem;
   }
 
   @media (min-width: 640px) {
     html {
-      --stack-gap: 0.5rem;
       --content-gap: 1rem;
     }
   }

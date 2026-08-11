@@ -3,7 +3,6 @@ import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { useRevealGroup } from './lib/useRevealGroup';
 import { Navbar } from './components/Navbar';
-import { PageBackBar } from './components/PageBackBar';
 import { HeroSection } from './components/HeroSection';
 import { FloatingTemplateCards } from './components/FloatingTemplateCards';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
@@ -171,16 +170,11 @@ export default function App() {
     };
   }, [language]);
 
-  // In-app navigation history for the PageBackBar's Back button. navigateTo() only ever
-  // *pushes* URL entries (never replaces), so a plain window.history.back() could leave the
-  // app entirely or skip a page the visitor never saw here — so instead of relying on it,
-  // this stack records the pages the visitor actually moved between inside the app, and
-  // "Back" pops the last one. It falls back to home only when there is no history to pop
-  // (e.g. they landed directly on a deep link).
-  const navStackRef = useRef<string[]>([]);
-
-  const navigateTo = (page: string, record: boolean = true) => {
-    if (record && page !== activePage) navStackRef.current.push(activePage);
+  // The in-app history stack that used to live here went with the Back/Home bar: it existed
+  // only to feed that bar's Back button, and with the bar gone nothing read it — it was being
+  // pushed to on every navigation and popped by no one. The `record` parameter that opted a
+  // navigation out of it went the same way; every call site already used the default.
+  const navigateTo = (page: string) => {
     setActivePage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const newUrl = page === 'home' 
@@ -202,15 +196,6 @@ export default function App() {
 
   const isAr = language === 'ar';
 
-  const pageTitles: Record<string, string> = {
-    templates: isAr ? 'القوالب البرمجية' : 'Ready Templates',
-    'custom-request': isAr ? 'عقد مخصص وتطوير' : 'Custom Contract',
-    orders: isAr ? 'حسابي' : 'My Account',
-    timeline: isAr ? 'مراحل العمل والتسليم' : 'Roadmap & Process',
-    about: isAr ? 'عن NOVAIQ' : 'About NOVAIQ',
-    privacy: isAr ? 'سياسة الخصوصية' : 'Privacy Policy',
-    terms: isAr ? 'الشروط والأحكام' : 'Terms of Service',
-  };
 
   // Stat bars start empty and only fill up once the visitor actually scrolls them
   // into view (not on page mount, which would finish the animation off-screen before
@@ -276,37 +261,21 @@ export default function App() {
         setCurrency={setCurrency}
       />
 
-      {/* Main Content View with Hardware Accelerated Transitions. Both bars above are
-          fixed/floating, so they don't push content down like an in-flow element would —
-          this padding is what clears them. It starts --content-gap below whichever bar is
-          lowest: the PageBackBar on inner pages, the Navbar itself on home (where no back
-          bar renders). Both offsets are measured at runtime rather than hardcoded per
-          breakpoint, so a change to either bar's own size re-flows the page automatically
-          instead of silently overlapping it. */}
+      {/* Main Content View with Hardware Accelerated Transitions. The Navbar above is
+          fixed/floating, so it doesn't push content down like an in-flow element would —
+          this padding is what clears it, starting --content-gap below wherever it actually
+          ends. That offset is measured at runtime rather than hardcoded per breakpoint, so a
+          change to the bar's own size re-flows the page automatically instead of silently
+          overlapping it.
+          One value for every page now. It used to branch, because inner pages carried a
+          second floating bar (a Back/Home strip) beneath the Navbar and had to clear that
+          one instead. With the strip gone the Navbar is the only bar there is, and keeping
+          the branch would have left inner pages padding down to --backbar-bottom's 126px
+          fallback — a gap held open for something no longer rendered. */}
       <main
-        style={{
-          paddingTop:
-            activePage === 'home'
-              ? 'calc(var(--nav-bottom, 74px) + var(--content-gap))'
-              : 'calc(var(--backbar-bottom, 126px) + var(--content-gap))',
-        }}
+        style={{ paddingTop: 'calc(var(--nav-bottom, 74px) + var(--content-gap))' }}
         className="flex-1 relative z-10 pb-8"
       >
-
-        {/* Back/Home bar — every page other than home gets one, pinned right under the
-            Navbar, since the hamburger drawer alone wasn't a clear enough "how do I leave
-            this page" affordance. "Back" returns to whichever page the visitor was on
-            before this one (its history is tracked in navStackRef by navigateTo), and only
-            falls back to home when there is no prior page to return to. "Home" always goes
-            home, no matter how they arrived. */}
-        {activePage !== 'home' && (
-          <PageBackBar
-            language={language}
-            title={pageTitles[activePage] || ''}
-            onBack={() => navigateTo(navStackRef.current.pop() ?? 'home', false)}
-            onHome={() => navigateTo('home')}
-          />
-        )}
 
         {activePage === 'home' && (
           <div className="page-in space-y-20 sm:space-y-24">
