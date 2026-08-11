@@ -1044,8 +1044,19 @@ html[data-demo] .cosmic-bg {
   height: 560px;
   margin: -280px 0 0 -280px;
   transform: translate3d(var(--rx, 50%), var(--ry, 50%), 0);
-  /* The hint is the point of the whole design: it keeps the disc on its own layer, so
-     the per-frame update is a compositor transform and never a repaint. */
+}
+
+/* The layer hint, and only while the group is actually lit.
+   Keeping the disc on its own layer is what makes the per-frame update a compositor
+   transform instead of a repaint — that is the point of this whole design. But
+   `will-change` holds the texture for as long as it is set, and these discs are 560x560,
+   about 1.25MB of GPU memory each. Declared unconditionally on all fourteen cards across
+   the page that is roughly 17MB pinned permanently, for an effect that is invisible until
+   a pointer enters a group and cannot be seen at all on a touch screen.
+   Scoped to `.is-live`, the layers are built when a pointer arrives — which is also when
+   the fade-in is starting, so the work lands in a frame that was never going to be still —
+   and released when it leaves. Same effect, memory only while it is on screen. */
+.reveal-group.is-live .rv::before {
   will-change: transform;
 }
 
