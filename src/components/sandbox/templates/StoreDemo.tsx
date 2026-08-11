@@ -15,6 +15,7 @@ import {
 import { SAMPLE_PRODUCTS, STORE_SORT_OPTIONS } from '../../../data/sandboxDemoData';
 import type { ClothingProduct, CartItem } from '../../../data/sandboxDemoData';
 import { cosmicAudio } from '../../../lib/audio';
+import { useIsScrolling } from '../../../lib/useIsScrolling';
 import type { ViewportChoice } from '../SandboxChrome';
 import type { SandboxCtx } from '../context';
 
@@ -70,6 +71,9 @@ interface StoreDemoProps {
 
 export function StoreDemo({ ctx, addToCart, cart, customerCity, customerName, customerPhone, handleCompleteOrder, isCartOpen, isCheckoutOpen, isMobileSearchOpen, isStoreSortOpen, modalColor, modalQuantity, modalSize, orderConfirmedInvoice, paymentMethod, renderSiteMenuButton, selectedProductForModal, setCustomerCity, setCustomerName, setCustomerPhone, setIsCartOpen, setIsCheckoutOpen, setIsMobileSearchOpen, setIsStoreSortOpen, setModalColor, setModalQuantity, setModalSize, setOrderConfirmedInvoice, setPaymentMethod, setSelectedProductForModal, setStoreSearch, setStoreSort, setStoreSortMenuRect, storeCategory, storeSearch, storeSort, storeSortBtnRef, storeSortMenuRect, totalCartCount, totalCartIQD, updateCartQuantity, viewport }: StoreDemoProps) {
   const { gridCols, isNarrowViewport, price, themeStyle } = ctx;
+  // Same reasoning as SiteTopBar (SandboxChrome.tsx): a sticky, blurred bar re-samples the
+  // catalogue scrolling underneath it every frame. Drop the blur only for the gesture itself.
+  const isScrolling = useIsScrolling();
 
   const sortedProducts = [...SAMPLE_PRODUCTS]
     .filter(p => {
@@ -87,7 +91,11 @@ export function StoreDemo({ ctx, addToCart, cart, customerCity, customerName, cu
   return (
     <div className="space-y-6 text-slate-100">
       {/* Sticky Store Navbar — same glass-pill identity treatment as the real NOVAIQ navbar */}
-      <div className="sticky top-1 sm:top-2 z-30 mb-6 bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden">
+      <div
+        className={`sticky top-1 sm:top-2 z-30 mb-6 border border-white/10 shadow-xl shadow-black/20 select-none rounded-2xl overflow-hidden transition-all duration-200 ${
+          isScrolling ? 'bg-black/70' : 'bg-white/5 backdrop-blur-xl'
+        }`}
+      >
         <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrowViewport ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
           {/* Right cluster: sections menu, then search, right next to each other. */}
           <div className="flex items-center gap-2 shrink-0">

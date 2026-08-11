@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
+import { useIsScrolling } from '../../lib/useIsScrolling';
 
 // Chrome that wraps a template demo rather than being part of any one demo: the fixed-width
 // responsive preview frame and the shared menu glyph. Split out of
@@ -210,10 +211,19 @@ export const SiteTopBar: React.FC<{
   isNarrow,
 }) => {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  // A sticky, blurred bar re-samples whatever scrolls underneath it every single frame —
+  // the same demo content this bar sits above, moving continuously during a scroll gesture.
+  // Dropping the blur for the gesture itself (restored ~150ms after it settles) removes that
+  // per-frame cost exactly where it happens, without touching how the bar looks at rest.
+  const isScrolling = useIsScrolling();
 
   return (
     <div className="sticky top-1 sm:top-2 z-30 mb-6 select-none">
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl shadow-black/20 rounded-2xl overflow-hidden">
+      <div
+        className={`border border-white/10 shadow-xl shadow-black/20 rounded-2xl overflow-hidden transition-all duration-200 ${
+          isScrolling ? 'bg-black/70' : 'bg-white/5 backdrop-blur-xl'
+        }`}
+      >
         <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrow ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
         {/* Right cluster: sections menu, then search. */}
         <div className="flex items-center gap-2 shrink-0">
