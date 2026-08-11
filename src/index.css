@@ -820,10 +820,23 @@
 
    Transitions are deliberately left alone. They are responses to interaction, and there is
    no interaction happening while the window is hidden. */
-html[data-idle] *,
-html[data-idle] *::before,
-html[data-idle] *::after {
-  animation-play-state: paused !important;
+/* Named, not `*`. A universal pause was tried and it was a genuine outage: entry animations
+   here open from `opacity: 0` and carry `animation-fill-mode: both`, so pausing one before it
+   has run leaves the element pinned at zero opacity — the page does not slow down, it
+   disappears. Listing the infinite decorative loops instead makes that impossible by
+   construction, and loses nothing: those loops are the only animations that were still
+   running with no viewer. Everything else here is a one-shot that finishes in under a second
+   and is not worth the risk of freezing mid-flight. */
+html[data-idle] .star-layer,
+html[data-idle] .animate-pulse-glow,
+html[data-idle] .solid-shimmer::after,
+html[data-idle] .product-card-wave,
+html[data-idle] .milestone-card,
+html[data-idle] .nq-btn-beam::before,
+html[data-idle] .filter-pill-beam::before,
+html[data-idle] .navbar-dot,
+html[data-idle] .rv::before {
+  animation-play-state: paused;
 }
 
 /* A template demo is on screen (flag set by TemplateInteractiveSandbox while it is mounted).

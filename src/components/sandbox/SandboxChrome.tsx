@@ -34,13 +34,16 @@ export const VIEWPORT_PRESETS: Record<
  * layout, squeezed. An iframe genuinely is 390px wide, so the template's own breakpoints do
  * the work and the preview can be trusted.
  */
+// Ceiling on the iframe's logical height — see the note on `frameHeight` below for why an
+// uncapped one blanked the desktop preset on phones.
+const MAX_FRAME_HEIGHT = 1600;
+
 export const ResponsivePreview: React.FC<{
   width: number;
-  height: number;
   src: string;
   title: string;
   themeColor: string;
-}> = ({ width, height, src, title, themeColor }) => {
+}> = ({ width, src, title, themeColor }) => {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [stage, setStage] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
@@ -66,23 +69,31 @@ export const ResponsivePreview: React.FC<{
     );
   }, [themeColor, width]);
 
-  // Fits the whole device, both axes, and only ever shrinks — so a phone preview on a desktop
-  // still stays pixel-exact. Fitting height as well as width is what makes "كمبيوتر" work on a
-  // phone: the frame keeps its real 1280x800 shape and is simply drawn small, instead of being
-  // stretched to whatever height the stage happened to have divided by the scale.
-  const scale =
-    stage.w > 0 && stage.h > 0 ? Math.min(stage.w / width, stage.h / height, 1) : 1;
+  // Scales to fit the WIDTH, and only ever downwards — so a phone preview on a desktop stays
+  // pixel-exact. Height deliberately fills the stage instead of being fitted too: this is a
+  // website preview, not a device photo, so it should show as much of the page as the panel
+  // can hold and scroll for the rest. Fitting both axes was tried and letterboxed the desktop
+  // view into a short wide sliver, which is worse at the one job this has.
+  const scale = stage.w > 0 ? Math.min(stage.w / width, 1) : 1;
+
+  // The one thing that had to be bounded. Before this cap the logical height was simply
+  // `stage.h / scale`, and at the scale a 1280px desktop preset needs on a phone (~0.27) that
+  // asked for a frame around 1300-2000px tall — a couple of million pixels to lay out and
+  // rasterize for a thumbnail a few hundred pixels wide. Mobile browsers limit how large a
+  // frame they will render and dropped it outright, which is why "كمبيوتر" came up blank on a
+  // phone. Capped, the frame stays renderable everywhere; on a desktop the scale is near 1 so
+  // `stage.h / scale` never approaches this and nothing about that case changes.
+  const frameHeight = stage.h > 0 ? Math.min(stage.h / scale, MAX_FRAME_HEIGHT) : 0;
 
   return (
     <div className="flex-1 min-h-0 w-full flex flex-col items-center gap-2">
-      <div ref={stageRef} className="flex-1 min-h-0 w-full flex items-center justify-center">
+      <div ref={stageRef} className="flex-1 min-h-0 w-full flex items-start justify-center">
         {stage.h > 0 && (
           <div
             className="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-black"
-            // The box is the device's own size scaled down, so its proportions are the
-            // device's proportions — a desktop preview reads as a wide screen and a phone
-            // preview as a tall one, at any size of stage.
-            style={{ width: width * scale, height: height * scale }}
+            // Height follows the frame once the cap bites, so the box never claims more room
+            // than the frame inside it actually fills.
+            style={{ width: width * scale, height: Math.min(stage.h, frameHeight * scale) }}
           >
             <iframe
               ref={iframeRef}
@@ -97,7 +108,7 @@ export const ResponsivePreview: React.FC<{
               }}
               style={{
                 width,
-                height,
+                height: frameHeight,
                 transform: `scale(${scale})`,
                 transformOrigin: 'top left',
                 border: 0,
@@ -115,7 +126,7 @@ export const ResponsivePreview: React.FC<{
       </div>
 
       <div className="shrink-0 flex items-center gap-2 text-[10px] font-mono text-zinc-500">
-        <span dir="ltr">{width} × {height}</span>
+        <span dir="ltr">عرض {width}px</span>
         {scale < 1 && (
           <>
             <span className="text-zinc-700">|</span>

@@ -41,22 +41,19 @@ export function usePauseOffscreenWork(): void {
       else delete root.dataset.idle;
     };
 
-    // `blur`/`focus` catch what visibilitychange does not: another window taking focus over
-    // this one on a desktop, where the tab stays technically "visible" behind it. Named, so
-    // the cleanup below can actually detach them.
-    const idle = () => {
-      root.dataset.idle = 'true';
-    };
-
+    // `visibilitychange` ONLY. A `blur` listener was tried here to also catch another window
+    // taking focus over this one, and it broke the site outright: `blur` fires on the parent
+    // window whenever an iframe takes focus, and the template demos are iframes — so opening a
+    // preview immediately marked the whole page idle. Combined with the pause rule that then
+    // froze `page-in` at its opening `opacity: 0` keyframe, the entire site went invisible on
+    // desktop and mobile alike. `blur` answers "does this window have keyboard focus", which
+    // is a different question from "can anyone see this page"; only visibilitychange answers
+    // the second one, and it is deliberately not fired by focus moving into an iframe.
     sync();
     document.addEventListener('visibilitychange', sync);
-    window.addEventListener('blur', idle);
-    window.addEventListener('focus', sync);
 
     return () => {
       document.removeEventListener('visibilitychange', sync);
-      window.removeEventListener('blur', idle);
-      window.removeEventListener('focus', sync);
       delete root.dataset.idle;
     };
   }, []);
