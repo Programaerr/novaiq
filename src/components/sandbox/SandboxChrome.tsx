@@ -9,20 +9,10 @@ import { Search, X } from 'lucide-react';
 // of screen actually gets.
 export type ViewportChoice = 'full' | 'desktop' | 'tablet' | 'mobile';
 
-// Each preset is a whole viewport, height included, not just a width. The height used to be
-// derived instead — the stage's own height divided by the scale — which quietly made the
-// iframe enormous whenever the scale was small: picking "كمبيوتر" on a phone asked for a
-// 1280px-wide frame about 1300-2000px tall, ~2 million pixels to lay out and rasterize for a
-// thumbnail a few hundred pixels across. Mobile browsers cap how large a frame they will
-// render and simply dropped it, which is why the desktop preview came up blank there.
-// Real device viewports keep it bounded and, being real, make the preview honest as well.
-export const VIEWPORT_PRESETS: Record<
-  Exclude<ViewportChoice, 'full'>,
-  { label: string; width: number; height: number }
-> = {
-  desktop: { label: 'كمبيوتر', width: 1280, height: 800 },
-  tablet: { label: 'تابلت', width: 834, height: 1112 },
-  mobile: { label: 'جوال', width: 390, height: 844 },
+export const VIEWPORT_PRESETS: Record<Exclude<ViewportChoice, 'full'>, { label: string; width: number }> = {
+  desktop: { label: 'كمبيوتر', width: 1280 },
+  tablet: { label: 'تابلت', width: 834 },
+  mobile: { label: 'جوال', width: 390 },
 };
 
 /**
