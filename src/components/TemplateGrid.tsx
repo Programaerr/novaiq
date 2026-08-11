@@ -709,7 +709,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   style={{
                     transform: `scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
                     // Same 0.9s and same curve as the positional transform above — see the
-                    // note there on why the two must agree.
+                    // note there on why the two must agree. Also on its own layer, like the
+                    // card holding it: it animates its own scale for 0.9s on every commit,
+                    // and without the hint that glide would re-rasterize the image inside
+                    // the card's layer texture on every frame of the animation.
+                    willChange: 'transform',
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"
