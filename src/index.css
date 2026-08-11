@@ -804,7 +804,7 @@
 }
 
 /* Low-end device lag fix: sections below the first viewport were being painted,
-   animated (corner-sweep, star drift, reveal, milestones) and composited at page load
+   animated (star drift, reveal, milestones) and composited at page load
    even though the visitor had not scrolled to them — doing the whole page's work up
    front is what made weak devices stutter while scrolling down. `content-visibility:auto`
    makes the browser skip rendering/animation of offscreen content entirely and only do
@@ -1070,31 +1070,6 @@
   .milestone-card {
     animation: none;
   }
-}
-
-/* Corner sweep — a white light band that travels from the top-left corner to the
-   bottom-right corner and loops, automatically, independent of text direction (it's a
-   screen-space diagonal, not a logical start/end). */
-@keyframes corner-sweep {
-  0% { transform: translate(-100%, -100%); }
-  100% { transform: translate(100%, 100%); }
-}
-
-.corner-sweep {
-  position: relative;
-  overflow: hidden;
-}
-
-.corner-sweep::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(135deg, transparent 47%, rgba(255, 255, 255, 0.55) 50%, transparent 53%);
-  animation: corner-sweep 4s linear infinite;
-  pointer-events: none;
 }
 
 /* Navbar wordmark: NAME → mark → "Design" — both text pieces are hidden until hover, then
