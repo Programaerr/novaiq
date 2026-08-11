@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 
 import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { useRevealGroup } from './lib/useRevealGroup';
+import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
 import { PageBackBar } from './components/PageBackBar';
 import { HeroSection } from './components/HeroSection';
@@ -347,6 +348,7 @@ export default function App() {
                         key={idx}
                         className="reveal-face reveal-border group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
                       >
+                        <RevealLight face />
                         <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
                             className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
@@ -377,6 +379,7 @@ export default function App() {
                       key={idx}
                       className="reveal-face reveal-border aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
                     >
+                      <RevealLight face />
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>
                     </div>

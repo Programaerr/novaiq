@@ -2,6 +2,7 @@ import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useRevealGroup } from '../lib/useRevealGroup';
+import { RevealLight } from './RevealLight';
 
 interface AboutSectionProps {
   language?: Language;
@@ -68,6 +69,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 key={idx}
                 className="reveal-face reveal-border min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 text-center transition-all"
               >
+                <RevealLight face />
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>
                 <p className="relative z-10 text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{item.desc}</p>

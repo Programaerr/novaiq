@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useRevealGroup } from '../lib/useRevealGroup';
+import { RevealLight } from './RevealLight';
 
 interface MilestoneTimelineProps {
   language?: Language;
@@ -103,6 +104,8 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                 // frame for no benefit — nothing here animates transform on a state change.
                 className="milestone-card reveal-border border border-white/10 rounded-[26px] p-7 flex flex-col relative group transition-colors shadow-xl"
               >
+
+                <RevealLight />
 
                 {/* z-10 on the whole content column rather than on pieces of it: absolutely
                     positioned content paints after non-positioned siblings whatever the
