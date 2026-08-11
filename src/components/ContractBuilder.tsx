@@ -73,7 +73,15 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // open (overrides load asynchronously, a moment after the initial static render).
   useEffect(() => {
     const live = templatesData.find(t => t.id === template.id);
-    if (live && live !== template) setTemplate(live);
+    // Compared by value, not just by reference. The reference test alone is only safe while
+    // `templatesData` keeps a stable identity between renders (see the useMemo in
+    // useLiveTemplates); if that ever stops being true again, an identity-only check setStates
+    // on every render and loops until React aborts the tree. Stringifying one template object
+    // costs nothing next to the render it prevents, and makes this effect correct on its own
+    // terms rather than dependent on a promise made in another file.
+    if (live && live !== template && JSON.stringify(live) !== JSON.stringify(template)) {
+      setTemplate(live);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templatesData]);
 
