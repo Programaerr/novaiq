@@ -77,7 +77,7 @@ const Card: React.FC<CardProps> = ({ url, pose, isActive, isDimmed, onSelect }) 
     sharp.colorSpace = THREE.SRGBColorSpace;
     // Without anisotropy a texture on a card turned away from the camera smears badly —
     // this is what keeps the picked card crisp rather than merely un-blurred.
-    sharp.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+    sharp.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy());
     sharp.needsUpdate = true;
   }, [sharp, gl]);
 
@@ -152,7 +152,7 @@ const Card: React.FC<CardProps> = ({ url, pose, isActive, isDimmed, onSelect }) 
           Standard: no roughness/metalness PBR pass, just diffuse response to the lights below
           — cheaper per fragment across 6 cards × 2 meshes, at the cost of the specular
           highlight (the surface reads matte instead of glossy). */}
-      <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={0.055} smoothness={3}>
+      <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={0.055} smoothness={2}>
         <meshLambertMaterial color="#18181b" />
       </RoundedBox>
 
@@ -178,12 +178,13 @@ interface SceneProps {
 
 const Scene: React.FC<SceneProps> = ({ active, setActive, scatter }) => (
   <>
-    {/* Key + rim + fill. The key light is what produces the moving light/shadow across each
-        card as it drifts; the rim separates the dark card bodies from the dark page behind. */}
+    {/* Key + rim. The key light is what produces the moving light/shadow across each card
+        as it drifts; the rim separates the dark card bodies from the dark page behind. The
+        third light that used to fill from below is gone on purpose — one fewer light means
+        one fewer lighting pass per fragment on every card, traded for a flatter underside. */}
     <ambientLight intensity={0.9} />
     <directionalLight position={[4, 5, 6]} intensity={2.4} />
     <directionalLight position={[-6, 2, 4]} intensity={0.9} color="#a1a1aa" />
-    <pointLight position={[0, -3, 5]} intensity={20} distance={16} color="#ffffff" />
 
     {CARDS.map((tpl, i) => (
       <Card
@@ -239,7 +240,7 @@ export const TemplateCards3D: React.FC = () => {
         frameloop={onScreen ? 'always' : 'never'}
         camera={{ position: [0, 0, 6], fov: 46 }}
         dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
         // Clicking empty space drops the current pick, so there is always a way back out
         // without having to find the same card again.
         onPointerMissed={() => setActive(null)}
