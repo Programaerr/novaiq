@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 'react';
 import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
+import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useRevealGroup } from './lib/useRevealGroup';
+import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { FloatingTemplateCards } from './components/FloatingTemplateCards';
@@ -81,6 +83,9 @@ export default function App() {
 
   useSmoothScroll();
   useSectionScrollSpy(activePage, setActiveSection);
+  // Halts every animation on the page whenever the window is hidden or unfocused — the
+  // always-mounted background otherwise keeps drifting for a tab nobody is looking at.
+  usePauseOffscreenWork();
 
   // Handle URL changes & popstate (browser back/forward)
   useEffect(() => {
@@ -293,7 +298,7 @@ export default function App() {
                   here was near-black anyway, so what it mostly did was hide the stars. */}
               <div
                 ref={revealGroup}
-                className="below-fold reveal-group corner-sweep grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+                className="below-fold reveal-group grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
               >
                 <div className="flex flex-col gap-4">
                   <div className="flex-1 flex flex-col justify-start space-y-3 text-start">
@@ -316,6 +321,7 @@ export default function App() {
                         key={idx}
                         className="reveal-face reveal-border group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
                       >
+                        <RevealLight face />
                         <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
                             className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
@@ -346,6 +352,7 @@ export default function App() {
                       key={idx}
                       className="reveal-face reveal-border aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
                     >
+                      <RevealLight face />
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>
                     </div>

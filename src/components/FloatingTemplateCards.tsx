@@ -1,7 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { templatesData } from '../data/templatesData';
-import { useLowEndDevice } from '../lib/deviceQuality';
 
 // three.js + fiber + drei are a large dependency. Kept behind React.lazy
 // so they land in their own chunk and never block the initial page parse, and only mounted
@@ -20,16 +19,26 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   language,
   onExploreTemplates,
 }) => {
-  const lowEnd = useLowEndDevice();
   const [showCanvas, setShowCanvas] = useState(false);
 
   useEffect(() => {
-    // A WebGL scene runs its own render loop regardless of what CSS animations honour, so
-    // the low-end tier (hardware guess at startup, + the runtime jank probe on weak devices)
-    // has to be checked before mounting it, not styled around afterwards. The tier is live —
-    // if it downgrades mid-session, the canvas unmounts and the static preview above takes
-    // back over rather than keeping a 60fps render loop nobody can run smoothly.
-    if (lowEnd) {
+    // Reduced motion is honoured; the low-end tier deliberately is NOT, and that is the
+    // opposite of what this used to do.
+    //
+    // Gating the canvas on `lowEnd` reads as obvious caution — a WebGL scene is the biggest
+    // thing on the page, so weak devices should not run it — but measurement on the actual
+    // hardware says the reverse. On the machines that stutter here (a low-power laptop and a
+    // Dimensity 8200 phone), this scene is the one effect that stays perfectly smooth, while
+    // the CSS lighting stutters badly. That is not a coincidence: this is pure GPU work, and
+    // their GPUs are fine. What they cannot afford is main-thread rasterization —
+    // `mask-composite`, wide shadow blurs, live backdrop filters — none of which a WebGL
+    // canvas performs at all.
+    //
+    // So the low-end tier switching this off spent the device's one comfortable effect to
+    // buy nothing, and it did it invisibly: the scene simply became flat images the moment
+    // the jank probe fired. Weak hardware keeps the 3D cards; it is the painted effects that
+    // get the cheaper tier.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setShowCanvas(false);
       return;
     }
@@ -50,7 +59,7 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
         window.clearTimeout(id);
       }
     };
-  }, [lowEnd]);
+  }, []);
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-16 sm:mt-24 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-10">

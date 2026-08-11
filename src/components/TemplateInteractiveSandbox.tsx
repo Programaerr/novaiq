@@ -101,6 +101,23 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   language = 'ar',
   currency = 'IQD',
 }) => {
+  // Declares "a template demo is on screen" for as long as this is mounted, which the cosmic
+  // background reads to take itself out of the render tree entirely (see `html[data-demo]` in
+  // index.css).
+  //
+  // A demo fills the viewport, so every layer of that background — two animating star fields,
+  // the glow pair, the blurred photo — was being rendered underneath something completely
+  // opaque. Not merely invisible: still animated, still composited, every frame, competing
+  // with the very demo it was hidden behind. Set here rather than at either call site because
+  // this component is what both of them mount: the standalone `?preview=` page and the modal
+  // TemplateGrid opens, so declaring it once covers both and cannot fall out of step.
+  useEffect(() => {
+    document.documentElement.dataset.demo = 'true';
+    return () => {
+      delete document.documentElement.dataset.demo;
+    };
+  }, []);
+
   // The one place every price in this component should be formatted through — a language-
   // matched IQD label by default, converting to USD only if the customer explicitly chose it.
   const price = (amountIQD: number) => formatPrice(amountIQD, language, currency);
@@ -1638,12 +1655,17 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           Star layers sit on this outer, non-scrolling wrapper rather than inside the scrollable
           pane itself — as a descendant of an overflow-auto box they'd scroll away with the
           content instead of reading as a fixed backdrop the way CosmicBackground's do site-wide. */}
-      <div className="relative flex-1 min-h-0 w-full overflow-hidden">
-        <div className="star-layer star-layer--far" />
-        <div className="star-layer star-layer--near" />
+      {/* Flat black behind the device frames, deliberately. This stage exists to be judged
+          against — a customer deciding whether they like a template should see it on a neutral
+          ground, not floating over a drifting starfield that is competing for their eye and
+          tinting their impression of the design. It also removes real work from exactly the
+          moment the demo needs it most: the two star layers here animated continuously behind
+          a preview that covers them, and the backdrop-blur re-sampled whatever moved beneath
+          it every frame. Both are gone; the demo now has the whole frame to itself. */}
+      <div className="relative flex-1 min-h-0 w-full overflow-hidden bg-black">
         <div
           data-lenis-prevent
-          className={`relative z-10 h-full w-full flex flex-col items-center justify-start p-2 sm:p-4 bg-black/30 backdrop-blur-sm ${
+          className={`relative z-10 h-full w-full flex flex-col items-center justify-start p-2 sm:p-4 ${
             viewport === 'full' ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'
           }`}
         >
@@ -1654,6 +1676,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         ) : (
           <ResponsivePreview
             width={VIEWPORT_PRESETS[viewport].width}
+            maxHeight={VIEWPORT_PRESETS[viewport].maxHeight}
             src={livePreviewSrc}
             title={`معاينة حية: ${template.title}`}
             themeColor={themeColor}

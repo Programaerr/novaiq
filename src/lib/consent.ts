@@ -21,6 +21,3 @@ export function setConsentStatus(status: ConsentStatus) {
   }
 }
 
-export function isTrackingAllowed(): boolean {
-  return getConsentStatus() === 'accepted';
-}

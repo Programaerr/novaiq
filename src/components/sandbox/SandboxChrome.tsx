@@ -9,10 +9,16 @@ import { Search, X } from 'lucide-react';
 // of screen actually gets.
 export type ViewportChoice = 'full' | 'desktop' | 'tablet' | 'mobile';
 
-export const VIEWPORT_PRESETS: Record<Exclude<ViewportChoice, 'full'>, { label: string; width: number }> = {
-  desktop: { label: 'كمبيوتر', width: 1280 },
-  tablet: { label: 'تابلت', width: 834 },
-  mobile: { label: 'جوال', width: 390 },
+// Width is the viewport the template is genuinely laid out at. Height is a *ceiling*, not a
+// fixed size — the real height of that class of device, used only to stop the frame growing
+// past it. See `frameHeight` below for what that ceiling does and why it matters.
+export const VIEWPORT_PRESETS: Record<
+  Exclude<ViewportChoice, 'full'>,
+  { label: string; width: number; maxHeight: number }
+> = {
+  desktop: { label: 'كمبيوتر', width: 1280, maxHeight: 800 },
+  tablet: { label: 'تابلت', width: 834, maxHeight: 1112 },
+  mobile: { label: 'جوال', width: 390, maxHeight: 844 },
 };
 
 /**
@@ -26,10 +32,11 @@ export const VIEWPORT_PRESETS: Record<Exclude<ViewportChoice, 'full'>, { label: 
  */
 export const ResponsivePreview: React.FC<{
   width: number;
+  maxHeight: number;
   src: string;
   title: string;
   themeColor: string;
-}> = ({ width, src, title, themeColor }) => {
+}> = ({ width, maxHeight, src, title, themeColor }) => {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [stage, setStage] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
@@ -55,18 +62,45 @@ export const ResponsivePreview: React.FC<{
     );
   }, [themeColor, width]);
 
-  // Only ever scales down, and only when the chosen width genuinely doesn't fit the panel —
-  // so a phone preview on a desktop stays pixel-exact.
+  // Scale is set by the WIDTH alone, and only ever downwards — so a phone preview on a desktop
+  // stays pixel-exact. Height is not part of the fit: scaling to fit both axes was tried and
+  // letterboxed the desktop view on a desktop into a short wide sliver, because it shrank the
+  // frame to fit 800px of height that the panel had plenty of room for. The height question is
+  // answered separately, by the ceiling below, which only ever binds when it needs to.
   const scale = stage.w > 0 ? Math.min(stage.w / width, 1) : 1;
-  const frameHeight = stage.h > 0 ? stage.h / scale : 0;
+
+  // The frame fills the stage, but never grows past the real height of the device it is
+  // imitating. One `min` settles both cases that used to need different treatment:
+  //
+  //  · On a wide screen the scale is near 1, so `stage.h / scale` is roughly the stage's own
+  //    height and lands well under the ceiling. The frame fills the panel and scrolls for the
+  //    rest, exactly as before — a website preview, not a device photo.
+  //  · On a phone showing the desktop preset the scale is ~0.27, so `stage.h / scale` asks for
+  //    something near 1300px tall. The ceiling cuts that to 800, and 1280x800 is both a real
+  //    desktop viewport and barely half the pixels. That is what makes it render at all: the
+  //    uncapped frame was ~2 million pixels to lay out and rasterize for a thumbnail a few
+  //    hundred pixels wide, and mobile browsers cap frame size and simply dropped it, which is
+  //    why every preset came up blank on a phone.
+  //
+  // It also produces exactly the shape the preview should have: capped, the box takes the
+  // device's own proportions, so picking "كمبيوتر" on a phone gives a wide landscape rectangle
+  // that reads as a computer screen instead of a phone-shaped column.
+  const frameHeight = stage.h > 0 ? Math.min(stage.h / scale, maxHeight) : 0;
 
   return (
     <div className="flex-1 min-h-0 w-full flex flex-col items-center gap-2">
-      <div ref={stageRef} className="flex-1 min-h-0 w-full flex items-start justify-center">
+      {/* items-center, and a floor under the stage. Centred so a frame shorter than the panel
+          (the capped case above) sits in the middle rather than clinging to the top, and
+          min-h-0 alone is not enough of a guarantee on a phone, where the surrounding chrome
+          stacks taller and can squeeze a flex child to nothing. */}
+      <div ref={stageRef} className="flex-1 min-h-50 w-full flex items-center justify-center">
         {stage.h > 0 && (
           <div
-            className="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-[#05070c]"
-            style={{ width: width * scale, height: stage.h }}
+            className="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-black"
+            // Derived from the frame, never from the stage: the box is exactly as tall as the
+            // scaled frame inside it, so nothing can extend past the panel and disappear under
+            // the action bar below it.
+            style={{ width: width * scale, height: frameHeight * scale }}
           >
             <iframe
               ref={iframeRef}
@@ -80,6 +114,19 @@ export const ResponsivePreview: React.FC<{
                 );
               }}
               style={{
+                // Pinned to the box's physical top-left, which is the same corner
+                // `transform-origin: top left` scales from. As a normal in-flow block it was
+                // not: the frame is deliberately wider than the box that holds it (390px of
+                // site inside a 343px box, then scaled down to fit), and an overflowing block
+                // in an RTL context is laid out from the *right* edge, so its left edge sat at
+                // a negative offset — 343 - 390 = -47px. Scaling from a corner that is already
+                // 47px off-screen drags the whole preview left with it, which clipped the
+                // start of every row and left a gap down the other side. Taking it out of flow
+                // makes the origin the box's corner in every writing direction, so what is
+                // rendered is exactly the frame, aligned to the frame.
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 width,
                 height: frameHeight,
                 transform: `scale(${scale})`,

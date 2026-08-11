@@ -751,99 +751,23 @@
   to { transform: translate3d(-380px, 300px, 0); }
 }
 
-/* Low-end tier (set once in main.tsx by applyDeviceClass). The star field is two 200%-of-
-   viewport layers animating transform on the compositor for the entire session — fine on a
-   real GPU, but on a weak one it is a permanent render pipeline stealing bus bandwidth from
-   scroll for a parallax nobody notices after the first second. Freezing it leaves the exact
-   same field (the drift is one 300px tile over 220s, i.e. ~1.4px/frame of nearly-static
-   motion) with a static starfield that reads identically. */
-html[data-device='low'] .star-layer--far,
-html[data-device='low'] .star-layer--near {
-  animation: none;
-}
-
-/* The rest of the low-end tier. Two kinds of reduction, both dropping the per-frame work
-   while keeping the resting look identical:
-
-   · FREEZE infinite loops that nobody is watching closely — the hero glow pulse, the
-     About panel's glinting border, the roadmap drift, the demo-card wave. A frozen frame
-     of each is visually indistinguishable from its animated self.
-   · STRIP repaint-heavy hover transitions (box-shadow/background/color fades re-rasterize
-     the element every hover frame) down to the compositor-only transform lift, and pause
-     the rotating beam gradients. The surface swap still snaps instantly, so every hover
-     still reads — just without renting the whole frame while it fades. */
-html[data-device='low'] .animate-pulse-glow {
-  animation: none;
-  opacity: 0.45;
-}
-
-html[data-device='low'] .solid-shimmer::after {
-  animation: none;
-  opacity: 0.55;
-}
-
-html[data-device='low'] .corner-sweep::before {
-  display: none;
-}
-
-html[data-device='low'] .product-card-wave,
-html[data-device='low'] .milestone-card {
-  animation: none;
-}
-
-html[data-device='low'] .filter-pill-beam::before,
-html[data-device='low'] .nq-btn-beam::before {
-  animation: none;
-}
-
-html[data-device='low'] .filter-pill-btn,
-html[data-device='low'] .nq-btn,
-html[data-device='low'] .search-cosmic,
-html[data-device='low'] .white-btn-glow {
-  transition: transform 250ms ease;
-}
-
-/* The hero wheel keeps its real 3D spin, just over a shorter glide — less time the GPU
-   spends rasterizing the preserve-3d turn, same destination and same look when it rests. */
-html[data-device='low'] .wheel3d-ring {
-  transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-/* The coverflow image's hover zoom re-rasterizes the card's own (previously promoted)
-   layer texture per hover frame; on weak hardware it snaps instead. */
-html[data-device='low'] .tpl-cover-img {
-  transform: none !important;
-  transition: none !important;
-}
-
-/* backdrop-filter is the heaviest single ask a phone GPU faces — every frosted panel
-   re-samples the content sliding beneath it. Stripped on the low tier: the panels keep
-   their translucent fill and border, so they still read as glass, just without the
-   per-frame Gaussian sampling. */
-html[data-device='low'] [class*='backdrop-blur'] {
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
 /* Engineered navbar glass (.glass-bar). The original design used `backdrop-filter: blur()`
    directly on the floating chrome — but a backdrop-filter on a fixed header re-samples and
    re-blurs the content sliding beneath it on every scroll frame, which is exactly the kind of
    per-frame rasterization cost that reads as stutter on a mid-range GPU (the repro device, a
    Dimensity 8200, had an 8-core CPU and still hit it — the CPU was never the bottleneck).
 
-   Rework — two tiers instead of one:
-   · .glass-bar -- the universal static material, a translucent near-black base with a top-edge
-     catch-light and a faint inner glow, painted once and never invalidated during scroll.
-     This is what low-end devices get: over the site's near-black cosmic background it is
-     visually indistinguishable from a real blur (there is nothing colourful behind the bar to
-     smear), at zero per-frame cost. Always safe, so it is the default.
-   · .glass-bar--blur -- the same material, plus a real frosted backdrop-filter, enabled ONLY
-     when the device was not classified low-end by applyDeviceClass(). The blur region is the
-     slim pill itself (max-w-7xl, a couple of dozen px tall) — a trivially small re-sample a
-     real GPU absorbs while scrolling, which is why it can stay live rather than being frozen.
-     On a weak GPU the [data-device='low'] selector simply removes it and the bar looks the
-     same. Border, radius and drop shadow stay in the JSX (Tailwind), so these classes only
-     ever set background + inset highlights + the blur itself. */
+   The material is what does the work, not the blur:
+   · .glass-bar -- a translucent near-black base with a top-edge catch-light and a faint inner
+     glow, painted once and never invalidated during scroll. Over this site's near-black cosmic
+     background it is already close to indistinguishable from a real blur, because there is
+     nothing colourful behind the bar for a blur to smear. It carries the look on its own.
+   · .glass-bar--blur -- the same material plus a real frosted backdrop-filter on top, for the
+     genuine frosted read. The blur region is only the slim pill itself (max-w-7xl, a couple of
+     dozen px tall), so the per-frame re-sample stays small enough to keep live rather than
+     having to be withheld from anyone.
+   Border, radius and drop shadow stay in the JSX (Tailwind), so these classes only ever set
+   background + inset highlights + the blur itself. */
 .glass-bar,
 .glass-bar--blur {
   background:
@@ -854,11 +778,14 @@ html[data-device='low'] [class*='backdrop-blur'] {
     inset 0 0 24px rgba(255, 255, 255, 0.02);
 }
 
-/* Real frosted blur, only on devices that can carry it. Reduced-motion already maps to
-   data-device='low' in deviceQuality.ts, so a user who asked for less motion gets the static
-   material here too. */
+/* Real frosted blur, wherever the browser supports it. It used to be withheld from devices
+   the old capability classifier had labelled weak — but that classifier latched on the first
+   momentary hitch and never let go, so one image decode during load could strip the glass off
+   the navbar for the rest of the visit. The blur region here is the slim pill itself, a couple
+   of dozen px tall, which is a trivially small re-sample; the costs worth chasing were never
+   this one. */
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  html:not([data-device='low']) .glass-bar--blur {
+  .glass-bar--blur {
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     backdrop-filter: blur(14px) saturate(140%);
   }
@@ -899,8 +826,59 @@ html[data-device='low'] [class*='backdrop-blur'] {
   animation: page-in 0.3s ease-out both;
 }
 
+/* Everything stops while nobody can see it. Set by usePauseOffscreenWork() when the tab goes
+   to the background, the window is minimised or another window takes focus — see that hook
+   for why the always-mounted chrome (the cosmic background's star drift above all) was the
+   thing still burning frames with no viewer.
+
+   `paused`, not `none`: a paused animation keeps its exact current position and continues
+   from it, so coming back to the tab looks like the page was waiting rather than like it
+   restarted or jumped. The browser schedules no tick, no paint and no composite for a paused
+   animation, so this genuinely stops the work rather than hiding it.
+
+   The universal selector is safe here specifically because it is not a per-frame cost: it is
+   evaluated on the two occasions the flag flips, not while anything is running. Pseudo
+   elements are listed explicitly because most of this site's motion lives on them — the
+   reveal light, the button beams, the shimmer.
+
+   Transitions are deliberately left alone. They are responses to interaction, and there is
+   no interaction happening while the window is hidden. */
+/* Named, not `*`. A universal pause was tried and it was a genuine outage: entry animations
+   here open from `opacity: 0` and carry `animation-fill-mode: both`, so pausing one before it
+   has run leaves the element pinned at zero opacity — the page does not slow down, it
+   disappears. Listing the infinite decorative loops instead makes that impossible by
+   construction, and loses nothing: those loops are the only animations that were still
+   running with no viewer. Everything else here is a one-shot that finishes in under a second
+   and is not worth the risk of freezing mid-flight. */
+html[data-idle] .star-layer,
+html[data-idle] .animate-pulse-glow,
+html[data-idle] .solid-shimmer::after,
+html[data-idle] .product-card-wave,
+html[data-idle] .milestone-card,
+html[data-idle] .nq-btn-beam::before,
+html[data-idle] .filter-pill-beam::before,
+html[data-idle] .navbar-dot,
+html[data-idle] .rv::before {
+  animation-play-state: paused;
+}
+
+/* A template demo is on screen (flag set by TemplateInteractiveSandbox while it is mounted).
+   The demo covers the whole viewport with its own opaque page, so the cosmic background is
+   not dimmed or partly seen behind it — it is not seen at all, while still animating two star
+   fields, two glow layers and a blurred photo underneath it.
+
+   `display: none` rather than `visibility` or opacity: this has to stop the work, not hide
+   the result, and only display removes the subtree from rendering outright. Nothing is lost
+   visually because the page wrappers on both routes into a demo are already `bg-black`, which
+   is exactly the flat black the background resolves to anyway once its layers are gone. The
+   demo then has the frame entirely to itself, which is the whole point — a customer judging a
+   template should be judging the template, not watching it compete with scenery behind it. */
+html[data-demo] .cosmic-bg {
+  display: none;
+}
+
 /* Low-end device lag fix: sections below the first viewport were being painted,
-   animated (corner-sweep, star drift, reveal, milestones) and composited at page load
+   animated (star drift, reveal, milestones) and composited at page load
    even though the visitor had not scrolled to them — doing the whole page's work up
    front is what made weak devices stutter while scrolling down. `content-visibility:auto`
    makes the browser skip rendering/animation of offscreen content entirely and only do
@@ -1016,25 +994,75 @@ html[data-device='low'] [class*='backdrop-blur'] {
   position: relative;
 }
 
-.reveal-face::before {
-  content: '';
+/* ─────────────────────────────────────────────────────────────────────────────
+   The reveal light, rebuilt so that moving it costs no painting at all.
+
+   THE PROBLEM THIS REPLACES. Every version before this drew the light as
+   `radial-gradient(... at var(--rx) var(--ry) ...)` and moved it by rewriting those
+   two custom properties each frame. Moving a gradient's centre is not a cheap
+   operation: it invalidates the whole background, so the browser regenerates the
+   entire gradient across the element and — for the ring, which is carved to an
+   outline by a `mask-composite` pair — re-applies that mask over the result. None of
+   that is GPU-accelerated. It runs on the main thread, on every frame the pointer
+   moves, once per card. That is why every lit surface on this site stuttered, and why
+   it stuttered even on hardware with plenty of GPU headroom: the GPU was never being
+   asked. Meanwhile the WebGL scene in the hero, which is pure GPU work, stayed
+   perfectly smooth on the very same machines — the clearest possible evidence of
+   where the cost actually was.
+
+   THE FIX. The gradient never moves and never changes, so it is rasterized exactly
+   once and then left alone. It lives on `::before` as a fixed-size disc, and the
+   pointer moves that disc with `transform: translate3d(...)`. A transform on a
+   promoted layer is a compositor operation — the texture is reused as-is and simply
+   drawn at a new offset. There is no repaint per frame anywhere in this effect now.
+
+   `.rv` is the clipping shell: it owns the card's shape (border-radius: inherit) and
+   its `overflow: hidden` is what keeps the disc from spilling past the card's edges.
+   It is static, so the clip is established once. --rx/--ry come from useRevealGroup
+   and are inherited from the card, so both layers read one shared pointer position.
+   ────────────────────────────────────────────────────────────────────────────── */
+.rv {
   position: absolute;
   inset: 0;
-  z-index: 0;
   border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.rv::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* Anchored so the disc's centre — not its corner — lands on the pointer, using a
+     static negative margin rather than a translate(-50%) inside the transform: the
+     transform belongs entirely to the pointer, and sharing it would mean recomputing
+     the centring offset on every move too. */
+  width: 560px;
+  height: 560px;
+  margin: -280px 0 0 -280px;
+  transform: translate3d(var(--rx, 50%), var(--ry, 50%), 0);
+  /* The hint is the point of the whole design: it keeps the disc on its own layer, so
+     the per-frame update is a compositor transform and never a repaint. */
+  will-change: transform;
+}
+
+.reveal-group.is-live .rv {
+  opacity: 1;
+}
+
+/* Surface wash. `closest-side` on a square element is a circle of exactly half its
+   width, so the disc's falloff is defined by its own size and needs no length maths
+   tying it to the card it happens to be over. */
+.rv--face::before {
   background: radial-gradient(
-    circle at var(--rx, 50%) var(--ry, 50%),
+    closest-side,
     rgba(255, 255, 255, 0.13),
     rgba(255, 255, 255, 0.05) 45%,
     rgba(255, 255, 255, 0) 100%
   );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.reveal-group.is-live .reveal-face::before {
-  opacity: 1;
 }
 
 
@@ -1108,7 +1136,7 @@ html[data-device='low'] [class*='backdrop-blur'] {
    rasterized once, and the fade becomes a blend of a ready texture rather than a repaint that
    drags the card's animated layer down with it. Scoped to these cards on purpose — everywhere
    else the ring shares an element with nothing, and does not need a layer of its own. */
-.milestone-card.reveal-border::after {
+.milestone-card .rv {
   will-change: opacity;
 }
 
@@ -1116,31 +1144,6 @@ html[data-device='low'] [class*='backdrop-blur'] {
   .milestone-card {
     animation: none;
   }
-}
-
-/* Corner sweep — a white light band that travels from the top-left corner to the
-   bottom-right corner and loops, automatically, independent of text direction (it's a
-   screen-space diagonal, not a logical start/end). */
-@keyframes corner-sweep {
-  0% { transform: translate(-100%, -100%); }
-  100% { transform: translate(100%, 100%); }
-}
-
-.corner-sweep {
-  position: relative;
-  overflow: hidden;
-}
-
-.corner-sweep::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(135deg, transparent 47%, rgba(255, 255, 255, 0.55) 50%, transparent 53%);
-  animation: corner-sweep 4s linear infinite;
-  pointer-events: none;
 }
 
 /* Navbar wordmark: NAME → mark → "Design" — both text pieces are hidden until hover, then
@@ -1387,68 +1390,76 @@ html[data-device='low'] [class*='backdrop-blur'] {
   position: relative;
 }
 
-.reveal-border::after {
-  content: '';
-  position: absolute;
-  /* -1px, not 0. An absolutely positioned child is laid out against the *padding* box, so
-     inset:0 drew the ring one pixel inside the card's own 1px border — a bright line beside
-     a dark line rather than on it, which is what made the unlit sides look wrong. Pulling it
-     out by the border width puts the ring exactly on the border box. */
-  inset: -1px;
-  border-radius: inherit;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 260ms ease;
-}
+/* The ring's own geometry now lives on `.rv--ring` above — inset:-1px, not 0, because an
+   absolutely positioned child is laid out against the *padding* box, so inset:0 drew the
+   ring one pixel inside the card's own 1px border: a bright line beside a dark line rather
+   than on it, which is what made the unlit sides look wrong. Pulling it out by the border
+   width puts the ring exactly on the border box. */
 
 /* The ring itself. Same trick as .filter-pill-beam — the mask pair (full box minus content
    box) erases everything but the 1px padding strip, so the gradient survives only on the
    outline. */
-.reveal-border::after {
-  z-index: 1;
+/* The ring. The mask pair (full box minus content box) erases everything but the 1px
+   padding strip, so whatever is behind it survives only on the outline.
+
+   The mask itself is unchanged from the old version, and that is deliberate: a mask is
+   not expensive to *have*, it is expensive to re-apply, and it only has to be re-applied
+   when what it is masking changes. Here nothing under it ever changes — the floor colour
+   is a flat rgba and the moving light is a separate composited layer — so the mask is
+   resolved once and then reused. Previously the gradient beneath it was rewritten every
+   frame, which forced the whole mask-composite pass to run again each time, and that is
+   the cost that has gone. */
+.rv--ring {
+  inset: -1px;
   padding: 1px;
-  /* This is the gradient a *neighbouring* card gets, and the pointer is never closer to it
-     than the width of the card it is actually on plus the grid gap — from the middle of a
-     286px card that is 167px away, which a 170px radius reached with exactly nothing, hence
-     240px. The last stop is a floor, not `transparent`: past the gradient's own radius that
-     colour continues to the far corner, so the floor is literally what the unlit three
-     quarters of the outline are drawn in. */
-  background: radial-gradient(
-    240px circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 255, 255, 0.28) 42%,
-    rgba(255, 255, 255, 0.14) 100%
-  );
+  z-index: 1;
+  /* The floor. The outline stays drawn the whole way round even where the pointer is
+     nowhere near it, so a card reads as having a border rather than a three-quarters
+     missing one. Flat and static — one paint, ever. It replaces the old gradient's
+     trailing colour stop, which achieved the same thing but had to be regenerated with
+     the rest of the gradient on every move. */
+  background: rgba(255, 255, 255, 0.14);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
 }
 
-.reveal-group.is-live .reveal-border::after {
-  opacity: 1;
-}
-
-/* The hovered card: brightest where the pointer is, but the outline stays *drawn the whole
-   way round*. Those are two separate requirements and the earlier 0.04 floor only met the
-   first — measured on a roadmap card with the pointer at its top corner, the lit stretch
-   came out at luminance 255 against 72 for the other three sides, and next to a 255 edge a
-   72 one does not read as dim, it reads as missing. The floor is now high enough to be
-   unambiguously a line (~117) while the peak still triples it, which keeps the light clearly
-   travelling along the border rather than switching the whole card on at once — the failure
-   mode of the old never-below-0.38 version this replaced. */
-/* `.is-touched` is the same statement as `:hover` for a finger, which has none — the hook
-   works out which card the pointer is inside and says so. Without it the card under the
-   finger would light like one of its own neighbours. */
-.reveal-border:hover::after,
-.reveal-border.is-touched::after {
+.rv--ring::before {
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
   background: radial-gradient(
-    230px circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 1),
-    rgba(255, 255, 255, 0.55) 40%,
-    rgba(255, 255, 255, 0.28) 100%
+    closest-side,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0.28) 55%,
+    rgba(255, 255, 255, 0) 100%
   );
 }
+
+/* The hovered card: brighter floor and a brighter travelling light, so the lit stretch
+   still clearly outruns the rest of the outline rather than switching the whole card on
+   at once. Both are plain colour swaps on hover — one repaint when the pointer arrives,
+   not one per frame while it moves.
+
+   `.is-touched` is the same statement as `:hover` for a finger, which has none — the hook
+   works out which card the pointer is inside and says so. Without it the card under the
+   finger would light like one of its own neighbours. */
+.reveal-border:hover .rv--ring,
+.reveal-border.is-touched .rv--ring {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.reveal-border:hover .rv--ring::before,
+.reveal-border.is-touched .rv--ring::before {
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

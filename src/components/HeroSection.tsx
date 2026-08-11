@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ShieldCheck, Clock, Globe2, Award, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useLowEndDevice } from '../lib/deviceQuality';
 
 const WHEEL_STEP = 90;
 
@@ -62,7 +61,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
   const wheelRef = useRef<HTMLDivElement | null>(null);
   const rotRef = useRef(0);
   const dragRef = useRef<{ startX: number; startRot: number } | null>(null);
-  const lowEnd = useLowEndDevice();
 
   const writeRotation = (deg: number) => {
     rotRef.current = deg;
@@ -98,19 +96,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
   };
 
   // Auto-advance one face every 5s. Reads the ref, so nothing re-renders for it. Paused
-  // while dragging and skipped entirely under reduced-motion or on a low-end device — there
-  // the wheel stays put until the visitor turns it, keeping the preserve-3d glide off the
-  // animation path for anyone who will only see it jank. Depends on `tick` so a manual turn
-  // restarts the clock, the same "don't auto-advance right on top of my input" the old
-  // rotation-state version gave us.
+  // while dragging, and skipped under reduced-motion — a stated preference, so it is
+  // honoured. Depends on `tick` so a manual turn restarts the clock, the same "don't
+  // auto-advance right on top of my input" the old rotation-state version gave us.
+  //
+  // Runs on every device. The turn is a rotateY on a preserve-3d ring — compositor work of
+  // exactly the kind even modest hardware handles well, which is the same reason the hero's
+  // WebGL cards stay smooth where painted CSS effects do not. It used to be switched off
+  // whenever a capability probe decided the machine was weak, and the visible result was
+  // simply that the wheel stopped turning by itself, permanently, after one stray hitch.
   useEffect(() => {
-    if (isDragging || lowEnd) return;
+    if (isDragging) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const id = window.setInterval(() => {
       writeRotation(snapToStep(rotRef.current) + WHEEL_STEP);
     }, 5000);
     return () => window.clearInterval(id);
-  }, [isDragging, lowEnd, tick]);
+  }, [isDragging, tick]);
 
   return (
     <section className="relative pt-4 pb-8 md:pt-6 md:pb-10 overflow-hidden">

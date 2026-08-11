@@ -31,7 +31,7 @@ export const CosmicBackground: React.FC<CosmicBackgroundProps> = ({
   const offsets = SECTION_GLOW_OFFSETS[activeSection] ?? SECTION_GLOW_OFFSETS.hero;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black select-none">
+    <div className="cosmic-bg fixed inset-0 pointer-events-none z-0 overflow-hidden bg-black select-none">
 
       {/* Dynamic Background Image Layer (fades in while inspecting a specific template) */}
       <div

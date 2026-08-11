@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
-import { useLowEndDevice } from '../lib/deviceQuality';
 import {
   Search,
   CheckCircle2,
@@ -163,12 +162,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // Drives the flat strip's per-card translateX step — narrower on phones so the smaller card
   // doesn't overlap its neighbours (a fixed desktop-sized offset would).
   const [isMobile, setIsMobile] = useState(false);
-  // Live tier (hardware guess at startup, runtime jank probe after load) — a weak GPU gets the
-  // flat slide even on desktop. The rack's per-frame 3D work (a perspective projection, each
-  // card's own translateZ recession, and depth-sorted repainting) is exactly what stalls an
-  // integrated GPU mid-drag; the flat strip is pure 2D translateX and survives any hardware.
-  // A hook, not a one-shot bool, so a late downgrade hands the grid over mid-session.
-  const isLowEnd = useLowEndDevice();
+  // Only the breakpoint decides the geometry now — the device-tier hook that used to also
+  // force the flat strip onto weak desktops is gone. The cost it was avoiding turned out to be
+  // dominated by two other things (a permanently-promoted layer instead of one rebuilt
+  // mid-drag, and a wide invisible shadow), both fixed below, and gating on the tier meant a
+  // late downgrade swapped the whole carousel's geometry out from under a visitor mid-session.
+  // Phones still take the flat strip, where the reason is layout rather than horsepower.
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
     setIsMobile(mq.matches);
@@ -176,7 +175,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
-  const flatGeometry = isMobile || isLowEnd;
+  const flatGeometry = isMobile;
   const flatStepPx = isMobile ? FLAT_STEP_PX_MOBILE : FLAT_STEP_PX_DESKTOP;
   const stepPx = flatGeometry ? flatStepPx : COVERFLOW_STEP_PX;
 
@@ -704,26 +703,33 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
                   transform,
-                  // Promotes each card to its own compositor layer, permanently, so the
-                  // card's render — masked, shadowed, image-filled — is rasterized once and
-                  // then moved. Without the hint the browser re-rasterizes every card inside
-                  // the rotating track on each drag frame (the track itself is deliberately
-                  // NOT promoted: its children change opacity constantly, and a promoted
-                  // parent would re-bake the whole fan into one texture per change). This is
-                  // the same lesson the milestone-card ring learned: promote the moving leaf,
-                  // not the animated parent. Two transitions fight on this element, transform
-                  // (0.9s) and opacity (0.3s), so both properties are named.
+                  // Promotes the card to its own compositor layer so its render — masked,
+                  // shadowed, image-filled — is rasterized once and then simply moved.
+                  // Without the hint the browser re-rasterizes every card inside the rotating
+                  // track on each drag frame (the track itself is deliberately NOT promoted:
+                  // its children change opacity constantly, and a promoted parent would
+                  // re-bake the whole fan into one texture per change). Same lesson the
+                  // milestone-card ring learned: promote the moving leaf, not the animated
+                  // parent. Two transitions fight on this element, transform (0.9s) and
+                  // opacity (0.3s), so both properties are named.
                   //
-                  // Not on low-end devices: there every promoted layer is a texture the weak
-                  // GPU must composite at all times — the trade flips to pure cost. Two
-                  // transitions fight on this element, transform (0.9s) and opacity (0.3s),
-                  // so both are named.
-                  willChange: isLowEnd ? undefined : 'transform, opacity',
+                  // Constant for the whole life of the card — deliberately NOT gated on
+                  // anything that changes as cards move, which was tried both ways (on
+                  // isVisible, and on the device tier) and made the drag far worse. Those flags
+                  // flip on the very step commits a drag is made of, and changing will-change
+                  // is what creates and destroys the compositor layer. Destroying one throws
+                  // its texture away; creating one forces the card — image, 28px-rounded mask,
+                  // border — to be rasterized again, synchronously, mid-gesture. Several of
+                  // those in the same frame is a stall long enough to swallow the animation
+                  // whole and leave the card appearing to teleport. Holding a texture that is
+                  // never looked at is cheap; building one during a gesture is not.
+                  willChange: 'transform, opacity',
                   // Depth already does most of the ranking in the rack — the side cards are
                   // turned and set back, so they read as further away without help. Opacity
-                  // only has to finish the job, hence 0.7/0.4 rather than a hard fade: the
-                  // reference's own side cards are dimmer than its centre one but still fully
-                  // legible pictures, not ghosts.
+                  // only has to finish the job, hence 0.7/0.4 rather than the harder 0.55/0.28
+                  // fade this carried under the old flat geometry, where nothing but opacity
+                  // separated the cards: the reference's own side cards are dimmer than its
+                  // centre one but still fully legible pictures, not ghosts.
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.7 : cappedDistance === 2 ? 0.4 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
@@ -785,9 +791,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     // note there on why the two must agree. Also on its own layer, like the
                     // card holding it: it animates its own scale for 0.9s on every commit,
                     // and without the hint that glide would re-rasterize the image inside
-                    // the card's layer texture on every frame of the animation. Skipped on
-                    // low-end devices, where every promoted layer is pure cost.
-                    willChange: isLowEnd ? undefined : 'transform',
+                    // the card's layer texture on every frame of the animation. Constant for
+                    // the same reason as the card above: a will-change that flips mid-drag
+                    // rebuilds the layer instead of reusing it.
+                    willChange: 'transform',
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"
@@ -814,9 +821,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // blanks and re-appears. Constant styling means the layer is created once
                   // and simply moves, which is also why the earlier five-simultaneous-blurs
                   // stutter on real phones doesn't come back. transition-[border-color], not
-                  // transition-colors, for the same family of reason: only the hover border is
-                  // meant to fade, and a broader transition would animate the surface too.
-                  className="relative h-full rounded-[28px] bg-white/5 border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5"
+                  // transition-colors, for the same family of reason: only the hover border
+                  // is meant to fade, and a broader transition would animate the surface too.
+                  // No shadow-2xl here any more. It is `0 25px 50px -12px rgb(0 0 0/0.25)` —
+                  // a 50px-radius blur of a 25%-opaque *black* shadow, cast onto a near-black
+                  // cosmic background, so what it actually contributes on screen is nothing
+                  // anyone can see. What it cost was real: a blur that wide has to be
+                  // re-rasterized around the full 330x480 card every time the card's layer is
+                  // re-baked, which is on every scale change — i.e. several cards at once, on
+                  // every step of a drag. That is the single most expensive thing this card
+                  // was asking for, in exchange for invisible output.
+                  className="relative h-full rounded-[28px] bg-white/5 border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group p-2 sm:p-2.5"
                 >
                   {/* The photo sits inset inside the frame's own padding — a bezel margin all
                       round, like a phone case holding its screen — rather than bleeding to the

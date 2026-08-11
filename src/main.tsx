@@ -2,12 +2,10 @@ import {StrictMode, Suspense, lazy} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
-import { applyDeviceClass } from './lib/deviceQuality.ts';
 import './index.css';
 
 // Classify the GPU tier before first paint so the stylesheet can lighten
 // compositor-heavy effects on weak devices without waiting on React at all.
-applyDeviceClass();
 
 // Installable-app worker. Registered only in production builds (dev serves /sw.js anyway,
 // but prod is where the cache-first speed-up on a phone actually pays off). Runtime-cached —
