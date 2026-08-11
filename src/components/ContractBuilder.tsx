@@ -13,7 +13,9 @@ import {
   ArrowRight,
   FileCheck,
   PenLine,
-  Pipette
+  Pipette,
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
@@ -205,6 +207,31 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // contract below, which is why it is derived the same way rather than typed out again.
   const deliveryTimelineWeeks = isCustomProject ? 8 : template.deliveryWeeks;
   const terms = contractTerms(lang, deliveryTimelineWeeks);
+
+  // Live verdict on the phone field, so a wrong number is caught as it is typed rather than
+  // only when the finished contract is submitted.
+  //
+  // The prefix test compares "07" against *only as many characters as have been typed*, which
+  // is what separates "wrong" from "not finished yet": "0" and "07" are someone part-way
+  // through a correct number and must not go red, while "05" or "1" can never become a valid
+  // Iraqi mobile no matter what follows, so there is no reason to make them type nine more
+  // digits and press submit to find that out. The full-length check then catches anything the
+  // prefix alone cannot.
+  const phoneError: string | null = (() => {
+    if (!phone) return null;
+    if (!'07'.startsWith(phone.slice(0, 2))) {
+      return isAr ? 'رقم غير عراقي — يجب أن يبدأ بـ 07' : 'Not an Iraqi number — it must start with 07';
+    }
+    if (phone.length === 11 && !isValidIraqiPhone(phone)) {
+      return isAr ? 'رقم غير صالح' : 'Invalid number';
+    }
+    return null;
+  })();
+
+  // Everything that must be true before the contract can be submitted at all. Kept as one
+  // expression so the disabled button and handleSubmit's guards cannot disagree about what
+  // "ready" means.
+  const canSubmit = hasSignature && agreedToTerms && isValidIraqiPhone(phone);
 
   const toggleSpec = (specId: string) => {
     if (selectedSpecIds.includes(specId)) {
@@ -473,11 +500,26 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       clearFieldError('phone');
                     }}
                     placeholder={getTranslation('phonePlaceholder', lang)}
-                    className={`w-full px-4 py-3 rounded-xl bg-zinc-900 border focus:outline-none text-white text-xs font-mono transition-colors ${errorInputClass('phone')}`}
+                    aria-invalid={phoneError ? true : undefined}
+                    // The live verdict outranks the submit-time one: while someone is fixing a
+                    // number the field should follow what they are typing right now, not stay
+                    // red because of the value that failed when they last pressed submit.
+                    className={`w-full px-4 py-3 rounded-xl bg-zinc-900 border focus:outline-none text-white text-xs font-mono transition-colors ${
+                      phoneError
+                        ? 'border-red-600 focus:border-red-500 ring-1 ring-red-600/40'
+                        : errorInputClass('phone')
+                    }`}
                   />
-                  <p className="text-[11px] text-zinc-400 mt-1">
-                    {isAr ? 'مثال: 07701234567 (11 رقماً)' : 'e.g. 07701234567 (11 digits)'}
-                  </p>
+                  {phoneError ? (
+                    <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{phoneError}</span>
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-zinc-400 mt-1">
+                      {isAr ? 'مثال: 07701234567 (11 رقماً)' : 'e.g. 07701234567 (11 digits)'}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -943,10 +985,24 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   )}
                 </div>
 
-                {signatureMissing && (
-                  <p className="text-[11px] font-bold text-white flex items-center gap-1.5">
-                    <PenLine className="w-3.5 h-3.5 shrink-0" />
+                {/* Three states, not two: signed, explicitly flagged as missing after a
+                    submit attempt, and simply not signed yet. The last one is not a failure —
+                    nobody has done anything wrong on first arriving at this step — so it
+                    states the requirement plainly instead of in red. */}
+                {hasSignature ? (
+                  <p className="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    <span>{isAr ? 'تم التوقيع — يمكنك الآن إتمام العقد.' : 'Signed — you can now complete the contract.'}</span>
+                  </p>
+                ) : signatureMissing ? (
+                  <p className="text-[11px] font-bold text-red-500 flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     <span>{isAr ? 'التوقيع مطلوب لإتمام العقد — ارسم توقيعك في المساحة أعلاه.' : 'A signature is required to complete the contract — draw yours in the area above.'}</span>
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-zinc-400 flex items-center gap-1.5">
+                    <PenLine className="w-3.5 h-3.5 shrink-0" />
+                    <span>{isAr ? 'التوقيع مطلوب لإتمام العقد.' : 'A signature is required to complete the contract.'}</span>
                   </p>
                 )}
               </div>
@@ -985,6 +1041,17 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       );
                       return;
                     }
+                    // A present-but-wrong number was let through here and only rejected at
+                    // submit, three steps later — by which point the field that caused it is
+                    // off-screen. Caught on the step that owns it instead.
+                    if (!isValidIraqiPhone(phone)) {
+                      setFieldErrors(new Set(['phone']));
+                      showToast(
+                        isAr ? 'رقم الهاتف يجب أن يبدأ بـ 07 ويتكون من 11 رقماً' : 'The phone number must start with 07 and be 11 digits',
+                        'error'
+                      );
+                      return;
+                    }
                   }
                   if (currentStep === 2 && isCustomProject && (!customProjectName.trim() || !customFeaturesText.trim())) {
                     const missingCustom = new Set<string>();
@@ -1007,9 +1074,22 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 <ArrowLeft className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />
               </button>
             ) : (
+              // Disabled until the contract is genuinely signable, rather than letting it be
+              // pressed and answered with an error. handleSubmit still re-checks every one of
+              // these conditions: this button is the honest signal, not the enforcement — a
+              // disabled attribute is trivially removed in devtools and says nothing about
+              // what the form does with the data.
               <button
                 type="submit"
-                className="nq-btn nq-btn--solid px-8 py-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer"
+                disabled={!canSubmit}
+                title={
+                  canSubmit
+                    ? undefined
+                    : isAr
+                      ? 'أكمل التوقيع والموافقة ورقم الهاتف أولاً'
+                      : 'Complete the signature, approval and phone number first'
+                }
+                className="nq-btn nq-btn--solid px-8 py-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-45"
               >
                 <span className="nq-btn-beam" aria-hidden="true" />
                 <FileCheck className="w-4 h-4" />
