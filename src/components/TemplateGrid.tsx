@@ -35,9 +35,32 @@ const TemplateInteractiveSandbox = lazy(() =>
 // cards are already close to full-width and an arc's extra horizontal reach would just push
 // neighbours off-screen there.
 const ARC_ANGLE_STEP_DEG = 16;
-const ARC_RADIUS = 620;
-const ARC_STEP_PX = ARC_RADIUS * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
+const ARC_RADIUS_MAX = 620;
 const FLAT_STEP_PX_MOBILE = 156;
+
+// How far the outermost visible card (two steps out) reaches from the centre, as measured
+// on a rendered card rather than derived on paper: the arc displacement contributes about
+// 0.48px per px of radius once the track's perspective has foreshortened it, on top of a
+// ~175px constant for the card's own rotated, scaled half-width. Inverting that gives the
+// largest radius whose outermost card still lands inside a track of a given width — which
+// is what keeps the fan from being clipped on narrower desktops, where the track shrinks
+// with the viewport but a fixed radius would not. Floored so a very narrow window collapses
+// the fan toward a stack instead of inverting it.
+// Calibrated from two rendered measurements rather than derived on paper — the card's own
+// contribution is not just half its width, it also carries the rotation, the 0.68 scale and
+// the perspective foreshortening, and solving all of that symbolically would still need the
+// same measurement to check itself. radius 620 reached 516px from centre, radius 562 reached
+// 489px, which is the line below. ARC_REACH_MARGIN keeps a few px of air at the edge so a
+// rounding difference can't put the card back over the line.
+const ARC_REACH_PER_RADIUS = 0.4655;
+const ARC_CARD_HALF_REACH = 227;
+const ARC_REACH_MARGIN = 8;
+const arcRadiusForTrack = (trackWidth: number) => {
+  if (!trackWidth) return ARC_RADIUS_MAX;
+  const fits = (trackWidth / 2 - ARC_CARD_HALF_REACH - ARC_REACH_MARGIN) / ARC_REACH_PER_RADIUS;
+  return Math.max(200, Math.min(ARC_RADIUS_MAX, fits));
+};
+const arcStepPx = (radius: number) => radius * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
@@ -115,6 +138,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
+
+  // The track is `w-full` under a max-width, so its actual width is whatever the viewport
+  // leaves it — which is what the arc has to fit inside. Observed rather than derived from
+  // a breakpoint: the same viewport width yields a different track width depending on the
+  // page's own padding, and guessing that is how the outermost card ended up clipped.
+  const [trackWidth, setTrackWidth] = useState(0);
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    setTrackWidth(el.clientWidth);
+    const ro = new ResizeObserver(([entry]) => setTrackWidth(entry.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const arcRadius = arcRadiusForTrack(trackWidth);
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -258,7 +296,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // the residual back to zero.
   useEffect(() => {
     if (!isDragging) return;
-    const step = isMobile ? FLAT_STEP_PX_MOBILE : ARC_STEP_PX;
+    const step = isMobile ? FLAT_STEP_PX_MOBILE : arcStepPx(arcRadius);
     const n = filteredTemplates.length;
     let frame = 0;
     let offset = 0;
@@ -310,7 +348,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
     };
-  }, [isDragging, isMobile, filteredTemplates.length]);
+  }, [isDragging, isMobile, arcRadius, filteredTemplates.length]);
 
   // The other half of the pact above: publishes whatever offset the gesture is currently at,
   // after every render and synchronously before the browser paints. That timing is the whole
@@ -450,24 +488,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             "click to bring to front" idea as a music-app cover carousel) instead of firing
             its buttons; only the centered card is actually interactive, enforced via the
             pointerEvents toggle below rather than guessing which inner element was clicked. */}
-        <div className="flex items-center justify-center gap-2 sm:gap-6 mt-8 sm:mt-10">
-          {/* Both arrows wear the toolbar's Filter pill (.filter-pill-btn +
-              .filter-pill-beam), same as the card's "Choose template" action, so every
-              control on this page answers a pointer identically. Only w-10 h-10 rounded-full
-              is theirs — the pill brings the surface, the inversion and the beam, and the
-              chevron takes text-current so it flips with the body instead of staying white
-              on a white circle. The old bg/border/glow-white-hover utilities are gone for
-              that reason: they fought the pill rather than layering on it. */}
-          <button
-            type="button"
-            onClick={() => goToOffset(1)}
-            aria-label={currentLang === 'ar' ? 'التالي' : 'Next'}
-            className="filter-pill-btn relative hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
-          >
-            <span className="filter-pill-beam" aria-hidden="true" />
-            <ChevronRight className="w-4 h-4 ltr:rotate-180 text-current" />
-          </button>
-
+        {/* The two arrows that used to flank the track live in the pager below it now — see
+            the note there. Nothing else was in this row, so it is just the track. */}
+        <div className="flex items-center justify-center mt-8 sm:mt-10">
           {/* Taller than the card it holds, on purpose. The track clips (overflow-hidden)
               and the card is centered in it, so anything the card's own height exceeds gets
               cut off top *and* bottom. Measured at the card widths below, the tallest
@@ -480,7 +503,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
             style={{ perspective: '1800px' }}
-            className="relative w-full max-w-4xl h-[600px] sm:h-[700px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
+            className="relative w-full max-w-6xl h-[440px] sm:h-[560px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -534,8 +557,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               // angle as the arc so all three axes agree on which way each card is turning.
               const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
               const angleRad = (angleDeg * Math.PI) / 180;
-              const arcX = ARC_RADIUS * Math.sin(angleRad);
-              const arcY = ARC_RADIUS * (1 - Math.cos(angleRad));
+              const arcX = arcRadius * Math.sin(angleRad);
+              const arcY = arcRadius * (1 - Math.cos(angleRad));
               const rotYDeg = angleDeg * 0.7;
               transform = `translate(-50%, -50%) translateX(calc(${arcX}px + var(--drag-x, 0px))) translateY(${arcY}px) translateZ(${-cappedDistance * 90}px) rotateZ(${angleDeg}deg) rotateY(${rotYDeg}deg)`;
             }
@@ -722,34 +745,80 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             );
           })}
           </div>
-
-          <button
-            type="button"
-            onClick={() => goToOffset(-1)}
-            aria-label={currentLang === 'ar' ? 'السابق' : 'Previous'}
-            className="filter-pill-btn relative hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
-          >
-            <span className="filter-pill-beam" aria-hidden="true" />
-            <ChevronLeft className="w-4 h-4 ltr:rotate-180 text-current" />
-          </button>
         </div>
 
-        {/* Position dots */}
-        {filteredTemplates.length > 1 && (
-          <div className="flex items-center justify-center gap-1.5 mt-4">
-            {filteredTemplates.map((template, i) => (
-              <button
-                key={template.id}
-                type="button"
-                onClick={() => setActiveIndex(i)}
-                aria-label={translateText(template.title, currentLang)}
-                className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  i === activeIndex ? 'w-6 bg-white' : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
-                }`}
-              />
-            ))}
-          </div>
-        )}
+        {/* Pager — arrows flanking a run of page numbers, in one pill. Replaces the row of
+            dots this used to be: ten identical dots said which slot was active but not which
+            template, and gave no way to tell how far along the catalogue you were. Numbers
+            carry both. The two arrows moved in here from either side of the carousel, so the
+            whole control reads as one object rather than three scattered ones. */}
+        {filteredTemplates.length > 1 && (() => {
+          // A window of at most five numbers that slides with the active card, rather than
+          // every number at once — ten of them would make the pill wider than the card it
+          // sits under. Clamped at both ends so the window stays full near the start/end
+          // instead of shrinking, which would make the pill visibly change width.
+          const total = filteredTemplates.length;
+          const windowSize = Math.min(5, total);
+          const start = Math.max(0, Math.min(activeIndex - Math.floor(windowSize / 2), total - windowSize));
+          const pages = Array.from({ length: windowSize }, (_, k) => start + k);
+
+          return (
+            // Sits midway between the lowest card and the wordmark below, which needs a
+            // different margin per breakpoint rather than one value: the track is a fixed
+            // height and the cards do not fill it the same way at both sizes — desktop's arc
+            // dips the outer cards nearly to the track's bottom edge, while mobile's flat
+            // row leaves them centred with real space underneath. One margin therefore lands
+            // the pager tight to the cards on desktop and marooned below them on mobile,
+            // which is what it was doing.
+            <div className="flex items-center justify-center gap-1.5 mt-7 sm:mt-6">
+              <div className="flex items-center gap-1 p-1 rounded-full bg-zinc-950/80 border border-zinc-800">
+                {/* Both arrows wear the toolbar's Filter pill (.filter-pill-btn +
+                    .filter-pill-beam), same as every other primary control on this page:
+                    white surface, inverting to black on hover, with the rotating beam. The
+                    chevrons take text-current so they flip with the body rather than staying
+                    white on a white circle. */}
+                <button
+                  type="button"
+                  onClick={() => goToOffset(1)}
+                  aria-label={currentLang === 'ar' ? 'التالي' : 'Next'}
+                  className="filter-pill-btn relative shrink-0 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
+                >
+                  <span className="filter-pill-beam" aria-hidden="true" />
+                  <ChevronRight className="w-4 h-4 ltr:rotate-180 text-current" />
+                </button>
+
+                <div className="flex items-center gap-0.5 px-1.5">
+                  {pages.map((i) => (
+                    <button
+                      key={filteredTemplates[i].id}
+                      type="button"
+                      onClick={() => setActiveIndex(i)}
+                      aria-label={translateText(filteredTemplates[i].title, currentLang)}
+                      aria-current={i === activeIndex ? 'true' : undefined}
+                      // Fixed width per number so the row never reflows as the active one
+                      // goes bold, or as the window slides from single into double digits.
+                      className={`w-6 text-center text-xs font-mono cursor-pointer transition-colors ${
+                        i === activeIndex ? 'text-white font-bold' : 'text-zinc-600 hover:text-zinc-300'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => goToOffset(-1)}
+                  aria-label={currentLang === 'ar' ? 'السابق' : 'Previous'}
+                  className="filter-pill-btn relative shrink-0 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
+                >
+                  <span className="filter-pill-beam" aria-hidden="true" />
+                  <ChevronLeft className="w-4 h-4 ltr:rotate-180 text-current" />
+                </button>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Brand mark — sized to actually fill the empty stretch between the carousel and
             the footer, not just sit as a small centered icon within it. Scaled up as a whole
@@ -757,7 +826,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             instead of staying pinned at its fixed text-xl/2xl size while the icon balloons
             past it; growing by breakpoint so it fills proportionally more on wider screens
             without overflowing narrow ones. */}
-        <div className="flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14 opacity-[0.22]">
+        <div className="flex justify-center mt-24 sm:mt-32 mb-8 sm:mb-14 opacity-[0.22]">
           <NovaiqLogo size={60} showText={true} className="scale-150 sm:scale-[2.25] lg:scale-[3]" />
         </div>
 
