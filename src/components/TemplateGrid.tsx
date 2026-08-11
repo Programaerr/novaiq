@@ -893,6 +893,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             );
           })}
           </div>
+          </div>
         </div>
 
         {/* Pager — arrows flanking a run of page numbers, in one pill. Replaces the row of
