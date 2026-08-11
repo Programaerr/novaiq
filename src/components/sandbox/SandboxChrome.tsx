@@ -9,10 +9,20 @@ import { Search, X } from 'lucide-react';
 // of screen actually gets.
 export type ViewportChoice = 'full' | 'desktop' | 'tablet' | 'mobile';
 
-export const VIEWPORT_PRESETS: Record<Exclude<ViewportChoice, 'full'>, { label: string; width: number }> = {
-  desktop: { label: 'كمبيوتر', width: 1280 },
-  tablet: { label: 'تابلت', width: 834 },
-  mobile: { label: 'جوال', width: 390 },
+// Each preset is a whole viewport, height included, not just a width. The height used to be
+// derived instead — the stage's own height divided by the scale — which quietly made the
+// iframe enormous whenever the scale was small: picking "كمبيوتر" on a phone asked for a
+// 1280px-wide frame about 1300-2000px tall, ~2 million pixels to lay out and rasterize for a
+// thumbnail a few hundred pixels across. Mobile browsers cap how large a frame they will
+// render and simply dropped it, which is why the desktop preview came up blank there.
+// Real device viewports keep it bounded and, being real, make the preview honest as well.
+export const VIEWPORT_PRESETS: Record<
+  Exclude<ViewportChoice, 'full'>,
+  { label: string; width: number; height: number }
+> = {
+  desktop: { label: 'كمبيوتر', width: 1280, height: 800 },
+  tablet: { label: 'تابلت', width: 834, height: 1112 },
+  mobile: { label: 'جوال', width: 390, height: 844 },
 };
 
 /**
@@ -26,10 +36,11 @@ export const VIEWPORT_PRESETS: Record<Exclude<ViewportChoice, 'full'>, { label: 
  */
 export const ResponsivePreview: React.FC<{
   width: number;
+  height: number;
   src: string;
   title: string;
   themeColor: string;
-}> = ({ width, src, title, themeColor }) => {
+}> = ({ width, height, src, title, themeColor }) => {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [stage, setStage] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
@@ -55,18 +66,23 @@ export const ResponsivePreview: React.FC<{
     );
   }, [themeColor, width]);
 
-  // Only ever scales down, and only when the chosen width genuinely doesn't fit the panel —
-  // so a phone preview on a desktop stays pixel-exact.
-  const scale = stage.w > 0 ? Math.min(stage.w / width, 1) : 1;
-  const frameHeight = stage.h > 0 ? stage.h / scale : 0;
+  // Fits the whole device, both axes, and only ever shrinks — so a phone preview on a desktop
+  // still stays pixel-exact. Fitting height as well as width is what makes "كمبيوتر" work on a
+  // phone: the frame keeps its real 1280x800 shape and is simply drawn small, instead of being
+  // stretched to whatever height the stage happened to have divided by the scale.
+  const scale =
+    stage.w > 0 && stage.h > 0 ? Math.min(stage.w / width, stage.h / height, 1) : 1;
 
   return (
     <div className="flex-1 min-h-0 w-full flex flex-col items-center gap-2">
-      <div ref={stageRef} className="flex-1 min-h-0 w-full flex items-start justify-center">
+      <div ref={stageRef} className="flex-1 min-h-0 w-full flex items-center justify-center">
         {stage.h > 0 && (
           <div
-            className="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-[#05070c]"
-            style={{ width: width * scale, height: stage.h }}
+            className="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-black"
+            // The box is the device's own size scaled down, so its proportions are the
+            // device's proportions — a desktop preview reads as a wide screen and a phone
+            // preview as a tall one, at any size of stage.
+            style={{ width: width * scale, height: height * scale }}
           >
             <iframe
               ref={iframeRef}
@@ -81,7 +97,7 @@ export const ResponsivePreview: React.FC<{
               }}
               style={{
                 width,
-                height: frameHeight,
+                height,
                 transform: `scale(${scale})`,
                 transformOrigin: 'top left',
                 border: 0,
@@ -99,7 +115,7 @@ export const ResponsivePreview: React.FC<{
       </div>
 
       <div className="shrink-0 flex items-center gap-2 text-[10px] font-mono text-zinc-500">
-        <span dir="ltr">عرض {width}px</span>
+        <span dir="ltr">{width} × {height}</span>
         {scale < 1 && (
           <>
             <span className="text-zinc-700">|</span>

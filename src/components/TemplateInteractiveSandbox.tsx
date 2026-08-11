@@ -1655,12 +1655,17 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           Star layers sit on this outer, non-scrolling wrapper rather than inside the scrollable
           pane itself — as a descendant of an overflow-auto box they'd scroll away with the
           content instead of reading as a fixed backdrop the way CosmicBackground's do site-wide. */}
-      <div className="relative flex-1 min-h-0 w-full overflow-hidden">
-        <div className="star-layer star-layer--far" />
-        <div className="star-layer star-layer--near" />
+      {/* Flat black behind the device frames, deliberately. This stage exists to be judged
+          against — a customer deciding whether they like a template should see it on a neutral
+          ground, not floating over a drifting starfield that is competing for their eye and
+          tinting their impression of the design. It also removes real work from exactly the
+          moment the demo needs it most: the two star layers here animated continuously behind
+          a preview that covers them, and the backdrop-blur re-sampled whatever moved beneath
+          it every frame. Both are gone; the demo now has the whole frame to itself. */}
+      <div className="relative flex-1 min-h-0 w-full overflow-hidden bg-black">
         <div
           data-lenis-prevent
-          className={`relative z-10 h-full w-full flex flex-col items-center justify-start p-2 sm:p-4 bg-black/30 backdrop-blur-sm ${
+          className={`relative z-10 h-full w-full flex flex-col items-center justify-start p-2 sm:p-4 ${
             viewport === 'full' ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'
           }`}
         >
@@ -1671,6 +1676,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         ) : (
           <ResponsivePreview
             width={VIEWPORT_PRESETS[viewport].width}
+            height={VIEWPORT_PRESETS[viewport].height}
             src={livePreviewSrc}
             title={`معاينة حية: ${template.title}`}
             themeColor={themeColor}
