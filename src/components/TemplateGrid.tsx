@@ -27,40 +27,51 @@ const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
 );
 
-// Coverflow geometry — shared between the card positions below and the drag-snap threshold
-// in the pointer handler, so the two describe the same one-card travel distance instead of
-// drifting apart the way two separately hand-tuned constants eventually do. Desktop fans the
-// cards along an arc, like a hand of cards spread from a pivot below the strip: each step out
-// is a horizontal step, a small downward dip, and a rotation to match the arc's tangent.
-// Mobile keeps the original flat coverflow instead — a plain sideways slide — since a phone's
-// cards are already close to full-width and an arc's extra horizontal reach would just push
-// neighbours off-screen there.
-// One fixed radius, deliberately not derived from the track's measured width: the drag is an
-// orbital rotation of the whole fan about this arc's pivot, so the same number has to serve
-// the card positions, the track's transform-origin and the px-to-degrees conversion in
-// setDragOffset. A radius that changed with the viewport would have to be threaded through
-// all three in lockstep, and any drift between them shows up as the fan swinging about a
-// point it is not actually drawn around. The fan is kept inside narrower viewports by the
-// track's own max-width instead, which costs nothing per frame.
-// Radius and step are chosen together against the card's own width, not tuned by eye: the
-// gap between neighbours along the cylinder is ARC_RADIUS * sin(step), so at the old 620/16°
-// that came to ~171px for a 330px card and every neighbour buried the one beside it. 1000 at
-// 21° opens it to ~358px — just past the card's width, which is what gives the rack its
-// visible separation — while keeping the outermost card at 42°, angled enough to read as
-// turned without going edge-on.
-const ARC_ANGLE_STEP_DEG = 21;
-const ARC_RADIUS = 1000;
-const ARC_STEP_PX = ARC_RADIUS * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
-const FLAT_STEP_PX_MOBILE = 156;
-const FLAT_STEP_PX_DESKTOP = 230;
+// Washing-line geometry. The cards hang from a wire strung across the strip: each one is
+// pinned at its top edge by a clip, sits a little higher the further it is from the middle
+// (the wire sags in the centre under them), and tilts to match the slope of the wire at the
+// point it hangs from. That last part is what sells it — a card hanging off a sloping line
+// is not vertical, and cards pinned to a curve but drawn upright read as a flat row that
+// someone nudged up and down.
+//
+// All three quantities come from the same parabola, so they cannot disagree:
+//     y(k) = -CURVE * k²         (k = whole steps from centre; negative y is up the screen)
+//     slope = dy/dx = -2*CURVE*k / STEP   →   linear in k, hence a constant tilt per step.
+// The wire below is drawn from that identical expression rather than a hand-drawn curve, so
+// every clip lands exactly on the line no matter how the constants are retuned.
+//
+// This replaces the 3D cylinder that used to live here, and the replacement is pure 2D — a
+// translate, a translate and a rotate. There is no perspective, no translateZ and no
+// depth-sorted repaint anywhere in the strip now, which is why the geometry below is no
+// longer split into a "capable desktop" and a "weak device" branch: what remains is cheap
+// enough for any GPU, so phones and low-end machines run the same design rather than a
+// fallback. Only the constants differ by breakpoint, and only because a phone's card is
+// nearly the width of its viewport.
+const HANG_STEP_PX_DESKTOP = 285;
+const HANG_STEP_PX_MOBILE = 185;
+// Rise of the outermost card above the centre one, per step², in px. Measured off the
+// reference: its end cards sit ~45px above the middle two steps out, i.e. ~11 per k².
+const HANG_CURVE_DESKTOP = 11;
+const HANG_CURVE_MOBILE = 6;
+// Degrees of tilt per step out. The reference's end cards read at roughly ±6°, which is two
+// steps of 3 — enough to look hung rather than placed, well short of looking knocked over.
+const HANG_TILT_DEG_DESKTOP = 3;
+const HANG_TILT_DEG_MOBILE = 1.8;
+// How far the wire is drawn beyond the visible track, so a drag never pulls a bare end into
+// view. Wider on desktop, but not unboundedly — a parabola climbs as the square of distance,
+// so an over-long wire would shoot off the top of the track instead of leaving the frame at
+// the gentle angle the reference has.
+const WIRE_WIDTH_DESKTOP = 1500;
+const WIRE_WIDTH_MOBILE = 900;
 
-// Full width the fan occupies at scale 1, outer card edge to outer card edge — measured on a
-// rendered fan, since the outermost card contributes its own rotated half-width on top of the
-// arc displacement. When the track is narrower than this the whole fan is scaled down to fit
-// rather than being clipped, which is what left "half a card missing" on anything under a
-// wide desktop. Scaling the rendered fan (not the radius) keeps the radius, the drag's
-// px-to-degrees conversion and the track's transform-origin describing the same circle.
-const FAN_NATURAL_WIDTH = 1933;
+// Full width the hung row occupies at scale 1, outer edge to outer edge — the two steps out
+// to the last card, plus that card's own scaled half-width and the extra reach its tilt adds.
+// When the track is narrower than this the whole row is scaled down to fit rather than being
+// clipped, which is what left "half a card missing" on anything under a wide desktop.
+// Measured on the rendered row rather than derived: a tilted card reaches further sideways
+// than its own width, by its height times the sine of its tilt, and the arithmetic value
+// (1370) still left 7px of the outermost card outside the track at every viewport.
+const FAN_NATURAL_WIDTH = 1400;
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
@@ -130,31 +141,35 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // the cards' transforms update straight from it.
   const trackRef = useRef<HTMLDivElement | null>(null);
   const dragOffsetRef = useRef(0);
-  // Publishes a gesture offset to the track as two CSS variables: --drag-x (px) drives the
-  // flat mobile slide, and --drag-angle-deg rotates the whole desktop fan about the arc's
-  // pivot (ARC_RADIUS below the strip) so the drag swings cards around the circle instead of
-  // shoving the strip sideways. At any breakpoint only one is read, so the other is inert.
+  // Publishes the gesture offset to the track as one CSS variable, read by the strip's own
+  // transform. One variable and one transform now, where the cylinder needed a second angular
+  // one: the wire and the cards it holds move together as a single rigid strip, which is both
+  // cheaper and the physically honest answer — clips slide along a line, they do not orbit.
+  //
+  // Divided by the render scale, not published raw. The strip sits *inside* the shrink-to-fit
+  // layer, so whatever this writes is multiplied by that scale before it reaches the screen —
+  // publish the pointer's travel unchanged and the row moves at ~87% of the finger, and worse,
+  // drifts: at each commit the cards step by a full (scaled) card while the rebased residual
+  // only unwinds that same distance scaled a second time, so the strip visibly jumps by the
+  // difference. Pre-dividing makes one px here land as one px on screen, which is the only
+  // form in which the residual and the card step describe the same distance.
   const setDragOffset = (px: number) => {
     const el = trackRef.current;
     if (!el) return;
-    el.style.setProperty('--drag-x', `${px}px`);
-    // Against the *rendered* radius, not the nominal one: when the fan is scaled down to fit
-    // a narrower track, the circle the cards visibly ride is scaled with it, so converting
-    // against the unscaled radius would swing them slower than the pointer travels.
-    el.style.setProperty(
-      '--drag-angle-deg',
-      `${(px * 180) / (Math.PI * ARC_RADIUS * fanScaleRef.current)}deg`,
-    );
+    el.style.setProperty('--drag-x', `${px / fanScaleRef.current}px`);
   };
 
-  // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
-  // card doesn't overlap its neighbors (a fixed desktop-sized offset would).
+  // Drives the strip's per-card step, sag and tilt — all tighter on phones, where the card is
+  // already close to the viewport's width and a desktop-sized step would simply push its
+  // neighbours off-screen.
   const [isMobile, setIsMobile] = useState(false);
-  // Live tier (hardware guess at startup, runtime jank probe after load) — a weak GPU gets
-  // the flat slide even on desktop: a desktop fanshot's per-frame 3D work — perspective,
-  // per-card translateZ recession and depth-sorted repainting — is exactly what stalls an
-  // integrated GPU mid-drag. The flat strip is pure 2D translateX and survives any hardware.
-  // A hook (not a one-shot bool) so a late downgrade hands the grid over mid-session.
+  // Live tier (hardware guess at startup, runtime jank probe after load). It no longer picks
+  // a different *geometry*: the strip is pure 2D for everyone now, so there is no perspective
+  // or translateZ recession left for a weak GPU to choke on. What it still decides is whether
+  // each card is promoted to its own compositor layer (see willChange below) — on a weak
+  // machine every promoted layer is a texture that must be composited at all times, and with
+  // nothing 3D left to keep crisp that trade is pure cost. A hook, not a one-shot bool, so a
+  // late downgrade is picked up mid-session.
   const isLowEnd = useLowEndDevice();
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -163,8 +178,30 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
-  const flatGeometry = isMobile || isLowEnd;
-  const flatStepPx = isMobile ? FLAT_STEP_PX_MOBILE : FLAT_STEP_PX_DESKTOP;
+  const stepPx = isMobile ? HANG_STEP_PX_MOBILE : HANG_STEP_PX_DESKTOP;
+  const hangCurve = isMobile ? HANG_CURVE_MOBILE : HANG_CURVE_DESKTOP;
+  const hangTiltDeg = isMobile ? HANG_TILT_DEG_MOBILE : HANG_TILT_DEG_DESKTOP;
+  const wireWidth = isMobile ? WIRE_WIDTH_MOBILE : WIRE_WIDTH_DESKTOP;
+  // Where the wire's lowest point sits inside the track, and how far it climbs by the time it
+  // leaves the drawn span. The climb is the parabola evaluated at the wire's own half-width,
+  // so the SVG below is exactly tall enough to hold the curve and the track needs exactly
+  // this much headroom above the centre clip — no guessed padding either side.
+  const wireRise = hangCurve * Math.pow(wireWidth / 2 / stepPx, 2);
+  const wireTopY = isMobile ? 52 : 84;
+
+  // The wire itself, as a path through the same parabola the cards hang on. Sampled rather
+  // than drawn as a single quadratic Bézier: a Bézier through the end points is *not* this
+  // parabola once the span runs several steps wide, and any disagreement shows up as clips
+  // floating off the line at the ends — the one flaw that would give the whole illusion away.
+  const wirePath = useMemo(() => {
+    const half = wireWidth / 2;
+    const pts: string[] = [];
+    for (let x = -half; x <= half; x += 25) {
+      const k = x / stepPx;
+      pts.push(`${(x + half).toFixed(1)},${(wireRise - hangCurve * k * k).toFixed(1)}`);
+    }
+    return `M${pts.join(' L')}`;
+  }, [wireWidth, stepPx, hangCurve, wireRise]);
 
   // How much the fan has to shrink to fit the track it is actually in. Measured from the
   // element rather than inferred from a breakpoint: the track is `w-full` under a max-width,
@@ -180,10 +217,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const fanScale = flatGeometry || !trackWidth ? 1 : Math.min(1, trackWidth / FAN_NATURAL_WIDTH);
+  // Desktop only, and deliberately so. A phone's row is *meant* to run past both edges — its
+  // step is far narrower than its card, so the neighbours are half-tucked behind the middle
+  // one by design, and fitting that whole row into a 360px track would shrink it to under
+  // half size to solve a problem it does not have.
+  const fanScale = isMobile || !trackWidth ? 1 : Math.min(1, trackWidth / FAN_NATURAL_WIDTH);
   // setDragOffset runs from a pointermove closure that outlives this render, so it reads the
   // scale from a ref rather than capturing the value — otherwise a resize mid-gesture would
-  // leave the drag converting against a stale radius.
+  // leave the drag converting against a stale scale.
   const fanScaleRef = useRef(1);
   fanScaleRef.current = fanScale;
 
@@ -337,9 +378,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // snap keeps the two thresholds honest.
   useEffect(() => {
     if (!isDragging) return;
-    // Scaled with the fan for the same reason the drag angle is: the threshold has to be the
-    // distance a card visibly travels on screen, which shrinks when the fan does.
-    const step = flatGeometry ? flatStepPx : ARC_STEP_PX * fanScale;
+    // Scaled with the row: the threshold has to be the distance a card visibly travels on
+    // screen, which shrinks when the row is shrunk to fit a narrower track.
+    const step = stepPx * fanScale;
     const n = filteredTemplates.length;
     let frame = 0;
     // `travel` is the pointer's full signed displacement since the gesture started, NEVER
@@ -430,7 +471,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
     };
-  }, [isDragging, flatGeometry, flatStepPx, fanScale, filteredTemplates.length]);
+  }, [isDragging, stepPx, fanScale, filteredTemplates.length]);
 
   // The other half of the pact above: publishes whatever offset the gesture is currently at,
   // after every render and synchronously before the browser paints. That timing is the whole
@@ -565,21 +606,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           </div>
         </div>
 
-        {/* Templates Coverflow — clicking any off-center card brings it to focus (same
-            "click to bring to front" idea as a music-app cover carousel) instead of firing
-            its buttons; only the centered card is actually interactive, enforced via the
-            pointerEvents toggle below rather than guessing which inner element was clicked. */}
+        {/* Templates strip — cards pegged to a wire, clicking any off-centre one brings it to
+            focus (same "click to bring to front" idea as a music-app cover carousel) instead
+            of firing its buttons; only the centred card is actually interactive, enforced via
+            the pointerEvents toggle below rather than guessing which inner element was
+            clicked. */}
         {/* The two arrows that used to flank the track live in the pager below it now — see
             the note there. Nothing else was in this row, so it is just the track. */}
         <div className="flex items-center justify-center mt-8 sm:mt-10">
-          {/* Taller than the card it holds, on purpose. The track clips (overflow-hidden)
-              and the card is centered in it, so anything the card's own height exceeds gets
-              cut off top *and* bottom. Measured at the card widths below, the tallest
-              template runs 599px on desktop and 521px on mobile — a full feature list, two
-              action rows and the optional live-site link — so this clears the worst case at
-              both breakpoints with room to spare. It had to be raised well past this while
-              the cards were narrower: less width meant more wrapping, and the same content
-              stood ~630px tall. */}
           <div
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
@@ -594,55 +628,51 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 suppressClickRef.current = false;
               }
             }}
-            style={{
-              // Perspective is back, and only here: the reversed-perspective coverflow is a
-              // genuine cylinder — cards ride a circle in the XZ plane and lean their outer
-              // edges toward the viewer — so it needs a projection to exist at all. It is
-              // scoped to the capable-desktop branch; phones and low-end machines still take
-              // the pure-2D strip below and never pay for it, which is the split the flat
-              // geometry was introduced for.
-              ...(flatGeometry ? {} : { perspective: '1500px', perspectiveOrigin: '50% 50%' }),
-            }}
-            // max-w-7xl, not 4xl: at 4xl the outermost card on each side was clipped by ~68px
-            // (measured), which is the "half a card missing" the fan showed. It needs to be
-            // this wide specifically because the fan is flat now — the perspective that used
-            // to sit on this track foreshortened the outer cards inward, and without it they
-            // reach their full un-projected width, so the same radius needs more room than it
-            // did. Heights are trimmed to what the cards actually occupy.
-            className="relative w-full max-w-7xl h-[440px] sm:h-[360px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
+            // Heights are sized from the strip itself, not guessed: the wire's lowest point
+            // plus the tallest card that hangs from it, plus a little air underneath. Cards
+            // are anchored by their *tops* to the wire (they hang), so nothing here has to
+            // leave symmetric room above and below the way a vertically-centred row did.
+            className="relative w-full max-w-7xl h-[350px] sm:h-[400px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
-          {/* Shrink-to-fit layer. Every card is positioned against the fan's natural size, and
+          {/* Shrink-to-fit layer. Every card is positioned against the row's natural size, and
               this one transform brings the whole shape down to whatever width the track really
               has — so the outermost card is never clipped, at any viewport, without a single
-              per-card measurement. preserve-3d so the cylinder below survives this wrapper
-              rather than being flattened into a picture of itself. */}
+              per-card measurement. Anchored at the top edge, not the middle: the wire is near
+              the top of the track and scaling about the centre would drag it downward as the
+              viewport narrowed. */}
+          <div
+            className="absolute inset-0"
+            style={fanScale === 1 ? undefined : { transform: `scale(${fanScale})`, transformOrigin: '50% 0' }}
+          >
+          {/* Drag layer — one translate carrying the wire and everything pinned to it. The
+              cards do NOT slide along a stationary wire: a clip is fixed to the card it holds,
+              so pulling the row has to pull the line with it, exactly as a real washing line
+              swings when you tug one garment along it. It also keeps the whole gesture to a
+              single composited transform rather than recomputing each card's sag and tilt from
+              a fractional position every frame. Suppressed mid-gesture so the strip tracks the
+              pointer 1:1, then glides home on release with the cards' own 0.9s curve. */}
           <div
             className="absolute inset-0"
             style={{
-              transformStyle: flatGeometry ? undefined : 'preserve-3d',
-              ...(fanScale === 1 ? {} : { transform: `scale(${fanScale})`, transformOrigin: '50% 50%' }),
+              transform: 'translateX(var(--drag-x, 0px))',
+              transition: isDragging ? 'none' : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           >
-          {/* Drag layer. The cylinder spins about its own vertical axis — a rotateY around an
-              origin pushed ARC_RADIUS *into* the screen, which is the axis the cards are
-              actually arranged around. The old flat fan span this as a 2D rotate about a pivot
-              below the strip; that pivot no longer describes where the cards are, and spinning
-              a cylinder about it would slide the whole rack sideways instead of turning it.
-              Suppressed mid-gesture so the rack tracks the pointer 1:1, then glides home on
-              release with the same 0.9s curve the cards use. */}
-          <div
-            className="absolute inset-0"
-            style={
-              flatGeometry
-                ? undefined
-                : {
-                    transformStyle: 'preserve-3d',
-                    transform: 'rotateY(var(--drag-angle-deg, 0deg))',
-                    transformOrigin: `50% 50% ${-ARC_RADIUS}px`,
-                    transition: isDragging ? 'none' : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
-                  }
-            }
+          {/* The wire. Sits under every card (they carry z-index 7–10) so each clip covers the
+              short stretch of line it is pinned to, which is what makes the clip read as
+              gripping the wire rather than floating beside it. aria-hidden and no pointer
+              events: it is scenery, and it must never eat a drag that starts on it. */}
+          <svg
+            aria-hidden="true"
+            className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+            style={{ top: wireTopY - wireRise, width: wireWidth, height: wireRise + 1 }}
+            width={wireWidth}
+            height={wireRise + 1}
+            viewBox={`0 0 ${wireWidth} ${wireRise + 1}`}
+            fill="none"
           >
+            <path d={wirePath} stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          </svg>
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
             const displaySubtitle = translateText(template.subtitle, currentLang);
@@ -665,42 +695,20 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // back into range, which is what showed up as the image/text flashing blank.
             const cappedDistance = Math.min(distance, 3);
             const clampedOffset = isVisible ? offset : Math.sign(offset) * 3;
-            // The arc/3D fan is a desktop-only upgrade — on a phone the cards are already
-            // close to full-width, so the extra horizontal reach an arc needs just pushes
-            // neighbours off-screen instead of fanning them out. Mobile keeps the original
-            // flat coverflow geometry (straight sideways slide, single rotateY lean toward
-            // centre); only sm and up gets the arc.
-            let transform: string;
-            if (flatGeometry) {
-              // Pure 2D on phones AND on low-end desktops. The old geometry bolted translateZ
-              // + rotateY + a track perspective onto this same slide so it could share the
-              // desktop's 3D fan — but under that perspective the layers cross-fade with the
-              // card's own opacity fade and image mask during every release, and on mobile
-              // Chrome that pairing flashes the card blank, while the depth work itself stalls
-              // a weak integrated GPU on the desktop. A 2D translateX can't z-recede, blink,
-              // or drop those frames; the capable-desktop fan is handled below.
-              transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * flatStepPx}px + var(--drag-x, 0px)))`;
-            } else {
-              // Reversed-perspective coverflow: the cards ride a cylinder whose axis sits
-              // BEHIND the strip, so the rack opens toward the viewer instead of folding away
-              // from it. The centre card faces square on; every step out swings its outer edge
-              // forward and brings it nearer the eye, which is why the end cards read as the
-              // largest ones on screen rather than the smallest.
-              //
-              // The three parts have to agree or the illusion breaks: sin puts the card at its
-              // point on the circle, (1 - cos) pulls it forward by how far around it has gone,
-              // and rotateY turns it to the tangent at that point. The negative rotation is
-              // what reverses the perspective — the same magnitude positive would fold the
-              // rack away into the screen, which is the ordinary coverflow this is not.
-              const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
-              const angleRad = (angleDeg * Math.PI) / 180;
-              const cylX = ARC_RADIUS * Math.sin(angleRad);
-              const cylZ = ARC_RADIUS * (1 - Math.cos(angleRad));
-              // No --drag-x here: the drag is a rotation of the whole cylinder about its own
-              // axis, applied once on the layer above, so a hand-drag turns the rack rather
-              // than sliding it sideways past a static curve.
-              transform = `translate(-50%, -50%) translateX(${cylX}px) translateZ(${cylZ}px) rotateY(${-angleDeg}deg)`;
-            }
+            // Where this card hangs on the wire. Three terms, all from the one parabola in the
+            // constants block: the step out along the line, the height the line has climbed by
+            // that point (negative — away from the sag in the middle), and the tilt matching
+            // the line's slope there. The tilt is negated because the screen's y runs downward
+            // while the slope was derived in ordinary maths orientation: without that sign the
+            // cards would lean *into* the sag instead of away from it, which looks like they
+            // are sliding toward the middle rather than hanging still.
+            //
+            // No --drag-x term: the drag translates the whole strip on the layer above, wire
+            // included, so a card's position relative to its own clip never changes mid-gesture.
+            const cardX = clampedOffset * stepPx;
+            const cardY = -hangCurve * clampedOffset * clampedOffset;
+            const cardTilt = -hangTiltDeg * clampedOffset;
+            const transform = `translate(-50%, 0) translateX(${cardX}px) translateY(${cardY}px) rotate(${cardTilt}deg)`;
 
             return (
               <div
@@ -718,12 +726,26 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // not the animated parent. Two transitions fight on this element, transform
                   // (0.9s) and opacity (0.3s), so both properties are named.
                   //
-                  // Not on low-end devices: there the flat 2D strip has no depth to keep
-                  // crisp, and every promoted layer is a texture the weak GPU must composite
-                  // at all times — the trade flips to pure cost. Two transitions fight on
-                  // this element, transform (0.9s) and opacity (0.3s), so both are named.
+                  // Not on low-end devices: there every promoted layer is a texture the weak
+                  // GPU must composite at all times — the trade flips to pure cost. Two
+                  // transitions fight on this element, transform (0.9s) and opacity (0.3s),
+                  // so both are named.
                   willChange: isLowEnd ? undefined : 'transform, opacity',
-                  opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
+                  // The clip is the pivot. Every transform on this card — the step out, the
+                  // sag, the tilt, and the scale one level down — turns about the point where
+                  // it is pinned to the wire, because that is the only point on a hanging
+                  // object that does not move. Scaling about the centre (the default) would
+                  // pull the smaller outer cards up off the line entirely.
+                  transformOrigin: '50% 0',
+                  top: wireTopY,
+                  // Raised from 0.55/0.28. Those values were set when the cards were dark
+                  // glass, where dimming a neighbour just sank it into the page; on white
+                  // paper the same numbers turn it grey, and a row of five prints on one line
+                  // should read as five prints, not one white and four grey. Still short of
+                  // full opacity so the middle card is unmistakably the one in focus — and
+                  // still low enough at distance 2 that the heavy overlap on a phone doesn't
+                  // stack three near-solid cards on top of each other.
+                  opacity: isActive ? 1 : cappedDistance === 1 ? 0.8 : cappedDistance === 2 ? 0.45 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
                   // slow enough to read as a deliberate motion instead of the instant-feeling
@@ -760,7 +782,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // *rendered* too. A fully transparent element is already skipped at paint
                   // time, so what was left to win here was small and this is what it cost.
                 }}
-                className={`absolute top-1/2 left-1/2 w-[260px] sm:w-[330px] h-[400px] sm:h-[480px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute left-1/2 w-[228px] sm:w-[270px] h-[286px] sm:h-[344px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 {/* Scale lives here, one level in from the positional transform above,
                     precisely so it can keep its own transition while that one is switched
@@ -771,23 +793,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     eases into it. */}
                 <div
                   style={{
-                    transform: `scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
+                    transform: `scale(${isActive ? 1 : cappedDistance === 1 ? 0.86 : 0.72})`,
+                    // Same pivot as the card above it, for the same reason: a card that
+                    // shrinks has to stay pinned to the wire at its clip, not float away
+                    // from it.
+                    transformOrigin: '50% 0',
                     // Same 0.9s and same curve as the positional transform above — see the
                     // note there on why the two must agree. Also on its own layer, like the
                     // card holding it: it animates its own scale for 0.9s on every commit,
                     // and without the hint that glide would re-rasterize the image inside
                     // the card's layer texture on every frame of the animation. Skipped on
-                    // low-end devices where the flat 2D strip has no depth to protect.
+                    // low-end devices, where every promoted layer is pure cost.
                     willChange: isLowEnd ? undefined : 'transform',
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"
                 >
-                {/* One full-bleed frame instead of image-plus-panel-below: the photo fills
-                    the whole card and everything the card needs to say floats over it in a
-                    single glass strip, the same "profile card" read the design was asked to
-                    match. Price, features and tech stack aren't gone — they're one tap away
-                    in the full preview this card opens, so nothing is actually lost. */}
+                {/* Photo above, words below — a print pegged to a line, which is what the
+                    reference is. The previous card floated everything over a full-bleed photo
+                    in a dark glass strip; that reads as a poster, and a poster does not hang.
+                    The surface is white here rather than the site's dark glass for the same
+                    reason: on a near-black page a white card is what makes the strip look like
+                    paper on a wire instead of five more panels. */}
                 <div
                   style={{ pointerEvents: isActive ? 'auto' : 'none' }}
                   onClick={() => {
@@ -805,30 +832,46 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // and tear down a compositor layer at that same moment — the card visibly
                   // blanks and re-appears. Constant styling means the layer is created once
                   // and simply moves, which is also why the earlier five-simultaneous-blurs
-                  // stutter on real phones doesn't come back. transition-[border-color], not
-                  // transition-colors, for the same family of reason: only the hover border
-                  // is meant to fade, and a broader transition would animate the surface too.
-                  className="relative h-full rounded-[28px] bg-white/5 border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5"
+                  // stutter on real phones doesn't come back.
+                  className="relative h-full rounded-[18px] sm:rounded-[22px] bg-white shadow-2xl cursor-pointer group p-2 sm:p-2.5 flex flex-col"
                 >
-                  {/* The photo sits inset inside the frame's own padding — a bezel margin all
-                      round, like a phone case holding its screen — rather than bleeding to
-                      the card's own edges the way it did before. */}
+                  {/* The clip that pins this card to the wire. Pushed up past the card's own
+                      top edge so it straddles the line — half gripping the paper, half over
+                      the wire — and it paints above the wire because the card carries a
+                      z-index and the wire does not. Metal grey, not the reference's green:
+                      this page has no accent colour anywhere, and one saturated green object
+                      among ten monochrome ones would read as a mistake rather than a detail.
+                      It does have to be grey rather than white, though — a white clip on
+                      white paper vanishes the moment it crosses onto the card, leaving a tab
+                      that looks stuck to the wire rather than gripping the print. */}
                   <div
-                    className="relative w-full h-full rounded-[20px] overflow-hidden"
+                    aria-hidden="true"
+                    className="absolute left-1/2 -translate-x-1/2 -top-3 sm:-top-3.5 w-[15px] h-[26px] sm:w-[17px] sm:h-[30px] rounded-[5px] bg-gradient-to-b from-zinc-300 to-zinc-500 shadow-md ring-1 ring-black/10"
+                  >
+                    {/* The hole the wire passes through — the one detail that separates a
+                        clip from a plain tab stuck on the card. */}
+                    <span className="absolute left-1/2 -translate-x-1/2 top-[5px] w-[5px] h-[5px] rounded-full bg-zinc-700/80" />
+                  </div>
+
+                  {/* The print. Fixed height rather than an aspect ratio so every card's text
+                      block starts at the same distance below the wire — with the cards tilted
+                      at different angles, a ragged internal baseline is far more visible than
+                      it would be in a straight row. */}
+                  <div
+                    className="relative w-full h-[152px] sm:h-[184px] shrink-0 rounded-[12px] sm:rounded-[16px] overflow-hidden bg-zinc-100"
                     // Safari drops border-radius + overflow-hidden clipping on an element
-                    // sitting under a 3D-transformed ancestor (this card's own rotateY /
-                    // translateZ / the track's perspective) — it never shows up in Chrome
-                    // devtools or headless screenshots, only on a real iPhone, which is why
-                    // the bottom panel could overflow past this frame there and nowhere else.
-                    // Forcing Safari onto its mask-based clip path instead of the broken
-                    // overflow-hidden path is the standard fix for this — but the textbook
-                    // version of it, -webkit-radial-gradient(white, black), is an actual
-                    // gradient: on a tall narrow card like this one its default
-                    // farthest-corner sizing fades to black along the side edges well before
-                    // it reaches the corners, which is a real, visible dark band down both
-                    // sides, not a rendering glitch. Both stops white makes it a true no-op
-                    // gradient — still a mask-image, so Safari still takes the fixed code
-                    // path, but nothing in it actually fades.
+                    // sitting under a transformed ancestor (this card's own rotate, the
+                    // strip's translate) — it never shows up in Chrome devtools or headless
+                    // screenshots, only on a real iPhone, which is why the photo could
+                    // overflow past this frame there and nowhere else. Forcing Safari onto
+                    // its mask-based clip path instead of the broken overflow-hidden path is
+                    // the standard fix — but the textbook version of it,
+                    // -webkit-radial-gradient(white, black), is an actual gradient: its
+                    // default farthest-corner sizing fades to black along the edges well
+                    // before it reaches the corners, which is a real, visible dark band, not
+                    // a rendering glitch. Both stops white makes it a true no-op gradient —
+                    // still a mask-image, so Safari still takes the fixed code path, but
+                    // nothing in it actually fades.
                     style={{ WebkitMaskImage: '-webkit-radial-gradient(white, white)' }}
                   >
                     <img
@@ -836,67 +879,74 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       alt={displayTitle}
                       loading="lazy"
                       decoding="async"
+                      // An <img> is natively draggable. Press on a card's photo — far and away
+                      // the largest target in the strip, and the obvious place to grab — and
+                      // the browser starts its own drag-and-drop of the image file: it takes
+                      // over the gesture, so the pointermove/pointerup this carousel is
+                      // listening for simply never arrive and the strip sits dead under a
+                      // translucent ghost of the picture. select-none on the track fixed the
+                      // same class of hijack for text selection; this is the image half of it.
+                      draggable={false}
                       className="tpl-cover-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
 
                     {/* Category badge — flat translucent, same on every card. See the note on
-                        the bezel above for why nothing here keys off isActive or blurs. */}
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/70 border border-white/10 text-white text-[10px] sm:text-[11px] font-bold">
+                        the surface above for why nothing here keys off isActive or blurs. The
+                        photo's own gradient scrim is gone with the overlaid text panel: with
+                        nothing but this badge sitting on the image, darkening the whole photo
+                        to serve one pill was cost without a reason. The badge carries its own
+                        opaque fill instead. */}
+                    <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 max-w-[80%] truncate px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-black/75 text-white text-[9px] sm:text-[10px] font-bold">
                       {displayCategory}
                     </div>
+                  </div>
 
-                    {/* Bottom panel — name, one-line pitch and the single action this card
-                        needs, mirroring the reference's name + tagline + one button. Dark and
-                        translucent rather than frosted: the photo still reads through it, but
-                        without a backdrop-filter that would have to be built per card. */}
-                    <div className="absolute inset-x-2.5 bottom-2.5 sm:inset-x-4 sm:bottom-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-zinc-950/80 border border-white/15 shadow-xl">
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="text-white font-bold text-sm sm:text-lg line-clamp-1">{displayTitle}</h3>
-                        <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
-                      </div>
-                      <p className="text-zinc-300 text-[10px] sm:text-xs leading-snug sm:leading-relaxed line-clamp-2 mt-0.5 sm:mt-1">
-                        {displaySubtitle}
-                      </p>
-
-                      {/* Meta above, action below — stacked at every width, not just on phones.
-                          Weeks, price and button sharing one row left each too little space to
-                          hold together, so "3 أسابيع" and the price's currency suffix each
-                          broke onto their own line mid-phrase. Desktop is no better off than
-                          mobile here despite its wider card: measured against the panel's own
-                          inner width, that row needs ~270px and only has ~246px. Stacking
-                          gives each its full width; whitespace-nowrap then guarantees neither
-                          value can split again regardless of how long a price gets. */}
-                      <div className="flex flex-col gap-2 mt-2 sm:mt-3">
-                        <div className="flex items-center gap-2.5 sm:gap-3 text-[9px] sm:text-[11px] text-zinc-300 font-semibold">
-                          <span className="flex items-center gap-1 whitespace-nowrap">
-                            <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
-                            {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
-                          </span>
-                          <span className="font-mono font-bold text-white whitespace-nowrap">
-                            {formatPrice(template.basePriceIQD, currentLang, currency)}
-                          </span>
-                        </div>
-
-                        {/* Wears the toolbar's Filter pill outright (.filter-pill-btn +
-                            .filter-pill-beam): same bevelled white surface, same inversion to
-                            black on hover, same undulating beam every other primary action on
-                            this page carries. Stops the click from bubbling to the card's own
-                            onClick above it, since the two now sit nested. */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSelectTemplateForContract(template);
-                            cosmicAudio.playWarp();
-                          }}
-                          className="filter-pill-btn relative shrink-0 w-full px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
-                        >
-                          <span className="filter-pill-beam" aria-hidden="true" />
-                          <FileSignature className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-current shrink-0" />
-                          <span>{getTranslation('selectForContract', currentLang)}</span>
-                        </button>
-                      </div>
+                  {/* Caption block — title, one-line pitch, then the delivery/price line and
+                      the single action, in the reference's own order of importance. Price,
+                      features and tech stack aren't gone: they're one tap away in the full
+                      preview this card opens. */}
+                  <div className="flex flex-col flex-1 min-h-0 px-1 pt-2 sm:pt-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-zinc-900 font-bold text-[13px] sm:text-[15px] leading-tight line-clamp-1">
+                        {displayTitle}
+                      </h3>
+                      <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-zinc-900 shrink-0" />
                     </div>
+                    <p className="text-zinc-500 text-[10px] sm:text-[11px] leading-snug line-clamp-2 mt-0.5">
+                      {displaySubtitle}
+                    </p>
+
+                    {/* mt-auto pins the action to the card's bottom edge regardless of whether
+                        the pitch above it wrapped to one line or two — otherwise the buttons
+                        sit at different heights across the row, which the tilt makes obvious. */}
+                    <div className="flex items-center justify-between gap-2 mt-auto pt-1.5 text-[9px] sm:text-[10px] text-zinc-500 font-semibold">
+                      <span className="flex items-center gap-1 whitespace-nowrap">
+                        <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
+                        {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
+                      </span>
+                      <span className="font-mono font-bold text-zinc-900 whitespace-nowrap">
+                        {formatPrice(template.basePriceIQD, currentLang, currency)}
+                      </span>
+                    </div>
+
+                    {/* Solid near-black, not the toolbar's white .filter-pill-btn: that pill
+                        is a white surface that inverts to black on hover, and on a white card
+                        it has nothing to sit against — it would read as a bare label until
+                        someone happened to hover it. This is the same pill inverted from the
+                        start, which is also the reference's own treatment: one solid, filled
+                        button as the card's only action. Stops the click from bubbling to the
+                        card's own onClick above it, since the two sit nested. */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectTemplateForContract(template);
+                        cosmicAudio.playWarp();
+                      }}
+                      className="mt-1.5 w-full px-3 py-1.5 sm:py-2 rounded-full bg-zinc-900 hover:bg-zinc-700 transition-colors text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    >
+                      <FileSignature className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                      <span>{getTranslation('selectForContract', currentLang)}</span>
+                    </button>
                   </div>
                 </div>
                 </div>
