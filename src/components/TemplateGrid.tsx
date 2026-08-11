@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
-import { isLowEndDevice } from '../lib/deviceQuality';
+import { useLowEndDevice } from '../lib/deviceQuality';
 import {
   Search,
   CheckCircle2,
