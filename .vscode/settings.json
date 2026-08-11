@@ -1,5 +1,39 @@
 {
+    // ── Autosync (GitDoc) ────────────────────────────────────────────────────────
+    // These live in the *workspace* settings on purpose: this file is committed, so
+    // whoever clones or pulls the repo gets the same sync behaviour without setting
+    // anything up. That is what makes an edit on one machine land on the other one.
     "gitdoc.enabled": true,
+
+    // Commit ~30s after the last save, then push immediately. Without autoPush the
+    // extension only ever commits locally — which is exactly what had happened here:
+    // 5 local commits that had never reached GitHub while 24 commits sat unpulled on
+    // the remote, so neither side had seen the other's work for hours.
+    "gitdoc.autoCommitDelay": 30000,
+    "gitdoc.autoPush": "onCommit",
+
+    // NEVER force push. This is the one setting here that is not a convenience — the
+    // extension's own default for it is "forcePush", which on a two-person repo means
+    // any machine that commits while behind silently overwrites the other person's
+    // commits on the remote, with no conflict and no warning. Plain "push" fails
+    // instead when the branch has diverged, and the pull below then reconciles it.
+    // Do not change this back.
+    "gitdoc.pushMode": "push",
+
+    // "afterDelay", not the default "onPush". The default only pulls as a side effect
+    // of pushing, so a machine that is merely open — reviewing, testing, not editing —
+    // never fetches anything and drifts further behind the longer it sits there. On a
+    // timer, both machines converge whether or not the person at either one is typing.
+    "gitdoc.autoPull": "afterDelay",
+    "gitdoc.autoPullDelay": 30000,
+    "gitdoc.pullOnOpen": true,
+
+    // Leave hooks enabled. The repo's pre-commit hook is what refuses to commit a file
+    // still containing `<<<<<<<` markers, and with two people auto-committing into the
+    // same files an auto-pull will land the tree mid-conflict sooner or later. noVerify
+    // would skip that check and bake the broken file straight into shared history.
+    "gitdoc.noVerify": false,
+
     "dart.flutterWebRenderer": "auto",
     "workbench.browser.enableRemoteProxy": true,
     "python-envs.defaultEnvManager": "ms-python.python:system"
