@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ContractData } from '../types';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { Language, translateText } from '../lib/i18n';
