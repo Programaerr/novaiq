@@ -62,11 +62,11 @@ export const ResponsivePreview: React.FC<{
     );
   }, [themeColor, width]);
 
-  // Scales to fit the WIDTH, and only ever downwards — so a phone preview on a desktop stays
-  // pixel-exact. Height deliberately fills the stage instead of being fitted too: this is a
-  // website preview, not a device photo, so it should show as much of the page as the panel
-  // can hold and scroll for the rest. Fitting both axes was tried and letterboxed the desktop
-  // view into a short wide sliver, which is worse at the one job this has.
+  // Scale is set by the WIDTH alone, and only ever downwards — so a phone preview on a desktop
+  // stays pixel-exact. Height is not part of the fit: scaling to fit both axes was tried and
+  // letterboxed the desktop view on a desktop into a short wide sliver, because it shrank the
+  // frame to fit 800px of height that the panel had plenty of room for. The height question is
+  // answered separately, by the ceiling below, which only ever binds when it needs to.
   const scale = stage.w > 0 ? Math.min(stage.w / width, 1) : 1;
 
   // The frame fills the stage, but never grows past the real height of the device it is
