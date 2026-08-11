@@ -21,6 +21,7 @@ import { formatPrice, Currency } from '../lib/currency';
 import { showToast } from '../lib/toast';
 import { loadContractDraft, saveContractDraft, clearContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
+import { contractTerms } from '../data/contractTerms';
 
 interface ContractBuilderProps {
   selectedTemplate: Template | null;
@@ -199,6 +200,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   const totalPriceIQD = basePriceIQD + selectedSpecsPriceIQD;
 
+  // Shown to the customer in step 4 and printed as section 4 of their PDF, from one module so
+  // the two can never disagree. The week count must match what handleSubmit writes into the
+  // contract below, which is why it is derived the same way rather than typed out again.
+  const deliveryTimelineWeeks = isCustomProject ? 8 : template.deliveryWeeks;
+  const terms = contractTerms(lang, deliveryTimelineWeeks);
+
   const toggleSpec = (specId: string) => {
     if (selectedSpecIds.includes(specId)) {
       setSelectedSpecIds(selectedSpecIds.filter(id => id !== specId));
@@ -305,7 +312,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       selectedSpecsPriceSAR: selectedSpecsPriceIQD,
       totalPriceSAR: totalPriceIQD,
       paymentPlan,
-      deliveryTimelineWeeks: isCustomProject ? 8 : template.deliveryWeeks,
+      deliveryTimelineWeeks,
       signatureDataUrl,
       agreedToTerms,
       status: 'submitted',
@@ -858,6 +865,42 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   <FileSignature className="w-5 h-5 text-white" />
                   <span>{getTranslation('stepSignature', lang)}</span>
                 </h3>
+              </div>
+
+              {/* The agreement itself, in full, immediately above the pad that signs it.
+                  A customer should never have to take on trust what they are signing, and
+                  the clauses printed as section 4 of their PDF are exactly these — same
+                  module, same order, so the two cannot drift apart (src/data/contractTerms.ts).
+                  `data-lenis-prevent` because this box scrolls internally: without it the
+                  smooth-scroll wrapper takes the wheel and moves the page behind instead. */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-xs font-bold text-zinc-300">
+                    {isAr ? 'بنود العقد — يُرجى قراءتها قبل التوقيع:' : 'Contract terms — please read before signing:'}
+                  </label>
+                  <span className="text-[11px] text-zinc-500 shrink-0">
+                    {terms.length} {isAr ? 'بنداً' : 'clauses'}
+                  </span>
+                </div>
+
+                <div
+                  data-lenis-prevent
+                  className="max-h-72 overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-900 p-4"
+                >
+                  <ol className="list-decimal space-y-2.5 ps-4 marker:font-bold marker:text-zinc-500">
+                    {terms.map((term, i) => (
+                      <li key={i} className="text-[11px] leading-relaxed text-zinc-300">
+                        {term}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <p className="text-[11px] text-zinc-500">
+                  {isAr
+                    ? 'توقيعك أدناه إقرار بأنك قرأت البنود أعلاه ووافقت عليها، وستُطبع ضمن نسخة عقدك.'
+                    : 'Signing below acknowledges that you have read and accepted the terms above; they are printed in your contract copy.'}
+                </p>
               </div>
 
               <div className="space-y-2" ref={signaturePadRef}>
