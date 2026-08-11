@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
-import { useIsScrolling } from '../../lib/useIsScrolling';
 
 // Chrome that wraps a template demo rather than being part of any one demo: the fixed-width
 // responsive preview frame and the shared menu glyph. Split out of
@@ -170,6 +169,35 @@ export const SiteMenuIcon: React.FC = () => (
 );
 
 /**
+ * Frosted-glass fill for a sticky bar, without a live `backdrop-filter`. That property blurs
+ * whatever is visually behind the element — for a `sticky` bar sitting over scrolling demo
+ * content, "whatever is behind it" changes every single frame of every scroll gesture, so the
+ * browser was re-blurring fresh input 60 times a second for as long as a visitor scrolled.
+ *
+ * This blurs a small static gradient instead. Same soft, translucent look — a heavy blur
+ * radius destroys nearly all detail of whatever sits behind it anyway, live or not — but the
+ * input here never changes, so the blur runs once on first paint and the result is then just
+ * composited like any other layer, sticky or scrolling or not.
+ *
+ * `-inset-6` oversizes the source past the bar's own edge so the blur has room to fall off
+ * naturally instead of being hard-cropped at the box boundary; the parent's own
+ * `overflow-hidden` (needed anyway, for its rounded corners) crops that bleed at the pill
+ * shape. `-z-10` keeps it behind the bar's real content regardless of DOM/paint-order edge
+ * cases, rather than relying on source order alone.
+ */
+export const FrostedFill: React.FC = () => (
+  <div
+    aria-hidden="true"
+    className="absolute -inset-6 -z-10"
+    style={{
+      filter: 'blur(24px)',
+      background:
+        'radial-gradient(circle at 18% 15%, rgba(255,255,255,0.18), transparent 55%), radial-gradient(circle at 85% 75%, rgba(255,255,255,0.1), transparent 60%), rgba(12,12,16,0.88)',
+    }}
+  />
+);
+
+/**
  * The header every demo site wears — menu and search on one side, the logo lockup centred on
  * the row, and whatever action that template's own business needs on the other (a cart for the
  * store, "my appointments" for the clinic, and so on).
@@ -211,19 +239,11 @@ export const SiteTopBar: React.FC<{
   isNarrow,
 }) => {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  // A sticky, blurred bar re-samples whatever scrolls underneath it every single frame —
-  // the same demo content this bar sits above, moving continuously during a scroll gesture.
-  // Dropping the blur for the gesture itself (restored ~150ms after it settles) removes that
-  // per-frame cost exactly where it happens, without touching how the bar looks at rest.
-  const isScrolling = useIsScrolling();
 
   return (
     <div className="sticky top-1 sm:top-2 z-30 mb-6 select-none">
-      <div
-        className={`border border-white/10 shadow-xl shadow-black/20 rounded-2xl overflow-hidden transition-all duration-200 ${
-          isScrolling ? 'bg-black/70' : 'bg-white/5 backdrop-blur-xl'
-        }`}
-      >
+      <div className="relative bg-white/5 border border-white/10 shadow-xl shadow-black/20 rounded-2xl overflow-hidden">
+        <FrostedFill />
         <div className={`relative flex items-center justify-between gap-2 p-3 px-3 ${isNarrow ? '' : 'sm:gap-4 sm:p-4 sm:px-6'}`}>
         {/* Right cluster: sections menu, then search. */}
         <div className="flex items-center gap-2 shrink-0">
