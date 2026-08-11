@@ -1135,7 +1135,7 @@ html[data-device='low'] [class*='backdrop-blur'] {
    rasterized once, and the fade becomes a blend of a ready texture rather than a repaint that
    drags the card's animated layer down with it. Scoped to these cards on purpose — everywhere
    else the ring shares an element with nothing, and does not need a layer of its own. */
-.milestone-card.reveal-border::after {
+.milestone-card .rv {
   will-change: opacity;
 }
 
@@ -1484,26 +1484,6 @@ html[data-device='low'] [class*='backdrop-blur'] {
   );
 }
 
-/* The hovered card: brightest where the pointer is, but the outline stays *drawn the whole
-   way round*. Those are two separate requirements and the earlier 0.04 floor only met the
-   first — measured on a roadmap card with the pointer at its top corner, the lit stretch
-   came out at luminance 255 against 72 for the other three sides, and next to a 255 edge a
-   72 one does not read as dim, it reads as missing. The floor is now high enough to be
-   unambiguously a line (~117) while the peak still triples it, which keeps the light clearly
-   travelling along the border rather than switching the whole card on at once — the failure
-   mode of the old never-below-0.38 version this replaced. */
-/* `.is-touched` is the same statement as `:hover` for a finger, which has none — the hook
-   works out which card the pointer is inside and says so. Without it the card under the
-   finger would light like one of its own neighbours. */
-.reveal-border:hover::after,
-.reveal-border.is-touched::after {
-  background: radial-gradient(
-    230px circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 1),
-    rgba(255, 255, 255, 0.55) 40%,
-    rgba(255, 255, 255, 0.28) 100%
-  );
-}
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
