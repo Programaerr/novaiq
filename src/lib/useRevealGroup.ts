@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
 /**
  * Drives the Windows/Fluent reveal across a row of cards — both halves of it: `.reveal-border`
@@ -6,6 +6,23 @@ import { useEffect, useRef } from 'react';
  *
  * Returns a ref to put on the container. Every descendant carrying either class gets the
  * pointer's position written into its own `--rx`/`--ry`.
+ *
+ * ## Why a callback ref, and not useRef + useEffect([])
+ *
+ * That is what this was, and it silently died on any container that mounts and unmounts while
+ * the component holding the hook stays alive. App.tsx is exactly that shape: the hook lives in
+ * App, which never unmounts, while its group sits inside `{activePage === 'home' && ...}`.
+ * Leave home and come back and React destroys that div and builds a new one — `ref.current`
+ * now points at the new node, but an effect with `[]` deps never re-runs, so every listener is
+ * still attached to the old detached one. The reveal goes dead and only a full page reload
+ * brings it back. Landing on any non-home URL first was the same bug from the other side:
+ * `ref.current` was null when the effect ran, the hook returned immediately, and navigating to
+ * home afterwards never wired anything up at all.
+ *
+ * A callback ref is called by React with the node on attach and with `null` on detach, every
+ * time either happens — which is precisely the lifecycle the listeners need. The hook is then
+ * correct for a container that appears late, disappears, or is replaced, without the caller
+ * having to know that it must not be conditionally rendered.
  *
  * One listener on the container rather than one per card, because that is the whole effect:
  * a card needs the pointer's position even while it sits over a *different* card, which is
@@ -40,10 +57,15 @@ import { useEffect, useRef } from 'react';
  * change — the effect itself is unchanged on every device.
  */
 export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
-  const ref = useRef<T | null>(null);
+  // Teardown for the node currently wired up, held across calls so attaching to a new node can
+  // release the previous one. React hands us `null` before the replacement node in a remount,
+  // so this is usually already spent by then — but not on a straight swap, and leaking a set of
+  // listeners onto a detached node per navigation is the very thing being fixed.
+  const detach = useRef<(() => void) | null>(null);
 
-  useEffect(() => {
-    const group = ref.current;
+  return useCallback((group: T | null) => {
+    detach.current?.();
+    detach.current = null;
     if (!group) return;
 
     let frame = 0;
@@ -200,7 +222,7 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     window.addEventListener('scroll', invalidate, { passive: true });
     window.addEventListener('resize', invalidate);
 
-    return () => {
+    detach.current = () => {
       if (frame) cancelAnimationFrame(frame);
       group.removeEventListener('pointermove', onPointerMove);
       group.removeEventListener('pointerenter', onPointerEnter);
@@ -212,7 +234,7 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
       window.removeEventListener('scroll', invalidate);
       window.removeEventListener('resize', invalidate);
     };
+    // Stable identity: a ref callback that changed each render would be torn down and re-run on
+    // every one, re-measuring the group and dropping `is-live` mid-hover.
   }, []);
-
-  return ref;
 }
