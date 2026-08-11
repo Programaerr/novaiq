@@ -6,16 +6,19 @@ import { useSyncExternalStore } from 'react';
 // capable GPUs, and get a cheaper equivalent that looks the same on the rest.
 //
 // Two passes:
-//   1. Synchronous hardware guess at import time (cores / RAM / reduced-motion) — applied
-//      before first paint so a known-weak device never even starts the expensive effects.
+//   1. Synchronous hardware guess at import time (cores / RAM / touch / reduced-motion) —
+//      applied before first paint so a known-weak device never even starts the expensive
+//      effects. Phones get a lower budget than desktops: a mobile GPU chokes on the same
+//      layer count far earlier, so the same spec sheet means "low-end" sooner there.
 //   2. A runtime jank probe a couple of seconds after load: if the median frame interval
 //      stays above budget even while idle, the GPU/CPU cannot hold 60fps and the page
 //      downgrades late. This is what catches weak machines that pass the hardware checks
 //      (e.g. a 4-core laptop with an integrated GPU) — the exact devices the user sees
 //      stutter on. Downgrade-only: discover a weak device, never an upgrade.
 
-const JANK_BUDGET_MS = 26; // median frame interval over budget = not holding 60fps
-const PROBE_FRAMES = 45;   // ~0.75s of rAF samples
+const JANK_BUDGET_MS = 26;     // desktop: median frame interval over budget = not holding 60fps
+const TOUCH_BUDGET_MS = 22;    // phones/tablets get a tighter budget — weaker squeezed GPUs
+const PROBE_FRAMES = 45;       // ~0.75s of rAF samples
 const PROBE_DELAY_MS = 1800;
 
 let lowEnd = false;
@@ -52,6 +55,14 @@ function flagLowEnd(): void {
   listeners.forEach((fn) => fn());
 }
 
+function isTouchDevice(): boolean {
+  return (
+    typeof navigator !== 'undefined' &&
+    typeof navigator.maxTouchPoints === 'number' &&
+    navigator.maxTouchPoints > 0
+  );
+}
+
 function detectHardware(): boolean {
   try {
     if (typeof navigator === 'undefined') return false;
@@ -59,8 +70,14 @@ function detectHardware(): boolean {
 
     const cores = navigator.hardwareConcurrency;
     const mem = (navigator as { deviceMemory?: number }).deviceMemory;
+    const touch = isTouchDevice();
+
     if (typeof cores === 'number' && cores > 0 && cores <= 2) return true;
     if (typeof mem === 'number' && mem > 0 && mem <= 4) return true;
+    // Touch devices only — a 4-core phone (or ≤6GB one) is already a low-end phone, where
+    // the same numbers on a desktop would pass. Desktops keep the conservative budget.
+    if (touch && typeof cores === 'number' && cores > 0 && cores <= 4) return true;
+    if (touch && typeof mem === 'number' && mem > 0 && mem <= 6) return true;
     return false;
   } catch {
     return false;
@@ -72,6 +89,7 @@ function scheduleRuntimeProbe(): void {
 
   const run = () => {
     if (document.visibilityState === 'hidden') return;
+    const budget = isTouchDevice() ? TOUCH_BUDGET_MS : JANK_BUDGET_MS;
     let frame = 0;
     let last = performance.now();
     const intervals: number[] = [];
@@ -83,7 +101,7 @@ function scheduleRuntimeProbe(): void {
       if (frame >= PROBE_FRAMES) {
         const sorted = [...intervals].sort((a, b) => a - b);
         const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
-        if (median > JANK_BUDGET_MS) flagLowEnd();
+        if (median > budget) flagLowEnd();
         return;
       }
       requestAnimationFrame(step);
