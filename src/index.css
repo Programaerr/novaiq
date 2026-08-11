@@ -739,6 +739,60 @@ html[data-device='low'] .star-layer--near {
   animation: none;
 }
 
+/* The rest of the low-end tier. Two kinds of reduction, both dropping the per-frame work
+   while keeping the resting look identical:
+
+   · FREEZE infinite loops that nobody is watching closely — the hero glow pulse, the
+     About panel's glinting border, the roadmap drift, the demo-card wave. A frozen frame
+     of each is visually indistinguishable from its animated self.
+   · STRIP repaint-heavy hover transitions (box-shadow/background/color fades re-rasterize
+     the element every hover frame) down to the compositor-only transform lift, and pause
+     the rotating beam gradients. The surface swap still snaps instantly, so every hover
+     still reads — just without renting the whole frame while it fades. */
+html[data-device='low'] .animate-pulse-glow {
+  animation: none;
+  opacity: 0.45;
+}
+
+html[data-device='low'] .solid-shimmer::after {
+  animation: none;
+  opacity: 0.55;
+}
+
+html[data-device='low'] .corner-sweep::before {
+  display: none;
+}
+
+html[data-device='low'] .product-card-wave,
+html[data-device='low'] .milestone-card {
+  animation: none;
+}
+
+html[data-device='low'] .filter-pill-beam::before,
+html[data-device='low'] .nq-btn-beam::before {
+  animation: none;
+}
+
+html[data-device='low'] .filter-pill-btn,
+html[data-device='low'] .nq-btn,
+html[data-device='low'] .search-neu,
+html[data-device='low'] .white-btn-glow {
+  transition: transform 250ms ease;
+}
+
+/* The hero wheel keeps its real 3D spin, just over a shorter glide — less time the GPU
+   spends rasterizing the preserve-3d turn, same destination and same look when it rests. */
+html[data-device='low'] .wheel3d-ring {
+  transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* The coverflow image's hover zoom re-rasterizes the card's own (previously promoted)
+   layer texture per hover frame; on weak hardware it snaps instead. */
+html[data-device='low'] .tpl-cover-img {
+  transform: none !important;
+  transition: none !important;
+}
+
 /* Engineered navbar glass (.glass-bar). The original design used `backdrop-filter: blur()`
    directly on the floating chrome — but a backdrop-filter on a fixed header re-samples and
    re-blurs the content sliding beneath it on every scroll frame, which is exactly the kind of
