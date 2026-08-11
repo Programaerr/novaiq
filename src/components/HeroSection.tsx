@@ -56,6 +56,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
   // is one property on one element; React only re-renders when `isDragging` flips (twice per
   // gesture). `rotRef` is the live angle, `wheelRef` the ring it is written to.
   const [isDragging, setIsDragging] = useState(false);
+  // Bumped only by a manual action (button click / drag release) to restart the autoplay
+  // clock — the wheel's angle itself lives in `rotRef`, so no per-frame state is needed.
+  const [tick, setTick] = useState(0);
   const wheelRef = useRef<HTMLDivElement | null>(null);
   const rotRef = useRef(0);
   const dragRef = useRef<{ startX: number; startRot: number } | null>(null);
@@ -83,19 +86,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
   const stopDragging = () => {
     dragRef.current = null;
     setIsDragging(false);
+    setTick((t) => t + 1);
     writeRotation(snapToStep(rotRef.current));
   };
 
   const rotateBy = (delta: number) => {
     dragRef.current = null;
     setIsDragging(false);
+    setTick((t) => t + 1);
     writeRotation(snapToStep(rotRef.current) + delta);
   };
 
   // Auto-advance one face every 5s. Reads the ref, so nothing re-renders for it. Paused
   // while dragging and skipped entirely under reduced-motion or on a low-end device — there
   // the wheel stays put until the visitor turns it, keeping the preserve-3d glide off the
-  // animation path for anyone who will only see it jank.
+  // animation path for anyone who will only see it jank. Depends on `tick` so a manual turn
+  // restarts the clock, the same "don't auto-advance right on top of my input" the old
+  // rotation-state version gave us.
   useEffect(() => {
     if (isDragging || lowEnd) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -103,7 +110,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
       writeRotation(snapToStep(rotRef.current) + WHEEL_STEP);
     }, 5000);
     return () => window.clearInterval(id);
-  }, [isDragging, lowEnd]);
+  }, [isDragging, lowEnd, tick]);
 
   return (
     <section className="relative pt-4 pb-8 md:pt-6 md:pb-10 overflow-hidden">
