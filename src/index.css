@@ -803,6 +803,29 @@
   animation: page-in 0.3s ease-out both;
 }
 
+/* Everything stops while nobody can see it. Set by usePauseOffscreenWork() when the tab goes
+   to the background, the window is minimised or another window takes focus — see that hook
+   for why the always-mounted chrome (the cosmic background's star drift above all) was the
+   thing still burning frames with no viewer.
+
+   `paused`, not `none`: a paused animation keeps its exact current position and continues
+   from it, so coming back to the tab looks like the page was waiting rather than like it
+   restarted or jumped. The browser schedules no tick, no paint and no composite for a paused
+   animation, so this genuinely stops the work rather than hiding it.
+
+   The universal selector is safe here specifically because it is not a per-frame cost: it is
+   evaluated on the two occasions the flag flips, not while anything is running. Pseudo
+   elements are listed explicitly because most of this site's motion lives on them — the
+   reveal light, the button beams, the shimmer.
+
+   Transitions are deliberately left alone. They are responses to interaction, and there is
+   no interaction happening while the window is hidden. */
+html[data-idle] *,
+html[data-idle] *::before,
+html[data-idle] *::after {
+  animation-play-state: paused !important;
+}
+
 /* Low-end device lag fix: sections below the first viewport were being painted,
    animated (star drift, reveal, milestones) and composited at page load
    even though the visitor had not scrolled to them — doing the whole page's work up
