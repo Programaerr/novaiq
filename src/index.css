@@ -826,6 +826,21 @@ html[data-idle] *::after {
   animation-play-state: paused !important;
 }
 
+/* A template demo is on screen (flag set by TemplateInteractiveSandbox while it is mounted).
+   The demo covers the whole viewport with its own opaque page, so the cosmic background is
+   not dimmed or partly seen behind it — it is not seen at all, while still animating two star
+   fields, two glow layers and a blurred photo underneath it.
+
+   `display: none` rather than `visibility` or opacity: this has to stop the work, not hide
+   the result, and only display removes the subtree from rendering outright. Nothing is lost
+   visually because the page wrappers on both routes into a demo are already `bg-black`, which
+   is exactly the flat black the background resolves to anyway once its layers are gone. The
+   demo then has the frame entirely to itself, which is the whole point — a customer judging a
+   template should be judging the template, not watching it compete with scenery behind it. */
+html[data-demo] .cosmic-bg {
+  display: none;
+}
+
 /* Low-end device lag fix: sections below the first viewport were being painted,
    animated (star drift, reveal, milestones) and composited at page load
    even though the visitor had not scrolled to them — doing the whole page's work up

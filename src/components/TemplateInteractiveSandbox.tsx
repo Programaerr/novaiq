@@ -101,6 +101,23 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   language = 'ar',
   currency = 'IQD',
 }) => {
+  // Declares "a template demo is on screen" for as long as this is mounted, which the cosmic
+  // background reads to take itself out of the render tree entirely (see `html[data-demo]` in
+  // index.css).
+  //
+  // A demo fills the viewport, so every layer of that background — two animating star fields,
+  // the glow pair, the blurred photo — was being rendered underneath something completely
+  // opaque. Not merely invisible: still animated, still composited, every frame, competing
+  // with the very demo it was hidden behind. Set here rather than at either call site because
+  // this component is what both of them mount: the standalone `?preview=` page and the modal
+  // TemplateGrid opens, so declaring it once covers both and cannot fall out of step.
+  useEffect(() => {
+    document.documentElement.dataset.demo = 'true';
+    return () => {
+      delete document.documentElement.dataset.demo;
+    };
+  }, []);
+
   // The one place every price in this component should be formatted through — a language-
   // matched IQD label by default, converting to USD only if the customer explicitly chose it.
   const price = (amountIQD: number) => formatPrice(amountIQD, language, currency);
