@@ -42,8 +42,14 @@ const TemplateInteractiveSandbox = lazy(() =>
 // all three in lockstep, and any drift between them shows up as the fan swinging about a
 // point it is not actually drawn around. The fan is kept inside narrower viewports by the
 // track's own max-width instead, which costs nothing per frame.
-const ARC_ANGLE_STEP_DEG = 16;
-const ARC_RADIUS = 620;
+// Radius and step are chosen together against the card's own width, not tuned by eye: the
+// gap between neighbours along the cylinder is ARC_RADIUS * sin(step), so at the old 620/16°
+// that came to ~171px for a 330px card and every neighbour buried the one beside it. 1000 at
+// 21° opens it to ~358px — just past the card's width, which is what gives the rack its
+// visible separation — while keeping the outermost card at 42°, angled enough to read as
+// turned without going edge-on.
+const ARC_ANGLE_STEP_DEG = 21;
+const ARC_RADIUS = 1000;
 const ARC_STEP_PX = ARC_RADIUS * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
 const FLAT_STEP_PX_MOBILE = 156;
 const FLAT_STEP_PX_DESKTOP = 230;
@@ -54,7 +60,7 @@ const FLAT_STEP_PX_DESKTOP = 230;
 // rather than being clipped, which is what left "half a card missing" on anything under a
 // wide desktop. Scaling the rendered fan (not the radius) keeps the radius, the drag's
 // px-to-degrees conversion and the track's transform-origin describing the same circle.
-const FAN_NATURAL_WIDTH = 1192;
+const FAN_NATURAL_WIDTH = 1933;
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
@@ -589,28 +595,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               }
             }}
             style={{
-              // No perspective on the track at all anymore (see the arc note above): the fan
-              // is pure 2D, so the browser has nothing to re-project or depth-sort per frame.
-              // The drag lives on the track as a rotation of the whole fan about the arc's
-              // pivot (ARC_RADIUS=620px below the strip centre), so a hand-drag swings the
-              // cards around the circle; on release the same 0.9s glide as the cards carries
-              // the angle back to rest. The transform transition is suppressed mid-gesture so
-              // the fan tracks the pointer 1:1, exactly like the per-card transform handling
-              // below. Flat geometry (phones + low-end desktops) skips the rotation entirely,
-              // reading only --drag-x.
-              ...(flatGeometry
-                ? {}
-                : {
-                    transform: 'rotate(var(--drag-angle-deg, 0deg))',
-                    // Pivot follows the fan's scale — the cards ride a circle of
-                    // ARC_RADIUS * fanScale once the fan is shrunk to fit, and rotating about
-                    // the unscaled pivot would swing them about a point they are not drawn
-                    // around, which reads as the whole strip sliding rather than fanning.
-                    transformOrigin: `50% calc(50% + ${ARC_RADIUS * fanScale}px)`,
-                    transition: isDragging
-                      ? 'none'
-                      : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
-                  }),
+              // Perspective is back, and only here: the reversed-perspective coverflow is a
+              // genuine cylinder — cards ride a circle in the XZ plane and lean their outer
+              // edges toward the viewer — so it needs a projection to exist at all. It is
+              // scoped to the capable-desktop branch; phones and low-end machines still take
+              // the pure-2D strip below and never pay for it, which is the split the flat
+              // geometry was introduced for.
+              ...(flatGeometry ? {} : { perspective: '1500px', perspectiveOrigin: '50% 50%' }),
             }}
             // max-w-7xl, not 4xl: at 4xl the outermost card on each side was clipped by ~68px
             // (measured), which is the "half a card missing" the fan showed. It needs to be
@@ -618,16 +609,39 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // to sit on this track foreshortened the outer cards inward, and without it they
             // reach their full un-projected width, so the same radius needs more room than it
             // did. Heights are trimmed to what the cards actually occupy.
-            className="relative w-full max-w-7xl h-[440px] sm:h-[560px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
+            className="relative w-full max-w-7xl h-[440px] sm:h-[360px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
           {/* Shrink-to-fit layer. Every card is positioned against the fan's natural size, and
               this one transform brings the whole shape down to whatever width the track really
               has — so the outermost card is never clipped, at any viewport, without a single
-              per-card measurement. A plain scale on one element is also the cheapest way to do
-              it: it composites, and it leaves the arc maths below untouched. */}
+              per-card measurement. preserve-3d so the cylinder below survives this wrapper
+              rather than being flattened into a picture of itself. */}
           <div
             className="absolute inset-0"
-            style={fanScale === 1 ? undefined : { transform: `scale(${fanScale})`, transformOrigin: '50% 50%' }}
+            style={{
+              transformStyle: flatGeometry ? undefined : 'preserve-3d',
+              ...(fanScale === 1 ? {} : { transform: `scale(${fanScale})`, transformOrigin: '50% 50%' }),
+            }}
+          >
+          {/* Drag layer. The cylinder spins about its own vertical axis — a rotateY around an
+              origin pushed ARC_RADIUS *into* the screen, which is the axis the cards are
+              actually arranged around. The old flat fan span this as a 2D rotate about a pivot
+              below the strip; that pivot no longer describes where the cards are, and spinning
+              a cylinder about it would slide the whole rack sideways instead of turning it.
+              Suppressed mid-gesture so the rack tracks the pointer 1:1, then glides home on
+              release with the same 0.9s curve the cards use. */}
+          <div
+            className="absolute inset-0"
+            style={
+              flatGeometry
+                ? undefined
+                : {
+                    transformStyle: 'preserve-3d',
+                    transform: 'rotateY(var(--drag-angle-deg, 0deg))',
+                    transformOrigin: `50% 50% ${-ARC_RADIUS}px`,
+                    transition: isDragging ? 'none' : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
+                  }
+            }
           >
           {filteredTemplates.map((template, index) => {
             const displayTitle = translateText(template.title, currentLang);
@@ -667,28 +681,25 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               // or drop those frames; the capable-desktop fan is handled below.
               transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * flatStepPx}px + var(--drag-x, 0px)))`;
             } else {
-              // Each step out is a point on a shared arc, not a straight sideways slide: an
-              // angle proportional to distance from center, translated into a horizontal
-              // reach (sin) and a downward dip (1 - cos) around a pivot below the strip, the
-              // same way a hand of physical cards fans out. rotateZ uses the identical angle,
-              // so a card always leans in the exact direction it's displaced toward — the arc
-              // and the tilt can't disagree with each other.
+              // Reversed-perspective coverflow: the cards ride a cylinder whose axis sits
+              // BEHIND the strip, so the rack opens toward the viewer instead of folding away
+              // from it. The centre card faces square on; every step out swings its outer edge
+              // forward and brings it nearer the eye, which is why the end cards read as the
+              // largest ones on screen rather than the smallest.
               //
-              // Deliberately 2D: no translateZ recession, no rotateY and no perspective on
-              // the track. Depth-sorting and re-projected transforms are exactly the per-frame
-              // GPU work that turns a mid-drag into dropped frames and a stalling machine on
-              // an integrated graphics card; the flat arc still reads as a fan of cards, but
-              // every transform here is a plain 2D compositor op that any GPU carries.
+              // The three parts have to agree or the illusion breaks: sin puts the card at its
+              // point on the circle, (1 - cos) pulls it forward by how far around it has gone,
+              // and rotateY turns it to the tangent at that point. The negative rotation is
+              // what reverses the perspective — the same magnitude positive would fold the
+              // rack away into the screen, which is the ordinary coverflow this is not.
               const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
               const angleRad = (angleDeg * Math.PI) / 180;
-              const arcX = ARC_RADIUS * Math.sin(angleRad);
-              const arcY = ARC_RADIUS * (1 - Math.cos(angleRad));
-              // The arc is static here; the drag's orbital glide is applied on the track as a
-              // whole rotation about this same arc's pivot (see the track's transform-origin,
-              // ARC_RADIUS below the strip), so a hand-fan doesn't slide sideways flat — it
-              // swings around the circle beneath it, and releases back into place on the same
-              // 0.9s glide as the cards themselves.
-              transform = `translate(-50%, -50%) translateX(${arcX}px) translateY(${arcY}px) rotateZ(${angleDeg}deg)`;
+              const cylX = ARC_RADIUS * Math.sin(angleRad);
+              const cylZ = ARC_RADIUS * (1 - Math.cos(angleRad));
+              // No --drag-x here: the drag is a rotation of the whole cylinder about its own
+              // axis, applied once on the layer above, so a hand-drag turns the rack rather
+              // than sliding it sideways past a static curve.
+              transform = `translate(-50%, -50%) translateX(${cylX}px) translateZ(${cylZ}px) rotateY(${-angleDeg}deg)`;
             }
 
             return (
@@ -892,6 +903,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               </div>
             );
           })}
+          </div>
           </div>
           </div>
         </div>
