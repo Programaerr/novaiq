@@ -793,6 +793,15 @@ html[data-device='low'] .tpl-cover-img {
   transition: none !important;
 }
 
+/* backdrop-filter is the heaviest single ask a phone GPU faces — every frosted panel
+   re-samples the content sliding beneath it. Stripped on the low tier: the panels keep
+   their translucent fill and border, so they still read as glass, just without the
+   per-frame Gaussian sampling. */
+html[data-device='low'] [class*='backdrop-blur'] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 /* Engineered navbar glass (.glass-bar). The original design used `backdrop-filter: blur()`
    directly on the floating chrome — but a backdrop-filter on a fixed header re-samples and
    re-blurs the content sliding beneath it on every scroll frame, which is exactly the kind of
