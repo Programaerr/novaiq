@@ -4,7 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NOVAIQ | القوالب البرمجية والمواقع الإلكترونية الذكية للشركات</title>
-    <link rel="icon" type="image/png" href="/src/assets/images/novaiq-icon.png" />
+    <link rel="icon" type="image/png" href="/icons/favicon.png" />
+    <!-- Installable-app (PWA) wiring: the manifest makes Android/Chrome offer "Add to home
+         screen", and the iOS metas make "Add to Home Screen" work on iPhone Safari too. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="theme-color" content="#030712" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NOVAIQ" />
     <!-- Cairo & Tajawal are self-hosted (see src/index.css @font-face rules) instead of
          loaded from Google Fonts, to avoid the extra third-party round-trip and the
          visible font swap-in delay that came with it. -->

@@ -9,6 +9,17 @@ import './index.css';
 // compositor-heavy effects on weak devices without waiting on React at all.
 applyDeviceClass();
 
+// Installable-app worker. Registered only in production builds (dev serves /sw.js anyway,
+// but prod is where the cache-first speed-up on a phone actually pays off). Runtime-cached —
+// see public/sw.js for the strategy.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {
+      // No service worker? The site still works, just without the offline/cache layer.
+    });
+  });
+}
+
 // `?live=<template-id>` is served as its own document rather than as a route inside the app.
 // It has to be a genuinely separate page: it's what the device-frame iframes load and what
 // the "open in a new tab" action opens, so none of NOVAIQ's own shell (navbar, background,

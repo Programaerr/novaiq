@@ -1,12 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  ShieldCheck,
-  Clock,
-  Globe2,
-  Award,
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
+import { ShieldCheck, Clock, Globe2, Award, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLowEndDevice } from '../lib/deviceQuality';
 
 const WHEEL_STEP = 90;
 
@@ -56,51 +50,67 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
     },
   ];
 
-  // Drag-to-spin state for the 3D guarantee wheel — dragRef holds the pointer's
-  // starting position and the wheel's rotation at that moment, so onPointerMove can
-  // compute an absolute rotation instead of accumulating drift from relative deltas.
-  const [rotation, setRotation] = useState(0);
+  // Drag-to-spin state for the 3D guarantee wheel. `rotation` lives in a ref and is written
+  // straight to the ring's style.transform on every pointermove — React state per frame is
+  // exactly the main-thread churn that shows up as stutter on a weak device. The ref write
+  // is one property on one element; React only re-renders when `isDragging` flips (twice per
+  // gesture). `rotRef` is the live angle, `wheelRef` the ring it is written to.
   const [isDragging, setIsDragging] = useState(false);
-  const dragRef = useRef<{ startX: number; startRotation: number } | null>(null);
+  // Bumped only by a manual action (button click / drag release) to restart the autoplay
+  // clock — the wheel's angle itself lives in `rotRef`, so no per-frame state is needed.
+  const [tick, setTick] = useState(0);
+  const wheelRef = useRef<HTMLDivElement | null>(null);
+  const rotRef = useRef(0);
+  const dragRef = useRef<{ startX: number; startRot: number } | null>(null);
+  const lowEnd = useLowEndDevice();
+
+  const writeRotation = (deg: number) => {
+    rotRef.current = deg;
+    const el = wheelRef.current;
+    if (el) el.style.transform = `rotateY(${deg}deg)`;
+  };
 
   const snapToStep = (deg: number) => Math.round(deg / WHEEL_STEP) * WHEEL_STEP;
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    dragRef.current = { startX: e.clientX, startRotation: rotation };
+    dragRef.current = { startX: e.clientX, startRot: rotRef.current };
     setIsDragging(true);
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current) return;
-    const deltaX = e.clientX - dragRef.current.startX;
-    setRotation(dragRef.current.startRotation + deltaX * 0.5);
+    const drag = dragRef.current;
+    if (!drag) return;
+    writeRotation(drag.startRot + (e.clientX - drag.startX) * 0.5);
   };
 
   const stopDragging = () => {
-    if (!dragRef.current) return;
     dragRef.current = null;
     setIsDragging(false);
-    setRotation((r) => snapToStep(r));
+    setTick((t) => t + 1);
+    writeRotation(snapToStep(rotRef.current));
   };
 
   const rotateBy = (delta: number) => {
     dragRef.current = null;
     setIsDragging(false);
-    setRotation((r) => snapToStep(r) + delta);
+    setTick((t) => t + 1);
+    writeRotation(snapToStep(rotRef.current) + delta);
   };
 
-  // Auto-advance one face every 5s. Depending on `rotation` restarts the timer after
-  // any manual click/drag, so the wheel never auto-advances right on top of the visitor's
-  // own input. Paused while dragging and skipped entirely under reduced-motion.
+  // Auto-advance one face every 5s. Reads the ref, so nothing re-renders for it. Paused
+  // while dragging and skipped entirely under reduced-motion or on a low-end device — there
+  // the wheel stays put until the visitor turns it, keeping the preserve-3d glide off the
+  // animation path for anyone who will only see it jank. Depends on `tick` so a manual turn
+  // restarts the clock, the same "don't auto-advance right on top of my input" the old
+  // rotation-state version gave us.
   useEffect(() => {
-    if (isDragging) return;
+    if (isDragging || lowEnd) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const id = window.setInterval(() => {
-      setRotation((r) => snapToStep(r) + WHEEL_STEP);
+      writeRotation(snapToStep(rotRef.current) + WHEEL_STEP);
     }, 5000);
     return () => window.clearInterval(id);
-  }, [isDragging, rotation]);
+  }, [isDragging, lowEnd, tick]);
 
   return (
     <section className="relative pt-4 pb-8 md:pt-6 md:pb-10 overflow-hidden">
@@ -159,8 +169,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
             onPointerCancel={stopDragging}
           >
             <div
+              ref={wheelRef}
               className={`wheel3d-ring${isDragging ? ' is-dragging' : ''}`}
-              style={{ transform: `rotateY(${rotation}deg)` }}
             >
               {guarantees.map(({ Icon, title, desc, bgImage, bgSize }, i) => (
                 <div

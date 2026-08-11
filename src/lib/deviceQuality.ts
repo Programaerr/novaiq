@@ -1,37 +1,120 @@
-// One-time capability probe. Instead of tuning every animation/"effect by hand per device
-// (which is why the site still janked on a Dimensity 8200 while the top-end iPhones were
-// fine), the whole page is classified once into a cheap "low-end" tier. Heavy GPU effects —
-// full-viewport backdrop-filter re-rasterization, multi-surface star-drift compositing, the
-// WebGL scene — stay exactly as designed on capable GPUs, and get a cheaper equivalent that
-// looks the same on the rest. This is the thing that makes scroll smooth on both.
+import { useSyncExternalStore } from 'react';
+
+// One capability classifier for the whole page, applied as a `data-device='low'` attribute
+// on <html> so CSS can branch on it without per-element JS. Heavy GPU effects (backdrop
+// blurs, star-drift compositing, 3D wheels, floated layers) stay exactly as designed on
+// capable GPUs, and get a cheaper equivalent that looks the same on the rest.
 //
-// Heuristics (all read once, all free): a device with very few CPU cores, little RAM, or a
-// user's explicit reduce-motion preference is a safe bet to be GPU-poor too. Anything not
-// classified is assumed capable — we never degrade a device we're not sure weak.
-export const isLowEndDevice = (): boolean => {
+// Two passes:
+//   1. Synchronous hardware guess at import time (cores / RAM / touch / reduced-motion) —
+//      applied before first paint so a known-weak device never even starts the expensive
+//      effects. Phones get a lower budget than desktops: a mobile GPU chokes on the same
+//      layer count far earlier, so the same spec sheet means "low-end" sooner there.
+//   2. A runtime jank probe a couple of seconds after load: if the median frame interval
+//      stays above budget even while idle, the GPU/CPU cannot hold 60fps and the page
+//      downgrades late. This is what catches weak machines that pass the hardware checks
+//      (e.g. a 4-core laptop with an integrated GPU) — the exact devices the user sees
+//      stutter on. Downgrade-only: discover a weak device, never an upgrade.
+
+const JANK_BUDGET_MS = 26;     // desktop: median frame interval over budget = not holding 60fps
+const TOUCH_BUDGET_MS = 22;    // phones/tablets get a tighter budget — weaker squeezed GPUs
+const PROBE_FRAMES = 45;       // ~0.75s of rAF samples
+const PROBE_DELAY_MS = 1800;
+
+let lowEnd = false;
+const listeners = new Set<() => void>();
+
+export function isLowEndDevice(): boolean {
+  return lowEnd;
+}
+
+// Live tier for React consumers — re-renders (and re-reads) if the jank probe downgrades
+// after mount, so components built for capable GPUs hand themselves over to the lite path
+// the moment the sticker is applied.
+export function useLowEndDevice(): boolean {
+  return useSyncExternalStore(
+    (onChange) => {
+      listeners.add(onChange);
+      return () => {
+        listeners.delete(onChange);
+      };
+    },
+    () => lowEnd,
+    () => lowEnd,
+  );
+}
+
+function flagLowEnd(): void {
+  if (lowEnd) return;
+  lowEnd = true;
+  try {
+    document.documentElement.dataset.device = 'low';
+  } catch {
+    // no DOM to write to — the flag itself is still enough for JS consumers
+  }
+  listeners.forEach((fn) => fn());
+}
+
+function isTouchDevice(): boolean {
+  return (
+    typeof navigator !== 'undefined' &&
+    typeof navigator.maxTouchPoints === 'number' &&
+    navigator.maxTouchPoints > 0
+  );
+}
+
+function detectHardware(): boolean {
   try {
     if (typeof navigator === 'undefined') return false;
-    if (
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    ) return true;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return true;
 
     const cores = navigator.hardwareConcurrency;
-    const deviceMemory = (navigator as unknown as { deviceMemory?: number }).deviceMemory;
-    // Raw heuristics, deliberately conservative: 2 cores / 4GB RAM are unambiguous low-end
-    // (a 3-core laptop or a 4-core budget phone), and nothing stronger gets flagged.
+    const mem = (navigator as { deviceMemory?: number }).deviceMemory;
+    const touch = isTouchDevice();
+
     if (typeof cores === 'number' && cores > 0 && cores <= 2) return true;
-    if (typeof deviceMemory === 'number' && deviceMemory > 0 && deviceMemory <= 4) return true;
+    if (typeof mem === 'number' && mem > 0 && mem <= 4) return true;
+    // Touch devices only — a 4-core phone (or ≤6GB one) is already a low-end phone, where
+    // the same numbers on a desktop would pass. Desktops keep the conservative budget.
+    if (touch && typeof cores === 'number' && cores > 0 && cores <= 4) return true;
+    if (touch && typeof mem === 'number' && mem > 0 && mem <= 6) return true;
     return false;
   } catch {
     return false;
   }
-};
+}
 
-// Applied once, before first paint, as a data-attribute on <html> so the entire stylesheet can
-// branch on it without any per-element JS. Keeps the check on module import (a single small
-// script cost) instead of inside React render.
+function scheduleRuntimeProbe(): void {
+  if (typeof requestAnimationFrame !== 'function' || typeof setTimeout !== 'function') return;
+
+  const run = () => {
+    if (document.visibilityState === 'hidden') return;
+    const budget = isTouchDevice() ? TOUCH_BUDGET_MS : JANK_BUDGET_MS;
+    let frame = 0;
+    let last = performance.now();
+    const intervals: number[] = [];
+
+    const step = (now: number) => {
+      if (frame > 0) intervals.push(now - last);
+      last = now;
+      frame += 1;
+      if (frame >= PROBE_FRAMES) {
+        const sorted = [...intervals].sort((a, b) => a - b);
+        const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
+        if (median > budget) flagLowEnd();
+        return;
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
+  setTimeout(run, PROBE_DELAY_MS);
+}
+
+// Applied once, before React mounts: hardware guess synchronously (so CSS is already on the
+// cheap tier for a known-weak device), then the runtime probe schedules itself for later.
 export function applyDeviceClass(): void {
-  if (isLowEndDevice()) {
-    document.documentElement.dataset.device = 'low';
-  }
+  if (detectHardware()) flagLowEnd();
+  else scheduleRuntimeProbe();
 }

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
+import { useLowEndDevice } from '../lib/deviceQuality';
 import {
   Search,
   CheckCircle2,
@@ -34,33 +35,18 @@ const TemplateInteractiveSandbox = lazy(() =>
 // Mobile keeps the original flat coverflow instead — a plain sideways slide — since a phone's
 // cards are already close to full-width and an arc's extra horizontal reach would just push
 // neighbours off-screen there.
+// One fixed radius, deliberately not derived from the track's measured width: the drag is an
+// orbital rotation of the whole fan about this arc's pivot, so the same number has to serve
+// the card positions, the track's transform-origin and the px-to-degrees conversion in
+// setDragOffset. A radius that changed with the viewport would have to be threaded through
+// all three in lockstep, and any drift between them shows up as the fan swinging about a
+// point it is not actually drawn around. The fan is kept inside narrower viewports by the
+// track's own max-width instead, which costs nothing per frame.
 const ARC_ANGLE_STEP_DEG = 16;
-const ARC_RADIUS_MAX = 620;
+const ARC_RADIUS = 620;
+const ARC_STEP_PX = ARC_RADIUS * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
 const FLAT_STEP_PX_MOBILE = 156;
-
-// How far the outermost visible card (two steps out) reaches from the centre, as measured
-// on a rendered card rather than derived on paper: the arc displacement contributes about
-// 0.48px per px of radius once the track's perspective has foreshortened it, on top of a
-// ~175px constant for the card's own rotated, scaled half-width. Inverting that gives the
-// largest radius whose outermost card still lands inside a track of a given width — which
-// is what keeps the fan from being clipped on narrower desktops, where the track shrinks
-// with the viewport but a fixed radius would not. Floored so a very narrow window collapses
-// the fan toward a stack instead of inverting it.
-// Calibrated from two rendered measurements rather than derived on paper — the card's own
-// contribution is not just half its width, it also carries the rotation, the 0.68 scale and
-// the perspective foreshortening, and solving all of that symbolically would still need the
-// same measurement to check itself. radius 620 reached 516px from centre, radius 562 reached
-// 489px, which is the line below. ARC_REACH_MARGIN keeps a few px of air at the edge so a
-// rounding difference can't put the card back over the line.
-const ARC_REACH_PER_RADIUS = 0.4655;
-const ARC_CARD_HALF_REACH = 227;
-const ARC_REACH_MARGIN = 8;
-const arcRadiusForTrack = (trackWidth: number) => {
-  if (!trackWidth) return ARC_RADIUS_MAX;
-  const fits = (trackWidth / 2 - ARC_CARD_HALF_REACH - ARC_REACH_MARGIN) / ARC_REACH_PER_RADIUS;
-  return Math.max(200, Math.min(ARC_RADIUS_MAX, fits));
-};
-const arcStepPx = (radius: number) => radius * Math.sin((ARC_ANGLE_STEP_DEG * Math.PI) / 180);
+const FLAT_STEP_PX_DESKTOP = 230;
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
@@ -116,7 +102,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // longer exist.
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const dragRef = useRef<{ startX: number } | null>(null);
+  const dragRef = useRef<{ startX: number; startY: number } | null>(null);
+  // Set when a pointerup ends a gesture that actually travelled (a drag, not a tap). The
+  // browser then synthesizes a `click` on whatever card the pointer released over — which is
+  // frequently the card that just became active after the drag's own commit, and that click
+  // fires the card's "open preview" handler and yanks the whole grid away before the rotation
+  // has visibly settled. The track's onClickCapture below swallows exactly that one click.
+  const suppressClickRef = useRef(false);
   // The live drag offset is published as a CSS variable on the track and read by every
   // card's own transform, rather than held in React state. State would re-render all ten
   // card subtrees on every pointermove — the exact per-frame main-thread work that shows
@@ -124,13 +116,26 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // the cards' transforms update straight from it.
   const trackRef = useRef<HTMLDivElement | null>(null);
   const dragOffsetRef = useRef(0);
+  // Publishes a gesture offset to the track as two CSS variables: --drag-x (px) drives the
+  // flat mobile slide, and --drag-angle-deg rotates the whole desktop fan about the arc's
+  // pivot (ARC_RADIUS below the strip) so the drag swings cards around the circle instead of
+  // shoving the strip sideways. At any breakpoint only one is read, so the other is inert.
   const setDragOffset = (px: number) => {
-    trackRef.current?.style.setProperty('--drag-x', `${px}px`);
+    const el = trackRef.current;
+    if (!el) return;
+    el.style.setProperty('--drag-x', `${px}px`);
+    el.style.setProperty('--drag-angle-deg', `${(px * 180) / (Math.PI * ARC_RADIUS)}deg`);
   };
 
   // Drives the coverflow's per-card translateX step — narrower on phones so the smaller
   // card doesn't overlap its neighbors (a fixed desktop-sized offset would).
   const [isMobile, setIsMobile] = useState(false);
+  // Live tier (hardware guess at startup, runtime jank probe after load) — a weak GPU gets
+  // the flat slide even on desktop: a desktop fanshot's per-frame 3D work — perspective,
+  // per-card translateZ recession and depth-sorted repainting — is exactly what stalls an
+  // integrated GPU mid-drag. The flat strip is pure 2D translateX and survives any hardware.
+  // A hook (not a one-shot bool) so a late downgrade hands the grid over mid-session.
+  const isLowEnd = useLowEndDevice();
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
     setIsMobile(mq.matches);
@@ -138,21 +143,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
-
-  // The track is `w-full` under a max-width, so its actual width is whatever the viewport
-  // leaves it — which is what the arc has to fit inside. Observed rather than derived from
-  // a breakpoint: the same viewport width yields a different track width depending on the
-  // page's own padding, and guessing that is how the outermost card ended up clipped.
-  const [trackWidth, setTrackWidth] = useState(0);
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    setTrackWidth(el.clientWidth);
-    const ro = new ResizeObserver(([entry]) => setTrackWidth(entry.contentRect.width));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  const arcRadius = arcRadiusForTrack(trackWidth);
+  const flatGeometry = isMobile || isLowEnd;
+  const flatStepPx = isMobile ? FLAT_STEP_PX_MOBILE : FLAT_STEP_PX_DESKTOP;
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -263,7 +255,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // click and the button silently stops working. A plain start-X plus a pointerup that
   // lands somewhere reasonable is enough for swipe detection without that trade-off.
   const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    dragRef.current = { startX: e.clientX };
+    dragRef.current = { startX: e.clientX, startY: e.clientY };
+    // A fresh gesture is a fresh intent: clear any un-consumed suppression so a genuine tap
+    // (released without moving) is never swallowed by a stale flag from the previous drag.
+    suppressClickRef.current = false;
     setIsDragging(true);
     setDragOffset(0);
   };
@@ -284,31 +279,58 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // history above): these are separate, non-capturing listeners, so a tap that starts and
   // ends on a button's own bounds is never touched by this at all.
   //
-  // The index moves *during* the drag, not on release. Every time the drag passes half a
-  // card's step, the neighbour that has reached the middle becomes the active card there
-  // and then, and the start point advances by exactly that step so the residual offset
-  // carries on from where it was. Both halves matter: committing the index is what makes
-  // the centered card genuinely the selected one (so letting go anywhere keeps whatever is
-  // in the middle, instead of the whole strip springing back to where the drag began), and
-  // moving startX in the same breath is what keeps the motion continuous — the card that
-  // just became active is drawn at the same pixel before and after the hand-off, so nothing
-  // jumps at the moment of commit. Release then has nothing left to decide; it only settles
-  // the residual back to zero.
+  // The index moves *during* the drag, not on release. The pointer's signed travel decides
+  // which card owns the middle, and the strip hands over the moment the appropriate card has
+  // been pulled a good chunk of the way toward center (see the snap fraction used inside).
+  // Committing the index mid-gesture is what makes the centered card genuinely the selected
+  // one — letting go anywhere keeps whatever is in the middle, instead of the whole strip
+  // springing back to where the drag began — and the residual offset then just glides home
+  // on release. The travel stays anchored to the original pointerdown so the commit
+  // direction always follows the finger; see the note inside on why that anchor matters.
+  //
+  // Card counts are computed symmetrically: the bare Math.round() this used to be was
+  // asymmetric (Math.round(-0.5) === -0), so dragging *left* silently needed ~75% of a step
+  // while dragging right switched at 50% — one direction always lagged where the eye saw the
+  // second card already sitting. Magnitude-then-sign makes both directions switch at the
+  // same completion fraction, and sharing the helper between the live drag and the release
+  // snap keeps the two thresholds honest.
   useEffect(() => {
     if (!isDragging) return;
-    const step = isMobile ? FLAT_STEP_PX_MOBILE : arcStepPx(arcRadius);
+    const step = flatGeometry ? flatStepPx : ARC_STEP_PX;
     const n = filteredTemplates.length;
     let frame = 0;
+    // `travel` is the pointer's full signed displacement since the gesture started, NEVER
+    // rebased. `committed` is how many whole cards the strip has handed over so far (signed,
+    // so it grows in the direction the pointer is actually travelling). The visible offset
+    // is always `travel - committed * step`.
+    //
+    // The old model advanced `drag.startX` by a full step at every commit, which silently
+    // INVERTED the residual: continue dragging the same direction and the very next
+    // pointermove read a reversed, now-positive offset, crossed the commit threshold again,
+    // and walked the commit BACKWARD — a just-activated card flipping back out mid-gesture.
+    // That is the "second card popped up but the rotation never completes" failure: the
+    // strip commits, then un-commits one pointer event later, and with no further movement
+    // the release settles onto the original card. Anchoring everything to monotonic travel
+    // makes the commit direction follow the finger, never the residual's sign.
+    let travel = 0;
+    let committed = 0;
     let offset = 0;
+
+    const stepsFor = (px: number, snap: number) =>
+      n > 1 ? Math.sign(px) * Math.floor(Math.abs(px) / step + snap) : 0;
 
     const apply = () => {
       frame = 0;
       const drag = dragRef.current;
       if (!drag) return;
-      const steps = n > 1 ? Math.round(offset / step) : 0;
+      // The whole-card target is the travel-based count; the diff vs `committed` is what to
+      // add now. Because `stepsFor` is monotonic in travel, forward drags only ever add
+      // commits (and a genuine reverse drag subtracts) — never a flip in mid-direction.
+      const target = stepsFor(travel, 0.6);
+      const steps = target - committed;
       if (steps !== 0) {
-        drag.startX += steps * step;
-        offset -= steps * step;
+        committed = target;
+        offset = travel - committed * step;
         dragOffsetRef.current = offset;
         // Deliberately does NOT publish --drag-x here. Changing the index is a React state
         // update that lands on a later frame, while a style write lands immediately — so
@@ -317,12 +339,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
         // up. That one-frame mismatch is exactly the previous card flashing into view before
         // the new one takes the middle. The layout effect below publishes it in the same
         // commit as the index instead, so the two are always painted together.
-        //
-        // Dragging right (positive) walks backwards through the list, same direction the
-        // release-time swipe used to resolve to.
         setActiveIndex((i) => (((i - steps) % n) + n) % n);
         return;
       }
+      offset = travel - committed * step;
       dragOffsetRef.current = offset;
       setDragOffset(offset);
     };
@@ -330,13 +350,32 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     const onMove = (e: PointerEvent) => {
       const drag = dragRef.current;
       if (!drag) return;
-      offset = e.clientX - drag.startX;
+      travel = e.clientX - drag.startX;
       if (!frame) frame = requestAnimationFrame(apply);
     };
 
-    const onUp = () => {
+    const onUp = (e: PointerEvent) => {
+      // A pointer that moved more than a few pixels is a drag, not a tap — and a drag whose
+      // release lands on a card synthesizes a click there (see suppressClickRef above), which
+      // would fire that card's own buttons and tear the grid away mid-settle. The capture
+      // handler on the track eats exactly one such post-drag click.
+      const drag = dragRef.current;
+      suppressClickRef.current =
+        drag !== null && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 6;
       dragRef.current = null;
       setIsDragging(false);
+      // Catch a short pull that revealed the neighbour without committing, and complete any
+      // commit the drag itself was one unit short of. Same monotonic formula as apply, so a
+      // release can never reverse a commit that already happened — it can only round the
+      // gesture up to the card it was actually aiming at (or leave it, for a sub-20% nudge).
+      const target = stepsFor(travel, 0.8);
+      const steps = target - committed;
+      if (steps !== 0) {
+        committed = target;
+        offset = travel - committed * step;
+        dragOffsetRef.current = offset;
+        setActiveIndex((i) => (((i - steps) % n) + n) % n);
+      }
     };
 
     window.addEventListener('pointermove', onMove, { passive: true });
@@ -348,7 +387,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
     };
-  }, [isDragging, isMobile, arcRadius, filteredTemplates.length]);
+  }, [isDragging, flatGeometry, flatStepPx, filteredTemplates.length]);
 
   // The other half of the pact above: publishes whatever offset the gesture is currently at,
   // after every render and synchronously before the browser paints. That timing is the whole
@@ -356,7 +395,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // frame, so the strip never draws itself in a position neither of them describes.
   useLayoutEffect(() => {
     if (!isDragging) return;
-    trackRef.current?.style.setProperty('--drag-x', `${dragOffsetRef.current}px`);
+    setDragOffset(dragOffsetRef.current);
   });
 
   // Settling the residual offset home, once the drag is over. Deliberately not done inside
@@ -366,11 +405,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // transform transition, and the same write animates instead.
   useEffect(() => {
     if (isDragging) return;
-    const el = trackRef.current;
-    if (!el) return;
+    if (!trackRef.current) return;
     const id = requestAnimationFrame(() => {
       dragOffsetRef.current = 0;
-      el.style.setProperty('--drag-x', '0px');
+      setDragOffset(0);
     });
     return () => cancelAnimationFrame(id);
   }, [isDragging]);
@@ -399,7 +437,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             The explicit `z-40` is what keeps that panel above the coverflow: the cards below
             carry their own z-index (up to 10) and, sitting later in the DOM, would otherwise
             paint straight over a menu whose own stacking order was still `auto`. */}
-        <div ref={filterBarRef} className="relative z-40 mb-4">
+        <div ref={filterBarRef} className="sticky top-3 sm:top-3 z-40 mb-4">
           {/* bg-white/5 + backdrop-blur-xl used to leave this bar almost see-through, forcing
               the heaviest (24px) blur tier to do all the work of hiding what's scrolling
               behind it — recomputed every scroll frame, which is exactly the kind of GPU cost
@@ -409,7 +447,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               inner glow, painted once and never invalidated during scroll — same frosted look,
               zero per-frame recompute. reusing that proven combo here instead of a bespoke
               one. */}
-          <div className="glass-bar flex flex-col sm:flex-row items-center gap-3 rounded-2xl border border-white/10 shadow-xl shadow-black/20 p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4">
             <button
               onClick={() => {
                 setShowFilterPanel(!showFilterPanel);
@@ -502,7 +540,41 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
-            style={{ perspective: '1800px' }}
+            onClickCapture={(e) => {
+              // Swallow the single, purely synthetic click that follows a real drag's release
+              // (see suppressClickRef). Capture phase + stopPropagation so neither the card's
+              // "center me" handler nor its "open preview" handler ever sees it. A genuine tap
+              // leaves suppressClickRef false (no movement) and sails through untouched.
+              if (suppressClickRef.current) {
+                e.preventDefault();
+                e.stopPropagation();
+                suppressClickRef.current = false;
+              }
+            }}
+            style={{
+              // No perspective on the track at all anymore (see the arc note above): the fan
+              // is pure 2D, so the browser has nothing to re-project or depth-sort per frame.
+              // The drag lives on the track as a rotation of the whole fan about the arc's
+              // pivot (ARC_RADIUS=620px below the strip centre), so a hand-drag swings the
+              // cards around the circle; on release the same 0.9s glide as the cards carries
+              // the angle back to rest. The transform transition is suppressed mid-gesture so
+              // the fan tracks the pointer 1:1, exactly like the per-card transform handling
+              // below. Flat geometry (phones + low-end desktops) skips the rotation entirely,
+              // reading only --drag-x.
+              ...(flatGeometry
+                ? {}
+                : {
+                    transform: 'rotate(var(--drag-angle-deg, 0deg))',
+                    transformOrigin: `50% calc(50% + ${ARC_RADIUS}px)`,
+                    transition: isDragging
+                      ? 'none'
+                      : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
+                  }),
+            }}
+            // max-w-6xl, not 4xl: at 4xl the outermost card on each side was clipped by ~68px
+            // (measured), which is the "half a card missing" the fan showed on wide screens.
+            // Heights are trimmed to what the cards actually occupy — the track used to
+            // reserve room for a much taller card than these are now.
             className="relative w-full max-w-6xl h-[440px] sm:h-[560px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
           {filteredTemplates.map((template, index) => {
@@ -533,34 +605,38 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // flat coverflow geometry (straight sideways slide, single rotateY lean toward
             // centre); only sm and up gets the arc.
             let transform: string;
-            if (isMobile) {
-              const stepPx = FLAT_STEP_PX_MOBILE;
-              const rotY = isActive ? 0 : offset > 0 ? -16 : 16;
-              // --drag-x is the live gesture offset, published on the track by the drag
-              // effect above. Folded into the transform here rather than applied to a
-              // wrapper so the whole strip moves as one, and so a card's resting position
-              // and its drag offset stay a single composited transform.
-              transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * stepPx}px + var(--drag-x, 0px))) translateZ(${-cappedDistance * 90}px) rotateY(${rotY}deg)`;
+            if (flatGeometry) {
+              // Pure 2D on phones AND on low-end desktops. The old geometry bolted translateZ
+              // + rotateY + a track perspective onto this same slide so it could share the
+              // desktop's 3D fan — but under that perspective the layers cross-fade with the
+              // card's own opacity fade and image mask during every release, and on mobile
+              // Chrome that pairing flashes the card blank, while the depth work itself stalls
+              // a weak integrated GPU on the desktop. A 2D translateX can't z-recede, blink,
+              // or drop those frames; the capable-desktop fan is handled below.
+              transform = `translate(-50%, -50%) translateX(calc(${clampedOffset * flatStepPx}px + var(--drag-x, 0px)))`;
             } else {
               // Each step out is a point on a shared arc, not a straight sideways slide: an
               // angle proportional to distance from center, translated into a horizontal
               // reach (sin) and a downward dip (1 - cos) around a pivot below the strip, the
-              // same way a hand of physical cards fans out. rotateZ below uses the identical
-              // angle, so a card always leans in the exact direction it's displaced toward —
-              // the arc and the tilt can't disagree with each other.
+              // same way a hand of physical cards fans out. rotateZ uses the identical angle,
+              // so a card always leans in the exact direction it's displaced toward — the arc
+              // and the tilt can't disagree with each other.
               //
-              // rotateZ alone reads as a flat cutout laid on the arc, not an object sitting
-              // in it — rotateY (turning each card in depth, around its own vertical axis)
-              // plus a real translateZ recession are what the perspective() on the track
-              // actually has something to foreshorten, which is what makes the fan read as
-              // three-dimensional instead of a paper cutout. Both are driven off the same
-              // angle as the arc so all three axes agree on which way each card is turning.
+              // Deliberately 2D: no translateZ recession, no rotateY and no perspective on
+              // the track. Depth-sorting and re-projected transforms are exactly the per-frame
+              // GPU work that turns a mid-drag into dropped frames and a stalling machine on
+              // an integrated graphics card; the flat arc still reads as a fan of cards, but
+              // every transform here is a plain 2D compositor op that any GPU carries.
               const angleDeg = clampedOffset * ARC_ANGLE_STEP_DEG;
               const angleRad = (angleDeg * Math.PI) / 180;
-              const arcX = arcRadius * Math.sin(angleRad);
-              const arcY = arcRadius * (1 - Math.cos(angleRad));
-              const rotYDeg = angleDeg * 0.7;
-              transform = `translate(-50%, -50%) translateX(calc(${arcX}px + var(--drag-x, 0px))) translateY(${arcY}px) translateZ(${-cappedDistance * 90}px) rotateZ(${angleDeg}deg) rotateY(${rotYDeg}deg)`;
+              const arcX = ARC_RADIUS * Math.sin(angleRad);
+              const arcY = ARC_RADIUS * (1 - Math.cos(angleRad));
+              // The arc is static here; the drag's orbital glide is applied on the track as a
+              // whole rotation about this same arc's pivot (see the track's transform-origin,
+              // ARC_RADIUS below the strip), so a hand-fan doesn't slide sideways flat — it
+              // swings around the circle beneath it, and releases back into place on the same
+              // 0.9s glide as the cards themselves.
+              transform = `translate(-50%, -50%) translateX(${arcX}px) translateY(${arcY}px) rotateZ(${angleDeg}deg)`;
             }
 
             return (
@@ -569,6 +645,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
                   transform,
+                  // Promotes each card to its own compositor layer, permanently, so the
+                  // card's render — masked, shadowed, image-filled — is rasterized once and
+                  // then moved. Without the hint the browser re-rasterizes every card inside
+                  // the rotating track on each drag frame (the track itself is deliberately
+                  // NOT promoted: its children change opacity constantly, and a promoted
+                  // parent would re-bake the whole fan into one texture per change). This is
+                  // the same lesson the milestone-card ring learned: promote the moving leaf,
+                  // not the animated parent. Two transitions fight on this element, transform
+                  // (0.9s) and opacity (0.3s), so both properties are named.
+                  //
+                  // Not on low-end devices: there the flat 2D strip has no depth to keep
+                  // crisp, and every promoted layer is a texture the weak GPU must composite
+                  // at all times — the trade flips to pure cost. Two transitions fight on
+                  // this element, transform (0.9s) and opacity (0.3s), so both are named.
+                  willChange: isLowEnd ? undefined : 'transform, opacity',
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
@@ -619,7 +710,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   style={{
                     transform: `scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`,
                     // Same 0.9s and same curve as the positional transform above — see the
-                    // note there on why the two must agree.
+                    // note there on why the two must agree. Also on its own layer, like the
+                    // card holding it: it animates its own scale for 0.9s on every commit,
+                    // and without the hint that glide would re-rasterize the image inside
+                    // the card's layer texture on every frame of the animation. Skipped on
+                    // low-end devices where the flat 2D strip has no depth to protect.
+                    willChange: isLowEnd ? undefined : 'transform',
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"
@@ -677,7 +773,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       alt={displayTitle}
                       loading="lazy"
                       decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      className="tpl-cover-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
 

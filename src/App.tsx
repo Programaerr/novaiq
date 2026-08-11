@@ -171,7 +171,16 @@ export default function App() {
     };
   }, [language]);
 
-  const navigateTo = (page: string) => {
+  // In-app navigation history for the PageBackBar's Back button. navigateTo() only ever
+  // *pushes* URL entries (never replaces), so a plain window.history.back() could leave the
+  // app entirely or skip a page the visitor never saw here — so instead of relying on it,
+  // this stack records the pages the visitor actually moved between inside the app, and
+  // "Back" pops the last one. It falls back to home only when there is no history to pop
+  // (e.g. they landed directly on a deep link).
+  const navStackRef = useRef<string[]>([]);
+
+  const navigateTo = (page: string, record: boolean = true) => {
+    if (record && page !== activePage) navStackRef.current.push(activePage);
     setActivePage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const newUrl = page === 'home' 
@@ -286,15 +295,15 @@ export default function App() {
 
         {/* Back/Home bar — every page other than home gets one, pinned right under the
             Navbar, since the hamburger drawer alone wasn't a clear enough "how do I leave
-            this page" affordance. "Back" always returns to home rather than using browser
-            history.back(): navigateTo() only ever pushes new entries (never replaces), so
-            home is the one predictable, always-correct destination regardless of how the
-            visitor arrived at the current page. */}
+            this page" affordance. "Back" returns to whichever page the visitor was on
+            before this one (its history is tracked in navStackRef by navigateTo), and only
+            falls back to home when there is no prior page to return to. "Home" always goes
+            home, no matter how they arrived. */}
         {activePage !== 'home' && (
           <PageBackBar
             language={language}
             title={pageTitles[activePage] || ''}
-            onBack={() => navigateTo('home')}
+            onBack={() => navigateTo(navStackRef.current.pop() ?? 'home', false)}
             onHome={() => navigateTo('home')}
           />
         )}

@@ -182,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         // the bar's own bottom edge, darkening whatever sat beneath it (the back bar, the top
         // of the page content) rather than reading as depth. The white/15 border already
         // separates the bar from the page, so the shadow was only ever costing contrast.
-        className="glass-bar border border-white/15 rounded-2xl sm:rounded-3xl pt-3 pb-2 px-3 sm:p-3 sm:px-6 flex items-center justify-between gap-3 relative"
+        className="glass-bar glass-bar--blur border border-white/15 rounded-2xl sm:rounded-3xl pt-3 pb-2 px-3 sm:p-3 sm:px-6 flex items-center justify-between gap-3 relative"
       >
 
         {/* Side 1 (physical left): Account — before login, a single "Login" entry point
@@ -288,7 +288,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           dir={isAr ? 'rtl' : 'ltr'}
           data-lenis-prevent
           style={{ overscrollBehavior: 'contain' }}
-          className="glass-bar absolute top-full mt-3 right-3 sm:right-6 w-80 max-h-[75vh] overflow-y-auto border border-white/15 rounded-2xl p-4 shadow-2xl space-y-3 z-50 animate-fade-in"
+          className="glass-bar glass-bar--blur absolute top-full mt-3 right-3 sm:right-6 w-80 max-h-[75vh] overflow-y-auto border border-white/15 rounded-2xl p-4 shadow-2xl space-y-3 z-50 animate-fade-in"
         >
           {/* No close control here — the toggle button already becomes an X once the
               drawer is open, so a second one here would just be the same action twice.
