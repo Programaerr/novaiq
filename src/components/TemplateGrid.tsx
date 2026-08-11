@@ -707,19 +707,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // parent. Two transitions fight on this element, transform (0.9s) and
                   // opacity (0.3s), so both properties are named.
                   //
-                  // Only while the card is in range, though. `will-change` is not a free
-                  // hint — it holds a texture allocated for as long as it is set, and with
-                  // ten templates this was promoting all ten plus all ten scale wrappers,
-                  // permanently: twenty layers at 330x480, roughly 13MB of GPU texture, for a
-                  // strip that never shows more than five cards. The five beyond range sit at
-                  // opacity 0 and parked at the same offset — they never move on screen, so a
-                  // layer for them buys nothing and costs memory bandwidth a weak GPU is
-                  // already short of. Dropping the hint there is invisible and halves the bill.
-                  //
-                  // Not on low-end devices at all: there the flat 2D strip has no depth to
-                  // keep crisp, and every promoted layer is a texture the weak GPU must
-                  // composite at all times — the trade flips to pure cost.
-                  willChange: isLowEnd || !isVisible ? undefined : 'transform, opacity',
+                  // Constant for the whole life of the card — deliberately NOT gated on
+                  // isVisible, which was tried and made the drag far worse. isVisible flips
+                  // as cards cross in and out of range, i.e. on the very step commits a drag
+                  // is made of, and changing will-change is what creates and destroys the
+                  // compositor layer. Destroying one throws its texture away; creating one
+                  // forces the card — image, 28px-rounded mask, border — to be rasterized
+                  // again, synchronously, mid-gesture. Several of those in the same frame is
+                  // a stall long enough to swallow the animation whole and leave the card
+                  // appearing to teleport. Holding a texture that is never looked at is
+                  // cheap; building one during a gesture is not.
+                  willChange: isLowEnd ? undefined : 'transform, opacity',
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
@@ -773,10 +771,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     // note there on why the two must agree. Also on its own layer, like the
                     // card holding it: it animates its own scale for 0.9s on every commit,
                     // and without the hint that glide would re-rasterize the image inside
-                    // the card's layer texture on every frame of the animation. Gated on
-                    // isVisible for the same reason as the card above — an out-of-range
-                    // wrapper is never seen scaling, so its layer is pure cost.
-                    willChange: isLowEnd || !isVisible ? undefined : 'transform',
+                    // the card's layer texture on every frame of the animation. Constant for
+                    // the same reason as the card above: a will-change that flips mid-drag
+                    // rebuilds the layer instead of reusing it.
+                    willChange: isLowEnd ? undefined : 'transform',
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"
@@ -806,7 +804,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // stutter on real phones doesn't come back. transition-[border-color], not
                   // transition-colors, for the same family of reason: only the hover border
                   // is meant to fade, and a broader transition would animate the surface too.
-                  className="relative h-full rounded-[28px] bg-white/5 border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group shadow-2xl p-2 sm:p-2.5"
+                  // No shadow-2xl here any more. It is `0 25px 50px -12px rgb(0 0 0/0.25)` —
+                  // a 50px-radius blur of a 25%-opaque *black* shadow, cast onto a near-black
+                  // cosmic background, so what it actually contributes on screen is nothing
+                  // anyone can see. What it cost was real: a blur that wide has to be
+                  // re-rasterized around the full 330x480 card every time the card's layer is
+                  // re-baked, which is on every scale change — i.e. several cards at once, on
+                  // every step of a drag. That is the single most expensive thing this card
+                  // was asking for, in exchange for invisible output.
+                  className="relative h-full rounded-[28px] bg-white/5 border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group p-2 sm:p-2.5"
                 >
                   {/* The photo sits inset inside the frame's own padding — a bezel margin all
                       round, like a phone case holding its screen — rather than bleeding to
