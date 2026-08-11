@@ -70,7 +70,23 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
       stale = false;
     };
 
-    const paint = (clientX: number, clientY: number) => {
+    // Past this distance from a card's nearest edge, the pointer is beyond the reach of that
+    // card's gradients: the ring's is a 240px circle whose last stop is a flat floor, and the
+    // face's has decayed to nothing well before here. Every pixel of such a card is drawn in
+    // that constant tail colour, so moving the gradient's centre around inside it produces a
+    // byte-identical picture — the write is a repaint that cannot change what is on screen.
+    //
+    // Skipping those is the single biggest saving in this effect. Writing --rx/--ry
+    // re-rasterizes the element's gradient, and for `.reveal-border` that gradient is carved
+    // to an outline by a `mask-composite` pair, which is one of the most expensive things a
+    // browser can be asked to repaint. Unculled, one pointer move repainted every card in
+    // every group — fourteen of them across the page — sixty times a second, to change the
+    // appearance of the two or three actually near the cursor. That is what made hovering
+    // anywhere near a card stutter on a weak GPU.
+    const REACH = 300;
+    const REACH_SQ = REACH * REACH;
+
+    const paint = (clientX: number, clientY: number, force = false) => {
       if (stale) measure();
       const gx = clientX - groupX;
       const gy = clientY - groupY;
@@ -79,9 +95,15 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
         const b = boxes[i];
         const x = gx - b.x;
         const y = gy - b.y;
+        if (x >= 0 && x <= b.w && y >= 0 && y <= b.h) hit = cards[i];
+        if (!force) {
+          // Gap between the pointer and this card's box, per axis — zero while inside it.
+          const dx = x < 0 ? -x : x > b.w ? x - b.w : 0;
+          const dy = y < 0 ? -y : y > b.h ? y - b.h : 0;
+          if (dx * dx + dy * dy > REACH_SQ) continue;
+        }
         cards[i].style.setProperty('--rx', `${x}px`);
         cards[i].style.setProperty('--ry', `${y}px`);
-        if (x >= 0 && x <= b.w && y >= 0 && y <= b.h) hit = cards[i];
       }
       if (hit !== inside) {
         inside?.classList.remove('is-touched');
@@ -105,8 +127,13 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
 
     // Classes toggled straight on the nodes rather than through state: these fire on every
     // enter/leave and a re-render of the whole section per hover would be wasted work.
+    // Forced (unculled): this is the frame the group lights up on, and a card that has never
+    // been written still sits on --rx/--ry's 50% fallback — a gradient centred in its own box,
+    // which for the ring is its brightest state, not its dimmest. Culling here would light
+    // every distant card instead of leaving it dark. Once seeded correctly, subsequent moves
+    // can skip them safely, because the value they keep is the one that already renders right.
     const light = (clientX: number, clientY: number) => {
-      paint(clientX, clientY);
+      paint(clientX, clientY, true);
       group.classList.add('is-live');
     };
 
