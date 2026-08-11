@@ -697,21 +697,29 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 onClick={() => { if (!isActive) setActiveIndex(index); }}
                 style={{
                   transform,
-                  // Promotes each card to its own compositor layer, permanently, so the
-                  // card's render — masked, shadowed, image-filled — is rasterized once and
-                  // then moved. Without the hint the browser re-rasterizes every card inside
-                  // the rotating track on each drag frame (the track itself is deliberately
-                  // NOT promoted: its children change opacity constantly, and a promoted
-                  // parent would re-bake the whole fan into one texture per change). This is
-                  // the same lesson the milestone-card ring learned: promote the moving leaf,
-                  // not the animated parent. Two transitions fight on this element, transform
-                  // (0.9s) and opacity (0.3s), so both properties are named.
+                  // Promotes the card to its own compositor layer so its render — masked,
+                  // shadowed, image-filled — is rasterized once and then simply moved.
+                  // Without the hint the browser re-rasterizes every card inside the rotating
+                  // track on each drag frame (the track itself is deliberately NOT promoted:
+                  // its children change opacity constantly, and a promoted parent would
+                  // re-bake the whole fan into one texture per change). Same lesson the
+                  // milestone-card ring learned: promote the moving leaf, not the animated
+                  // parent. Two transitions fight on this element, transform (0.9s) and
+                  // opacity (0.3s), so both properties are named.
                   //
-                  // Not on low-end devices: there the flat 2D strip has no depth to keep
-                  // crisp, and every promoted layer is a texture the weak GPU must composite
-                  // at all times — the trade flips to pure cost. Two transitions fight on
-                  // this element, transform (0.9s) and opacity (0.3s), so both are named.
-                  willChange: isLowEnd ? undefined : 'transform, opacity',
+                  // Only while the card is in range, though. `will-change` is not a free
+                  // hint — it holds a texture allocated for as long as it is set, and with
+                  // ten templates this was promoting all ten plus all ten scale wrappers,
+                  // permanently: twenty layers at 330x480, roughly 13MB of GPU texture, for a
+                  // strip that never shows more than five cards. The five beyond range sit at
+                  // opacity 0 and parked at the same offset — they never move on screen, so a
+                  // layer for them buys nothing and costs memory bandwidth a weak GPU is
+                  // already short of. Dropping the hint there is invisible and halves the bill.
+                  //
+                  // Not on low-end devices at all: there the flat 2D strip has no depth to
+                  // keep crisp, and every promoted layer is a texture the weak GPU must
+                  // composite at all times — the trade flips to pure cost.
+                  willChange: isLowEnd || !isVisible ? undefined : 'transform, opacity',
                   opacity: isActive ? 1 : cappedDistance === 1 ? 0.55 : cappedDistance === 2 ? 0.28 : 0,
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
@@ -765,9 +773,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     // note there on why the two must agree. Also on its own layer, like the
                     // card holding it: it animates its own scale for 0.9s on every commit,
                     // and without the hint that glide would re-rasterize the image inside
-                    // the card's layer texture on every frame of the animation. Skipped on
-                    // low-end devices where the flat 2D strip has no depth to protect.
-                    willChange: isLowEnd ? undefined : 'transform',
+                    // the card's layer texture on every frame of the animation. Gated on
+                    // isVisible for the same reason as the card above — an out-of-range
+                    // wrapper is never seen scaling, so its layer is pure cost.
+                    willChange: isLowEnd || !isVisible ? undefined : 'transform',
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
                   className="h-full"

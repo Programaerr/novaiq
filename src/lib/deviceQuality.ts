@@ -84,32 +84,68 @@ function detectHardware(): boolean {
   }
 }
 
+/** Samples PROBE_FRAMES frames and downgrades if the median interval misses the budget. */
+function measureFrames(): void {
+  if (document.visibilityState === 'hidden' || lowEnd) return;
+  const budget = isTouchDevice() ? TOUCH_BUDGET_MS : JANK_BUDGET_MS;
+  let frame = 0;
+  let last = performance.now();
+  const gaps: number[] = [];
+
+  const step = (now: number) => {
+    if (frame > 0) gaps.push(now - last);
+    last = now;
+    if (++frame < PROBE_FRAMES) {
+      requestAnimationFrame(step);
+      return;
+    }
+    gaps.sort((a, b) => a - b);
+    if ((gaps[gaps.length >> 1] ?? 0) > budget) flagLowEnd();
+  };
+  requestAnimationFrame(step);
+}
+
 function scheduleRuntimeProbe(): void {
   if (typeof requestAnimationFrame !== 'function' || typeof setTimeout !== 'function') return;
 
-  const run = () => {
-    if (document.visibilityState === 'hidden') return;
-    const budget = isTouchDevice() ? TOUCH_BUDGET_MS : JANK_BUDGET_MS;
-    let frame = 0;
-    let last = performance.now();
-    const intervals: number[] = [];
-
-    const step = (now: number) => {
-      if (frame > 0) intervals.push(now - last);
-      last = now;
-      frame += 1;
-      if (frame >= PROBE_FRAMES) {
-        const sorted = [...intervals].sort((a, b) => a - b);
-        const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
-        if (median > budget) flagLowEnd();
-        return;
+  // Long tasks are the most direct evidence there is: the main thread was blocked for over
+  // 50ms and could not have produced a frame during it. A handful of those early on means
+  // this machine cannot hold the expensive tier, whatever its spec sheet claims.
+  try {
+    let long = 0;
+    const po = new PerformanceObserver((list) => {
+      long += list.getEntries().length;
+      if (long >= 3) {
+        po.disconnect();
+        flagLowEnd();
       }
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  };
+    });
+    po.observe({ type: 'longtask', buffered: true });
+    setTimeout(() => po.disconnect(), 15000);
+  } catch {
+    // longtask unsupported (Safari/Firefox) — the frame probes below still cover it
+  }
 
-  setTimeout(run, PROBE_DELAY_MS);
+  // Measured while the page is actually being *used*, which is the fix for the flaw this
+  // replaces: the old probe sampled 45 frames on a page sitting perfectly still 1.8s after
+  // load, and an idle page is exactly where a weak machine still holds 60fps. It reported
+  // "capable" for the very devices that stutter the moment anything moves, so they were
+  // handed the expensive tier — permanently promoted layers, the 3D fan, live backdrop
+  // blurs — which is what they could not afford. Sampling on the first scroll or pointer
+  // move catches the machine under the load that actually hurts it.
+  let armed = false;
+  const arm = () => {
+    if (armed) return;
+    armed = true;
+    window.removeEventListener('scroll', arm);
+    window.removeEventListener('pointermove', arm);
+    measureFrames();
+  };
+  window.addEventListener('scroll', arm, { passive: true });
+  window.addEventListener('pointermove', arm, { passive: true });
+
+  // Backstop, in case nobody ever scrolls or moves the pointer.
+  setTimeout(measureFrames, PROBE_DELAY_MS);
 }
 
 // Applied once, before React mounts: hardware guess synchronously (so CSS is already on the
