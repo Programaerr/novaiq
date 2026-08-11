@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ContractData } from '../types';
 import { generateContractPDF } from '../lib/pdfGenerator';
-import { saveContractToFirebase } from '../lib/firebase';
 import { Language, translateText } from '../lib/i18n';
 import { useAutoTranslate, useAutoTranslateList } from '../lib/autoTranslate';
 import { formatPrice, Currency } from '../lib/currency';
@@ -20,7 +19,6 @@ interface ContractPDFPreviewProps {
   language: Language;
   currency?: Currency;
   onClose: () => void;
-  onSavedSuccess: () => void;
   /** "تم التنزيل" — the customer explicitly wrapping up, distinct from the X button (which
    *  just dismisses without going anywhere). Sends them back to the template they ordered, or
    *  home for a fully custom project — see App.tsx's handleFinishContractDownload. */
@@ -32,7 +30,6 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   language,
   currency = 'IQD',
   onClose,
-  onSavedSuccess,
   onFinish,
 }) => {
   const isAr = language === 'ar';
@@ -49,38 +46,13 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   const city = translateText(contract.city, language);
   const country = translateText(contract.country, language);
 
-  // Seamlessly auto-save to Firebase in the background on mount. Guarded by a ref (not
-  // just component state) so React StrictMode's deliberate double-invoke of this effect in
-  // dev doesn't fire the save call twice — saveContractToFirebase is now idempotent either
-  // way, but there's no reason to make two network round-trips for one save.
-  const hasSavedRef = useRef(false);
-  useEffect(() => {
-    if (hasSavedRef.current) return;
-    hasSavedRef.current = true;
-
-    let isMounted = true;
-    const autoSave = async () => {
-      try {
-        await saveContractToFirebase(contract);
-        if (isMounted) {
-          onSavedSuccess();
-          showToast(isAr ? 'تم حفظ العقد بنجاح على حسابك' : 'The contract was saved to your account', 'success');
-        }
-      } catch (e) {
-        console.error('Auto save to Firebase failed:', e);
-        if (isMounted) {
-          showToast(
-            isAr ? 'تعذر حفظ العقد على الخادم — يمكنك تنزيل نسخة PDF كاحتياط' : 'Failed to save the contract to the server — you can still download a PDF copy as a backup',
-            'error'
-          );
-        }
-      }
-    };
-    autoSave();
-    return () => {
-      isMounted = false;
-    };
-  }, [contract, isAr]);
+  // This component no longer saves anything. It used to auto-save on mount, which meant the
+  // contract was only written once this lazily-loaded chunk (jsPDF + html2canvas, ~900KB)
+  // had finished downloading — so a stalled chunk meant a signed contract that was never
+  // created, behind a loader that never resolved. The save now happens in App's
+  // handleContractGenerated before this modal is ever mounted, and by the time it renders the
+  // contract already exists. Its job is what it was always named for: showing that contract
+  // and turning it into a PDF.
 
   const handleDownloadPDF = async () => {
     if (!printRef.current || isGeneratingPdf) return;
