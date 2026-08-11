@@ -11,6 +11,7 @@ import { ConnectedContractPrintDocument } from './ContractPrintDocument';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { showToast } from '../lib/toast';
 import { sumPayments } from '../lib/payments';
+import { useDocumentFlag } from '../lib/useDocumentFlag';
 
 interface CustomerDashboardProps {
   language: Language;
@@ -43,6 +44,11 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
   const isAr = language === 'ar';
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Same reasoning as the admin panel: a customer reading their own contracts and payment
+  // figures is here to read, and the drifting background is composited under that the whole
+  // time for no benefit. See `html[data-flat]` in index.css.
+  useDocumentFlag('flat');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {

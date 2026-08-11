@@ -873,7 +873,14 @@ html[data-idle] .rv::before {
    is exactly the flat black the background resolves to anyway once its layers are gone. The
    demo then has the frame entirely to itself, which is the whole point — a customer judging a
    template should be judging the template, not watching it compete with scenery behind it. */
-html[data-demo] .cosmic-bg {
+/* `data-flat` is the same statement made by a page that is not a demo: the admin control
+   panel and the customer's own contracts page (both via useDocumentFlag). Those are working
+   tools rather than showcases — dense tables, live figures, forms, read for long stretches —
+   and the background is composited underneath them the entire time while adding nothing a
+   person using the panel is there for. Same rule, same reason, so they share the declaration
+   rather than each getting a near-identical one. */
+html[data-demo] .cosmic-bg,
+html[data-flat] .cosmic-bg {
   display: none;
 }
 

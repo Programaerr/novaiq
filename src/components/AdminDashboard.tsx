@@ -5,6 +5,7 @@ import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
 import { subscribeToContracts } from '../lib/firebase';
 import { logoutAccount } from '../lib/auth';
+import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { TabButton } from './admin/shared';
 import { OverviewTab } from './admin/OverviewTab';
@@ -29,6 +30,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   const [tab, setTab] = useState<Tab>('overview');
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  // No starfield behind the control panel. This is a working tool, not a showcase: dense
+  // tables that scroll, live-updating figures and forms, used for long stretches at a time.
+  // The background's drifting layers are composited underneath all of it for the entire
+  // session while adding nothing to a page whose job is legibility, so the panel takes them
+  // out of rendering and keeps the flat black the page already sits on.
+  useDocumentFlag('flat');
 
   useEffect(() => {
     const unsub = subscribeToContracts(setContracts);
