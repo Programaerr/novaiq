@@ -100,12 +100,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
   // honoured. Depends on `tick` so a manual turn restarts the clock, the same "don't
   // auto-advance right on top of my input" the old rotation-state version gave us.
   //
-  // No longer skipped on low-end devices. The turn is a rotateY on a preserve-3d ring, i.e.
-  // compositor work of exactly the kind these machines handle well — the same reason the
-  // hero's WebGL cards stay smooth on them while the painted CSS effects do not. And the
-  // low tier already shortens this glide in CSS (`html[data-device='low'] .wheel3d-ring`),
-  // so stopping it here as well was charging twice for one cost, and the visible result was
-  // simply that the wheel stopped turning by itself the moment the jank probe fired.
+  // Runs on every device. The turn is a rotateY on a preserve-3d ring — compositor work of
+  // exactly the kind even modest hardware handles well, which is the same reason the hero's
+  // WebGL cards stay smooth where painted CSS effects do not. It used to be switched off
+  // whenever a capability probe decided the machine was weak, and the visible result was
+  // simply that the wheel stopped turning by itself, permanently, after one stray hitch.
   useEffect(() => {
     if (isDragging) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
