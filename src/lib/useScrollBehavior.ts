@@ -20,15 +20,33 @@ export function useSmoothScroll() {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
 
-    let rafId: number;
+    let rafId: number | null = null;
     const raf = (time: number) => {
       lenis.raf(time);
       rafId = requestAnimationFrame(raf);
     };
-    rafId = requestAnimationFrame(raf);
+
+    // The loop otherwise runs for the app's entire lifetime, including while the tab is
+    // backgrounded. Gated on visibilitychange rather than reusing usePauseOffscreenWork's
+    // data-idle attribute: that one pauses CSS animations, but Lenis needs its rAF loop
+    // actually stopped, not just visually frozen.
+    const start = () => {
+      if (rafId === null) rafId = requestAnimationFrame(raf);
+    };
+    const stop = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+    const onVisibility = () => (document.hidden ? stop() : start());
+
+    start();
+    document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      document.removeEventListener('visibilitychange', onVisibility);
+      stop();
       lenis.destroy();
     };
   }, []);

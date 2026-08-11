@@ -148,9 +148,12 @@ const Card: React.FC<CardProps> = ({ url, pose, isActive, isDimmed, onSelect }) 
       onPointerOut={() => (document.body.style.cursor = 'auto')}
     >
       {/* Card body — real geometry with thickness, so the lit edge is what sells it as a
-          solid object rather than a picture that happens to be rotated. */}
+          solid object rather than a picture that happens to be rotated. Lambert rather than
+          Standard: no roughness/metalness PBR pass, just diffuse response to the lights below
+          — cheaper per fragment across 6 cards × 2 meshes, at the cost of the specular
+          highlight (the surface reads matte instead of glossy). */}
       <RoundedBox args={[CARD_W, CARD_H, CARD_D]} radius={0.055} smoothness={3}>
-        <meshStandardMaterial color="#18181b" roughness={0.45} metalness={0.35} />
+        <meshLambertMaterial color="#18181b" />
       </RoundedBox>
 
       {/* Preview image inlaid on the front face. `color` doubles as the dimmer: it
@@ -158,11 +161,9 @@ const Card: React.FC<CardProps> = ({ url, pose, isActive, isDimmed, onSelect }) 
           material or any transparency sorting. */}
       <mesh position={[0, 0, CARD_D / 2 + 0.001]}>
         <planeGeometry args={[CARD_W - 0.08, CARD_H - 0.08]} />
-        <meshStandardMaterial
+        <meshLambertMaterial
           map={isDimmed ? blurred : sharp}
           color={isDimmed ? '#6b6b72' : '#ffffff'}
-          roughness={0.32}
-          metalness={0.15}
         />
       </mesh>
     </group>
@@ -177,8 +178,8 @@ interface SceneProps {
 
 const Scene: React.FC<SceneProps> = ({ active, setActive, scatter }) => (
   <>
-    {/* Key + rim + fill. The key light is what produces the moving sheen across each card
-        as it drifts; the rim separates the dark card bodies from the dark page behind. */}
+    {/* Key + rim + fill. The key light is what produces the moving light/shadow across each
+        card as it drifts; the rim separates the dark card bodies from the dark page behind. */}
     <ambientLight intensity={0.9} />
     <directionalLight position={[4, 5, 6]} intensity={2.4} />
     <directionalLight position={[-6, 2, 4]} intensity={0.9} color="#a1a1aa" />
@@ -237,7 +238,7 @@ export const TemplateCards3D: React.FC = () => {
       <Canvas
         frameloop={onScreen ? 'always' : 'never'}
         camera={{ position: [0, 0, 6], fov: 46 }}
-        dpr={[1, 1.75]}
+        dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         // Clicking empty space drops the current pick, so there is always a way back out
         // without having to find the same card again.
