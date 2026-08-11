@@ -91,12 +91,18 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
     const docId = contractNum || `LOCAL_${Date.now()}`;
     const docRef = doc(db, CONTRACTS_COLLECTION, docId);
 
-    const docData = {
-      ...cleanContract,
-      createdAt: contract.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      serverCreatedAt: serverTimestamp(),
-    };
+    // Same undefined-stripping as updateContractFields, for the same reason: ContractData has
+    // a dozen optional fields, and a single one of them present-but-undefined makes Firestore
+    // reject the entire contract. `serverTimestamp()` is a sentinel object, not undefined, so
+    // it survives this untouched.
+    const docData = Object.fromEntries(
+      Object.entries({
+        ...cleanContract,
+        createdAt: contract.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        serverCreatedAt: serverTimestamp(),
+      }).filter(([, value]) => value !== undefined)
+    );
 
     await setDoc(docRef, docData, { merge: true });
 
@@ -151,7 +157,17 @@ export async function updateContractFields(
   // original cloud save failed. That turned "the save didn't go through" into "this contract
   // can never be edited again". Merging writes the changed fields whether the document is
   // already there or is being created by this very call, and leaves every other field alone.
-  await setDoc(doc(db, CONTRACTS_COLLECTION, docId), updatePayload, { merge: true });
+  // Firestore rejects `undefined` as a field value outright: one undefined key fails the whole
+  // write with "Unsupported field value: undefined", taking every other edit in the same call
+  // down with it — an admin changing the price, the status and the notes loses all three
+  // because one unrelated optional field happened to be empty. Optional fields legitimately
+  // arrive here unset, so they are dropped instead of sent; under merge:true an absent key
+  // means "leave this as it is", which is exactly what "I didn't touch it" should mean.
+  const cleanPayload = Object.fromEntries(
+    Object.entries(updatePayload).filter(([, value]) => value !== undefined)
+  );
+
+  await setDoc(doc(db, CONTRACTS_COLLECTION, docId), cleanPayload, { merge: true });
 
   // Keep the local cache in sync so the admin list doesn't flash back to the old value
   // before Firestore's onSnapshot round-trip completes. Matched on either identifier, for the

@@ -293,7 +293,13 @@ function ContractRow({
         payments,
         paidAmountIQD,
         paymentStatus,
-        installmentsPlanned: installmentsPlannedNum || undefined,
+        // Plain number, never `undefined` — Firestore rejects undefined field values and
+        // fails the entire write. `0` is not a lossy substitute for "unset" here: every
+        // reader of this field treats it as `contract.installmentsPlanned || 0` and shows the
+        // installment counter only when it is `> 0`, so zero and absent already mean the same
+        // thing everywhere. It also makes clearing the box actually clear the value, which
+        // sending `undefined` under merge:true could not do.
+        installmentsPlanned: installmentsPlannedNum,
         adminNotes: adminNotes.trim(),
         ...(companySignatureDataUrl !== undefined ? { companySignatureDataUrl } : {}),
       });
