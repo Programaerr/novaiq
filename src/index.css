@@ -783,7 +783,7 @@
 .credential-card {
   /* The card's thickness. One value, used by all four edges and by the back face's offset, so
      the solid can never come apart at the seams. */
-  --depth: 14px;
+  --depth: 12px;
   /* The faces' corner radius. Owned here so `.credential-face` and anything else that has to
      agree with it read one value rather than each hard-coding their own. */
   --radius: 1.5rem;
@@ -840,15 +840,7 @@
   transform: translateZ(calc(var(--depth) * -1)) rotateY(180deg);
 }
 
-/* The four edges. Each sits flush against one border of the front face and folds back 90
-   degrees about that shared border, reaching exactly `--depth` to meet the rear face. Hinging
-   them this way — rather than positioning each at half the card's width — is what lets the
-   solid assemble itself at any size, which matters because the card is sized by aspect-ratio
-   and has no width in px to halve. */
-.credential-edge {
-  position: absolute;
-  background: linear-gradient(180deg, #3a3a42, #17171b 55%, #0a0a0c);
-  /* The extrusion that gives the card its thickness. Each slice is the card's own rounded
+/* The extrusion that gives the card its thickness. Each slice is the card's own rounded
    silhouette, pushed a little further back in Z than the last, so the side is built out of the
    same curve the faces have and is therefore rounded from every angle.
 
