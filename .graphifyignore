@@ -14,3 +14,11 @@
 # Derived output — indexing the graph's own report back into the graph.
 graphify-out/
 dist/
+
+# A bundled build artifact that lives at the root rather than inside dist/, so the line above
+# does not catch it. At 8.8MB it is by far the largest file in the repo and it is entirely
+# generated: every dependency the app pulls in, flattened into one file. Indexed, it swamps the
+# graph with node_modules internals — a query for "which components use RevealLight" came back
+# led by motion-dom projection helpers and the sandbox's demo functions, because those exist in
+# here hundreds of times over. Nothing in it is a source of truth about this codebase.
+dist-eager-probe.js
