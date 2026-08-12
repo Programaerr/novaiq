@@ -770,6 +770,56 @@
   to { transform: translate3d(0, 0, 0); }
 }
 
+/* ──────────────────────────────────────────────────────────────────────────────
+   Hero credential card (CredentialCard.tsx)
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Perspective on the stage, not on the card. On the card itself the vanishing point turns with
+   it, so the lean visibly flattens at exactly the angles it should be strongest. */
+.credential-stage {
+  perspective: 1100px;
+}
+
+.credential-card {
+  /* Seeded here so the very first pointer move interpolates from a real value rather than
+     from an unset property, which would otherwise jump straight to its target. */
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  /* Long enough to glide back when the pointer leaves, short enough not to lag behind it while
+     it is inside. Transform only — nothing here can trigger layout or paint. */
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 400ms ease;
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.credential-card:hover {
+  /* Shorter while the pointer is inside: at 400ms the card visibly trails the cursor and reads
+     as sluggish rather than heavy. The long duration is for the return journey. */
+  transition-duration: 120ms, 400ms;
+}
+
+/* A fixed diagonal highlight. It is painted once and then simply carried by the card's own
+   transform — a still highlight on a moving object, which is what a real card does, and what
+   keeps this from being a second animation. */
+.credential-sheen {
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.07) 46%,
+    rgba(255, 255, 255, 0.13) 50%,
+    rgba(255, 255, 255, 0.05) 55%,
+    transparent 72%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .credential-card {
+    transition: none;
+    transform: none;
+  }
+}
+
 /* Cover geometry for the sign-in gallery, as custom properties so one media query sets it for
    the marquee maths and the markup at once (LoginPage.tsx reads all three through var()).
    The ratio is held at ~1:2.6 across all three tiers — that capsule IS the shape the design is

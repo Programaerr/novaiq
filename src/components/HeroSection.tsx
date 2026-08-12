@@ -144,76 +144,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
             : 'At NOVAIQ, we build high-performance, secure digital platforms. Explore our ready-made templates for your business, or contact us to build a custom application tailored exactly to your needs.'}
         </p>
 
-        {/* The pair of primary buttons that used to sit here is gone at the customer's
-            request. The spacing they carried is not: it separated the copy above from the
-            wheel below, so it stays on the block that follows them. */}
-
-        {/* Key Guarantees Wheel — a 3D cube of cards the visitor spins by dragging
-            (mouse or touch) or with the arrow buttons pinned to the far edges of the
-            row. DOM order is reversed on purpose: the page is dir="rtl", so the first
-            child lands on the physical right. */}
-        <div className="mt-14 sm:mt-16 flex items-center justify-center sm:justify-between w-full max-w-xs sm:max-w-xl lg:max-w-2xl mx-auto">
-          <button
-            type="button"
-            onClick={() => rotateBy(-WHEEL_STEP)}
-            aria-label={language === 'ar' ? 'التالي' : 'Next'}
-            className="nq-btn nq-btn--solid hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
-          >
-            <span className="nq-btn-beam" aria-hidden="true" />
-            <ChevronRight className="w-4 h-4 ltr:rotate-180" />
-          </button>
-
-          <div
-            className="wheel3d-stage"
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={stopDragging}
-            onPointerCancel={stopDragging}
-          >
-            <div
-              ref={wheelRef}
-              className={`wheel3d-ring${isDragging ? ' is-dragging' : ''}`}
-            >
-              {guarantees.map(({ Icon, title, desc, bgImage, bgSize }, i) => (
-                <div
-                  key={title}
-                  className="wheel3d-item"
-                  style={{ '--item-angle': `${i * 90}deg` } as React.CSSProperties}
-                >
-                  {/* No spotlight/glow here on purpose — the pointer-tracked light and the
-                      box-shadow bloom both washed a white overlay across the icon and text on
-                      hover, cutting their contrast. A plain border highlight communicates
-                      "hovered" without dimming what's actually on the face. */}
-                  <div className="group relative overflow-hidden h-full flex flex-col items-center justify-center p-4 rounded-2xl bg-zinc-950/90 border border-zinc-700 text-center hover:border-white/50 hover:bg-zinc-900/90 transition-all shadow-xl">
-                    {/* Full opacity, not the 40% it faded to before: at 40% the face's image
-                        was a washed-out ghost of itself blended with the card fill underneath.
-                        Its gradient is dark enough on its own that the white text above it
-                        keeps its contrast at full strength. */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{ backgroundImage: bgImage, backgroundSize: bgSize }}
-                    />
-                    <div className="relative z-10 w-9 h-9 mb-2 rounded-xl bg-black border border-zinc-700 flex items-center justify-center text-white">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="relative z-10 text-base sm:text-lg lg:text-xl font-bold text-white mb-0.5">{title}</div>
-                    <div className="relative z-10 text-[10px] sm:text-[11px] text-zinc-400">{desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => rotateBy(WHEEL_STEP)}
-            aria-label={language === 'ar' ? 'السابق' : 'Previous'}
-            className="nq-btn nq-btn--solid hidden sm:flex shrink-0 w-10 h-10 rounded-full items-center justify-center cursor-pointer"
-          >
-            <span className="nq-btn-beam" aria-hidden="true" />
-            <ChevronLeft className="w-4 h-4 ltr:rotate-180" />
-          </button>
-        </div>
+        {/* The guarantee cube that used to sit here is gone, and the card that replaced it now
+            lives one block down in App.tsx, paired with the speed/efficiency panel. It was
+            moved rather than merely swapped: on its own in the hero it left a wide band of
+            empty page beside it, and the panel it now sits next to was the thing filling that
+            space badly from further down. See the note at that grid. */}
 
       </div>
     </section>
