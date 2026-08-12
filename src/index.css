@@ -719,11 +719,20 @@
    with transform3d (compositor-only, no per-frame paint) instead of a canvas/particle
    loop, so it stays free even on low-end GPUs. Each layer is 200% of the viewport and
    tiles seamlessly, so translating it by exactly one tile length loops with no jump cut. */
+/* Sized to the viewport plus a fixed overscan, NOT to a multiple of it.
+   This was `inset: -50%; width: 200%; height: 200%` — four times the screen's area, twice
+   over, both animating forever. On a 1080x2400 phone at ~2.75x that is roughly 78 million
+   device pixels per layer: far past what a mobile GPU will hold as a single texture, so it
+   tiles the surface and re-rasterises tiles continuously as the layer drifts. Two of those
+   running permanently is genuinely the workload of a game, and it is what made the device hot
+   on a page that is otherwise text.
+   None of that area was ever needed. The pattern repeats every 300-380px and the drift travels
+   exactly one tile before looping, so the layer only has to extend past the viewport by one
+   tile for its edge to stay off screen. 420px of overscan covers both layers with room to
+   spare, and cuts the composited area by roughly three quarters. */
 .star-layer {
   position: absolute;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
+  inset: -420px;
   background-repeat: repeat;
 }
 
@@ -952,9 +961,12 @@
   }
 }
 
+/* Both axes travel exactly one tile (380px, matching background-size), so the layer at the end
+   of a cycle is pixel-identical to the start and the loop is invisible. The y value used to be
+   300px against a 380px tile, which meant the pattern jumped 80px once every 150s. */
 @keyframes star-drift-near {
   from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-380px, 300px, 0); }
+  to { transform: translate3d(-380px, 380px, 0); }
 }
 
 /* Engineered navbar glass (.glass-bar). The original design used `backdrop-filter: blur()`
