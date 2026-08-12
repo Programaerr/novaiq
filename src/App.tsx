@@ -8,6 +8,7 @@ import { useRevealGroup } from './lib/useRevealGroup';
 import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
+import { HeroProofStrip } from './components/HeroProofStrip';
 import { FloatingTemplateCards } from './components/FloatingTemplateCards';
 import { CredentialCard } from './components/CredentialCard';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
@@ -503,6 +504,14 @@ export default function App() {
                 resumes at the section after it. */}
             <div className="space-y-6 sm:space-y-8">
               <HeroSection language={language} />
+
+              {/* The evidence, immediately under the claim. Above the fold on purpose — see
+                  HeroProofStrip for why the studio's work had to come up to meet the visitor
+                  rather than wait for them to scroll to it. */}
+              <HeroProofStrip
+                language={language}
+                onExploreTemplates={() => setActivePage('templates')}
+              />
 
               {/* Quick Overview Grid to drive leads */}
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

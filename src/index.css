@@ -1291,6 +1291,7 @@
    at all, so the navbar kept animating even with the tab in the background. */
 html:is([data-idle], [data-resting]) :is(
   .star-layer,
+  .hero-proof__track,
   .nebula-layer,
   .shooting-star,
   .animate-pulse-glow,
@@ -1935,4 +1936,51 @@ html[data-flat] .cosmic-bg {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #52525b;
+}
+
+
+/* ── Hero proof strip (HeroProofStrip.tsx) ─────────────────────────────────────────────────
+   A horizontal band of the studio's own screens, directly under the hero. Sizes as custom
+   properties so the marquee arithmetic and the markup read one set of numbers.
+
+   Spacing lives on each cover as a margin rather than as a flex `gap`, and that is load-bearing:
+   with `gap`, a track of 2n items is 2n·item + (2n−1)·gap wide — one gap short of two identical
+   halves — so travelling exactly -50% lands half a gap out and the loop visibly jumps once per
+   cycle. Folded into the item, the track is exactly 2n·(item+gap) and -50% is one clean pass. */
+.hero-proof {
+  --proof-w: 168px;
+  --proof-h: 106px;
+  --proof-gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .hero-proof {
+    --proof-w: 232px;
+    --proof-h: 146px;
+    --proof-gap: 18px;
+  }
+}
+
+.hero-proof__cover {
+  width: var(--proof-w);
+  height: var(--proof-h);
+  margin-inline-end: var(--proof-gap);
+}
+
+/* Always leftward regardless of text direction: this is a filmstrip, not prose, and it should
+   not reverse when the site switches to English. */
+.hero-proof__track {
+  animation: hero-proof-run 48s linear infinite;
+  will-change: transform;
+}
+
+@keyframes hero-proof-run {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-proof__track {
+    animation: none;
+  }
 }
