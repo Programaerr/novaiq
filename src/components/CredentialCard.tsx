@@ -118,6 +118,23 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     // it.
     el.style.setProperty('--glare-x', `${clamp(-wrap(y) * 3.2, 150)}px`);
     el.style.setProperty('--glare-y', `${clamp(wrap(x) * 3.2, 110)}px`);
+
+    // The back's own highlight, and it needs its own angle rather than a mirrored copy of the
+    // front's.
+    //
+    // Every formula above measures from the orientation where the surface faces the viewer
+    // square-on, because that is where a highlight belongs in the middle. For the front that is
+    // 0°. For the back it is 180° — it is mounted at rotateY(180deg) — so feeding it the front's
+    // angle put it at its furthest offset, pinned against the clamp, at exactly the moment you
+    // were looking straight at it, and slid it to the centre as the back turned edge-on and out
+    // of sight. Precisely inverted, which is what looked wrong.
+    //
+    // Measuring from 180° fixes that. The sign is not negated here: the back is mirrored by its
+    // own rotateY, so its local +X runs left on screen, and letting the raw angle through is
+    // what makes the highlight sweep the same way on screen as the front's does. The vertical
+    // component needs no adjustment at all — a rotation about Y leaves up and down alone — so
+    // the back reads --glare-y directly.
+    el.style.setProperty('--glare-bx', `${clamp(wrap(y - 180) * 3.2, 150)}px`);
   };
 
   const turnTo = (x: number, y: number) => {

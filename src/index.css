@@ -896,11 +896,16 @@
 /* The back is the same surface seen from behind, so it catches the same light — without this
    the card is convincingly lit from the front and dead flat the moment it is turned round, which
    is the giveaway that it is two pictures rather than one object.
-   The horizontal component is negated because the face is mirrored by its own `rotateY(180deg)`:
-   left and right are swapped on it, so a highlight that must stay on the same physical side of
-   the card has to travel the opposite way in its local coordinates. */
+
+   It reads its own horizontal offset rather than negating the front's. This was
+   `calc(var(--glare-x) * -1)`, which mirrors the front correctly and is still wrong, because the
+   front's value is measured from the angle where the FRONT faces you. The back faces you 180°
+   from there, so no amount of mirroring can put its highlight in the middle at the moment you
+   are actually looking at it. --glare-bx is measured from the back's own square-on angle; see
+   the note where it is written in CredentialCard.tsx. The vertical offset is genuinely shared —
+   turning about Y does not swap up and down. */
 .credential-face--back .credential-glare {
-  transform: translate3d(calc(var(--glare-x, 0px) * -1), var(--glare-y, 0px), 0);
+  transform: translate3d(var(--glare-bx, 0px), var(--glare-y, 0px), 0);
 }
 
 /* Follows the card exactly while it is being turned, for the same reason the card itself
