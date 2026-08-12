@@ -1040,6 +1040,17 @@
     inset 0 0 24px rgba(255, 255, 255, 0.02);
 }
 
+/* The frosted card's own material, so it still separates from the background on browsers with no
+   backdrop-filter and while a scroll has the blur switched off. Slightly more opaque than the
+   bars because it carries small text over a moving, lit backdrop rather than a few large labels. */
+.frost-card {
+  background: rgba(10, 10, 12, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 24px 70px -30px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
 /* Real frosted blur, wherever the browser supports it. It used to be withheld from devices
    the old capability classifier had labelled weak — but that classifier latched on the first
    momentary hitch and never let go, so one image decode during load could strip the glass off
@@ -1048,8 +1059,24 @@
    this one. */
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass-bar--blur {
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  /* One large frosted card for the footer, on the same material as the bars.
+     The footer used to sit directly on the page, which was unremarkable while the page behind it
+     was flat black. With a lit background moving past, an unbacked block of links reads as text
+     floating in a nebula — so it gets a surface of its own to sit on. Not fixed, unlike the bars:
+     it scrolls with the page, so its backdrop is only re-sampled when the page moves, and it
+     leaves the viewport entirely for most of a visit. */
+  .frost-card {
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    backdrop-filter: blur(22px) saturate(140%);
+  }
+
+  html[data-scrolling] .frost-card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   /* …but not while the page is moving.

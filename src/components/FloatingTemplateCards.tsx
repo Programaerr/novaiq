@@ -96,6 +96,20 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
       <div
         ref={beltRef}
         className="template-belt relative w-full sm:w-[30rem] h-72 sm:h-[26rem] shrink-0 select-none overflow-hidden"
+        // Faded top and bottom by a mask rather than by a black gradient laid over the top.
+        //
+        // The overlay that used to do this painted solid #000 at both ends, which worked only for
+        // as long as the page behind it was solid black. With a lit background moving behind the
+        // belt it stopped being a fade and became two black bars — a dark box bolted around the
+        // section, which is exactly the "strange shadow" it looked like. A mask removes the
+        // pixels instead of painting over them, so the belt dissolves into whatever is actually
+        // behind it, whatever that happens to be at the time.
+        style={{
+          WebkitMaskImage:
+            'linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%)',
+          maskImage:
+            'linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%)',
+        }}
       >
         <div
           className="absolute inset-0 flex justify-center"
@@ -149,15 +163,6 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
           })}
         </div>
 
-        {/* Fades the columns into the page at top and bottom rather than letting them run into
-            a hard cut. pointer-events-none so it cannot swallow anything. */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(to bottom, #000 0%, transparent 22%, transparent 78%, #000 100%)',
-          }}
-        />
       </div>
 
       {/* Text + single CTA, fully separate from the belt. */}

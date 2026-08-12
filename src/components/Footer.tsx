@@ -28,8 +28,13 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
   };
 
   return (
-    <footer className="relative mt-20 sm:mt-32 bg-black border-t border-zinc-800/80 pt-14 pb-10 overflow-hidden text-xs text-zinc-400 z-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    // No `bg-black` and no top border any more. Both existed to separate the footer from the
+    // page, and both did it by being a solid black slab — which stopped working the moment there
+    // was a lit background moving behind it, because a black slab over a lit scene is a hole cut
+    // in the page. The separation now comes from the frosted card inside, which is translucent:
+    // the scene stays visible through it while the text sits on a surface of its own.
+    <footer className="relative mt-20 sm:mt-32 pb-10 text-xs text-zinc-400 z-20">
+      <div className="frost-card max-w-7xl mx-auto rounded-3xl px-4 sm:px-8 lg:px-10 pt-12 pb-10 overflow-hidden">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           
