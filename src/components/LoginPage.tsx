@@ -104,8 +104,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
       {/* lg is where the split appears. Below it the gallery is dropped entirely rather than
           stacked under the form: it is atmosphere, and a phone that has to scroll past a
           screenful of drifting covers to reach a sign-in button has been given a worse page,
-          not a richer one. */}
-      <div className="relative z-10 min-h-screen grid grid-cols-1 lg:grid-cols-2">
+          not a richer one.
+
+          Capped and centred rather than filling the viewport. The two halves are 50% each, so
+          on a 34" screen they become ~1720px columns holding a 448px form and three 160px
+          columns of covers — the same pieces, dragged to opposite ends of the desk with a void
+          between them. A sign-in screen has a fixed amount to say, and past a point more width
+          stops being more room and starts being distance. Beyond this cap the composition holds
+          its size and the starfield (full-bleed, outside this wrapper) takes the rest. */}
+      <div className="relative z-10 min-h-screen grid grid-cols-1 lg:grid-cols-2 max-w-[1700px] mx-auto">
 
         {/* ── Form side ─────────────────────────────────────────────────────────────── */}
         {/* min-h-screen only below lg. On the split layout the grid row already gives this
