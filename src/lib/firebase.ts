@@ -7,7 +7,6 @@ import {
   onSnapshot,
   doc,
   setDoc,
-  updateDoc,
   deleteDoc,
   serverTimestamp
 } from 'firebase/firestore';
@@ -92,12 +91,18 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
     const docId = contractNum || `LOCAL_${Date.now()}`;
     const docRef = doc(db, CONTRACTS_COLLECTION, docId);
 
-    const docData = {
-      ...cleanContract,
-      createdAt: contract.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      serverCreatedAt: serverTimestamp(),
-    };
+    // Same undefined-stripping as updateContractFields, for the same reason: ContractData has
+    // a dozen optional fields, and a single one of them present-but-undefined makes Firestore
+    // reject the entire contract. `serverTimestamp()` is a sentinel object, not undefined, so
+    // it survives this untouched.
+    const docData = Object.fromEntries(
+      Object.entries({
+        ...cleanContract,
+        createdAt: contract.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        serverCreatedAt: serverTimestamp(),
+      }).filter(([, value]) => value !== undefined)
+    );
 
     await setDoc(docRef, docData, { merge: true });
 
@@ -124,9 +129,20 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
 // from the admin dashboard, which is gated behind Firebase Auth login. Covers status
 // changes and the post-negotiation edits (final agreed price, admin notes) in one call.
 export async function updateContractFields(
-  contractId: string,
+  contract: Pick<ContractData, 'id' | 'contractNumber'>,
   fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned'>>
 ): Promise<void> {
+  // Identified by contractNumber first, because that IS the document ID that
+  // saveContractToFirebase writes to. `id` only equals it for contracts that came back from a
+  // Firestore snapshot; one still waiting in localStorage (saved while offline, or when the
+  // cloud sync failed) carries whatever id it had locally, or none at all — and this used to
+  // be handed exactly that `id`, so admin edits to those contracts addressed a document that
+  // does not exist.
+  const docId = (contract.contractNumber || '').trim() || (contract.id || '').trim();
+  if (!docId) {
+    throw new Error('Cannot update a contract with neither a contract number nor an id');
+  }
+
   const updatePayload: Partial<ContractData> = {
     ...fields,
     updatedAt: new Date().toISOString(),
@@ -136,16 +152,39 @@ export async function updateContractFields(
     updatePayload.completedAt = new Date().toISOString();
   }
 
-  await updateDoc(doc(db, CONTRACTS_COLLECTION, contractId), updatePayload);
+  // setDoc+merge rather than updateDoc: updateDoc requires the document to already exist and
+  // rejects outright if it does not, which is the state every contract is in when its
+  // original cloud save failed. That turned "the save didn't go through" into "this contract
+  // can never be edited again". Merging writes the changed fields whether the document is
+  // already there or is being created by this very call, and leaves every other field alone.
+  // Firestore rejects `undefined` as a field value outright: one undefined key fails the whole
+  // write with "Unsupported field value: undefined", taking every other edit in the same call
+  // down with it — an admin changing the price, the status and the notes loses all three
+  // because one unrelated optional field happened to be empty. Optional fields legitimately
+  // arrive here unset, so they are dropped instead of sent; under merge:true an absent key
+  // means "leave this as it is", which is exactly what "I didn't touch it" should mean.
+  const cleanPayload = Object.fromEntries(
+    Object.entries(updatePayload).filter(([, value]) => value !== undefined)
+  );
+
+  await setDoc(doc(db, CONTRACTS_COLLECTION, docId), cleanPayload, { merge: true });
 
   // Keep the local cache in sync so the admin list doesn't flash back to the old value
-  // before Firestore's onSnapshot round-trip completes.
+  // before Firestore's onSnapshot round-trip completes. Matched on either identifier, for the
+  // same reason the document is: the two are not always the same string.
   try {
     const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
-    const idx = localContracts.findIndex((c) => c.id === contractId);
+    const idx = localContracts.findIndex(
+      (c) =>
+        (contract.id && c.id === contract.id) ||
+        (contract.contractNumber && (c.contractNumber || '').trim() === contract.contractNumber.trim())
+    );
     if (idx >= 0) {
       localContracts[idx] = { ...localContracts[idx], ...updatePayload };
       localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
+      // Tells subscribeToContracts' local-update listener to re-read, so an edit made while
+      // the cloud is unreachable still shows up in the list instead of appearing to do nothing.
+      window.dispatchEvent(new Event('novaq_contracts_updated'));
     }
   } catch {
     // non-critical

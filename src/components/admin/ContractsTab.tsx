@@ -276,24 +276,40 @@ function ContractRow({
   const rowProfit = paidAmountIQD - Number(cost || 0);
 
   const handleSave = async () => {
-    if (!contract.id || isSaving) return;
+    if (isSaving) return;
+    // The `!contract.id` bail that used to be here returned silently: pressing "حفظ
+    // التغييرات" on any contract that had not come back from a Firestore snapshot did
+    // nothing at all — no save, no error, no toast, the button just looked like it had been
+    // ignored. Identifying the contract is updateContractFields' job (it keys on
+    // contractNumber, which is the real document ID), and if it genuinely cannot work out
+    // which document to write, it throws and the catch below says so out loud.
     setIsSaving(true);
     try {
       const companySignatureDataUrl = signatureDirty ? signatureRef.current?.getDataUrl() : undefined;
-      await updateContractFields(contract.id, {
+      await updateContractFields(contract, {
         status,
         totalPriceIQD: Number(totalPrice) || 0,
         costIQD: Number(cost) || 0,
         payments,
         paidAmountIQD,
         paymentStatus,
-        installmentsPlanned: installmentsPlannedNum || undefined,
+        // Plain number, never `undefined` — Firestore rejects undefined field values and
+        // fails the entire write. `0` is not a lossy substitute for "unset" here: every
+        // reader of this field treats it as `contract.installmentsPlanned || 0` and shows the
+        // installment counter only when it is `> 0`, so zero and absent already mean the same
+        // thing everywhere. It also makes clearing the box actually clear the value, which
+        // sending `undefined` under merge:true could not do.
+        installmentsPlanned: installmentsPlannedNum,
         adminNotes: adminNotes.trim(),
         ...(companySignatureDataUrl !== undefined ? { companySignatureDataUrl } : {}),
       });
       cosmicAudio.playPing();
       showToast(isAr ? 'تم حفظ التعديلات بنجاح' : 'Changes saved successfully', 'success');
-    } catch {
+    } catch (e) {
+      // Logged as well as toasted: "حاول مجدداً" is all the admin needs, but when a save keeps
+      // failing the actual Firestore error (permissions, offline, bad field) is the only thing
+      // that says why, and it was previously swallowed by a bare `catch {}`.
+      console.error('Failed to save contract changes:', e);
       showToast(isAr ? 'تعذر حفظ التعديلات، حاول مجدداً' : 'Failed to save changes — please try again', 'error');
     } finally {
       setIsSaving(false);

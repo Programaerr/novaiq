@@ -21,7 +21,7 @@ import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
 import { showToast } from '../lib/toast';
-import { loadContractDraft, saveContractDraft, clearContractDraft } from '../lib/contractDraft';
+import { loadContractDraft, saveContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
 import { contractTerms } from '../data/contractTerms';
 
@@ -73,7 +73,15 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // open (overrides load asynchronously, a moment after the initial static render).
   useEffect(() => {
     const live = templatesData.find(t => t.id === template.id);
-    if (live && live !== template) setTemplate(live);
+    // Compared by value, not just by reference. The reference test alone is only safe while
+    // `templatesData` keeps a stable identity between renders (see the useMemo in
+    // useLiveTemplates); if that ever stops being true again, an identity-only check setStates
+    // on every render and loops until React aborts the tree. Stringifying one template object
+    // costs nothing next to the render it prevents, and makes this effect correct on its own
+    // terms rather than dependent on a promise made in another file.
+    if (live && live !== template && JSON.stringify(live) !== JSON.stringify(template)) {
+      setTemplate(live);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templatesData]);
 
@@ -346,9 +354,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       createdAt: new Date().toISOString(),
     };
 
-    clearContractDraft();
+    // Neither the success toast nor clearing the draft belongs here. This function has not
+    // created anything at this point — it has assembled an object and is about to hand it
+    // over — so announcing "تم إنشاء العقد بنجاح" from here was a claim made before the work
+    // was attempted, and it stayed on screen even when the save then failed or never ran.
+    // Clearing the draft was worse: it threw away the only recoverable copy of a contract
+    // that did not yet exist anywhere else. Both now happen in App's handleContractGenerated,
+    // on the actual outcome of the actual save.
+    //
+    // The sound stays: it acknowledges the click, which did happen.
     cosmicAudio.playWarp();
-    showToast(isAr ? 'تم إنشاء العقد بنجاح' : 'Contract created successfully', 'success');
     onContractGenerated(contractData);
   };
 

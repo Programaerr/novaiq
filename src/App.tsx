@@ -21,6 +21,9 @@ import { Template, ContractData, CUSTOM_PROJECT_TEMPLATE_ID } from './types';
 import { Language } from './lib/i18n';
 import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
 import { consumePendingContractSelection } from './lib/pendingContractSelection';
+import { saveContractToFirebase } from './lib/firebase';
+import { clearContractDraft } from './lib/contractDraft';
+import { showToast } from './lib/toast';
 
 // Everything below is only needed after a navigation action (clicking into a page,
 // opening a live template demo, generating a contract PDF). Splitting these into their
@@ -49,6 +52,11 @@ export default function App() {
   
   // Modals state
   const [activeContractForPreview, setActiveContractForPreview] = useState<ContractData | null>(null);
+  // True only while the signed contract is actually being written. The preparing loader used
+  // to stand for "a lazy chunk is downloading", which is not something the customer has any
+  // stake in; now it stands for the save itself, so what it claims to be doing is what is
+  // happening.
+  const [isSavingContract, setIsSavingContract] = useState(false);
   // Remembered across visits so switching to English once doesn't reset back to Arabic
   // (and re-trigger the whole-page translation pass) on every single page load.
   const [language, setLanguage] = useState<Language>(() => {
@@ -198,8 +206,47 @@ export default function App() {
     navigateTo('custom-request');
   };
 
-  const handleContractGenerated = (contract: ContractData) => {
-    setActiveContractForPreview(contract);
+  /**
+   * Saves the signed contract, then opens the preview.
+   *
+   * The save used to live inside ContractPDFPreview's mount effect, which made creating a
+   * contract depend on a lazy chunk that also carries jsPDF and html2canvas finishing its
+   * download. On a weak connection that chunk can take a long time or stall outright, and
+   * while it did the customer sat on "جارِ تجهيز عقدك الإلكتروني..." forever with nothing
+   * saved anywhere — the contract they had just signed existed only in React state, because
+   * the builder had already cleared its own saved draft. A slow network could therefore
+   * destroy a completed contract.
+   *
+   * Saving is business-critical and needs nothing from that chunk; only the *download* button
+   * does. So the save happens here first, and the heavy PDF code stays lazy behind it.
+   *
+   * The preview opens either way. saveContractToFirebase writes to localStorage before it
+   * touches the network, so even a failed cloud sync leaves the contract recoverable, and the
+   * customer keeps the download button that turns it into a PDF they can keep. The draft is
+   * cleared only on a confirmed save, so a failure leaves them able to retry rather than
+   * having to fill the whole form again.
+   */
+  const handleContractGenerated = async (contract: ContractData) => {
+    setIsSavingContract(true);
+    try {
+      await saveContractToFirebase(contract);
+      clearContractDraft();
+      showToast(
+        isAr ? 'تم إنشاء العقد وحفظه في حسابك' : 'Contract created and saved to your account',
+        'success'
+      );
+    } catch (e) {
+      console.error('Failed to save the contract:', e);
+      showToast(
+        isAr
+          ? 'تعذر حفظ العقد على الخادم — نسخة محفوظة على جهازك، ويمكنك تنزيل PDF الآن'
+          : 'Could not save the contract to the server — a copy is kept on this device and you can download a PDF now',
+        'error'
+      );
+    } finally {
+      setIsSavingContract(false);
+      setActiveContractForPreview(contract);
+    }
   };
 
   const isAr = language === 'ar';
@@ -486,6 +533,9 @@ export default function App() {
       {/* Global toast notifications — validation warnings, save confirmations, errors */}
       <ToastHost />
 
+      {/* Shown while the contract is being written, before the preview exists at all. */}
+      {isSavingContract && <ContractPreparingLoader language={language} />}
+
       {/* Contract PDF Generated Preview Modal */}
       {activeContractForPreview && (
         <Suspense fallback={<ContractPreparingLoader language={language} />}>
@@ -494,14 +544,6 @@ export default function App() {
             language={language}
             currency={currency}
             onClose={() => setActiveContractForPreview(null)}
-            // Used to auto-navigate to 'orders' the instant the Firebase save resolved —
-            // which happens near-instantly, so the customer got yanked away from the "here's
-            // your contract, download it now" modal to the account/orders list before they
-            // ever saw it, and had to go hunt for the same contract there to download it. The
-            // modal itself stayed mounted throughout (this never closed it), so nothing here
-            // needs to navigate anywhere: the customer already has the download button in
-            // front of them and can go to 'orders' on their own once they're done with it.
-            onSavedSuccess={() => {}}
             onFinish={() => {
               const templateId = activeContractForPreview.templateId;
               setActiveContractForPreview(null);

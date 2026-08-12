@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { templatesData } from '../data/templatesData';
 import { Template } from '../types';
 
@@ -127,5 +127,19 @@ export function useLiveTemplates(): Template[] {
     });
   }, []);
 
-  return applyPricingOverrides(templatesData, overrides);
+  // Memoised on `overrides`, and this is load-bearing rather than a micro-optimisation.
+  //
+  // applyPricingOverrides returns the static array untouched while there are no overrides,
+  // but the moment even one exists it maps into a brand-new array of brand-new template
+  // objects — and it ran on every render, so callers received a different array identity each
+  // time. ContractBuilder keeps its selected template in sync through an effect that depends
+  // on this array and setStates whenever the matching entry is not reference-equal to the one
+  // it holds. Against a fresh array that condition was permanently true: set state, re-render,
+  // build another new array, set state again, until React gave up with "Maximum update depth
+  // exceeded". The runaway loop then starved the main thread badly enough to cost the hero's
+  // WebGL context ("THREE.WebGLRenderer: Context Lost").
+  //
+  // That is why it only started biting after prices were edited in the admin panel: with no
+  // overrides saved, the early return kept the reference stable and hid the whole problem.
+  return useMemo(() => applyPricingOverrides(templatesData, overrides), [overrides]);
 }

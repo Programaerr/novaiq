@@ -245,6 +245,22 @@ export const TemplateCards3D: React.FC = () => {
         // without having to find the same card again.
         onPointerMissed={() => setActive(null)}
         onContextMenu={(e) => e.preventDefault()}
+        // Survive a lost GPU context instead of going permanently blank.
+        //
+        // A browser drops a WebGL context when the GPU is under pressure — a long main-thread
+        // stall, another heavy tab, a driver reset. Three's default reaction is to log
+        // "THREE.WebGLRenderer: Context Lost" and stop, and because the default `contextlost`
+        // event is not cancelled the browser never offers the context back, so the hero stays
+        // an empty rectangle until a full page reload. Calling preventDefault is what opts
+        // into restoration; the restore handler then asks for a frame so the scene repaints
+        // itself the moment the GPU is available again.
+        //
+        // The listeners live on the canvas element, which React destroys along with this
+        // component, so they need no explicit teardown.
+        onCreated={({ gl, invalidate }) => {
+          gl.domElement.addEventListener('webglcontextlost', (e) => e.preventDefault());
+          gl.domElement.addEventListener('webglcontextrestored', () => invalidate());
+        }}
         style={{ touchAction: 'pan-y' }}
       >
         <Suspense fallback={null}>
