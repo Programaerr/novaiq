@@ -505,7 +505,19 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
       // Barely metallic: a metallic white takes its colour from what it reflects, and with an
       // empty scene around it that reads as grey rather than white.
       front: new THREE.MeshStandardMaterial({ map: front, transparent: true, roughness: 0.44, metalness: 0.05 }),
-      back: new THREE.MeshStandardMaterial({ map: back, transparent: true, roughness: 0.55, metalness: 0.05 }),
+      // DoubleSide on the reverse only. Its plane is turned to face backwards and then the whole
+      // card is turned over on top of that, and with single-sided culling the composition of those
+      // two rotations left it facing away at exactly the angles it is meant to be read from — the
+      // card showed the bare edge of its body instead of its printed back. The front stays
+      // single-sided so it cannot appear through the card from behind; the body is opaque and
+      // sits between them, so nothing else can either.
+      back: new THREE.MeshStandardMaterial({
+        map: back,
+        transparent: true,
+        roughness: 0.55,
+        metalness: 0.05,
+        side: THREE.DoubleSide,
+      }),
     }),
     [front, back],
   );
