@@ -793,16 +793,11 @@
 }
 
 .credential-card {
-  /* The card's thickness, and the width of the band that closes it.
-     They are separate values because the band has to be wider than the card is thick. The band
-     is a flat ring at mid-depth: it has extent in X and Y but none in Z, so it hides the gap
-     between the two faces only for as long as its projected width covers the gap's projected
-     height — b·cos(angle) >= depth·sin(angle), i.e. b >= depth·tan(angle). At b = depth the seam
-     opens at 45°; at 1.5x it holds past 56°, which covers the angles the card is actually read
-     at. Thinner overall than it was (12px), for the same reason: every degree of thickness is a
-     gap that has to be covered. */
-  --depth: 9px;
-  --rim: 14px;
+  /* The card's thickness. One value: the four sides are this wide and the two faces sit at plus
+     and minus half of it, so the solid cannot come apart at the seams whatever it is set to.
+     A separate, wider `--rim` used to be needed to paper over a gap the flat ring could not
+     close; the sides close it by being real surfaces, so the fudge is gone. */
+  --depth: 11px;
   /* The faces' corner radius. Owned here so `.credential-face` and the rings that trace its
      outline read one value rather than each hard-coding their own. */
   --radius: 1.5rem;
@@ -872,24 +867,63 @@
   transform: translateZ(calc(var(--depth) / -2)) rotateY(180deg);
 }
 
-/* The band that closes the card: one ring at the exact midpoint of the depth, its border as wide
-   as half the thickness, so it fills the silhouette between the two faces at every angle they
-   are turned to. Rounded to the same radius, so the rim curves correctly at the corners — the
-   reason this is a ring rather than four straight strips, which meet a rounded corner as a
-   square one.
+/* The band, as four real sides rather than one flat ring.
+   The ring that was here lay in the same plane as the faces, so it had extent in X and Y and
+   none at all in Z — which meant that turning the card to look straight down its side presented
+   the ring edge-on too, and it vanished to a line exactly when it was needed. What you saw was
+   two plates with daylight between them. These are perpendicular to the faces instead, so the
+   side of the card is a real surface at any angle.
 
-   Hollow: only the border is painted, never the interior, because the inside of a closed card is
-   never visible and a fill there is pixels spent on nothing.
+   Hinged, not positioned by half the card's width: each strip sits flush against one border of
+   the card and swings 90° about that shared border, so it reaches from the front face to the
+   back one without anything here needing to know the card's pixel size. That is what lets the
+   card stay sized purely by aspect-ratio while the solid stays assembled.
 
-   Deliberately NOT `backface-visibility: hidden` — this is the surface you are meant to see as
-   the card passes edge-on, which is exactly when both faces have hidden themselves. */
-.credential-band {
+   translateZ(depth/2) first moves the hinge up to the front face's plane; the rotation then
+   sweeps the strip back through exactly `--depth` to meet the rear one.
+
+   Deliberately NOT `backface-visibility: hidden` — these are the surfaces you are meant to see
+   as the card passes edge-on, which is exactly when both faces have hidden themselves. */
+.credential-edge {
   position: absolute;
-  inset: 0;
-  border-radius: var(--radius);
-  border: var(--rim) solid #26262c;
-  background: none;
+  background: linear-gradient(180deg, #34343c 0%, #1c1c21 55%, #0e0e11 100%);
   pointer-events: none;
+}
+
+.credential-edge--right {
+  top: 0;
+  right: 0;
+  width: var(--depth);
+  height: 100%;
+  transform-origin: 100% 50%;
+  transform: translateZ(calc(var(--depth) / 2)) rotateY(-90deg);
+}
+
+.credential-edge--left {
+  top: 0;
+  left: 0;
+  width: var(--depth);
+  height: 100%;
+  transform-origin: 0 50%;
+  transform: translateZ(calc(var(--depth) / 2)) rotateY(90deg);
+}
+
+.credential-edge--top {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--depth);
+  transform-origin: 50% 0;
+  transform: translateZ(calc(var(--depth) / 2)) rotateX(-90deg);
+}
+
+.credential-edge--bottom {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--depth);
+  transform-origin: 50% 100%;
+  transform: translateZ(calc(var(--depth) / 2)) rotateX(90deg);
 }
 
 .credential-glare {

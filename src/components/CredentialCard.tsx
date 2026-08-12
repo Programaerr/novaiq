@@ -326,16 +326,18 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           </div>
         </div>
 
-        {/* ── The band ──────────────────────────────────────────────────────────────────
-            One ring, sitting exactly halfway between the two faces, thick enough to close the
-            gap they leave between them. It replaces a stack of six: the faces are pushed apart
-            to ±half the depth instead of hanging off the front, so the solid is symmetric about
-            its own centre and a single band spans it.
+        {/* ── The band: four real sides ────────────────────────────────────────────────
+            Perpendicular to the faces, so looking straight down any side of the card shows the
+            surface that joins them rather than the gap between them. A flat ring at mid-depth
+            was tried first and could not do this: it lay in the faces' own plane, so it went
+            edge-on with them and disappeared at the one angle it existed for.
 
-            Three layers is the whole point — that is one front, one back, one band, against the
-            eight this used to carry. aria-hidden: this is the thickness of a thing, not
-            content. */}
-        <div aria-hidden="true" className="credential-band" />
+            Six layers rather than the eight this carried at its worst, and each of these is a
+            9px sliver rather than a full card-sized plane. aria-hidden: this is the thickness of
+            a thing, not content. */}
+        {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
+          <div key={side} aria-hidden="true" className={`credential-edge credential-edge--${side}`} />
+        ))}
       </div>
     </div>
   );
