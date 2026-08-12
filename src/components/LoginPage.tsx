@@ -34,6 +34,17 @@ const COLUMNS = [
   { duration: '54s', direction: 'up' as const },
 ];
 
+// The covers are a fixed size, in px, and deliberately not responsive. They were sized by the
+// column (`flex-1`) with a height that jumped at `xl`, so the same cover was a different shape
+// on every window width — near-circular on a wide screen, squat on a narrow one — and resizing
+// the window visibly re-proportioned the whole gallery mid-drift. Pinning them means the shape
+// is the shape: a tall capsule, roughly 1:2.6, which is the arch the reference is built from.
+// Columns overflowing a narrow viewport is fine and intended — the gallery clips, so they bleed
+// off the edge exactly as the reference's do, rather than squashing to fit.
+const COVER_W = 160;
+const COVER_H = 420;
+const COVER_GAP = 20;
+
 /**
  * Standalone sign-in page: brand and form on one side, a slow gallery of the company's own
  * template covers on the other.
@@ -177,14 +188,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onBack }) => {
 
         {/* ── Gallery side ──────────────────────────────────────────────────────────── */}
         <div className="hidden lg:block relative overflow-hidden">
-          <div className="absolute inset-0 flex gap-4 xl:gap-5 px-4 xl:px-6">
+          <div
+            className="absolute inset-0 flex justify-center"
+            style={{ gap: COVER_GAP, paddingInline: COVER_GAP }}
+          >
             {columns.map((imgs, col) => {
               if (imgs.length === 0) return null;
               const { duration, direction } = COLUMNS[col];
               return (
-                <div key={col} className="flex-1 overflow-hidden">
-                  {/* Offset every other column so the pill seams across the three don't line
-                      up into one horizontal band marching down the page. */}
+                <div key={col} className="overflow-hidden shrink-0" style={{ width: COVER_W }}>
                   {/* Spacing lives on the pills as margin, NOT as a flex `gap` on this track,
                       and that is load-bearing rather than stylistic. With `gap`, a track of 2n
                       items is 2n·item + (2n−1)·gap tall — one gap short of two identical
@@ -197,7 +209,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onBack }) => {
                     style={{
                       animationName: direction === 'up' ? 'login-marquee-up' : 'login-marquee-down',
                       animationDuration: duration,
-                      marginTop: col % 2 === 1 ? '-6rem' : '-2rem',
+                      // Staggered start so the capsule seams across the columns don't line up
+                      // into one horizontal band marching down the page. In px against the
+                      // fixed cover height rather than rem, so it stays a proportion of the
+                      // shape it is offsetting no matter the root font size.
+                      marginTop: -((col * (COVER_H + COVER_GAP)) / COLUMNS.length),
                     }}
                   >
                     {/* Rendered twice — see the note on the keyframes in index.css. The second
@@ -208,7 +224,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onBack }) => {
                         <div
                           key={`${pass}-${i}`}
                           aria-hidden={pass === 1 ? 'true' : undefined}
-                          className="relative w-full h-64 xl:h-72 shrink-0 mb-4 xl:mb-5 rounded-[999px] overflow-hidden bg-zinc-900 border border-white/10"
+                          className="relative shrink-0 rounded-[999px] overflow-hidden bg-zinc-900 border border-white/10"
+                          style={{ width: COVER_W, height: COVER_H, marginBottom: COVER_GAP }}
                         >
                           <img
                             src={src}
