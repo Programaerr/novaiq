@@ -39,12 +39,53 @@ const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInter
 const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ default: m.AdminPage })));
 const LoginPage = lazy(() => import('./components/LoginPage').then((m) => ({ default: m.LoginPage })));
 
+// A visitor who chose "أكمل كضيف" at the sign-in screen.
+//
+// sessionStorage rather than component state alone, because state does not survive a reload:
+// without it, refreshing — or following an outside link back into the site — would drop a guest
+// at the sign-in screen again, which is the exact friction the button exists to remove.
+//
+// And sessionStorage rather than localStorage, because the choice should not outlive the visit.
+// Persisted forever it would quietly hide sign-in from someone who does eventually want an
+// account, and they would have no obvious way to get the screen back.
+const GUEST_KEY = 'novaiq_guest';
+
+function readGuestMode(): boolean {
+  try {
+    return sessionStorage.getItem(GUEST_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function writeGuestMode(): void {
+  try {
+    sessionStorage.setItem(GUEST_KEY, 'true');
+  } catch {
+    // Storage blocked (private mode, strict settings) — guest mode still works for this
+    // render, it simply will not survive a reload. That is a better outcome than throwing.
+  }
+}
+
+function clearGuestMode(): void {
+  try {
+    sessionStorage.removeItem(GUEST_KEY);
+  } catch {
+    // As above.
+  }
+}
+
 export default function App() {
   const liveTemplates = useLiveTemplates();
   // `undefined` while Firebase is still resolving the session, `null` once it has settled on
   // "signed out". Read here at the top rather than inside the gate below, because hooks cannot
   // live behind the early returns that gate depends on.
   const currentUser = useCurrentUser();
+  const [isGuest, setIsGuest] = useState(readGuestMode);
+  const continueAsGuest = () => {
+    writeGuestMode();
+    setIsGuest(true);
+  };
   const [activePage, setActivePage] = useState<string>('home');
   const [selectedTemplateForContract, setSelectedTemplateForContract] = useState<Template | null>(null);
   const [standalonePreviewTemplate, setStandalonePreviewTemplate] = useState<Template | null>(null);
@@ -203,6 +244,11 @@ export default function App() {
     const previous = previousUserRef.current;
     previousUserRef.current = currentUser;
     if (previous !== null || !currentUser) return;
+    // Signing in supersedes guest mode. Without this the flag would outlive the session and a
+    // later sign-OUT would drop them straight back into browsing instead of the sign-in screen
+    // they just asked for.
+    clearGuestMode();
+    setIsGuest(false);
     setActivePage('home');
     setActiveSection('hero');
     // replace, not push: the pre-sign-in entry is already the current one, and leaving it there
@@ -324,13 +370,19 @@ export default function App() {
   // customer-facing demo and the thing a visitor is most likely to have been sent a direct link
   // to. The `?live=` view never reaches this file at all — main.tsx mounts it as its own
   // document outside <App>.
+  //
+  // Guests pass the gate too. Browsing the catalogue, opening a demo and reading the roadmap
+  // need no account, and demanding one to look around turns visitors away before they have seen
+  // anything worth signing in for. The wall that genuinely matters is further in — creating a
+  // contract — and that one is enforced where it belongs, by ContractBuilderGate, which asks a
+  // guest to sign in at the point it actually needs an account to attach the contract to.
   if (currentUser === undefined) {
     return <PageLoader />;
   }
-  if (currentUser === null) {
+  if (currentUser === null && !isGuest) {
     return (
       <Suspense fallback={<PageLoader />}>
-        <LoginPage language={language} />
+        <LoginPage language={language} onContinueAsGuest={continueAsGuest} />
       </Suspense>
     );
   }

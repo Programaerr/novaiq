@@ -8,6 +8,8 @@ import { NovaiqLogo } from './NovaiqLogo';
 
 interface LoginPageProps {
   language: Language;
+  /** Dismisses this page and lets the visitor browse without an account. */
+  onContinueAsGuest: () => void;
 }
 
 function GoogleIcon() {
@@ -54,7 +56,7 @@ const COVER_GAP = 20;
  * The only things it takes from the rest of the app are the pieces that genuinely are shared:
  * the auth call, the template catalogue, the logo and the cosmic backdrop.
  */
-export const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGuest }) => {
   const isAr = language === 'ar';
   const templates = useLiveTemplates();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -182,6 +184,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
                 <span>{isAr ? 'المتابعة عبر Google' : 'Continue with Google'}</span>
               </button>
+
+              {/* Browsing the catalogue, opening a demo and reading the timeline need no
+                  account, and requiring one to look around turns a visitor away before they
+                  have seen anything worth signing in for. Signing in stays the primary action —
+                  it is the filled button above; this one is deliberately quieter, an outline
+                  rather than a second solid button competing with it.
+
+                  The line underneath says where the wall actually is, so choosing this does not
+                  feel like it might cost them something later on. */}
+              <button
+                type="button"
+                onClick={onContinueAsGuest}
+                disabled={isSubmitting}
+                className="nq-btn mt-3 w-full py-3 rounded-2xl border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white disabled:opacity-60 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+              >
+                <span className="nq-btn-beam" aria-hidden="true" />
+                <span>{isAr ? 'أكمل كضيف' : 'Continue as guest'}</span>
+              </button>
+
+              <p className="mt-2.5 text-center text-[11px] text-zinc-500">
+                {isAr
+                  ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
+                  : 'Browse and try the templates freely — an account is only needed to create a contract.'}
+              </p>
             </div>
           </div>
 
