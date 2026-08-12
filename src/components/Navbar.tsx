@@ -151,18 +151,17 @@ export const Navbar: React.FC<NavbarProps> = ({
     window.history.pushState({}, '', newUrl);
   };
 
-  // Separate from handleNavClick because signed-out and signed-in go to different places.
-  // Signed out, "login" opens the standalone sign-in page; already signed in, the same control
-  // reads "My Account" and has to land on the account page instead — sending a signed-in
-  // visitor to a sign-in screen would be a dead end they'd have to navigate back out of.
+  // Always the account page now. This used to branch to a standalone `?page=login` route for
+  // signed-out visitors, and both halves of that are gone: sign-in gates the entire site, so
+  // this navbar only ever renders for someone already signed in, and the `login` route it
+  // pointed at no longer exists. Kept as its own handler rather than folded into handleNavClick
+  // because it still carries the `mode` query the account page reads.
   const goToAccount = (mode: 'login' | 'signup', e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    const page = isLoggedIn ? 'orders' : 'login';
-    setActivePage(page);
+    setActivePage('orders');
     setMenuDrawerOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    const query = page === 'orders' ? `?page=orders&mode=${mode}` : '?page=login';
-    window.history.pushState({}, '', `${window.location.pathname}${query}`);
+    window.history.pushState({}, '', `${window.location.pathname}?page=orders&mode=${mode}`);
   };
 
   return (
