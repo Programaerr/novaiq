@@ -127,15 +127,14 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
         ref={cardRef}
         onPointerMove={handlePointerMove}
         onPointerLeave={resetTilt}
-        // Height comes from the content on a phone, and from the card ratio only once there is
-        // room for it. Those two were fighting: an `aspect-[1.586/1]` and a `min-h` together
-        // mean the taller of the two wins, so on a 310px-wide phone the ratio asked for 195px,
-        // the min-h forced 290px, and the box was neither a card shape nor tall enough for
-        // four Arabic guarantees wrapping inside it — `overflow-hidden` then clipped them into
-        // each other, which is the mess that was reported. Below sm it is simply a panel that
-        // fits what is printed on it; from sm up, where the width can carry it, the real
-        // 1.586:1 card ratio takes over.
-        className="credential-card relative w-full sm:aspect-[1.586/1] rounded-3xl border border-white/15 overflow-hidden select-none"
+        // 1.586:1 at every size — the real ratio of a physical card, and the thing that makes
+        // this read as a card at all rather than as a dark box. It is the content that adapts
+        // to the ratio here, never the other way round: the first attempt paired this with a
+        // `min-h`, which meant the taller of the two won and a phone got a 310×290 box that was
+        // neither a card shape nor big enough for what was printed on it, and `overflow-hidden`
+        // clipped the guarantees into each other. Everything inside now has a phone size that
+        // fits inside 1.586:1 at ~310px wide — see the notes on each block.
+        className="credential-card relative w-full aspect-[1.586/1] rounded-3xl border border-white/15 overflow-hidden select-none"
       >
         {/* The surface. A fixed gradient, painted once — no moving centre, nothing to
             re-rasterise as the card turns, which is what keeps the tilt a pure compositor
@@ -174,39 +173,41 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           aria-hidden="true"
         />
 
-        <div className="relative z-10 h-full flex flex-col justify-between gap-4 sm:gap-3 p-5 sm:p-6">
+        <div className="relative z-10 h-full flex flex-col justify-between p-4 sm:p-6">
           <div className="flex items-start justify-between gap-3">
-            <div className="text-base sm:text-lg font-black tracking-[0.22em] text-white">
+            <div className="text-sm sm:text-lg font-black tracking-[0.2em] sm:tracking-[0.22em] text-white">
               NOVAIQ
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {/* The chip. Four contact pads on a metallic plate — enough to read as a chip
                   without pretending to be a photograph of one. */}
-              <div className="w-9 h-7 sm:w-10 sm:h-8 rounded-md bg-gradient-to-br from-zinc-300 to-zinc-500 grid grid-cols-2 grid-rows-2 gap-px p-px overflow-hidden">
+              <div className="w-7 h-5 sm:w-10 sm:h-8 rounded sm:rounded-md bg-gradient-to-br from-zinc-300 to-zinc-500 grid grid-cols-2 grid-rows-2 gap-px p-px overflow-hidden">
                 <span className="bg-zinc-800/70 rounded-[2px]" />
                 <span className="bg-zinc-800/50 rounded-[2px]" />
                 <span className="bg-zinc-800/50 rounded-[2px]" />
                 <span className="bg-zinc-800/70 rounded-[2px]" />
               </div>
-              <Signal className="w-4 h-4 text-zinc-400 rotate-90" aria-hidden="true" />
+              <Signal className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-400 rotate-90" aria-hidden="true" />
             </div>
           </div>
 
-          {/* One column on a phone. Two columns put each Arabic guarantee in a ~130px cell,
-              where every title wrapped to three lines and the four of them together outgrew the
-              card. Full width, they each sit on one line. */}
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-3 sm:gap-y-2.5">
+          {/* Two columns at every size, because four rows cannot fit a 1.586:1 card on a phone.
+              What gives way instead is the second line: each guarantee keeps its icon and title
+              and drops the description below sm. The title alone is the guarantee — "تسليم سريع
+              ومنظم" says the thing; "منهجية برمجية واضحة" is elaboration, and elaboration is
+              what a card has no room for. It comes back at sm, where the height does. */}
+          <ul className="grid grid-cols-2 gap-x-2.5 sm:gap-x-3 gap-y-2 sm:gap-y-2.5">
             {guarantees.map(({ Icon, title, desc }) => (
-              <li key={title} className="flex items-start gap-2">
-                <span className="mt-0.5 shrink-0 w-6 h-6 rounded-lg bg-white/8 border border-white/15 flex items-center justify-center text-white">
-                  <Icon className="w-3 h-3" />
+              <li key={title} className="flex items-start gap-1.5 sm:gap-2">
+                <span className="mt-px sm:mt-0.5 shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-white/8 border border-white/15 flex items-center justify-center text-white">
+                  <Icon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-[11px] sm:text-xs font-bold text-white leading-tight">
+                  <span className="block text-[10px] sm:text-xs font-bold text-white leading-snug">
                     {title}
                   </span>
-                  <span className="block text-[10px] text-zinc-400 leading-tight mt-0.5">
+                  <span className="hidden sm:block text-[10px] text-zinc-400 leading-tight mt-0.5">
                     {desc}
                   </span>
                 </span>
@@ -214,8 +215,8 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
             ))}
           </ul>
 
-          <div className="flex items-end justify-end pt-1">
-            <div className="text-[9px] text-zinc-500 tracking-[0.16em] uppercase text-end">
+          <div className="flex items-end justify-end">
+            <div className="text-[8px] sm:text-[9px] text-zinc-500 tracking-[0.14em] sm:tracking-[0.16em] uppercase text-end">
               {isAr ? 'شركة برمجية عراقية' : 'Iraqi software studio'}
             </div>
           </div>
