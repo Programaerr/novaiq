@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Seal } from './Seal';
 import { Template, ContractData, CUSTOM_PROJECT_TEMPLATE_ID } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
 import {
@@ -369,6 +370,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   return (
     <section id="contract-section" className="py-4 sm:py-6 relative">
+      {/* The identity's signature, and it is placed rather than decorated: this is the section
+          that produces a certified contract, so the seal belongs here and nowhere else. It does
+          nothing at all unless the document identity is on. */}
+      <div className="pointer-events-none absolute top-2 end-2 sm:top-4 sm:end-6 z-10">
+        <Seal language={language} />
+      </div>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Title */}

@@ -158,6 +158,14 @@ export default function App() {
   // own glass toolbar in a way nothing there was designed to sit on top of.
   const activeBgImage = activePage === 'custom-request' && selectedTemplateForContract ? selectedTemplateForContract.previewImage : null;
 
+  // EXPERIMENT — the document identity, on trial. Deleting this ONE line reverts all of it:
+  // every rule it turns on is scoped to html[data-identity='document'] in index.css, so with the
+  // attribute gone they cannot match anything. See the block there for the argument.
+  useEffect(() => {
+    document.documentElement.dataset.identity = 'document';
+    return () => { delete document.documentElement.dataset.identity; };
+  }, []);
+
   useSmoothScroll();
   useSectionScrollSpy(activePage, setActiveSection);
   // Halts every animation on the page whenever the window is hidden or unfocused — the
