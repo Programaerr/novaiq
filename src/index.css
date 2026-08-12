@@ -1814,3 +1814,135 @@ html[data-flat] .cosmic-bg {
 ::-webkit-scrollbar-thumb:hover {
   background: #52525b;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+   NOVAIQ document identity — EXPERIMENTAL, and behind one flag on purpose.
+
+   Every rule in this block is scoped to html[data-identity='document']. Nothing here can affect
+   the site unless that attribute is set, and deleting the single line in App.tsx that sets it
+   reverts the whole thing at once — no rules to unpick, no styles left stranded. It also lives
+   on its own branch. Both are deliberate: this is a proposal, not a decision.
+
+   ## The argument
+
+   The site reads as "a dark space theme", which is the look every tool produces by default and
+   says nothing about what this company sells. What NOVAIQ actually sells is stated in its own
+   footer: عقود معتمدة بختم إلكتروني — documented contracts, stamped, priced in dinars. That is
+   the subject's own world, and it has a visual language already: seal ink, ledger ruling,
+   registration numbers, tabular figures.
+
+   So the cosmic ground stays — it is the established style and is not up for renegotiation here
+   — and what changes is the surfaces sitting on it. They stop being generic glass and become
+   documents: ruled, numbered, and marked with authority.
+   ═══════════════════════════════════════════════════════════════════════════════════════════ */
+
+html[data-identity='document'] {
+  /* Two inks and nothing else.
+
+     The white glow this site uses everywhere is the default any generator reaches for, and it
+     carries no meaning — everything important looks the same as everything decorative. Here
+     paper-white carries all the reading, and ONE accent carries authority. Seal gold rather than
+     a bright tech accent: it is the colour of a notarised mark, it is already on the credential
+     card's chip so it is an extension rather than an invention, and it is not one of the accents
+     that arrives by default with a dark theme. */
+  --ink: #f4f4f6;          /* what you read */
+  --ink-2: rgba(244, 244, 246, 0.62);
+  --ink-3: rgba(244, 244, 246, 0.34);
+  --seal: #d8b36a;         /* authority, and only authority */
+  --seal-deep: #9d7826;
+  --rule: rgba(244, 244, 246, 0.09);   /* ledger ruling */
+  --surface: rgba(10, 10, 12, 0.66);
+}
+
+/* Documents, not glass panels. A hairline frame, a ruled top edge, and a corner where the seal
+   sits — the anatomy of a page from a file rather than a card from a design system. */
+html[data-identity='document'] .reveal-group {
+  position: relative;
+  background: var(--surface);
+  border-color: var(--rule);
+}
+
+html[data-identity='document'] .reveal-group::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  /* Ruled, not a gradient wash: a measured line that stops, the way a form is ruled. */
+  background: repeating-linear-gradient(
+    90deg,
+    var(--seal) 0 26px,
+    transparent 26px 34px
+  );
+  opacity: 0.5;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Figures. Amounts in dinars, contract numbers, delivery weeks — this brand is made of numbers,
+   and numbers in a document are tabular so columns of them line up. `tnum` and `lining` are the
+   difference between a price list and a receipt. */
+html[data-identity='document'] .figure {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  letter-spacing: 0.02em;
+}
+
+/* ── The signature: a seal that is pressed ─────────────────────────────────────────────────
+   One orchestrated moment rather than motion scattered over the page. It arrives once, when the
+   contract section is first reached: down, slightly askew, and it stays.
+
+   Askew on purpose. A seal applied dead straight is a logo; a seal applied two degrees off is a
+   seal, because a hand pressed it. The ink is uneven for the same reason — a radial mask leaves
+   it heavier on one side, the way a real stamp lifts unevenly. */
+html[data-identity='document'] .seal {
+  --seal-turn: -7deg;
+  position: relative;
+  width: 8.5rem;
+  height: 8.5rem;
+  display: grid;
+  place-items: center;
+  color: var(--seal);
+  transform: rotate(var(--seal-turn)) scale(1);
+  opacity: 0.92;
+}
+
+html[data-identity='document'] .seal::before,
+html[data-identity='document'] .seal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+}
+
+/* The inner keeper line, as on an official round stamp. */
+html[data-identity='document'] .seal::after {
+  inset: 8%;
+  border-width: 1px;
+  opacity: 0.75;
+}
+
+/* Uneven ink. The mask is what keeps this from looking like a printed circle. */
+html[data-identity='document'] .seal {
+  -webkit-mask-image: radial-gradient(120% 110% at 30% 25%, #000 55%, rgba(0, 0, 0, 0.72) 78%, rgba(0, 0, 0, 0.45) 100%);
+  mask-image: radial-gradient(120% 110% at 30% 25%, #000 55%, rgba(0, 0, 0, 0.72) 78%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+/* The press. Overshoot then settle — a stamp hits harder than it rests. One shot, `both`, so it
+   holds its final position and never runs again. */
+@keyframes seal-press {
+  0% { opacity: 0; transform: rotate(calc(var(--seal-turn) - 12deg)) scale(1.9); }
+  55% { opacity: 1; transform: rotate(calc(var(--seal-turn) + 1.5deg)) scale(0.94); }
+  100% { opacity: 0.92; transform: rotate(var(--seal-turn)) scale(1); }
+}
+
+html[data-identity='document'] .seal.is-pressed {
+  animation: seal-press 620ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-identity='document'] .seal.is-pressed {
+    animation: none;
+  }
+}
