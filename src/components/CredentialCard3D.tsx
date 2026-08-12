@@ -141,21 +141,21 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   const ctx = c.getContext('2d')!;
   clipRounded(ctx, TEX_W, TEX_H);
 
-  // Body. Black, as the card has always been — a white version was tried on the theory that a
-  // dark card recedes into a dark page, and it did not: what made the card look set into the
-  // section was the canvas clipping it, not its colour.
+  // Body. White, with everything on it in near-pure black — the point is contrast, so the type
+  // is #000 rather than the softened near-blacks used elsewhere on the site, and the card is
+  // lighter than anything around it on a near-black page.
   const g = ctx.createRadialGradient(TEX_W * 0.12, TEX_H * 0.08, 0, TEX_W * 0.12, TEX_H * 0.08, TEX_W * 1.1);
-  g.addColorStop(0, '#2b2b31');
-  g.addColorStop(0.42, '#131317');
-  g.addColorStop(1, '#08080a');
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(0.45, '#f6f6f8');
+  g.addColorStop(1, '#e4e4ea');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
   const PAD = 92;
-  const INK = '#ffffff';
+  const INK = '#000000';
 
   // Circuit tracery — the same motif the CSS card carried, at texture scale.
-  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.13)';
   ctx.lineWidth = 3;
   const traces: Array<[number, number][]> = [
     [[0, 230], [369, 230], [438, 300], [722, 300]],
@@ -169,7 +169,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  ctx.fillStyle = 'rgba(0,0,0,0.16)';
   for (const [cx, cy] of [[722, 300], [975, 307], [915, 645], [967, 738]]) {
     ctx.beginPath();
     ctx.arc(cx, cy, 8, 0, Math.PI * 2);
@@ -192,12 +192,13 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   const chipX = isAr ? PAD : TEX_W - PAD - CHIP_W;
   const chipY = PAD - 12;
   const chipG = ctx.createLinearGradient(chipX, chipY, chipX + CHIP_W, chipY + CHIP_H);
-  chipG.addColorStop(0, '#d4d4d8');
-  chipG.addColorStop(1, '#71717a');
+  // Gold, because a steel chip on a white card is a pale shape on a pale ground and disappears.
+  chipG.addColorStop(0, '#e9d08a');
+  chipG.addColorStop(1, '#9d7826');
   ctx.fillStyle = chipG;
   roundRect(ctx, chipX, chipY, CHIP_W, CHIP_H, 16);
   ctx.fill();
-  ctx.fillStyle = 'rgba(39,39,42,0.6)';
+  ctx.fillStyle = 'rgba(30,22,4,0.55)';
   for (let r = 0; r < 2; r++) {
     for (let col = 0; col < 2; col++) {
       roundRect(ctx, chipX + 12 + col * 70, chipY + 12 + r * 51, 58, 39, 7);
@@ -205,7 +206,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     }
   }
   // Contactless mark, beside the chip
-  ctx.strokeStyle = 'rgba(200,200,210,0.75)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
   ctx.lineWidth = 5;
   ctx.lineCap = 'round';
   const waveX = isAr ? chipX + CHIP_W + 46 : chipX - 46;
