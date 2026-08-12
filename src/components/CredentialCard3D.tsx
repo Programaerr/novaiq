@@ -320,9 +320,10 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
   ctx.stroke();
 
   if (mark) {
-    // 34% of the card's height and starting at 15% down, so the mark clears the wordmark below
-    // it. At the 42% it was first given, its lower edge ran straight through that line.
-    const size = Math.round(TEX_H * 0.34);
+    // Centred on the card, both axes, and left as the only thing on this face — the wordmark that
+    // used to sit under it made the mark read as the top half of a lockup rather than as the
+    // reverse of a card, which is a different thing to be looking at.
+    const size = Math.round(TEX_H * 0.46);
     const off = document.createElement('canvas');
     off.width = size;
     off.height = size;
@@ -331,21 +332,16 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
     octx.globalCompositeOperation = 'source-in';
     octx.fillStyle = '#000000';
     octx.fillRect(0, 0, size, size);
-    ctx.drawImage(off, (TEX_W - size) / 2, TEX_H * 0.15);
+    ctx.drawImage(off, (TEX_W - size) / 2, (TEX_H - size) / 2);
   }
 
-  ctx.fillStyle = '#000000';
-  ctx.font = '900 58px Cairo, system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.font = '600 30px Cairo, system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   ctx.direction = 'ltr';
-  ctx.letterSpacing = '16px';
-  ctx.fillText('NOVAIQ', TEX_W / 2 + 8, TEX_H * 0.58);
-
-  ctx.fillStyle = 'rgba(0,0,0,0.62)';
-  ctx.font = '600 32px Cairo, system-ui, sans-serif';
   ctx.letterSpacing = '6px';
-  ctx.fillText('novaiq.space', TEX_W / 2 + 3, TEX_H * 0.72);
+  ctx.fillText('novaiq.space', TEX_W / 2 + 3, TEX_H - 92 - 30);
   ctx.letterSpacing = '0px';
   ctx.restore();
 }
@@ -608,9 +604,13 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
     // into a scene. Dragging down must bring the top edge towards the viewer, which is a positive
     // rotation.x here and was a negative rotateX there. Horizontal needs no such flip — both
     // systems turn the right edge away for a positive rotation about Y.
+    // Unclamped on both axes — the card is a solid with a printed back, so there is no wrong side
+    // to keep anyone away from and nothing to protect. Drag far enough and it simply keeps
+    // turning, as many revolutions as you give it; the return home takes the short way back
+    // regardless of how many that was.
     turnTo(
-      d.ax + (e.clientY - d.py) * 0.007 * d.s,
-      d.ay + (e.clientX - d.px) * 0.008 * d.s,
+      d.ax + (e.clientY - d.py) * 0.011 * d.s,
+      d.ay + (e.clientX - d.px) * 0.012 * d.s,
     );
   };
 
