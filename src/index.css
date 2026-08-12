@@ -1289,7 +1289,7 @@
    something is measured — which is exactly what had happened here: `.navbar-dot` matched
    nothing (the markup is `.navbar-logo-dots span`) and `.navbar-logo-cursor` was never listed
    at all, so the navbar kept animating even with the tab in the background. */
-html:is([data-idle], [data-resting]) :is(
+html[data-idle] :is(
   .star-layer,
   .hero-proof__track,
   .nebula-layer,
@@ -1312,10 +1312,10 @@ html:is([data-idle], [data-resting]) :is(
 /* The pseudo-element half, written out longhand: `:is()` accepts compound selectors but NOT
    pseudo-elements, and one invalid selector takes the whole rule down with it — so folding
    these into the list above would have silently stopped pausing anything at all. */
-html:is([data-idle], [data-resting]) .solid-shimmer::after,
-html:is([data-idle], [data-resting]) .nq-btn-beam::before,
-html:is([data-idle], [data-resting]) .filter-pill-beam::before,
-html:is([data-idle], [data-resting]) .rv::before {
+html[data-idle] .solid-shimmer::after,
+html[data-idle] .nq-btn-beam::before,
+html[data-idle] .filter-pill-beam::before,
+html[data-idle] .rv::before {
   animation-play-state: paused;
 }
 

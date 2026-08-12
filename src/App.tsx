@@ -3,7 +3,6 @@ import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
-import { useIdleRest } from './lib/useIdleRest';
 import { useRevealGroup } from './lib/useRevealGroup';
 import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
@@ -168,11 +167,9 @@ export default function App() {
   // scrolling fires hover on its own as content slides under a still cursor, and that work
   // lands on the same main thread the scroll is using. See `html[data-scrolling]` in index.css.
   useScrollingFlag();
-  // Lets the page fall completely still once the visitor stops interacting with it. This is the
-  // device-heat fix: a trace of the untouched page measured a sustained 56fps that never reached
-  // zero, because a handful of `infinite` decorative loops keep the browser rendering for as
-  // long as the tab is open. First input wakes everything again. See useIdleRest.
-  useIdleRest();
+  // useIdleRest() is deliberately not called. It stood everything down after five seconds of
+  // stillness, which reads as the site switching itself off while you are looking at it. The
+  // tab-hidden pause below is a different question and stays: nobody can see the page then.
 
   // Handle URL changes & popstate (browser back/forward)
   useEffect(() => {
