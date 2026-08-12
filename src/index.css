@@ -890,28 +890,32 @@
   pointer-events: none;
 }
 
+/* Each strip covers only the straight run of its edge, stopping a corner-radius short at both
+   ends. Run to full length they meet at the corners as a square, which sticks out past the
+   faces' curve and reads as a sharp corner bolted onto a rounded card. The curved part of each
+   corner is the ring's job below. */
 .credential-edge--right {
-  top: 0;
+  top: var(--radius);
   right: 0;
   width: var(--depth);
-  height: 100%;
+  height: calc(100% - var(--radius) * 2);
   transform-origin: 100% 50%;
   transform: translateZ(calc(var(--depth) / 2)) rotateY(-90deg);
 }
 
 .credential-edge--left {
-  top: 0;
+  top: var(--radius);
   left: 0;
   width: var(--depth);
-  height: 100%;
+  height: calc(100% - var(--radius) * 2);
   transform-origin: 0 50%;
   transform: translateZ(calc(var(--depth) / 2)) rotateY(90deg);
 }
 
 .credential-edge--top {
   top: 0;
-  left: 0;
-  width: 100%;
+  left: var(--radius);
+  width: calc(100% - var(--radius) * 2);
   height: var(--depth);
   transform-origin: 50% 0;
   transform: translateZ(calc(var(--depth) / 2)) rotateX(-90deg);
@@ -919,11 +923,29 @@
 
 .credential-edge--bottom {
   bottom: 0;
-  left: 0;
-  width: 100%;
+  left: var(--radius);
+  width: calc(100% - var(--radius) * 2);
   height: var(--depth);
   transform-origin: 50% 100%;
   transform: translateZ(calc(var(--depth) / 2)) rotateX(90deg);
+}
+
+/* The corners, and only the corners.
+   A ring at the midpoint of the depth, traced to the same radius as the faces, so where the four
+   straight strips stop it carries the rim round the curve. It lies in the faces' plane, which is
+   why it cannot be the whole band — it goes edge-on with them and disappears exactly when the
+   side is being looked at straight on, which is what the strips are for. Between them each
+   covers what the other cannot: the strips hold the long runs at every angle, this holds the
+   four curves at every angle short of dead-on.
+
+   Hollow, and only `--depth` wide: it paints four short arcs' worth of pixels, not a surface. */
+.credential-corners {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  border: var(--depth) solid #26262c;
+  background: none;
+  pointer-events: none;
 }
 
 .credential-glare {
