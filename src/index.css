@@ -1319,7 +1319,13 @@ html[data-flat] .cosmic-bg {
    Scoped to `.is-live`, the layers are built when a pointer arrives — which is also when
    the fade-in is starting, so the work lands in a frame that was never going to be still —
    and released when it leaves. Same effect, memory only while it is on screen. */
-.reveal-group.is-live .rv::before {
+/* Only the discs the pointer can actually move get a compositor layer — see the long note at
+   the promotion code in useRevealGroup.ts. This selector used to be
+   `.reveal-group.is-live .rv::before`, which promoted every disc in the panel at once the
+   instant anything was touched, and on a phone that single frame of allocation evicted the
+   layers around it: the card being touched blinked out and came back for as long as the finger
+   was on it. `.rv-lit` is set per card, by distance, with hysteresis. */
+.rv-lit .rv::before {
   will-change: transform;
 }
 

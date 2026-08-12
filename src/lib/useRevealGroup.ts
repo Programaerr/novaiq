@@ -150,12 +150,33 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
         const x = gx - b.x;
         const y = gy - b.y;
         if (x >= 0 && x <= b.w && y >= 0 && y <= b.h) hit = cards[i];
-        if (!force) {
-          // Gap between the pointer and this card's box, per axis — zero while inside it.
-          const dx = x < 0 ? -x : x > b.w ? x - b.w : 0;
-          const dy = y < 0 ? -y : y > b.h ? y - b.h : 0;
-          if (dx * dx + dy * dy > REACH_SQ) continue;
-        }
+
+        // Gap between the pointer and this card's box, per axis — zero while inside it.
+        const dx = x < 0 ? -x : x > b.w ? x - b.w : 0;
+        const dy = y < 0 ? -y : y > b.h ? y - b.h : 0;
+        const dsq = dx * dx + dy * dy;
+
+        // Promotion, per card, with hysteresis — the block above has described this since it
+        // was written and it was never actually here. `.rv-lit` existed only in that comment:
+        // no rule in index.css, no line in this file, and RELEASE_SQ computed and unused. What
+        // the CSS did instead was promote EVERY disc in the group the instant `is-live` landed.
+        //
+        // On a phone that is the whole bug behind "it blinks out and comes back whenever I
+        // touch it". A touch calls light() -> is-live -> every disc in the panel is handed its
+        // own compositor layer in one frame; at three device pixels to one those are megabytes
+        // each, and a device short of texture memory answers a sudden demand like that by
+        // evicting layers that are already there — including the card being touched, which then
+        // has to be re-rastered before it can be shown again. touchend drops is-live, all of
+        // them are destroyed, and the next touch allocates the lot over again.
+        //
+        // Two thresholds rather than one so a card sitting exactly on the boundary does not
+        // thrash in and out of promotion as the pointer jitters across it.
+        if (dsq <= REACH_SQ) cards[i].classList.add('rv-lit');
+        else if (dsq > RELEASE_SQ) cards[i].classList.remove('rv-lit');
+
+        // Past reach the write itself is skipped too: every pixel of such a card is already
+        // drawn in the gradient's flat tail colour, so moving its centre cannot change a pixel.
+        if (!force && dsq > REACH_SQ) continue;
         // Quantised to a 2px grid, and skipped outright when the rounded value has not
         // moved. What a write costs now is a style recalc on the card and a compositor
         // transform on the light — no painting at all, since the disc these coordinates
@@ -209,6 +230,9 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
       group.classList.remove('is-live');
       inside?.classList.remove('is-touched');
       inside = null;
+      // Hand every layer back. On touch this runs on every touchend, which is exactly when the
+      // memory should be released — nothing is going to move until the next touch anyway.
+      for (const card of cards) card.classList.remove('rv-lit');
     };
 
     const onPointerMove = (e: PointerEvent) => {
