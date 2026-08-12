@@ -11,13 +11,15 @@ import { RefreshCw } from 'lucide-react';
 interface AdminPageProps {
   language: Language;
   currency?: Currency;
+  /** Leaves the sign-in screen without signing in — App sends them back to browsing. */
+  onContinueAsGuest: () => void;
 }
 
 // The single entry point for "my account" — reached from the navbar by everyone, customers
 // and the owner/partner alike. Login/sign-up is identical for both; what happens after
 // depends entirely on the admins allowlist (src/lib/auth.ts), checked here once per
 // session: admins get the full control panel, everyone else gets their own contracts.
-export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD' }) => {
+export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD', onContinueAsGuest }) => {
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
 
@@ -46,9 +48,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
   }
 
   if (!user) {
-    // No guest option here: this page IS the account. Offering one would return the visitor to
-    // the wall they just walked into.
-    return <LoginPage language={language} />;
+    // The guest button is offered here too. It cannot expose anything: this page reads the
+    // signed-in account and there is none, so all it can do is send the visitor back to the
+    // parts of the site that need no account — which is better than leaving them on a sign-in
+    // screen with no way out of it.
+    return <LoginPage language={language} onContinueAsGuest={onContinueAsGuest} />;
   }
 
   return isAdmin

@@ -14,6 +14,8 @@ interface ContractBuilderGateProps {
   currency?: Currency;
   initialCustomFeaturesText?: string;
   initialPrimaryColor?: string;
+  /** Leaves the sign-in screen without signing in — App sends them back to browsing. */
+  onContinueAsGuest: () => void;
 }
 
 // Contract creation now requires an account, so every contract is reliably tied to a real,
@@ -32,9 +34,12 @@ export const ContractBuilderGate: React.FC<ContractBuilderGateProps> = (props) =
   }
 
   if (!user) {
-    // No guest option: a contract has to be attached to an account, so this is the one wall a
-    // guest genuinely has to sign in at.
-    return <LoginPage language={props.language || 'ar'} />;
+    // The guest button is offered here too, and it does not weaken the wall: a contract still
+    // cannot be created without an account, because this gate is what stands in front of the
+    // builder and it only lets a signed-in user through. What the button changes is what
+    // happens to someone who does not want an account — instead of being stranded on a sign-in
+    // screen with no way back into the site, they leave and carry on browsing.
+    return <LoginPage language={props.language || 'ar'} onContinueAsGuest={props.onContinueAsGuest} />;
   }
 
   return <ContractBuilder {...props} accountEmail={user.email} accountUid={user.uid} />;

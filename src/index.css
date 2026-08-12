@@ -784,6 +784,9 @@
   /* The card's thickness. One value, used by all four edges and by the back face's offset, so
      the solid can never come apart at the seams. */
   --depth: 14px;
+  /* Must match the faces' Tailwind `rounded-3xl`. The edges read it to keep clear of the
+     corners — see the note above .credential-edge--right. */
+  --radius: 1.5rem;
   /* Seeded here so the very first move interpolates from a real value rather than from an
      unset property, which would otherwise jump straight to its target. */
   --tilt-x: 0deg;
@@ -839,30 +842,40 @@
 .credential-edge {
   position: absolute;
   background: linear-gradient(180deg, #3a3a42, #17171b 55%, #0a0a0c);
+  /* Softened ends. Each strip is a rectangle, and a rectangle butted against a rounded face
+     leaves a square corner poking past the curve — the sharp points that were showing. Rounding
+     the strip itself lets its ends die into the curve instead of crossing it. */
+  border-radius: calc(var(--depth) / 2);
 }
 
+/* Every strip stops short of the corners by exactly the face's corner radius, so none of them
+   reaches the part of the outline that is curved. That is what removes the right angles: along
+   the straight run of each side the card has a visible edge, and where the outline turns, the
+   rounded faces meet each other directly with no strip between them to square them off.
+   `--radius` mirrors the faces' own `rounded-3xl` (1.5rem) and is declared on the card, so the
+   two can only be changed together. */
 .credential-edge--right {
-  top: 0;
+  top: var(--radius);
   left: 100%;
   width: var(--depth);
-  height: 100%;
+  height: calc(100% - var(--radius) * 2);
   transform-origin: left center;
   transform: rotateY(90deg);
 }
 
 .credential-edge--left {
-  top: 0;
+  top: var(--radius);
   right: 100%;
   width: var(--depth);
-  height: 100%;
+  height: calc(100% - var(--radius) * 2);
   transform-origin: right center;
   transform: rotateY(-90deg);
 }
 
 .credential-edge--top {
-  left: 0;
+  left: var(--radius);
   bottom: 100%;
-  width: 100%;
+  width: calc(100% - var(--radius) * 2);
   height: var(--depth);
   transform-origin: center bottom;
   transform: rotateX(90deg);
@@ -870,9 +883,9 @@
 }
 
 .credential-edge--bottom {
-  left: 0;
+  left: var(--radius);
   top: 100%;
-  width: 100%;
+  width: calc(100% - var(--radius) * 2);
   height: var(--depth);
   transform-origin: center top;
   transform: rotateX(-90deg);

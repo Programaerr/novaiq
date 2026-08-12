@@ -91,11 +91,22 @@ export default function App() {
   const continueAsGuest = () => {
     writeGuestMode();
     setIsGuest(true);
+    leaveSignIn();
+  };
+  // Shared by every sign-in screen in the app, so "أكمل كضيف" always does the same thing
+  // wherever it is pressed: leave, and land on the home page.
+  //
+  // The inner pages (my orders, the contract builder) use this directly rather than
+  // continueAsGuest, because reaching their sign-in screen does not mean the visitor chose to
+  // be a guest — they may be a signed-out visitor who simply changed their mind about that one
+  // page. Marking them a guest from there would silently answer a question they were never
+  // asked. Leaving is the whole action.
+  function leaveSignIn() {
     setActivePage('home');
     setActiveSection('hero');
     window.history.replaceState({}, '', window.location.pathname);
     window.scrollTo(0, 0);
-  };
+  }
   const [activePage, setActivePage] = useState<string>('home');
   const [selectedTemplateForContract, setSelectedTemplateForContract] = useState<Template | null>(null);
   const [standalonePreviewTemplate, setStandalonePreviewTemplate] = useState<Template | null>(null);
@@ -640,6 +651,7 @@ export default function App() {
                 onContractGenerated={handleContractGenerated}
                 initialCustomFeaturesText={initialCustomFeaturesText}
                 initialPrimaryColor={initialPrimaryColor}
+                onContinueAsGuest={leaveSignIn}
               />
             </Suspense>
           </div>
@@ -648,7 +660,7 @@ export default function App() {
         {activePage === 'orders' && (
           <div className="page-in">
             <Suspense fallback={<PageLoader />}>
-              <AdminPage language={language} currency={currency} />
+              <AdminPage language={language} currency={currency} onContinueAsGuest={leaveSignIn} />
             </Suspense>
           </div>
         )}
