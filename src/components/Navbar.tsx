@@ -151,14 +151,18 @@ export const Navbar: React.FC<NavbarProps> = ({
     window.history.pushState({}, '', newUrl);
   };
 
-  // Separate from handleNavClick because these two need an extra `mode` query param so
-  // the account page opens on the matching tab — AdminLogin reads it directly on mount.
+  // Separate from handleNavClick because signed-out and signed-in go to different places.
+  // Signed out, "login" opens the standalone sign-in page; already signed in, the same control
+  // reads "My Account" and has to land on the account page instead — sending a signed-in
+  // visitor to a sign-in screen would be a dead end they'd have to navigate back out of.
   const goToAccount = (mode: 'login' | 'signup', e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    setActivePage('orders');
+    const page = isLoggedIn ? 'orders' : 'login';
+    setActivePage(page);
     setMenuDrawerOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    window.history.pushState({}, '', `${window.location.pathname}?page=orders&mode=${mode}`);
+    const query = page === 'orders' ? `?page=orders&mode=${mode}` : '?page=login';
+    window.history.pushState({}, '', `${window.location.pathname}${query}`);
   };
 
   return (

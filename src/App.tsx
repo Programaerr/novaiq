@@ -33,6 +33,7 @@ const ContractPDFPreview = lazy(() => import('./components/ContractPDFPreview').
 const PolicyPage = lazy(() => import('./components/PolicyPage').then((m) => ({ default: m.PolicyPage })));
 const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox })));
 const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ default: m.AdminPage })));
+const LoginPage = lazy(() => import('./components/LoginPage').then((m) => ({ default: m.LoginPage })));
 
 export default function App() {
   const liveTemplates = useLiveTemplates();
@@ -114,6 +115,8 @@ export default function App() {
         setActivePage('privacy');
       } else if (pageParam === 'terms') {
         setActivePage('terms');
+      } else if (pageParam === 'login') {
+        setActivePage('login');
       } else if (pageParam === 'admin') {
         // Same unified account/admin page as 'orders' — kept as an alias since it was
         // shared before customers and admins used the same entry point.
@@ -225,6 +228,18 @@ export default function App() {
 
   // Drives both halves of the Fluent reveal — ring and face — across the tiles below.
   const revealGroup = useRevealGroup<HTMLDivElement>();
+
+  // Sign-in takes the whole viewport, before the shared shell is built at all — it brings its
+  // own background, its own logo and its own way out, so putting it inside the navbar/footer
+  // chrome would only wrap a self-contained page in a second, redundant one. Same early-return
+  // shape the standalone template preview below already uses.
+  if (activePage === 'login') {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <LoginPage language={language} onBack={() => navigateTo('home')} />
+      </Suspense>
+    );
+  }
 
   if (standalonePreviewTemplate) {
     return (

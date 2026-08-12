@@ -746,6 +746,46 @@
   to { transform: translate3d(-300px, -300px, 0); }
 }
 
+/* ── Login page's template gallery ────────────────────────────────────────────────────────
+   Columns of template covers that creep past the sign-in panel and never stop. The loop is
+   seamless because the column's contents are rendered TWICE in the markup and the track
+   travels exactly -50% — at the end of a cycle the second copy sits precisely where the first
+   one started, so the jump back to 0% is invisible. That is the whole trick, and it is why the
+   duplicate in LoginPage.tsx is deliberate rather than a mistake to be tidied away.
+
+   `linear`, because anything eased would visibly slow down and surge once per cycle, which
+   turns a drifting backdrop into a pulsing one. And translate3d rather than `top`/`margin`:
+   this runs for as long as the page is open, so it has to stay on the compositor and never
+   touch layout. The paired keyframes exist only so alternating columns can travel in opposite
+   directions — running one animation in `reverse` would also reverse its easing, which for a
+   linear curve is identical, but the explicit pair keeps the direction readable at the call
+   site rather than hidden in an animation-direction. */
+@keyframes login-marquee-up {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -50%, 0); }
+}
+
+@keyframes login-marquee-down {
+  from { transform: translate3d(0, -50%, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+.login-marquee__track {
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+/* Someone who has asked the OS for less motion should not be given an animation that never
+   stops — this is the single most persistent one on the site. The columns still render in
+   full, they simply hold still. */
+@media (prefers-reduced-motion: reduce) {
+  .login-marquee__track {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 @keyframes star-drift-near {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(-380px, 300px, 0); }
@@ -858,6 +898,7 @@ html[data-idle] .milestone-card,
 html[data-idle] .nq-btn-beam::before,
 html[data-idle] .filter-pill-beam::before,
 html[data-idle] .navbar-dot,
+html[data-idle] .login-marquee__track,
 html[data-idle] .rv::before {
   animation-play-state: paused;
 }
