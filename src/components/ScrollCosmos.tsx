@@ -59,6 +59,17 @@ const FRAG = /* glsl */ `
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
   }
 
+  float vnoise(vec2 x) {
+    vec2 i = floor(x);
+    vec2 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  }
+
   void main() {
     vec2 uv = vUv - 0.5;
     uv.x *= uAspect;
@@ -75,8 +86,19 @@ const FRAG = /* glsl */ `
     float r = max(length(p), 1e-4);
     float a = atan(p.y, p.x);
 
-    // The hole opens as the page descends.
-    float R = 0.085 + uProgress * 0.055;
+    // ── The act structure ────────────────────────────────────────────────────────────────
+    // The page is cut into sections and each one plays the same short film: a black hole holds
+    // the frame, then gives way to a supernova as you reach the end of that section, then the
+    // next section opens on a hole again. `phase` is where you are inside the current act and
+    // `nova` is how far it has turned into the explosion — every term below is written against
+    // those two, so the whole scene is staged rather than merely animated.
+    float act = uProgress * 7.0;
+    float phase = fract(act);
+    float nova = smoothstep(0.42, 0.95, phase);
+    float hold = 1.0 - nova;
+
+    // The hole opens as the page descends, and collapses as its act detonates.
+    float R = (0.085 + uProgress * 0.055) * (1.0 - nova * 0.55);
 
     // Lensed starfield. Light passing a mass is deflected towards it, so the field is sampled at
     // a coordinate pulled inward by 1/r^2 — the further in, the more the sky bends around the
@@ -95,26 +117,45 @@ const FRAG = /* glsl */ `
     float swirl = a + 0.55 / r + uProgress * 9.0;
     float band = 0.5 + 0.5 * sin(swirl * 3.0);
     float shell = smoothstep(R * 0.98, R * 1.55, r) * smoothstep(R * 5.4, R * 1.9, r);
-    float disc = shell * (0.22 + 0.78 * band) * (0.5 + uProgress * 0.9);
+    float disc = shell * (0.22 + 0.78 * band) * (0.5 + uProgress * 0.9) * hold;
 
     // The photon ring: the hard bright rim of the shadow.
-    float ring = exp(-pow((r - R * 1.16) / (R * 0.1), 2.0)) * (0.85 + uProgress * 0.6);
+    float ring = exp(-pow((r - R * 1.16) / (R * 0.1), 2.0)) * (0.85 + uProgress * 0.6) * hold;
 
-    // The horizon itself. Not drawn — subtracted, so the page shows through as true black.
-    float hole = smoothstep(R * 1.02, R * 0.9, r);
+    // The horizon itself. Not drawn — subtracted, so the page shows through as true black. It
+    // reopens as the act detonates, because there is no shadow left to cast by then.
+    float hole = smoothstep(R * 1.02, R * 0.9, r) * hold;
 
-    // Supernova: an expanding shell with rays behind it, and a flash at the centre.
-    float sr = uBurst.y * 0.95;
-    float wave = exp(-pow((r - sr) / 0.05, 2.0));
+    // ── Nebula ───────────────────────────────────────────────────────────────────────────
+    // Two octaves of value noise, drifting against the hole. Without it the frame is one bright
+    // object on an empty black field, which reads as a glowing dot rather than as space — and on
+    // a page this dark, a single hot point is the thing that becomes tiring to look at. The
+    // clouds are kept very faint: they are there to give the darkness a texture to sit on.
+    vec2 nb = uv * 1.7 + vec2(uProgress * 1.15, uProgress * -0.45);
+    float cloud = vnoise(nb) * 0.62 + vnoise(nb * 2.3 + 5.1) * 0.3;
+    cloud = smoothstep(0.44, 0.95, cloud);
+    float nebula = cloud * (0.07 + 0.05 * nova) * smoothstep(0.08, 0.55, r);
+
+    // ── Supernova ────────────────────────────────────────────────────────────────────────
+    // Two parts: the act's own detonation, which grows with `nova` and so is tied to where you
+    // are in the section, and a sharper shell fired the instant a boundary is crossed.
     float rays = 0.55 + 0.45 * cos(a * 14.0 + uProgress * 4.0);
-    float nova = uBurst.x * (wave * (0.55 + 0.45 * rays) + 0.3 * exp(-r * 7.0));
+    float core = nova * (0.5 * exp(-r * 8.0) + 0.35 * exp(-r * 2.6) * rays);
+    float front = nova * exp(-pow((r - nova * 0.55) / 0.075, 2.0)) * (0.5 + 0.5 * rays);
 
-    float glow = disc + ring + stars * 0.55 + nova;
+    float sr = uBurst.y * 0.95;
+    float wave = uBurst.x * exp(-pow((r - sr) / 0.05, 2.0)) * (0.55 + 0.45 * rays);
+    float flash = uBurst.x * 0.3 * exp(-r * 7.0);
+
+    float glow = disc + ring + stars * 0.55 + nebula + core + front + wave + flash;
     glow *= (1.0 - hole);
     // Faded well before the frame edge, so the layer never resolves into a rectangle.
-    glow *= smoothstep(0.9, 0.22, r);
+    glow *= smoothstep(0.95, 0.2, r);
 
-    gl_FragColor = vec4(vec3(1.0), clamp(glow, 0.0, 1.0) * 0.92);
+    // 0.62 rather than full strength: this sits behind everything anyone is trying to read, on a
+    // page that is deliberately near-black. Bright enough to be unmistakably there, dim enough
+    // that it never competes with the text in front of it.
+    gl_FragColor = vec4(vec3(1.0), clamp(glow, 0.0, 1.0) * 0.62);
   }
 `;
 
