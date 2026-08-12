@@ -1022,58 +1022,6 @@ html[data-flat] .cosmic-bg {
   animation: pulse-glow 8s ease-in-out infinite;
 }
 
-/* 3D Guarantee Wheel — a 4-card cube the visitor spins by dragging (mouse or touch) or
-   with the arrow buttons. Each card sits on its own face via rotateY + translateZ, so
-   turning the ring is real 3D depth (cards foreshorten and swing behind one another)
-   rather than a flat slide. */
-.wheel3d-stage {
-  --wheel-radius: 125px;
-  position: relative;
-  width: 230px;
-  height: 250px;
-  perspective: 1200px;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
-@media (min-width: 640px) {
-  .wheel3d-stage {
-    --wheel-radius: 160px;
-    width: 290px;
-    height: 260px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .wheel3d-stage {
-    --wheel-radius: 190px;
-    width: 340px;
-    height: 290px;
-  }
-}
-
-.wheel3d-ring {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transition: transform 1.6s cubic-bezier(0.65, 0, 0.35, 1);
-  cursor: grab;
-  touch-action: pan-y;
-}
-
-.wheel3d-ring.is-dragging {
-  transition: none;
-  cursor: grabbing;
-}
-
-.wheel3d-item {
-  position: absolute;
-  inset: 0;
-  transform: rotateY(var(--item-angle)) translateZ(var(--wheel-radius));
-  backface-visibility: hidden;
-}
-
 /* Stat bar meters — the fill grows a little further on hover, in step with the "+"
    revealed next to the number, to read as the metric ticking up. */
 .stat-bar-fill {
