@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 'react';
 import { CosmicBackground } from './components/CosmicBackground';
+import { ScrollCosmosLayer } from './components/ScrollCosmosLayer';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
