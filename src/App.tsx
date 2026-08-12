@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 
 import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
+import { useScrollingFlag } from './lib/useScrollingFlag';
 import { useRevealGroup } from './lib/useRevealGroup';
 import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
@@ -150,6 +151,10 @@ export default function App() {
   // Halts every animation on the page whenever the window is hidden or unfocused — the
   // always-mounted background otherwise keeps drifting for a tab nobody is looking at.
   usePauseOffscreenWork();
+  // Stands decorative pointer-driven animation down for the moment a scroll is in flight —
+  // scrolling fires hover on its own as content slides under a still cursor, and that work
+  // lands on the same main thread the scroll is using. See `html[data-scrolling]` in index.css.
+  useScrollingFlag();
 
   // Handle URL changes & popstate (browser back/forward)
   useEffect(() => {

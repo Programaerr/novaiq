@@ -981,6 +981,27 @@ html[data-idle] .rv::before {
   animation-play-state: paused;
 }
 
+/* Scrolling right now (flag set by useScrollingFlag). A narrower list than `data-idle` above,
+   and for a different reason: idle means nobody can see the page, so everything decorative may
+   as well stop. This means the visitor is looking at the page but moving it, and the only
+   things worth standing down are the ones the scroll itself wakes up.
+   That is specifically the hover beams. As the page slides under a stationary cursor, buttons
+   and pills enter :hover on their own, and each one starts a conic-gradient rotation inside a
+   mask — the single most expensive repaint on the site — for a hover the visitor never
+   performed, on every frame of the scroll. Paused rather than hidden, so a beam that was
+   genuinely being hovered before the scroll resumes exactly where it stopped.
+   `.rv::before` joins them because it is the same story: the reveal light's own hook already
+   refuses to repaint mid-scroll, and this keeps its fade in step with that.
+   Deliberately NOT here: the starfield, the milestone drift, the marquee. Those are pure
+   compositor transforms that run off the main thread — pausing them would visibly stall the
+   page's atmosphere every time someone scrolled, and buy nothing, because they are not what
+   the scroll is competing with. */
+html[data-scrolling] .nq-btn-beam::before,
+html[data-scrolling] .filter-pill-beam::before,
+html[data-scrolling] .rv::before {
+  animation-play-state: paused;
+}
+
 /* A template demo is on screen (flag set by TemplateInteractiveSandbox while it is mounted).
    The demo covers the whole viewport with its own opaque page, so the cosmic background is
    not dimmed or partly seen behind it — it is not seen at all, while still animating two star
