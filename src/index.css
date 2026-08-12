@@ -1097,16 +1097,43 @@
    construction, and loses nothing: those loops are the only animations that were still
    running with no viewer. Everything else here is a one-shot that finishes in under a second
    and is not worth the risk of freezing mid-flight. */
-html[data-idle] .star-layer,
-html[data-idle] .animate-pulse-glow,
-html[data-idle] .solid-shimmer::after,
-html[data-idle] .product-card-wave,
-html[data-idle] .milestone-card,
-html[data-idle] .nq-btn-beam::before,
-html[data-idle] .filter-pill-beam::before,
-html[data-idle] .navbar-dot,
-html[data-idle] .login-marquee__track,
-html[data-idle] .rv::before {
+/* Two flags, one list, because they ask nearly the same question and deserve the same answer:
+   `data-idle` (usePauseOffscreenWork) means nobody can see the page, `data-resting`
+   (useIdleRest) means somebody can see it but has stopped using it. In both cases the motion
+   below has no audience, and in both cases the reason to stop it is the same one a performance
+   trace made unarguable: these loops are individually trivial and collectively they keep the
+   browser producing a frame every frame for as long as the tab is open, which is what a device
+   answers with heat. See useIdleRest for the measurement.
+
+   `:is()` so the list is written once. A selector list this long duplicated per flag is a list
+   that will drift, and a decorative loop silently missing from one copy is invisible until
+   something is measured — which is exactly what had happened here: `.navbar-dot` matched
+   nothing (the markup is `.navbar-logo-dots span`) and `.navbar-logo-cursor` was never listed
+   at all, so the navbar kept animating even with the tab in the background. */
+html:is([data-idle], [data-resting]) :is(
+  .star-layer,
+  .animate-pulse-glow,
+  .product-card-wave,
+  .milestone-card,
+  .navbar-logo-dots span,
+  .navbar-logo-cursor,
+  .login-marquee__track
+) {
+  animation-play-state: paused;
+}
+
+/* Belt scrolled out of view — set by the IntersectionObserver in FloatingTemplateCards. */
+[data-belt-off] .login-marquee__track {
+  animation-play-state: paused;
+}
+
+/* The pseudo-element half, written out longhand: `:is()` accepts compound selectors but NOT
+   pseudo-elements, and one invalid selector takes the whole rule down with it — so folding
+   these into the list above would have silently stopped pausing anything at all. */
+html:is([data-idle], [data-resting]) .solid-shimmer::after,
+html:is([data-idle], [data-resting]) .nq-btn-beam::before,
+html:is([data-idle], [data-resting]) .filter-pill-beam::before,
+html:is([data-idle], [data-resting]) .rv::before {
   animation-play-state: paused;
 }
 

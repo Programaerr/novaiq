@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { templatesData } from '../data/templatesData';
 
@@ -47,6 +47,33 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
 }) => {
   const isAr = language === 'ar';
 
+  // The belt only runs while it is on screen.
+  //
+  // This section sits well below the fold, so on an ordinary visit the three columns spent the
+  // whole time the visitor was reading the hero animating six tall image layers nobody could
+  // see. A composited transform is cheap per frame but it is not free, and — the part that
+  // actually matters — it keeps the compositor producing frames continuously, which is the cost
+  // that shows up as a warm device rather than as stutter. Paused rather than removed, so the
+  // belt is exactly where it was when it scrolls back into view.
+  const beltRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = beltRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) delete el.dataset.beltOff;
+        else el.dataset.beltOff = 'true';
+      },
+      // A margin, so the belt is already moving by the time its first pixel appears — arriving
+      // at a frozen belt that then starts is more noticeable than the saving is worth.
+      { rootMargin: '200px 0px' },
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   // Dealt round-robin rather than sliced into thirds, so three consecutive covers never end up
   // stacked in one column — sliced, the same categories would sit together and the belt would
   // read as sorted rather than scattered.
@@ -66,7 +93,10 @@ export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   return (
     <div className="w-full max-w-5xl mx-auto mt-16 sm:mt-24 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-10">
       {/* The belt. Height is fixed so the section never reflows as the covers load. */}
-      <div className="template-belt relative w-full sm:w-[30rem] h-72 sm:h-[26rem] shrink-0 select-none overflow-hidden">
+      <div
+        ref={beltRef}
+        className="template-belt relative w-full sm:w-[30rem] h-72 sm:h-[26rem] shrink-0 select-none overflow-hidden"
+      >
         <div
           className="absolute inset-0 flex justify-center"
           style={{ gap: 'var(--belt-gap)' }}

@@ -35,16 +35,39 @@ export function useSmoothScroll() {
     });
 
     let rafId: number | null = null;
+    let idleFrames = 0;
+
+    // On-demand, not continuous — and a performance trace is what forced this.
+    //
+    // The loop used to re-request a frame unconditionally, which meant it ran at the display's
+    // full refresh rate from the moment the page opened until the tab closed. A DevTools trace
+    // of five seconds of an ordinary, untouched page measured 312 of these callbacks costing
+    // 253ms of main thread — a fifth of all main-thread time in the recording — spent smoothing
+    // a scroll position that had not moved. It also kept the page permanently "animating", so
+    // the compositor committed a new frame every frame forever, which is what a device answers
+    // with heat rather than with stutter.
+    //
+    // Lenis only has work to do while it is easing towards a target. `isScrolling` reports
+    // exactly that, so the loop now stops itself once it has been false for a short tail and
+    // restarts on the input that could have started a scroll.
     const raf = (time: number) => {
       lenis.raf(time);
+
+      if (lenis.isScrolling) idleFrames = 0;
+      else idleFrames++;
+
+      // ~20 frames of tail rather than stopping the instant isScrolling drops: the flag can
+      // clear a frame or two before the easing has fully settled, and cutting the loop there
+      // would freeze the last pixels of every scroll.
+      if (idleFrames > 20) {
+        rafId = null;
+        return;
+      }
       rafId = requestAnimationFrame(raf);
     };
 
-    // The loop otherwise runs for the app's entire lifetime, including while the tab is
-    // backgrounded. Gated on visibilitychange rather than reusing usePauseOffscreenWork's
-    // data-idle attribute: that one pauses CSS animations, but Lenis needs its rAF loop
-    // actually stopped, not just visually frozen.
     const start = () => {
+      idleFrames = 0;
       if (rafId === null) rafId = requestAnimationFrame(raf);
     };
     const stop = () => {
@@ -53,12 +76,20 @@ export function useSmoothScroll() {
         rafId = null;
       }
     };
-    const onVisibility = () => (document.hidden ? stop() : start());
 
-    start();
+    // Everything that can begin a scroll. Lenis's own handlers update its target during the
+    // same event dispatch, so by the time the frame we request here actually runs, there is
+    // already something for it to ease towards.
+    const WAKE = ['wheel', 'keydown', 'pointerdown', 'touchstart'] as const;
+    for (const type of WAKE) window.addEventListener(type, start, { passive: true });
+
+    // Also gated on visibility: a scroll left mid-ease when the tab is hidden would otherwise
+    // keep its tail running with no viewer.
+    const onVisibility = () => (document.hidden ? stop() : undefined);
     document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
+      for (const type of WAKE) window.removeEventListener(type, start);
       document.removeEventListener('visibilitychange', onVisibility);
       stop();
       lenis.destroy();
