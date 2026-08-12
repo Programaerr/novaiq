@@ -770,6 +770,34 @@
   to { transform: translate3d(0, 0, 0); }
 }
 
+/* Cover geometry for the sign-in gallery, as custom properties so one media query sets it for
+   the marquee maths and the markup at once (LoginPage.tsx reads all three through var()).
+   The ratio is held at ~1:2.6 across all three tiers — that capsule IS the shape the design is
+   built from, and a phone tier that merely shrank the width would turn it into a different
+   object. The phone size is chosen so three columns plus their gaps land near 312px: wide
+   enough to fill a 390px screen edge to edge, narrow enough not to crop a whole column away. */
+.login-gallery {
+  --cover-w: 96px;
+  --cover-h: 250px;
+  --cover-gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .login-gallery {
+    --cover-w: 120px;
+    --cover-h: 315px;
+    --cover-gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .login-gallery {
+    --cover-w: 160px;
+    --cover-h: 420px;
+    --cover-gap: 20px;
+  }
+}
+
 .login-marquee__track {
   animation-timing-function: linear;
   animation-iteration-count: infinite;

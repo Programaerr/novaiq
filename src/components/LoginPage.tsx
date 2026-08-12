@@ -34,16 +34,19 @@ const COLUMNS = [
   { duration: '54s', direction: 'up' as const },
 ];
 
-// The covers are a fixed size, in px, and deliberately not responsive. They were sized by the
-// column (`flex-1`) with a height that jumped at `xl`, so the same cover was a different shape
-// on every window width — near-circular on a wide screen, squat on a narrow one — and resizing
-// the window visibly re-proportioned the whole gallery mid-drift. Pinning them means the shape
-// is the shape: a tall capsule, roughly 1:2.6, which is the arch the reference is built from.
-// Columns overflowing a narrow viewport is fine and intended — the gallery clips, so they bleed
-// off the edge exactly as the reference's do, rather than squashing to fit.
-const COVER_W = 160;
-const COVER_H = 420;
-const COVER_GAP = 20;
+// The covers are a fixed size per breakpoint, never a fluid one. Sized by the column (`flex-1`)
+// the same cover became a different shape at every window width — near-circular on a wide
+// screen, squat on a narrow one — and resizing visibly re-proportioned the gallery mid-drift.
+// Pinning means the shape is the shape: a tall capsule of roughly 1:2.6, the arch the reference
+// is built from, held at all three sizes (96×250, 120×315, 160×420).
+//
+// The values themselves live in index.css as custom properties on `.login-gallery`, because the
+// phone tier needs a smaller capsule and a media query is the only place that can say so without
+// this component measuring the window itself. Everything here reads them through var(), so the
+// marquee maths and the markup stay in step with whatever the breakpoint resolved to.
+const COVER_W = 'var(--cover-w)';
+const COVER_H = 'var(--cover-h)';
+const COVER_GAP = 'var(--cover-gap)';
 
 /**
  * Standalone sign-in page: brand and form on one side, a slow gallery of the company's own
@@ -101,7 +104,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
   return (
     <div className="min-h-screen bg-black text-zinc-100 font-['Cairo'] relative overflow-hidden selection:bg-zinc-100 selection:text-black">
-      <CosmicBackground activeSection="hero" activeBgImage={null} />
+      {/* Desktop only, and for once that is a performance decision rather than a layout one:
+          below lg the gallery covers the entire viewport, so every star drifting behind it is
+          being animated and composited under something opaque. Two full-screen infinite
+          animations running at once, one of them invisible, is precisely the waste this site
+          has spent its time removing. */}
+      <div className="hidden lg:block">
+        <CosmicBackground activeSection="hero" activeBgImage={null} />
+      </div>
 
       {/* lg is where the split appears. Below it the gallery is dropped entirely rather than
           stacked under the form: it is atmosphere, and a phone that has to scroll past a
@@ -124,7 +134,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
         {/* min-h-screen only below lg. On the split layout the grid row already gives this
             column the full height, and asking for a screen's worth on top of that is how a
             two-column page ends up scrolling for no reason. */}
-        <div className="flex flex-col min-h-screen lg:min-h-0 p-6 sm:p-10 lg:p-14">
+        {/* z-10: below lg the gallery is an absolute layer over this same box, so the form has
+            to be lifted above it to stay clickable as well as visible. */}
+        <div className="relative z-10 flex flex-col min-h-screen lg:min-h-0 p-6 sm:p-10 lg:p-14">
           {/* Logo only. The Back button that used to sit opposite it is gone along with the
               page's `onBack` prop: sign-in now gates the whole site, so there is no page behind
               this one to return to and the button could only ever re-render the screen it was
@@ -217,7 +229,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
         </div>
 
         {/* ── Gallery side ──────────────────────────────────────────────────────────── */}
-        <div className="hidden lg:block relative overflow-hidden">
+        {/* Two roles from one element, because the gallery is worth having on a phone but not
+            in the same place.
+            At lg it is the second grid column: a panel beside the form, as designed.
+            Below lg it leaves the grid entirely (`absolute inset-0`) and becomes the backdrop
+            *behind* the form instead of a block stacked above it. Stacking was the thing worth
+            avoiding — a phone that has to scroll past a screenful of drifting covers to reach a
+            sign-in button has been given a worse page, not a richer one — but that was an
+            argument against the position, never against the atmosphere. Behind the form it
+            costs no vertical space at all and the button stays exactly where it was. */}
+        <div className="login-gallery absolute inset-0 lg:relative lg:inset-auto overflow-hidden">
           {/* justify-end packs the columns against the OUTER screen edge and lets all the
               leftover width collect on the inner side, next to the form — which is where the
               seam fade already lives, so the space reads as breathing room around the panel
@@ -228,9 +249,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               of the screen whichever way the page reads.
               The padding on that end keeps the outermost column just off the screen edge —
               packed flush against it the gallery read as cropped rather than placed. */}
+          {/* Centred on a phone, where the gallery is the whole backdrop and packing it to one
+              edge would leave the other half plain black behind the form. */}
           <div
-            className="absolute inset-0 flex justify-end"
-            style={{ gap: COVER_GAP, paddingInlineEnd: COVER_GAP * 2 }}
+            className="absolute inset-0 flex justify-center lg:justify-end"
+            style={{ gap: COVER_GAP, paddingInlineEnd: `calc(${COVER_GAP} * 2)` }}
           >
             {columns.map((imgs, col) => {
               if (imgs.length === 0) return null;
@@ -253,7 +276,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                       // into one horizontal band marching down the page. In px against the
                       // fixed cover height rather than rem, so it stays a proportion of the
                       // shape it is offsetting no matter the root font size.
-                      marginTop: -((col * (COVER_H + COVER_GAP)) / COLUMNS.length),
+                      marginTop: `calc(${-col} * (${COVER_H} + ${COVER_GAP}) / ${COLUMNS.length})`,
                     }}
                   >
                     {/* Rendered twice — see the note on the keyframes in index.css. The second
@@ -301,11 +324,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               sides. Written the other way round it darkens the middle of the gallery instead of
               its edge, which is exactly what it was doing. */}
           <div
-            className="absolute inset-y-0 start-0 w-40 pointer-events-none"
+            className="hidden lg:block absolute inset-y-0 start-0 w-40 pointer-events-none"
             style={{
               background: `linear-gradient(to ${isAr ? 'right' : 'left'}, transparent, #000)`,
             }}
           />
+
+          {/* Phone only: the wash that turns the gallery from a subject into a backdrop. The
+              form sits directly on top of it here, so the covers have to lose enough contrast
+              that white text on them is comfortable rather than merely legible. A flat rgba
+              layer and not a backdrop-filter — blurring a full-screen, permanently animating
+              layer is exactly the kind of per-frame rasterisation this site has been stripped
+              of everywhere else, and it would buy nothing a solid scrim does not. */}
+          <div className="lg:hidden absolute inset-0 bg-black/78 pointer-events-none" />
         </div>
       </div>
     </div>
