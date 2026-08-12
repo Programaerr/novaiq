@@ -596,7 +596,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
   const isAr = language === 'ar';
   const target = useRef({ x: 0, y: 0 });
   const signal = useRef(0);
-  const drag = useRef<{ px: number; py: number; ax: number; ay: number; s: number } | null>(null);
+  const drag = useRef<{ px: number; py: number; ax: number; ay: number } | null>(null);
   const restTimer = useRef(0);
   /** When the card last moved. The return home is driven off this, not off a pointer event. */
   const touched = useRef(0);
@@ -644,20 +644,14 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     clearTimeout(restTimer.current);
-    // Which way round the card currently is, decided once at the start of the gesture.
-    //
-    // Past a quarter turn you are looking at the reverse of the sheet, and a rotation that moved
-    // the front surface to the right moves the visible back surface to the left — so without
-    // this, turning the card over silently reverses the controls and it fights the finger. The
-    // sign of the surface normal's depth component, cos(x)·cos(y), is exactly "is the front
-    // facing me", and flipping the deltas by it keeps whatever face you are looking at travelling
-    // with your hand.
-    //
-    // Sampled at pointerdown rather than per move: read live, it would invert underneath the
-    // finger at the exact moment the card passes edge-on, mid-gesture.
+    // No flip. A previous version negated the deltas once the back was facing the viewer, on the
+    // reasoning that the visible surface then travels the other way — but the effect in the hand
+    // is that the controls silently reverse depending on which side happens to be showing, and a
+    // drag right sometimes goes left. One constant direction is what free rotation means here:
+    // right always turns the card one way, left always the other, however many times it has been
+    // round.
     const t = target.current;
-    const s = Math.cos(t.x) * Math.cos(t.y) < 0 ? -1 : 1;
-    drag.current = { px: e.clientX, py: e.clientY, ax: t.x, ay: t.y, s };
+    drag.current = { px: e.clientX, py: e.clientY, ax: t.x, ay: t.y };
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
@@ -678,8 +672,8 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
     // turning, as many revolutions as you give it; the return home takes the short way back
     // regardless of how many that was.
     turnTo(
-      d.ax + (e.clientY - d.py) * 0.011 * d.s,
-      d.ay + (e.clientX - d.px) * 0.012 * d.s,
+      d.ax + (e.clientY - d.py) * 0.011,
+      d.ay + (e.clientX - d.px) * 0.012,
     );
   };
 
