@@ -1,39 +1,54 @@
 import React, { useEffect, useRef } from 'react';
 import { ShieldCheck, Clock, Globe2, Award, Signal } from 'lucide-react';
-import { NovaiqLogo } from './NovaiqLogo';
 
 interface CredentialCardProps {
   language: 'ar' | 'en';
 }
 
+/** How far the card may lean, in degrees — see "Why the turn is clamped" below. */
+const MAX_X = 30;
+const MAX_Y = 38;
+
+const clamp = (v: number, max: number) => (v > max ? max : v < -max ? -max : v);
+
 /**
- * The hero's centrepiece: a smart-card built as an actual solid, turnable in every direction.
+ * The hero's centrepiece: a smart-card that leans towards the pointer or the finger, with the
+ * light on its surface moving as it leans.
  *
  * It replaces the 3D guarantee cube that used to sit here. The cube's problem was not how it
  * looked but what it did — it turned itself every five seconds whether or not anyone was
  * reading it, so three of its four faces were always hidden and the one facing you could be
  * taken away mid-sentence. This turns only when someone turns it.
  *
- * ## Why it is six elements and not one
+ * ## Why it is one plane and not a solid
  *
- * A single rotated rectangle is a picture of a card, and it gives itself away the moment it
- * passes side-on: it thins to an invisible line, because a plane has no thickness. This is
- * built as a real box instead — a printed front, a branded back, and four edge strips joining
- * them — inside a `preserve-3d` body. Turn it side-on and you see its edge, exactly as you
- * would holding one. That is the whole reason the geometry below is worth its complexity.
+ * It was a solid: a printed front, a branded back, and six stacked rings for the rim, all inside
+ * a `preserve-3d` body, turnable through a full circle so you could see its edge. That version
+ * blinked on Chrome for Android — the face, and sometimes just the text on it, disappearing and
+ * returning while the card moved — and it warmed the phone doing so.
  *
- * The edges are hinged rather than positioned by half-width, and that is what makes the box
- * work at any size: each strip sits flush against one border of the front face (`left: 100%`
- * for the right edge, and so on) and rotates 90° about that shared border, so it reaches back
- * to meet the rear face without anything needing to know the card's pixel width. The card can
- * then be sized purely by CSS aspect-ratio and the solid stays correctly assembled.
+ * The cause was the solid itself. A preserve-3d subtree cannot be painted in document order: its
+ * children hold real positions in space, so the compositor depth-sorts them and splits them
+ * wherever they intersect, rebuilding that structure on every frame the transform changes. Eight
+ * card-sized planes, six of them 2px apart, is the worst input you can hand that algorithm —
+ * near-coplanar surfaces are exactly where the sort order is decided by floating-point noise and
+ * flips between consecutive frames, which is what the blinking was, and the splitting cost grows
+ * with the square of the number of planes, which is what the heat was.
+ *
+ * So the card is now a single flat plane. `rotateX`/`rotateY` still place it in the stage's
+ * perspective and still foreshorten it — a flat element is transformed in 3D perfectly well, it
+ * just does not open a 3D space for its children — so the lean is intact, on one layer, with
+ * nothing to sort and therefore nothing that can be sorted differently next frame.
+ *
+ * ## Why the turn is clamped
+ *
+ * One plane has no thickness, so it would thin to an invisible line at 90° and show its own
+ * printing mirrored beyond that. The lean is therefore bounded well short of edge-on, which is
+ * the honest trade for the fix: a full turn and a visible rim are what required the geometry
+ * that broke. Within these limits nothing gives the flatness away, and the tighter perspective
+ * on `.credential-stage` makes 30° read about as strongly as a much larger angle did before.
  *
  * ## The gesture
- *
- * Free rotation on both axes with no clamp — a solid has no wrong side now, so there is
- * nothing to protect the visitor from. Angles are accumulated from where the drag began and
- * kept when it ends: the card holds the position it was left in, the way a real object does,
- * rather than springing back and undoing what the person just did.
  *
  * Angles are written as CSS custom properties and consumed by one `transform`, so a move costs
  * one style write and one compositor transform — no React state per frame, no layout, no
@@ -86,15 +101,14 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     // and repaints it every frame; moving a fixed-size disc by transform is a compositor
     // operation and costs nothing. It is the same technique as the reveal lights (`.rv`).
     //
-    // Clamped because rotation is unbounded: past a quarter turn the face is edge-on and a
-    // glare still travelling outward would slide off into the page beside it.
-    const clamp = (v: number, max: number) => (v > max ? max : v < -max ? -max : v);
-    el.style.setProperty('--glare-x', `${clamp(-y * 3.2, 150)}px`);
-    el.style.setProperty('--glare-y', `${clamp(x * 3.2, 110)}px`);
+    // Travel is scaled to the lean limits rather than to a raw pixel figure: at full lean the
+    // highlight sits near the card's edge and no further, whatever those limits are set to.
+    el.style.setProperty('--glare-x', `${(-y / MAX_Y) * 150}px`);
+    el.style.setProperty('--glare-y', `${(x / MAX_X) * 110}px`);
   };
 
   const turnTo = (x: number, y: number) => {
-    angle.current = { x, y };
+    angle.current = { x: clamp(x, MAX_X), y: clamp(y, MAX_Y) };
     if (frame.current) return;
     frame.current = requestAnimationFrame(flush);
   };
@@ -117,9 +131,8 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d) return;
-    // Vertical drag turns it about X, horizontal about Y — the axes a hand expects. Unclamped:
-    // past 90° the front hides itself and the back comes into view, which is correct for a
-    // solid and is the point of having built one.
+    // Vertical drag turns it about X, horizontal about Y — the axes a hand expects. turnTo
+    // clamps, so dragging past the limit simply holds at the limit rather than running away.
     turnTo(d.ax - (e.clientY - d.py) * 0.35, d.ay + (e.clientX - d.px) * 0.4);
   };
 
@@ -187,7 +200,9 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
         className="credential-card relative w-full aspect-[1.586/1] select-none"
       >
         {/* ── Front ─────────────────────────────────────────────────────────────────── */}
-        <div className="credential-face credential-face--front border border-white/15">
+        {/* No border utility here — the rim, its catch-light and its shaded underside are all
+            drawn by `.credential-face--front::after`, so the edge stays one thing to adjust. */}
+        <div className="credential-face credential-face--front">
           {/* A fixed gradient, painted once — no moving centre, nothing to re-rasterise as the
               card turns, which is what keeps the whole gesture a compositor transform. */}
           <div
@@ -271,47 +286,6 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           </div>
         </div>
 
-        {/* ── Back ──────────────────────────────────────────────────────────────────────
-            Deliberately plain. A back that repeated the front's contents would look like a
-            mistake; a real card's reverse carries a magnetic stripe and a mark, so this does
-            the same — and it means turning the card all the way round has something to arrive
-            at rather than a blank. */}
-        <div className="credential-face credential-face--back border border-white/12 bg-[#0b0b0e]">
-          <div className="absolute inset-x-0 top-[16%] h-[22%] bg-gradient-to-b from-zinc-900 via-black to-zinc-900" />
-          <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 sm:p-6">
-            <NovaiqLogo size={26} showText={false} />
-            <div className="text-[8px] sm:text-[9px] text-zinc-600 tracking-[0.2em] uppercase">
-              novaiq.space
-            </div>
-          </div>
-        </div>
-
-        {/* ── The thickness, hollow ─────────────────────────────────────────────────────
-            Six rings — the card's rounded outline and nothing else — stacked back through the
-            depth. Together they read as the rim of a card seen edge-on, and because each is the
-            same rounded rectangle as the faces, that rim is correctly curved at every corner
-            from every angle it can be turned to.
-
-            Hollow is the whole point, and it is a rendering decision before it is a visual one.
-            This was ten *filled* slices, and a filled slice is a full card-sized surface the
-            compositor has to paint and blend on every frame of a turn — ten of them, on a phone
-            at three device pixels to one, is millions of pixels per frame to draw an object
-            whose interior is permanently hidden behind its own front face. Nobody can ever see
-            the inside of a closed card, so nothing is drawn there: each ring paints only its
-            two-pixel outline, which is a rounding error next to a full fill, and the card looks
-            identical because the only part of the thickness that was ever visible is its rim.
-
-            Six rather than ten as well: fewer layers for the compositor to keep, and at 2px
-            apart across 12px of depth they still overlap into a continuous edge rather than
-            reading as stripes. aria-hidden: this is the thickness of a thing, not content. */}
-        {Array.from({ length: 6 }, (_, i) => (
-          <div
-            key={i}
-            aria-hidden="true"
-            className="credential-ring"
-            style={{ transform: `translateZ(calc(var(--depth) / -6 * ${i + 1}))` }}
-          />
-        ))}
       </div>
     </div>
   );

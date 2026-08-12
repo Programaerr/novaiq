@@ -789,13 +789,14 @@
 /* Perspective on the stage, not on the card. On the card itself the vanishing point turns with
    it, so the lean visibly flattens at exactly the angles it should be strongest. */
 .credential-stage {
-  perspective: 1100px;
+  /* Tighter than it was (1100px), to buy back some of the dimensionality the clamped turn gives
+     up: a nearer vanishing point foreshortens more per degree, so a 30° lean now reads about as
+     strongly as a much larger one used to. Costs nothing — perspective is part of the same
+     single transform the card was already doing. */
+  perspective: 900px;
 }
 
 .credential-card {
-  /* The card's thickness. One value, used by all four edges and by the back face's offset, so
-     the solid can never come apart at the seams. */
-  --depth: 12px;
   /* The faces' corner radius. Owned here so `.credential-face` and anything else that has to
      agree with it read one value rather than each hard-coding their own. */
   --radius: 1.5rem;
@@ -804,7 +805,31 @@
   --tilt-x: 0deg;
   --tilt-y: 0deg;
   transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-  transform-style: preserve-3d;
+
+  /* ── Why this is NOT `transform-style: preserve-3d` any more ──────────────────────────
+     This card was built as a real solid: a front, a back, and six stacked rings for the rim,
+     all inside a preserve-3d body. It was the right idea and it is what kept blinking on the
+     phone, for a reason that is a property of preserve-3d itself rather than of anything
+     specific to this design.
+
+     Inside a preserve-3d subtree the compositor cannot just paint layers in document order —
+     they occupy real positions in space, so it has to depth-sort them, and where two of them
+     intersect it must split them into pieces and sort the pieces. That is a BSP tree, rebuilt
+     from scratch on every frame the transform changes. Here it was fed eight card-sized planes,
+     six of which sat 2px apart: as near-coplanar as surfaces can be without being identical.
+     Sorting near-coplanar planes is precisely the case where the answer is unstable — tiny
+     floating-point differences flip the order between one frame and the next — and an unstable
+     sort order looks exactly like what was reported: the face, or the text on it, vanishing and
+     coming straight back while the card moved. The splitting work is also quadratic in the
+     number of planes, which is where the heat came from.
+
+     Flat, the card is one plane. `rotateX`/`rotateY` still apply to it in 3D — a flat element
+     is still positioned and foreshortened in the stage's perspective, it simply does not open
+     an internal 3D space for its children. So the tilt survives intact and the sorting problem
+     cannot occur, because there is nothing to sort. What is given up is the ability to turn
+     past edge-on and see a back and a rim, and the turn is clamped in CredentialCard.tsx to
+     match. */
+  will-change: transform;
   /* For the intro lean and nothing else — a drag removes it (see .is-turning). Transform only;
      nothing here can trigger layout or paint. */
   transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -824,62 +849,49 @@
   cursor: grabbing;
 }
 
-/* Front and back. Both are absolutely positioned copies of the card's own box, so they inherit
-   its responsive aspect-ratio size without either needing a fixed dimension.
-   `backface-visibility: hidden` is what makes the solid honest: past 90 degrees the front takes
-   itself out of sight instead of showing through as a mirror image of its own printing, and the
-   back — genuinely facing the viewer by then — is what remains. */
+/* The printed surface: one absolutely positioned copy of the card's own box, so it inherits the
+   responsive aspect-ratio size without needing a fixed dimension of its own.
+
+   `overflow: hidden` rather than the `clip-path` that was here. The clip-path was an attempt at
+   the blinking, on the theory that an overflow clip has to be re-applied as a 3D transform
+   changes; it did not fix it, because the cause was the layer sorting described on
+   `.credential-card` above and not the clip at all. With the card flat this is an ordinary
+   rounded-corner clip on an ordinary box — the best-optimised path there is — and it also makes
+   the face a flattening container, so the artwork, the SVG and the text inside it are rasterised
+   into one texture instead of being tracked as separate pieces. */
 .credential-face {
   position: absolute;
   inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  /* The corner radius is owned here rather than by a utility class on the element, so the faces
-     and the rings that trace their outline read one value and cannot drift apart. */
   border-radius: var(--radius);
-  /* clip-path rather than `overflow: hidden`.
-     Both round off the artwork inside the face, and they behave very differently inside a
-     preserve-3d subtree: an overflow clip makes the browser flatten and re-clip the element as
-     its 3D transform changes, and on Chrome for Android that shows up exactly as reported — the
-     face blinking out and back mid-turn, sometimes taking its text with it. A clip-path is
-     applied while compositing a layer that already exists, so turning the card does not
-     invalidate it. */
-  clip-path: inset(0 round var(--radius));
+  overflow: hidden;
 }
 
 .credential-face--front {
-  /* An explicit layer, held for the element's lifetime. Without the hint the compositor decides
-     per frame whether this subtree deserves one, and during a turn that decision flips
-     repeatedly — each flip discarding and rebuilding the texture, which is the other half of
-     the blinking. One card-sized texture is a cheap price for a stable picture. */
-  will-change: transform;
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
 }
 
-/* Pushed to the far side of the thickness and turned to face outward. The rotate is what stops
-   the back being a mirror of itself — without it every glyph on it would read backwards. */
-.credential-face--back {
-  transform: translateZ(calc(var(--depth) * -1)) rotateY(180deg);
-}
-
-/* The rim of the hollow card. Only an outline is painted — the interior stays transparent,
-   because the inside of a closed card is never visible and a fill there is pixels spent on
-   nothing. See the note at the ring stack in CredentialCard.tsx for why that matters so much
-   on a phone.
-
-   Deliberately NOT `backface-visibility: hidden`: these are the surface you are meant to see
-   when the card turns edge-on, which is exactly the moment both faces have hidden themselves.
-   They are what stops the card appearing to vanish as it passes 90 degrees. */
-.credential-ring {
+/* The lit edge, at a cost of no extra layers.
+   The rim used to be six stacked rings, which is what a real solid needs and is also what broke
+   it. Since the turn no longer reaches edge-on, the rim never has to be a surface you look
+   straight at — it only ever has to catch light along the card's silhouette, and a border plus
+   an inset highlight does that with nothing for the compositor to sort. */
+.credential-face--front::after {
+  content: '';
   position: absolute;
   inset: 0;
-  border-radius: var(--radius);
-  border: 2px solid #2a2a31;
-  background: none;
+  border-radius: inherit;
   pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.14),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .credential-glare {
+  /* Its own layer, so the light sliding across the card composites over the printed surface
+     instead of forcing that surface to be repainted underneath it every frame. This is the one
+     hint worth spending here: everything else in the card is static. */
+  will-change: transform;
   position: absolute;
   left: 50%;
   top: 50%;
