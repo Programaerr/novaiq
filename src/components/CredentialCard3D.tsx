@@ -447,7 +447,12 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
       t.anisotropy = 16;
       return t;
     };
-    return [mk(drawFront(isAr)), mk(makeBackCanvas())];
+    const f = drawFront(isAr);
+    const b = makeBackCanvas();
+    // TEMP DIAGNOSTIC
+    (window as unknown as Record<string, unknown>).__cardFront = f;
+    (window as unknown as Record<string, unknown>).__cardBack = b;
+    return [mk(f), mk(b)];
   }, [isAr]);
 
   // The logo is a PNG, so the back is drawn once without it and again the moment it arrives.
