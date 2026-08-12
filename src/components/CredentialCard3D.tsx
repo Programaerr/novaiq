@@ -366,8 +366,9 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
       const t = new THREE.CanvasTexture(canvas);
       t.colorSpace = THREE.SRGBColorSpace;
       // The card is read at an angle for most of a turn, which is exactly when a texture without
-      // anisotropic filtering goes to mush along the receding edge.
-      t.anisotropy = 8;
+      // anisotropic filtering goes to mush along the receding edge. Drivers clamp this to their
+      // own maximum, so asking for 16 is safe on hardware that cannot do it.
+      t.anisotropy = 16;
       return t;
     };
     return [mk(drawFront(isAr)), mk(drawBack())];
@@ -532,7 +533,15 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           // Renders on request only. An untouched card draws zero frames, which is the whole
           // reason a WebGL card can be cheaper than the CSS one it replaced.
           frameloop="demand"
-          dpr={[1, 1.75]}
+          // 2.5, up from 1.75, and this is what the blurred text was.
+          //
+          // A phone reports a device pixel ratio of 3. Capped at 1.75 the scene was rendered at
+          // 58% of the pixels the screen actually has and then stretched up to fill it — an
+          // upscale of a finished image, which no amount of texture resolution can undo. The cap
+          // exists to stop a full-screen scene rendering nine times the pixels on a phone, and
+          // this scene is a card, not a full screen; the higher cap costs a few hundred thousand
+          // pixels on an element that only renders at all while it is being turned.
+          dpr={[1, 2.5]}
           // 2.6, and this one is solved rather than judged by eye — two previous guesses both
           // still cut the card off.
           //
