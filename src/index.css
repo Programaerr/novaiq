@@ -798,9 +798,15 @@
      A separate, wider `--rim` used to be needed to paper over a gap the flat ring could not
      close; the sides close it by being real surfaces, so the fudge is gone. */
   --depth: 11px;
-  /* The faces' corner radius. Owned here so `.credential-face` and the rings that trace its
-     outline read one value rather than each hard-coding their own. */
-  --radius: 1.5rem;
+  /* The corner radius, and it is deliberately modest.
+     A rounded corner is a curved surface in space, and CSS has no element that draws one: the
+     four sides can only be flat strips, so where they meet they meet square. The bigger the
+     radius, the further that square corner stands proud of the faces' curve — at 1.5rem it was
+     ~7px of visible sharp corner, and pulling the strips back to hide it opened a hole there
+     instead, which is worse. At 0.8rem the mismatch is under 4px and reads as a crisp corner
+     rather than a defect, while the card still looks rounded — a real credit card's radius is
+     about 3.5% of its width, which is very close to this. */
+  --radius: 0.8rem;
   /* Seeded here so the very first move interpolates from a real value rather than from an
      unset property, which would otherwise jump straight to its target. */
   --tilt-x: 0deg;
@@ -841,23 +847,24 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border-radius: var(--radius);
-  /* `overflow: hidden`, not the `clip-path` that was here, and that swap is the fix for corners
-     that looked square until the card was moved and rounded themselves the moment it was.
-     A clip-path on a layer the compositor is holding gets applied without antialiasing while the
-     layer sits axis-aligned — the fast path — and is only re-rasterised smoothly once a rotation
-     forces the slow one. Hence sharp at rest, round in motion. An overflow clip on a
-     border-radius is rounded by the ordinary paint path and looks the same either way. */
-  overflow: hidden;
+  /* clip-path, NOT `overflow: hidden`, and this one is not a preference — it was swapped to
+     overflow to cure corners that looked square at rest, and it brought the blinking straight
+     back. An overflow clip inside a preserve-3d subtree forces the element to be flattened and
+     re-clipped every time its 3D transform changes; a clip-path is applied while compositing a
+     layer that already exists, so turning the card does not invalidate it. The corner
+     antialiasing is dealt with by keeping `--radius` small instead, which costs nothing. */
+  clip-path: inset(0 round var(--radius));
 }
 
 /* Half the thickness towards the viewer. The faces straddle the card's centre rather than the
    front sitting at zero, so the solid turns about its own middle and one band can span it. */
 .credential-face--front {
   transform: translateZ(calc(var(--depth) / 2));
-  /* No `will-change` here. It was added to stop the compositor promoting and demoting this face
-     mid-turn, back when the card was eight layers and that churn was real; at three layers it
-     buys nothing, and holding the face as its own layer is half of why its corners rendered
-     unantialiased at rest — see the clip note above. */
+  /* Held as its own layer for the element's lifetime. Removing this was tried and it returned
+     the blinking with it: without the hint the compositor decides per frame whether this subtree
+     deserves a layer, and mid-turn that decision flips, each flip discarding and rebuilding the
+     texture. One card-sized texture is a cheap price for a stable picture. */
+  will-change: transform;
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
 }
 
@@ -888,34 +895,47 @@
   position: absolute;
   background: linear-gradient(180deg, #34343c 0%, #1c1c21 55%, #0e0e11 100%);
   pointer-events: none;
+  /* Rounded ends, so the rim curves into each corner instead of meeting there as a square.
+     A strip is only `--depth` across, and CSS scales a radius down when the two on one edge
+     would overlap — so this resolves to a half-depth cap rather than the faces' full radius. It
+     is the silhouette that matters: the corner reads as a curve rather than a point, which is
+     what makes the band match the card. */
+  border-radius: var(--radius);
 }
 
-/* Each strip covers only the straight run of its edge, stopping a corner-radius short at both
-   ends. Run to full length they meet at the corners as a square, which sticks out past the
-   faces' curve and reads as a sharp corner bolted onto a rounded card. The curved part of each
-   corner is the ring's job below. */
+/* Full length, so adjacent strips actually meet and the rim is continuous all the way round.
+   They were briefly pulled back by a corner-radius at each end, to stop their square meeting
+   point standing proud of the faces' curve. That traded a small sharp corner for an open hole at
+   every corner — the rim arriving, stopping, and starting again a few pixels later with the page
+   showing through the gap. A ring at mid-depth was added to bridge it and could not: a ring lies
+   flat in the faces' plane, so at the very angles the corner is inspected from it is edge-on and
+   contributes a hairline, which is exactly the disconnected arc that was visible. Closing the
+   gap wins; the leftover mismatch is handled by keeping `--radius` small (see there). */
 .credential-edge--right {
-  top: var(--radius);
+  top: 0;
   right: 0;
   width: var(--depth);
-  height: calc(100% - var(--radius) * 2);
+  height: 100%;
   transform-origin: 100% 50%;
   transform: translateZ(calc(var(--depth) / 2)) rotateY(-90deg);
 }
 
 .credential-edge--left {
-  top: var(--radius);
+  top: 0;
   left: 0;
   width: var(--depth);
-  height: calc(100% - var(--radius) * 2);
+  height: 100%;
   transform-origin: 0 50%;
   transform: translateZ(calc(var(--depth) / 2)) rotateY(90deg);
 }
 
+/* Full length like the sides. Inset to butt against them instead, the rounded ends of all four
+   left a notch at each corner — overlapping is what keeps the rim continuous, and with the caps
+   rounded the overlap reads as a curve rather than the square post it used to. */
 .credential-edge--top {
   top: 0;
-  left: var(--radius);
-  width: calc(100% - var(--radius) * 2);
+  left: 0;
+  width: 100%;
   height: var(--depth);
   transform-origin: 50% 0;
   transform: translateZ(calc(var(--depth) / 2)) rotateX(-90deg);
@@ -923,29 +943,11 @@
 
 .credential-edge--bottom {
   bottom: 0;
-  left: var(--radius);
-  width: calc(100% - var(--radius) * 2);
+  left: 0;
+  width: 100%;
   height: var(--depth);
   transform-origin: 50% 100%;
   transform: translateZ(calc(var(--depth) / 2)) rotateX(90deg);
-}
-
-/* The corners, and only the corners.
-   A ring at the midpoint of the depth, traced to the same radius as the faces, so where the four
-   straight strips stop it carries the rim round the curve. It lies in the faces' plane, which is
-   why it cannot be the whole band — it goes edge-on with them and disappears exactly when the
-   side is being looked at straight on, which is what the strips are for. Between them each
-   covers what the other cannot: the strips hold the long runs at every angle, this holds the
-   four curves at every angle short of dead-on.
-
-   Hollow, and only `--depth` wide: it paints four short arcs' worth of pixels, not a surface. */
-.credential-corners {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius);
-  border: var(--depth) solid #26262c;
-  background: none;
-  pointer-events: none;
 }
 
 .credential-glare {

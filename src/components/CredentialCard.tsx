@@ -338,8 +338,6 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
         {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
           <div key={side} aria-hidden="true" className={`credential-edge credential-edge--${side}`} />
         ))}
-        {/* Carries the rim around the four curves, where the straight strips stop. */}
-        <div aria-hidden="true" className="credential-corners" />
       </div>
     </div>
   );
