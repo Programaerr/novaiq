@@ -442,20 +442,11 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
       const t = new THREE.CanvasTexture(canvas);
       t.colorSpace = THREE.SRGBColorSpace;
 
-      // No mipmaps, and this is the fix for a card that rendered as a blank grey slab.
-      //
-      // These textures are canvases at 1600x1009 — not powers of two. WebGL2 permits mipmapping
-      // such a texture, so nothing errors, but the chain that comes back is not usable: sampling
-      // resolved to the smallest level, and the smallest level of this card is one pixel of its
-      // average colour. That is precisely what was on screen — a uniform pale grey rectangle with
-      // no type, no chip and no tracery, on both faces, while the scene graph insisted all three
-      // meshes were being drawn with their maps attached. They were; they were sampling a 1x1
-      // image of themselves.
-      //
-      // LinearFilter reads the full-size texture directly. The usual objection to dropping
-      // mipmaps is aliasing under heavy minification, which does not apply here: the card is
-      // ~1300 device pixels wide at its largest against a 1600-pixel texture, so it is barely
-      // minified at all, and anisotropic filtering covers the oblique angles a turn puts it at.
+      // No mipmaps. Not a bug fix — see the materials below for what the blank card actually was
+      // — but the right setting here: these canvases are 1600x1009, so a mip chain costs a third
+      // again in memory to serve a card that is at most ~1300 device pixels wide and therefore
+      // barely minified. LinearFilter reads the full-size texture, and anisotropy covers the
+      // oblique angles a turn puts it at.
       t.generateMipmaps = false;
       t.minFilter = THREE.LinearFilter;
       // Drivers clamp anisotropy to their own maximum, so asking for 16 is safe everywhere.
@@ -489,11 +480,40 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
     };
   }, [back, invalidate]);
 
+  /**
+   * Materials built with their maps already in them, rather than given a `map` prop in JSX.
+   *
+   * This is what a card that rendered as a featureless pale slab actually was. Declared as
+   * `<meshStandardMaterial map={front} />`, the material is constructed first and the texture
+   * assigned to it a moment later; three.js compiles a shader per material configuration, and a
+   * map that arrives after that compile is not part of it, so the program samples nothing and
+   * draws the material's flat base colour. Everything else looked perfectly healthy while this
+   * was happening — the mesh was visible, the texture was uploaded and the right size, and the
+   * renderer reported all three draw calls — which is why it took a live experiment to find:
+   * setting `material.needsUpdate = true` by hand made the card appear instantly.
+   *
+   * Passing a finished material avoids the whole question. There is no window in which the
+   * material exists without its map, so there is no stale program to recompile.
+   */
+  const materials = useMemo(
+    () => ({
+      body: new THREE.MeshStandardMaterial({ color: '#e6e6ec', roughness: 0.35, metalness: 0.15 }),
+      // Barely metallic: a metallic white takes its colour from what it reflects, and with an
+      // empty scene around it that reads as grey rather than white.
+      front: new THREE.MeshStandardMaterial({ map: front, transparent: true, roughness: 0.44, metalness: 0.05 }),
+      back: new THREE.MeshStandardMaterial({ map: back, transparent: true, roughness: 0.55, metalness: 0.05 }),
+    }),
+    [front, back],
+  );
+
   useEffect(() => () => {
     front.dispose();
     back.dispose();
     geometry.dispose();
-  }, [front, back, geometry]);
+    materials.body.dispose();
+    materials.front.dispose();
+    materials.back.dispose();
+  }, [front, back, geometry, materials]);
 
   // Ease towards the target, and keep the renderer awake only while there is motion left. With
   // frameloop="demand" this is what makes an idle card cost literally nothing: once the card has
@@ -528,21 +548,15 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
     <group ref={group}>
       {/* The body. This is the rim: rounded in plan, bevelled at both edges, and correct from
           every angle because it is genuinely that solid. */}
-      <mesh geometry={geometry}>
-        <meshStandardMaterial color="#e6e6ec" roughness={0.35} metalness={0.15} />
-      </mesh>
+      <mesh geometry={geometry} material={materials.body} />
 
       {/* The two printed faces, just proud of the body so the rim shows around them. Their
           textures carry transparent corners, so their square outline is never visible. */}
-      <mesh position={[0, 0, faceZ]}>
+      <mesh position={[0, 0, faceZ]} material={materials.front}>
         <planeGeometry args={[CARD_W - 0.012, CARD_H - 0.012]} />
-        {/* Barely metallic: a metallic white takes its colour from what it reflects, and with an
-            empty scene around it that reads as grey rather than white. */}
-        <meshStandardMaterial map={front} transparent roughness={0.44} metalness={0.05} />
       </mesh>
-      <mesh position={[0, 0, -faceZ]} rotation={[0, Math.PI, 0]}>
+      <mesh position={[0, 0, -faceZ]} rotation={[0, Math.PI, 0]} material={materials.back}>
         <planeGeometry args={[CARD_W - 0.012, CARD_H - 0.012]} />
-        <meshStandardMaterial map={back} transparent roughness={0.55} metalness={0.05} />
       </mesh>
     </group>
   );
