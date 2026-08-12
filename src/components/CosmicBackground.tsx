@@ -69,11 +69,28 @@ export const CosmicBackground: React.FC<CosmicBackgroundProps> = ({
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.85)_100%)]" />
 
+      {/* The nebula sits under the stars — it is the thing they are in front of, and what stops
+          the sky being a flat black field with dots on it. Below the vignette, unlike the stars,
+          because it is atmosphere and should be dimmed with everything else behind the text. */}
+      <div className="nebula-layer" />
+
       {/* Drifting star field — painted above the vignette on purpose: the vignette exists to
           dim the grid/glow layers for text contrast, but stars are meant to read as the
-          brightest thing in the sky, not another layer it darkens. See .star-layer. */}
+          brightest thing in the sky, not another layer it darkens.
+
+          Four planes, ordered far to near. Distance is carried by three things at once — the
+          further a plane is, the smaller, dimmer and slower its stars — and all three are set
+          together in .star-layer--*, because getting one of them wrong reads as two identical
+          fields sliding rather than as depth. */}
+      <div className="star-layer star-layer--deep" />
       <div className="star-layer star-layer--far" />
+      <div className="star-layer star-layer--mid" />
       <div className="star-layer star-layer--near" />
+
+      {/* Two streaks on long, mismatched cycles — visible for a second or so out of every half
+          minute, so each one is a small event rather than wallpaper. */}
+      <div className="shooting-star" />
+      <div className="shooting-star shooting-star--b" />
     </div>
   );
 };

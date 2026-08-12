@@ -696,6 +696,23 @@
 
 /* Shared star pattern for the page's own cosmic background (.star-layer below). */
 :root {
+  /* The far distance: the smallest and faintest points, on the tightest tile. */
+  --stars-deep:
+    radial-gradient(1px 1px at 30px 40px, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
+    radial-gradient(1px 1px at 110px 90px, rgba(255, 255, 255, 0.45) 50%, transparent 51%),
+    radial-gradient(1px 1px at 170px 30px, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
+    radial-gradient(1px 1px at 60px 160px, rgba(255, 255, 255, 0.4) 50%, transparent 51%),
+    radial-gradient(1px 1px at 195px 130px, rgba(255, 255, 255, 0.5) 50%, transparent 51%);
+
+  /* The middle plane: a handful of larger, brighter stars, widely spaced. */
+  --stars-mid:
+    radial-gradient(2px 2px at 90px 70px, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 320px 150px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(2.5px 2.5px at 210px 330px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 400px 60px, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
+    radial-gradient(2px 2px at 40px 260px, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 300px 430px, rgba(255, 255, 255, 0.6) 50%, transparent 51%);
+
   --stars-far:
     radial-gradient(1.5px 1.5px at 40px 60px, rgba(255, 255, 255, 0.95) 50%, transparent 51%),
     radial-gradient(1.5px 1.5px at 120px 20px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
@@ -756,6 +773,108 @@
 @keyframes star-drift-far {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(-300px, -300px, 0); }
+}
+
+/* ── Depth: four star planes, not two ──────────────────────────────────────────────────────
+   The design database's recommendation for an immersive space treatment is 3-5 parallax layers
+   — and it also marks the WebGL and scroll-driven ways of getting there as poor performers,
+   which matches everything this project has learned the hard way. So the depth recipe is taken
+   and the machinery is not: these are the same composited translate3d layers that were already
+   here, just more of them.
+
+   Depth in a star field comes from three things moving together, and all three are set per
+   layer below: distant stars are SMALLER, DIMMER and SLOWER. Get one of them wrong — same size
+   at different speeds, say — and the eye reads it as two identical fields sliding, not as
+   distance. The tile sizes are also mutually prime-ish (220 / 300 / 380 / 480) so the four
+   patterns do not fall into step and produce a visible repeat. */
+
+.star-layer--deep {
+  inset: 0 -220px -220px 0;
+  background-image: var(--stars-deep);
+  background-size: 220px 220px;
+  opacity: 0.32;
+  animation: star-drift-deep 420s linear infinite;
+}
+
+.star-layer--mid {
+  inset: -480px 0 0 -480px;
+  background-image: var(--stars-mid);
+  background-size: 480px 480px;
+  opacity: 0.5;
+  animation: star-drift-mid 300s linear infinite;
+}
+
+@keyframes star-drift-deep {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-220px, -220px, 0); }
+}
+
+@keyframes star-drift-mid {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(480px, 480px, 0); }
+}
+
+/* ── Nebula ────────────────────────────────────────────────────────────────────────────────
+   Two very large, very faint clouds drifting across each other. Their whole job is to stop the
+   background being a flat black field with dots on it — depth needs something between the stars
+   for them to be in front of.
+
+   Painted as radial gradients and moved by transform, never by changing the gradient itself: a
+   gradient whose stops move has to be re-rasterised every frame, while a gradient that is
+   translated is the same texture at a new offset and costs the compositor nothing. It is the
+   same rule the ambient glows above already follow, and the reason none of this needs a filter. */
+.nebula-layer {
+  position: absolute;
+  inset: -25% -25% -25% -25%;
+  pointer-events: none;
+  background-image:
+    radial-gradient(38% 30% at 28% 32%, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.018) 45%, transparent 72%),
+    radial-gradient(30% 26% at 74% 62%, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.012) 48%, transparent 74%);
+  animation: nebula-drift 260s ease-in-out infinite alternate;
+}
+
+@keyframes nebula-drift {
+  from { transform: translate3d(-2.5%, 1.5%, 0) scale(1); }
+  to { transform: translate3d(3%, -2%, 0) scale(1.08); }
+}
+
+/* ── One shooting star ─────────────────────────────────────────────────────────────────────
+   A single streak, and the timing is the whole design: a 26s cycle in which it is only visible
+   for about a second and a half. Rare enough to be a small event when it happens rather than a
+   decoration you stop seeing — and cheap for the same reason, since a 140px sliver moving on
+   the compositor for 6% of the time is nothing at all.
+
+   Angled with a rotation so it falls rather than slides, and faded at both ends of its travel
+   by the opacity keyframes so it never appears or vanishes at a hard edge. */
+.shooting-star {
+  position: absolute;
+  top: -10%;
+  left: 62%;
+  width: 140px;
+  height: 1.5px;
+  pointer-events: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+  opacity: 0;
+  animation: shoot 26s linear infinite;
+}
+
+/* The second one crosses much later and from the other side, so the sky never has a rhythm. */
+.shooting-star--b {
+  top: 8%;
+  left: 18%;
+  width: 96px;
+  animation-duration: 37s;
+  animation-delay: 14s;
+  opacity: 0;
+}
+
+@keyframes shoot {
+  0%, 94% { opacity: 0; transform: translate3d(0, 0, 0) rotate(28deg); }
+  95% { opacity: 0; transform: translate3d(0, 0, 0) rotate(28deg); }
+  96.5% { opacity: 0.85; }
+  99% { opacity: 0; }
+  100% { opacity: 0; transform: translate3d(-48vw, 42vh, 0) rotate(28deg); }
 }
 
 /* ── Login page's template gallery ────────────────────────────────────────────────────────
@@ -1171,6 +1290,8 @@
    at all, so the navbar kept animating even with the tab in the background. */
 html:is([data-idle], [data-resting]) :is(
   .star-layer,
+  .nebula-layer,
+  .shooting-star,
   .animate-pulse-glow,
   .product-card-wave,
   .milestone-card,
