@@ -793,9 +793,16 @@
 }
 
 .credential-card {
-  /* The card's thickness. One value, used by the rim and by the back face's offset, so the
-     solid can never come apart at the seams. */
-  --depth: 12px;
+  /* The card's thickness, and the width of the band that closes it.
+     They are separate values because the band has to be wider than the card is thick. The band
+     is a flat ring at mid-depth: it has extent in X and Y but none in Z, so it hides the gap
+     between the two faces only for as long as its projected width covers the gap's projected
+     height — b·cos(angle) >= depth·sin(angle), i.e. b >= depth·tan(angle). At b = depth the seam
+     opens at 45°; at 1.5x it holds past 56°, which covers the angles the card is actually read
+     at. Thinner overall than it was (12px), for the same reason: every degree of thickness is a
+     gap that has to be covered. */
+  --depth: 9px;
+  --rim: 14px;
   /* The faces' corner radius. Owned here so `.credential-face` and the rings that trace its
      outline read one value rather than each hard-coding their own. */
   --radius: 1.5rem;
@@ -839,20 +846,23 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border-radius: var(--radius);
-  /* clip-path rather than `overflow: hidden`: an overflow clip makes the browser flatten and
-     re-clip the element as its 3D transform changes, while a clip-path is applied while
-     compositing a layer that already exists. Kept for that reason alone — it was tried as a fix
-     for the blinking and was not one, which is recorded here so it is not tried again. */
-  clip-path: inset(0 round var(--radius));
+  /* `overflow: hidden`, not the `clip-path` that was here, and that swap is the fix for corners
+     that looked square until the card was moved and rounded themselves the moment it was.
+     A clip-path on a layer the compositor is holding gets applied without antialiasing while the
+     layer sits axis-aligned — the fast path — and is only re-rasterised smoothly once a rotation
+     forces the slow one. Hence sharp at rest, round in motion. An overflow clip on a
+     border-radius is rounded by the ordinary paint path and looks the same either way. */
+  overflow: hidden;
 }
 
 /* Half the thickness towards the viewer. The faces straddle the card's centre rather than the
    front sitting at zero, so the solid turns about its own middle and one band can span it. */
 .credential-face--front {
   transform: translateZ(calc(var(--depth) / 2));
-  /* One card-sized texture, held for the element's lifetime, so the compositor is not deciding
-     per frame whether this subtree deserves a layer. */
-  will-change: transform;
+  /* No `will-change` here. It was added to stop the compositor promoting and demoting this face
+     mid-turn, back when the card was eight layers and that churn was real; at three layers it
+     buys nothing, and holding the face as its own layer is half of why its corners rendered
+     unantialiased at rest — see the clip note above. */
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
 }
 
@@ -877,7 +887,7 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius);
-  border: calc(var(--depth) / 2) solid #26262c;
+  border: var(--rim) solid #26262c;
   background: none;
   pointer-events: none;
 }
