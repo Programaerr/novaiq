@@ -326,17 +326,23 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           </div>
         </div>
 
-        {/* ── The band: four real sides ────────────────────────────────────────────────
-            Perpendicular to the faces, so looking straight down any side of the card shows the
-            surface that joins them rather than the gap between them. A flat ring at mid-depth
-            was tried first and could not do this: it lay in the faces' own plane, so it went
-            edge-on with them and disappeared at the one angle it existed for.
+        {/* ── The band ─────────────────────────────────────────────────────────────────
+            Six rings spread evenly from the front face's plane to the back one, so the rim
+            follows the card's rounded corners round the curve instead of turning through them at
+            a point. Four straight strips were tried and cannot do that at any length: an arc is
+            not a chord, and rounding a strip's end rounds the strip, not the corner.
 
-            Six layers rather than the eight this carried at its worst, and each of these is a
-            9px sliver rather than a full card-sized plane. aria-hidden: this is the thickness of
-            a thing, not content. */}
-        {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
-          <div key={side} aria-hidden="true" className={`credential-edge credential-edge--${side}`} />
+            i runs 0..5 and the offset runs +depth/2 down to −depth/2, so the first ring sits in
+            the front face's plane and the last in the back one — the stack spans the thickness
+            exactly rather than hanging off one side of it.
+            aria-hidden: this is the thickness of a thing, not content. */}
+        {Array.from({ length: 6 }, (_, i) => (
+          <div
+            key={i}
+            aria-hidden="true"
+            className="credential-ring"
+            style={{ transform: `translateZ(calc(var(--depth) / 2 - var(--depth) / 5 * ${i}))` }}
+          />
         ))}
       </div>
     </div>
