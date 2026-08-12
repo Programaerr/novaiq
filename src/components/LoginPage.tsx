@@ -188,9 +188,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onBack }) => {
 
         {/* ── Gallery side ──────────────────────────────────────────────────────────── */}
         <div className="hidden lg:block relative overflow-hidden">
+          {/* justify-end packs the columns against the OUTER screen edge and lets all the
+              leftover width collect on the inner side, next to the form — which is where the
+              seam fade already lives, so the space reads as breathing room around the panel
+              rather than as a gap someone forgot to fill. Centred, the same slack was split in
+              two and the gallery floated with a margin on the screen edge, which is not how
+              the reference sits. Logical `end`, so it stays the outer edge in both languages:
+              the form is the grid's first column, so the gallery's inline-end is the far side
+              of the screen whichever way the page reads.
+              The padding on that end keeps the outermost column just off the screen edge —
+              packed flush against it the gallery read as cropped rather than placed. */}
           <div
-            className="absolute inset-0 flex justify-center"
-            style={{ gap: COVER_GAP, paddingInline: COVER_GAP }}
+            className="absolute inset-0 flex justify-end"
+            style={{ gap: COVER_GAP, paddingInlineEnd: COVER_GAP * 2 }}
           >
             {columns.map((imgs, col) => {
               if (imgs.length === 0) return null;
