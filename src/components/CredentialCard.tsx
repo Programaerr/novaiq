@@ -286,28 +286,30 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           </div>
         </div>
 
-        {/* ── The thickness ─────────────────────────────────────────────────────────────
-            An extrusion: copies of the card's own rounded silhouette, stacked back through the
-            depth. Each one carries the same corner radius as the faces, so the side of the card
-            is rounded from every angle it can be turned to.
+        {/* ── The thickness, hollow ─────────────────────────────────────────────────────
+            Six rings — the card's rounded outline and nothing else — stacked back through the
+            depth. Together they read as the rim of a card seen edge-on, and because each is the
+            same rounded rectangle as the faces, that rim is correctly curved at every corner
+            from every angle it can be turned to.
 
-            This replaced four flat strips hinged along the four borders. Flat strips are the
-            usual way to build a CSS box, and they cannot work here for a reason no amount of
-            tuning fixes: a rectangle has square ends, and the card's outline is a curve. Run
-            them full length and the square corners cross the curve; inset them to clear it and
-            they detach from the card and hang beside it with a gap at each corner. Both were
-            reported, and they were the same problem seen from two sides.
+            Hollow is the whole point, and it is a rendering decision before it is a visual one.
+            This was ten *filled* slices, and a filled slice is a full card-sized surface the
+            compositor has to paint and blend on every frame of a turn — ten of them, on a phone
+            at three device pixels to one, is millions of pixels per frame to draw an object
+            whose interior is permanently hidden behind its own front face. Nobody can ever see
+            the inside of a closed card, so nothing is drawn there: each ring paints only its
+            two-pixel outline, which is a rounding error next to a full fill, and the card looks
+            identical because the only part of the thickness that was ever visible is its rim.
 
-            Ten slices for 12px. Enough that the side reads as solid rather than as stripes, few
-            enough to stay ten empty divs — no content, no text, nothing to lay out, and they
-            are transformed within a subtree the compositor is already handling as one 3D
-            object. aria-hidden: this is the thickness of a thing, not content. */}
-        {Array.from({ length: 10 }, (_, i) => (
+            Six rather than ten as well: fewer layers for the compositor to keep, and at 2px
+            apart across 12px of depth they still overlap into a continuous edge rather than
+            reading as stripes. aria-hidden: this is the thickness of a thing, not content. */}
+        {Array.from({ length: 6 }, (_, i) => (
           <div
             key={i}
             aria-hidden="true"
-            className="credential-slice"
-            style={{ transform: `translateZ(calc(var(--depth) / -10 * ${i + 1}))` }}
+            className="credential-ring"
+            style={{ transform: `translateZ(calc(var(--depth) / -6 * ${i + 1}))` }}
           />
         ))}
       </div>
