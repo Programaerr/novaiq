@@ -239,10 +239,10 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     const badgeX = isAr ? startX - BADGE : startX;
     const textX = isAr ? startX - BADGE - 24 : startX + BADGE + 24;
 
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillStyle = 'rgba(0,0,0,0.06)';
     roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
     ctx.lineWidth = 2.5;
     roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.stroke();
@@ -256,13 +256,13 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     ctx.font = '700 42px Cairo, system-ui, sans-serif';
     ctx.fillText(title, textX, top - 2, maxText);
 
-    ctx.fillStyle = 'rgba(190,190,200,0.95)';
+    ctx.fillStyle = 'rgba(0,0,0,0.68)';
     ctx.font = '500 31px Cairo, system-ui, sans-serif';
     ctx.fillText(descs[i], textX, top + 52, maxText);
   });
 
   // Footer, opposite the wordmark
-  ctx.fillStyle = 'rgba(170,170,180,0.8)';
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
   ctx.font = '600 27px Cairo, system-ui, sans-serif';
   ctx.letterSpacing = '5px';
   ctx.direction = isAr ? 'rtl' : 'ltr';
@@ -293,29 +293,29 @@ function drawBack(): HTMLCanvasElement {
   // set of numbers; this is the only place the difference in size is handled.
   ctx.scale(0.5, 0.5);
 
-  ctx.fillStyle = '#0b0b0e';
+  ctx.fillStyle = '#f4f4f7';
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
-  // Magnetic stripe
+  // Magnetic stripe — the one black band, exactly as on a real white card
   const s = ctx.createLinearGradient(0, TEX_H * 0.16, 0, TEX_H * 0.38);
-  s.addColorStop(0, '#18181b');
+  s.addColorStop(0, '#232329');
   s.addColorStop(0.5, '#000000');
-  s.addColorStop(1, '#18181b');
+  s.addColorStop(1, '#232329');
   ctx.fillStyle = s;
   ctx.fillRect(0, TEX_H * 0.16, TEX_W, TEX_H * 0.22);
 
   // Mark
-  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.8)';
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(TEX_W / 2, TEX_H * 0.66, 34, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillStyle = 'rgba(0,0,0,0.8)';
   ctx.beginPath();
   ctx.arc(TEX_W / 2, TEX_H * 0.66, 12, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = 'rgba(140,140,150,0.9)';
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
   ctx.font = '600 20px Cairo, system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.direction = 'ltr';
@@ -402,18 +402,20 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
       {/* The body. This is the rim: rounded in plan, bevelled at both edges, and correct from
           every angle because it is genuinely that solid. */}
       <mesh geometry={geometry}>
-        <meshStandardMaterial color="#2e2e35" roughness={0.4} metalness={0.5} />
+        <meshStandardMaterial color="#e6e6ec" roughness={0.35} metalness={0.15} />
       </mesh>
 
       {/* The two printed faces, just proud of the body so the rim shows around them. Their
           textures carry transparent corners, so their square outline is never visible. */}
       <mesh position={[0, 0, faceZ]}>
         <planeGeometry args={[CARD_W - 0.012, CARD_H - 0.012]} />
-        <meshStandardMaterial map={front} transparent roughness={0.34} metalness={0.2} />
+        {/* Barely metallic: a metallic white takes its colour from what it reflects, and with an
+            empty scene around it that reads as grey rather than white. */}
+        <meshStandardMaterial map={front} transparent roughness={0.44} metalness={0.05} />
       </mesh>
       <mesh position={[0, 0, -faceZ]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[CARD_W - 0.012, CARD_H - 0.012]} />
-        <meshStandardMaterial map={back} transparent roughness={0.5} metalness={0.15} />
+        <meshStandardMaterial map={back} transparent roughness={0.55} metalness={0.05} />
       </mesh>
     </group>
   );
@@ -511,7 +513,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
       // there), and the rest is transparent turning room. So the visible card is roughly 0.63 of
       // these numbers — about 300px on a phone and 380px on a desktop — rather than the whole
       // width, which is why 136% here is not the card growing by a third.
-      className="relative z-30 w-[136%] mx-[-18%] max-w-[40rem] lg:w-full lg:mx-0 aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
+      className="relative z-30 w-[152%] mx-[-26%] max-w-[46rem] lg:w-full lg:mx-0 lg:max-w-[40rem] aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
       // `none`, so a drag that starts on the card turns the card instead of scrolling the page.
       style={{ touchAction: 'none' }}
       onPointerDown={onPointerDown}
@@ -555,12 +557,15 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           camera={{ position: [0, 0, 2.6], fov: 34 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         >
-          <ambientLight intensity={1.1} />
+          {/* Lower than a dark card needs. White is already near the top of the range, so the
+              lighting that made a black card read blew this one out to a flat slab with no
+              shading left to say which way it faces. */}
+          <ambientLight intensity={0.68} />
           {/* One key light, and it is not decoration: the highlight sliding across the card as it
               turns is this reflecting off a real surface, rather than the hand-positioned
               gradient the CSS version had to fake. */}
-          <directionalLight position={[2.2, 2.6, 3.4]} intensity={2.1} />
-          <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.5} />
+          <directionalLight position={[2.2, 2.6, 3.4]} intensity={1.25} />
+          <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.4} />
           <Card isAr={isAr} targetRef={target} />
           <Waker signal={signal} />
         </Canvas>
