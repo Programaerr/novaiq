@@ -6,7 +6,19 @@ interface CredentialCardProps {
   language: 'ar' | 'en';
 }
 
-const clamp = (v: number, max: number) => (v > max ? max : v < -max ? -max : v);
+/**
+ * Where the highlight sits on a surface turned `deg` away from facing you, as a fraction of its
+ * reach, from a light fixed in front of the card.
+ *
+ * A sine, and that is the whole fix for the light "reaching the right and stopping". The offset
+ * used to be the angle itself, held inside a clamp — so the highlight raced to the edge, jammed
+ * against the limit and sat there through most of the turn, then jumped when the angle wrapped.
+ * The real quantity is the surface's tilt projected towards the viewer, which is sin: it eases
+ * out to the edge at a quarter turn, comes back through the middle at a half turn, runs to the
+ * other edge, and returns — continuously, and periodically, so the light simply keeps going
+ * round the card for as many revolutions as it is given and never needs a clamp or a wrap.
+ */
+const sine = (deg: number) => Math.sin((deg * Math.PI) / 180);
 
 /**
  * The nearest orientation that looks like the card is sitting flat, front outwards.
@@ -20,16 +32,6 @@ const clamp = (v: number, max: number) => (v > max ? max : v < -max ? -max : v);
  */
 const nearestRest = (deg: number) => Math.round(deg / 360) * 360;
 
-/**
- * The same angle folded into (-180, 180].
- *
- * The glare is a function of how the card is currently facing, not of how far it has been
- * turned in total, and those stop agreeing the moment a full revolution is passed: at 360° the
- * card is square-on and its highlight belongs dead centre, but the raw number would drive it
- * hard against the edge and pin it there. Folding first makes every revolution light the card
- * identically, which is what a real one does.
- */
-const wrap = (deg: number) => (((deg % 360) + 540) % 360) - 180;
 
 /**
  * The hero's centrepiece: a smart-card built as an actual solid, turnable in every direction.
@@ -116,25 +118,13 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     // Folded into a single revolution first (see wrap), then clamped: past a quarter turn the
     // face is edge-on and a glare still travelling outward would slide off into the page beside
     // it.
-    el.style.setProperty('--glare-x', `${clamp(-wrap(y) * 3.2, 150)}px`);
-    el.style.setProperty('--glare-y', `${clamp(wrap(x) * 3.2, 110)}px`);
+    el.style.setProperty('--glare-x', `${-sine(y) * 150}px`);
+    el.style.setProperty('--glare-y', `${sine(x) * 110}px`);
 
-    // The back's own highlight, and it needs its own angle rather than a mirrored copy of the
-    // front's.
-    //
-    // Every formula above measures from the orientation where the surface faces the viewer
-    // square-on, because that is where a highlight belongs in the middle. For the front that is
-    // 0°. For the back it is 180° — it is mounted at rotateY(180deg) — so feeding it the front's
-    // angle put it at its furthest offset, pinned against the clamp, at exactly the moment you
-    // were looking straight at it, and slid it to the centre as the back turned edge-on and out
-    // of sight. Precisely inverted, which is what looked wrong.
-    //
-    // Measuring from 180° fixes that. The sign is not negated here: the back is mirrored by its
-    // own rotateY, so its local +X runs left on screen, and letting the raw angle through is
-    // what makes the highlight sweep the same way on screen as the front's does. The vertical
-    // component needs no adjustment at all — a rotation about Y leaves up and down alone — so
-    // the back reads --glare-y directly.
-    el.style.setProperty('--glare-bx', `${clamp(wrap(y - 180) * 3.2, 150)}px`);
+    // The back needs no value of its own. Its square-on orientation is 180° from the front's, and
+    // sin(θ − 180°) is exactly −sin(θ) — so the back's highlight is the front's negated, which is
+    // what index.css does with one calc(). The separate --glare-bx that was here existed only to
+    // carry the 180° offset that the sine now handles for free.
   };
 
   const turnTo = (x: number, y: number) => {
@@ -336,25 +326,16 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           </div>
         </div>
 
-        {/* ── The thickness, hollow ─────────────────────────────────────────────────────
-            Six rings — the card's rounded outline and nothing else — stacked back through the
-            depth. Together they read as the rim of a card seen edge-on, and because each is the
-            same rounded rectangle as the faces, that rim is correctly curved at every corner
-            from every angle it can be turned to. That is why it is rings rather than four
-            straight edge strips, which meet a rounded corner as a square one.
+        {/* ── The band ──────────────────────────────────────────────────────────────────
+            One ring, sitting exactly halfway between the two faces, thick enough to close the
+            gap they leave between them. It replaces a stack of six: the faces are pushed apart
+            to ±half the depth instead of hanging off the front, so the solid is symmetric about
+            its own centre and a single band spans it.
 
-            Hollow because the inside of a closed card is never visible: each ring paints only
-            its two-pixel outline instead of a full card-sized fill, and the card looks identical
-            because the only part of the thickness anyone can ever see is its rim.
-            aria-hidden: this is the thickness of a thing, not content. */}
-        {Array.from({ length: 6 }, (_, i) => (
-          <div
-            key={i}
-            aria-hidden="true"
-            className="credential-ring"
-            style={{ transform: `translateZ(calc(var(--depth) / -6 * ${i + 1}))` }}
-          />
-        ))}
+            Three layers is the whole point — that is one front, one back, one band, against the
+            eight this used to carry. aria-hidden: this is the thickness of a thing, not
+            content. */}
+        <div aria-hidden="true" className="credential-band" />
       </div>
     </div>
   );

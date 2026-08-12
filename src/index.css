@@ -846,31 +846,38 @@
   clip-path: inset(0 round var(--radius));
 }
 
+/* Half the thickness towards the viewer. The faces straddle the card's centre rather than the
+   front sitting at zero, so the solid turns about its own middle and one band can span it. */
 .credential-face--front {
+  transform: translateZ(calc(var(--depth) / 2));
   /* One card-sized texture, held for the element's lifetime, so the compositor is not deciding
      per frame whether this subtree deserves a layer. */
   will-change: transform;
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
 }
 
-/* Pushed to the far side of the thickness and turned to face outward. The rotate is what stops
-   the back being a mirror of itself — without it every glyph on it would read backwards. */
+/* Half the thickness away, and turned to face outward. The rotate is what stops the back being a
+   mirror of itself — without it every glyph on it would read backwards. */
 .credential-face--back {
-  transform: translateZ(calc(var(--depth) * -1)) rotateY(180deg);
+  transform: translateZ(calc(var(--depth) / -2)) rotateY(180deg);
 }
 
-/* The rim of the hollow card. Only an outline is painted — the interior stays transparent,
-   because the inside of a closed card is never visible and a fill there is pixels spent on
-   nothing.
+/* The band that closes the card: one ring at the exact midpoint of the depth, its border as wide
+   as half the thickness, so it fills the silhouette between the two faces at every angle they
+   are turned to. Rounded to the same radius, so the rim curves correctly at the corners — the
+   reason this is a ring rather than four straight strips, which meet a rounded corner as a
+   square one.
 
-   Deliberately NOT `backface-visibility: hidden`: these are the surface you are meant to see
-   when the card turns edge-on, which is exactly the moment both faces have hidden themselves.
-   They are what stops the card appearing to vanish as it passes 90 degrees. */
-.credential-ring {
+   Hollow: only the border is painted, never the interior, because the inside of a closed card is
+   never visible and a fill there is pixels spent on nothing.
+
+   Deliberately NOT `backface-visibility: hidden` — this is the surface you are meant to see as
+   the card passes edge-on, which is exactly when both faces have hidden themselves. */
+.credential-band {
   position: absolute;
   inset: 0;
   border-radius: var(--radius);
-  border: 2px solid #2a2a31;
+  border: calc(var(--depth) / 2) solid #26262c;
   background: none;
   pointer-events: none;
 }
@@ -897,15 +904,13 @@
    the card is convincingly lit from the front and dead flat the moment it is turned round, which
    is the giveaway that it is two pictures rather than one object.
 
-   It reads its own horizontal offset rather than negating the front's. This was
-   `calc(var(--glare-x) * -1)`, which mirrors the front correctly and is still wrong, because the
-   front's value is measured from the angle where the FRONT faces you. The back faces you 180°
-   from there, so no amount of mirroring can put its highlight in the middle at the moment you
-   are actually looking at it. --glare-bx is measured from the back's own square-on angle; see
-   the note where it is written in CredentialCard.tsx. The vertical offset is genuinely shared —
+   Negating the front's offset is the correct answer now that the offset is a sine: the back
+   faces the viewer 180° from where the front does, and sin(θ − 180°) is identically −sin(θ). It
+   was NOT correct while the offset was the raw angle — that is why a separate --glare-bx briefly
+   existed — and the sine removed the need for it. The vertical offset is genuinely shared:
    turning about Y does not swap up and down. */
 .credential-face--back .credential-glare {
-  transform: translate3d(var(--glare-bx, 0px), var(--glare-y, 0px), 0);
+  transform: translate3d(calc(var(--glare-x, 0px) * -1), var(--glare-y, 0px), 0);
 }
 
 /* Follows the card exactly while it is being turned, for the same reason the card itself
