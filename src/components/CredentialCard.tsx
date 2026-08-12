@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ShieldCheck, Clock, Globe2, Award, Signal } from 'lucide-react';
 
 interface CredentialCardProps {
@@ -35,6 +35,16 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
   const next = useRef({ x: 0, y: 0 });
+  // The card's box, measured at most once per scroll/resize instead of once per pointer move.
+  //
+  // This is the difference between the tilt being free and it being the most expensive thing on
+  // the page. getBoundingClientRect() forces the browser to flush pending layout before it can
+  // answer, and a pointer stream fires every frame — so measuring inside the handler put a
+  // forced synchronous layout on every frame the cursor moved. Scrolling makes that far worse
+  // rather than merely equal: the card slides under a stationary cursor, so the browser emits
+  // pointermove for each scroll frame too, and every one of those frames then had to stop and
+  // re-layout mid-scroll. That is the "moving something while scrolling lags horribly" case.
+  const box = useRef<DOMRect | null>(null);
 
   const guarantees = [
     {
@@ -67,11 +77,26 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     el.style.setProperty('--tilt-y', `${next.current.y}deg`);
   };
 
+  // Flag-only listeners: the re-measure itself happens inside the next pointer move, so a
+  // scroll that nobody is hovering through costs exactly one boolean write per event.
+  useEffect(() => {
+    const invalidate = () => {
+      box.current = null;
+    };
+    window.addEventListener('scroll', invalidate, { passive: true });
+    window.addEventListener('resize', invalidate);
+    return () => {
+      window.removeEventListener('scroll', invalidate);
+      window.removeEventListener('resize', invalidate);
+    };
+  }, []);
+
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === 'touch') return;
     const el = cardRef.current;
     if (!el) return;
-    const r = el.getBoundingClientRect();
+    if (!box.current) box.current = el.getBoundingClientRect();
+    const r = box.current;
     // -0.5 → 0.5 across each axis, then scaled to a deliberately small angle. Past about 8°
     // the card stops reading as a solid object catching the light and starts reading as a
     // picture being waved about.
@@ -143,13 +168,8 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
 
         <div className="relative z-10 h-full flex flex-col justify-between p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-base sm:text-lg font-black tracking-[0.22em] text-white">
-                NOVAIQ
-              </div>
-              <div className="text-[10px] text-zinc-400 tracking-wide mt-0.5">
-                {isAr ? 'بطاقة ضمانات التنفيذ' : 'Delivery guarantee card'}
-              </div>
+            <div className="text-base sm:text-lg font-black tracking-[0.22em] text-white">
+              NOVAIQ
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
@@ -183,10 +203,7 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
             ))}
           </ul>
 
-          <div className="flex items-end justify-between gap-3 pt-1">
-            <div className="font-mono text-[11px] sm:text-xs text-zinc-300 tracking-[0.18em]">
-              •••• •••• •••• 2026
-            </div>
+          <div className="flex items-end justify-end pt-1">
             <div className="text-[9px] text-zinc-500 tracking-[0.16em] uppercase text-end">
               {isAr ? 'شركة برمجية عراقية' : 'Iraqi software studio'}
             </div>
