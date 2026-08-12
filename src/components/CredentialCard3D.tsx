@@ -398,7 +398,11 @@ function makeBackCanvas(): HTMLCanvasElement {
   const c = document.createElement('canvas');
   c.width = BACK_W;
   c.height = BACK_H;
-  drawBack(c);
+  // With the logo already in it wherever possible. The module-level fetch below normally finishes
+  // long before this component is reached — it is lazy-loaded behind a chunk boundary and waits on
+  // fonts as well — so the usual path bakes the mark in at creation and never needs the repaint at
+  // all. The repaint stays as the fallback for a genuinely slow first load.
+  drawBack(c, markReady ? markImage : undefined);
   return c;
 }
 
