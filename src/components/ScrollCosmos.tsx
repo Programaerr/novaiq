@@ -124,12 +124,39 @@ const FRAG = /* glsl */ `
     float lag = mod(sa - a + 3.14159265, 6.28318531) - 3.14159265;
     float tail = infall * exp(-abs(r - srad) * 34.0) * exp(-max(lag, 0.0) * 1.5) * (0.35 + charge * 0.9);
 
-    // -- The hole itself -----------------------------------------------------------------
-    float swirl = a + 0.55 / r + P * 9.0;
-    float band = 0.5 + 0.5 * sin(swirl * 3.0);
-    float ringZone = smoothstep(R * 0.98, R * 1.55, r) * smoothstep(R * 5.4, R * 1.9, r);
-    float disc = alive * ringZone * (0.22 + 0.78 * band) * (0.45 + P * 0.8 + charge * 1.1);
-    float ring = alive * exp(-pow((r - R * 1.16) / max(R * 0.1, 1e-4), 2.0)) * (0.8 + charge * 1.4);
+    // -- The hole, and its ring ----------------------------------------------------------
+    // A ring seen at an angle, not a spiral. The swirl that was here was a function of the polar
+    // angle, which is a flat pattern painted on the screen however convincing it looks; this is a
+    // real circular annulus lying in a plane tilted away from the viewer, and the three cues that
+    // sell it are all geometric rather than decorative:
+    //
+    //   1. it is measured in the ring's own plane, so it projects to a true ellipse;
+    //   2. it is thinner and brighter where it is edge-on to the eye, as a flat sheet must be;
+    //   3. its far half passes BEHIND the hole and is cut off by it, its near half in front.
+    //
+    // That third one is the whole difference between a ring and a drawing of a ring.
+    float tilt = 0.30;                       // how far the plane is turned away from face-on
+    vec2 dp = vec2(p.x, p.y / tilt);         // into the ring's own plane
+    float dr = length(dp);
+
+    float inner = R * 2.45;
+    float outer = R * 4.6;
+    float ringBody = smoothstep(inner, inner + R * 0.35, dr) * (1.0 - smoothstep(outer - R * 0.5, outer, dr));
+    // A division in the ring, the way a real one has gaps swept clear by its moons.
+    ringBody *= 1.0 - 0.7 * exp(-pow((dr - R * 3.5) / (R * 0.2), 2.0));
+    // Grazing incidence: where the ring is closest to edge-on it stacks up and brightens.
+    float graze = 1.0 - abs(p.y) / max(dr * tilt, 1e-4);
+    ringBody *= 0.55 + 0.75 * clamp(graze, 0.0, 1.0);
+
+    // The far half is the upper one; it disappears where the hole stands in front of it.
+    float behind = step(0.0, p.y) * smoothstep(R * 0.92, R * 1.06, r);
+    float front = 1.0 - step(0.0, p.y);
+    float ringVis = max(front, behind);
+
+    float ringLight = alive * ringBody * ringVis * (0.5 + P * 0.5 + charge * 0.7);
+
+    // The photon ring: the thin bright rim of the shadow itself.
+    float rim = alive * exp(-pow((r - R * 1.12) / max(R * 0.085, 1e-4), 2.0)) * (0.55 + charge * 1.0);
     float hole = alive * smoothstep(R * 1.02, R * 0.9, r);
 
     // -- One noise, used twice ------------------------------------------------------------
@@ -156,12 +183,18 @@ const FRAG = /* glsl */ `
     // gone, so the page still answers each section without competing with the finale.
     float tremor = uBurst.x * alive * exp(-pow((r - uBurst.y * 0.9) / 0.05, 2.0)) * 0.7;
 
-    float glow = disc + ring + star + tail + nebula + dust + embers + shock + core + tremor;
+    float glow = ringLight + rim + star + tail + nebula + dust + embers + shock + core + tremor;
     glow *= (1.0 - hole);
     glow *= smoothstep(1.05, 0.18, r);
 
-    // Held well below full strength: this sits behind everything anyone is trying to read.
-    gl_FragColor = vec4(vec3(1.0), clamp(glow, 0.0, 1.0) * 0.7);
+    // Dither. Eight-bit alpha over a wide, soft falloff quantises into visible rings, and those
+    // concentric steps are exactly what makes an effect look like a cheap gradient rather than
+    // light. A sub-step of noise breaks the boundaries up below the threshold the eye resolves.
+    glow += (hash(vUv * 1024.0) - 0.5) * 0.006;
+
+    // Held well below full strength: this sits behind everything anyone is trying to read, and
+    // the hole in particular was overlit — bright enough to pull the eye off the copy.
+    gl_FragColor = vec4(vec3(1.0), clamp(glow, 0.0, 1.0) * 0.52);
   }
 `;
 
