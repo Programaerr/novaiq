@@ -781,36 +781,134 @@
 }
 
 .credential-card {
-  /* Seeded here so the very first pointer move interpolates from a real value rather than
-     from an unset property, which would otherwise jump straight to its target. */
+  /* The card's thickness. One value, used by all four edges and by the back face's offset, so
+     the solid can never come apart at the seams. */
+  --depth: 14px;
+  /* Seeded here so the very first move interpolates from a real value rather than from an
+     unset property, which would otherwise jump straight to its target. */
   --tilt-x: 0deg;
   --tilt-y: 0deg;
   transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
   transform-style: preserve-3d;
-  /* Long enough to glide back when the pointer leaves, short enough not to lag behind it while
-     it is inside. Transform only — nothing here can trigger layout or paint. */
-  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 400ms ease;
-  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
+  /* For the intro lean and nothing else — a drag removes it (see .is-turning). Transform only;
+     nothing here can trigger layout or paint. */
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
   cursor: grab;
-  /* `pan-y`, not `none`. The browser keeps vertical gestures and scrolls the page with them,
-     which it must — the card is most of a phone screen, and a card that swallowed upward
-     swipes would trap the visitor on it. Horizontal drags come to us instead of doing nothing,
-     so a sideways swipe turns the card. On a mouse this has no effect at all and both axes
-     stay available. */
-  touch-action: pan-y;
+  /* `none`, so a drag that starts on the card turns the card and does not also scroll the
+     page. This is what "the site stops scrolling and only the card moves" requires: with any
+     `pan-` value the browser keeps that axis for scrolling and hands us nothing, so the card
+     could never be turned vertically on a phone. The card is a bounded object in the middle of
+     a column, with page above and below it to scroll from. */
+  touch-action: none;
 }
 
-/* Mid-turn: the card follows the finger exactly. The easing above is for the journey back to
-   flat; applied during a drag it puts 400ms between the gesture and the card. */
+/* Mid-turn: the card follows the pointer exactly. The easing above is for the intro; applied
+   during a drag it puts 400ms between the gesture and the card. */
 .credential-card.is-turning {
   transition: none;
   cursor: grabbing;
 }
 
-.credential-card:hover {
-  /* Shorter while the pointer is inside: at 400ms the card visibly trails the cursor and reads
-     as sluggish rather than heavy. The long duration is for the return journey. */
-  transition-duration: 120ms, 400ms;
+/* Front and back. Both are absolutely positioned copies of the card's own box, so they inherit
+   its responsive aspect-ratio size without either needing a fixed dimension.
+   `backface-visibility: hidden` is what makes the solid honest: past 90 degrees the front takes
+   itself out of sight instead of showing through as a mirror image of its own printing, and the
+   back — genuinely facing the viewer by then — is what remains. */
+.credential-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.credential-face--front {
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+/* Pushed to the far side of the thickness and turned to face outward. The rotate is what stops
+   the back being a mirror of itself — without it every glyph on it would read backwards. */
+.credential-face--back {
+  transform: translateZ(calc(var(--depth) * -1)) rotateY(180deg);
+}
+
+/* The four edges. Each sits flush against one border of the front face and folds back 90
+   degrees about that shared border, reaching exactly `--depth` to meet the rear face. Hinging
+   them this way — rather than positioning each at half the card's width — is what lets the
+   solid assemble itself at any size, which matters because the card is sized by aspect-ratio
+   and has no width in px to halve. */
+.credential-edge {
+  position: absolute;
+  background: linear-gradient(180deg, #3a3a42, #17171b 55%, #0a0a0c);
+}
+
+.credential-edge--right {
+  top: 0;
+  left: 100%;
+  width: var(--depth);
+  height: 100%;
+  transform-origin: left center;
+  transform: rotateY(90deg);
+}
+
+.credential-edge--left {
+  top: 0;
+  right: 100%;
+  width: var(--depth);
+  height: 100%;
+  transform-origin: right center;
+  transform: rotateY(-90deg);
+}
+
+.credential-edge--top {
+  left: 0;
+  bottom: 100%;
+  width: 100%;
+  height: var(--depth);
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+  background: linear-gradient(90deg, #43434b, #23232a 60%, #131318);
+}
+
+.credential-edge--bottom {
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: var(--depth);
+  transform-origin: center top;
+  transform: rotateX(-90deg);
+  background: linear-gradient(90deg, #17171b, #0c0c0f);
+}
+
+/* The travelling light. A fixed 420px disc pinned to the card's centre and moved by transform
+   as the card turns, so the surface reads as catching a light rather than as a flat fill.
+   Rasterised once: the gradient never changes, only where the disc sits, which is a compositor
+   transform. Moving the gradient's own centre instead would repaint the whole disc every frame
+   — the exact cost this site removed everywhere else.
+   `mix-blend-mode: screen` so it adds light to whatever it crosses instead of laying a white
+   film over the text; screen leaves black untouched and brightens what is already lit. */
+.credential-glare {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 420px;
+  height: 420px;
+  margin: -210px 0 0 -210px;
+  border-radius: 50%;
+  transform: translate3d(var(--glare-x, 0px), var(--glare-y, 0px), 0);
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* Follows the card exactly while it is being turned, for the same reason the card itself
+   drops its easing then. */
+.credential-card.is-turning .credential-glare {
+  transition: none;
 }
 
 /* A fixed diagonal highlight. It is painted once and then simply carried by the card's own
@@ -920,6 +1018,23 @@
   .glass-bar--blur {
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  /* …but not while the page is moving.
+     The comment above argues the blur is cheap because the region is small. That is true of
+     its area and irrelevant to its cost: what matters is how often it must be redone. A
+     `position: fixed` bar with a backdrop-filter has to re-sample and re-blur everything
+     passing beneath it on EVERY frame of EVERY scroll — the one moment the content behind it
+     is guaranteed to be changing. It is the single most expensive thing on the page during a
+     scroll, on desktop as much as on a phone, and it is being spent on a frosted edge nobody
+     can study while the page is in motion.
+     Dropped for the duration of the gesture and restored ~140ms after it settles, so the glass
+     is there whenever anyone is actually still enough to see it. The bar keeps its own
+     translucent material either way (see .glass-bar above), so what changes is the frosting,
+     not whether the bar looks like glass. */
+  html[data-scrolling] .glass-bar--blur {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 

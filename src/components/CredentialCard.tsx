@@ -46,6 +46,7 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
   const frame = useRef(0);
   const angle = useRef({ x: 0, y: 0 });
   const drag = useRef<{ px: number; py: number; ax: number; ay: number } | null>(null);
+  const restTimer = useRef(0);
 
   const guarantees = [
     {
@@ -74,8 +75,22 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     frame.current = 0;
     const el = cardRef.current;
     if (!el) return;
-    el.style.setProperty('--tilt-x', `${angle.current.x}deg`);
-    el.style.setProperty('--tilt-y', `${angle.current.y}deg`);
+    const { x, y } = angle.current;
+    el.style.setProperty('--tilt-x', `${x}deg`);
+    el.style.setProperty('--tilt-y', `${y}deg`);
+    // Where the light falls. The highlight slides opposite to the turn, which is what a real
+    // card does under a fixed light: tip its right edge towards you and the glare runs left.
+    //
+    // Written as px offsets from the card's centre rather than as a gradient position, and
+    // that distinction is the whole performance story. Moving a gradient's centre re-generates
+    // and repaints it every frame; moving a fixed-size disc by transform is a compositor
+    // operation and costs nothing. It is the same technique as the reveal lights (`.rv`).
+    //
+    // Clamped because rotation is unbounded: past a quarter turn the face is edge-on and a
+    // glare still travelling outward would slide off into the page beside it.
+    const clamp = (v: number, max: number) => (v > max ? max : v < -max ? -max : v);
+    el.style.setProperty('--glare-x', `${clamp(-y * 3.2, 150)}px`);
+    el.style.setProperty('--glare-y', `${clamp(x * 3.2, 110)}px`);
   };
 
   const turnTo = (x: number, y: number) => {
@@ -87,6 +102,7 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = cardRef.current;
     if (!el) return;
+    clearTimeout(restTimer.current);
     drag.current = { px: e.clientX, py: e.clientY, ax: angle.current.x, ay: angle.current.y };
     // The easing comes off for the duration of the turn. It exists so the intro lean glides,
     // but during a drag it puts 400ms between the finger and the card, which feels like
@@ -112,6 +128,17 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     drag.current = null;
     cardRef.current?.classList.remove('is-turning');
     cardRef.current?.releasePointerCapture?.(e.pointerId);
+    // Left alone, the card rights itself after three seconds.
+    //
+    // Holding the released angle is what a real object does, but a web page is not a desk: the
+    // next visitor — or the same one scrolling back up — would find a card someone had left
+    // face-down, with no way to tell that was a previous choice rather than a broken render.
+    // Three seconds is long enough that the turn plainly belongs to the person who made it,
+    // and short enough that the card is never found in a state nobody chose.
+    clearTimeout(restTimer.current);
+    restTimer.current = window.setTimeout(() => {
+      if (!drag.current) turnTo(0, 0);
+    }, 3000);
   };
 
   // A single lean-and-settle shortly after the card appears.
@@ -137,6 +164,7 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
 
   useEffect(() => () => {
     if (frame.current) cancelAnimationFrame(frame.current);
+    clearTimeout(restTimer.current);
   }, []);
 
   return (
@@ -187,6 +215,10 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           </svg>
 
           <div className="credential-sheen absolute inset-0 pointer-events-none" aria-hidden="true" />
+
+          {/* The light on the surface. A fixed disc that slides as the card turns — see the
+              note in flush() for why it moves by transform rather than by gradient position. */}
+          <div className="credential-glare pointer-events-none" aria-hidden="true" />
 
           <div className="relative z-10 h-full flex flex-col justify-between p-4 sm:p-6">
             <div className="flex items-start justify-between gap-3">
