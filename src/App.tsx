@@ -467,6 +467,11 @@ export default function App() {
       {/* Supernova Atmospheric Background */}
       <CosmicBackground activeSection={activeSection} activeBgImage={activeBgImage} />
 
+      {/* The scroll-driven black hole, in front of the star layers and behind everything read.
+          It draws only while the page is moving — see ScrollCosmos for why that is the whole
+          design rather than an optimisation bolted on afterwards. */}
+      <ScrollCosmosLayer />
+
       {/* Main Header Bar */}
       <Navbar
         activePage={activePage}
