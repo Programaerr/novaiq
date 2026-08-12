@@ -509,7 +509,22 @@ export default function App() {
                   here was near-black anyway, so what it mostly did was hide the stars. */}
               <div
                 ref={revealGroup}
-                className="below-fold reveal-group border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+                // No `below-fold` here, and its removal is a bug fix rather than tidying.
+                //
+                // That class sets `content-visibility: auto`, which tells the browser it may
+                // skip rendering this subtree entirely whenever it judges it off screen, and
+                // re-render it from nothing when it comes back. It was right when this panel
+                // lived far down the page. It became wrong the moment the panel moved up beside
+                // the hero: the panel is now on the first screenful, so it is never the offscreen
+                // work that class exists to defer — and it contains a card being turned in 3D.
+                //
+                // Those two together are what produced "the whole site blinks out and reloads
+                // every time I move it". A live 3D transform inside a content-visibility subtree
+                // keeps changing the very geometry the browser uses to decide whether the
+                // subtree is on screen, so it skips and un-skips it repeatedly, throwing the
+                // section's rendering away and rebuilding it — many times a second, for as long
+                // as the card is moving. That is both the flicker and a large part of the heat.
+                className="reveal-group border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
               >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
                 {/* The credential card, in the same row as the pitch it illustrates rather than
