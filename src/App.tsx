@@ -7,6 +7,7 @@ import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { FloatingTemplateCards } from './components/FloatingTemplateCards';
+import { CredentialCard } from './components/CredentialCard';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -472,11 +473,17 @@ export default function App() {
 
         {activePage === 'home' && (
           <div className="page-in space-y-20 sm:space-y-24">
-            {/* Hero Banner */}
-            <HeroSection language={language} />
+            {/* Hero copy and the card/pitch panel are deliberately one block, held to their own
+                tight spacing rather than the page's `space-y-20`. Apart they read as two
+                sections and the panel starts below the fold; together they are the first
+                screenful — headline, the card, and the claim it backs, all visible at once,
+                which is the whole point of moving the panel up here. The larger page rhythm
+                resumes at the section after it. */}
+            <div className="space-y-6 sm:space-y-8">
+              <HeroSection language={language} />
 
-            {/* Quick Overview Grid to drive leads */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {/* Quick Overview Grid to drive leads */}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {/* The reveal group is this whole panel, not each grid — so moving across the
                   copy on one side already lights the near edges of the cards on the other,
                   which is the cross-card proximity the effect is for.
@@ -486,10 +493,24 @@ export default function App() {
                   here was near-black anyway, so what it mostly did was hide the stars. */}
               <div
                 ref={revealGroup}
-                className="below-fold reveal-group grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+                className="below-fold reveal-group border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
               >
-                <div className="flex flex-col gap-4">
-                  <div className="flex-1 flex flex-col justify-start space-y-3 text-start">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
+                {/* The credential card, in the same row as the pitch it illustrates rather than
+                    alone in the hero above. Two reasons, both about the screen rather than the
+                    card: alone it left a wide empty band beside it at any desktop width, and
+                    this panel — which used to start below the fold — was carrying the page's
+                    strongest claim where nobody had scrolled to it yet. Paired, the first
+                    screenful now holds the claim and the proof of it side by side.
+                    `order-first lg:order-none`: stacked on a phone the card leads, because it
+                    is the thing worth seeing before a paragraph is read; side by side the grid's
+                    own order puts the words first, which is the reading order. */}
+                <div className="order-first lg:order-none">
+                  <CredentialCard language={language} />
+                </div>
+
+                <div className="flex flex-col gap-5">
+                  <div className="flex flex-col justify-start space-y-3 text-start">
                     <h3 className="text-xl sm:text-3xl font-bold text-white">
                       {isAr ? 'الإنتاجية والسرعة في تسليم مشروعك' : 'Speed & Efficiency for Your Project'}
                     </h3>
@@ -529,7 +550,16 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 max-w-md mx-auto w-full">
+              </div>
+
+                {/* The four capability tiles, now a full-width band under both columns instead
+                    of a 2×2 block squeezed into one of them. The card took the column they used
+                    to share, and rather than shrink them further they get the whole width — at
+                    which point four across reads as a row of facts, and the square aspect they
+                    needed to look deliberate at 2×2 is no longer holding them to a shape the
+                    text has to fit inside. Two across on a phone, where four would leave nothing
+                    but a word per line. */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-8 border-t border-zinc-800">
                   {[
                     { label: isAr ? "قوالب مجربة ومعتمدة" : "Verified Templates", desc: isAr ? "جاهزة للتركيب الفوري" : "Instant deployment" },
                     { label: isAr ? "برمجة مرنة مخصصة" : "Flexible Engineering", desc: isAr ? "نطور كل ما تريده" : "Custom built features" },
@@ -538,7 +568,7 @@ export default function App() {
                   ].map((x, idx) => (
                     <div
                       key={idx}
-                      className="reveal-face reveal-border aspect-square flex flex-col justify-center items-center text-center p-4 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
+                      className="reveal-face reveal-border flex flex-col justify-center items-center text-center p-4 sm:p-5 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
                     >
                       <RevealLight face />
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
@@ -546,6 +576,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
+              </div>
               </div>
             </div>
 

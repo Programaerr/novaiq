@@ -1,7 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ShieldCheck, Clock, Globe2, Award, ChevronLeft, ChevronRight } from 'lucide-react';
-
-const WHEEL_STEP = 90;
+import React from 'react';
 
 // No navigation callbacks any more: the two buttons that used them are gone, and nothing
 // else in the hero routes anywhere. The navbar and the section CTAs still do.
@@ -10,112 +7,10 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ language }) => {
-  // bgImage/bgSize are placeholder abstract patterns (grayscale, on-brand) standing in
-  // for real photography until the client supplies per-guarantee images.
-  //
-  // Each of these used to carry a bright white overlay layer on top of its base gradient —
-  // a diagonal sheen band, a radial hotspot pair, a conic sweep. Those were the glare on the
-  // cube's faces: they blew out the middle of every face and left the icon and text sitting
-  // in a white haze. Only the base gradient survives now, so each face is a clean, evenly
-  // lit surface and what's printed on it stays fully legible.
-  const guarantees = [
-    {
-      Icon: Clock,
-      title: language === 'ar' ? 'تسليم سريع ومنظم' : 'Fast Delivery',
-      desc: language === 'ar' ? 'منهجية برمجية واضحة ومحددة' : 'Clear timeline & sprints',
-      bgImage: 'linear-gradient(135deg, #3f3f46, #09090b)',
-      bgSize: 'cover',
-    },
-    {
-      Icon: ShieldCheck,
-      title: language === 'ar' ? 'مواصفات برمجية دقيقة' : 'Verified Specs',
-      desc: language === 'ar' ? 'حقوق الكود كاملة مع الحفظ' : 'Full code ownership',
-      bgImage: 'linear-gradient(160deg, #27272a, #000)',
-      bgSize: 'cover',
-    },
-    {
-      Icon: Award,
-      title: language === 'ar' ? 'دعم فني متكامل' : 'Full Support',
-      desc: language === 'ar' ? 'متابعة دورية حسب الاتفاق' : 'Ongoing technical SLA',
-      bgImage: 'linear-gradient(180deg, #3f3f46, #000)',
-      bgSize: 'cover',
-    },
-    {
-      Icon: Globe2,
-      title: language === 'ar' ? 'أداء فائق السرعة' : 'Blazing Performance',
-      desc: language === 'ar' ? 'أحدث التقنيات لسرعة استثنائية' : 'Modern web tech stacks',
-      bgImage: 'radial-gradient(circle, #27272a, #000)',
-      bgSize: 'cover',
-    },
-  ];
-
-  // Drag-to-spin state for the 3D guarantee wheel. `rotation` lives in a ref and is written
-  // straight to the ring's style.transform on every pointermove — React state per frame is
-  // exactly the main-thread churn that shows up as stutter on a weak device. The ref write
-  // is one property on one element; React only re-renders when `isDragging` flips (twice per
-  // gesture). `rotRef` is the live angle, `wheelRef` the ring it is written to.
-  const [isDragging, setIsDragging] = useState(false);
-  // Bumped only by a manual action (button click / drag release) to restart the autoplay
-  // clock — the wheel's angle itself lives in `rotRef`, so no per-frame state is needed.
-  const [tick, setTick] = useState(0);
-  const wheelRef = useRef<HTMLDivElement | null>(null);
-  const rotRef = useRef(0);
-  const dragRef = useRef<{ startX: number; startRot: number } | null>(null);
-
-  const writeRotation = (deg: number) => {
-    rotRef.current = deg;
-    const el = wheelRef.current;
-    if (el) el.style.transform = `rotateY(${deg}deg)`;
-  };
-
-  const snapToStep = (deg: number) => Math.round(deg / WHEEL_STEP) * WHEEL_STEP;
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    dragRef.current = { startX: e.clientX, startRot: rotRef.current };
-    setIsDragging(true);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    writeRotation(drag.startRot + (e.clientX - drag.startX) * 0.5);
-  };
-
-  const stopDragging = () => {
-    dragRef.current = null;
-    setIsDragging(false);
-    setTick((t) => t + 1);
-    writeRotation(snapToStep(rotRef.current));
-  };
-
-  const rotateBy = (delta: number) => {
-    dragRef.current = null;
-    setIsDragging(false);
-    setTick((t) => t + 1);
-    writeRotation(snapToStep(rotRef.current) + delta);
-  };
-
-  // Auto-advance one face every 5s. Reads the ref, so nothing re-renders for it. Paused
-  // while dragging, and skipped under reduced-motion — a stated preference, so it is
-  // honoured. Depends on `tick` so a manual turn restarts the clock, the same "don't
-  // auto-advance right on top of my input" the old rotation-state version gave us.
-  //
-  // Runs on every device. The turn is a rotateY on a preserve-3d ring — compositor work of
-  // exactly the kind even modest hardware handles well, which is the same reason the hero's
-  // WebGL cards stay smooth where painted CSS effects do not. It used to be switched off
-  // whenever a capability probe decided the machine was weak, and the visible result was
-  // simply that the wheel stopped turning by itself, permanently, after one stray hitch.
-  useEffect(() => {
-    if (isDragging) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setInterval(() => {
-      writeRotation(snapToStep(rotRef.current) + WHEEL_STEP);
-    }, 5000);
-    return () => window.clearInterval(id);
-  }, [isDragging, tick]);
-
   return (
-    <section className="relative pt-4 pb-8 md:pt-6 md:pb-10 overflow-hidden">
+    // Bottom padding trimmed with the cube: it was clearing a tall 3D stage that is no longer
+    // here, and the panel now following closely brings its own spacing.
+    <section className="relative pt-4 pb-2 md:pt-6 md:pb-3 overflow-hidden">
       
       {/* Background Subtle Space Ambient Glow — drawn as a radial gradient instead of a
           blurred circle: an animated 600px `blur(140px)` layer had to be re-rasterized by
