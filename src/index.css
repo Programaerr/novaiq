@@ -834,15 +834,25 @@
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  /* The corner radius is owned here rather than by a utility class on the element, and shares
-     the very `--radius` the edges keep clear of. Split across two files they could drift, and
-     the moment the faces round more than the edges retreat, the strips reappear across the
-     curve as the square corners that were showing before. One value, one source. */
+  /* The corner radius is owned here rather than by a utility class on the element, so the faces
+     and the rings that trace their outline read one value and cannot drift apart. */
   border-radius: var(--radius);
-  overflow: hidden;
+  /* clip-path rather than `overflow: hidden`.
+     Both round off the artwork inside the face, and they behave very differently inside a
+     preserve-3d subtree: an overflow clip makes the browser flatten and re-clip the element as
+     its 3D transform changes, and on Chrome for Android that shows up exactly as reported — the
+     face blinking out and back mid-turn, sometimes taking its text with it. A clip-path is
+     applied while compositing a layer that already exists, so turning the card does not
+     invalidate it. */
+  clip-path: inset(0 round var(--radius));
 }
 
 .credential-face--front {
+  /* An explicit layer, held for the element's lifetime. Without the hint the compositor decides
+     per frame whether this subtree deserves one, and during a turn that decision flips
+     repeatedly — each flip discarding and rebuilding the texture, which is the other half of
+     the blinking. One card-sized texture is a cheap price for a stable picture. */
+  will-change: transform;
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
 }
 
