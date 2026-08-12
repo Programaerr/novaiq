@@ -43,8 +43,32 @@ export function useSignaturePad({ initialDataUrl, onStrokeStart, onClear }: UseS
     }
   }, [initialDataUrl]);
 
+  // Measured once per stroke rather than once per point.
+  //
+  // This runs for every pointermove while someone is signing, and getBoundingClientRect forces
+  // the browser to flush layout before it can answer — so drawing a signature was paying a
+  // forced synchronous layout on every single frame of the gesture, which is exactly the sort
+  // of per-move layout read that shows up as lag on a weak device. The canvas cannot move
+  // during a stroke (the pad is fixed while the finger is down), so one measurement at
+  // pointerdown is as correct as one per point, and a scroll or resize between strokes clears
+  // it anyway.
+  const padBox = useRef<DOMRect | null>(null);
+
+  useEffect(() => {
+    const invalidate = () => {
+      padBox.current = null;
+    };
+    window.addEventListener('scroll', invalidate, { passive: true });
+    window.addEventListener('resize', invalidate);
+    return () => {
+      window.removeEventListener('scroll', invalidate);
+      window.removeEventListener('resize', invalidate);
+    };
+  }, []);
+
   const pointFrom = (canvas: HTMLCanvasElement, clientX: number, clientY: number) => {
-    const rect = canvas.getBoundingClientRect();
+    if (!padBox.current) padBox.current = canvas.getBoundingClientRect();
+    const rect = padBox.current;
     return {
       x: (clientX - rect.left) * (canvas.width / rect.width),
       y: (clientY - rect.top) * (canvas.height / rect.height),
