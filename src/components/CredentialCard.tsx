@@ -286,14 +286,30 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           </div>
         </div>
 
-        {/* ── The four edges that make it a solid ────────────────────────────────────────
-            Each is hinged flush against one border of the front face and folded back 90° to
-            meet the rear, so the box assembles itself at whatever size the card happens to be.
-            aria-hidden: they are the thickness of an object, not content. */}
-        <div className="credential-edge credential-edge--right" aria-hidden="true" />
-        <div className="credential-edge credential-edge--left" aria-hidden="true" />
-        <div className="credential-edge credential-edge--top" aria-hidden="true" />
-        <div className="credential-edge credential-edge--bottom" aria-hidden="true" />
+        {/* ── The thickness ─────────────────────────────────────────────────────────────
+            An extrusion: copies of the card's own rounded silhouette, stacked back through the
+            depth. Each one carries the same corner radius as the faces, so the side of the card
+            is rounded from every angle it can be turned to.
+
+            This replaced four flat strips hinged along the four borders. Flat strips are the
+            usual way to build a CSS box, and they cannot work here for a reason no amount of
+            tuning fixes: a rectangle has square ends, and the card's outline is a curve. Run
+            them full length and the square corners cross the curve; inset them to clear it and
+            they detach from the card and hang beside it with a gap at each corner. Both were
+            reported, and they were the same problem seen from two sides.
+
+            Ten slices for 12px. Enough that the side reads as solid rather than as stripes, few
+            enough to stay ten empty divs — no content, no text, nothing to lay out, and they
+            are transformed within a subtree the compositor is already handling as one 3D
+            object. aria-hidden: this is the thickness of a thing, not content. */}
+        {Array.from({ length: 10 }, (_, i) => (
+          <div
+            key={i}
+            aria-hidden="true"
+            className="credential-slice"
+            style={{ transform: `translateZ(calc(var(--depth) / -10 * ${i + 1}))` }}
+          />
+        ))}
       </div>
     </div>
   );
