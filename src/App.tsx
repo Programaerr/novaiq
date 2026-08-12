@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 'react';
 import { CosmicBackground } from './components/CosmicBackground';
-import { ScrollCosmosLayer } from './components/ScrollCosmosLayer';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
@@ -473,11 +472,6 @@ export default function App() {
       
       {/* Supernova Atmospheric Background */}
       <CosmicBackground activeSection={activeSection} activeBgImage={activeBgImage} />
-
-      {/* The scroll-driven black hole, in front of the star layers and behind everything read.
-          It draws only while the page is moving — see ScrollCosmos for why that is the whole
-          design rather than an optimisation bolted on afterwards. */}
-      <ScrollCosmosLayer />
 
       {/* Main Header Bar */}
       <Navbar
