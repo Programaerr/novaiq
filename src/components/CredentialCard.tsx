@@ -9,6 +9,29 @@ interface CredentialCardProps {
 const clamp = (v: number, max: number) => (v > max ? max : v < -max ? -max : v);
 
 /**
+ * The nearest orientation that looks like the card is sitting flat, front outwards.
+ *
+ * Angles accumulate without limit — turn the card round twice and it holds 720°, which is a
+ * different number from 0 and an identical picture. Sending it home to a literal 0 therefore
+ * made it retrace the whole journey backwards, unwinding two full revolutions to arrive at a
+ * position it was already in. Rounding to the nearest multiple of 360 keeps the destination the
+ * same while making the trip the shortest one that reaches it: from 380° it moves 20° rather
+ * than 380°, and from 700° it moves 20° forwards instead of 700° back.
+ */
+const nearestRest = (deg: number) => Math.round(deg / 360) * 360;
+
+/**
+ * The same angle folded into (-180, 180].
+ *
+ * The glare is a function of how the card is currently facing, not of how far it has been
+ * turned in total, and those stop agreeing the moment a full revolution is passed: at 360° the
+ * card is square-on and its highlight belongs dead centre, but the raw number would drive it
+ * hard against the edge and pin it there. Folding first makes every revolution light the card
+ * identically, which is what a real one does.
+ */
+const wrap = (deg: number) => (((deg % 360) + 540) % 360) - 180;
+
+/**
  * The hero's centrepiece: a smart-card built as an actual solid, turnable in every direction.
  *
  * It replaces the 3D guarantee cube that used to sit here. The cube's problem was not how it
@@ -90,10 +113,11 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     // and repaints it every frame; moving a fixed-size disc by transform is a compositor
     // operation and costs nothing. It is the same technique as the reveal lights (`.rv`).
     //
-    // Clamped because rotation is unbounded: past a quarter turn the face is edge-on and a
-    // glare still travelling outward would slide off into the page beside it.
-    el.style.setProperty('--glare-x', `${clamp(-y * 3.2, 150)}px`);
-    el.style.setProperty('--glare-y', `${clamp(x * 3.2, 110)}px`);
+    // Folded into a single revolution first (see wrap), then clamped: past a quarter turn the
+    // face is edge-on and a glare still travelling outward would slide off into the page beside
+    // it.
+    el.style.setProperty('--glare-x', `${clamp(-wrap(y) * 3.2, 150)}px`);
+    el.style.setProperty('--glare-y', `${clamp(wrap(x) * 3.2, 110)}px`);
   };
 
   const turnTo = (x: number, y: number) => {
@@ -140,7 +164,10 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     // and short enough that the card is never found in a state nobody chose.
     clearTimeout(restTimer.current);
     restTimer.current = window.setTimeout(() => {
-      if (!drag.current) turnTo(0, 0);
+      if (!drag.current) {
+        const { x, y } = angle.current;
+        turnTo(nearestRest(x), nearestRest(y));
+      }
     }, 3000);
   };
 
@@ -281,6 +308,9 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
             at rather than a blank. */}
         <div className="credential-face credential-face--back border border-white/12 bg-[#0b0b0e]">
           <div className="absolute inset-x-0 top-[16%] h-[22%] bg-gradient-to-b from-zinc-900 via-black to-zinc-900" />
+          {/* The same light, on the reverse. See `.credential-face--back .credential-glare` for
+              why its horizontal travel is mirrored. */}
+          <div className="credential-glare pointer-events-none" aria-hidden="true" />
           <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 sm:p-6">
             <NovaiqLogo size={26} showText={false} />
             <div className="text-[8px] sm:text-[9px] text-zinc-600 tracking-[0.2em] uppercase">

@@ -893,6 +893,16 @@
   );
 }
 
+/* The back is the same surface seen from behind, so it catches the same light — without this
+   the card is convincingly lit from the front and dead flat the moment it is turned round, which
+   is the giveaway that it is two pictures rather than one object.
+   The horizontal component is negated because the face is mirrored by its own `rotateY(180deg)`:
+   left and right are swapped on it, so a highlight that must stay on the same physical side of
+   the card has to travel the opposite way in its local coordinates. */
+.credential-face--back .credential-glare {
+  transform: translate3d(calc(var(--glare-x, 0px) * -1), var(--glare-y, 0px), 0);
+}
+
 /* Follows the card exactly while it is being turned, for the same reason the card itself
    drops its easing then. */
 .credential-card.is-turning .credential-glare {
@@ -1303,14 +1313,26 @@ html[data-flat] .cosmic-bg {
    Scoped to `.is-live`, the layers are built when a pointer arrives — which is also when
    the fade-in is starting, so the work lands in a frame that was never going to be still —
    and released when it leaves. Same effect, memory only while it is on screen. */
-/* Only the discs the pointer can actually move get a compositor layer — see the long note at
-   the promotion code in useRevealGroup.ts. This selector used to be
-   `.reveal-group.is-live .rv::before`, which promoted every disc in the panel at once the
-   instant anything was touched, and on a phone that single frame of allocation evicted the
-   layers around it: the card being touched blinked out and came back for as long as the finger
-   was on it. `.rv-lit` is set per card, by distance, with hysteresis. */
-.rv-lit .rv::before {
-  will-change: transform;
+/* Layer promotion for the light disc — on pointer devices only, and that restriction is the
+   whole point of the media query rather than a nicety.
+       Creating a compositor layer is not free at the moment it happens: the browser has to split
+   the element out of the surface it was part of and re-rasterise it into a new one, and the
+   frame where that happens shows. On a mouse the promotion is triggered by the pointer *entering*
+   the group, which is before anything has moved and where a single frame is invisible. On a
+   touchscreen there is no enter — the first event is the press itself, so the layer is built at
+   the exact instant the finger lands, and that one frame is visible as a blink. Lift, touch
+   again, blink again: the layer had been released in between.
+       So a phone simply does not get the promotion. It does not need it either — the disc is a
+   static gradient texture being moved by transform, which composites acceptably without a
+   dedicated layer, and only ever moves while a finger is actually down. Trading a hint that
+   saves a little compositing for a visible flash on every single touch is a bad trade, and this
+   is the second time a `will-change` here has been the thing people could see: promoting all of
+   them at once was the first (see useRevealGroup.ts).
+       `.rv-lit` is still set per card by distance, with hysteresis — see there. */
+@media (hover: hover) and (pointer: fine) {
+  .rv-lit .rv::before {
+    will-change: transform;
+  }
 }
 
 .reveal-group.is-live .rv {
