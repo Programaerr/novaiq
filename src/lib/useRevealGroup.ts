@@ -115,6 +115,16 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     // anywhere near a card stutter on a weak GPU.
     const REACH = 300;
     const REACH_SQ = REACH * REACH;
+    // The same culling drives layer promotion (`.rv-lit`). A 560px disc held as its own
+    // compositor layer is ~1.25MB of GPU memory, and the whole group's discs were promoted
+    // together on first hover — fourteen of them at once is ~17MB allocated in a single
+    // frame, which on a device short of texture memory is exactly what evicts the layers
+    // around it and makes a card, and the light itself, blink out and back. So a layer is
+    // created only for cards the pointer can actually move, and kept until they are
+    // comfortably past reach — hysteresis, so a card hovering right on the boundary does not
+    // thrash in and out of promotion. See `.rv-lit` in index.css.
+    const RELEASE = REACH + 120;
+    const RELEASE_SQ = RELEASE * RELEASE;
 
     const paint = (clientX: number, clientY: number, force = false) => {
       // Nothing at all while a scroll is in flight, and this is the single most important line
