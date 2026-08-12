@@ -602,13 +602,12 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
       // card can turn up out of the panel as readily as down out of it — and z-30 puts it over
       // everything it reaches. The negative margins also mean the page reflows as if the card
       // were its plain size, so nothing else moves to accommodate it.
-      className="relative z-30 w-[210%] mx-[-55%] mt-[-24%] mb-[-34%] max-w-[54rem] lg:w-[150%] lg:mx-[-25%] lg:mt-[-14%] lg:mb-[-16%] lg:max-w-[58rem] aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
-      // `none`, so a drag that starts on the card turns the card instead of scrolling the page.
-      style={{ touchAction: 'none' }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
+      // pointer-events-none, and it is doing real work: this element is roughly twice the card
+      // and hangs over the page on all four sides, so if it accepted input it would swallow every
+      // tap and every scroll in that whole area — a card that eats the page around it. Input is
+      // handled by the small hit area below instead, and everything else here is see-through to
+      // the pointer as well as to the eye.
+      className="pointer-events-none relative z-30 w-[210%] mx-[-55%] mt-[-24%] mb-[-34%] max-w-[54rem] lg:w-[150%] lg:mx-[-25%] lg:mt-[-14%] lg:mb-[-16%] lg:max-w-[58rem] aspect-[1.586/1] select-none"
       role="img"
       aria-label={
         isAr
@@ -670,6 +669,25 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           <Waker signal={signal} touched={touched} dragging={drag} target={target} />
         </Canvas>
       )}
+
+      {/* The only part of this that takes input: the card's own footprint at rest.
+          The camera frames the card at ~48% of the canvas, so it sits exactly 26% in from every
+          side — the same figure the placeholder uses to position itself. A press anywhere else
+          lands on the page behind, which is what keeps a scroll a scroll and a tap on the copy
+          underneath a tap on the copy underneath.
+
+          `touch-none` is scoped to this box alone, so a drag that starts on the card turns the
+          card rather than scrolling the page, without that rule applying to the large empty area
+          around it. Pointer capture is taken here, so a turn that wanders off the card keeps
+          working — it is only where a gesture STARTS that is being restricted. */}
+      <div
+        className="pointer-events-auto touch-none absolute inset-[26%] cursor-grab active:cursor-grabbing"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        aria-hidden="true"
+      />
     </div>
   );
 };
