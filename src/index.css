@@ -822,6 +822,12 @@
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  /* The corner radius is owned here rather than by a utility class on the element, and shares
+     the very `--radius` the edges keep clear of. Split across two files they could drift, and
+     the moment the faces round more than the edges retreat, the strips reappear across the
+     curve as the square corners that were showing before. One value, one source. */
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .credential-face--front {
@@ -922,20 +928,6 @@
    drops its easing then. */
 .credential-card.is-turning .credential-glare {
   transition: none;
-}
-
-/* A fixed diagonal highlight. It is painted once and then simply carried by the card's own
-   transform — a still highlight on a moving object, which is what a real card does, and what
-   keeps this from being a second animation. */
-.credential-sheen {
-  background: linear-gradient(
-    115deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.07) 46%,
-    rgba(255, 255, 255, 0.13) 50%,
-    rgba(255, 255, 255, 0.05) 55%,
-    transparent 72%
-  );
 }
 
 @media (prefers-reduced-motion: reduce) {

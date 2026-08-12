@@ -11,13 +11,17 @@ interface LoginPageProps {
   /**
    * Dismisses this page and sends the visitor to the home page to browse without an account.
    *
-   * Optional, and its absence is meaningful rather than a default: this same screen is also
-   * shown at the two places that genuinely cannot proceed without an account — creating a
-   * contract, and opening "my orders". Offering "continue as guest" there would be a button
-   * that returns the visitor to the exact wall they just walked into, so those callers leave
-   * it out and it is not rendered at all.
+   * Required, deliberately. This screen is reached from three places — the front gate, the
+   * navbar's sign-in button, and the two inner pages that need an account (the contract
+   * builder and "my orders") — and a visitor must be able to walk away from every one of them.
+   * It was briefly optional so the inner pages could omit it, on the reasoning that a guest
+   * button there would only return someone to the wall they had just met. That reasoning was
+   * wrong about what the wall is for: it exists to stop a contract being created without an
+   * account, not to strand somebody on a screen with no way back into the site. Making it
+   * required means a future sign-in screen cannot be added without answering "and how does
+   * someone leave this?".
    */
-  onContinueAsGuest?: () => void;
+  onContinueAsGuest: () => void;
 }
 
 function GoogleIcon() {
@@ -219,25 +223,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
                   The line underneath says where the wall actually is, so choosing this does not
                   feel like it might cost them something later on. */}
-              {onContinueAsGuest && (
-                <>
-                  <button
-                    type="button"
-                    onClick={onContinueAsGuest}
-                    disabled={isSubmitting}
-                    className="nq-btn mt-3 w-full py-3 rounded-2xl border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white disabled:opacity-60 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <span className="nq-btn-beam" aria-hidden="true" />
-                    <span>{isAr ? 'أكمل كضيف' : 'Continue as guest'}</span>
-                  </button>
+              <button
+                type="button"
+                onClick={onContinueAsGuest}
+                disabled={isSubmitting}
+                className="nq-btn mt-3 w-full py-3 rounded-2xl border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white disabled:opacity-60 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+              >
+                <span className="nq-btn-beam" aria-hidden="true" />
+                <span>{isAr ? 'أكمل كضيف' : 'Continue as guest'}</span>
+              </button>
 
-                  <p className="mt-2.5 text-center text-[11px] text-zinc-500">
-                    {isAr
-                      ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
-                      : 'Browse and try the templates freely — an account is only needed to create a contract.'}
-                  </p>
-                </>
-              )}
+              <p className="mt-2.5 text-center text-[11px] text-zinc-500">
+                {isAr
+                  ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
+                  : 'Browse and try the templates freely — an account is only needed to create a contract.'}
+              </p>
             </div>
           </div>
 

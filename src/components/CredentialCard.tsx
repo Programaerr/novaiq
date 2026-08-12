@@ -187,7 +187,7 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
         className="credential-card relative w-full aspect-[1.586/1] select-none"
       >
         {/* ── Front ─────────────────────────────────────────────────────────────────── */}
-        <div className="credential-face credential-face--front rounded-3xl border border-white/15 overflow-hidden">
+        <div className="credential-face credential-face--front border border-white/15">
           {/* A fixed gradient, painted once — no moving centre, nothing to re-rasterise as the
               card turns, which is what keeps the whole gesture a compositor transform. */}
           <div
@@ -214,10 +214,12 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
             <circle cx="252" cy="192" r="2.5" fill="#fff" />
           </svg>
 
-          <div className="credential-sheen absolute inset-0 pointer-events-none" aria-hidden="true" />
-
           {/* The light on the surface. A fixed disc that slides as the card turns — see the
-              note in flush() for why it moves by transform rather than by gradient position. */}
+              note in flush() for why it moves by transform rather than by gradient position.
+              It is the only highlight now: a static diagonal streak used to sit above it, and
+              the two read as two different light sources on one surface — one fixed to the card
+              no matter how it turned, one responding to the turn. Only the responding one is
+              worth having, so the streak is gone. */}
           <div className="credential-glare pointer-events-none" aria-hidden="true" />
 
           <div className="relative z-10 h-full flex flex-col justify-between p-4 sm:p-6">
@@ -274,7 +276,7 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
             mistake; a real card's reverse carries a magnetic stripe and a mark, so this does
             the same — and it means turning the card all the way round has something to arrive
             at rather than a blank. */}
-        <div className="credential-face credential-face--back rounded-3xl border border-white/12 overflow-hidden bg-[#0b0b0e]">
+        <div className="credential-face credential-face--back border border-white/12 bg-[#0b0b0e]">
           <div className="absolute inset-x-0 top-[16%] h-[22%] bg-gradient-to-b from-zinc-900 via-black to-zinc-900" />
           <div className="absolute inset-0 flex flex-col items-center justify-end gap-2 p-4 sm:p-6">
             <NovaiqLogo size={26} showText={false} />

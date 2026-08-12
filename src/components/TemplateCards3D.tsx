@@ -203,8 +203,57 @@ const Scene: React.FC<SceneProps> = ({ active, setActive, scatter }) => (
   </>
 );
 
+/**
+ * Renders the scene at a fixed, modest frame rate instead of as fast as the device can manage.
+ *
+ * This is the difference between a decoration and a space heater. R3F's default is to redraw
+ * every frame the display offers — 60 a second, 120 on a modern phone — and it will do that for
+ * as long as the scene is on screen, because the cards are always drifting and a drifting card
+ * always needs a new frame. Six textured, lit, damped meshes redrawn 120 times a second, with
+ * no pause, is genuinely the workload of a small game, and a phone answers it the way it
+ * answers a game: by running the GPU flat out and getting hot.
+ *
+ * Nothing about the scene needs that rate. The motion is a slow float — a sine wave over
+ * several seconds — and at 30fps it is indistinguishable from 120, because there is nothing
+ * fast enough happening for the extra frames to describe. Halving or quartering the frame rate
+ * cuts GPU time by the same proportion, and the picture is unchanged.
+ *
+ * Implemented as `frameloop="demand"` plus this: the canvas draws only when asked, and this
+ * asks on a timer. The rAF that drives it does nothing but compare two numbers on the frames it
+ * skips, and browsers stop calling it entirely in a background tab, so a hidden page costs
+ * nothing at all. Interaction still invalidates on its own, so a click responds immediately
+ * rather than waiting for the next tick.
+ */
+const FrameLimiter: React.FC<{ fps: number }> = ({ fps }) => {
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    let raf = 0;
+    let last = 0;
+    const interval = 1000 / fps;
+    const tick = (t: number) => {
+      raf = requestAnimationFrame(tick);
+      if (t - last < interval) return;
+      last = t;
+      invalidate();
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [fps, invalidate]);
+  return null;
+};
+
 export const TemplateCards3D: React.FC = () => {
   const [active, setActive] = useState<number | null>(null);
+
+  // A phone renders this scene onto a far denser display than a laptop does, and pixel count is
+  // the single biggest term in what a GPU is asked to do. Capped harder there, and the drop is
+  // invisible on a screen held at arm's length — where it is very much not invisible is in how
+  // warm the device gets. Read once at mount: this decides how many pixels the renderer is
+  // built for, and re-creating the renderer mid-visit to chase a window resize would cost more
+  // than it saves.
+  const [dprCap] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches ? 1.1 : 1.5,
+  );
 
   // Redrawn per mount. The home page unmounts when the visitor navigates away, so leaving
   // and coming back genuinely lays the cards out afresh rather than restoring the same
@@ -237,9 +286,11 @@ export const TemplateCards3D: React.FC = () => {
   return (
     <div ref={holder} className="w-full h-full">
       <Canvas
-        frameloop={onScreen ? 'always' : 'never'}
+        // "demand", never "always". See FrameLimiter above for what drives it and why: "always"
+        // is what made this scene run the GPU flat out for as long as it was on screen.
+        frameloop={onScreen ? 'demand' : 'never'}
         camera={{ position: [0, 0, 6], fov: 46 }}
-        dpr={[1, 1.5]}
+        dpr={[1, dprCap]}
         gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
         // Clicking empty space drops the current pick, so there is always a way back out
         // without having to find the same card again.
@@ -264,6 +315,9 @@ export const TemplateCards3D: React.FC = () => {
         style={{ touchAction: 'pan-y' }}
       >
         <Suspense fallback={null}>
+          {/* Only while the scene is actually on screen — off screen the canvas is on
+              `frameloop="never"` and an invalidate would be a request nobody answers. */}
+          {onScreen && <FrameLimiter fps={30} />}
           <Scene active={active} setActive={setActive} scatter={scatter} />
         </Suspense>
       </Canvas>
