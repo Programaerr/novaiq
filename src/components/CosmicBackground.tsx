@@ -1,4 +1,5 @@
 import React from 'react';
+import { GravityField } from './GravityField';
 
 interface CosmicBackgroundProps {
   activeSection?: string;
@@ -88,6 +89,11 @@ export const CosmicBackground: React.FC<CosmicBackgroundProps> = ({
       <div className="star-layer star-layer--far" />
       <div className="star-layer star-layer--mid" />
       <div className="star-layer star-layer--near" />
+
+      {/* The reactive plane, on top of the four drifting ones: a well of light under the hand
+          with stars leaning into it. Draws only while the hand is moving and stops dead
+          afterwards — see GravityField for why that rule is the price of admission here. */}
+      <GravityField />
 
       {/* Two streaks on long, mismatched cycles — visible for a second or so out of every half
           minute, so each one is a small event rather than wallpaper. */}

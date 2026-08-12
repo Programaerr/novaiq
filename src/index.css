@@ -2045,3 +2045,17 @@ html[data-flat] .cosmic-bg {
 @keyframes sky-parallax-nebula {
   to { transform: translate3d(4%, -9%, 0) scale(1.14); }
 }
+
+
+/* The gravity field (GravityField.tsx). Above the star planes so its stars are the ones nearest
+   the viewer and its glow lights the sky rather than sitting under it, and above the vignette for
+   the same reason the stars are — the vignette exists to dim the layers BEHIND the text, and this
+   is meant to be the brightest thing in the sky. Deaf to the pointer: it reads the window's
+   events, it never intercepts them. */
+.gravity-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
