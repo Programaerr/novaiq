@@ -89,9 +89,11 @@ const FRAG = /* glsl */ `
     // ── The act structure ────────────────────────────────────────────────────────────────
     // The page is cut into sections and each one plays the same short film: a black hole holds
     // the frame, then gives way to a supernova as you reach the end of that section, then the
-    // next section opens on a hole again. `phase` is where you are inside the current act and
-    // `nova` is how far it has turned into the explosion — every term below is written against
+    // next section opens on a hole again. 'phase' is where you are inside the current act and
+    // 'nova' is how far it has turned into the explosion — every term below is written against
     // those two, so the whole scene is staged rather than merely animated.
+    // (Plain quotes, not backticks: this whole shader is a JS template literal, and a backtick
+    // in a comment ends it — which it did, with four parse errors well away from the cause.)
     float act = uProgress * 7.0;
     float phase = fract(act);
     float nova = smoothstep(0.42, 0.95, phase);
