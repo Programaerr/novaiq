@@ -792,7 +792,7 @@
   inset: 0 -220px -220px 0;
   background-image: var(--stars-deep);
   background-size: 220px 220px;
-  opacity: 0.32;
+  opacity: 0.55;
   animation: star-drift-deep 420s linear infinite;
 }
 
@@ -800,7 +800,7 @@
   inset: -480px 0 0 -480px;
   background-image: var(--stars-mid);
   background-size: 480px 480px;
-  opacity: 0.5;
+  opacity: 0.8;
   animation: star-drift-mid 300s linear infinite;
 }
 
@@ -828,8 +828,9 @@
   inset: -25% -25% -25% -25%;
   pointer-events: none;
   background-image:
-    radial-gradient(38% 30% at 28% 32%, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.018) 45%, transparent 72%),
-    radial-gradient(30% 26% at 74% 62%, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.012) 48%, transparent 74%);
+    radial-gradient(42% 34% at 26% 30%, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.045) 45%, transparent 72%),
+    radial-gradient(34% 30% at 76% 64%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.032) 48%, transparent 74%),
+    radial-gradient(26% 40% at 52% 88%, rgba(255, 255, 255, 0.07) 0%, transparent 70%);
   animation: nebula-drift 260s ease-in-out infinite alternate;
 }
 
@@ -870,10 +871,10 @@
 }
 
 @keyframes shoot {
-  0%, 94% { opacity: 0; transform: translate3d(0, 0, 0) rotate(28deg); }
-  95% { opacity: 0; transform: translate3d(0, 0, 0) rotate(28deg); }
-  96.5% { opacity: 0.85; }
-  99% { opacity: 0; }
+  0%, 88% { opacity: 0; transform: translate3d(0, 0, 0) rotate(28deg); }
+  89% { opacity: 0; transform: translate3d(0, 0, 0) rotate(28deg); }
+  92% { opacity: 1; }
+  98% { opacity: 0; }
   100% { opacity: 0; transform: translate3d(-48vw, 42vh, 0) rotate(28deg); }
 }
 

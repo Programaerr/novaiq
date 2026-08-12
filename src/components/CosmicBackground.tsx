@@ -69,11 +69,6 @@ export const CosmicBackground: React.FC<CosmicBackgroundProps> = ({
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.85)_100%)]" />
 
-      {/* The nebula sits under the stars — it is the thing they are in front of, and what stops
-          the sky being a flat black field with dots on it. Below the vignette, unlike the stars,
-          because it is atmosphere and should be dimmed with everything else behind the text. */}
-      <div className="nebula-layer" />
-
       {/* Drifting star field — painted above the vignette on purpose: the vignette exists to
           dim the grid/glow layers for text contrast, but stars are meant to read as the
           brightest thing in the sky, not another layer it darkens.
@@ -82,6 +77,13 @@ export const CosmicBackground: React.FC<CosmicBackgroundProps> = ({
           further a plane is, the smaller, dimmer and slower its stars — and all three are set
           together in .star-layer--*, because getting one of them wrong reads as two identical
           fields sliding rather than as depth. */}
+      {/* Above the vignette, and that placement is a fix rather than a preference. Sitting below
+          it the nebula was invisible: the vignette is a black/80 → black/90 wash with a second
+          radial mask at 0.85 black on top, and a cloud a few percent opaque underneath both of
+          them is arithmetically gone. It belongs with the stars, in the sky, not behind the
+          curtain that exists to darken the sky for the text. */}
+      <div className="nebula-layer" />
+
       <div className="star-layer star-layer--deep" />
       <div className="star-layer star-layer--far" />
       <div className="star-layer star-layer--mid" />
