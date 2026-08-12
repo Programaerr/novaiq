@@ -75,6 +75,9 @@ const CARD_W = 1.586;
 const CARD_H = 1;
 const CARD_D = 0.05;
 const CARD_R = 0.1; // corner radius in world units
+const BEVEL = 0.006;
+/** Half the finished slab, bevel included — the faces sit just outside this. */
+const HALF_D = CARD_D / 2 + BEVEL;
 
 /** Rounded-rectangle clip, so the texture's own corners are transparent and match the mesh. */
 function clipRounded(ctx: CanvasRenderingContext2D, w: number, h: number) {
@@ -426,13 +429,25 @@ function useCardGeometry() {
     const geo = new THREE.ExtrudeGeometry(shape, {
       depth: CARD_D,
       bevelEnabled: true,
-      bevelSize: 0.006,
-      bevelThickness: 0.006,
+      bevelSize: BEVEL,
+      bevelThickness: BEVEL,
       bevelSegments: 2,
       curveSegments: 14,
     });
-    // Extrude builds from z=0 forward; centre it so the card turns about its own middle.
-    geo.translate(0, 0, -(CARD_D + 0.012) / 2);
+
+    // Centre the slab on z = 0, and the exact figure matters more than it looks.
+    //
+    // A bevelled extrusion spans [-bevelThickness, depth + bevelThickness], so its midpoint is
+    // depth/2 — the bevel adds the same amount at both ends and cancels. This was translated by
+    // -(depth + 2·bevel)/2 instead, which is 6 thousandths too far, leaving the solid sitting
+    // 0.037 behind the origin and only 0.025 in front of it.
+    //
+    // Face-on nothing showed: the front face at 0.032 still cleared the body's 0.025. Turn the
+    // card over and the long side swung to the front, reaching 0.037 — past the back face at
+    // 0.032 — so the body stood in front of its own printing and the reverse of the card was a
+    // blank grey slab. Centred properly, both faces clear the body by the same margin at every
+    // angle.
+    geo.translate(0, 0, -CARD_D / 2);
     return geo;
   }, []);
 }
@@ -505,19 +520,7 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
       // Barely metallic: a metallic white takes its colour from what it reflects, and with an
       // empty scene around it that reads as grey rather than white.
       front: new THREE.MeshStandardMaterial({ map: front, transparent: true, roughness: 0.44, metalness: 0.05 }),
-      // DoubleSide on the reverse only. Its plane is turned to face backwards and then the whole
-      // card is turned over on top of that, and with single-sided culling the composition of those
-      // two rotations left it facing away at exactly the angles it is meant to be read from — the
-      // card showed the bare edge of its body instead of its printed back. The front stays
-      // single-sided so it cannot appear through the card from behind; the body is opaque and
-      // sits between them, so nothing else can either.
-      back: new THREE.MeshStandardMaterial({
-        map: back,
-        transparent: true,
-        roughness: 0.55,
-        metalness: 0.05,
-        side: THREE.DoubleSide,
-      }),
+      back: new THREE.MeshStandardMaterial({ map: back, transparent: true, roughness: 0.55, metalness: 0.05 }),
     }),
     [front, back],
   );
@@ -558,7 +561,9 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
     }
   });
 
-  const faceZ = CARD_D / 2 + 0.007;
+  // Just clear of the slab's real half-thickness, bevel included — so each face sits the same
+  // distance proud of the body whichever way the card is turned.
+  const faceZ = HALF_D + 0.007;
 
   return (
     <group ref={group}>
