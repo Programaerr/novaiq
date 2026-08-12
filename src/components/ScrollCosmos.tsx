@@ -60,8 +60,17 @@ const FRAG = /* glsl */ `
   }
 
   void main() {
-    vec2 p = vUv - 0.5;
-    p.x *= uAspect;
+    vec2 uv = vUv - 0.5;
+    uv.x *= uAspect;
+
+    // The hole travels. It swings across the frame and rises and falls as the page descends —
+    // two different periods on the two axes, so the path never doubles back on itself into an
+    // obvious loop, and the whole thing reads as a camera moving through a scene rather than a
+    // graphic pinned to the middle of the screen.
+    //
+    // Still a function of scroll and nothing else: stop and the drift stops with you.
+    vec2 centre = vec2(sin(uProgress * 6.1) * 0.19, cos(uProgress * 4.3) * 0.075);
+    vec2 p = uv - centre;
 
     float r = max(length(p), 1e-4);
     float a = atan(p.y, p.x);
@@ -72,7 +81,11 @@ const FRAG = /* glsl */ `
     // Lensed starfield. Light passing a mass is deflected towards it, so the field is sampled at
     // a coordinate pulled inward by 1/r^2 — the further in, the more the sky bends around the
     // shadow. Cheap because the "stars" are a hash of a grid cell rather than any real geometry.
-    vec2 warp = p * (1.0 + 0.055 / (r * r + 0.02));
+    // Parallax: the field slides at its own rate and only a third of the hole's swing, so the
+    // two separate as you scroll instead of moving as one flat picture. That difference is the
+    // entire sensation of depth here — there is no third dimension in this shader at all.
+    vec2 warp = (uv - centre * 0.34 + vec2(uProgress * 0.62, uProgress * -0.2));
+    warp *= (1.0 + 0.055 / (r * r + 0.02));
     vec2 cell = floor(warp * 62.0);
     float star = step(0.986, hash(cell)) * smoothstep(0.0, 0.3, r - R);
     float stars = star * (0.3 + 0.7 * hash(cell + 3.7));
