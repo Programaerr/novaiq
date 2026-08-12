@@ -106,13 +106,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language }) => {
           screenful of drifting covers to reach a sign-in button has been given a worse page,
           not a richer one.
 
-          Capped and centred rather than filling the viewport. The two halves are 50% each, so
-          on a 34" screen they become ~1720px columns holding a 448px form and three 160px
-          columns of covers — the same pieces, dragged to opposite ends of the desk with a void
-          between them. A sign-in screen has a fixed amount to say, and past a point more width
-          stops being more room and starts being distance. Beyond this cap the composition holds
-          its size and the starfield (full-bleed, outside this wrapper) takes the rest. */}
-      <div className="relative z-10 min-h-screen grid grid-cols-1 lg:grid-cols-2 max-w-[1700px] mx-auto">
+          Capped and centred rather than filling the viewport. The two halves are 50% each while
+          the things inside them are fixed — a 448px form and three 160px columns of covers — so
+          every extra pixel of window goes entirely into the gap between them. On a 34" screen
+          that is the same composition dragged to opposite ends of the desk. Past a point more
+          width stops being more room and starts being distance.
+          1160 is not picked by eye: the gap between the covers' inner edge and the form is
+          exactly `width − 1064` (560px of covers from the left edge, and the form block sitting
+          504px in from the right), so the cap IS the gap, plus 96. Wider caps open it fast —
+          1280 gives 216px, 1700 gives 636px. Beyond the cap the composition holds its size and
+          the starfield, full-bleed outside this wrapper, takes the rest of the screen. */}
+      <div className="relative z-10 min-h-screen grid grid-cols-1 lg:grid-cols-2 max-w-[1160px] mx-auto">
 
         {/* ── Form side ─────────────────────────────────────────────────────────────── */}
         {/* min-h-screen only below lg. On the split layout the grid row already gives this
