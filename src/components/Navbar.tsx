@@ -224,13 +224,26 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </a>
           ) : (
+            /* Wears the templates toolbar's Filter pill outright (.filter-pill-btn +
+               .filter-pill-beam) — same bevelled white surface, same inversion to black on
+               hover, and the same beam tracing its outline. The hand-rolled
+               bg-white/hover:bg-zinc-200/border/white-btn-glow it carried before had to go
+               rather than sit alongside: .filter-pill-btn owns `background`, `color` and
+               `box-shadow` itself, and white-btn-glow's own black bloom would have fought it
+               for the shadow and cancelled the hover inversion's glow.
+               The icon takes text-current instead of text-black so it flips to white with the
+               body — pinned black it would vanish the moment the pill inverted. Radius stays
+               rounded-xl, matching the navbar's own geometry rather than the toolbar's full
+               pill; the beam reads `border-radius: inherit`, so it traces whatever shape it
+               is given. */
             <a
-              href="?page=orders&amp;mode=login"
+              href="?page=login"
               onClick={(e) => goToAccount('login', e)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-zinc-200 text-black border border-white transition-all cursor-pointer white-btn-glow"
+              className="filter-pill-btn relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold cursor-pointer"
             >
-              <LogIn className="w-4 h-4 text-black" />
-              <span className="hidden sm:inline">{isAr ? 'تسجيل دخول' : 'Login'}</span>
+              <span className="filter-pill-beam" aria-hidden="true" />
+              <LogIn className="w-4 h-4 text-current shrink-0" />
+              <span className="hidden sm:inline text-current">{isAr ? 'تسجيل دخول' : 'Login'}</span>
             </a>
           )}
         </div>

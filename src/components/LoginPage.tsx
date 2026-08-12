@@ -99,8 +99,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onBack }) => {
       <div className="relative z-10 min-h-screen grid grid-cols-1 lg:grid-cols-2">
 
         {/* ── Form side ─────────────────────────────────────────────────────────────── */}
-        <div className="flex flex-col justify-between p-6 sm:p-10 lg:p-14">
-          <div className="flex items-center justify-between gap-4">
+        {/* min-h-screen only below lg. On the split layout the grid row already gives this
+            column the full height, and asking for a screen's worth on top of that is how a
+            two-column page ends up scrolling for no reason. */}
+        <div className="flex flex-col min-h-screen lg:min-h-0 p-6 sm:p-10 lg:p-14">
+          <div className="flex items-center justify-between gap-4 shrink-0">
             <NovaiqLogo size={34} showText={true} />
             <button
               type="button"
@@ -113,51 +116,61 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onBack }) => {
             </button>
           </div>
 
-          <div className="py-10 lg:py-0 max-w-md">
-            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-black leading-tight text-white">
-              {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
-              <br />
-              {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
-            </h1>
-            <p className="mt-4 text-sm text-zinc-400 leading-relaxed">
-              {isAr
-                ? 'ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.'
-                : 'Continue with Google to follow your contracts and saved templates in one place.'}
-            </p>
+          {/* flex-1 + justify-center rather than the outer column's justify-between. With
+              `between`, the header, the form and the footer were pushed to three separate
+              corners of a tall phone screen and the form was left floating alone in the middle
+              of ~400px of nothing — three unrelated objects instead of one page. Centring the
+              form inside the leftover space keeps it a single composition at any height. */}
+          <div className="flex-1 flex flex-col justify-center py-8 lg:py-0">
+            {/* A bordered panel on phones, nothing on desktop. On the split layout the gallery
+                beside it already frames the form; on a phone there is nothing to frame it, and
+                bare text on a starfield reads as unfinished rather than minimal. */}
+            <div className="w-full max-w-md mx-auto lg:mx-0 rounded-3xl border border-zinc-800 bg-zinc-950/70 p-6 sm:p-7 lg:border-0 lg:bg-transparent lg:p-0 lg:rounded-none">
+              <h1 className="text-2xl sm:text-3xl lg:text-[2.75rem] font-black leading-tight text-white">
+                {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
+                <br />
+                {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
+              </h1>
+              <p className="mt-3 lg:mt-4 text-[13px] sm:text-sm text-zinc-400 leading-relaxed">
+                {isAr
+                  ? 'ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.'
+                  : 'Continue with Google to follow your contracts and saved templates in one place.'}
+              </p>
 
-            <div className="mt-7 space-y-2.5">
-              {perks.map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-2.5 text-xs text-zinc-300">
-                  <span className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
-                    <Icon className="w-3.5 h-3.5 text-zinc-300" />
-                  </span>
-                  <span>{text}</span>
-                </div>
-              ))}
-            </div>
-
-            {error && (
-              <div className="mt-6 p-3 rounded-xl bg-red-950/40 border border-red-900/60 text-red-300 text-xs text-center">
-                {error}
+              <div className="mt-5 lg:mt-7 space-y-2.5">
+                {perks.map(({ icon: Icon, text }) => (
+                  <div key={text} className="flex items-center gap-2.5 text-xs text-zinc-300">
+                    <span className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
+                      <Icon className="w-3.5 h-3.5 text-zinc-300" />
+                    </span>
+                    <span>{text}</span>
+                  </div>
+                ))}
               </div>
-            )}
 
-            {/* One button, because there is only one path: Firebase creates the account on a
-                first-time Google sign-in, so "log in" and "sign up" are the same click here and
-                offering both would be two doors into one room. */}
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={isSubmitting}
-              className="nq-btn nq-btn--solid mt-7 w-full py-3.5 rounded-2xl disabled:opacity-60 text-sm font-extrabold flex items-center justify-center gap-3 cursor-pointer"
-            >
-              <span className="nq-btn-beam" aria-hidden="true" />
-              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
-              <span>{isAr ? 'المتابعة عبر Google' : 'Continue with Google'}</span>
-            </button>
+              {error && (
+                <div className="mt-5 p-3 rounded-xl bg-red-950/40 border border-red-900/60 text-red-300 text-xs text-center">
+                  {error}
+                </div>
+              )}
+
+              {/* One button, because there is only one path: Firebase creates the account on a
+                  first-time Google sign-in, so "log in" and "sign up" are the same click here
+                  and offering both would be two doors into one room. */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isSubmitting}
+                className="nq-btn nq-btn--solid mt-6 lg:mt-7 w-full py-3.5 rounded-2xl disabled:opacity-60 text-sm font-extrabold flex items-center justify-center gap-3 cursor-pointer"
+              >
+                <span className="nq-btn-beam" aria-hidden="true" />
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
+                <span>{isAr ? 'المتابعة عبر Google' : 'Continue with Google'}</span>
+              </button>
+            </div>
           </div>
 
-          <p className="text-[11px] text-zinc-600">
+          <p className="shrink-0 text-center lg:text-start text-[11px] text-zinc-600">
             {isAr ? '© NOVAIQ — جميع الحقوق محفوظة' : '© NOVAIQ — All rights reserved'}
           </p>
         </div>
