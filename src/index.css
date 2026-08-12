@@ -1241,6 +1241,40 @@ html[data-flat] .cosmos-layer {
   display: none;
 }
 
+/* ── Sectioned scrolling ────────────────────────────────────────────────────────────────────
+   One gesture, one section. Native CSS scroll snapping rather than a script that watches the
+   wheel and animates scrollTop: the browser does this on the compositor, it understands
+   trackpad momentum and touch flings that no listener can reproduce, and — the reason it is the
+   only option here — it costs nothing per frame on a weak device, which a JS scroll hijacker
+   never manages.
+
+   `mandatory` is safe even though several of these sections are taller than the screen: the spec
+   requires a snap area larger than the scrollport to be freely scrollable within itself, so long
+   sections behave exactly as before and only their edges snap. `scroll-snap-stop: always` is
+   what makes it one section per gesture — without it a fast fling sails past several.
+
+   The targets are the home page's own section ids, so no other page snaps at all. */
+html {
+  scroll-snap-type: y mandatory;
+}
+
+#hero,
+#templates-section,
+#contract-section,
+#timeline-section,
+#about-section,
+.snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Someone who has asked for less motion should not be thrown between sections. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-snap-type: none;
+  }
+}
+
 /* The scroll-driven black hole (ScrollCosmos). Fixed, so it stays put while the page moves past
    it — the effect is the page falling into it, not it scrolling along. Behind everything and
    deaf to the pointer: it is scenery, and nothing on it is ever clicked.

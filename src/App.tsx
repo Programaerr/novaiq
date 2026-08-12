@@ -159,7 +159,13 @@ export default function App() {
   // own glass toolbar in a way nothing there was designed to sit on top of.
   const activeBgImage = activePage === 'custom-request' && selectedTemplateForContract ? selectedTemplateForContract.previewImage : null;
 
-  useSmoothScroll();
+  // useSmoothScroll() is deliberately not called any more.
+  //
+  // Lenis and CSS scroll snapping cannot coexist: Lenis takes the wheel event, cancels the
+  // browser's own scroll and animates scrollTop itself, which is precisely the mechanism snapping
+  // hooks into — so with both on, the page either never snaps or fights the visitor for control.
+  // The page is sectioned now, and the browser's native snapping is both the better feel and free
+  // of the per-frame main-thread callback Lenis ran for the whole session.
   useSectionScrollSpy(activePage, setActiveSection);
   // Halts every animation on the page whenever the window is hidden or unfocused — the
   // always-mounted background otherwise keeps drifting for a tab nobody is looking at.
