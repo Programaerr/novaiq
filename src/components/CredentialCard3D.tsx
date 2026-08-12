@@ -88,9 +88,9 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
  * scaled by hand. These are the same four ideas at the same weight, built from arcs and lines, at
  * the one size they are ever drawn — which is all a 66px badge can show anyway.
  */
-function glyph(ctx: CanvasRenderingContext2D, kind: number, cx: number, cy: number, s: number) {
+function glyph(ctx: CanvasRenderingContext2D, kind: number, cx: number, cy: number, s: number, color: string) {
   ctx.save();
-  ctx.strokeStyle = '#ffffff';
+  ctx.strokeStyle = color;
   ctx.lineWidth = s * 0.13;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -141,18 +141,22 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   const ctx = c.getContext('2d')!;
   clipRounded(ctx, TEX_W, TEX_H);
 
-  // Body
+  // Body. White, and that is a deliberate inversion of the dark card this replaces: on a
+  // near-black page a dark card recedes into it, which is half of why it read as a picture of a
+  // card set into the section rather than an object sitting in front of it. White separates it
+  // from everything behind it before a single pixel of geometry is drawn.
   const g = ctx.createRadialGradient(TEX_W * 0.12, TEX_H * 0.08, 0, TEX_W * 0.12, TEX_H * 0.08, TEX_W * 1.1);
-  g.addColorStop(0, '#2b2b31');
-  g.addColorStop(0.42, '#131317');
-  g.addColorStop(1, '#08080a');
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(0.45, '#f4f4f6');
+  g.addColorStop(1, '#e2e2e8');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
   const PAD = 92;
+  const INK = '#0a0a0c';
 
   // Circuit tracery — the same motif the CSS card carried, at texture scale.
-  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.11)';
   ctx.lineWidth = 3;
   const traces: Array<[number, number][]> = [
     [[0, 230], [369, 230], [438, 300], [722, 300]],
@@ -166,7 +170,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  ctx.fillStyle = 'rgba(0,0,0,0.13)';
   for (const [cx, cy] of [[722, 300], [975, 307], [915, 645], [967, 738]]) {
     ctx.beginPath();
     ctx.arc(cx, cy, 8, 0, Math.PI * 2);
@@ -176,7 +180,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   // Header: wordmark on the reading-start side, chip opposite it — mirrored as a pair so the
   // card is laid out for the language rather than translated inside a Latin layout.
   ctx.textBaseline = 'top';
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = INK;
   ctx.font = '900 76px Cairo, system-ui, sans-serif';
   ctx.letterSpacing = '15px';
   ctx.direction = 'ltr';
@@ -189,12 +193,13 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   const chipX = isAr ? PAD : TEX_W - PAD - CHIP_W;
   const chipY = PAD - 12;
   const chipG = ctx.createLinearGradient(chipX, chipY, chipX + CHIP_W, chipY + CHIP_H);
-  chipG.addColorStop(0, '#d4d4d8');
-  chipG.addColorStop(1, '#71717a');
+  // Gold rather than steel now the card is white: a pale chip on a pale card disappears.
+  chipG.addColorStop(0, '#e8cf87');
+  chipG.addColorStop(1, '#a37f2c');
   ctx.fillStyle = chipG;
   roundRect(ctx, chipX, chipY, CHIP_W, CHIP_H, 16);
   ctx.fill();
-  ctx.fillStyle = 'rgba(39,39,42,0.6)';
+  ctx.fillStyle = 'rgba(60,45,10,0.5)';
   for (let r = 0; r < 2; r++) {
     for (let col = 0; col < 2; col++) {
       roundRect(ctx, chipX + 12 + col * 70, chipY + 12 + r * 51, 58, 39, 7);
@@ -202,7 +207,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     }
   }
   // Contactless mark, beside the chip
-  ctx.strokeStyle = 'rgba(161,161,170,0.75)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.42)';
   ctx.lineWidth = 5;
   ctx.lineCap = 'round';
   const waveX = isAr ? chipX + CHIP_W + 46 : chipX - 46;
@@ -235,30 +240,30 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     const badgeX = isAr ? startX - BADGE : startX;
     const textX = isAr ? startX - BADGE - 24 : startX + BADGE + 24;
 
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillStyle = 'rgba(10,10,12,0.06)';
     roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+    ctx.strokeStyle = 'rgba(10,10,12,0.16)';
     ctx.lineWidth = 2.5;
     roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.stroke();
-    glyph(ctx, i, badgeX + BADGE / 2, top + BADGE / 2, 36);
+    glyph(ctx, i, badgeX + BADGE / 2, top + BADGE / 2, 36, INK);
 
     ctx.direction = isAr ? 'rtl' : 'ltr';
     ctx.textAlign = isAr ? 'right' : 'left';
     const maxText = colW - BADGE - 24;
 
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = INK;
     ctx.font = '700 42px Cairo, system-ui, sans-serif';
     ctx.fillText(title, textX, top - 2, maxText);
 
-    ctx.fillStyle = 'rgba(180,180,190,0.95)';
+    ctx.fillStyle = 'rgba(10,10,12,0.62)';
     ctx.font = '500 31px Cairo, system-ui, sans-serif';
     ctx.fillText(descs[i], textX, top + 52, maxText);
   });
 
   // Footer, opposite the wordmark
-  ctx.fillStyle = 'rgba(170,170,180,0.8)';
+  ctx.fillStyle = 'rgba(10,10,12,0.5)';
   ctx.font = '600 27px Cairo, system-ui, sans-serif';
   ctx.letterSpacing = '5px';
   ctx.direction = isAr ? 'rtl' : 'ltr';
@@ -289,29 +294,29 @@ function drawBack(): HTMLCanvasElement {
   // set of numbers; this is the only place the difference in size is handled.
   ctx.scale(0.5, 0.5);
 
-  ctx.fillStyle = '#0b0b0e';
+  ctx.fillStyle = '#f2f2f5';
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
-  // Magnetic stripe
+  // Magnetic stripe — the one dark element, as on a real card
   const s = ctx.createLinearGradient(0, TEX_H * 0.16, 0, TEX_H * 0.38);
-  s.addColorStop(0, '#18181b');
-  s.addColorStop(0.5, '#000000');
-  s.addColorStop(1, '#18181b');
+  s.addColorStop(0, '#2a2a30');
+  s.addColorStop(0.5, '#0b0b0e');
+  s.addColorStop(1, '#2a2a30');
   ctx.fillStyle = s;
   ctx.fillRect(0, TEX_H * 0.16, TEX_W, TEX_H * 0.22);
 
   // Mark
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.strokeStyle = 'rgba(10,10,12,0.7)';
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(TEX_W / 2, TEX_H * 0.66, 34, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.fillStyle = 'rgba(10,10,12,0.7)';
   ctx.beginPath();
   ctx.arc(TEX_W / 2, TEX_H * 0.66, 12, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = 'rgba(113,113,122,0.9)';
+  ctx.fillStyle = 'rgba(10,10,12,0.5)';
   ctx.font = '600 20px Cairo, system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.direction = 'ltr';
@@ -398,18 +403,20 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
       {/* The body. This is the rim: rounded in plan, bevelled at both edges, and correct from
           every angle because it is genuinely that solid. */}
       <mesh geometry={geometry}>
-        <meshStandardMaterial color="#2a2a31" roughness={0.42} metalness={0.55} />
+        <meshStandardMaterial color="#d8d8de" roughness={0.38} metalness={0.25} />
       </mesh>
 
       {/* The two printed faces, just proud of the body so the rim shows around them. Their
           textures carry transparent corners, so their square outline is never visible. */}
       <mesh position={[0, 0, faceZ]}>
         <planeGeometry args={[CARD_W - 0.012, CARD_H - 0.012]} />
-        <meshStandardMaterial map={front} transparent roughness={0.34} metalness={0.2} />
+        {/* Low metalness on a white surface: a metallic white takes its colour from what it
+            reflects, and with nothing around it to reflect that reads as grey. */}
+        <meshStandardMaterial map={front} transparent roughness={0.42} metalness={0.06} />
       </mesh>
       <mesh position={[0, 0, -faceZ]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[CARD_W - 0.012, CARD_H - 0.012]} />
-        <meshStandardMaterial map={back} transparent roughness={0.5} metalness={0.15} />
+        <meshStandardMaterial map={back} transparent roughness={0.55} metalness={0.05} />
       </mesh>
     </group>
   );
@@ -495,14 +502,17 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
     <div
       // Deliberately wider than the column it sits in, and lifted above everything around it.
       //
-      // `w-[116%] -mx-[8%]` overflows its grid cell evenly on both sides — evenly, so the same
+      // `w-[142%] mx-[-21%]` overflows its grid cell evenly on both sides — evenly, so the same
       // rule works in Arabic and English without a direction-aware variant — and z-30 puts it in
       // front of the panel's border and the copy beside it rather than being boxed in by them.
       // The panel has no overflow clip, so nothing cuts this off.
       //
-      // max-w-lg rather than max-w-md: the breakout is only worth having if the card actually
-      // gets bigger, and on a narrow phone the percentage alone would still leave it small.
-      className="relative z-30 w-[116%] mx-[-8%] max-w-lg aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
+      // The box is larger than the card on purpose: the camera frames the card at ~78% of it, so
+      // the remaining quarter is transparent room for the card to turn through without meeting
+      // the canvas edge (see the camera note). Because that room is part of this element, the
+      // card lands at roughly 111% of its column — bigger than before, not smaller, despite being
+      // framed more loosely.
+      className="relative z-30 w-[142%] mx-[-21%] max-w-2xl aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
       // `none`, so a drag that starts on the card turns the card instead of scrolling the page.
       style={{ touchAction: 'none' }}
       onPointerDown={onPointerDown}
@@ -522,21 +532,31 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           // reason a WebGL card can be cheaper than the CSS one it replaced.
           frameloop="demand"
           dpr={[1, 1.75]}
-          // Framed so the card nearly fills its box, which is what it did as a DOM element and
-          // what it stopped doing when this became a scene. The container is the card's own
-          // 1.586:1, so with a 34° vertical field the visible width at distance d is
-          // 2·d·tan(17°)·1.586 = 0.970·d; at d = 1.78 that is 1.73 world units against a card
-          // 1.586 wide, leaving a hair under 5% of margin. Turning only ever shrinks the card's
-          // projection, so nothing can clip.
-          camera={{ position: [0, 0, 1.78], fov: 34 }}
+          // Pulled back so the card fills about 78% of the frame instead of 95%, and the
+          // container below is enlarged to match so the card itself does not shrink.
+          //
+          // That margin is what stops this looking like a card being shown on a screen. A canvas
+          // is a rectangle and it cannot draw outside itself, so a card framed tightly is a card
+          // pressed against four invisible walls: swing it and the near corner — magnified by
+          // perspective as it comes towards the camera — runs into the edge and is cut off. With
+          // air around it, the whole card stays in frame through a full turn, and since the
+          // canvas is transparent that air is invisible: what you see is an object turning in the
+          // page, not a picture of one inside a box.
+          //
+          // Visible width at distance d is 2·d·tan(17°)·1.586 = 0.970·d; at d = 2.16 that is 2.10
+          // world units against a card 1.586 wide.
+          camera={{ position: [0, 0, 2.16], fov: 34 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         >
-          <ambientLight intensity={1.15} />
-          {/* One directional light, and it is not decoration: the highlight sliding across the
-              card as it turns is this light reflecting off a real surface, rather than the
-              hand-positioned gradient the CSS version had to fake. */}
-          <directionalLight position={[2.2, 2.6, 3.4]} intensity={2.1} />
-          <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.5} />
+          {/* Turned down from what a dark card needed. A white surface is already near the top
+              of the range, so the same lighting flattens it to a solid block with no shading
+              left to show which way it is facing. */}
+          <ambientLight intensity={0.62} />
+          {/* One key light, and it is not decoration: the highlight sliding across the card as it
+              turns is this reflecting off a real surface, rather than the hand-positioned
+              gradient the CSS version had to fake. */}
+          <directionalLight position={[2.2, 2.6, 3.4]} intensity={1.35} />
+          <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.45} />
           <Card isAr={isAr} targetRef={target} />
           <Waker signal={signal} />
         </Canvas>
