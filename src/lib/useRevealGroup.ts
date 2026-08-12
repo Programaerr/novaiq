@@ -117,6 +117,20 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     const REACH_SQ = REACH * REACH;
 
     const paint = (clientX: number, clientY: number, force = false) => {
+      // Nothing at all while a scroll is in flight, and this is the single most important line
+      // in the file for how the page feels.
+      //
+      // Scrolling invalidates the cached boxes, because they are viewport-relative. It also
+      // makes the browser emit pointermove on every scroll frame, since the cards slide under a
+      // cursor that has not moved. Those two together meant each frame of every scroll ran
+      // measure() — one getBoundingClientRect for the group plus one per card, up to fifteen
+      // forced synchronous layouts — before the frame could be painted. That is the case where
+      // scrolling while anything moves goes from smooth to unusable.
+      //
+      // The light simply holds its position for the ~120ms a scroll is running and re-syncs on
+      // the next real pointer move. Freezing a decorative highlight for a fraction of a second
+      // is not something anyone will see; the stutter it replaces is the whole complaint.
+      if (scrolling) return;
       if (stale) measure();
       const gx = clientX - groupX;
       const gy = clientY - groupY;
@@ -208,6 +222,19 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
 
     // Cached boxes are viewport-relative, so both of these move them. Flag-only handlers:
     // the re-measure itself happens inside the next frame's paint, at most once.
+    //
+    // Scrolling additionally suppresses painting outright until it settles — see the guard at
+    // the top of paint() for why that, and not merely re-measuring, is what this needs.
+    let scrolling = false;
+    let scrollTimer = 0;
+    const onScroll = () => {
+      stale = true;
+      scrolling = true;
+      clearTimeout(scrollTimer);
+      scrollTimer = window.setTimeout(() => {
+        scrolling = false;
+      }, 120);
+    };
     const invalidate = () => {
       stale = true;
     };
@@ -219,11 +246,12 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
     group.addEventListener('touchmove', onTouchMove, { passive: true });
     group.addEventListener('touchend', leave, { passive: true });
     group.addEventListener('touchcancel', leave, { passive: true });
-    window.addEventListener('scroll', invalidate, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', invalidate);
 
     detach.current = () => {
       if (frame) cancelAnimationFrame(frame);
+      clearTimeout(scrollTimer);
       group.removeEventListener('pointermove', onPointerMove);
       group.removeEventListener('pointerenter', onPointerEnter);
       group.removeEventListener('pointerleave', onPointerLeave);
@@ -231,7 +259,7 @@ export function useRevealGroup<T extends HTMLElement = HTMLDivElement>() {
       group.removeEventListener('touchmove', onTouchMove);
       group.removeEventListener('touchend', leave);
       group.removeEventListener('touchcancel', leave);
-      window.removeEventListener('scroll', invalidate);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', invalidate);
     };
     // Stable identity: a ref callback that changed each render would be torn down and re-run on
