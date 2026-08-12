@@ -262,9 +262,12 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   });
 
   // Footer, opposite the wordmark
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.font = '600 27px Cairo, system-ui, sans-serif';
-  ctx.letterSpacing = '5px';
+  // Bigger and darker than it was: at 27px and half-opacity this line was reported as simply not
+  // visible on a phone, which it effectively was not — it worked out to about nine screen pixels
+  // tall after the canvas had been rendered and scaled.
+  ctx.fillStyle = 'rgba(0,0,0,0.66)';
+  ctx.font = '700 34px Cairo, system-ui, sans-serif';
+  ctx.letterSpacing = '4px';
   ctx.direction = isAr ? 'rtl' : 'ltr';
   ctx.textAlign = isAr ? 'left' : 'right';
   ctx.fillText(
@@ -470,7 +473,11 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     clearTimeout(restTimer.current);
     drag.current = { px: e.clientX, py: e.clientY, ax: target.current.x, ay: target.current.y };
-    e.currentTarget.setPointerCapture?.(e.pointerId);
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* capture is a convenience — the drag still works without it */
+    }
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -487,7 +494,16 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!drag.current) return;
     drag.current = null;
-    e.currentTarget.releasePointerCapture?.(e.pointerId);
+
+    // The rest timer is armed BEFORE the capture is released, and the release is wrapped —
+    // between them they are the reason a card could be left standing on its edge for good.
+    //
+    // releasePointerCapture throws NotFoundError when the pointer is not actually captured, and
+    // that is the normal state on `pointercancel`: the browser has already taken the capture away
+    // before telling us. The throw propagated out of this handler and killed everything after it,
+    // which was the line that scheduled the return home — so on a phone, where cancel is what
+    // ends a gesture the browser decides to claim, the card simply stayed where the finger left
+    // it. `?.` does not help: the method exists, it is the call that fails.
     clearTimeout(restTimer.current);
     // Home by the shortest route: a card left at four full turns looks identical to one at rest,
     // so it goes to the nearest whole revolution rather than unwinding everything it was given.
@@ -496,6 +512,12 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
       const near = (v: number) => Math.round(v / (Math.PI * 2)) * Math.PI * 2;
       turnTo(near(target.current.x), near(target.current.y));
     }, 3000);
+
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* already released by the browser — nothing to undo */
+    }
   };
 
   return (
@@ -514,7 +536,17 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
       // there), and the rest is transparent turning room. So the visible card is roughly 0.63 of
       // these numbers — about 300px on a phone and 380px on a desktop — rather than the whole
       // width, which is why 136% here is not the card growing by a third.
-      className="relative z-30 w-[152%] mx-[-26%] max-w-[46rem] lg:w-full lg:mx-0 lg:max-w-[40rem] aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
+      // Negative margins on all four sides, not just left and right.
+      //
+      // Horizontal alone only got the card past the panel's side padding; the ask is that it
+      // leave the panel's black rounded border entirely and lie over the copy below it, which
+      // needs vertical overflow too. `my` is smaller than `mx` because the copy underneath is
+      // what gets covered, and burying it is not the effect — clearing the border and resting
+      // over the first line or two is.
+      //
+      // Everything above and below still reflows as if the card were its normal height, so
+      // nothing else on the page moves; z-30 decides what is on top.
+      className="relative z-30 w-[168%] mx-[-34%] my-[-9%] max-w-[52rem] lg:w-full lg:mx-0 lg:my-[-6%] lg:max-w-[46rem] aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
       // `none`, so a drag that starts on the card turns the card instead of scrolling the page.
       style={{ touchAction: 'none' }}
       onPointerDown={onPointerDown}
