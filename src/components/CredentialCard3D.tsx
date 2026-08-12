@@ -44,24 +44,26 @@ interface CredentialCard3DProps {
  * being re-rasterised per frame.
  */
 
-const TEX_W = 1024;
-const TEX_H = 646; // 1.586:1, the ISO card ratio
+// The card now breaks out of its column to about 34rem (544px); a phone at three device pixels
+// to one wants ~1630 real pixels across it, so anything much below this is visibly soft text.
+const TEX_W = 1600;
+const TEX_H = 1009; // 1.586:1, the ISO card ratio
 const CARD_W = 1.586;
 const CARD_H = 1;
 const CARD_D = 0.05;
 const CARD_R = 0.1; // corner radius in world units
 
 /** Rounded-rectangle clip, so the texture's own corners are transparent and match the mesh. */
-function clipRounded(ctx: CanvasRenderingContext2D) {
-  const r = (CARD_R / CARD_W) * TEX_W;
+function clipRounded(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const r = (CARD_R / CARD_W) * w;
   ctx.beginPath();
   ctx.moveTo(r, 0);
-  ctx.lineTo(TEX_W - r, 0);
-  ctx.quadraticCurveTo(TEX_W, 0, TEX_W, r);
-  ctx.lineTo(TEX_W, TEX_H - r);
-  ctx.quadraticCurveTo(TEX_W, TEX_H, TEX_W - r, TEX_H);
-  ctx.lineTo(r, TEX_H);
-  ctx.quadraticCurveTo(0, TEX_H, 0, TEX_H - r);
+  ctx.lineTo(w - r, 0);
+  ctx.quadraticCurveTo(w, 0, w, r);
+  ctx.lineTo(w, h - r);
+  ctx.quadraticCurveTo(w, h, w - r, h);
+  ctx.lineTo(r, h);
+  ctx.quadraticCurveTo(0, h, 0, h - r);
   ctx.lineTo(0, r);
   ctx.quadraticCurveTo(0, 0, r, 0);
   ctx.closePath();
@@ -78,12 +80,66 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath();
 }
 
+/**
+ * The four guarantee glyphs, drawn rather than imported.
+ *
+ * The DOM card used lucide's Clock / ShieldCheck / Award / Globe2. A texture cannot mount a React
+ * icon, and shipping their path data would be copying a library's internals into this file to be
+ * scaled by hand. These are the same four ideas at the same weight, built from arcs and lines, at
+ * the one size they are ever drawn — which is all a 66px badge can show anyway.
+ */
+function glyph(ctx: CanvasRenderingContext2D, kind: number, cx: number, cy: number, s: number) {
+  ctx.save();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = s * 0.13;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  if (kind === 0) {
+    // Clock
+    ctx.arc(cx, cy, s * 0.5, 0, Math.PI * 2);
+    ctx.moveTo(cx, cy - s * 0.28);
+    ctx.lineTo(cx, cy);
+    ctx.lineTo(cx + s * 0.22, cy + s * 0.14);
+  } else if (kind === 1) {
+    // Shield with a check
+    ctx.moveTo(cx, cy - s * 0.52);
+    ctx.lineTo(cx + s * 0.44, cy - s * 0.3);
+    ctx.lineTo(cx + s * 0.44, cy + s * 0.06);
+    ctx.quadraticCurveTo(cx + s * 0.44, cy + s * 0.42, cx, cy + s * 0.55);
+    ctx.quadraticCurveTo(cx - s * 0.44, cy + s * 0.42, cx - s * 0.44, cy + s * 0.06);
+    ctx.lineTo(cx - s * 0.44, cy - s * 0.3);
+    ctx.closePath();
+    ctx.moveTo(cx - s * 0.2, cy + s * 0.02);
+    ctx.lineTo(cx - s * 0.04, cy + s * 0.18);
+    ctx.lineTo(cx + s * 0.24, cy - s * 0.16);
+  } else if (kind === 2) {
+    // Award: medal over a ribbon
+    ctx.arc(cx, cy - s * 0.16, s * 0.34, 0, Math.PI * 2);
+    ctx.moveTo(cx - s * 0.22, cy + s * 0.12);
+    ctx.lineTo(cx - s * 0.3, cy + s * 0.56);
+    ctx.lineTo(cx, cy + s * 0.38);
+    ctx.lineTo(cx + s * 0.3, cy + s * 0.56);
+    ctx.lineTo(cx + s * 0.22, cy + s * 0.12);
+  } else {
+    // Globe: outline, equator, meridian
+    ctx.arc(cx, cy, s * 0.5, 0, Math.PI * 2);
+    ctx.moveTo(cx - s * 0.5, cy);
+    ctx.lineTo(cx + s * 0.5, cy);
+    ctx.moveTo(cx, cy - s * 0.5);
+    ctx.bezierCurveTo(cx + s * 0.32, cy - s * 0.2, cx + s * 0.32, cy + s * 0.2, cx, cy + s * 0.5);
+    ctx.bezierCurveTo(cx - s * 0.32, cy + s * 0.2, cx - s * 0.32, cy - s * 0.2, cx, cy - s * 0.5);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawFront(isAr: boolean): HTMLCanvasElement {
   const c = document.createElement('canvas');
   c.width = TEX_W;
   c.height = TEX_H;
   const ctx = c.getContext('2d')!;
-  clipRounded(ctx);
+  clipRounded(ctx, TEX_W, TEX_H);
 
   // Body
   const g = ctx.createRadialGradient(TEX_W * 0.12, TEX_H * 0.08, 0, TEX_W * 0.12, TEX_H * 0.08, TEX_W * 1.1);
@@ -93,14 +149,16 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
+  const PAD = 92;
+
   // Circuit tracery — the same motif the CSS card carried, at texture scale.
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+  ctx.lineWidth = 3;
   const traces: Array<[number, number][]> = [
-    [[0, 154], [246, 154], [292, 200], [482, 200]],
-    [[1024, 246], [840, 246], [799, 205], [650, 205]],
-    [[0, 487], [307, 487], [364, 430], [610, 430]],
-    [[1024, 538], [793, 538], [747, 492], [645, 492]],
+    [[0, 230], [369, 230], [438, 300], [722, 300]],
+    [[TEX_W, 369], [1260, 369], [1199, 307], [975, 307]],
+    [[0, 730], [461, 730], [546, 645], [915, 645]],
+    [[TEX_W, 807], [1190, 807], [1121, 738], [967, 738]],
   ];
   for (const pts of traces) {
     ctx.beginPath();
@@ -108,97 +166,128 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(255,255,255,0.18)';
-  for (const [cx, cy] of [[482, 200], [650, 205], [610, 430], [645, 492]]) {
+  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  for (const [cx, cy] of [[722, 300], [975, 307], [915, 645], [967, 738]]) {
     ctx.beginPath();
-    ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+    ctx.arc(cx, cy, 8, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // Wordmark
-  ctx.fillStyle = '#ffffff';
+  // Header: wordmark on the reading-start side, chip opposite it — mirrored as a pair so the
+  // card is laid out for the language rather than translated inside a Latin layout.
   ctx.textBaseline = 'top';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 76px Cairo, system-ui, sans-serif';
+  ctx.letterSpacing = '15px';
   ctx.direction = 'ltr';
-  ctx.textAlign = 'left';
-  ctx.font = '900 44px Cairo, system-ui, sans-serif';
-  ctx.letterSpacing = '10px';
-  ctx.fillText('NOVAIQ', 62, 56);
+  ctx.textAlign = isAr ? 'right' : 'left';
+  ctx.fillText('NOVAIQ', isAr ? TEX_W - PAD : PAD, PAD - 6);
   ctx.letterSpacing = '0px';
 
-  // Chip
-  const chipX = TEX_W - 62 - 104;
-  const chipY = 52;
-  const chipG = ctx.createLinearGradient(chipX, chipY, chipX + 104, chipY + 78);
+  const CHIP_W = 152;
+  const CHIP_H = 114;
+  const chipX = isAr ? PAD : TEX_W - PAD - CHIP_W;
+  const chipY = PAD - 12;
+  const chipG = ctx.createLinearGradient(chipX, chipY, chipX + CHIP_W, chipY + CHIP_H);
   chipG.addColorStop(0, '#d4d4d8');
   chipG.addColorStop(1, '#71717a');
   ctx.fillStyle = chipG;
-  roundRect(ctx, chipX, chipY, 104, 78, 12);
+  roundRect(ctx, chipX, chipY, CHIP_W, CHIP_H, 16);
   ctx.fill();
-  ctx.fillStyle = 'rgba(39,39,42,0.65)';
+  ctx.fillStyle = 'rgba(39,39,42,0.6)';
   for (let r = 0; r < 2; r++) {
     for (let col = 0; col < 2; col++) {
-      roundRect(ctx, chipX + 8 + col * 48, chipY + 8 + r * 35, 40, 27, 5);
+      roundRect(ctx, chipX + 12 + col * 70, chipY + 12 + r * 51, 58, 39, 7);
       ctx.fill();
     }
   }
+  // Contactless mark, beside the chip
+  ctx.strokeStyle = 'rgba(161,161,170,0.75)';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  const waveX = isAr ? chipX + CHIP_W + 46 : chipX - 46;
+  for (let i = 1; i <= 3; i++) {
+    ctx.beginPath();
+    ctx.arc(waveX, chipY + CHIP_H / 2, i * 13, isAr ? Math.PI * 0.72 : -Math.PI * 0.28, isAr ? Math.PI * 1.28 : Math.PI * 0.28);
+    ctx.stroke();
+  }
 
-  // Guarantees, two columns
-  const items = isAr
+  // The four guarantees: badge, title, and the description line underneath. The description is
+  // what the DOM card dropped below the `sm` breakpoint; the texture is a fixed 1.586:1 canvas
+  // rather than a responsive box, so there is always room for it and it is always drawn.
+  const titles = isAr
     ? ['تسليم سريع ومنظم', 'مواصفات برمجية دقيقة', 'دعم فني متكامل', 'أداء فائق السرعة']
     : ['Fast, structured delivery', 'Precise technical specs', 'Complete technical support', 'Blazing performance'];
+  const descs = isAr
+    ? ['منهجية برمجية واضحة ومحددة', 'حقوق الكود كاملة مع الحفظ', 'متابعة دورية حسب الاتفاق', 'أحدث التقنيات لسرعة استثنائية']
+    : ['Clear timeline and sprints', 'Full code ownership', 'Ongoing technical SLA', 'Modern web tech stacks'];
 
-  ctx.direction = isAr ? 'rtl' : 'ltr';
-  const colW = (TEX_W - 124 - 40) / 2;
-  items.forEach((label, i) => {
+  const GAP = 40;
+  const colW = (TEX_W - PAD * 2 - GAP) / 2;
+  const BADGE = 78;
+
+  titles.forEach((title, i) => {
     const col = i % 2;
     const row = (i / 2) | 0;
-    const top = 258 + row * 96;
-    // The badge sits on the reading-start side, so it leads the text in both directions.
-    const startX = isAr
-      ? TEX_W - 62 - col * (colW + 40)
-      : 62 + col * (colW + 40);
-    const badgeX = isAr ? startX - 46 : startX;
+    const top = 386 + row * 176;
+    // Columns run from the reading-start edge inward, so column order follows the language.
+    const startX = isAr ? TEX_W - PAD - col * (colW + GAP) : PAD + col * (colW + GAP);
+    const badgeX = isAr ? startX - BADGE : startX;
+    const textX = isAr ? startX - BADGE - 24 : startX + BADGE + 24;
 
     ctx.fillStyle = 'rgba(255,255,255,0.08)';
-    roundRect(ctx, badgeX, top, 46, 46, 12);
+    roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    ctx.lineWidth = 2;
-    roundRect(ctx, badgeX, top, 46, 46, 12);
+    ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+    ctx.lineWidth = 2.5;
+    roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.beginPath();
-    ctx.arc(badgeX + 23, top + 23, 6, 0, Math.PI * 2);
-    ctx.fill();
+    glyph(ctx, i, badgeX + BADGE / 2, top + BADGE / 2, 36);
+
+    ctx.direction = isAr ? 'rtl' : 'ltr';
+    ctx.textAlign = isAr ? 'right' : 'left';
+    const maxText = colW - BADGE - 24;
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '700 26px Cairo, system-ui, sans-serif';
-    ctx.textAlign = isAr ? 'right' : 'left';
-    ctx.fillText(label, isAr ? startX - 62 : startX + 62, top + 10, colW - 70);
+    ctx.font = '700 42px Cairo, system-ui, sans-serif';
+    ctx.fillText(title, textX, top - 2, maxText);
+
+    ctx.fillStyle = 'rgba(180,180,190,0.95)';
+    ctx.font = '500 31px Cairo, system-ui, sans-serif';
+    ctx.fillText(descs[i], textX, top + 52, maxText);
   });
 
-  // Footer
-  ctx.fillStyle = 'rgba(161,161,170,0.75)';
-  ctx.font = '600 19px Cairo, system-ui, sans-serif';
-  ctx.letterSpacing = '4px';
-  ctx.textAlign = isAr ? 'right' : 'left';
+  // Footer, opposite the wordmark
+  ctx.fillStyle = 'rgba(170,170,180,0.8)';
+  ctx.font = '600 27px Cairo, system-ui, sans-serif';
+  ctx.letterSpacing = '5px';
   ctx.direction = isAr ? 'rtl' : 'ltr';
+  ctx.textAlign = isAr ? 'left' : 'right';
   ctx.fillText(
     isAr ? 'شركة برمجية عراقية' : 'IRAQI SOFTWARE STUDIO',
-    isAr ? TEX_W - 62 : 62,
-    TEX_H - 74,
+    isAr ? PAD : TEX_W - PAD,
+    TEX_H - PAD - 20,
   );
   ctx.letterSpacing = '0px';
 
   return c;
 }
 
+// Half the front's resolution. The back is a stripe, a mark and one line of small type — there is
+// no dense text on it to keep crisp, and at full size the pair of textures would cost about 21MB
+// of GPU memory with mipmaps, which is real money on the weak phones this has to run on.
+const BACK_W = TEX_W / 2;
+const BACK_H = TEX_H / 2;
+
 function drawBack(): HTMLCanvasElement {
   const c = document.createElement('canvas');
-  c.width = TEX_W;
-  c.height = TEX_H;
+  c.width = BACK_W;
+  c.height = BACK_H;
   const ctx = c.getContext('2d')!;
-  clipRounded(ctx);
+  clipRounded(ctx, BACK_W, BACK_H);
+  // Everything below is written in front-texture units, so the two faces stay described by one
+  // set of numbers; this is the only place the difference in size is handled.
+  ctx.scale(0.5, 0.5);
 
   ctx.fillStyle = '#0b0b0e';
   ctx.fillRect(0, 0, TEX_W, TEX_H);
@@ -272,7 +361,9 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
     const mk = (canvas: HTMLCanvasElement) => {
       const t = new THREE.CanvasTexture(canvas);
       t.colorSpace = THREE.SRGBColorSpace;
-      t.anisotropy = 4;
+      // The card is read at an angle for most of a turn, which is exactly when a texture without
+      // anisotropic filtering goes to mush along the receding edge.
+      t.anisotropy = 8;
       return t;
     };
     return [mk(drawFront(isAr)), mk(drawBack())];
@@ -378,7 +469,12 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d) return;
-    turnTo(d.ax - (e.clientY - d.py) * 0.007, d.ay + (e.clientX - d.px) * 0.008);
+    // Vertical is `+`, and the sign is not arbitrary: CSS's Y axis points down and three.js's
+    // points up, so the rotation this card had as a DOM element inverts on the X axis when moved
+    // into a scene. Dragging down must bring the top edge towards the viewer, which is a positive
+    // rotation.x here and was a negative rotateX there. Horizontal needs no such flip — both
+    // systems turn the right edge away for a positive rotation about Y.
+    turnTo(d.ax + (e.clientY - d.py) * 0.007, d.ay + (e.clientX - d.px) * 0.008);
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -397,7 +493,16 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
 
   return (
     <div
-      className="w-full max-w-md mx-auto aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
+      // Deliberately wider than the column it sits in, and lifted above everything around it.
+      //
+      // `w-[116%] -mx-[8%]` overflows its grid cell evenly on both sides — evenly, so the same
+      // rule works in Arabic and English without a direction-aware variant — and z-30 puts it in
+      // front of the panel's border and the copy beside it rather than being boxed in by them.
+      // The panel has no overflow clip, so nothing cuts this off.
+      //
+      // max-w-lg rather than max-w-md: the breakout is only worth having if the card actually
+      // gets bigger, and on a narrow phone the percentage alone would still leave it small.
+      className="relative z-30 w-[116%] mx-[-8%] max-w-lg aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
       // `none`, so a drag that starts on the card turns the card instead of scrolling the page.
       style={{ touchAction: 'none' }}
       onPointerDown={onPointerDown}
@@ -417,7 +522,13 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           // reason a WebGL card can be cheaper than the CSS one it replaced.
           frameloop="demand"
           dpr={[1, 1.75]}
-          camera={{ position: [0, 0, 2.35], fov: 34 }}
+          // Framed so the card nearly fills its box, which is what it did as a DOM element and
+          // what it stopped doing when this became a scene. The container is the card's own
+          // 1.586:1, so with a 34° vertical field the visible width at distance d is
+          // 2·d·tan(17°)·1.586 = 0.970·d; at d = 1.78 that is 1.73 world units against a card
+          // 1.586 wide, leaving a hair under 5% of margin. Turning only ever shrinks the card's
+          // projection, so nothing can clip.
+          camera={{ position: [0, 0, 1.78], fov: 34 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         >
           <ambientLight intensity={1.15} />

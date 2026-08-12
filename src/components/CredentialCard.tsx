@@ -27,7 +27,9 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     <Suspense
       fallback={
         <div
-          className="w-full max-w-md mx-auto aspect-[1.586/1] rounded-2xl border border-white/12"
+          // Matches the scene's own breakout box exactly, so the page does not shift when the
+          // real card arrives — see the note on that element in CredentialCard3D.
+          className="relative z-30 w-[116%] mx-[-8%] max-w-lg aspect-[1.586/1] rounded-2xl border border-white/12"
           style={{
             background:
               'radial-gradient(120% 110% at 12% 8%, #2b2b31 0%, #131317 42%, #08080a 100%)',
