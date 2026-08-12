@@ -917,6 +917,25 @@
   }
 }
 
+/* Cover geometry for the home page's template belt (FloatingTemplateCards.tsx). Its own scale
+   rather than the sign-in gallery's: that one fills half a screen, this one sits in a 26rem
+   frame beside a heading, and the gallery's 160x420 capsules would show barely one and a half
+   covers per column here. The proportion differs on purpose too — these read as template
+   screenshots, where the gallery's read as tall capsules. */
+.template-belt {
+  --belt-w: 104px;
+  --belt-h: 136px;
+  --belt-gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .template-belt {
+    --belt-w: 132px;
+    --belt-h: 172px;
+    --belt-gap: 16px;
+  }
+}
+
 .login-marquee__track {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
