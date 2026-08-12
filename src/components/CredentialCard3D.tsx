@@ -49,6 +49,28 @@ interface CredentialCard3DProps {
 // to one wants ~1630 real pixels across it, so anything much below this is visibly soft text.
 const TEX_W = 1600;
 const TEX_H = 1009; // 1.586:1, the ISO card ratio
+
+/** The card's type, and the site's: one family, so the card is not a foreign object on the page. */
+const FONT = "'Cairo', system-ui, sans-serif";
+
+/**
+ * The logo, loaded once at module scope rather than per mount.
+ *
+ * Loading it inside the component meant the back was drawn blank first and repainted when the
+ * image arrived — and if that repaint was missed for any reason, the reverse of the card was
+ * simply empty, which is what was reported. Starting the fetch when this module is first imported
+ * means it is normally decoded before the card is even mounted, and anything that mounts later
+ * gets it synchronously.
+ */
+const markImage = new Image();
+let markReady = false;
+const markWaiters = new Set<() => void>();
+markImage.onload = () => {
+  markReady = true;
+  for (const w of markWaiters) w();
+  markWaiters.clear();
+};
+markImage.src = logoMark;
 const CARD_W = 1.586;
 const CARD_H = 1;
 const CARD_D = 0.05;
@@ -155,25 +177,51 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   const PAD = 92;
   const INK = '#000000';
 
-  // Circuit tracery — the same motif the CSS card carried, at texture scale.
-  ctx.strokeStyle = 'rgba(0,0,0,0.13)';
-  ctx.lineWidth = 3;
+  // Circuit tracery, engraved rather than printed.
+  //
+  // A groove cut into a surface is read from two cues and only two: the far wall of the cut is in
+  // shadow, and the near lip of it catches the light. So each line is drawn twice — once in white
+  // offset down-right by a pixel and a half, once in black on the true path — and the eye reads
+  // the pair as a channel below the surface instead of ink on top of it. The offset direction has
+  // to agree with the scene's key light, which comes from the upper left; reverse it and the same
+  // two strokes read as raised instead.
   const traces: Array<[number, number][]> = [
     [[0, 230], [369, 230], [438, 300], [722, 300]],
     [[TEX_W, 369], [1260, 369], [1199, 307], [975, 307]],
     [[0, 730], [461, 730], [546, 645], [915, 645]],
     [[TEX_W, 807], [1190, 807], [1121, 738], [967, 738]],
   ];
-  for (const pts of traces) {
+  const dots: Array<[number, number]> = [[722, 300], [975, 307], [915, 645], [967, 738]];
+
+  const strokeTraces = (dx: number, dy: number, style: string, width: number) => {
+    ctx.strokeStyle = style;
+    ctx.lineWidth = width;
+    ctx.lineJoin = 'round';
+    for (const pts of traces) {
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0] + dx, pts[0][1] + dy);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0] + dx, pts[i][1] + dy);
+      ctx.stroke();
+    }
+    for (const [cx, cy] of dots) {
+      ctx.beginPath();
+      ctx.arc(cx + dx, cy + dy, 9, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  };
+
+  strokeTraces(1.5, 1.5, 'rgba(255,255,255,0.95)', 3.5); // lit lip
+  strokeTraces(0, 0, 'rgba(0,0,0,0.3)', 3.5); // shadowed cut
+
+  // The pads at the ends of each run, sunk the same way.
+  for (const [cx, cy] of dots) {
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
     ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-    ctx.stroke();
-  }
-  ctx.fillStyle = 'rgba(0,0,0,0.16)';
-  for (const [cx, cy] of [[722, 300], [975, 307], [915, 645], [967, 738]]) {
+    ctx.arc(cx + 1.5, cy + 1.5, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,0.34)';
     ctx.beginPath();
-    ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+    ctx.arc(cx, cy, 9, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -181,7 +229,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   // card is laid out for the language rather than translated inside a Latin layout.
   ctx.textBaseline = 'top';
   ctx.fillStyle = INK;
-  ctx.font = '900 76px Cairo, system-ui, sans-serif';
+  ctx.font = `900 76px ${FONT}`;
   ctx.letterSpacing = '15px';
   ctx.direction = 'ltr';
   ctx.textAlign = isAr ? 'right' : 'left';
@@ -254,13 +302,13 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     const maxText = colW - BADGE - 24;
 
     ctx.fillStyle = INK;
-    ctx.font = '800 56px Cairo, system-ui, sans-serif';
+    ctx.font = `800 56px ${FONT}`;
     ctx.fillText(title, textX, top - 8, maxText);
 
     // 600 rather than 500, and 82% black rather than 68%: on a white card at this size those two
     // changes are the difference between a second line you read and one you merely notice.
     ctx.fillStyle = 'rgba(0,0,0,0.82)';
-    ctx.font = '600 40px Cairo, system-ui, sans-serif';
+    ctx.font = `600 40px ${FONT}`;
     ctx.fillText(descs[i], textX, top + 62, maxText);
   });
 
@@ -269,7 +317,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   // visible on a phone, which it effectively was not — it worked out to about nine screen pixels
   // tall after the canvas had been rendered and scaled.
   ctx.fillStyle = 'rgba(0,0,0,0.66)';
-  ctx.font = '700 34px Cairo, system-ui, sans-serif';
+  ctx.font = `700 34px ${FONT}`;
   ctx.letterSpacing = '4px';
   ctx.direction = isAr ? 'rtl' : 'ltr';
   ctx.textAlign = isAr ? 'left' : 'right';
@@ -336,7 +384,7 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
   }
 
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.font = '600 30px Cairo, system-ui, sans-serif';
+  ctx.font = `600 30px ${FONT}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   ctx.direction = 'ltr';
@@ -408,21 +456,21 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
   const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
     let alive = true;
-    const img = new Image();
     const paint = () => {
       if (!alive) return;
-      drawBack(back.image as HTMLCanvasElement, img);
+      drawBack(back.image as HTMLCanvasElement, markImage);
       back.needsUpdate = true;
+      // needsUpdate alone is not enough under frameloop="demand": the texture would be re-uploaded
+      // on the next frame, and there is no next frame until something asks for one.
       invalidate();
     };
-    // Handler before `src`, and a `complete` check after it: an image already in cache can finish
-    // before the assignment returns, and a load event that has already happened never fires again.
-    img.onload = paint;
-    img.decoding = 'async';
-    img.src = logoMark;
-    if (img.complete && img.naturalWidth > 0) paint();
+
+    if (markReady) paint();
+    else markWaiters.add(paint);
+
     return () => {
       alive = false;
+      markWaiters.delete(paint);
     };
   }, [back, invalidate]);
 
@@ -554,13 +602,34 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
   const touched = useRef(0);
   const [ready, setReady] = useState(false);
 
-  // Fonts first: a texture drawn before Cairo has loaded bakes the fallback face into the card
-  // permanently, because it is uploaded to the GPU once and never redrawn.
+  // Cairo first, and asked for by name rather than waited on generically.
+  //
+  // A texture drawn before the font has arrived bakes the fallback face into the card for good —
+  // it is uploaded to the GPU once and never redrawn. `document.fonts.ready` is not enough on its
+  // own here: these @font-face rules are split by unicode-range, so the browser fetches Cairo only
+  // once something on the page actually needs those characters, and `ready` can resolve perfectly
+  // happily before that has been requested at all. `fonts.load()` asks for the exact weights this
+  // card draws with and resolves when they are usable.
   useEffect(() => {
     let alive = true;
-    const go = () => alive && setReady(true);
-    if (document.fonts?.ready) document.fonts.ready.then(go).catch(go);
-    else go();
+    const go = () => {
+      if (alive) setReady(true);
+    };
+
+    const fonts = document.fonts;
+    if (fonts?.load) {
+      Promise.all([
+        fonts.load(`900 76px ${FONT}`),
+        fonts.load(`800 56px ${FONT}`),
+        fonts.load(`600 40px ${FONT}`),
+        fonts.load(`700 34px ${FONT}`),
+      ])
+        .then(go)
+        .catch(go);
+    } else {
+      go();
+    }
+
     return () => {
       alive = false;
       clearTimeout(restTimer.current);
