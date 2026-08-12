@@ -159,10 +159,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               of ~400px of nothing — three unrelated objects instead of one page. Centring the
               form inside the leftover space keeps it a single composition at any height. */}
           <div className="flex-1 flex flex-col justify-center py-8 lg:py-0">
-            {/* A bordered panel on phones, nothing on desktop. On the split layout the gallery
-                beside it already frames the form; on a phone there is nothing to frame it, and
-                bare text on a starfield reads as unfinished rather than minimal. */}
-            <div className="w-full max-w-md mx-auto lg:mx-0 rounded-3xl border border-zinc-800 bg-zinc-950/70 p-6 sm:p-7 lg:border-0 lg:bg-transparent lg:p-0 lg:rounded-none">
+            {/* A solid panel on phones, nothing on desktop. On the split layout the gallery
+                beside it already frames the form; on a phone the gallery is *behind* it, and
+                this is what the covers pass under.
+                Opaque (98%) rather than the 70% it was: at 70% a drifting gallery showed
+                through the panel itself, so the covers crossed behind the buttons and the text
+                sat on a moving surface. The point of a panel here is that it is a surface —
+                content slides under its edge and is simply not visible past it, and nothing
+                ever overlaps the buttons. The shadow is what sells that: it lifts the panel off
+                the gallery so the two read as two planes rather than one busy one. */}
+            <div className="w-full max-w-md mx-auto lg:mx-0 rounded-3xl border border-zinc-700/80 bg-zinc-950/98 shadow-2xl shadow-black/70 p-6 sm:p-7 lg:border-0 lg:bg-transparent lg:shadow-none lg:p-0 lg:rounded-none">
               <h1 className="text-2xl sm:text-3xl lg:text-[2.75rem] font-black leading-tight text-white">
                 {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
                 <br />
@@ -342,13 +348,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             }}
           />
 
-          {/* Phone only: the wash that turns the gallery from a subject into a backdrop. The
-              form sits directly on top of it here, so the covers have to lose enough contrast
-              that white text on them is comfortable rather than merely legible. A flat rgba
-              layer and not a backdrop-filter — blurring a full-screen, permanently animating
-              layer is exactly the kind of per-frame rasterisation this site has been stripped
-              of everywhere else, and it would buy nothing a solid scrim does not. */}
-          <div className="lg:hidden absolute inset-0 bg-black/78 pointer-events-none" />
+          {/* Phone only, and deliberately light. This was `bg-black/78`, which did keep text
+              legible — by hiding the gallery almost entirely, leaving a dark smear where the
+              covers were meant to be. Legibility is not this layer's job: the sign-in panel
+              below is opaque and carries its own contrast, so all this has to do is settle the
+              covers back a step so they read as a backdrop rather than compete with the panel
+              sitting on them. At 30% the images stay clearly visible and the motion is plain.
+              A flat rgba layer and not a backdrop-filter — blurring a full-screen, permanently
+              animating layer is exactly the per-frame rasterisation this site has been stripped
+              of everywhere else. */}
+          <div className="lg:hidden absolute inset-0 bg-black/30 pointer-events-none" />
         </div>
       </div>
     </div>
