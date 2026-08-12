@@ -139,7 +139,7 @@ const FRAG = /* glsl */ `
     float nebula = cloud * (0.07 + 0.05 * nova) * smoothstep(0.08, 0.55, r);
 
     // ── Supernova ────────────────────────────────────────────────────────────────────────
-    // Two parts: the act's own detonation, which grows with `nova` and so is tied to where you
+    // Two parts: the act's own detonation, which grows with 'nova' and so is tied to where you
     // are in the section, and a sharper shell fired the instant a boundary is crossed.
     float rays = 0.55 + 0.45 * cos(a * 14.0 + uProgress * 4.0);
     float core = nova * (0.5 * exp(-r * 8.0) + 0.35 * exp(-r * 2.6) * rays);
