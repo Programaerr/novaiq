@@ -31,13 +31,13 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           // real card arrives — see the note on that element in CredentialCard3D. Inset by the
           // same ~11% the camera leaves as turning room, so the placeholder sits where the card
           // will actually be rather than filling the whole box.
-          className="relative z-30 w-[142%] mx-[-21%] max-w-2xl aspect-[1.586/1] p-[11%]"
+          className="relative z-30 w-[136%] mx-[-18%] max-w-[40rem] lg:w-full lg:mx-0 aspect-[1.586/1] p-[18.5%]"
         >
           <div
-            className="w-full h-full rounded-2xl border border-black/10"
+            className="w-full h-full rounded-2xl border border-white/12"
             style={{
               background:
-                'radial-gradient(120% 110% at 12% 8%, #ffffff 0%, #f4f4f6 45%, #e2e2e8 100%)',
+                'radial-gradient(120% 110% at 12% 8%, #2b2b31 0%, #131317 42%, #08080a 100%)',
             }}
             aria-label={isAr ? 'جارِ تحميل بطاقة الضمانات' : 'Loading the guarantees card'}
             role="img"
