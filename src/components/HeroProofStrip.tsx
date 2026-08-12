@@ -37,7 +37,17 @@ export const HeroProofStrip: React.FC<HeroProofStripProps> = ({ language, onExpl
 
   // Rendered twice so the -50% travel lands the second copy exactly where the first began. The
   // duplicate is the mechanism, not an oversight — see the marquee note in index.css.
-  const covers = useMemo(() => templatesData.map((t) => t.previewImage), []);
+  const covers = useMemo(() => {
+    const base = templatesData.map((t) => t.previewImage);
+    if (base.length === 0) return base;
+    // Padded until the row is long enough to cover a wide screen twice. A track narrower than the
+    // frame does not read as an endless belt — it reaches its end, snaps, and the loop becomes the
+    // thing you notice. Eight is the point where two passes clear a desktop at the larger cover
+    // size, so the repeat happens off-screen where it belongs.
+    const out = [...base];
+    while (out.length < 8) out.push(...base);
+    return out;
+  }, []);
 
   if (covers.length === 0) return null;
 

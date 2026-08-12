@@ -1984,3 +1984,55 @@ html[data-flat] .cosmic-bg {
     animation: none;
   }
 }
+
+
+/* ── The sky answers the scroll ────────────────────────────────────────────────────────────
+   Scroll-driven parallax with no JavaScript at all. `animation-timeline: scroll()` hands the
+   animation's progress to the scroll position and runs it on the compositor, so the star planes
+   track the page exactly — with none of the per-frame main-thread work a scroll listener driving
+   transforms would cost, and none of the heat that followed the last attempt at this.
+
+   Each plane is given a different distance to travel, which is what makes it parallax rather
+   than one sheet sliding: the near field moves several times as far as the deep one for the same
+   scroll, exactly as things near a moving window do.
+
+   Inside @supports, so a browser without scroll timelines simply keeps the gentle time-based
+   drift it already had. Nothing is lost there — the page just does not respond to the scroll. */
+@supports (animation-timeline: scroll()) {
+  @media not (prefers-reduced-motion: reduce) {
+    .star-layer--deep,
+    .star-layer--far,
+    .star-layer--mid,
+    .star-layer--near,
+    .nebula-layer {
+      animation-timeline: scroll(root block);
+      animation-range: 0 100%;
+      animation-duration: auto;
+      animation-iteration-count: 1;
+      animation-direction: normal;
+    }
+
+    .star-layer--deep { animation-name: sky-parallax-deep; }
+    .star-layer--far { animation-name: sky-parallax-far; }
+    .star-layer--mid { animation-name: sky-parallax-mid; }
+    .star-layer--near { animation-name: sky-parallax-near; }
+    .nebula-layer { animation-name: sky-parallax-nebula; }
+  }
+}
+
+/* Travel scales with depth: the far distance barely shifts, the near field sweeps. */
+@keyframes sky-parallax-deep {
+  to { transform: translate3d(-28px, -90px, 0); }
+}
+@keyframes sky-parallax-far {
+  to { transform: translate3d(-70px, -230px, 0); }
+}
+@keyframes sky-parallax-mid {
+  to { transform: translate3d(120px, 420px, 0); }
+}
+@keyframes sky-parallax-near {
+  to { transform: translate3d(-160px, -620px, 0); }
+}
+@keyframes sky-parallax-nebula {
+  to { transform: translate3d(4%, -9%, 0) scale(1.14); }
+}
