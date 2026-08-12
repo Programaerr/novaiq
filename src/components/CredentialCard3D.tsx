@@ -320,7 +320,9 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
   ctx.stroke();
 
   if (mark) {
-    const size = Math.round(TEX_H * 0.42);
+    // 34% of the card's height and starting at 15% down, so the mark clears the wordmark below
+    // it. At the 42% it was first given, its lower edge ran straight through that line.
+    const size = Math.round(TEX_H * 0.34);
     const off = document.createElement('canvas');
     off.width = size;
     off.height = size;
@@ -329,21 +331,21 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
     octx.globalCompositeOperation = 'source-in';
     octx.fillStyle = '#000000';
     octx.fillRect(0, 0, size, size);
-    ctx.drawImage(off, (TEX_W - size) / 2, TEX_H * 0.28 - size / 2 + size / 2 - size * 0.1);
+    ctx.drawImage(off, (TEX_W - size) / 2, TEX_H * 0.15);
   }
 
   ctx.fillStyle = '#000000';
-  ctx.font = '900 54px Cairo, system-ui, sans-serif';
+  ctx.font = '900 58px Cairo, system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   ctx.direction = 'ltr';
   ctx.letterSpacing = '16px';
-  ctx.fillText('NOVAIQ', TEX_W / 2 + 8, TEX_H * 0.62);
+  ctx.fillText('NOVAIQ', TEX_W / 2 + 8, TEX_H * 0.58);
 
-  ctx.fillStyle = 'rgba(0,0,0,0.6)';
-  ctx.font = '600 30px Cairo, system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(0,0,0,0.62)';
+  ctx.font = '600 32px Cairo, system-ui, sans-serif';
   ctx.letterSpacing = '6px';
-  ctx.fillText('novaiq.space', TEX_W / 2 + 3, TEX_H * 0.74);
+  ctx.fillText('novaiq.space', TEX_W / 2 + 3, TEX_H * 0.72);
   ctx.letterSpacing = '0px';
   ctx.restore();
 }
@@ -411,14 +413,18 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
   useEffect(() => {
     let alive = true;
     const img = new Image();
-    img.src = logoMark;
-    img.decoding = 'async';
-    img.onload = () => {
+    const paint = () => {
       if (!alive) return;
       drawBack(back.image as HTMLCanvasElement, img);
       back.needsUpdate = true;
       invalidate();
     };
+    // Handler before `src`, and a `complete` check after it: an image already in cache can finish
+    // before the assignment returns, and a load event that has already happened never fires again.
+    img.onload = paint;
+    img.decoding = 'async';
+    img.src = logoMark;
+    if (img.complete && img.naturalWidth > 0) paint();
     return () => {
       alive = false;
     };
@@ -546,7 +552,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
   const isAr = language === 'ar';
   const target = useRef({ x: 0, y: 0 });
   const signal = useRef(0);
-  const drag = useRef<{ px: number; py: number; ax: number; ay: number } | null>(null);
+  const drag = useRef<{ px: number; py: number; ax: number; ay: number; s: number } | null>(null);
   const restTimer = useRef(0);
   /** When the card last moved. The return home is driven off this, not off a pointer event. */
   const touched = useRef(0);
@@ -573,7 +579,20 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     clearTimeout(restTimer.current);
-    drag.current = { px: e.clientX, py: e.clientY, ax: target.current.x, ay: target.current.y };
+    // Which way round the card currently is, decided once at the start of the gesture.
+    //
+    // Past a quarter turn you are looking at the reverse of the sheet, and a rotation that moved
+    // the front surface to the right moves the visible back surface to the left — so without
+    // this, turning the card over silently reverses the controls and it fights the finger. The
+    // sign of the surface normal's depth component, cos(x)·cos(y), is exactly "is the front
+    // facing me", and flipping the deltas by it keeps whatever face you are looking at travelling
+    // with your hand.
+    //
+    // Sampled at pointerdown rather than per move: read live, it would invert underneath the
+    // finger at the exact moment the card passes edge-on, mid-gesture.
+    const t = target.current;
+    const s = Math.cos(t.x) * Math.cos(t.y) < 0 ? -1 : 1;
+    drag.current = { px: e.clientX, py: e.clientY, ax: t.x, ay: t.y, s };
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch {
@@ -589,7 +608,10 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
     // into a scene. Dragging down must bring the top edge towards the viewer, which is a positive
     // rotation.x here and was a negative rotateX there. Horizontal needs no such flip — both
     // systems turn the right edge away for a positive rotation about Y.
-    turnTo(d.ax + (e.clientY - d.py) * 0.007, d.ay + (e.clientX - d.px) * 0.008);
+    turnTo(
+      d.ax + (e.clientY - d.py) * 0.007 * d.s,
+      d.ay + (e.clientX - d.px) * 0.008 * d.s,
+    );
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
