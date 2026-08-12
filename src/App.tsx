@@ -189,6 +189,28 @@ export default function App() {
     };
   }, [language]);
 
+  // A sign-in that happens in front of us lands on home, whatever ?page= the URL was carrying.
+  // That parameter belongs to the visit BEFORE the gate — someone opened a link to ?page=orders
+  // while signed out, got the sign-in screen, and would otherwise be dropped straight into an
+  // account page the instant the Google popup closes, having never seen the site.
+  //
+  // Only the null → signed-in transition counts, which is why the previous value is tracked at
+  // all. The undefined → signed-in one means Firebase merely finished restoring a session that
+  // already existed, and resetting on that would break every deep link in the app: refreshing on
+  // ?page=orders, or opening one from outside while already signed in, would bounce to home.
+  const previousUserRef = useRef(currentUser);
+  useEffect(() => {
+    const previous = previousUserRef.current;
+    previousUserRef.current = currentUser;
+    if (previous !== null || !currentUser) return;
+    setActivePage('home');
+    setActiveSection('hero');
+    // replace, not push: the pre-sign-in entry is already the current one, and leaving it there
+    // would put "back" onto a page the visitor never chose to be on.
+    window.history.replaceState({}, '', window.location.pathname);
+    window.scrollTo(0, 0);
+  }, [currentUser]);
+
   // The in-app history stack that used to live here went with the Back/Home bar: it existed
   // only to feed that bar's Back button, and with the bar gone nothing read it — it was being
   // pushed to on every navigation and popped by no one. The `record` parameter that opted a
