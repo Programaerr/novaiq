@@ -3,7 +3,7 @@ import type { User } from 'firebase/auth';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
 import { subscribeToAuthState, isAdminEmail } from '../lib/auth';
-import { AdminLogin } from './AdminLogin';
+import { LoginPage } from './LoginPage';
 import { AdminDashboard } from './AdminDashboard';
 import { CustomerDashboard } from './CustomerDashboard';
 import { RefreshCw } from 'lucide-react';
@@ -46,7 +46,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
   }
 
   if (!user) {
-    return <AdminLogin language={language} />;
+    // No guest option here: this page IS the account. Offering one would return the visitor to
+    // the wall they just walked into.
+    return <LoginPage language={language} />;
   }
 
   return isAdmin

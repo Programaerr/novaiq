@@ -82,9 +82,17 @@ export default function App() {
   // live behind the early returns that gate depends on.
   const currentUser = useCurrentUser();
   const [isGuest, setIsGuest] = useState(readGuestMode);
+  // Lands the visitor on the home page, not merely "somewhere that isn't the sign-in screen".
+  // Reached from the gate the URL is already clean, but reached from the navbar's own sign-in
+  // button the address bar still says `?page=login`, and without resetting it a refresh — or
+  // the back button — would put them straight back on the screen they just chose to leave.
   const continueAsGuest = () => {
     writeGuestMode();
     setIsGuest(true);
+    setActivePage('home');
+    setActiveSection('hero');
+    window.history.replaceState({}, '', window.location.pathname);
+    window.scrollTo(0, 0);
   };
   const [activePage, setActivePage] = useState<string>('home');
   const [selectedTemplateForContract, setSelectedTemplateForContract] = useState<Template | null>(null);
@@ -173,6 +181,12 @@ export default function App() {
         // Same unified account/admin page as 'orders' — kept as an alias since it was
         // shared before customers and admins used the same entry point.
         setActivePage('orders');
+      } else if (pageParam === 'login') {
+        // A real route again. It was removed when sign-in gated the whole site — a signed-out
+        // visitor met the gate anyway, so nothing needed to navigate here. Guests changed that:
+        // they are past the gate and browsing without an account, so the navbar's sign-in button
+        // needs somewhere to take them, and this is it.
+        setActivePage('login');
       } else {
         setActivePage('home');
       }
@@ -379,7 +393,9 @@ export default function App() {
   if (currentUser === undefined) {
     return <PageLoader />;
   }
-  if (currentUser === null && !isGuest) {
+  // Either the visitor has not chosen yet (the gate), or a guest asked for the sign-in screen
+  // from the navbar. Same screen, and both offer the way back out to browsing.
+  if ((currentUser === null && !isGuest) || (currentUser === null && activePage === 'login')) {
     return (
       <Suspense fallback={<PageLoader />}>
         <LoginPage language={language} onContinueAsGuest={continueAsGuest} />

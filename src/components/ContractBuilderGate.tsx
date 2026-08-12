@@ -4,7 +4,7 @@ import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
 import { Template, ContractData } from '../types';
 import { useCurrentUser } from '../lib/auth';
-import { AdminLogin } from './AdminLogin';
+import { LoginPage } from './LoginPage';
 import { ContractBuilder } from './ContractBuilder';
 
 interface ContractBuilderGateProps {
@@ -32,7 +32,9 @@ export const ContractBuilderGate: React.FC<ContractBuilderGateProps> = (props) =
   }
 
   if (!user) {
-    return <AdminLogin language={props.language || 'ar'} />;
+    // No guest option: a contract has to be attached to an account, so this is the one wall a
+    // guest genuinely has to sign in at.
+    return <LoginPage language={props.language || 'ar'} />;
   }
 
   return <ContractBuilder {...props} accountEmail={user.email} accountUid={user.uid} />;
