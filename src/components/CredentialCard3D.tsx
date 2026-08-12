@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import logoMark from '../assets/images/novaiq-icon.png';
 
 interface CredentialCard3DProps {
   language: 'ar' | 'en';
@@ -233,7 +234,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   titles.forEach((title, i) => {
     const col = i % 2;
     const row = (i / 2) | 0;
-    const top = 372 + row * 190;
+    const top = 356 + row * 200;
     // Columns run from the reading-start edge inward, so column order follows the language.
     const startX = isAr ? TEX_W - PAD - col * (colW + GAP) : PAD + col * (colW + GAP);
     const badgeX = isAr ? startX - BADGE : startX;
@@ -253,14 +254,14 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     const maxText = colW - BADGE - 24;
 
     ctx.fillStyle = INK;
-    ctx.font = '800 50px Cairo, system-ui, sans-serif';
-    ctx.fillText(title, textX, top - 6, maxText);
+    ctx.font = '800 56px Cairo, system-ui, sans-serif';
+    ctx.fillText(title, textX, top - 8, maxText);
 
-    // 600 rather than 500: on a white card at this size the difference between the two weights is
-    // the difference between a second line you read and one you notice.
-    ctx.fillStyle = 'rgba(0,0,0,0.75)';
-    ctx.font = '600 36px Cairo, system-ui, sans-serif';
-    ctx.fillText(descs[i], textX, top + 56, maxText);
+    // 600 rather than 500, and 82% black rather than 68%: on a white card at this size those two
+    // changes are the difference between a second line you read and one you merely notice.
+    ctx.fillStyle = 'rgba(0,0,0,0.82)';
+    ctx.font = '600 40px Cairo, system-ui, sans-serif';
+    ctx.fillText(descs[i], textX, top + 62, maxText);
   });
 
   // Footer, opposite the wordmark
@@ -288,11 +289,22 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
 const BACK_W = TEX_W / 2;
 const BACK_H = TEX_H / 2;
 
-function drawBack(): HTMLCanvasElement {
-  const c = document.createElement('canvas');
-  c.width = BACK_W;
-  c.height = BACK_H;
+/**
+ * The reverse: the company mark, centred, in flat black on white.
+ *
+ * `mark` arrives later than the first call — it is a PNG and the texture has to exist before it
+ * loads — so this is written to be run twice into the same canvas, once bare and once with the
+ * logo, rather than being blocked on the image. The caller flags the texture for re-upload.
+ *
+ * The mark is drawn through an offscreen `source-in` fill, which keeps the artwork's alpha and
+ * replaces every colour in it with one flat black. That is what makes it a silhouette of the
+ * logo rather than the logo's own light-on-dark rendering dropped onto a white card, where it
+ * would have all but disappeared.
+ */
+function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
   const ctx = c.getContext('2d')!;
+  ctx.save();
+  ctx.clearRect(0, 0, BACK_W, BACK_H);
   clipRounded(ctx, BACK_W, BACK_H);
   // Everything below is written in front-texture units, so the two faces stay described by one
   // set of numbers; this is the only place the difference in size is handled.
@@ -301,33 +313,46 @@ function drawBack(): HTMLCanvasElement {
   ctx.fillStyle = '#f4f4f7';
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
-  // Magnetic stripe — the one black band, exactly as on a real white card
-  const s = ctx.createLinearGradient(0, TEX_H * 0.16, 0, TEX_H * 0.38);
-  s.addColorStop(0, '#232329');
-  s.addColorStop(0.5, '#000000');
-  s.addColorStop(1, '#232329');
-  ctx.fillStyle = s;
-  ctx.fillRect(0, TEX_H * 0.16, TEX_W, TEX_H * 0.22);
-
-  // Mark
-  ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+  // A single hairline frame, and nothing else competing with the mark.
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)';
   ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.arc(TEX_W / 2, TEX_H * 0.66, 34, 0, Math.PI * 2);
+  roundRect(ctx, 34, 34, TEX_W - 68, TEX_H - 68, 44);
   ctx.stroke();
-  ctx.fillStyle = 'rgba(0,0,0,0.8)';
-  ctx.beginPath();
-  ctx.arc(TEX_W / 2, TEX_H * 0.66, 12, 0, Math.PI * 2);
-  ctx.fill();
 
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.font = '600 20px Cairo, system-ui, sans-serif';
+  if (mark) {
+    const size = Math.round(TEX_H * 0.42);
+    const off = document.createElement('canvas');
+    off.width = size;
+    off.height = size;
+    const octx = off.getContext('2d')!;
+    octx.drawImage(mark, 0, 0, size, size);
+    octx.globalCompositeOperation = 'source-in';
+    octx.fillStyle = '#000000';
+    octx.fillRect(0, 0, size, size);
+    ctx.drawImage(off, (TEX_W - size) / 2, TEX_H * 0.28 - size / 2 + size / 2 - size * 0.1);
+  }
+
+  ctx.fillStyle = '#000000';
+  ctx.font = '900 54px Cairo, system-ui, sans-serif';
   ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
   ctx.direction = 'ltr';
-  ctx.letterSpacing = '5px';
-  ctx.fillText('novaiq.space', TEX_W / 2, TEX_H * 0.78);
-  ctx.letterSpacing = '0px';
+  ctx.letterSpacing = '16px';
+  ctx.fillText('NOVAIQ', TEX_W / 2 + 8, TEX_H * 0.62);
 
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.font = '600 30px Cairo, system-ui, sans-serif';
+  ctx.letterSpacing = '6px';
+  ctx.fillText('novaiq.space', TEX_W / 2 + 3, TEX_H * 0.74);
+  ctx.letterSpacing = '0px';
+  ctx.restore();
+}
+
+function makeBackCanvas(): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = BACK_W;
+  c.height = BACK_H;
+  drawBack(c);
   return c;
 }
 
@@ -376,8 +401,28 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
       t.anisotropy = 16;
       return t;
     };
-    return [mk(drawFront(isAr)), mk(drawBack())];
+    return [mk(drawFront(isAr)), mk(makeBackCanvas())];
   }, [isAr]);
+
+  // The logo is a PNG, so the back is drawn once without it and again the moment it arrives.
+  // invalidate() is needed as well as needsUpdate: under frameloop="demand" a texture that
+  // changes while nothing is animating would sit there un-drawn until the next interaction.
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    let alive = true;
+    const img = new Image();
+    img.src = logoMark;
+    img.decoding = 'async';
+    img.onload = () => {
+      if (!alive) return;
+      drawBack(back.image as HTMLCanvasElement, img);
+      back.needsUpdate = true;
+      invalidate();
+    };
+    return () => {
+      alive = false;
+    };
+  }, [back, invalidate]);
 
   useEffect(() => () => {
     front.dispose();
