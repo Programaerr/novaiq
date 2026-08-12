@@ -271,6 +271,17 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [currentUser]);
 
+  // `?page=login` reached while already signed in — an old link, or the back button after
+  // signing in. Nothing below renders a 'login' page (the gate above owns that screen, and it
+  // only runs for signed-OUT visitors), so left alone this would draw the site shell around an
+  // empty middle.
+  useEffect(() => {
+    if (currentUser && activePage === 'login') {
+      setActivePage('home');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [currentUser, activePage]);
+
   // The in-app history stack that used to live here went with the Back/Home bar: it existed
   // only to feed that bar's Back button, and with the bar gone nothing read it — it was being
   // pushed to on every navigation and popped by no one. The `record` parameter that opted a
@@ -395,7 +406,7 @@ export default function App() {
   }
   // Either the visitor has not chosen yet (the gate), or a guest asked for the sign-in screen
   // from the navbar. Same screen, and both offer the way back out to browsing.
-  if ((currentUser === null && !isGuest) || (currentUser === null && activePage === 'login')) {
+  if (currentUser === null && (!isGuest || activePage === 'login')) {
     return (
       <Suspense fallback={<PageLoader />}>
         <LoginPage language={language} onContinueAsGuest={continueAsGuest} />

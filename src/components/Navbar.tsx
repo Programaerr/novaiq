@@ -151,17 +151,20 @@ export const Navbar: React.FC<NavbarProps> = ({
     window.history.pushState({}, '', newUrl);
   };
 
-  // Always the account page now. This used to branch to a standalone `?page=login` route for
-  // signed-out visitors, and both halves of that are gone: sign-in gates the entire site, so
-  // this navbar only ever renders for someone already signed in, and the `login` route it
-  // pointed at no longer exists. Kept as its own handler rather than folded into handleNavClick
-  // because it still carries the `mode` query the account page reads.
-  const goToAccount = (mode: 'login' | 'signup', e?: React.MouseEvent) => {
+  // Signed-out visitors go to the sign-in screen itself, not to the account page.
+  //
+  // This pointed at `?page=orders` while sign-in gated the whole site: the navbar only ever
+  // rendered for someone already signed in, so the signed-out branch below was unreachable and
+  // where it pointed did not matter. Guests made it reachable again — they browse without an
+  // account and this button is how they sign in — and sending them to the account page would
+  // have shown them a sign-in form wrapped in the chrome of a page they cannot see, instead of
+  // the full-screen sign-in page.
+  const goToLogin = (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    setActivePage('orders');
+    setActivePage('login');
     setMenuDrawerOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    window.history.pushState({}, '', `${window.location.pathname}?page=orders&mode=${mode}`);
+    window.history.pushState({}, '', `${window.location.pathname}?page=login`);
   };
 
   return (
@@ -237,7 +240,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                is given. */
             <a
               href="?page=login"
-              onClick={(e) => goToAccount('login', e)}
+              onClick={goToLogin}
               className="filter-pill-btn relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold cursor-pointer"
             >
               <span className="filter-pill-beam" aria-hidden="true" />
