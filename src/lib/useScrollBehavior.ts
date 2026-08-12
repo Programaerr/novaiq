@@ -15,6 +15,20 @@ export function useSmoothScroll() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    // Not on touch devices — and this is a performance fix, not a preference.
+    //
+    // Lenis smooths *wheel* input. A phone has no wheel: it scrolls by touch, which Lenis
+    // deliberately leaves to the OS because native touch scrolling already has momentum and
+    // runs on the compositor. So on a phone this instance was smoothing nothing at all — while
+    // still running its requestAnimationFrame callback on the main thread on every single
+    // frame, for the entire life of the session, forever. Sixty to a hundred and twenty
+    // wake-ups a second that cannot change a pixel is exactly the kind of permanent background
+    // cost that shows up as a warm device rather than as visible stutter.
+    //
+    // Detected by pointer capability rather than by width: a small window on a laptop still has
+    // a wheel and should still get smoothing, and a large tablet still has none.
+    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
