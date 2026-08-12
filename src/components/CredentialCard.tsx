@@ -45,6 +45,8 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
   // pointermove for each scroll frame too, and every one of those frames then had to stop and
   // re-layout mid-scroll. That is the "moving something while scrolling lags horribly" case.
   const box = useRef<DOMRect | null>(null);
+  // Live drag: where it started, and the angles the card was already at when it did.
+  const drag = useRef<{ x: number; y: number; rx: number; ry: number } | null>(null);
 
   const guarantees = [
     {
@@ -77,6 +79,32 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     el.style.setProperty('--tilt-y', `${next.current.y}deg`);
   };
 
+  // A single lean-and-settle shortly after the card appears.
+  //
+  // Nothing announces that a flat rectangle can be picked up and turned, and on a phone there
+  // is no cursor to discover it with — without this the interaction exists but goes unfound.
+  // One deliberate movement is enough: it shows the card has thickness and a lit edge, and it
+  // stops. A loop would be the spinning cube again, which is what this replaced.
+  //
+  // Driven through the same custom properties as the gesture rather than as its own keyframe
+  // animation: an animation on `transform` would seize the property the pointer writes to, and
+  // with a fill-mode it would hold its last frame permanently, leaving the card stuck at an
+  // angle no one chose.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const lean = window.setTimeout(() => {
+      if (!drag.current) write(-5, 14);
+    }, 700);
+    const settle = window.setTimeout(() => {
+      if (!drag.current) resetTilt();
+    }, 1600);
+    return () => {
+      clearTimeout(lean);
+      clearTimeout(settle);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Flag-only listeners: the re-measure itself happens inside the next pointer move, so a
   // scroll that nobody is hovering through costs exactly one boolean write per event.
   useEffect(() => {
@@ -91,8 +119,20 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     };
   }, []);
 
+  const write = (x: number, y: number) => {
+    next.current = { x, y };
+    if (frame.current) return;
+    frame.current = requestAnimationFrame(applyTilt);
+  };
+
+  // ── Mouse: the card leans towards the cursor, no click required ──────────────────────────
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Touch is handled by the drag below instead. A finger has no hover: the only way it can
+    // reach the card is by landing on it, so "lean towards the pointer" would mean the card
+    // jumping to a new angle on every tap, and doing it underneath the fingertip that is
+    // covering the very corner it tilts towards.
     if (e.pointerType === 'touch') return;
+    if (drag.current) return;
     const el = cardRef.current;
     if (!el) return;
     if (!box.current) box.current = el.getBoundingClientRect();
@@ -102,9 +142,53 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     // picture being waved about.
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
-    next.current = { x: -py * 9, y: px * 12 };
-    if (frame.current) return;
-    frame.current = requestAnimationFrame(applyTilt);
+    write(-py * 9, px * 12);
+  };
+
+  // ── Touch and mouse-drag: turn the card by dragging it ───────────────────────────────────
+  //
+  // Relative to where the drag started, not to where the finger is. Absolute mapping is right
+  // for a cursor hovering over a card it is not touching; for a finger it means the card
+  // snaps to a new angle the instant it is touched, before any gesture has been made.
+  //
+  // Angles are clamped well inside ±90°. The card has one printed face and no back, so a turn
+  // far enough to show its reverse would show a mirror image of its own front — clamping is
+  // what keeps "turn it" from becoming "break it". Within that range it turns far enough to
+  // read as a solid object being handled.
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    drag.current = { x: e.clientX, y: e.clientY, rx: next.current.x, ry: next.current.y };
+    // The easing has to come off for the duration of the turn. It exists so the card glides
+    // back when a cursor leaves, but during a drag it puts 400ms between the finger and the
+    // card, which feels like dragging something through treacle rather than turning it.
+    // Toggled straight on the node: a state flip here would re-render the whole card twice per
+    // gesture to change one class.
+    el.classList.add('is-turning');
+    // Capture so a turn that wanders off the card keeps working — without it the card stops
+    // dead the moment the finger crosses its edge, which reads as the gesture breaking.
+    el.setPointerCapture?.(e.pointerId);
+  };
+
+  const handleDragMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d) return;
+    const clamp = (v: number, max: number) => (v > max ? max : v < -max ? -max : v);
+    write(
+      clamp(d.rx - (e.clientY - d.y) * 0.22, 26),
+      clamp(d.ry + (e.clientX - d.x) * 0.28, 32),
+    );
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!drag.current) return;
+    drag.current = null;
+    cardRef.current?.classList.remove('is-turning');
+    cardRef.current?.releasePointerCapture?.(e.pointerId);
+    // Springs back to flat rather than holding the last angle. Held, every visitor after the
+    // first would meet a card someone left crooked, and the tilt would read as a rendering
+    // fault rather than as something they did.
+    resetTilt();
   };
 
   const resetTilt = () => {
@@ -125,8 +209,16 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
     <div className="credential-stage w-full max-w-md mx-auto">
       <div
         ref={cardRef}
-        onPointerMove={handlePointerMove}
-        onPointerLeave={resetTilt}
+        onPointerDown={handlePointerDown}
+        onPointerMove={(e) => {
+          handleDragMove(e);
+          handlePointerMove(e);
+        }}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onPointerLeave={() => {
+          if (!drag.current) resetTilt();
+        }}
         // 1.586:1 at every size — the real ratio of a physical card, and the thing that makes
         // this read as a card at all rather than as a dark box. It is the content that adapts
         // to the ratio here, never the other way round: the first attempt paired this with a

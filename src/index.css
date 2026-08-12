@@ -791,6 +791,20 @@
      it is inside. Transform only — nothing here can trigger layout or paint. */
   transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 400ms ease;
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
+  cursor: grab;
+  /* `pan-y`, not `none`. The browser keeps vertical gestures and scrolls the page with them,
+     which it must — the card is most of a phone screen, and a card that swallowed upward
+     swipes would trap the visitor on it. Horizontal drags come to us instead of doing nothing,
+     so a sideways swipe turns the card. On a mouse this has no effect at all and both axes
+     stay available. */
+  touch-action: pan-y;
+}
+
+/* Mid-turn: the card follows the finger exactly. The easing above is for the journey back to
+   flat; applied during a drag it puts 400ms between the gesture and the card. */
+.credential-card.is-turning {
+  transition: none;
+  cursor: grabbing;
 }
 
 .credential-card:hover {
