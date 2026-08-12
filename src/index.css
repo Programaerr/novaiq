@@ -866,10 +866,23 @@
   clip-path: inset(0 round var(--radius));
 }
 
-/* Half the thickness towards the viewer. The faces straddle the card's centre rather than the
-   front sitting at zero, so the solid turns about its own middle and one band can span it. */
+/* The bevel. An inset ring of light along the top edge and shade along the bottom, following the
+   same border-radius as the face, so the card reads as having a milled edge without any of it
+   being geometry that can leave a seam. This is what replaced the rim. */
+.credential-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.75),
+    inset 1.5px 0 0 rgba(255, 255, 255, 0.07),
+    inset -1.5px 0 0 rgba(0, 0, 0, 0.5);
+}
+
 .credential-face--front {
-  transform: translateZ(calc(var(--depth) / 2));
   /* Held as its own layer for the element's lifetime. Removing this was tried and it returned
      the blinking with it: without the hint the compositor decides per frame whether this subtree
      deserves a layer, and mid-turn that decision flips, each flip discarding and rebuilding the
@@ -878,35 +891,11 @@
   box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9), 0 2px 0 0 rgba(255, 255, 255, 0.06) inset;
 }
 
-/* Half the thickness away, and turned to face outward. The rotate is what stops the back being a
-   mirror of itself — without it every glyph on it would read backwards. */
+/* Turned to face outward, and nothing else — no depth offset, so it shares the front's plane.
+   The rotate is what stops the back being a mirror of itself: without it every glyph on it would
+   read backwards. */
 .credential-face--back {
-  transform: translateZ(calc(var(--depth) / -2)) rotateY(180deg);
-}
-
-/* The band: one ring, at the midpoint of the depth.
-   It is the card's own rounded rectangle, so the rim follows the corner curve exactly — which
-   four straight strips could not do at any length or with any amount of rounding on their ends,
-   because a rounded corner is an arc and a strip is a chord.
-
-   One, not the stack of six that was here. The stack existed to spread the rim across a thickness
-   too large for a single flat ring to cover, and it cost six separate surfaces for the pointer
-   light to interact with, which read as the card flickering under the finger. Cutting the card
-   to a real card's thickness removed the reason for it: the gap the ring has to hide is now at
-   most 4px at any angle, and an 8px border hides it past 60° of turn.
-
-   Hollow: only the outline is painted, never the interior, because the inside of a closed card
-   is never visible.
-
-   Deliberately NOT `backface-visibility: hidden` — this is the surface you are meant to see as
-   the card passes edge-on, which is exactly when both faces have hidden themselves. */
-.credential-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius);
-  border: var(--rim) solid #26262c;
-  background: none;
-  pointer-events: none;
+  transform: rotateY(180deg);
 }
 
 .credential-glare {

@@ -326,15 +326,6 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           </div>
         </div>
 
-        {/* ── The band ─────────────────────────────────────────────────────────────────
-            One ring, halfway between the faces, tracing the same rounded rectangle they do so
-            the rim sweeps round each corner instead of turning through it at a point.
-
-            It was a stack of six, and the stack was the thing flickering under a finger: six
-            separate surfaces for the pointer light to cross. It is one now because the card is a
-            real card's thickness rather than three times it — see --depth in index.css.
-            aria-hidden: this is the thickness of a thing, not content. */}
-        <div aria-hidden="true" className="credential-ring" />
       </div>
     </div>
   );
