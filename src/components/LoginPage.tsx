@@ -8,8 +8,13 @@ import { NovaiqLogo } from './NovaiqLogo';
 
 interface LoginPageProps {
   language: Language;
-  /** Leaves the page. The caller owns routing — this component never touches history itself. */
-  onBack: () => void;
+  /**
+   * Leaves the page. The caller owns routing — this component never touches history itself.
+   * Omitted when this is the gate in front of the whole site rather than a page inside it:
+   * there is nowhere to go back TO before signing in, and a Back button that only ever
+   * re-renders the same screen is worse than no button at all.
+   */
+  onBack?: () => void;
 }
 
 function GoogleIcon() {
@@ -114,17 +119,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onBack }) => {
             column the full height, and asking for a screen's worth on top of that is how a
             two-column page ends up scrolling for no reason. */}
         <div className="flex flex-col min-h-screen lg:min-h-0 p-6 sm:p-10 lg:p-14">
-          <div className="flex items-center justify-between gap-4 shrink-0">
+          {/* justify-between with one child would shove the logo to the far edge, so the row
+              only claims that layout when there is actually a second thing in it. */}
+          <div className={`flex items-center gap-4 shrink-0 ${onBack ? 'justify-between' : ''}`}>
             <NovaiqLogo size={34} showText={true} />
-            <button
-              type="button"
-              onClick={onBack}
-              className="nq-btn nq-btn--solid inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer shrink-0"
-            >
-              <span className="nq-btn-beam" aria-hidden="true" />
-              <ArrowRight className="w-3.5 h-3.5 ltr:rotate-180" />
-              <span>{isAr ? 'رجوع' : 'Back'}</span>
-            </button>
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="nq-btn nq-btn--solid inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer shrink-0"
+              >
+                <span className="nq-btn-beam" aria-hidden="true" />
+                <ArrowRight className="w-3.5 h-3.5 ltr:rotate-180" />
+                <span>{isAr ? 'رجوع' : 'Back'}</span>
+              </button>
+            )}
           </div>
 
           {/* flex-1 + justify-center rather than the outer column's justify-between. With

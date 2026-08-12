@@ -19,6 +19,7 @@ import { useLiveTemplates } from './lib/pricingOverrides';
 
 import { Template, ContractData, CUSTOM_PROJECT_TEMPLATE_ID } from './types';
 import { Language } from './lib/i18n';
+import { useCurrentUser } from './lib/auth';
 import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
 import { consumePendingContractSelection } from './lib/pendingContractSelection';
 import { saveContractToFirebase } from './lib/firebase';
@@ -40,6 +41,10 @@ const LoginPage = lazy(() => import('./components/LoginPage').then((m) => ({ def
 
 export default function App() {
   const liveTemplates = useLiveTemplates();
+  // `undefined` while Firebase is still resolving the session, `null` once it has settled on
+  // "signed out". Read here at the top rather than inside the gate below, because hooks cannot
+  // live behind the early returns that gate depends on.
+  const currentUser = useCurrentUser();
   const [activePage, setActivePage] = useState<string>('home');
   const [selectedTemplateForContract, setSelectedTemplateForContract] = useState<Template | null>(null);
   const [standalonePreviewTemplate, setStandalonePreviewTemplate] = useState<Template | null>(null);
@@ -284,6 +289,33 @@ export default function App() {
     return (
       <Suspense fallback={<PageLoader />}>
         <LoginPage language={language} onBack={() => navigateTo('home')} />
+      </Suspense>
+    );
+  }
+
+  // ── The gate ────────────────────────────────────────────────────────────────────────────
+  // Nothing below this point renders until someone is signed in.
+  //
+  // The `undefined` branch is the one that matters and is easy to get wrong. Firebase resolves
+  // the session asynchronously, so on EVERY page load there is a moment where the app does not
+  // yet know whether anyone is signed in. Treating that moment as "signed out" would flash the
+  // sign-in screen at an already-signed-in visitor on every single load, then rip it away —
+  // which reads as a bug, and worse, invites them to click a Google popup they did not need.
+  // A loader is the honest answer to "we don't know yet".
+  //
+  // No `onBack`: there is no page behind this one to return to.
+  //
+  // The two early returns above are deliberately in front of this. `?page=login` is the same
+  // screen reached deliberately, and the `?preview=` sandbox is a customer-facing demo — the
+  // thing a visitor is most likely to have been sent a direct link to. The `?live=` view never
+  // reaches this file at all: main.tsx mounts it as its own document outside <App>.
+  if (currentUser === undefined) {
+    return <PageLoader />;
+  }
+  if (currentUser === null) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <LoginPage language={language} />
       </Suspense>
     );
   }
