@@ -1235,75 +1235,8 @@ html[data-scrolling] .rv::before {
    person using the panel is there for. Same rule, same reason, so they share the declaration
    rather than each getting a near-identical one. */
 html[data-demo] .cosmic-bg,
-html[data-flat] .cosmic-bg,
-html[data-demo] .cosmos-layer,
-html[data-flat] .cosmos-layer {
+html[data-flat] .cosmic-bg {
   display: none;
-}
-
-/* ── Sectioned scrolling ────────────────────────────────────────────────────────────────────
-   One gesture, one section. Native CSS scroll snapping rather than a script that watches the
-   wheel and animates scrollTop: the browser does this on the compositor, it understands
-   trackpad momentum and touch flings that no listener can reproduce, and — the reason it is the
-   only option here — it costs nothing per frame on a weak device, which a JS scroll hijacker
-   never manages.
-
-   `mandatory` is safe even though several of these sections are taller than the screen: the spec
-   requires a snap area larger than the scrollport to be freely scrollable within itself, so long
-   sections behave exactly as before and only their edges snap. `scroll-snap-stop: always` is
-   what makes it one section per gesture — without it a fast fling sails past several.
-
-   The targets are the home page's own section ids, so no other page snaps at all. */
-html {
-  scroll-snap-type: y mandatory;
-}
-
-#hero,
-#templates-section,
-#contract-section,
-#timeline-section,
-#about-section,
-.snap-section {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  /* A full screen each, so a snap always lands on a section filling the viewport rather than
-     part-way through two of them. Sections whose content is already taller keep their own height
-     — this only lifts the short ones — and `svh` rather than `vh` so a phone's collapsing address
-     bar does not leave a strip of the next section showing. */
-  min-height: 100svh;
-  /* Clear of the floating navbar, which is fixed and would otherwise cover the top of whatever
-     has just been snapped to. The bar publishes its own bottom edge; the fallback covers the
-     moment before that variable exists. */
-  scroll-margin-top: var(--nav-bottom, 5.5rem);
-}
-
-/* Someone who has asked for less motion should not be thrown between sections. */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-snap-type: none;
-  }
-}
-
-/* The scroll-driven black hole (ScrollCosmos). Fixed, so it stays put while the page moves past
-   it — the effect is the page falling into it, not it scrolling along. Behind everything and
-   deaf to the pointer: it is scenery, and nothing on it is ever clicked.
-   z-index 0 puts it above the cosmic background's star layers and below the content, which all
-   sits in a positioned stacking context above it. */
-.cosmos-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  /* No blend mode. `screen` was the obvious choice for a white glow and buys nothing here: the
-     layer sits below the content, and over this page's black background screen and normal give
-     an identical result — while a blend mode forces the compositor to sample the backdrop behind
-     a full-viewport element on every frame it changes, which is precisely the per-frame cost this
-     whole effect is designed around avoiding. */
-}
-
-/* Nothing to show while nobody is looking, and the canvas is not cheap to composite. */
-html[data-idle] .cosmos-layer {
-  visibility: hidden;
 }
 
 /* Low-end device lag fix: sections below the first viewport were being painted,
