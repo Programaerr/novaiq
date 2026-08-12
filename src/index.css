@@ -784,8 +784,8 @@
   /* The card's thickness. One value, used by all four edges and by the back face's offset, so
      the solid can never come apart at the seams. */
   --depth: 14px;
-  /* Must match the faces' Tailwind `rounded-3xl`. The edges read it to keep clear of the
-     corners — see the note above .credential-edge--right. */
+  /* The faces' corner radius. Owned here so `.credential-face` and anything else that has to
+     agree with it read one value rather than each hard-coding their own. */
   --radius: 1.5rem;
   /* Seeded here so the very first move interpolates from a real value rather than from an
      unset property, which would otherwise jump straight to its target. */
@@ -848,40 +848,41 @@
 .credential-edge {
   position: absolute;
   background: linear-gradient(180deg, #3a3a42, #17171b 55%, #0a0a0c);
-  /* Softened ends. Each strip is a rectangle, and a rectangle butted against a rounded face
-     leaves a square corner poking past the curve — the sharp points that were showing. Rounding
-     the strip itself lets its ends die into the curve instead of crossing it. */
-  border-radius: calc(var(--depth) / 2);
+  /* Barely rounded, and no more than that. A generous radius here turned each strip into a
+     capsule, which at an angle stopped reading as the card's thickness and started reading as a
+     separate dark bar floating alongside it. */
+  border-radius: 2px;
 }
 
-/* Every strip stops short of the corners by exactly the face's corner radius, so none of them
-   reaches the part of the outline that is curved. That is what removes the right angles: along
-   the straight run of each side the card has a visible edge, and where the outline turns, the
-   rounded faces meet each other directly with no strip between them to square them off.
-   `--radius` mirrors the faces' own `rounded-3xl` (1.5rem) and is declared on the card, so the
-   two can only be changed together. */
+/* Full length, corner to corner.
+   These were briefly inset by the face's corner radius, on the theory that a square-ended strip
+   would poke past the rounded outline. It does not: at rest every strip is turned 90 degrees to
+   the screen and has no width at all, so there is nothing to poke out. What the inset did
+   instead was leave a visible gap at each corner, so the edge detached from the card and hung
+   beside it as its own object — the artefact in the report. Spanning the whole side, the
+   thickness reads as one continuous surface, which is what it is. */
 .credential-edge--right {
-  top: var(--radius);
+  top: 0;
   left: 100%;
   width: var(--depth);
-  height: calc(100% - var(--radius) * 2);
+  height: 100%;
   transform-origin: left center;
   transform: rotateY(90deg);
 }
 
 .credential-edge--left {
-  top: var(--radius);
+  top: 0;
   right: 100%;
   width: var(--depth);
-  height: calc(100% - var(--radius) * 2);
+  height: 100%;
   transform-origin: right center;
   transform: rotateY(-90deg);
 }
 
 .credential-edge--top {
-  left: var(--radius);
+  left: 0;
   bottom: 100%;
-  width: calc(100% - var(--radius) * 2);
+  width: 100%;
   height: var(--depth);
   transform-origin: center bottom;
   transform: rotateX(90deg);
@@ -889,9 +890,9 @@
 }
 
 .credential-edge--bottom {
-  left: var(--radius);
+  left: 0;
   top: 100%;
-  width: calc(100% - var(--radius) * 2);
+  width: 100%;
   height: var(--depth);
   transform-origin: center top;
   transform: rotateX(-90deg);
