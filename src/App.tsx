@@ -128,8 +128,6 @@ export default function App() {
         setActivePage('privacy');
       } else if (pageParam === 'terms') {
         setActivePage('terms');
-      } else if (pageParam === 'login') {
-        setActivePage('login');
       } else if (pageParam === 'admin') {
         // Same unified account/admin page as 'orders' — kept as an alias since it was
         // shared before customers and admins used the same entry point.
@@ -281,34 +279,29 @@ export default function App() {
   // Drives both halves of the Fluent reveal — ring and face — across the tiles below.
   const revealGroup = useRevealGroup<HTMLDivElement>();
 
-  // Sign-in takes the whole viewport, before the shared shell is built at all — it brings its
-  // own background, its own logo and its own way out, so putting it inside the navbar/footer
-  // chrome would only wrap a self-contained page in a second, redundant one. Same early-return
-  // shape the standalone template preview below already uses.
-  if (activePage === 'login') {
-    return (
-      <Suspense fallback={<PageLoader />}>
-        <LoginPage language={language} onBack={() => navigateTo('home')} />
-      </Suspense>
-    );
-  }
-
   // ── The gate ────────────────────────────────────────────────────────────────────────────
-  // Nothing below this point renders until someone is signed in.
+  // Sign-in is now the door to the whole site: nothing below this point renders until someone
+  // is signed in. It takes the whole viewport, before the shared shell is built at all — the
+  // page brings its own background and its own logo, so wrapping it in the navbar/footer chrome
+  // would only put a self-contained screen inside a second, redundant one.
   //
   // The `undefined` branch is the one that matters and is easy to get wrong. Firebase resolves
   // the session asynchronously, so on EVERY page load there is a moment where the app does not
   // yet know whether anyone is signed in. Treating that moment as "signed out" would flash the
-  // sign-in screen at an already-signed-in visitor on every single load, then rip it away —
+  // sign-in screen at an already-signed-in visitor on every single load and then rip it away —
   // which reads as a bug, and worse, invites them to click a Google popup they did not need.
   // A loader is the honest answer to "we don't know yet".
   //
-  // No `onBack`: there is no page behind this one to return to.
+  // There is deliberately no separate `?page=login` route any more. It existed to reach this
+  // screen on purpose from a signed-out site; with the site gated, a signed-out visitor lands
+  // here anyway and a signed-IN one following that link would have been dropped on a sign-in
+  // screen with nothing to sign into and no way back out. `?page=login` now falls through to
+  // home like any other unrecognised page.
   //
-  // The two early returns above are deliberately in front of this. `?page=login` is the same
-  // screen reached deliberately, and the `?preview=` sandbox is a customer-facing demo — the
-  // thing a visitor is most likely to have been sent a direct link to. The `?live=` view never
-  // reaches this file at all: main.tsx mounts it as its own document outside <App>.
+  // The `?preview=` sandbox below is deliberately left in front of this gate: it is a
+  // customer-facing demo and the thing a visitor is most likely to have been sent a direct link
+  // to. The `?live=` view never reaches this file at all — main.tsx mounts it as its own
+  // document outside <App>.
   if (currentUser === undefined) {
     return <PageLoader />;
   }
