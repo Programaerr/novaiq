@@ -1964,12 +1964,21 @@ html[data-flat] .cosmic-bg {
 .hero-proof__cover {
   width: var(--proof-w);
   height: var(--proof-h);
-  margin-inline-end: var(--proof-gap);
+  /* margin-RIGHT, not margin-inline-end. The logical property flips to the left side in Arabic,
+     which put every gap on the opposite side from the one the -50% travel accounts for — the
+     track then pulled away from its own content and opened the gap that appeared before the loop
+     restarted. A filmstrip has no reading direction, so it must not have a logical one either. */
+  margin-right: var(--proof-gap);
 }
 
 /* Always leftward regardless of text direction: this is a filmstrip, not prose, and it should
    not reverse when the site switches to English. */
 .hero-proof__track {
+  /* Laid out left-to-right whatever the page is set to, for the same reason: in RTL the row
+     itself reverses, so the first cover starts at the right edge while the animation still
+     travels left — away from the content — and the belt runs out. Pinned to ltr, the geometry
+     is identical in both languages and -50% is exactly one pass. */
+  direction: ltr;
   animation: hero-proof-run 48s linear infinite;
   will-change: transform;
 }
