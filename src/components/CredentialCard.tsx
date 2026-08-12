@@ -31,7 +31,7 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
           // real card arrives — see the note on that element in CredentialCard3D. Inset by the
           // same ~11% the camera leaves as turning room, so the placeholder sits where the card
           // will actually be rather than filling the whole box.
-          className="relative z-30 w-[168%] mx-[-34%] mt-[-7%] mb-[-26%] max-w-[52rem] lg:w-full lg:mx-0 lg:mt-[-5%] lg:mb-[-8%] lg:max-w-[46rem] aspect-[1.586/1] p-[18.5%]"
+          className="relative z-30 w-[210%] mx-[-55%] mt-[-24%] mb-[-34%] max-w-[54rem] lg:w-[150%] lg:mx-[-25%] lg:mt-[-14%] lg:mb-[-16%] lg:max-w-[58rem] aspect-[1.586/1] p-[26%]"
         >
           <div
             className="w-full h-full rounded-2xl border border-black/10"

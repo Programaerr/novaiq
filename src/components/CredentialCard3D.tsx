@@ -438,22 +438,62 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
   );
 }
 
-/** Wakes the renderer for one frame whenever the drag handler has moved the target. */
-function Waker({ signal }: { signal: React.MutableRefObject<number> }) {
+/**
+ * Wakes the renderer for one frame whenever the drag handler has moved the target, and — the
+ * part that matters — brings the card home even if no pointer event ever tells it the drag ended.
+ *
+ * The return used to be armed by `onPointerUp`, which is one event handler away from never
+ * running: a `pointercancel` the browser fires without an `up`, a touch that ends outside the
+ * element, a capture that was already released. Any of those left the card parked wherever the
+ * finger had put it, and the state a visitor was most likely to see it stuck in is edge-on, where
+ * a card is a bare sliver and looks broken.
+ *
+ * This watches the clock instead of the events. Nothing can fail to fire, because nothing has to.
+ */
+function Waker({
+  signal,
+  touched,
+  dragging,
+  target,
+}: {
+  signal: React.MutableRefObject<number>;
+  touched: React.MutableRefObject<number>;
+  dragging: React.MutableRefObject<unknown>;
+  target: React.MutableRefObject<{ x: number; y: number }>;
+}) {
   const invalidate = useThree((s) => s.invalidate);
   const seen = useRef(-1);
+
   useEffect(() => {
     let raf = 0;
+    const TAU = Math.PI * 2;
+    const near = (v: number) => Math.round(v / TAU) * TAU;
+
     const tick = () => {
       if (seen.current !== signal.current) {
         seen.current = signal.current;
         invalidate();
       }
+      // Three seconds after the last movement, with nothing being dragged, the card goes back to
+      // the nearest orientation that shows its front — the nearest, so a card turned twice round
+      // travels the short way rather than unwinding both turns.
+      if (!dragging.current && performance.now() - touched.current > 3000) {
+        const { x, y } = target.current;
+        const rx = near(x);
+        const ry = near(y);
+        if (rx !== x || ry !== y) {
+          target.current = { x: rx, y: ry };
+          signal.current++;
+          touched.current = performance.now();
+        }
+      }
       raf = requestAnimationFrame(tick);
     };
+
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [invalidate, signal]);
+  }, [invalidate, signal, touched, dragging, target]);
+
   return null;
 }
 
@@ -463,6 +503,8 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
   const signal = useRef(0);
   const drag = useRef<{ px: number; py: number; ax: number; ay: number } | null>(null);
   const restTimer = useRef(0);
+  /** When the card last moved. The return home is driven off this, not off a pointer event. */
+  const touched = useRef(0);
   const [ready, setReady] = useState(false);
 
   // Fonts first: a texture drawn before Cairo has loaded bakes the fallback face into the card
@@ -481,6 +523,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
   const turnTo = (x: number, y: number) => {
     target.current = { x, y };
     signal.current++;
+    touched.current = performance.now();
   };
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -517,14 +560,9 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
     // which was the line that scheduled the return home — so on a phone, where cancel is what
     // ends a gesture the browser decides to claim, the card simply stayed where the finger left
     // it. `?.` does not help: the method exists, it is the call that fails.
-    clearTimeout(restTimer.current);
-    // Home by the shortest route: a card left at four full turns looks identical to one at rest,
-    // so it goes to the nearest whole revolution rather than unwinding everything it was given.
-    restTimer.current = window.setTimeout(() => {
-      if (drag.current) return;
-      const near = (v: number) => Math.round(v / (Math.PI * 2)) * Math.PI * 2;
-      turnTo(near(target.current.x), near(target.current.y));
-    }, 3000);
+    // Marks the release; the Waker's clock does the rest. No timer is armed here on purpose —
+    // one was, and it lived or died with this handler being reached at all.
+    touched.current = performance.now();
 
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
@@ -559,7 +597,12 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
       //
       // Everything above and below still reflows as if the card were its normal height, so
       // nothing else on the page moves; z-30 decides what is on top.
-      className="relative z-30 w-[168%] mx-[-34%] mt-[-7%] mb-[-26%] max-w-[52rem] lg:w-full lg:mx-0 lg:mt-[-5%] lg:mb-[-8%] lg:max-w-[46rem] aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
+      // The box is roughly twice the card, because the camera frames the card at ~48% of it. It
+      // therefore hangs well outside its column on all four sides — including the top, so the
+      // card can turn up out of the panel as readily as down out of it — and z-30 puts it over
+      // everything it reaches. The negative margins also mean the page reflows as if the card
+      // were its plain size, so nothing else moves to accommodate it.
+      className="relative z-30 w-[210%] mx-[-55%] mt-[-24%] mb-[-34%] max-w-[54rem] lg:w-[150%] lg:mx-[-25%] lg:mt-[-14%] lg:mb-[-16%] lg:max-w-[58rem] aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
       // `none`, so a drag that starts on the card turns the card instead of scrolling the page.
       style={{ touchAction: 'none' }}
       onPointerDown={onPointerDown}
@@ -587,8 +630,8 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           // this scene is a card, not a full screen; the higher cap costs a few hundred thousand
           // pixels on an element that only renders at all while it is being turned.
           dpr={[1, 2.5]}
-          // 2.6, and this one is solved rather than judged by eye — two previous guesses both
-          // still cut the card off.
+          // 3.4 — deliberately far more room than the arithmetic below demands, because every
+          // tighter value tried here was still reported as cutting the card off somewhere.
           //
           // A canvas is a rectangle and cannot draw outside itself, so the card must fit inside
           // the frame at EVERY angle, not just at rest. The binding case is a quarter turn about
@@ -601,14 +644,17 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           //   near-edge height = 1 · d/(d − 0.793)
           //   fits when 0.6116·d ≥ d/(d − 0.793)  ⟺  d ≥ 2.428
           //
-          // 2.6 clears that with room to spare: the frame is 1.59 tall against a worst-case
-          // 1.44, and the same check on the X axis (half-height 0.5, card 1.586 wide) is 1.96
-          // against a frame 2.52 wide. Nothing clips at any rotation on either axis.
+          // The worst case is a quarter turn about the card's long axis, where the near edge is
+          // magnified by d/(d − 0.793) — 1.30 at this distance — while the frame is 0.6116·d =
+          // 2.08 tall. 1.30 against 2.08 is 60% headroom, and the diagonal case (both axes at
+          // once) still clears comfortably. There is no angle at which any corner reaches an
+          // edge.
           //
-          // The card then occupies about 63% of the frame, and the element below is sized so that
-          // still lands at the size it should be on screen. The remaining space is transparent,
-          // so it is not a border around a picture — it is the room an object needs to turn in.
-          camera={{ position: [0, 0, 2.6], fov: 34 }}
+          // The card occupies about 48% of the frame, so more than half of the canvas is empty
+          // transparent space. That is not waste: it is the room the card turns in, and because
+          // it is transparent it is invisible — what remains is an object moving freely in the
+          // page rather than one pressed against the sides of a box.
+          camera={{ position: [0, 0, 3.4], fov: 34 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         >
           {/* Lower than a dark card needs. White is already near the top of the range, so the
@@ -621,7 +667,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           <directionalLight position={[2.2, 2.6, 3.4]} intensity={1.25} />
           <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.4} />
           <Card isAr={isAr} targetRef={target} />
-          <Waker signal={signal} />
+          <Waker signal={signal} touched={touched} dragging={drag} target={target} />
         </Canvas>
       )}
     </div>
