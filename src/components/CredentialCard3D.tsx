@@ -226,14 +226,14 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     ? ['منهجية برمجية واضحة ومحددة', 'حقوق الكود كاملة مع الحفظ', 'متابعة دورية حسب الاتفاق', 'أحدث التقنيات لسرعة استثنائية']
     : ['Clear timeline and sprints', 'Full code ownership', 'Ongoing technical SLA', 'Modern web tech stacks'];
 
-  const GAP = 40;
+  const GAP = 36;
   const colW = (TEX_W - PAD * 2 - GAP) / 2;
-  const BADGE = 78;
+  const BADGE = 88;
 
   titles.forEach((title, i) => {
     const col = i % 2;
     const row = (i / 2) | 0;
-    const top = 386 + row * 176;
+    const top = 372 + row * 190;
     // Columns run from the reading-start edge inward, so column order follows the language.
     const startX = isAr ? TEX_W - PAD - col * (colW + GAP) : PAD + col * (colW + GAP);
     const badgeX = isAr ? startX - BADGE : startX;
@@ -246,19 +246,21 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     ctx.lineWidth = 2.5;
     roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.stroke();
-    glyph(ctx, i, badgeX + BADGE / 2, top + BADGE / 2, 36, INK);
+    glyph(ctx, i, badgeX + BADGE / 2, top + BADGE / 2, 42, INK);
 
     ctx.direction = isAr ? 'rtl' : 'ltr';
     ctx.textAlign = isAr ? 'right' : 'left';
     const maxText = colW - BADGE - 24;
 
     ctx.fillStyle = INK;
-    ctx.font = '700 42px Cairo, system-ui, sans-serif';
-    ctx.fillText(title, textX, top - 2, maxText);
+    ctx.font = '800 50px Cairo, system-ui, sans-serif';
+    ctx.fillText(title, textX, top - 6, maxText);
 
-    ctx.fillStyle = 'rgba(0,0,0,0.68)';
-    ctx.font = '500 31px Cairo, system-ui, sans-serif';
-    ctx.fillText(descs[i], textX, top + 52, maxText);
+    // 600 rather than 500: on a white card at this size the difference between the two weights is
+    // the difference between a second line you read and one you notice.
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.font = '600 36px Cairo, system-ui, sans-serif';
+    ctx.fillText(descs[i], textX, top + 56, maxText);
   });
 
   // Footer, opposite the wordmark
@@ -389,7 +391,18 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
   useFrame((state, delta) => {
     const g = group.current;
     if (!g) return;
-    const k = Math.min(1, delta * 7);
+
+    // delta is clamped, and without it the card teleports home instead of travelling there.
+    //
+    // `frameloop="demand"` means no frames are drawn while the card sits still — which is the
+    // whole point of it — so `delta` on the first frame after a pause is the length of that
+    // pause. The card rests for three seconds before returning, so that first delta is ~3, the
+    // damping factor min(1, delta·7) saturates at 1, and the entire journey home is completed in
+    // one frame: the card is simply somewhere else the next time you look at it.
+    //
+    // Clamping to a 30fps step makes that first frame an ordinary one, and the eased return then
+    // plays out over the frames that follow, each of which is real.
+    const k = Math.min(1, Math.min(delta, 1 / 30) * 7);
     const dx = targetRef.current.x - g.rotation.x;
     const dy = targetRef.current.y - g.rotation.y;
     if (Math.abs(dx) > 0.0004 || Math.abs(dy) > 0.0004) {
@@ -546,7 +559,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
       //
       // Everything above and below still reflows as if the card were its normal height, so
       // nothing else on the page moves; z-30 decides what is on top.
-      className="relative z-30 w-[168%] mx-[-34%] my-[-9%] max-w-[52rem] lg:w-full lg:mx-0 lg:my-[-6%] lg:max-w-[46rem] aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
+      className="relative z-30 w-[168%] mx-[-34%] mt-[-7%] mb-[-26%] max-w-[52rem] lg:w-full lg:mx-0 lg:mt-[-5%] lg:mb-[-8%] lg:max-w-[46rem] aspect-[1.586/1] select-none cursor-grab active:cursor-grabbing"
       // `none`, so a drag that starts on the card turns the card instead of scrolling the page.
       style={{ touchAction: 'none' }}
       onPointerDown={onPointerDown}
