@@ -1266,6 +1266,15 @@ html {
 .snap-section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
+  /* A full screen each, so a snap always lands on a section filling the viewport rather than
+     part-way through two of them. Sections whose content is already taller keep their own height
+     — this only lifts the short ones — and `svh` rather than `vh` so a phone's collapsing address
+     bar does not leave a strip of the next section showing. */
+  min-height: 100svh;
+  /* Clear of the floating navbar, which is fixed and would otherwise cover the top of whatever
+     has just been snapped to. The bar publishes its own bottom edge; the fallback covers the
+     moment before that variable exists. */
+  scroll-margin-top: var(--nav-bottom, 5.5rem);
 }
 
 /* Someone who has asked for less motion should not be thrown between sections. */
