@@ -719,31 +719,34 @@
    with transform3d (compositor-only, no per-frame paint) instead of a canvas/particle
    loop, so it stays free even on low-end GPUs. Each layer is 200% of the viewport and
    tiles seamlessly, so translating it by exactly one tile length loops with no jump cut. */
-/* Sized to the viewport plus a fixed overscan, NOT to a multiple of it.
-   This was `inset: -50%; width: 200%; height: 200%` — four times the screen's area, twice
-   over, both animating forever. On a 1080x2400 phone at ~2.75x that is roughly 78 million
-   device pixels per layer: far past what a mobile GPU will hold as a single texture, so it
-   tiles the surface and re-rasterises tiles continuously as the layer drifts. Two of those
-   running permanently is genuinely the workload of a game, and it is what made the device hot
-   on a page that is otherwise text.
-   None of that area was ever needed. The pattern repeats every 300-380px and the drift travels
-   exactly one tile before looping, so the layer only has to extend past the viewport by one
-   tile for its edge to stay off screen. 420px of overscan covers both layers with room to
-   spare, and cuts the composited area by roughly three quarters. */
+/* Overscanned by exactly one tile, and only on the two sides the drift travels towards.
+   This was `inset: -50%; width: 200%; height: 200%` — four times the viewport's area, on two
+   layers, both composited continuously and forever. Nothing needed that: the pattern repeats
+   every 300-380px and each layer travels exactly one tile before looping, so the only area
+   that has to exist beyond the screen is the strip the layer uncovers as it moves. Which two
+   sides those are depends on the direction each layer drifts, so the insets are set per layer
+   below rather than here.
+   (Overscanning all four sides equally is the obvious version of this and is wrong on a phone:
+   a viewport is only ~393px wide in CSS pixels, so a uniform 400px margin more than doubles
+   the layer instead of shrinking it.) */
 .star-layer {
   position: absolute;
-  inset: -420px;
   background-repeat: repeat;
 }
 
+/* Drifts up and to the left, so it uncovers its bottom and right edges — those are the two
+   that need the extra tile. */
 .star-layer--far {
+  inset: 0 -300px -300px 0;
   background-image: var(--stars-far);
   background-size: 300px 300px;
   opacity: 0.7;
   animation: star-drift-far 220s linear infinite;
 }
 
+/* Drifts left and down, so it uncovers its top and right edges. */
 .star-layer--near {
+  inset: -380px -380px 0 0;
   background-image: var(--stars-near);
   background-size: 380px 380px;
   opacity: 0.85;
