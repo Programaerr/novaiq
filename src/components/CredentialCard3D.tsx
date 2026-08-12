@@ -441,18 +441,28 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
     const mk = (canvas: HTMLCanvasElement) => {
       const t = new THREE.CanvasTexture(canvas);
       t.colorSpace = THREE.SRGBColorSpace;
-      // The card is read at an angle for most of a turn, which is exactly when a texture without
-      // anisotropic filtering goes to mush along the receding edge. Drivers clamp this to their
-      // own maximum, so asking for 16 is safe on hardware that cannot do it.
+
+      // No mipmaps, and this is the fix for a card that rendered as a blank grey slab.
+      //
+      // These textures are canvases at 1600x1009 — not powers of two. WebGL2 permits mipmapping
+      // such a texture, so nothing errors, but the chain that comes back is not usable: sampling
+      // resolved to the smallest level, and the smallest level of this card is one pixel of its
+      // average colour. That is precisely what was on screen — a uniform pale grey rectangle with
+      // no type, no chip and no tracery, on both faces, while the scene graph insisted all three
+      // meshes were being drawn with their maps attached. They were; they were sampling a 1x1
+      // image of themselves.
+      //
+      // LinearFilter reads the full-size texture directly. The usual objection to dropping
+      // mipmaps is aliasing under heavy minification, which does not apply here: the card is
+      // ~1300 device pixels wide at its largest against a 1600-pixel texture, so it is barely
+      // minified at all, and anisotropic filtering covers the oblique angles a turn puts it at.
+      t.generateMipmaps = false;
+      t.minFilter = THREE.LinearFilter;
+      // Drivers clamp anisotropy to their own maximum, so asking for 16 is safe everywhere.
       t.anisotropy = 16;
       return t;
     };
-    const f = drawFront(isAr);
-    const b = makeBackCanvas();
-    // TEMP DIAGNOSTIC
-    (window as unknown as Record<string, unknown>).__cardFront = f;
-    (window as unknown as Record<string, unknown>).__cardBack = b;
-    return [mk(f), mk(b)];
+    return [mk(drawFront(isAr)), mk(makeBackCanvas())];
   }, [isAr]);
 
   // The logo is a PNG, so the back is drawn once without it and again the moment it arrives.
@@ -594,17 +604,6 @@ function Waker({
     return () => cancelAnimationFrame(raf);
   }, [invalidate, signal, touched, dragging, target]);
 
-  return null;
-}
-
-// TEMP DIAGNOSTIC
-function Probe() {
-  const scene = useThree((s) => s.scene);
-  const gl = useThree((s) => s.gl);
-  useEffect(() => {
-    (window as unknown as Record<string, unknown>).__scene = scene;
-    (window as unknown as Record<string, unknown>).__gl = gl;
-  }, [scene, gl]);
   return null;
 }
 
@@ -811,7 +810,6 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
               gradient the CSS version had to fake. */}
           <directionalLight position={[2.2, 2.6, 3.4]} intensity={1.25} />
           <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.4} />
-          <Probe />
           <Card isAr={isAr} targetRef={target} />
           <Waker signal={signal} touched={touched} dragging={drag} target={target} />
         </Canvas>
