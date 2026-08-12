@@ -793,11 +793,24 @@
 }
 
 .credential-card {
-  /* The card's thickness. One value: the four sides are this wide and the two faces sit at plus
-     and minus half of it, so the solid cannot come apart at the seams whatever it is set to.
-     A separate, wider `--rim` used to be needed to paper over a gap the flat ring could not
-     close; the sides close it by being real surfaces, so the fudge is gone. */
-  --depth: 11px;
+  /* ── There is no --depth any more, and that is the fix ────────────────────────────────
+     The two faces are coplanar. Only one of them is ever visible, because each hides itself once
+     it turns away (backface-visibility below), so they can occupy the same plane without ever
+     being seen at once.
+
+     Everything that went wrong at this card's edge came from separating them. Separate the faces
+     and you open a gap, and closing a gap around a ROUNDED corner is something CSS cannot do:
+     a rounded corner is a curved surface, and CSS has no element that draws one. Every available
+     approximation was tried here and each failed structurally rather than for want of tuning —
+     a stack of rings follows the curve but is many surfaces, which flickered under a finger;
+     four straight strips are few surfaces but meet at a point, because a chord is not an arc;
+     one flat ring is a single surface and follows the curve, but has no extent in depth, so it
+     leaves the gap it was added to hide.
+
+     With the faces coplanar the gap does not exist, so none of that is needed. The card still
+     turns in three dimensions, still has a back, and still reveals it past 90° — what it gives
+     up is a visible rim at the instant it passes exactly edge-on, where a real card is very
+     nearly a line anyway. Its thickness is suggested by the bevel on each face instead. */
   /* The corner radius. Free to be whatever suits the design: every part of the solid that has to
      agree with it — both faces and all six rings — is a rounded rectangle reading this same
      value, so the rim follows the corner at any radius. It had to be held down to 0.8rem while
@@ -871,19 +884,16 @@
   transform: translateZ(calc(var(--depth) / -2)) rotateY(180deg);
 }
 
-/* The band, as a stack of rings spread through the depth.
-   Each ring is the card's own rounded rectangle, so the rim follows the corner curve exactly —
-   which four straight strips cannot do at any length or with any amount of rounding on their
-   ends, because a rounded corner is an arc and a strip is a chord. That was the whole problem
-   with the strips: the rim arrived at the corner as a straight piece and turned through a hard
-   point instead of sweeping round with the card.
+/* The band: one ring, at the midpoint of the depth.
+   It is the card's own rounded rectangle, so the rim follows the corner curve exactly — which
+   four straight strips could not do at any length or with any amount of rounding on their ends,
+   because a rounded corner is an arc and a strip is a chord.
 
-   One such ring is not enough, and that failure is what sent this to strips in the first place:
-   a single ring lies flat in the faces' plane, so looking straight down the card's side presents
-   it edge-on and it collapses to a hairline. A stack does not. Turned side-on, rings at
-   different depths project to different points across the screen, so together they lay out the
-   full thickness as a band rather than a line — the depth spread is what draws the edge, not any
-   one ring's border width.
+   One, not the stack of six that was here. The stack existed to spread the rim across a thickness
+   too large for a single flat ring to cover, and it cost six separate surfaces for the pointer
+   light to interact with, which read as the card flickering under the finger. Cutting the card
+   to a real card's thickness removed the reason for it: the gap the ring has to hide is now at
+   most 4px at any angle, and an 8px border hides it past 60° of turn.
 
    Hollow: only the outline is painted, never the interior, because the inside of a closed card
    is never visible.
@@ -894,7 +904,7 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius);
-  border: 2.5px solid #26262c;
+  border: var(--rim) solid #26262c;
   background: none;
   pointer-events: none;
 }

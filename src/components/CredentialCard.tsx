@@ -327,23 +327,14 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({ language }) => {
         </div>
 
         {/* ── The band ─────────────────────────────────────────────────────────────────
-            Six rings spread evenly from the front face's plane to the back one, so the rim
-            follows the card's rounded corners round the curve instead of turning through them at
-            a point. Four straight strips were tried and cannot do that at any length: an arc is
-            not a chord, and rounding a strip's end rounds the strip, not the corner.
+            One ring, halfway between the faces, tracing the same rounded rectangle they do so
+            the rim sweeps round each corner instead of turning through it at a point.
 
-            i runs 0..5 and the offset runs +depth/2 down to −depth/2, so the first ring sits in
-            the front face's plane and the last in the back one — the stack spans the thickness
-            exactly rather than hanging off one side of it.
+            It was a stack of six, and the stack was the thing flickering under a finger: six
+            separate surfaces for the pointer light to cross. It is one now because the card is a
+            real card's thickness rather than three times it — see --depth in index.css.
             aria-hidden: this is the thickness of a thing, not content. */}
-        {Array.from({ length: 6 }, (_, i) => (
-          <div
-            key={i}
-            aria-hidden="true"
-            className="credential-ring"
-            style={{ transform: `translateZ(calc(var(--depth) / 2 - var(--depth) / 5 * ${i}))` }}
-          />
-        ))}
+        <div aria-hidden="true" className="credential-ring" />
       </div>
     </div>
   );
