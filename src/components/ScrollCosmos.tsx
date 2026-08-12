@@ -86,78 +86,82 @@ const FRAG = /* glsl */ `
     float r = max(length(p), 1e-4);
     float a = atan(p.y, p.x);
 
-    // ── The act structure ────────────────────────────────────────────────────────────────
-    // The page is cut into sections and each one plays the same short film: a black hole holds
-    // the frame, then gives way to a supernova as you reach the end of that section, then the
-    // next section opens on a hole again. 'phase' is where you are inside the current act and
-    // 'nova' is how far it has turned into the explosion — every term below is written against
-    // those two, so the whole scene is staged rather than merely animated.
-    // (Plain quotes, not backticks: this whole shader is a JS template literal, and a backtick
-    // in a comment ends it — which it did, with four parse errors well away from the cause.)
-    float act = uProgress * 7.0;
-    float phase = fract(act);
-    float nova = smoothstep(0.42, 0.95, phase);
-    float hold = 1.0 - nova;
+    // == THE ARC ========================================================================
+    // One story told across the whole page, not a loop repeated per section.
+    //
+    //   0.00 - 0.55  a star is caught and spirals inward, drawn out into a tidal stream
+    //   0.45 - 0.72  it reaches the horizon and the whole system brightens
+    //   0.68 - 0.85  star and hole detonate together
+    //   0.76 - 1.00  the ash spreads out and becomes the dust the rest of the page sits in
+    //
+    // Each stage is a weight between 0 and 1 derived from scroll position alone, and every term
+    // below is multiplied by the one it belongs to. Nothing overlaps by accident: the hole is
+    // switched off by the same figure that switches the blast on, so it is genuinely destroyed
+    // rather than hidden behind a brighter thing.
+    float P = uProgress;
+    float infall = smoothstep(0.0, 0.06, P) * (1.0 - smoothstep(0.60, 0.72, P));
+    float charge = smoothstep(0.44, 0.70, P) * (1.0 - smoothstep(0.70, 0.78, P));
+    float blast  = smoothstep(0.66, 0.775, P) * (1.0 - smoothstep(0.80, 0.97, P));
+    float ash    = smoothstep(0.74, 0.96, P);
+    float alive  = 1.0 - smoothstep(0.70, 0.80, P);   // the hole, until it is gone
 
-    // The hole opens as the page descends, and collapses as its act detonates.
-    float R = (0.085 + uProgress * 0.055) * (1.0 - nova * 0.55);
+    // The hole tightens as it feeds, then is torn open by the blast.
+    float R = (0.075 + P * 0.05) * (1.0 - charge * 0.3) * alive;
 
-    // Lensed starfield. Light passing a mass is deflected towards it, so the field is sampled at
-    // a coordinate pulled inward by 1/r^2 — the further in, the more the sky bends around the
-    // shadow. Cheap because the "stars" are a hash of a grid cell rather than any real geometry.
-    // Parallax: the field slides at its own rate and only a third of the hole's swing, so the
-    // two separate as you scroll instead of moving as one flat picture. That difference is the
-    // entire sensation of depth here — there is no third dimension in this shader at all.
-    vec2 warp = (uv - centre * 0.34 + vec2(uProgress * 0.62, uProgress * -0.2));
-    warp *= (1.0 + 0.055 / (r * r + 0.02));
-    vec2 cell = floor(warp * 62.0);
-    float star = step(0.986, hash(cell)) * smoothstep(0.0, 0.3, r - R);
-    float stars = star * (0.3 + 0.7 * hash(cell + 3.7));
+    // -- The doomed star -----------------------------------------------------------------
+    // An inward spiral: the angle winds on with the scroll while the radius closes on the
+    // horizon, so scrolling IS the orbit decaying. Flattened on Y into an ellipse, because a
+    // perfect circle reads as a diagram and an ellipse reads as an orbit seen at an angle.
+    float sa = P * 15.0;
+    float srad = mix(0.46, max(R, 0.02) * 1.05, smoothstep(0.0, 0.70, P));
+    vec2 spos = vec2(cos(sa), sin(sa) * 0.58) * srad;
+    float sd = length(p - spos);
+    float star = infall * (exp(-sd * 42.0) * (1.1 + charge * 2.6) + exp(-sd * 9.0) * 0.3);
 
-    // Accretion disc. The winding tightens towards the hole — inner orbits are faster — and the
-    // whole pattern turns with the scroll, so the disc reads as being driven by the page.
-    float swirl = a + 0.55 / r + uProgress * 9.0;
+    // Its tidal stream. Matter pulled off the star lags behind it along the same orbit, so the
+    // tail is drawn as "close to the orbit radius, and behind in angle" — which costs two
+    // exponentials rather than any kind of particle system.
+    float lag = mod(sa - a + 3.14159265, 6.28318531) - 3.14159265;
+    float tail = infall * exp(-abs(r - srad) * 34.0) * exp(-max(lag, 0.0) * 1.5) * (0.35 + charge * 0.9);
+
+    // -- The hole itself -----------------------------------------------------------------
+    float swirl = a + 0.55 / r + P * 9.0;
     float band = 0.5 + 0.5 * sin(swirl * 3.0);
-    float shell = smoothstep(R * 0.98, R * 1.55, r) * smoothstep(R * 5.4, R * 1.9, r);
-    float disc = shell * (0.22 + 0.78 * band) * (0.5 + uProgress * 0.9) * hold;
+    float ringZone = smoothstep(R * 0.98, R * 1.55, r) * smoothstep(R * 5.4, R * 1.9, r);
+    float disc = alive * ringZone * (0.22 + 0.78 * band) * (0.45 + P * 0.8 + charge * 1.1);
+    float ring = alive * exp(-pow((r - R * 1.16) / max(R * 0.1, 1e-4), 2.0)) * (0.8 + charge * 1.4);
+    float hole = alive * smoothstep(R * 1.02, R * 0.9, r);
 
-    // The photon ring: the hard bright rim of the shadow.
-    float ring = exp(-pow((r - R * 1.16) / (R * 0.1), 2.0)) * (0.85 + uProgress * 0.6) * hold;
+    // -- One noise, used twice ------------------------------------------------------------
+    // The nebula before the blast and the ash after it are the same two octaves read at
+    // different weights. Sampling noise twice over would double the most expensive thing in this
+    // shader to produce two clouds nobody ever sees at the same time.
+    vec2 nb = uv * 2.1 + vec2(P * 1.5, P * -0.6);
+    float cloud = vnoise(nb) * 0.62 + vnoise(nb * 2.4 + 5.1) * 0.34;
+    float nebula = smoothstep(0.46, 0.98, cloud) * 0.07 * (1.0 - ash) * smoothstep(0.06, 0.5, r);
+    float dust = smoothstep(0.34, 0.95, cloud) * ash * 0.2;
 
-    // The horizon itself. Not drawn — subtracted, so the page shows through as true black. It
-    // reopens as the act detonates, because there is no shadow left to cast by then.
-    float hole = smoothstep(R * 1.02, R * 0.9, r) * hold;
+    // Grains of ash, thrown outward and thinning as they go.
+    vec2 gcell = floor((uv + vec2(P * 0.55, -P * 0.28)) * 130.0);
+    float grain = step(0.977, hash(gcell)) * (0.35 + 0.65 * hash(gcell + 1.3));
+    float embers = ash * grain * 0.75;
 
-    // ── Nebula ───────────────────────────────────────────────────────────────────────────
-    // Two octaves of value noise, drifting against the hole. Without it the frame is one bright
-    // object on an empty black field, which reads as a glowing dot rather than as space — and on
-    // a page this dark, a single hot point is the thing that becomes tiring to look at. The
-    // clouds are kept very faint: they are there to give the darkness a texture to sit on.
-    vec2 nb = uv * 1.7 + vec2(uProgress * 1.15, uProgress * -0.45);
-    float cloud = vnoise(nb) * 0.62 + vnoise(nb * 2.3 + 5.1) * 0.3;
-    cloud = smoothstep(0.44, 0.95, cloud);
-    float nebula = cloud * (0.07 + 0.05 * nova) * smoothstep(0.08, 0.55, r);
+    // -- The detonation -------------------------------------------------------------------
+    float rays = 0.55 + 0.45 * cos(a * 16.0 + P * 5.0);
+    float shockR = smoothstep(0.68, 1.0, P) * 1.5;
+    float shock = blast * exp(-pow((r - shockR) / 0.11, 2.0)) * (0.55 + 0.45 * rays);
+    float core = blast * (0.85 * exp(-r * 7.0) + 0.45 * exp(-r * 2.2) * rays);
 
-    // ── Supernova ────────────────────────────────────────────────────────────────────────
-    // Two parts: the act's own detonation, which grows with 'nova' and so is tied to where you
-    // are in the section, and a sharper shell fired the instant a boundary is crossed.
-    float rays = 0.55 + 0.45 * cos(a * 14.0 + uProgress * 4.0);
-    float core = nova * (0.5 * exp(-r * 8.0) + 0.35 * exp(-r * 2.6) * rays);
-    float front = nova * exp(-pow((r - nova * 0.55) / 0.075, 2.0)) * (0.5 + 0.5 * rays);
+    // The per-section tremor: a small shell on every boundary crossed, silenced once the star is
+    // gone, so the page still answers each section without competing with the finale.
+    float tremor = uBurst.x * alive * exp(-pow((r - uBurst.y * 0.9) / 0.05, 2.0)) * 0.7;
 
-    float sr = uBurst.y * 0.95;
-    float wave = uBurst.x * exp(-pow((r - sr) / 0.05, 2.0)) * (0.55 + 0.45 * rays);
-    float flash = uBurst.x * 0.3 * exp(-r * 7.0);
-
-    float glow = disc + ring + stars * 0.55 + nebula + core + front + wave + flash;
+    float glow = disc + ring + star + tail + nebula + dust + embers + shock + core + tremor;
     glow *= (1.0 - hole);
-    // Faded well before the frame edge, so the layer never resolves into a rectangle.
-    glow *= smoothstep(0.95, 0.2, r);
+    glow *= smoothstep(1.05, 0.18, r);
 
-    // 0.62 rather than full strength: this sits behind everything anyone is trying to read, on a
-    // page that is deliberately near-black. Bright enough to be unmistakably there, dim enough
-    // that it never competes with the text in front of it.
-    gl_FragColor = vec4(vec3(1.0), clamp(glow, 0.0, 1.0) * 0.62);
+    // Held well below full strength: this sits behind everything anyone is trying to read.
+    gl_FragColor = vec4(vec3(1.0), clamp(glow, 0.0, 1.0) * 0.7);
   }
 `;
 
