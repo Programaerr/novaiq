@@ -597,6 +597,17 @@ function Waker({
   return null;
 }
 
+// TEMP DIAGNOSTIC
+function Probe() {
+  const scene = useThree((s) => s.scene);
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    (window as unknown as Record<string, unknown>).__scene = scene;
+    (window as unknown as Record<string, unknown>).__gl = gl;
+  }, [scene, gl]);
+  return null;
+}
+
 export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) => {
   const isAr = language === 'ar';
   const target = useRef({ x: 0, y: 0 });
@@ -800,6 +811,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
               gradient the CSS version had to fake. */}
           <directionalLight position={[2.2, 2.6, 3.4]} intensity={1.25} />
           <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.4} />
+          <Probe />
           <Card isAr={isAr} targetRef={target} />
           <Waker signal={signal} touched={touched} dragging={drag} target={target} />
         </Canvas>
