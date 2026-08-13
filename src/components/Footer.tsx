@@ -34,7 +34,12 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
     // in the page. The separation now comes from the frosted card inside, which is translucent:
     // the scene stays visible through it while the text sits on a surface of its own.
     <footer className="relative mt-20 sm:mt-32 pb-10 text-xs text-zinc-400 z-20">
-      <div className="frost-card max-w-7xl mx-auto rounded-3xl px-4 sm:px-8 lg:px-10 pt-12 pb-10 overflow-hidden">
+      {/* The same `.nq-panel` every section on the home page uses, rather than a surface of its
+          own. It was `.frost-card` — a near-black translucent slab with its own border and drop
+          shadow, written when the page behind it was black and everything on it was neutral. On
+          the indigo ground it read as a hole cut in the bottom of the page, and it was the last
+          block on the site still drawing itself a different way. */}
+      <div className="nq-panel max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 pt-12 pb-10 overflow-hidden">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           

@@ -562,7 +562,12 @@ export default function App() {
                 // subtree is on screen, so it skips and un-skips it repeatedly, throwing the
                 // section's rendering away and rebuilding it — many times a second, for as long
                 // as the card is moving. That is both the flicker and a large part of the heat.
-                className="nq-card rounded-3xl p-6 sm:p-10"
+                // `.nq-panel`, not `.nq-card` — this is a top-level SECTION panel and the other two
+                // on the page already are. It carried the card treatment from before the panel
+                // system existed, which meant the first block on the page had a different radius
+                // (24 vs 32), different padding and a differently angled light from the two below
+                // it. Nobody would name that as wrong; everybody sees it.
+                className="nq-panel"
               >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
                 {/* The credential card, in the same row as the pitch it illustrates rather than
@@ -605,9 +610,13 @@ export default function App() {
                         // ever read as a hole punched through the page.
                         className="nq-card nq-card--hover group flex flex-col items-center gap-2 text-center p-3"
                       >
-                        <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
+                        <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-white/10 overflow-hidden">
+                          {/* Indigo, not the old zinc→white ramp. These bars are the only place on
+                              the page where a value is shown as a QUANTITY rather than written, so
+                              they should be the accent doing its job — a neutral bar in an accented
+                              system reads as a component nobody updated. */}
                           <div
-                            className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
+                            className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-indigo-600 to-indigo-300"
                             style={{
                               '--fill': statsFilled ? `${stat.fill}%` : '0%',
                               '--fill-hover': `${Math.min(stat.fill + 15, 100)}%`,
@@ -710,10 +719,14 @@ export default function App() {
             </div>
 
             {/* About Section */}
-            {/* The light panel in the alternation. `below-fold` stays on the outer wrapper: the
-                paint-skip it buys is genuinely safe here, unlike on the timeline, because nothing
-                in this section runs a live transform that would keep re-triggering the check. */}
-            <div className="below-fold max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* The light panel in the alternation.
+                No `below-fold`, and it was there until a full-page capture showed this section as
+                a 553px hole in the page. `content-visibility: auto` lets the browser skip painting
+                the subtree and it took that offer — the geometry was correct and the pixels were
+                not. It is the same class that had to come off the timeline for a related reason.
+                The saving it buys is one paint of a static section; the failure mode is the
+                section not being there, and that trade is not close. */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="nq-panel nq-panel--light">
                 <AboutSection language={language} />
               </div>

@@ -209,6 +209,7 @@ function makeDaysideMaterial(): THREE.ShaderMaterial {
 
 function Globe({ spin }: { spin: boolean }) {
   const points = useRef<Points>(null);
+  const body = useRef<THREE.Group>(null);
   const dot = useMemo(makeDotTexture, []);
   const atmosphere = useMemo(makeAtmosphereMaterial, []);
   const dayside = useMemo(makeDaysideMaterial, []);
@@ -223,8 +224,24 @@ function Globe({ spin }: { spin: boolean }) {
     };
   }, [dot, atmosphere, dayside]);
 
-  const positions = useMemo(() => {
+  const { positions, colors } = useMemo(() => {
     const arr = new Float32Array(COUNT * 3);
+    /**
+     * Per-point brightness, and this is what makes the rotation visible at all.
+     *
+     * A sphere of EVENLY spread, identically bright points is rotationally symmetric: turn it and
+     * every frame looks like the last one, because each point that leaves a position is replaced
+     * by an identical point arriving. The globe was spinning the whole time and reading as
+     * completely still — the fix is not more speed, it is giving the surface something the eye
+     * can follow round.
+     *
+     * The variation is banded rather than per-point random. Random brightness is texture but not
+     * FEATURES: it shimmers and still has no landmarks. Two out-of-phase sine bands in latitude
+     * and longitude produce broad light and dark regions — continents, effectively — that sweep
+     * visibly across the silhouette as the globe turns. The small random term on top keeps those
+     * bands from looking like printed stripes.
+     */
+    const col = new Float32Array(COUNT * 3);
     // The golden angle. Any rational angle here makes successive points line up into spokes
     // radiating from the poles; an irrational one never repeats, which is the entire trick.
     const golden = Math.PI * (3 - Math.sqrt(5));
@@ -239,21 +256,63 @@ function Globe({ spin }: { spin: boolean }) {
       arr[i * 3] = Math.cos(theta) * ring * RADIUS;
       arr[i * 3 + 1] = y * RADIUS;
       arr[i * 3 + 2] = Math.sin(theta) * ring * RADIUS;
+
+      // Longitude is the angle around the spin axis, so bands in it are what actually travel past
+      // the eye as the globe turns; latitude bands alone would rotate in place and change nothing.
+      const lon = Math.atan2(arr[i * 3 + 2], arr[i * 3]);
+      const bands =
+        Math.sin(lon * 3 + 0.8) * 0.5 +
+        Math.sin(lon * 5 + y * 4) * 0.3 +
+        Math.sin(y * 6) * 0.2;
+
+      // Wide range on purpose. At 0.3–1.0 the bands existed in the data and were invisible on
+      // screen: two captures nine seconds apart came back identical. The globe is small and the
+      // points are two pixels, so anything less than a near-full swing from dark to bright simply
+      // does not survive being drawn at that size. 0.12 floor, full range above it.
+      const k = Math.min(1, Math.max(0.12, 0.55 + bands * 0.62 + (Math.random() - 0.5) * 0.16));
+      col[i * 3] = k;
+      col[i * 3 + 1] = k;
+      col[i * 3 + 2] = k;
     }
 
-    return arr;
+    return { positions: arr, colors: col };
   }, []);
 
-  useFrame((_, delta) => {
-    if (!spin || !points.current) return;
+  useFrame((state, delta) => {
+    if (!spin) return;
+
     // Delta-based so the globe turns at one speed on a 60Hz and a 120Hz screen. Clamped because
     // delta is the length of the pause after the loop has been stopped off-screen, and an
     // unclamped one would snap the globe forward by that entire gap the moment it returns.
-    points.current.rotation.y += Math.min(delta, 0.05) * 0.045;
+    const step = Math.min(delta, 0.05);
+
+    // 0.2 rad/s — one turn every ~31 seconds. Slow, but slow is only readable if there is
+    // something to read: see the brightness attribute on the geometry. A rotation with no surface
+    // variation to carry it is not slow motion, it is no motion.
+    if (points.current) points.current.rotation.y += step * 0.2;
+
+    // The tumble: the same 3D turn the credential card makes when it is dragged, except nobody
+    // has to drag this. The BODY's own axis leans slowly on two axes while the surface spins on a
+    // third, so the planet is never presented from the same angle twice.
+    //
+    // This is what a spin alone could not do. Rotation about a fixed axis on a sphere is
+    // ambiguous — the silhouette never changes, so there is no parallax and the eye is given no
+    // evidence of depth. Leaning the axis swings the ring through perspective and moves the lit
+    // shoulder across the face, and both of those are unmistakably three-dimensional.
+    //
+    // 0.11 and 0.083 rad/s: deliberately not a ratio of small integers, so the two never come
+    // back into phase and the motion has no loop point to notice. Amplitudes stay small (±0.16
+    // and ±0.12 rad, roughly ±9° and ±7°) because this is meant to be felt rather than watched —
+    // the headline is the thing being read, and this is behind it.
+    if (body.current) {
+      const t = state.clock.elapsedTime;
+      body.current.rotation.x = 0.32 + Math.sin(t * 0.11) * 0.16;
+      body.current.rotation.z = 0.16 + Math.sin(t * 0.083) * 0.12;
+    }
   });
 
   return (
-    <group rotation={[0.32, 0, 0.16]}>
+    <group ref={body} rotation={[0.32, 0, 0.16]}>
       {/* The occluder. Very slightly inside the point shell, so points on the near side stay in
           front of it while the far side is hidden behind it. `basic`, not `standard`: there is no
           light in this scene, and a lit material would render black. */}
@@ -265,16 +324,21 @@ function Globe({ spin }: { spin: boolean }) {
       <points ref={points}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[colors, 3]} />
         </bufferGeometry>
         <pointsMaterial
           // Roughly two screen pixels, and that ceiling is the design of this element. It sits
           // DIRECTLY BEHIND the headline: at any size where a single point can be picked out it
           // competes with the type in front of it. Dust, not confetti — which is also why the
           // count went up as the size came down.
-          size={0.005}
+          size={0.0085}
           map={dot}
           alphaMap={dot}
+          // `color` still applies with vertexColors on — the two MULTIPLY. So the attribute above
+          // carries brightness only (r = g = b) while this carries the hue, which means the
+          // palette can be retuned in one place without regenerating the geometry.
           color={POINT_COLOR}
+          vertexColors
           transparent
           opacity={0.95}
           // Perspective size: points on the far side are smaller as well as sparser, which is
