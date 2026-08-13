@@ -184,34 +184,35 @@
     overflow-x: hidden;
   }
 
-  /* A flat star chart — the page's entire background, and the only one it has.
+  /* Ambient light on charcoal — the page's entire background, and the only one it has.
 
-     ## Space drawn in 2D, which is a different thing from space drawn dimly
+     ## What is being matched, and what is deliberately not
 
-     The usual way to put space on a page is atmosphere: a nebula wash, a bloom, blurred bokeh
-     stars, layers drifting at different speeds. All of that is depth — it is 3D pretending to be
-     a background, and every one of those techniques is bought with either a large blur radius
-     (expensive to raster) or a per-frame transform (expensive forever).
+     Modelled on a dark dashboard reference whose background is a wide shaft of light crossing the
+     upper right, with the ground falling away to near-black at the opposite corner. That
+     COMPOSITION is what is copied here. Its colour is not: the reference is indigo, and this page
+     is committed to black and charcoal, so every light below is white at a low alpha and there is
+     no hue at any stop. The two are separable — the reference reads the way it does because of
+     where its light is, not because that light is blue.
 
-     So this draws space the way an ORRERY or a star chart does instead: hard-edged points and
-     thin orbital arcs, flat on the surface, no blur anywhere, nothing implying a third axis. It
-     reads as space because of what is drawn, not because of how deep it looks — which is the
-     only version of the idea that survives being flat and being cheap at the same time.
+     Neutral also matters downstream: a page ground hands its tint to every grey above it, so the
+     same zinc border reads cool on a navy ground and neutral on this one without a character of
+     it changing. Neutral here means the greys already in the interface are the greys that show up.
 
-     ## Strictly black and charcoal
+     ## The one rule that keeps it honest
 
-     Two greys and white, no hue at any stop. That matters more than it sounds: a page ground
-     hands its tint to every grey above it, so the same zinc border reads cool on a navy ground
-     and neutral on this one without a character of it changing. Neutral here means the greys
-     already in the interface are the greys that show up.
+     No blur, anywhere. The usual way to build ambient light is a blurred blob — and the style
+     database's own entry for this look (Modern Dark / Cinema Mobile) prescribes exactly that,
+     animated, and rates its own performance with a warning because of it. A gradient with widely
+     spaced stops produces the same falloff for free, because a gradient IS a blur that the
+     rasteriser computes once instead of a filter it re-evaluates. Same picture, none of the cost,
+     which is why this stayed static when the reference's own recipe did not.
 
      ## Why this costs nothing
 
-     Every layer below is a `background-image` on ONE element, rasterised once when the viewport
-     is sized and then never touched again: no animation, no blur, no JavaScript, no canvas, no
-     `background-attachment`, nothing reading the scroll position. The starfields are small
-     REPEATING tiles rather than viewport-sized images, so the whole field costs two small
-     rasters tiled by the compositor instead of a dozen full-screen ones.
+     Every layer below is a `background-image` on ONE element, rasterised once when the viewport is
+     sized and then never touched again: no animation, no blur, no JavaScript, no canvas, no
+     `background-attachment`, nothing reading the scroll position.
 
      What this replaces: a fixed component (CosmicBackground) that stacked five layers — four
      drifting star planes, a pointer-reactive canvas field, two ambient glows, a grid and two
@@ -242,7 +243,7 @@
             ever produce a pool. The stops are deliberately far apart (30% → 47% → 68%): a narrow
             spread gives a hard-edged stripe that reads as a graphic element, and only a wide,
             gradual one reads as light falling through something. ────────────────────────────── */
-      linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.05) 47%, rgba(255, 255, 255, 0.012) 58%, transparent 68%),
+      linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.062) 47%, rgba(255, 255, 255, 0.015) 58%, transparent 68%),
       /* ── the second shaft: wider, weaker, at a different angle so the two cross rather than run
             parallel. One shaft alone reads as a stripe someone drew; two at different angles read
             as light with a source somewhere off-frame, which is the effect being copied. ────── */
@@ -251,7 +252,7 @@
             it is never fully in frame. 0.10 at the core — the top of the 0.08–0.12 band the style
             database gives for ambient light on a dark ground, and about the most a white glow can
             take on charcoal before it stops reading as light and starts reading as grey paint. */
-      radial-gradient(46% 40% at 82% -6%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 74%),
+      radial-gradient(46% 40% at 82% -6%, rgba(255, 255, 255, 0.115) 0%, rgba(255, 255, 255, 0.035) 45%, transparent 74%),
       /* ── the spill: a much wider, fainter wash over the same corner, so the source has a falloff
             around it instead of an edge where it stops. ───────────────────────────────────────── */
       radial-gradient(90% 75% at 74% 2%, rgba(255, 255, 255, 0.035) 0%, transparent 70%),
