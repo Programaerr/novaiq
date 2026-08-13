@@ -1140,6 +1140,17 @@ html[data-idle] :is(
   animation-play-state: paused;
 }
 
+/* The hero is scrolled away — flag set by the IntersectionObserver in HeroSection.
+   A narrower condition than `data-idle` above and a much more common one: `data-idle` means
+   nobody is looking at the PAGE, this means nobody is looking at the HERO, which is true for
+   most of any visit that gets past the first screenful. The carousel behind this selector is
+   twenty-six composited 3D layers turning forever, so it is the one loop on the site where
+   the difference between "running unseen" and "stopped" is worth an observer of its own. */
+[data-hero-off] .hero-ring__spin,
+[data-hero-off] .animate-pulse-glow {
+  animation-play-state: paused;
+}
+
 /* The pseudo-element half, written out longhand: `:is()` accepts compound selectors but NOT
    pseudo-elements, and one invalid selector takes the whole rule down with it — so folding
    these into the list above would have silently stopped pausing anything at all. */

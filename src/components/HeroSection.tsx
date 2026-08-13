@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
 import { HeroCoverArc } from './HeroCoverArc';
 
@@ -39,8 +39,37 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
   // direction the way every other directional glyph on the site does.
   const CtaArrow = isAr ? ArrowUpLeft : ArrowUpRight;
 
+  // The hero's two continuous animations stop the moment the hero leaves the screen.
+  //
+  // This is the single largest piece of permanent work on the site. The carousel is one CSS
+  // rotation, but that rotation drives twenty-six separately composited, 3D-transformed card
+  // layers — and it was measured still `running` with the visitor scrolled 2537px past it, at
+  // the very bottom of the page. Nothing stopped it: `html[data-idle]` covers a hidden or
+  // unfocused window, which is a different situation entirely from a window the visitor is
+  // actively using while the animation plays somewhere they cannot see. A device answers a
+  // permanent compositor job it can never show anyone the same way it answers a game.
+  //
+  // Paused, not unmounted: the ring keeps its angle, so scrolling back finds it where it was
+  // rather than snapped to the start. The margin means it is already turning again by the time
+  // its first pixel appears — arriving at a frozen carousel that then starts moving is more
+  // noticeable than the saving is worth.
+  const heroRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) delete el.dataset.heroOff;
+        else el.dataset.heroOff = 'true';
+      },
+      { rootMargin: '300px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <section className="relative pb-2 md:pb-6 overflow-hidden">
+    <section ref={heroRef} className="relative pb-2 md:pb-6 overflow-hidden">
       {/* Ambient glow, drawn as a radial gradient rather than a blurred circle: an animated 600px
           `blur(140px)` layer has to be re-rasterized by the GPU continuously, which is pure cost
           on a low-end device for something that looks the same either way. */}
