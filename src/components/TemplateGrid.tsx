@@ -602,19 +602,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           />
         </div>
 
-        {/* Price notice — sits under the filter bar so the controls are the first thing on
-            the page. It stays above the cards because it qualifies every price on them. */}
-        <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-950/80 border border-zinc-800 text-[11px] text-zinc-400">
-            <Info className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-            <span>
-              {currentLang === 'ar'
-                ? 'السعر المعروض للقالب (التصميم) فقط، ويختلف عند طلب موقع متكامل وجاهز للعمل الفعلي'
-                : 'The price shown is for the template design only — pricing differs for a fully complete, ready-to-launch website'}
-            </span>
-          </div>
-        </div>
-
         {/* Templates coverflow — clicking any off-centre card brings it to
             focus (same "click to bring to front" idea as a music-app cover carousel) instead
             of firing its buttons; only the centred card is actually interactive, enforced via
@@ -1052,14 +1039,38 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           );
         })()}
 
-        {/* Brand mark — sized to actually fill the empty stretch between the carousel and
-            the footer, not just sit as a small centered icon within it. Scaled up as a whole
-            (not just a bigger `size` prop) so the wordmark grows in step with the icon
-            instead of staying pinned at its fixed text-xl/2xl size while the icon balloons
-            past it; growing by breakpoint so it fills proportionally more on wider screens
-            without overflowing narrow ones. */}
-        <div className="flex justify-center mt-24 sm:mt-32 mb-8 sm:mb-14 opacity-[0.22]">
-          <NovaiqLogo size={60} showText={true} className="scale-150 sm:scale-[2.25] lg:scale-[3]" />
+        {/* ── The closing stage: the price caveat, lit, with the brand mark under the light ──
+            The caveat used to sit above the carousel, under the filter bar. That put a paragraph
+            of small print between someone and the thing they came to look at, and it was read
+            before there was a single price on screen for it to qualify. Here it is the last word
+            on the prices they have just been through, which is when it means something.
+
+            The lighting is CSS gradients inside `.tpl-lightstage` — see index.css. No blur filter
+            and nothing animated: it rasterizes once and costs nothing after that. */}
+        <div className="tpl-lightstage mt-20 sm:mt-28">
+          <span className="tpl-lightstage__beam tpl-lightstage__beam--l" aria-hidden="true" />
+          <span className="tpl-lightstage__beam tpl-lightstage__beam--r" aria-hidden="true" />
+          <span className="tpl-lightstage__pool" aria-hidden="true" />
+
+          <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-white/15 text-[11px] text-zinc-300 backdrop-blur-sm">
+              <Info className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+              <span>
+                {currentLang === 'ar'
+                  ? 'السعر المعروض للقالب (التصميم) فقط، ويختلف عند طلب موقع متكامل وجاهز للعمل الفعلي'
+                  : 'The price shown is for the template design only — pricing differs for a fully complete, ready-to-launch website'}
+              </span>
+            </div>
+          </div>
+
+          {/* Brand mark — sized to actually fill the empty stretch between the carousel and
+              the footer, not just sit as a small centered icon within it. Brighter than the 22%
+              it used to be: it is standing in the light now, and a mark the beams fall on that
+              stays as faint as one in the dark reads as a texture the light is passing through
+              rather than an object the light is hitting. */}
+          <div className="relative z-10 flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14 opacity-60">
+            <NovaiqLogo size={60} showText={true} className="scale-150 sm:scale-[2.25] lg:scale-[3]" />
+          </div>
         </div>
 
         {filteredTemplates.length === 0 && (

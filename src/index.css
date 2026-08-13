@@ -2445,3 +2445,70 @@ html[data-scrolling] .rv::before {
   .bp-cursor { animation: none; opacity: 0; }
 }
 
+
+/* ── The closing stage under the template carousel (TemplateGrid.tsx) ──────────────────────
+   Two street lamps, angled in from either edge, meeting on the brand mark.
+
+   The brief was light that arrives from the sides at a slant, pure white, fading as it falls —
+   street lighting rather than a spotlight aimed at the camera. So each beam is a single linear
+   gradient, brightest where it enters and gone before it reaches the floor, cut to a wedge with
+   `clip-path`: narrow at the lamp, wide where it lands. A wedge is what makes it read as a beam
+   rather than as a glow; the gradient is what stops the wedge from having an end.
+
+   Deliberately no `filter: blur()`. A blurred layer this size has to be re-rasterized by the GPU
+   every time anything about it changes, which is real cost on a weak phone for something that
+   never moves. The softness here is in the gradients' own stops and in the pool's radial falloff,
+   which is free — the whole stage paints once and is never touched again.
+
+   `overflow: hidden` on the section above it is what keeps the wedges from spilling sideways past
+   the page; the stage itself only has to contain them vertically.
+   ───────────────────────────────────────────────────────────────────────────────────────── */
+.tpl-lightstage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.tpl-lightstage__beam {
+  position: absolute;
+  top: -6%;
+  height: 112%;
+  width: 58%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.22) 26%,
+    rgba(255, 255, 255, 0.08) 58%,
+    rgba(255, 255, 255, 0) 92%
+  );
+}
+
+/* The wedges. Both start as a narrow mouth at the top outer corner and open inward and downward,
+   so the two pools overlap exactly where the mark sits. */
+.tpl-lightstage__beam--l {
+  left: 0;
+  clip-path: polygon(0% 0%, 13% 0%, 100% 100%, 30% 100%);
+}
+
+.tpl-lightstage__beam--r {
+  right: 0;
+  clip-path: polygon(87% 0%, 100% 0%, 70% 100%, 0% 100%);
+}
+
+/* Where the two beams land. Without this the mark sits in the overlap of two straight-edged
+   wedges and the join is visible as a seam; a soft ellipse over the top is the pool of light on
+   the ground that the beams are supposed to be making. */
+.tpl-lightstage__pool {
+  position: absolute;
+  inset: 30% 0 -4%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    58% 100% at 50% 62%,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.12) 42%,
+    rgba(255, 255, 255, 0) 76%
+  );
+}
