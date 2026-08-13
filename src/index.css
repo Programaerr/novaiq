@@ -847,35 +847,6 @@
 
    Angled with a rotation so it falls rather than slides, and faded at both ends of its travel
    by the opacity keyframes so it never appears or vanishes at a hard edge. */
-.shooting-star {
-  position: absolute;
-  top: -10%;
-  left: 62%;
-  width: 140px;
-  height: 1.5px;
-  pointer-events: none;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
-  opacity: 0;
-  animation: shoot 26s linear infinite;
-}
-
-/* The second one crosses much later and from the other side, so the sky never has a rhythm. */
-.shooting-star--b {
-  top: 8%;
-  left: 18%;
-  width: 96px;
-  animation-duration: 37s;
-  animation-delay: 14s;
-  opacity: 0;
-}
-
-@keyframes shoot {
-  0%, 88% { opacity: 0; transform: translate3d(0, 0, 0) rotate(28deg); }
-  89% { opacity: 0; transform: translate3d(0, 0, 0) rotate(28deg); }
-  92% { opacity: 1; }
-  98% { opacity: 0; }
-  100% { opacity: 0; transform: translate3d(-48vw, 42vh, 0) rotate(28deg); }
 }
 
 /* ── Login page's template gallery ────────────────────────────────────────────────────────
