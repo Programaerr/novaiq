@@ -2088,16 +2088,24 @@ html[data-scrolling] .rv::before {
    Reading a size off this rule without applying that factor gives an answer 60% too large. */
 .hero-globe {
   position: absolute;
-  /* 126vw → a 78vw sphere: most of the width, cropped by the hero's overflow, with the copy
-     sitting over its crown. A phone has no second column for the planet to move into, so it goes
-     behind the text rather than beside it. */
-  width: min(126vw, 700px);
+  width: min(112vw, 600px);
   aspect-ratio: 1;
   top: 0;
   left: 50%;
-  /* Pulled up so what sits behind the copy is the body's upper half and its lit limb. The lower
-     half is below the hero and clipped away by the section's overflow. */
-  transform: translate(-50%, -20%);
+  /* ── The phone is a HORIZON, not a backdrop, and that is a legibility requirement ──────────
+     A phone has no second column for the planet to move into, so the only two options are behind
+     the copy or above it. Behind the copy is what the previous version did and it was fine THEN:
+     the globe was 5,200 two-pixel sprites, i.e. dust, and dust is something you can set type on.
+
+     This body is opaque and lit. Sitting the copy over its middle put zinc-300 paragraph text on a
+     #2563EB face at about 4.4:1 — under the 4.5 floor before you even reach the violet, where it
+     is worse — with the orbit ring running straight through the second line.
+
+     So the sphere is pulled up until its centre is level with the top of the section: the crown
+     shows as a horizon above the headline, and the copy below it sits on the page's own ground
+     where its contrast is the 13:1 it was designed against. Nothing is dimmed or scrimmed to make
+     this work; the text simply is not on top of it. */
+  transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 0;
 }
