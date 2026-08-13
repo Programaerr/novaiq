@@ -1912,14 +1912,14 @@ html[data-scrolling] .rv::before {
    something enormous seen up close. Nearly all of this element is deliberately off-screen; the
    part you see is the payload, and the section's `overflow-hidden` does the cropping.
 
-   ## The rim, and why its stops are bunched against 100%
+   ## The rim is measured in pixels, not percentages
 
-   `--limb-r` is 1400px at desktop, so one percent of the gradient is fourteen pixels. A rim light
-   is a few pixels, which puts every stop that matters inside the last half-percent — hence the
-   99.5 / 99.72 / 99.92 sequence, which is not fussiness but the only place the numbers can be.
-   The values step up and then back down slightly at the very edge: the ramp inward is the light
-   wrapping around the curve, and the dip on the outermost stop is anti-aliasing done by hand,
-   because a hard stop on a curve this large stairsteps visibly.
+   Every stop below is a `calc()` off `--limb-r` rather than a percentage, and that is what keeps
+   the rim the same thickness at every breakpoint. Percentages are relative to the radius, so the
+   same "99.94%" that gives a crisp two-pixel rim at r = 1900 gives a HALF-pixel one at r = 800 —
+   which is exactly what happened, and the arc all but disappeared on a phone while looking
+   correct on a desktop. Written as `calc(var(--limb-r) - 0.9px)` the rim is 0.9px from the edge
+   whatever the radius is, and the three breakpoints below only have to choose curvature.
 
    ## Everything here is static
 
@@ -1959,15 +1959,15 @@ html[data-scrolling] .rv::before {
       /* the body: the planet is DARKER than the sky it sits against, which is the half of this
          that makes the rim read as a rim. A bright line needs something unlit on one side of it;
          with the same charcoal above and below, the same line only reads as a drawn stroke. */
-      rgba(0, 0, 0, 0.38) 0 99.35%,
+      rgba(0, 0, 0, 0.38) 0 calc(var(--limb-r) - 9px),
       /* the terminator: light wrapping around the curve, over about nine pixels */
-      rgba(255, 255, 255, 0.1) 99.6%,
-      rgba(255, 255, 255, 0.55) 99.82%,
-      /* the rim itself: one to two pixels at full white, the brightest thing on the page */
-      rgba(255, 255, 255, 1) 99.94%,
+      rgba(255, 255, 255, 0.1) calc(var(--limb-r) - 6px),
+      rgba(255, 255, 255, 0.55) calc(var(--limb-r) - 2.6px),
+      /* the rim itself: about two pixels at full white, the brightest thing on the page */
+      rgba(255, 255, 255, 1) calc(var(--limb-r) - 0.9px),
       /* and back down at the very edge — hand-rolled anti-aliasing, because a hard stop on a
          curve this large stairsteps into a dotted line */
-      rgba(255, 255, 255, 0.6) 100%
+      rgba(255, 255, 255, 0.6) var(--limb-r)
     );
 
   /* Faded off at both ends, so the rim is brightest at the crown and gone before the side walls.
