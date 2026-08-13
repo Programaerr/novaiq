@@ -1871,12 +1871,21 @@ html[data-flat] .cosmic-bg {
 /* Pushed back by exactly the radius, so the front of the ring lands on the screen plane: nothing
    is ever nearer than z = 0. That is what keeps the carousel from projecting out of its own box
    and being clipped by the hero's `overflow-hidden`, and what stops the front card being
-   magnified above its natural size. The tilt is the viewer standing slightly above the ring. */
+   magnified above its natural size.
+
+   There is deliberately no `rotateX` here any more, and that is a fix rather than a
+   simplification. A 5° tilt to suggest looking down at the ring rotates the whole cylinder about
+   its centre — which lifts the near side by radius × sin(5°), 92px at the desktop radius and 63px
+   after projection. Cards swinging to the front rose that far out of this element's box, and
+   since `mask-image` erases everything outside the box, their tops were cut clean off exactly as
+   they came round to face the viewer. The downward view now comes from `perspective-origin`
+   instead, which changes only how the ring is projected and never moves it — so nothing can
+   climb out of the frame. */
 .hero-ring__stage {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transform: translateZ(calc(-1 * var(--ring-r))) rotateX(5deg);
+  transform: translateZ(calc(-1 * var(--ring-r)));
 }
 
 .hero-ring__spin {
