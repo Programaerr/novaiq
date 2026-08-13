@@ -649,11 +649,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     <PenLine className="w-4 h-4 shrink-0" />
                     <span>{isAr ? 'وصف القالب والمطلوب تنفيذه' : 'Template description & what you need built'}</span>
                   </label>
-                  <p className="text-[11px] text-zinc-400">
-                    {isAr
-                      ? 'اخترت القالب — اكتب هنا بالتفصيل ما تريد تنفيذه أو تعديله عليه، وسندرسه ونسعّره ضمن مشروعك.'
-                      : "You've picked the template — describe here what you want built or changed on it, and we'll scope and price it as part of your project."}
-                  </p>
+                  {/* No helper paragraph under the label: one line of instruction is enough, and
+                      what it would have said belongs in the placeholder, where it is read at the
+                      moment of typing rather than skipped above the box. */}
                   <textarea
                     rows={4}
                     value={customFeaturesText}
