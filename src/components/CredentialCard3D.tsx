@@ -368,7 +368,7 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
     const octx = off.getContext('2d')!;
     octx.drawImage(mark, 0, 0, size, size);
     octx.globalCompositeOperation = 'source-in';
-    octx.fillStyle = '#000000';
+    octx.fillStyle = '#ffffff';
     octx.fillRect(0, 0, size, size);
     ctx.drawImage(off, (TEX_W - size) / 2, (TEX_H - size) / 2);
   }
@@ -499,36 +499,41 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
    */
   const materials = useMemo(
     () => ({
-      body: new THREE.MeshStandardMaterial({ color: '#e6e6ec', roughness: 0.35, metalness: 0.15 }),
+      // The edge and the unprinted core of the slab, in the same zinc as the faces. More metallic
+      // than the white version could be: a metallic surface takes its colour from what it
+      // reflects, which turned a white card grey, but on a dark card that is exactly the effect —
+      // it puts a moving sheen on the bevel as the card turns.
+      body: new THREE.MeshStandardMaterial({ color: '#191920', roughness: 0.3, metalness: 0.45 }),
       // The artwork is its own bump map.
       //
-      // Everything drawn on this card is dark ink on a pale ground, so the colour texture's own
-      // luminance is already a height field: white background high, ink low. Handing the same
-      // texture to `bumpMap` makes the shader perturb its normals along exactly those edges, and
-      // every letter and rule is lit as a groove cut into the surface rather than as paint lying
-      // flat on it. Tilt the card and the light genuinely runs along the engraving.
+      // The colour texture's luminance is already a height field, so handing the same texture to
+      // `bumpMap` makes the shader perturb its normals along every edge in the artwork — each
+      // letter and rule is then lit as a cut in the surface rather than as paint lying flat on it.
+      // Tilt the card and the light genuinely runs along the engraving.
       //
-      // It costs nothing extra: same texture object, already uploaded, sampled a second time.
-      // A separately generated height map would be a second canvas and a second upload to say
-      // the same thing.
+      // `bumpScale` is NEGATIVE, and that is the whole reason this still reads as engraved now
+      // that the card is dark. A bump map treats bright as high: with white ink on a near-black
+      // body the type would be pushed OUT of the surface, embossed rather than cut. Negating the
+      // scale flips every bump into a dent, which is the same trick as inverting the height map
+      // without generating and uploading a second texture to do it.
       //
-      // Lower roughness than before on the front — a matte surface scatters light too evenly for
-      // the grooves to catch a highlight, and the highlight is the whole point of engraving it.
+      // Low roughness on both faces: a matte surface scatters light too evenly for a groove to
+      // catch a highlight, and the highlight is the entire point of engraving something.
       front: new THREE.MeshStandardMaterial({
         map: front,
         bumpMap: front,
-        bumpScale: 2.2,
+        bumpScale: -2.4,
         transparent: true,
-        roughness: 0.28,
-        metalness: 0.06,
+        roughness: 0.26,
+        metalness: 0.35,
       }),
       back: new THREE.MeshStandardMaterial({
         map: back,
         bumpMap: back,
-        bumpScale: 2.2,
+        bumpScale: -2.4,
         transparent: true,
-        roughness: 0.32,
-        metalness: 0.06,
+        roughness: 0.3,
+        metalness: 0.35,
       }),
     }),
     [front, back],
@@ -893,17 +898,19 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           camera={{ position: [0, 0, 3.4], fov: 34 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         >
-          {/* Lower than a dark card needs — white is already near the top of the range — and lower
-              again now that the artwork is engraved. Ambient light arrives from every direction at
-              once, which is precisely the light that cannot cast a shadow inside a groove: raise it
-              and the bump map's shading is washed flat, and the carving disappears. */}
-          <ambientLight intensity={0.42} />
-          {/* The key, moved to graze the surface rather than face it. A light square-on to a card
+          {/* Raised for the dark body — a near-black surface reflects a fraction of what a white
+              one did, and at the level the white card wanted this one read as a silhouette — but
+              deliberately kept well under the key. Ambient light arrives from every direction at
+              once, which is precisely the light that cannot cast a shadow inside a groove: push it
+              too high and the bump map's shading washes flat and the carving disappears. */}
+          <ambientLight intensity={0.6} />
+          {/* The key, angled to graze the surface rather than face it. A light square-on to a card
               lights the floor of every groove as brightly as the surface around it; a shallow angle
               leaves one wall of each cut bright and the other in shadow, which is what the eye
-              reads as depth. It is also the highlight that slides across the card as it turns. */}
-          <directionalLight position={[3.1, 2.4, 1.6]} intensity={1.55} />
-          <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.45} />
+              reads as depth. It is also the highlight that slides across the card as it turns —
+              and on a dark, half-metallic body that sheen is most of what makes it look solid. */}
+          <directionalLight position={[3.1, 2.4, 1.6]} intensity={2.1} />
+          <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.7} />
           <Card isAr={isAr} targetRef={target} />
           <Waker signal={signal} touched={touched} dragging={drag} target={target} />
         </Canvas>
