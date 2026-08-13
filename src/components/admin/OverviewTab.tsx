@@ -5,7 +5,7 @@ import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
 import { STATUS_FLOW, PAYMENT_STATUS_FLOW, BarRow, StatTile, statusArabic, paymentStatusArabic, AdminStats } from './shared';
 import { CurrencyConverterCard } from './CurrencyConverterCard';
-import { Wallet, TrendingUp, TrendingDown, Landmark } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export function OverviewTab({
   isAr,
@@ -24,23 +24,15 @@ export function OverviewTab({
 
   return (
     <div className="space-y-4">
-      {/* Financial position — realized profit is collected cash minus cost, never the full
-          agreed price, so money a client hasn't actually paid yet is never counted as profit. */}
-      <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-4">
-        <h3 className="text-sm font-bold text-white">{isAr ? 'الوضع المالي' : 'Financial Position'}</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatTile
-            icon={Wallet}
-            label={isAr ? 'محصّل فعلياً' : 'Collected'}
-            value={formatPrice(stats.totalCollectedIQD, language, currency)}
-            accent="text-emerald-400"
-          />
-          <StatTile
-            icon={Landmark}
-            label={isAr ? 'مستحق (غير محصّل)' : 'Outstanding'}
-            value={formatPrice(stats.totalOutstandingIQD, language, currency)}
-            accent="text-amber-400"
-          />
+      {/* Only what the permanent strip above does not already carry.
+          Collected, outstanding and realized profit are in view on every screen now, so repeating
+          them here as four big tiles said the same thing twice on the one page where there was
+          most competition for attention. What is left is the pair that genuinely belongs to
+          analysis rather than to the running scoreboard: what the work cost, and what the profit
+          becomes if every outstanding balance is eventually collected. */}
+      <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
+        <h3 className="text-sm font-bold text-white">{isAr ? 'التكلفة والربح المتوقع' : 'Cost & Projected Profit'}</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <StatTile
             icon={TrendingDown}
             label={isAr ? 'إجمالي التكلفة' : 'Total Cost'}
@@ -49,16 +41,11 @@ export function OverviewTab({
           />
           <StatTile
             icon={TrendingUp}
-            label={isAr ? 'صافي الربح (محقق)' : 'Net Profit (Realized)'}
-            value={formatPrice(stats.netProfitIQD, language, currency)}
-            accent={stats.netProfitIQD >= 0 ? 'text-emerald-400' : 'text-red-400'}
+            label={isAr ? 'الربح لو تحصّل كل المستحق' : 'Profit if all outstanding is collected'}
+            value={formatPrice(stats.projectedProfitIQD, language, currency)}
+            accent={stats.projectedProfitIQD >= 0 ? 'text-emerald-400' : 'text-red-400'}
           />
         </div>
-        <p className="text-[11px] text-zinc-500">
-          {isAr
-            ? `الربح المتوقع لو تحصّل كل المستحقات: ${formatPrice(stats.projectedProfitIQD, language, currency)}`
-            : `Projected profit if all outstanding balances were collected: ${formatPrice(stats.projectedProfitIQD, language, currency)}`}
-        </p>
       </div>
 
       <CurrencyConverterCard isAr={isAr} />
