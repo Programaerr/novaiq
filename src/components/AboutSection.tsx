@@ -24,12 +24,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
         <div className="solid-shimmer p-5 sm:p-6 rounded-3xl border border-zinc-700 shadow-2xl">
 
           
-          {/* The heading, and nothing under it. A paragraph restating the same claim in longer
-              words used to sit here — "transparent IQD pricing and high standards" is a sentence
-              anyone can write about themselves, so it added length without adding anything a
-              reader would believe. The three cards below are the specifics; this line is the
-              whole of the introduction. */}
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="max-w-3xl mx-auto text-center space-y-4">
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
               {language === 'ar' ? (
                 <>شركة متخصصة في تطوير <span className="text-white underline decoration-zinc-700 underline-offset-8">المواقع والتطبيقات</span></>
@@ -37,6 +32,15 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 <>A firm specialised in <span className="text-white underline decoration-zinc-700 underline-offset-8">web &amp; app development</span></>
               )}
             </h2>
+
+            {/* No price claim in the introduction. This line used to promise "transparent pricing
+                in Iraqi dinars", which is a commitment the section cannot keep on its own — the
+                figure a customer actually pays is negotiated on the contract, not published here. */}
+            <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+              {language === 'ar'
+                ? 'تُقدم الشركة حلولاً برمجية متطورة للشركات والمؤسسات بمعايير جودة عالية.'
+                : 'The firm delivers advanced software solutions for companies and institutions, to high quality standards.'}
+            </p>
           </div>
 
           {/* Concise Capabilities List — nested under the intro instead of split into a
