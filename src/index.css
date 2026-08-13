@@ -1265,7 +1265,7 @@
    nothing (the markup is `.navbar-logo-dots span`) and `.navbar-logo-cursor` was never listed
    at all, so the navbar kept animating even with the tab in the background. */
 html[data-idle] :is(
-  .hero-ring__spin,
+  
   .animate-pulse-glow,
   .product-card-wave,
   .milestone-card,
@@ -1276,16 +1276,11 @@ html[data-idle] :is(
   animation-play-state: paused;
 }
 
-/* The hero is scrolled away — flag set by the IntersectionObserver in HeroSection.
-   A narrower condition than `data-idle` above and a much more common one: `data-idle` means
-   nobody is looking at the PAGE, this means nobody is looking at the HERO, which is true for
-   most of any visit that gets past the first screenful. The carousel behind this selector is
-   twenty-six composited 3D layers turning forever, so it is the one loop on the site where
-   the difference between "running unseen" and "stopped" is worth an observer of its own. */
-[data-hero-off] .hero-ring__spin,
-[data-hero-off] .animate-pulse-glow {
-  animation-play-state: paused;
-}
+/* The `data-hero-off` rule that used to sit here is gone with the things it paused — the cover
+   carousel and the pulsing glow disc are both deleted. The flag is still set by HeroSection's
+   IntersectionObserver and is still worth keeping: the globe reads the same "is the hero on
+   screen" question in JS to decide whether its render loop runs at all (HeroGlobe.tsx), which is
+   a far bigger saving than pausing a CSS animation ever was. */
 
 /* The pseudo-element half, written out longhand: `:is()` accepts compound selectors but NOT
    pseudo-elements, and one invalid selector takes the whole rule down with it — so folding
@@ -2188,161 +2183,10 @@ html[data-scrolling] .rv::before {
   mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
 }
 
-/* ── Hero cover carousel (HeroCoverArc.tsx) ────────────────────────────────────────────────
-   The studio's covers standing on a slowly turning cylinder under the hero. Replaces the flat
-   filmstrip that used to live here; see the component for why a ring solves what a strip cannot.
-
-   Every number is a custom property because they are not independent — the radius is DERIVED
-   from the card width and the gap. Cards sit at 360/N degrees apart, so for neighbours to be
-   `gap` apart at the rim the radius has to be (card + gap) / (2·tan(180/N)). Change the card
-   width without changing the radius and the cards either overlap into each other or open a gap
-   the ring cannot close. With N = 26 (HeroCoverArc.tsx) that divisor is 2·tan(6.923°) = 0.2428,
-   which is where each `--ring-r` below comes from.
-
-   The radius then decides how wide the fan lands: a ring covers about 1.45 × its radius on
-   screen once perspective has compressed the edges. The first pass of this used a 808px radius
-   at desktop and the fan stopped ~150px short of both frame edges, which reads as a widget
-   sitting on the page rather than a view continuing past it. */
-.hero-ring {
-  --card-w: 108px;
-  --card-h: 135px;
-  --ring-r: 494px;        /* (108 + 12) / 0.2428 */
-  --ring-spin: 150s;
-
-  position: relative;
-  width: 100%;
-  /* Taller than the cards on purpose. This box is also the mask box, so it is the hard edge of
-     what can be drawn — a box sized exactly to the card leaves no tolerance at all, and anything
-     that rounds a pixel outward loses that pixel. The slack is 55px above and below the card. */
-  height: 245px;
-  /* No margin of its own. The box is now 55px taller than the cards at each end (see above), and
-     that slack IS the gap to the buttons — a margin on top of it stacked two spacings and pushed
-     the fan a whole extra card-height down the page. */
-  margin-top: 0;
-  /* A filmstrip has no reading order. Without this the ring's spin direction would flip with the
-     site's language, for no reason a visitor could name. */
-  direction: ltr;
-  /* Weak on purpose. A short perspective (600–800px) collapses the arc into a fisheye where the
-     third card each side is already half size; this is the value that keeps the fan wide and
-     shallow, with the outer cards clearly turned but still readable — which is the look. */
-  /* Weak on purpose, and it scales with the breakpoint. A phone only sees the middle ±25° of the
-     ring, so at the desktop value the visible cards would all be near-square-on and the fan would
-     read as a plain row; a shorter perspective bends that narrow slice hard enough to still look
-     like a fan. Going the other way on a wide screen — a short perspective there — collapses the
-     arc into a fisheye where the third card each side is already half size. */
-  perspective: 900px;
-  /* The vanishing point sits on the cards' own bottom edge, and that number is derived, not
-     tuned: a card is centred in this box and is `--card-h` tall, so its foot is at
-     50% + (card/2 ÷ height) — 92% at every breakpoint here. Anything on that line is unmoved by
-     perspective, so the whole fan shrinks toward a common baseline instead of toward its middle.
-     With the default 50% the far cards contracted vertically about their centres, lifting their
-     feet off the ground; the row read as a wall of cards floating at different heights rather
-     than as a fan standing on one.
-
-     50% + (card_h / 2 ÷ height) × 100 — recomputed per breakpoint below, since both terms change.
-     Here: 50 + (67.5 / 245) × 100 = 77.6%. */
-  perspective-origin: 50% 77.6%;
-  /* The outermost sliver dissolves instead of being cut. A mask removes pixels, so the carousel
-     fades into the starfield rather than ending on a hard vertical line across the page. Kept
-     narrow — a wide fade dims a whole card, which looks like a loading state, not an edge. */
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
-}
-
-@media (min-width: 640px) {
-  .hero-ring {
-    --card-w: 168px;
-    --card-h: 210px;
-    --ring-r: 766px;      /* (168 + 18) / 0.2428 */
-    height: 330px;        /* 210 card + 60 slack each side */
-    perspective: 1200px;
-    perspective-origin: 50% 81.8%;   /* 50 + (105 / 330) x 100 */
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero-ring {
-    --card-w: 232px;
-    --card-h: 290px;
-    --ring-r: 1054px;     /* (232 + 24) / 0.2428 */
-    height: 430px;        /* 290 card + 70 slack each side */
-    perspective: 1500px;
-    perspective-origin: 50% 83.7%;   /* 50 + (145 / 430) x 100 */
-  }
-}
-
-/* Pushed back by exactly the radius, so the front of the ring lands on the screen plane: nothing
-   is ever nearer than z = 0. That is what keeps the carousel from projecting out of its own box
-   and being clipped by the hero's `overflow-hidden`, and what stops the front card being
-   magnified above its natural size.
-
-   There is deliberately no `rotateX` here any more, and that is a fix rather than a
-   simplification. A 5° tilt to suggest looking down at the ring rotates the whole cylinder about
-   its centre — which lifts the near side by radius × sin(5°), 92px at the desktop radius and 63px
-   after projection. Cards swinging to the front rose that far out of this element's box, and
-   since `mask-image` erases everything outside the box, their tops were cut clean off exactly as
-   they came round to face the viewer. The downward view now comes from `perspective-origin`
-   instead, which changes only how the ring is projected and never moves it — so nothing can
-   climb out of the frame. */
-.hero-ring__stage {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transform: translateZ(calc(-1 * var(--ring-r)));
-}
-
-.hero-ring__spin {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  animation: hero-ring-spin var(--ring-spin) linear infinite;
-  will-change: transform;
-}
-
-/* One full revolution, so the loop has no restart to hide — at 150s a card takes 7.5s to cross
-   the front of the frame, which is slow enough to read as drift rather than as a carousel that
-   is trying to get somewhere. */
-@keyframes hero-ring-spin {
-  from { transform: rotateY(0deg); }
-  to   { transform: rotateY(-360deg); }
-}
-
-.hero-ring__card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: var(--card-w);
-  height: var(--card-h);
-  margin-top: calc(var(--card-h) / -2);
-  margin-left: calc(var(--card-w) / -2);
-  transform: rotateY(var(--a)) translateZ(var(--ring-r));
-  /* The far half of the ring has its back to us. Without this every card behind the carousel
-     shows through the ones in front and the whole thing reads as transparent clutter — this one
-     line is what makes the ring look like a fan of cards rather than a sphere of them. */
-  backface-visibility: hidden;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #18181b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
-}
-
-.hero-ring__card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Top-anchored: these frames are portrait and the sources are not, so something is cropped
-     either way. Cropping upward keeps the subject of a photograph, which sits above centre far
-     more often than below it. */
-  object-position: 50% 30%;
-  user-select: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-ring__spin {
-    animation: none;
-  }
-}
+/* The hero cover carousel that used to live here is deleted, along with HeroCoverArc.tsx.
+   It was a 26-card ring in 3D and by some distance the most expensive permanent thing on the
+   site — one CSS rotation driving twenty-six separately composited, transformed layers. The hero
+   is a planet and a claim now; the work it used to show is one navigation away. */
 
 /* ── The sky answers the scroll ────────────────────────────────────────────────────────────
    Scroll-driven parallax with no JavaScript at all. `animation-timeline: scroll()` hands the
