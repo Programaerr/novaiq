@@ -99,7 +99,12 @@ export const HeroProofStrip: React.FC<HeroProofStripProps> = ({ language, onExpl
                 <img
                   src={src}
                   alt=""
-                  loading={pass === 0 && i < 4 ? 'eager' : 'lazy'}
+                  // Never lazy. A lazy image only loads when the browser thinks it is near the
+                  // viewport, and it does not reliably count "further along a horizontally
+                  // scrolling strip" as near — so covers arrived blank and filled in late, which
+                  // is what the gaps in the belt actually were. There are a dozen small covers
+                  // above the fold; loading them is cheaper than the bug.
+                  loading="eager"
                   decoding="async"
                   draggable={false}
                   className="absolute inset-0 w-full h-full object-cover"

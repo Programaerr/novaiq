@@ -70,25 +70,12 @@ export const CosmicBackground: React.FC<CosmicBackgroundProps> = ({
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.85)_100%)]" />
 
-      {/* Drifting star field — painted above the vignette on purpose: the vignette exists to
-          dim the grid/glow layers for text contrast, but stars are meant to read as the
-          brightest thing in the sky, not another layer it darkens.
+      {/* The sky is the gravity field and nothing else now.
 
-          Four planes, ordered far to near. Distance is carried by three things at once — the
-          further a plane is, the smaller, dimmer and slower its stars — and all three are set
-          together in .star-layer--*, because getting one of them wrong reads as two identical
-          fields sliding rather than as depth. */}
-      {/* Above the vignette, and that placement is a fix rather than a preference. Sitting below
-          it the nebula was invisible: the vignette is a black/80 → black/90 wash with a second
-          radial mask at 0.85 black on top, and a cloud a few percent opaque underneath both of
-          them is arithmetically gone. It belongs with the stars, in the sky, not behind the
-          curtain that exists to darken the sky for the text. */}
-      <div className="nebula-layer" />
-
-      <div className="star-layer star-layer--deep" />
-      <div className="star-layer star-layer--far" />
-      <div className="star-layer star-layer--mid" />
-      <div className="star-layer star-layer--near" />
+          It draws its own star field — reactive, four planes deep — so the CSS star planes and
+          the nebula that used to sit here were a second sky behind the one that answers you:
+          more layers to composite, and stars that conspicuously did not move when the ones in
+          front of them did. One reacting field reads better than five, and costs less. */}
 
       {/* The reactive plane, on top of the four drifting ones: a well of light under the hand
           with stars leaning into it. Draws only while the hand is moving and stops dead
