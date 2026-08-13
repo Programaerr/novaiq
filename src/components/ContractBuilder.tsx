@@ -6,7 +6,6 @@ import {
   Building2,
   CheckSquare,
   RotateCcw,
-  ShieldCheck,
   Layers,
   ArrowLeft,
   ArrowRight,
@@ -896,39 +895,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 )}
               </div>
 
-              <div className="border-b border-zinc-800 pb-4">
-                <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-white" />
-                  <span>{getTranslation('stepTermsPayment', lang)}</span>
-                </h3>
-              </div>
-
-              {isCustomProject ? (
-                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-2">
-                  <div className="text-sm font-bold text-white">
-                    {isAr ? 'مشروع مخصص — السعر يُحدَّد بعد المراجعة' : 'Custom Project — price to be quoted after review'}
-                  </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    {isAr
-                      ? 'سيراجع فريقنا الوصف الذي كتبته في الخطوة السابقة ويتواصل معك بعرض سعر ومدة تنفيذ دقيقة بعد تقديم الطلب.'
-                      : 'Our team will review the description you wrote in the previous step and follow up with an accurate quote and timeline after you submit.'}
-                  </p>
-                </div>
-              ) : (
-                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 font-mono">
-                  <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span>{isAr ? 'سعر القالب الأساسي:' : 'Base Template Price:'}</span>
-                    <span>{formatPrice(basePriceIQD, lang, currency)}</span>
-                  </div>
-                  <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-base font-bold text-white">
-                    <span>{getTranslation('totalCostSummary', lang)}</span>
-                    <span className="text-xl text-white font-extrabold">
-                      {formatPrice(totalPriceIQD, lang, currency)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
               <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -942,6 +908,30 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </span>
                 </label>
               </div>
+
+              {/* The figure, last and alone. One number, not a breakdown: with the priced add-on
+                  list gone the base price and the total are the same amount by definition, and
+                  printing it twice under two headings only invites the question of why they
+                  differ. Nothing follows it but the button that commits to it. */}
+              {isCustomProject ? (
+                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-2">
+                  <div className="text-sm font-bold text-white">
+                    {isAr ? 'مشروع مخصص — السعر يُحدَّد بعد المراجعة' : 'Custom Project — price to be quoted after review'}
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    {isAr
+                      ? 'سيراجع فريقنا الوصف الذي كتبته في الخطوة السابقة ويتواصل معك بعرض سعر ومدة تنفيذ دقيقة بعد تقديم الطلب.'
+                      : 'Our team will review the description you wrote in the previous step and follow up with an accurate quote and timeline after you submit.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 font-mono flex items-center justify-between gap-3">
+                  <span className="text-base font-bold text-white">{getTranslation('totalCostSummary', lang)}</span>
+                  <span className="text-xl text-white font-extrabold">
+                    {formatPrice(totalPriceIQD, lang, currency)}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
