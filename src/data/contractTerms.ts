@@ -36,7 +36,7 @@ import { Language } from '../lib/i18n';
 export function contractTerms(language: Language, deliveryTimelineWeeks: number): string[] {
   return language === 'ar'
     ? [
-        'نطاق العمل: يقتصر التنفيذ على القالب والمواصفات والإضافات المذكورة في البند (2) من هذه الوثيقة. أي طلب خارج هذا النطاق يُعد تغييراً في النطاق ويُسعَّر ويُوثَّق في ملحق مستقل موقَّع من الطرفين قبل تنفيذه.',
+        'نطاق العمل: يقتصر التنفيذ على القالب والمتطلبات المذكورة في البند (2) من هذه الوثيقة. أي طلب خارج هذا النطاق يُعد تغييراً في النطاق ويُسعَّر ويُوثَّق في ملحق مستقل موقَّع من الطرفين قبل تنفيذه.',
         'التعديلات والمراجعات: يشمل العقد جولتَي تعديل على التصميم والواجهات دون رسوم إضافية قبل الاعتماد النهائي. ما يزيد عن ذلك، أو أي تعديل يُطلب بعد الاعتماد، يُقدَّر ويُتفق على أجره مسبقاً.',
         `التسليم المرحلي: يُقسَّم التطوير إلى مراحل موزّعة على مدة ${deliveryTimelineWeeks} أسابيع تبدأ من تاريخ سداد الدفعة الأولى واستلام كامل مواد العميل، مع تقارير تقدّم دورية عند إنجاز كل مرحلة.`,
         'التزامات العميل: يلتزم العميل بتزويد الشركة بالمحتوى المطلوب (نصوص، صور، شعارات، بيانات، صلاحيات الوصول) وبإبداء موافقته على كل مرحلة خلال سبعة (7) أيام عمل من طلبها. ويُوقف احتساب مدة التنفيذ عن أي فترة تأخير ناشئة عن الطرف العميل دون أن يُعد ذلك إخلالاً من الشركة.',
@@ -56,7 +56,7 @@ export function contractTerms(language: Language, deliveryTimelineWeeks: number)
         'طبيعة الوثيقة: هذه الوثيقة اتفاق خاص بين الطرفين المذكورين فيها وحدهما، تُوثّق ما اتفقا عليه ويُقرّان بمضمونها بتوقيعهما الإلكتروني. وهي ليست صادرة عن أي جهة حكومية ولا مصدَّقة أو موثَّقة من أي دائرة رسمية ولا يُقصد بها ذلك. وتمثل كامل ما اتفق عليه الطرفان، ولا يعتد بأي تفاهم سابق يخالفها إلا بملحق مكتوب موقَّع منهما.',
       ]
     : [
-        'Scope of Work: Delivery is limited to the template, specifications and add-ons listed in Section (2) of this document. Any request beyond that scope constitutes a change of scope and must be priced and documented in a separate annex signed by both parties before it is carried out.',
+        'Scope of Work: Delivery is limited to the template and the requirements listed in Section (2) of this document. Any request beyond that scope constitutes a change of scope and must be priced and documented in a separate annex signed by both parties before it is carried out.',
         'Revisions: The contract includes two rounds of design and interface revisions at no additional charge prior to final approval. Anything beyond that, or any change requested after approval, is estimated and its fee agreed in advance.',
         `Milestone Delivery: Development is divided into phases across a ${deliveryTimelineWeeks}-week timeline beginning on the date the first payment is settled and all client materials are received, with progress reports at the completion of each phase.`,
         'Client Obligations: The client shall provide the required content (text, images, logos, data, access credentials) and give approval at each phase within seven (7) business days of request. The delivery timeline is suspended for any period of delay caused by the client, and such suspension is not a breach by the company.',

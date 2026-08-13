@@ -195,7 +195,6 @@ export const UI_TRANSLATIONS = {
     deliveryTime: 'مدة التسليم:',
     techStackLabel: 'المستودع البرمجي:',
     featuresLabel: 'المميزات الرئيسية:',
-    optionsLabel: 'خيارات التطوير الإضافية:',
 
     // Contract Builder
     builderTitle: 'مخطط مواصفات المشروع وتخصيص الميزات',
@@ -309,7 +308,6 @@ export const UI_TRANSLATIONS = {
     deliveryTime: 'Delivery Time:',
     techStackLabel: 'Tech Stack:',
     featuresLabel: 'Key Features:',
-    optionsLabel: 'Add-on Specifications:',
 
     // Contract Builder
     builderTitle: 'Project Spec & Custom Builder',

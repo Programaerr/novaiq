@@ -152,6 +152,18 @@ export async function updateContractFields(
     updatePayload.completedAt = new Date().toISOString();
   }
 
+  // Countersigning IS the approval, so it moves the contract into development on its own.
+  // Leaving those as two separate actions meant the admin could sign and then forget to change
+  // the status, and the customer — who is watching the status, not our signature — would see a
+  // contract still sitting at "submitted" days after we had started building it.
+  //
+  // Only when the status was not set in the same call: an explicit choice by the admin always
+  // wins over this default, otherwise signing a contract that is being marked `completed` would
+  // silently drag it backwards into `in_development`.
+  if (fields.companySignatureDataUrl && !fields.status) {
+    updatePayload.status = 'in_development';
+  }
+
   // setDoc+merge rather than updateDoc: updateDoc requires the document to already exist and
   // rejects outright if it does not, which is the state every contract is in when its
   // original cloud save failed. That turned "the save didn't go through" into "this contract
