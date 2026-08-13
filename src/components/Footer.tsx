@@ -33,8 +33,10 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
     // was a lit background moving behind it, because a black slab over a lit scene is a hole cut
     // in the page. The separation now comes from the frosted card inside, which is translucent:
     // the scene stays visible through it while the text sits on a surface of its own.
-    {/* Paired with the home page's `space-y-32 sm:space-y-48` — this margin plus <main>'s `pb-8`
-        is the page's last section break, and it has to equal all the others. See App.tsx. */}
+    //
+    // The top margin is paired with the home page's `space-y-32 sm:space-y-48`: this plus
+    // <main>'s `pb-8` is the page's last section break, and it has to equal all the others,
+    // so the two move together. See the rhythm note in App.tsx.
     <footer className="relative mt-24 sm:mt-40 pb-10 text-xs text-zinc-400 z-20">
       {/* The same `.nq-panel` every section on the home page uses, rather than a surface of its
           own. It was `.frost-card` — a near-black translucent slab with its own border and drop
