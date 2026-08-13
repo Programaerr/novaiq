@@ -429,10 +429,15 @@ function ContractRow({
               directly, so they can never drift out of sync with what was actually logged.
               Profit here is collected cash minus cost, not the full agreed price minus cost,
               so an unpaid or partially-paid contract never inflates realized profit. */}
-          <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-3">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <span className="text-[11px] font-semibold text-zinc-400">
-                {isAr ? 'التتبع المالي (داخلي فقط)' : 'Financial Tracking (internal only)'}
+          {/* Three bands, in the order the question is actually asked: where does this contract
+              stand, what did it cost us, and what was actually paid and when. The old layout put a
+              cost input in the middle of a row of read-only figures, so an editable field and two
+              derived ones looked identical and nothing said which numbers you could change. */}
+          <div className="rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden">
+            <div className="px-3.5 py-2.5 border-b border-zinc-800 flex items-center justify-between gap-2 flex-wrap bg-black/40">
+              <span className="text-[11px] font-bold text-zinc-300">
+                {isAr ? 'التتبع المالي' : 'Financial Tracking'}
+                <span className="text-zinc-600 font-normal"> — {isAr ? 'داخلي، لا يظهر للعميل' : 'internal, never shown to the client'}</span>
               </span>
               <span
                 className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
@@ -447,71 +452,81 @@ function ContractRow({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
-              <div>
-                <span className="text-zinc-500 block mb-1">{isAr ? 'المحصّل' : 'Collected'}</span>
-                <strong className="text-emerald-400 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
+            {/* Band 1 — position. Derived, read-only, led by the bar. */}
+            <div className="p-3.5 space-y-3 border-b border-zinc-800">
+              <CollectionBar collected={paidAmountIQD} total={totalPriceIQD} isAr={isAr} />
+              <div className="grid grid-cols-3 gap-2 text-[11px]">
+                <div className="min-w-0">
+                  <span className="text-zinc-500 block mb-0.5">{isAr ? 'قيمة العقد' : 'Contract value'}</span>
+                  <strong className="text-white font-mono wrap-break-word">{formatPrice(totalPriceIQD, language, currency)}</strong>
+                </div>
+                <div className="min-w-0">
+                  <span className="text-zinc-500 block mb-0.5">{isAr ? 'المحصّل' : 'Collected'}</span>
+                  <strong className="text-emerald-400 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
+                </div>
+                <div className="min-w-0">
+                  <span className="text-zinc-500 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
+                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>
+                    {formatPrice(Math.max(remainingIQD, 0), language, currency)}
+                  </strong>
+                </div>
               </div>
-              <div>
-                <span className="text-zinc-500 block mb-1">{isAr ? 'المتبقي' : 'Remaining'}</span>
-                <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-zinc-400'}`}>
-                  {formatPrice(Math.max(remainingIQD, 0), language, currency)}
-                </strong>
-              </div>
-              <div>
-                <label className="block text-zinc-500 mb-1">{isAr ? 'التكلفة (د.ع)' : 'Cost (IQD)'}</label>
+            </div>
+
+            {/* Band 2 — the two things you type, and the one figure they produce. */}
+            <div className="p-3.5 grid grid-cols-2 sm:grid-cols-3 gap-3 items-end border-b border-zinc-800 bg-black/20">
+              <div className="min-w-0">
+                <label className="block text-[11px] text-zinc-500 mb-1">{isAr ? 'التكلفة علينا' : 'Our cost'}</label>
                 <PriceInput
                   value={cost}
                   onChange={setCost}
                   className="w-full px-2.5 py-2 rounded-lg bg-black border border-zinc-800 text-white text-xs font-mono"
                 />
               </div>
-              <div>
-                <span className="text-zinc-500 block mb-1">{isAr ? 'ربح العقد (محقق)' : "Profit (realized)"}</span>
-                <strong className={`font-mono wrap-break-word ${rowProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {formatPrice(rowProfit, language, currency)}
-                </strong>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">
-                {isAr ? 'عدد الدفعات المتفق عليها مع العميل (اختياري)' : "Installments agreed with the client (optional)"}
-              </label>
-              <div className="flex items-center gap-2">
+              <div className="min-w-0">
+                <label className="block text-[11px] text-zinc-500 mb-1">{isAr ? 'عدد الدفعات المتفق عليها' : 'Agreed installments'}</label>
                 <input
                   type="number"
                   min={0}
                   value={installmentsPlanned}
                   onChange={(e) => setInstallmentsPlanned(e.target.value)}
-                  placeholder={isAr ? 'مثال: 3' : 'e.g. 3'}
-                  className="w-28 px-3 py-2 rounded-lg bg-black border border-zinc-800 text-white text-xs font-mono"
+                  placeholder={isAr ? 'اختياري' : 'optional'}
+                  className="w-full px-2.5 py-2 rounded-lg bg-black border border-zinc-800 text-white text-xs font-mono"
                 />
-                {installmentsPlannedNum > 0 && (
-                  <span className="text-[11px] text-zinc-400">
-                    {isAr
-                      ? `${payments.length} من ${installmentsPlannedNum} دفعة مسجّلة`
-                      : `${payments.length} of ${installmentsPlannedNum} installments logged`}
-                  </span>
-                )}
+              </div>
+              <div className="min-w-0 col-span-2 sm:col-span-1">
+                <span className="block text-[11px] text-zinc-500 mb-1">{isAr ? 'الربح المحقق' : 'Realized profit'}</span>
+                <strong className={`block text-base font-mono font-extrabold wrap-break-word ${rowProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {formatPrice(rowProfit, language, currency)}
+                </strong>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-zinc-500">{isAr ? 'سجل الدفعات' : 'Payment Ledger'}</span>
+            {/* Band 3 — the ledger every figure above is derived from. */}
+            <div className="p-3.5 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-zinc-400">
+                  {isAr ? 'سجل الدفعات' : 'Payment ledger'}
+                  {installmentsPlannedNum > 0 && (
+                    <span className="text-zinc-600 font-normal font-mono">
+                      {' '}— {payments.length}/{installmentsPlannedNum}
+                    </span>
+                  )}
+                </span>
                 <button
                   type="button"
                   onClick={addPayment}
                   className="flex items-center gap-1 text-[11px] font-bold text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  {isAr ? 'إضافة دفعة' : 'Add Payment'}
+                  {isAr ? 'إضافة دفعة' : 'Add payment'}
                 </button>
               </div>
 
               {payments.length === 0 ? (
-                <p className="text-[11px] text-zinc-600">{isAr ? 'لم تُسجَّل أي دفعة بعد' : 'No payments logged yet'}</p>
+                <p className="text-[11px] text-zinc-600 py-2 text-center rounded-lg border border-dashed border-zinc-800">
+                  {isAr ? 'لم تُسجَّل أي دفعة بعد' : 'No payments logged yet'}
+                </p>
               ) : (
                 <div className="space-y-2">
                   {payments.map((p) => (

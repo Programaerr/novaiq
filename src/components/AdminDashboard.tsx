@@ -7,7 +7,7 @@ import { subscribeToContracts } from '../lib/firebase';
 import { logoutAccount } from '../lib/auth';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
-import { TabButton } from './admin/shared';
+import { TabButton, KpiCell } from './admin/shared';
 import { OverviewTab } from './admin/OverviewTab';
 import { ContractsTab } from './admin/ContractsTab';
 import { PricingTab } from './admin/PricingTab';
