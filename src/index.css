@@ -694,43 +694,6 @@
   50% { opacity: 0.6; }
 }
 
-/* Shared star pattern for the page's own cosmic background (.star-layer below). */
-:root {
-  /* The far distance: the smallest and faintest points, on the tightest tile. */
-  --stars-deep:
-    radial-gradient(1px 1px at 30px 40px, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
-    radial-gradient(1px 1px at 110px 90px, rgba(255, 255, 255, 0.45) 50%, transparent 51%),
-    radial-gradient(1px 1px at 170px 30px, rgba(255, 255, 255, 0.5) 50%, transparent 51%),
-    radial-gradient(1px 1px at 60px 160px, rgba(255, 255, 255, 0.4) 50%, transparent 51%),
-    radial-gradient(1px 1px at 195px 130px, rgba(255, 255, 255, 0.5) 50%, transparent 51%);
-
-  /* The middle plane: a handful of larger, brighter stars, widely spaced. */
-  --stars-mid:
-    radial-gradient(2px 2px at 90px 70px, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 320px 150px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
-    radial-gradient(2.5px 2.5px at 210px 330px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 400px 60px, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
-    radial-gradient(2px 2px at 40px 260px, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 300px 430px, rgba(255, 255, 255, 0.6) 50%, transparent 51%);
-
-  --stars-far:
-    radial-gradient(1.5px 1.5px at 40px 60px, rgba(255, 255, 255, 0.95) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 120px 20px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
-    radial-gradient(2px 2px at 200px 140px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 260px 80px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 300px 220px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
-    radial-gradient(1px 1px at 70px 190px, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
-    radial-gradient(1px 1px at 170px 250px, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 250px 30px, rgba(255, 255, 255, 0.75) 50%, transparent 51%);
-  --stars-near:
-    radial-gradient(2px 2px at 30px 90px, rgba(255, 255, 255, 1) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 160px 40px, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
-    radial-gradient(2.5px 2.5px at 240px 190px, rgba(255, 255, 255, 1) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 340px 60px, rgba(255, 255, 255, 0.8) 50%, transparent 51%),
-    radial-gradient(2px 2px at 90px 260px, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 200px 320px, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 300px 300px, rgba(255, 255, 255, 0.85) 50%, transparent 51%);
-}
 
 /* Drifting star field for CosmicBackground — two tiled radial-gradient layers translated
    with transform3d (compositor-only, no per-frame paint) instead of a canvas/particle
@@ -746,34 +709,12 @@
    (Overscanning all four sides equally is the obvious version of this and is wrong on a phone:
    a viewport is only ~393px wide in CSS pixels, so a uniform 400px margin more than doubles
    the layer instead of shrinking it.) */
-.star-layer {
-  position: absolute;
-  background-repeat: repeat;
-}
 
 /* Drifts up and to the left, so it uncovers its bottom and right edges — those are the two
    that need the extra tile. */
-.star-layer--far {
-  inset: 0 -300px -300px 0;
-  background-image: var(--stars-far);
-  background-size: 300px 300px;
-  opacity: 0.7;
-  animation: star-drift-far 220s linear infinite;
-}
 
 /* Drifts left and down, so it uncovers its top and right edges. */
-.star-layer--near {
-  inset: -380px -380px 0 0;
-  background-image: var(--stars-near);
-  background-size: 380px 380px;
-  opacity: 0.85;
-  animation: star-drift-near 150s linear infinite reverse;
-}
 
-@keyframes star-drift-far {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-300px, -300px, 0); }
-}
 
 /* ── Login page's template gallery ────────────────────────────────────────────────────────
    Columns of template covers that creep past the sign-in panel and never stop. The loop is
@@ -1025,10 +966,6 @@
 /* Both axes travel exactly one tile (380px, matching background-size), so the layer at the end
    of a cycle is pixel-identical to the start and the loop is invisible. The y value used to be
    300px against a 380px tile, which meant the pattern jumped 80px once every 150s. */
-@keyframes star-drift-near {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-380px, 380px, 0); }
-}
 
 /* Engineered navbar glass (.glass-bar). The original design used `backdrop-filter: blur()`
    directly on the floating chrome — but a backdrop-filter on a fixed header re-samples and
@@ -1187,9 +1124,7 @@
    nothing (the markup is `.navbar-logo-dots span`) and `.navbar-logo-cursor` was never listed
    at all, so the navbar kept animating even with the tab in the background. */
 html[data-idle] :is(
-  .star-layer,
   .hero-proof__track,
-  .nebula-layer,
   .animate-pulse-glow,
   .product-card-wave,
   .milestone-card,
@@ -1903,44 +1838,6 @@ html[data-flat] .cosmic-bg {
 
    Inside @supports, so a browser without scroll timelines simply keeps the gentle time-based
    drift it already had. Nothing is lost there — the page just does not respond to the scroll. */
-@supports (animation-timeline: scroll()) {
-  @media not (prefers-reduced-motion: reduce) {
-    .star-layer--deep,
-    .star-layer--far,
-    .star-layer--mid,
-    .star-layer--near,
-    .nebula-layer {
-      animation-timeline: scroll(root block);
-      animation-range: 0 100%;
-      animation-duration: auto;
-      animation-iteration-count: 1;
-      animation-direction: normal;
-    }
-
-    .star-layer--deep { animation-name: sky-parallax-deep; }
-    .star-layer--far { animation-name: sky-parallax-far; }
-    .star-layer--mid { animation-name: sky-parallax-mid; }
-    .star-layer--near { animation-name: sky-parallax-near; }
-    .nebula-layer { animation-name: sky-parallax-nebula; }
-  }
-}
-
-/* Travel scales with depth: the far distance barely shifts, the near field sweeps. */
-@keyframes sky-parallax-deep {
-  to { transform: translate3d(-28px, -90px, 0); }
-}
-@keyframes sky-parallax-far {
-  to { transform: translate3d(-70px, -230px, 0); }
-}
-@keyframes sky-parallax-mid {
-  to { transform: translate3d(120px, 420px, 0); }
-}
-@keyframes sky-parallax-near {
-  to { transform: translate3d(-160px, -620px, 0); }
-}
-@keyframes sky-parallax-nebula {
-  to { transform: translate3d(4%, -9%, 0) scale(1.14); }
-}
 
 
 /* The gravity field (GravityField.tsx). Above the star planes so its stars are the ones nearest
