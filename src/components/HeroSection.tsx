@@ -57,7 +57,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
         <h1 className="text-4xl sm:text-6xl lg:text-[4.4rem] font-extrabold text-white tracking-tight leading-[1.1] font-['Cairo']">
           {isAr ? (
             <>
-              <span className="block">برمجة</span>
+              <span className="block">بناء</span>
               <span className="block underline decoration-zinc-700 decoration-2 underline-offset-[12px] font-black">
                 مواقع وتطبيقات
               </span>

@@ -40,7 +40,6 @@ export interface PricingOverride {
   demoUrl?: string;
   basePriceIQD?: number;
   basePriceUSD?: number;
-  specPriceIQD?: Record<string, number>;
 }
 
 export function subscribeToPricingOverrides(callback: (overrides: Record<string, PricingOverride>) => void) {

@@ -22,12 +22,6 @@ export const templatesData: Template[] = [
       'لوحة قيادة حية للإحصائيات والمؤشرات الرئيسية (KPIs)',
       'دعم كامل للغتين العربية والإنجليزية بتبديل فوري'
     ],
-    specificationsOptions: [
-      { id: 'spec_ai_bot', label: 'دمج شات بوت خدمة العملاء المتقدم الخاص بالشركة', priceIQD: 180000, recommended: true },
-      { id: 'spec_multi_branch', label: 'نظام إدارة الفروع المتعددة والخريطة التفاعلية', priceIQD: 150000, recommended: true },
-      { id: 'spec_investor_portal', label: 'بوابة المستثمرين المحمية بكلمة سر وتشفير عالي', priceIQD: 280000 },
-      { id: 'spec_custom_cms', label: 'لوحة تحكم لإضافة الأخبار والوظائف الشاغرة', priceIQD: 170000 }
-    ],
     mockScreens: [
       {
         title: 'الرئيسية والمقر الرئيسي',
@@ -64,11 +58,6 @@ export const templatesData: Template[] = [
       'لوحة تتبع الشحنات والطلب للعملاء بالرقم المباشر',
       'نظام الخصومات والكوبونات التلقائية حسب الشريحة'
     ],
-    specificationsOptions: [
-      { id: 'spec_apple_pay', label: 'تفعيل زين كاش والبطاقات الإلكترونية المباشرة', priceIQD: 200000, recommended: true },
-      { id: 'spec_inventory_sync', label: 'ربط نظام المخازن والمبيعات الآلي', priceIQD: 260000, recommended: true },
-      { id: 'spec_ai_stylist', label: 'مساعد التسوق الشخصي المتقدم', priceIQD: 220000 }
-    ],
     mockScreens: [
       {
         title: 'معرض المنتجات الفاخرة',
@@ -97,10 +86,6 @@ export const templatesData: Template[] = [
       'حاسبة تقسيط فورية تحسب الدفعة الأولى والقسط الشهري',
       'حجز تجربة قيادة بموعد يصل مباشرة إلى صالة العرض',
       'مقارنة بين سيارتين جنباً إلى جنب قبل القرار'
-    ],
-    specificationsOptions: [
-      { id: 'spec_finance_bank', label: 'ربط حاسبة التقسيط بنِسب التمويل الفعلية للمصارف', priceIQD: 240000, recommended: true },
-      { id: 'spec_trade_in', label: 'نظام تقييم سيارتك القديمة (Trade-in) واحتسابها من السعر', priceIQD: 300000, recommended: true }
     ],
     mockScreens: [
       {
@@ -131,10 +116,6 @@ export const templatesData: Template[] = [
       'حجز موعد معاينة افتراضي أو ميداني مع الاستشاري',
       'استعراض مخططات الوحدة السكنية برسم عالي الدقة'
     ],
-    specificationsOptions: [
-      { id: 'spec_mortgage_calc', label: 'ربط حاسبة المصارف والتمويل العقاري المباشر', priceIQD: 180000, recommended: true },
-      { id: 'spec_3d_tour', label: 'دمج الجولات الافتراضية 360 درجة', priceIQD: 280000 }
-    ],
     mockScreens: [
       {
         title: 'استعراض البرج والوحدات',
@@ -163,10 +144,6 @@ export const templatesData: Template[] = [
       'بوابة نتائج التحاليل والتقارير الطبية المشفرة',
       'غرفة الاستشارات المرئية والنصية عن بُعد',
       'التذكيرات التلقائية بالواتساب والبريد الإلكتروني'
-    ],
-    specificationsOptions: [
-      { id: 'spec_telehealth', label: 'تفعيل الاستشارات المرئية المباشرة (Telehealth Video)', priceIQD: 300000, recommended: true },
-      { id: 'spec_whatsapp_reminder', label: 'ربط إشعارات المواعيد التلقائية عبر الواتساب الرسمي', priceIQD: 150000 }
     ],
     mockScreens: [
       {
@@ -197,10 +174,6 @@ export const templatesData: Template[] = [
       'لوحة تحليل التدفقات المالية والرسوم البيانية المباشرة',
       'دعم الحماية ثنائية العوامل 2FA والامتثال الأمني'
     ],
-    specificationsOptions: [
-      { id: 'spec_kyc_verify', label: 'ربط نظام التحقق التلقائي من الهوية (KYC Verification)', priceIQD: 260000, recommended: true },
-      { id: 'spec_multi_curr', label: 'دعم المحافظ متعددة العملات والتحويل الفوري', priceIQD: 200000, recommended: true }
-    ],
     mockScreens: [
       {
         title: 'لوحة التحكم والمحفظة المالية',
@@ -230,12 +203,6 @@ export const templatesData: Template[] = [
       'نظام حجز الطاولات وتأكيد الحجوزات الفورية',
       'تتبع حالة الطلب من المطبخ حتى التوصيل بشكل حي',
       'دعم الدفع عند الاستلام وزين كاش والبطاقات الإلكترونية'
-    ],
-    specificationsOptions: [
-      { id: 'spec_live_kitchen_tracking', label: 'تتبع حالة الطلب المباشر من المطبخ حتى باب المنزل', priceIQD: 220000, recommended: true },
-      { id: 'spec_table_reservation', label: 'نظام حجز الطاولات مع خرائط الصالة التفاعلية', priceIQD: 180000, recommended: true },
-      { id: 'spec_loyalty_points', label: 'نظام نقاط الولاء والخصومات للعملاء الدائمين', priceIQD: 160000 },
-      { id: 'spec_multi_branch_menu', label: 'إدارة قوائم متعددة لفروع المطعم المختلفة', priceIQD: 200000 }
     ],
     mockScreens: [
       {
@@ -273,12 +240,6 @@ export const templatesData: Template[] = [
       'تقويم المحاضرات والتذكيرات التلقائية',
       'شهادات إتمام رقمية قابلة للتحقق'
     ],
-    specificationsOptions: [
-      { id: 'spec_certificate_gen', label: 'توليد شهادات إتمام رقمية موثقة برمز QR', priceIQD: 200000, recommended: true },
-      { id: 'spec_live_classes', label: 'دمج نظام البث المباشر للمحاضرات عن بعد', priceIQD: 280000, recommended: true },
-      { id: 'spec_attendance_qr', label: 'نظام تسجيل الحضور بالباركود/QR داخل القاعات', priceIQD: 170000 },
-      { id: 'spec_installment_plans', label: 'خطط تقسيط الرسوم الدراسية التلقائية', priceIQD: 150000 }
-    ],
     mockScreens: [
       {
         title: 'كتالوج الدورات',
@@ -315,12 +276,6 @@ export const templatesData: Template[] = [
       'حاسبة تقسيط شهري تعرض الدفعة قبل الشراء',
       'تأكيد الطلب برقم مرجعي وفاتورة إلكترونية'
     ],
-    specificationsOptions: [
-      { id: 'spec_phone_compare', label: 'أداة مقارنة بين هاتفين أو أكثر بالمواصفات جنباً إلى جنب', priceIQD: 250000, recommended: true },
-      { id: 'spec_installment_engine', label: 'نظام التقسيط وحساب الدفعات مع طلب الموافقة', priceIQD: 300000, recommended: true },
-      { id: 'spec_imei_warranty', label: 'سجل الكفالة بالرقم التسلسلي IMEI وتتبع حالة الصيانة', priceIQD: 220000 },
-      { id: 'spec_trade_in', label: 'خدمة استبدال الجهاز القديم وتقييم سعره تلقائياً', priceIQD: 190000 }
-    ],
     mockScreens: [
       {
         title: 'كتالوج الهواتف',
@@ -356,12 +311,6 @@ export const templatesData: Template[] = [
       'خدمة نقش اسم أو تاريخ على ظهر العلبة قبل التسليم',
       'شهادة أصالة وكفالة دولية سنتان مرفقة بكل طلب',
       'تغليف هدايا وتوصيل مؤمّن لكل المحافظات'
-    ],
-    specificationsOptions: [
-      { id: 'spec_watch_engraving', label: 'محرّك النقش: معاينة حية لاسم الزبون على ظهر العلبة', priceIQD: 280000, recommended: true },
-      { id: 'spec_watch_authenticity', label: 'شهادة أصالة رقمية برمز QR لكل قطعة مباعة', priceIQD: 220000, recommended: true },
-      { id: 'spec_watch_size_guide', label: 'دليل مقاس المعصم التفاعلي مع توصية بقطر العلبة', priceIQD: 150000 },
-      { id: 'spec_watch_service_book', label: 'سجل صيانة إلكتروني وتذكير بمواعيد خدمة الحركة', priceIQD: 190000 }
     ],
     mockScreens: [
       {
