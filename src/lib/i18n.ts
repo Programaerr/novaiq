@@ -236,7 +236,7 @@ export const UI_TRANSLATIONS = {
     totalCostSummary: 'إجمالي التكلفة التقديرية للبناء:',
     clearSignature: 'مسح التوقيع والاعتماد',
     agreeTermsCheckbox: 'أقر بصحة المواصفات الفنية المطلوبة ومراحل التسليم المذكورة لتخصيص طلبي وبدء التنفيذ.',
-    generateContractBtn: 'إرسال العقد',
+    generateContractBtn: 'الموافقة على العقد والتوقيع والإرسال',
 
     // Firebase Orders Modal
     ordersTitle: 'سجل الطلبات والمشاريع البرمجية المحفوظة',
@@ -349,7 +349,7 @@ export const UI_TRANSLATIONS = {
     totalCostSummary: 'Estimated Total Project Cost:',
     clearSignature: 'Clear Signature',
     agreeTermsCheckbox: 'I confirm the technical specifications and delivery phases selected for my custom request.',
-    generateContractBtn: 'Send Contract',
+    generateContractBtn: 'Approve, sign & send contract',
 
     // Firebase Orders Modal
     ordersTitle: 'Saved Project Specs & Requests',

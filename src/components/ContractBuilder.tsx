@@ -277,7 +277,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     if (!hasSignature) {
       // Take the user straight to the pad and highlight it, rather than popping an alert
       // that has to be dismissed before they can act on it.
-      setCurrentStep(4);
+      setCurrentStep(3);
       setSignatureMissing(true);
       showToast(isAr ? 'التوقيع مطلوب لإتمام العقد' : 'A signature is required to complete the contract', 'error');
       requestAnimationFrame(() => {
@@ -352,12 +352,15 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
         </div>
 
         {/* Step Progress Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+        {/* Three steps, not four. Pricing/terms and the signature used to be separate screens,
+            which meant the customer agreed to a figure on one page and signed on another with
+            the figure no longer in front of them. They are one step: read the price, read the
+            clauses, sign, send. */}
+        <div className="grid grid-cols-3 gap-2 mb-5">
           {[
             { step: 1, title: isAr ? 'بيانات الشركة' : 'Company Details', icon: Building2 },
             { step: 2, title: isAr ? 'مواصفات القالب' : 'Template Specs', icon: Layers },
-            { step: 3, title: isAr ? 'الشروط والأسعار' : 'Terms & Pricing', icon: ShieldCheck },
-            { step: 4, title: isAr ? 'التوقيع والإنشاء' : 'Signature & Save', icon: FileSignature },
+            { step: 3, title: isAr ? 'المراجعة والتوقيع' : 'Review & Sign', icon: FileSignature },
           ].map((s) => {
             const Icon = s.icon;
             const isCompleted = currentStep > s.step;
@@ -781,7 +784,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             </div>
           )}
 
-          {/* STEP 3: Terms & Pricing */}
+          {/* STEP 3: Price, terms, signature — the whole close, on one screen. */}
           {currentStep === 3 && (
             <div className="space-y-6 animate-fade-in">
               <div className="border-b border-zinc-800 pb-4">
@@ -830,13 +833,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </span>
                 </label>
               </div>
-            </div>
-          )}
 
-          {/* STEP 4: Digital Signature */}
-          {currentStep === 4 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="border-b border-zinc-800 pb-4">
+              <div className="border-b border-zinc-800 pb-4 pt-2">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <FileSignature className="w-5 h-5 text-white" />
                   <span>{getTranslation('stepSignature', lang)}</span>
@@ -957,7 +955,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               </button>
             ) : <div />}
 
-            {currentStep < 4 ? (
+            {currentStep < 3 ? (
               <button
                 type="button"
                 onClick={() => {
