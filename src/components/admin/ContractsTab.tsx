@@ -27,7 +27,7 @@ import { showToast } from '../../lib/toast';
 import { useSignaturePad } from '../../lib/useSignaturePad';
 import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '../../lib/payments';
 import { PriceInput } from '../PriceInput';
-import { STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, AdminStats } from './shared';
+import { STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, CollectionBar, AdminStats } from './shared';
 
 export function ContractsTab({
   isAr,
@@ -454,11 +454,11 @@ function ContractRow({
 
             {/* Band 1 — position. Derived, read-only, led by the bar. */}
             <div className="p-3.5 space-y-3 border-b border-zinc-800">
-              <CollectionBar collected={paidAmountIQD} total={totalPriceIQD} isAr={isAr} />
+              <CollectionBar collected={paidAmountIQD} total={Number(totalPrice) || 0} isAr={isAr} />
               <div className="grid grid-cols-3 gap-2 text-[11px]">
                 <div className="min-w-0">
                   <span className="text-zinc-500 block mb-0.5">{isAr ? 'قيمة العقد' : 'Contract value'}</span>
-                  <strong className="text-white font-mono wrap-break-word">{formatPrice(totalPriceIQD, language, currency)}</strong>
+                  <strong className="text-white font-mono wrap-break-word">{formatPrice(Number(totalPrice) || 0, language, currency)}</strong>
                 </div>
                 <div className="min-w-0">
                   <span className="text-zinc-500 block mb-0.5">{isAr ? 'المحصّل' : 'Collected'}</span>
