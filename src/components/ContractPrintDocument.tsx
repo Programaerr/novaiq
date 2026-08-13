@@ -71,12 +71,15 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       signedElectronically: isAr ? '[ تم التوقيع إلكترونياً ]' : '[ Signed Electronically ]',
       companySig: isAr ? 'توقيع واعتماد NOVAIQ' : 'NOVAIQ Sign-off',
       pendingApproval: isAr ? '[ قيد الاعتماد ]' : '[ Pending Approval ]',
-      seal: isAr ? 'ختم NOVAIQ الرسمي' : 'NOVAIQ OFFICIAL SEAL',
-      verified: isAr ? 'عقد إلكتروني موثّق' : 'VERIFIED E-CONTRACT',
-      authCode: isAr ? 'رمز التوثيق' : 'AUTH CODE',
+      // No "official", no "certified", no claim of validity without a wet signature. This is a
+      // private agreement between two named parties — it is not issued, stamped or notarised by
+      // any authority, and wording that implies otherwise is a liability rather than a feature.
+      seal: isAr ? 'ختم NOVAIQ' : 'NOVAIQ SEAL',
+      verified: isAr ? 'عقد إلكتروني بين الطرفين' : 'E-CONTRACT BETWEEN THE PARTIES',
+      authCode: isAr ? 'رمز العقد' : 'CONTRACT REF',
       footer: isAr
-        ? 'NOVAIQ — تم إصدار هذه الوثيقة إلكترونياً عبر منصة NOVAIQ وهي معتمدة دون الحاجة لتوقيع ورقي.'
-        : 'NOVAIQ — This document was issued electronically via the NOVAIQ platform and is valid without a wet signature.',
+        ? 'NOVAIQ — صدرت هذه الوثيقة إلكترونياً عبر منصة NOVAIQ، وهي اتفاق خاص بين الطرفين الموقّعَين عليها.'
+        : 'NOVAIQ — Issued electronically via the NOVAIQ platform; a private agreement between its two signatories.',
     };
 
     const paymentPlanLabel = (() => {

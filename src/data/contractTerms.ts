@@ -53,7 +53,7 @@ export function contractTerms(language: Language, deliveryTimelineWeeks: number)
         'القوة القاهرة: يُعلَّق التزام أي من الطرفين عند وقوع ظرف قاهر خارج عن إرادته يحول دون التنفيذ، على أن يُخطر الطرف الآخر خلال مدة معقولة، وتُمدَّد المدد التعاقدية بما يعادل فترة التعليق.',
         'الإنهاء: يجوز إنهاء هذا العقد باتفاق الطرفين كتابةً، أو من أي طرف عند إخلال جوهري لم يُعالَج خلال أربعة عشر (14) يوماً من الإخطار. وفي جميع حالات الإنهاء تُسدَّد قيمة ما أُنجز فعلياً حتى تاريخه، وتُسلَّم مخرجات المراحل المسدَّدة.',
         'القانون الحاكم وتسوية النزاعات: يخضع هذا العقد للقوانين النافذة في جمهورية العراق. ويسعى الطرفان لتسوية أي نزاع ودياً خلال ثلاثين (30) يوماً، وإلا فيكون الاختصاص للمحاكم المختصة في جمهورية العراق.',
-        'الصلاحية القانونية: هذه الوثيقة ملزمة للطرفين بموجب أنظمة التوقيع الإلكتروني والتعاملات الرقمية، وتمثل كامل ما اتفقا عليه، ولا يعتد بأي تفاهم سابق يخالفها إلا بملحق مكتوب موقَّع منهما.',
+        'طبيعة الوثيقة: هذه الوثيقة اتفاق خاص بين الطرفين المذكورين فيها وحدهما، تُوثّق ما اتفقا عليه ويُقرّان بمضمونها بتوقيعهما الإلكتروني. وهي ليست صادرة عن أي جهة حكومية ولا مصدَّقة أو موثَّقة من أي دائرة رسمية ولا يُقصد بها ذلك. وتمثل كامل ما اتفق عليه الطرفان، ولا يعتد بأي تفاهم سابق يخالفها إلا بملحق مكتوب موقَّع منهما.',
       ]
     : [
         'Scope of Work: Delivery is limited to the template, specifications and add-ons listed in Section (2) of this document. Any request beyond that scope constitutes a change of scope and must be priced and documented in a separate annex signed by both parties before it is carried out.',
@@ -73,6 +73,6 @@ export function contractTerms(language: Language, deliveryTimelineWeeks: number)
         "Force Majeure: Either party's obligations are suspended upon a force majeure event beyond its control that prevents performance, provided the other party is notified within a reasonable period; contractual periods are extended by the duration of the suspension.",
         'Termination: This contract may be terminated by written agreement of both parties, or by either party upon a material breach not remedied within fourteen (14) days of notice. In all cases of termination, the value of work actually completed to that date is payable, and the deliverables of paid phases are handed over.',
         'Governing Law & Disputes: This contract is governed by the laws in force in the Republic of Iraq. The parties shall seek to settle any dispute amicably within thirty (30) days, failing which jurisdiction lies with the competent courts of the Republic of Iraq.',
-        'Legal Validity: This document is binding on both parties under electronic signature and digital transaction regulations, represents the entirety of what they have agreed, and no prior understanding to the contrary shall be relied upon except by a written annex signed by both.',
+        'Nature of the Document: This is a private agreement between the two parties named in it and no one else. It records what they agreed and is acknowledged by their electronic signatures. It is not issued by any government body, nor certified or notarised by any official authority, and is not intended to be. It represents the entirety of what the parties agreed, and no prior understanding to the contrary shall be relied upon except by a written annex signed by both.',
       ];
 }
