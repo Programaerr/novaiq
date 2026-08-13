@@ -1466,46 +1466,15 @@ html[data-scrolling] .rv::before {
 }
 
 
-/* Roadmap card — a dark body with a soft light rising from below its own bottom edge.
-   Painted as a `background` rather than as an overlay child so the card's border-radius
-   clips it for free: the card cannot use overflow:hidden, because that would also clip its
-   `.reveal-border` ring, which sits at inset:-1px *outside* the padding box.
+/* Roadmap card. Its surface, ring and lighting all come from `.nq-card` now — this class carries
+   only the scroll drift below, which is the one thing about these cards that is not shared with
+   every other panel on the site.
 
-   The gradient's centre is at 116% — past the card, not inside it. Only the falloff lands
-   on the card, which is the whole trick: the reference art is a saturated blue whose hot
-   core can sit in frame, and a white one cannot, because the card's own text is white and
-   would dissolve into it.
-
-   The vertical radius is 115%, i.e. larger than the card, so the light climbs most of the
-   way up rather than banding along the bottom edge — the reach is what makes it read as a
-   light rather than as a band, so it is the alpha that was pulled back when the glow came
-   out too strong, not the geometry. Measured down the face, luminance now runs roughly 9 at
-   the top through 13, 24, 45 and ~68 at the foot. */
-.milestone-card {
-  /* No opaque base color any more, and no per-card simulated star window either (that was
-     .milestone-stars — deleted along with useStarParallax): both used to stand in for the
-     real cosmic background behind the page. Transparent, this card's actual backdrop is
-     that real background showing straight through, not a lookalike copy of it. */
-  background:
-    radial-gradient(
-      135% 115% at 50% 116%,
-      rgba(255, 255, 255, 0.33) 0%,
-      rgba(255, 255, 255, 0.14) 40%,
-      rgba(255, 255, 255, 0.035) 70%,
-      rgba(255, 255, 255, 0) 100%
-    );
-  /* Clipped to the padding box, so the glow stops at the inside of the border instead of
-     painting underneath it. A CSS border is drawn ON TOP of the background by default, and
-     this one is semi-transparent — so along the bottom edge, where the glow is at its
-     brightest, a 1px rgba(255,255,255,0.3) line was compositing over a surface already
-     brighter than itself and vanishing into it. The card looked open at the bottom: three
-     crisp edges and one that just faded out.
-
-     Clipped here, whatever shows through the border is the page behind the card — black sky,
-     at every point of the outline — so the rim has identical contrast the whole way round no
-     matter what the card is doing behind it. */
-  background-clip: padding-box;
-}
+   What used to be here: a soft light rising from below the card's own bottom edge, a gradient
+   centred at 116% so only its falloff landed in frame. It was replaced rather than kept because
+   the site's cards are lit from a top corner now, and a card lit from underneath in a grid of
+   cards lit from above reads as a mistake however good it looks alone. Consistent direction is
+   worth more than any individual card's treatment. */
 
 /* Cards drift gently on scroll — view(), not scroll(): a per-card "how far through the
    viewport am I" progress, not the whole document's. Makes the section read as one
@@ -1899,6 +1868,92 @@ html[data-scrolling] .rv::before {
    star chart, so a second field inside one panel only made that panel denser than the page for
    no reason anyone could read as intentional. Nothing replaces it — the body's field shows
    through the panel exactly as it does everywhere else. */
+
+/* ── The card language ─────────────────────────────────────────────────────────────────────
+   Every panel on this site — roadmap phases, capability tiles, stat tiles, the about cards —
+   is the same surface, defined once here and applied by class rather than by each component
+   assembling its own stack of Tailwind utilities. That is the actual change: there were four
+   slightly different card treatments before, and "slightly different" is the version of
+   inconsistency nobody can name but everybody sees.
+
+   ## The corner beam
+
+   The reference's signature, and the reason its cards read as objects sitting in a lit room
+   rather than as rectangles with a border. Light enters at ONE top corner of every card, at the
+   same angle on all of them, and dies out before the middle. Two layers do it: a narrow shaft
+   angled in across the corner, and a soft pool at the corner itself where the shaft appears to
+   enter. The shaft alone is a stripe; the pool alone is a smudge.
+
+   Consistency across cards is the whole point, and it is also what makes it look deliberate — if
+   each card were lit from its own direction the grid would read as a pile of unrelated tiles.
+
+   ## Which corner, and why it is a variable
+
+   The light comes from the top of the READING side: top-right under RTL, top-left under LTR. It
+   is the corner the eye already starts from, so the brightest part of the card is where the
+   reader is going to be anyway. Both directions are one custom property rather than a duplicated
+   block, so the two can never drift apart.
+
+   ## The ring is an inset shadow, not a border
+
+   A border occupies layout: it sits outside the padding box and shrinks the content area by its
+   own width, so a card with one and a card without are different heights for the same content.
+   An inset shadow paints in the same place and costs no space at all. It also composites over
+   the card's own background rather than under it, which is what keeps the outline at the same
+   contrast the whole way round instead of dissolving wherever the surface beneath it is
+   brightest. */
+.nq-card {
+  /* RTL is the default here, so the light comes in over the top-right corner. */
+  --beam-angle: 232deg;
+  --beam-x: 91%;
+
+  position: relative;
+  border-radius: 20px;
+  background:
+    /* the shaft: narrow, angled, gone by a third of the way across */
+    linear-gradient(
+      var(--beam-angle),
+      transparent 6%,
+      rgba(255, 255, 255, 0.1) 16%,
+      rgba(255, 255, 255, 0.02) 25%,
+      transparent 34%
+    ),
+    /* the pool at the corner the shaft enters through */
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(255, 255, 255, 0.12) 0%, transparent 72%),
+    /* the surface: a shallow top-to-bottom lift, so the card is lighter than the page it is on
+       without ever being an opaque colour that has to be restated when the ground changes */
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.018) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+  /* Everything above is a background, so the radius clips it for free — no overflow:hidden, which
+     would also clip anything a card wants to hang outside itself. */
+  background-clip: padding-box;
+}
+
+[dir='ltr'] .nq-card {
+  --beam-angle: 128deg;
+  --beam-x: 9%;
+}
+
+/* Hover lifts the whole lighting rather than adding a new effect on top: the beam brightens, the
+   surface comes up, the ring sharpens. One state, three properties, and nothing moves — a card
+   that shifts position on hover makes a grid of them feel unstable while the pointer crosses it. */
+.nq-card--hover {
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nq-card--hover:hover {
+  background:
+    linear-gradient(
+      var(--beam-angle),
+      transparent 6%,
+      rgba(255, 255, 255, 0.16) 16%,
+      rgba(255, 255, 255, 0.04) 25%,
+      transparent 34%
+    ),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(255, 255, 255, 0.18) 0%, transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.028) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
 
 /* ── The planet limb (HeroSection.tsx) ─────────────────────────────────────────────────────
    A world's edge rising across the top of the hero: only the crown of an enormous sphere is ever

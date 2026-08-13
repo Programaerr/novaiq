@@ -1,0 +1,185 @@
+- generic [ref=f1e85]:
+  - banner [ref=f1e86]:
+    - generic [ref=f1e87]:
+      - link "تسجيل دخول" [ref=f1e89] [cursor=pointer]:
+        - /url: "?page=login"
+      - link "NOVAIQ NOVAIQ Design" [ref=f1e94] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f1e95]:
+          - generic [ref=f1e96]: NOVAIQ
+          - img "NOVAIQ" [ref=f1e97]
+          - generic [ref=f1e98]:
+            - generic [ref=f1e99]:
+              - generic [ref=f1e100]: .
+              - generic [ref=f1e101]: .
+              - generic [ref=f1e102]: .
+            - generic [ref=f1e104]: Design
+      - generic [ref=f1e105]:
+        - button "AR" [ref=f1e106] [cursor=pointer]
+        - button "فتح القائمة" [ref=f1e111] [cursor=pointer]
+  - main [ref=f1e116]:
+    - generic [ref=f1e117]:
+      - generic [ref=f1e118]:
+        - generic [ref=f1e120]:
+          - heading "بناء مواقع وتطبيقات" [level=1] [ref=f1e121]
+          - paragraph [ref=f1e122]: نحن في NOVAIQ نبتكر منصات رقمية فائقة السرعة والأمان. تصفح معرض قوالبنا الجاهزة لشركتك، أو تواصل معنا لصياغة نظام خاص ومخصص يلبي احتياجاتك بدقة واحترافية متكاملة.
+          - generic [ref=f1e123]:
+            - button "شاهد القوالب" [ref=f1e124] [cursor=pointer]
+            - button "ابدأ معنا" [ref=f1e126] [cursor=pointer]
+        - generic [ref=f1e162]:
+          - generic [ref=f1e163]:
+            - generic [ref=f1e164]:
+              - img "بطاقة ضمانات NOVAIQ — تسليم سريع، مواصفات دقيقة، دعم متكامل، أداء فائق"
+            - generic [ref=f1e169]:
+              - heading "الإنتاجية والسرعة في تسليم مشروعك" [level=3] [ref=f1e171]
+              - generic [ref=f1e172]:
+                - generic [ref=f1e173]:
+                  - generic [ref=f1e175]: 80%
+                  - generic [ref=f1e176]: جاهزية فورية
+                - generic [ref=f1e177]:
+                  - generic [ref=f1e179]: 3-4
+                  - generic [ref=f1e180]: أسابيع تسليم
+                - generic [ref=f1e181]:
+                  - generic [ref=f1e183]: 100%
+                  - generic [ref=f1e184]: ملكية الكود
+          - generic [ref=f1e185]:
+            - generic [ref=f1e186]:
+              - generic [ref=f1e187]: قوالب مجربة ومعتمدة
+              - generic [ref=f1e188]: جاهزة للتركيب الفوري
+            - generic [ref=f1e189]:
+              - generic [ref=f1e190]: بناء مرن مخصص
+              - generic [ref=f1e191]: نطور كل ما تريده
+            - generic [ref=f1e192]:
+              - generic [ref=f1e193]: ربط وحفظ في Firebase
+              - generic [ref=f1e194]: ضمان حفظ كل البيانات
+            - generic [ref=f1e195]:
+              - generic [ref=f1e196]: أكواد برمجية نظيفة
+              - generic [ref=f1e197]: سهلة الصيانة والتشغيل
+      - generic [ref=f1e200]:
+        - heading "جدول المراحل الزمنية لتنفيذ مشروعك" [level=2] [ref=f1e202]
+        - generic [ref=f1e203]:
+          - generic [ref=f1e205]:
+            - 'heading "المرحلة الأولى: التحليل والاعتماد" [level=3] [ref=f1e208]'
+            - paragraph [ref=f1e209]: مرحلة الاعتماد
+            - list [ref=f1e210]:
+              - listitem [ref=f1e211]:
+                - generic [ref=f1e215]: توقيع واعتماد العقد
+              - listitem [ref=f1e216]:
+                - generic [ref=f1e220]: تحديد الهوية البصرية
+              - listitem [ref=f1e221]:
+                - generic [ref=f1e225]: الخوادم والنطاق الخاص بالشركة
+            - generic [ref=f1e226]:
+              - generic [ref=f1e227]: الأسبوع 1 - 2
+              - paragraph [ref=f1e228]: المرحلة 1 من 4 · 2 أسابيع
+          - generic [ref=f1e230]:
+            - 'heading "المرحلة الثانية: بناء التصميم" [level=3] [ref=f1e235]'
+            - paragraph [ref=f1e236]: التطوير البصري
+            - list [ref=f1e237]:
+              - listitem [ref=f1e238]:
+                - generic [ref=f1e242]: تطوير واجهات المستخدم
+              - listitem [ref=f1e243]:
+                - generic [ref=f1e247]: دمج تأثيرات الحركة والسلاسة
+              - listitem [ref=f1e248]:
+                - generic [ref=f1e252]: ضمان الاستجابة التامة
+            - generic [ref=f1e253]:
+              - generic [ref=f1e254]: الأسبوع 3 - 4
+              - paragraph [ref=f1e255]: المرحلة 2 من 4 · 2 أسابيع
+          - generic [ref=f1e257]:
+            - 'heading "المرحلة الثالثة: الربط البرمجي" [level=3] [ref=f1e261]'
+            - paragraph [ref=f1e262]: البرمجة والخوادم
+            - list [ref=f1e263]:
+              - listitem [ref=f1e264]:
+                - generic [ref=f1e268]: ربط بوابات الدفع الإلكتروني
+              - listitem [ref=f1e269]:
+                - generic [ref=f1e273]: تجهيز نظام المحادثة والدعم
+              - listitem [ref=f1e274]:
+                - generic [ref=f1e278]: ربط البيانات السحابية
+            - generic [ref=f1e279]:
+              - generic [ref=f1e280]: الأسبوع 5 - 6
+              - paragraph [ref=f1e281]: المرحلة 3 من 4 · 2 أسابيع
+          - generic [ref=f1e283]:
+            - 'heading "المرحلة الرابعة: الاختبار النهائي" [level=3] [ref=f1e287]'
+            - paragraph [ref=f1e288]: الإطلاق المكتمل
+            - list [ref=f1e289]:
+              - listitem [ref=f1e290]:
+                - generic [ref=f1e294]: اختبارات الأمان والسرعة
+              - listitem [ref=f1e295]:
+                - generic [ref=f1e299]: تسليم الكود المصدري ولوحات التحكم بالكامل لممثل الشركة
+              - listitem [ref=f1e300]:
+                - generic [ref=f1e304]: إمكانية تفعيل خطة صيانة مخصصة حسب الاتفاق
+            - generic [ref=f1e305]:
+              - generic [ref=f1e306]: الأسبوع 7 - 8
+              - paragraph [ref=f1e307]: المرحلة 4 من 4 · 2 أسابيع
+      - button "ابدأ تنفيذ مشروعك ووقع العقد الآن" [ref=f1e310] [cursor=pointer]
+      - generic [ref=f1e322]:
+        - generic [ref=f1e323]:
+          - heading "شركة برمجية متخصصة في تطوير المواقع والتطبيقات الإلكترونية" [level=2] [ref=f1e324]
+          - paragraph [ref=f1e325]:
+            - text: تُقدم شركة
+            - strong [ref=f1e326]: NOVAIQ
+            - text: حلولاً برمجية متطورة للشركات والمؤسسات بأسعار شفافة بالدينار العراقي ومعايير جودة عالية.
+        - generic [ref=f1e327]:
+          - generic [ref=f1e328]:
+            - heading "تطوير منصات برمجية متكاملة" [level=4] [ref=f1e332]
+            - paragraph [ref=f1e333]: تصميم وتنفيذ أنظمة ويب حديثة مخصصة لاحتياجات المؤسسات.
+          - generic [ref=f1e334]:
+            - heading "عقد رقمي رسمي لكل مشروع (IQD)" [level=4] [ref=f1e338]
+            - paragraph [ref=f1e339]: كل مشروع يُوثَّق باتفاقية واضحة تحدد التفاصيل الفنية والمالية وحقوق الطرفين قبل بدء العمل.
+          - generic [ref=f1e340]:
+            - heading "دعم فني ومتابعة دورية" [level=4] [ref=f1e344]
+            - paragraph [ref=f1e345]: تحديثات استقرار ومتابعة فنية بحسب الاتفاق المبرم بين الطرفين.
+  - contentinfo [ref=f1e346]:
+    - generic [ref=f1e347]:
+      - generic [ref=f1e348]:
+        - generic [ref=f1e349]:
+          - generic [ref=f1e350]:
+            - generic [ref=f1e351]: NOVAIQ
+            - img "NOVAIQ" [ref=f1e352]
+          - paragraph [ref=f1e353]: منصة برمجية متخصصة لبناء المنصات والأنظمة والقوالب المتقدمة للشركات والمؤسسات، مع نظام توثيق العقود الإلكترونية الرسمي بالدينار العراقي.
+        - generic [ref=f1e354]:
+          - heading "روابط المنصة" [level=4] [ref=f1e355]
+          - list [ref=f1e356]:
+            - listitem [ref=f1e357]:
+              - button "القوالب الجاهزة" [ref=f1e358] [cursor=pointer]
+            - listitem [ref=f1e359]:
+              - button "صانع العقود الرقمية" [ref=f1e360] [cursor=pointer]
+            - listitem [ref=f1e361]:
+              - button "خطة التسليم" [ref=f1e362] [cursor=pointer]
+            - listitem [ref=f1e363]:
+              - button "عن NOVAIQ" [ref=f1e364] [cursor=pointer]
+        - generic [ref=f1e365]:
+          - heading "مميزات منصة NOVAIQ" [level=4] [ref=f1e366]
+          - list [ref=f1e367]:
+            - listitem [ref=f1e368]:
+              - generic [ref=f1e372]: عقود معتمدة بختم إلكتروني
+            - listitem [ref=f1e373]:
+              - generic [ref=f1e377]: حفظ وتوثيق سحابي آمن
+            - listitem [ref=f1e378]:
+              - generic [ref=f1e382]: متابعة وتحديثات حسب الاتفاق
+        - generic [ref=f1e383]:
+          - heading "التواصل والخدمة" [level=4] [ref=f1e384]
+          - generic [ref=f1e385]:
+            - link "Facebook" [ref=f1e386] [cursor=pointer]:
+              - /url: ي
+            - link "Instagram" [ref=f1e389] [cursor=pointer]:
+              - /url: https://www.instagram.com/_novaiq?igsh=MTFhZHMyMW5jNjd1eQ==
+            - link "X (Twitter)" [ref=f1e393] [cursor=pointer]:
+              - /url: ي
+            - link "TikTok" [ref=f1e396] [cursor=pointer]:
+              - /url: ي
+            - link "WhatsApp" [ref=f1e400] [cursor=pointer]:
+              - /url: https://wa.me/
+      - generic [ref=f1e403]:
+        - generic [ref=f1e404]:
+          - text: جميع الحقوق محفوظة © 2026
+          - strong [ref=f1e405]: NOVAIQ SOFTWARE SYSTEMS
+        - generic [ref=f1e406]:
+          - button "سياسة الخصوصية" [ref=f1e407] [cursor=pointer]
+          - button "شروط الخدمة" [ref=f1e408] [cursor=pointer]
+  - generic [ref=f1e409]:
+    - paragraph [ref=f1e414]:
+      - text: نستخدم ملفات تعريف الارتباط (الكوكيز) لتحسين تجربتك وفهم كيفية استخدام المنصة بشكل مجهول الهوية. يمكنك القبول أو الرفض، ولن يؤثر ذلك على استخدامك الأساسي للموقع.
+      - button "سياسة الخصوصية" [ref=f1e415] [cursor=pointer]
+    - generic [ref=f1e416]:
+      - button "رفض" [ref=f1e417] [cursor=pointer]
+      - button "موافقة" [ref=f1e418] [cursor=pointer]

@@ -529,7 +529,7 @@ export default function App() {
                 // subtree is on screen, so it skips and un-skips it repeatedly, throwing the
                 // section's rendering away and rebuilding it — many times a second, for as long
                 // as the card is moving. That is both the flicker and a large part of the heat.
-                className="border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+                className="nq-card rounded-3xl p-6 sm:p-10"
               >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
                 {/* The credential card, in the same row as the pitch it illustrates rather than
@@ -570,7 +570,7 @@ export default function App() {
                         // from whatever is behind it and can only ever come out lighter than it,
                         // so the tile reads as raised by construction. `bg-black` here could only
                         // ever read as a hole punched through the page.
-                        className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-white/[0.04] border border-zinc-700/80"
+                        className="nq-card nq-card--hover group flex flex-col items-center gap-2 text-center p-3"
                       >
                         <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
@@ -630,7 +630,7 @@ export default function App() {
                   ].map((x, idx) => (
                     <div
                       key={idx}
-                      className="flex flex-col justify-center items-center text-center p-4 sm:p-5 rounded-2xl bg-white/[0.04] border border-zinc-700/80 space-y-1"
+                      className="nq-card nq-card--hover flex flex-col justify-center items-center text-center p-4 sm:p-5 space-y-1"
                     >
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>

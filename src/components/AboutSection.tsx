@@ -68,7 +68,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
               // of it is brighter than the rest.
               <div
                 key={idx}
-                className="min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-white/[0.04] border border-zinc-700 text-center transition-all"
+                className="nq-card nq-card--hover min-h-[190px] flex flex-col items-center justify-center p-5 text-center"
               >
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>

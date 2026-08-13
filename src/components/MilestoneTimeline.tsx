@@ -98,7 +98,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                 // drift). Declaring a transition on the same property an animation is
                 // continuously driving makes the style system reconcile the two every
                 // frame for no benefit — nothing here animates transform on a state change.
-                className="milestone-card border border-white/30 rounded-[26px] p-7 flex flex-col relative group transition-colors shadow-xl"
+                className="milestone-card nq-card nq-card--hover p-7 flex flex-col relative group"
               >
 
                 {/* z-10 kept even though the pointer-tracked glow that used to sit above this
