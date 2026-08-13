@@ -38,8 +38,8 @@ const COLUMNS = [
  * nothing whether it is on screen for five seconds or five minutes. Nothing here holds a GPU
  * context, and nothing draws a frame that is not a straight copy of pixels it already has.
  *
- * It also removes three.js, @react-three/fiber and drei from the page entirely: this was their
- * only consumer, so the ~890KB chunk they occupied is no longer built or fetched at all.
+ * It also keeps three.js and @react-three/fiber off this page entirely. They are still built,
+ * for CredentialCard3D, but that chunk is lazy — so nothing here fetches ~890KB of 3D engine.
  */
 export const FloatingTemplateCards: React.FC<FloatingTemplateCardsProps> = ({
   language,
