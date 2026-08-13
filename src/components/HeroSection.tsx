@@ -69,7 +69,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
   }, []);
 
   return (
-    <section ref={heroRef} className="relative pb-2 md:pb-6 overflow-hidden">
+    // Full-screen from `lg` up, which is the reference's proportion rather than a preference: it
+    // sets its planet at 36% of the viewport WIDE, and a sphere that size simply does not fit in a
+    // 440px band. The height is what buys the room for it. `calc(100vh - 6rem)` is the viewport
+    // less the floating header above, so the hero ends where the fold does and the section below
+    // starts on a scroll rather than half-showing.
+    //
+    // Centred rather than top-padded once it is that tall: `pt-28` on a 440px hero put the copy
+    // near the middle by arithmetic, and the same padding on an 800px one strands it at the top.
+    <section
+      ref={heroRef}
+      className="relative pb-2 md:pb-6 overflow-hidden lg:min-h-[calc(100vh-6rem)] lg:flex lg:items-center"
+    >
       {/* ── The globe ────────────────────────────────────────────────────────────────────────
           A real sphere of points, turning slowly (HeroGlobe.tsx). It took over from `.hero-limb`,
           which drew the same idea flat: one enormous CSS circle with a lit rim, cropped to its
@@ -86,11 +97,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
           section would move the arc down by exactly as much and change nothing. */}
       {/* Centred on a phone, aligned to the reading edge from `lg` up — which is where the globe
           moves out of the middle and off to the far side. The two go together: copy centred under
-          an off-centre planet looks like neither was placed on purpose. `max-w-2xl` keeps the
-          measure readable once the text stops being centred, since a left-aligned line that runs
-          the full width of a desktop is the thing centring was hiding. */}
-      <div className="relative z-10 max-w-4xl lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-28 text-center lg:text-start">
-        <div className="lg:max-w-2xl">
+          an off-centre planet looks like neither was placed on purpose.
+
+          `w-full` because this is now the only in-flow child of a flex container, and a flex item
+          shrinks to its content unless told otherwise — without it `mx-auto` has nothing to centre
+          and the whole column collapses against one edge. */}
+      <div className="relative z-10 w-full max-w-4xl lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-0 text-center lg:text-start">
+        {/* 35rem = 560px, which is 38.9% of a 1440px viewport — the reference's text column, whose
+            copy runs from 7% to 46% of the frame. It was `max-w-2xl` (672px, 46.7%), and the extra
+            110px is what pushed the headline into the planet's half of the composition. */}
+        <div className="lg:max-w-[35rem]">
         {/* One line, two tones.
 
             One line because splitting it stranded the verb alone above its object, which reads as a
@@ -115,7 +131,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
           )}
         </h1>
 
-        <p className="mt-6 mx-auto lg:mx-0 max-w-2xl text-xs sm:text-sm text-zinc-300 leading-relaxed">
+        {/* Narrower than the headline above it, deliberately and per the reference — its sub runs
+            to 31% of the frame where its headline runs to 46%. A supporting line set to the same
+            measure as the claim reads as a second claim; stepping it in says which is which. */}
+        <p className="mt-6 mx-auto lg:mx-0 max-w-2xl lg:max-w-md text-xs sm:text-sm text-zinc-300 leading-relaxed">
           {isAr
             ? 'نحن في NOVAIQ نبتكر منصات رقمية فائقة السرعة والأمان. تصفح معرض قوالبنا الجاهزة لشركتك، أو تواصل معنا لصياغة نظام خاص ومخصص يلبي احتياجاتك بدقة واحترافية متكاملة.'
             : 'At NOVAIQ, we build high-performance, secure digital platforms. Explore our ready-made templates for your business, or contact us to build a custom application tailored exactly to your needs.'}

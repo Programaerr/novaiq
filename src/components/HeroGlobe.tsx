@@ -1,130 +1,237 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import type { Points } from 'three';
+import type { Mesh } from 'three';
 
 /**
- * The globe behind the hero: a dark body, a lit atmosphere, and a shell of points turning on it.
+ * The globe behind the hero: a lit body, an orbit ring, and an atmosphere around the silhouette.
  *
- * ## Three parts, and each one is doing a job the others cannot
+ * ## It used to be a shell of points, and the reference is not that
  *
- * 1. THE BODY — an opaque sphere just inside the point shell. It contributes almost no colour of
- *    its own; it is there to OCCLUDE. Without it every point on the far hemisphere shows through
- *    the near one, and what you get is a translucent ball of noise rather than a planet. It is the
- *    single change that makes the thing read as solid.
+ * The previous version drew the planet as 5,200 sprites on a black occluder sphere. That reads as
+ * a dark speckled ball with a glowing edge — which was a fair likeness of the reference it was
+ * built from. The current reference is a different object: a SOLID body carrying a broad colour
+ * ramp that runs navy → blue → violet → magenta across the lit face, with the dark side falling
+ * away into the page. Points cannot produce that. Their whole appeal is having no shading to get
+ * wrong, and shading is now the entire subject.
  *
- * 2. THE ATMOSPHERE — a slightly larger sphere carrying a Fresnel shader, and the reason the rim
- *    glows. See the note on the shader below for why it cannot be done with a gradient.
+ * So the surface is a fragment shader on one sphere, and the points are gone. That is also cheaper
+ * than what it replaces: one draw call and no 5,200-vertex buffer, no sprite texture upload, and
+ * no per-point colour attribute.
  *
- * 3. THE POINTS — the surface detail, and the only part that turns. The body and the atmosphere are
- *    spheres: rotating them would be work with no visible result, so they stay still.
+ * ## The ramp is keyed on light, but the TEXTURE is keyed on the body
+ *
+ * This split is what makes the rotation visible, and it is the same problem the point version hit:
+ * a smooth sphere lit from a fixed direction is rotationally symmetric, so spinning it produces
+ * identical frames.
+ *
+ * The lighting term uses the VIEW-space normal. On a sphere centred at the origin that is
+ * rotation-invariant — turn the sphere and the surface geometry is unchanged, so the normal at any
+ * given screen pixel is the same as before. The ramp therefore stays welded to the light, exactly
+ * as it should: the star does not orbit the planet.
+ *
+ * The cloud term uses OBJECT-space position, which is not invariant — it turns with the mesh. So
+ * the bands of texture sweep across the fixed terminator, which is the thing the eye actually
+ * follows. Same lesson as the banded vertex colours before it, one level down.
  *
  * ## Why the rim needs a shader and not a texture
  *
- * The bright edge on the reference's globe is a VIEW-DEPENDENT effect: a surface is bright where
- * you are looking along it and dark where you are looking straight at it. That relationship is
- * between the surface normal and the camera, so it can only be evaluated per fragment, per frame —
- * which is exactly what Fresnel is. A painted-on ring would be a picture of the effect from one
- * angle and would sit still while the globe moved under it.
+ * The bright edge is a VIEW-DEPENDENT effect: a surface is bright where you look along it and dark
+ * where you look straight at it. That relationship is between the normal and the camera, so it can
+ * only be evaluated per fragment, per frame — which is what Fresnel is. A painted ring would be a
+ * picture of the effect from one angle and would sit still while the globe moved under it.
  *
- * `BackSide` and additive blending are what make it an ATMOSPHERE rather than a coating: rendering
- * the inside of a shell larger than the planet means the glow you see is the far wall of that
- * shell, seen past the planet's edge — light around the body rather than paint on it. Additive
- * because light adds; normal blending would let the halo darken the sky it sits on.
- *
- * ## Points rather than a shaded surface
- *
- * A lit sphere needs a light, and putting one here would mean a second lighting direction on a page
- * that already commits to one. Points have no shading to get wrong — the globe reads from how they
- * are arranged. Their spacing comes from a Fibonacci spiral, not random angles: random
- * latitude/longitude bunches hard at the poles and the result looks like a globe wearing two hats.
+ * `BackSide` + additive blending make the outer shell an ATMOSPHERE rather than a coating: what you
+ * see is the far wall of a shell larger than the planet, past the planet's edge — light around the
+ * body rather than paint on it. Additive because light adds; normal blending would let the halo
+ * darken the sky behind it.
  *
  * ## What it costs
  *
  * Everything else on this page settles to zero frames at rest. A turning globe cannot, so the cost
  * is bounded rather than removed: `frameloop` is `'never'` unless the hero is on screen, DPR caps
- * at 1.5 (the card scene in this project caps at 2.5 and says in its own comment that it can afford
- * to because it is a card and not a full screen — this IS full-width), antialiasing is off because
- * points are round sprites with no polygon edges to smooth, and reduced-motion stops the loop
- * entirely.
+ * at 1.5, antialiasing is off, and reduced-motion stops the loop entirely. The noise is two octaves
+ * of value noise on a hash with no transcendentals in it — see `hash3` below for why that matters
+ * more than the octave count.
  */
 
-const COUNT = 5200;
 const RADIUS = 1;
 
-/** Indigo, from the reference. Kept beside each other so the scene's palette is one thing to read. */
-const POINT_COLOR = '#C7D2FE';
-const RING_COLOR = '#818CF8';
-/* Barely above the page's own ground (#070B22), and that margin is the whole specification for
-   this colour. The body's job is to OCCLUDE, not to be seen: any darker and it stops reading as a
-   planet and starts reading as a hole punched through the page, which is exactly what happened at
-   #0A0620. It has to be dark enough to hide the far hemisphere and close enough to the ground that
-   its silhouette is drawn by the rim rather than by a step in brightness. */
-const BODY_COLOR = '#0A1030';
-const ATMOSPHERE_COLOR = '#6366F1';
+/* The reference's ramp, darkest to hottest, read straight off the image. Kept adjacent so the
+   planet's palette is one thing to look at rather than five scattered constants.
+
+   C0 is barely above the page's own ground (#070B22), and that margin is the whole specification
+   for it: the shadow side has to disappear into the page so the silhouette is drawn by the lit
+   limb rather than by a step in brightness. Any darker and the planet reads as a hole punched
+   through the page, which is exactly what happened at #0A0620 in an earlier pass. */
+const C0_SHADOW = '#080C22';
+const C1_DEEP = '#152C6E';
+const C2_BLUE = '#2563EB';
+const C3_VIOLET = '#7C3AED';
+const C4_MAGENTA = '#D946EF';
+
+/** The pale blue-white edge where the body catches the light along its own curve. */
+const RIM_COLOR = '#A9C9FF';
+const RING_COLOR = '#C7D8FF';
+
+/* The atmosphere is two-tone for the same reason the body is: a single-colour halo around a
+   multi-coloured planet reads as a sticker outline. Cool where the light is glancing, warm where
+   it is strongest, matching the ramp underneath. */
+const ATMO_COOL = '#3B60F0';
+const ATMO_WARM = '#A855F7';
+
+/* Where the star is, in view space — which is also world space here, because the camera never
+   moves. The reference does not light its globe evenly: the limb is hot on one shoulder and nearly
+   gone on the other, and that asymmetry is most of what stops it looking like a ring drawn around
+   a circle.
+
+   Up and slightly toward the page's outer edge. The reference is a left-to-right layout with the
+   planet on the right lit from its right — light falling AWAY from the copy. This site is RTL with
+   the planet on the left, so the whole arrangement mirrors and the light comes from the left. */
+const LIGHT = new THREE.Vector3(-0.42, 0.8, 0.43).normalize();
 
 /**
- * A round sprite for the points, because `pointsMaterial` draws SQUARES by default — every point is
- * a quad, and with no texture the whole quad is filled. At two pixels that reads as digital noise
- * rather than as dust, and the globe's silhouette comes out visibly serrated.
- *
- * Built once and shared by every point, so the same bitmap is uploaded to the GPU a single time.
- * The falloff is squared to keep the core opaque and put all the softness in the last third, which
- * is what stops a small sprite from simply looking blurry.
+ * Shared GLSL. Both materials need the light constant and the same view-space setup, and a shader
+ * is a string — so the pieces are strings too rather than being pasted twice.
  */
-function makeDotTexture(): THREE.Texture {
-  const size = 32;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-
-  const ctx = canvas.getContext('2d');
-  if (ctx) {
-    const image = ctx.createImageData(size, size);
-    const mid = (size - 1) / 2;
-
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
-        const dx = (x - mid) / mid;
-        const dy = (y - mid) / mid;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        const a = d >= 1 ? 0 : Math.pow(1 - d, 2);
-        const i = (y * size + x) * 4;
-        image.data[i] = 255;
-        image.data[i + 1] = 255;
-        image.data[i + 2] = 255;
-        image.data[i + 3] = Math.round(a * 255);
-      }
-    }
-
-    ctx.putImageData(image, 0, 0);
+const NOISE_GLSL = /* glsl */ `
+  // A hash with no sin() in it, and that is deliberate rather than clever. The usual
+  // fract(sin(dot(p,k))*43758.5) is fine on a desktop and BANDS visibly at mediump on mobile GPUs,
+  // because it depends on the low bits of a huge sine — precisely the bits half-precision does not
+  // have. This one is all multiplies and fract, so it behaves identically everywhere, and it is
+  // also several times cheaper at the ~500k fragments a second this shader covers.
+  float hash3(vec3 p) {
+    p = fract(p * 0.3183099 + vec3(0.71, 0.113, 0.419));
+    p *= 17.0;
+    return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
   }
 
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
-}
+  float vnoise(vec3 p) {
+    vec3 i = floor(p);
+    vec3 f = fract(p);
+    // Smoothstep the interpolant, not the value: linear interpolation between lattice points
+    // leaves visible creases along the cell boundaries.
+    vec3 u = f * f * (3.0 - 2.0 * f);
+
+    return mix(
+      mix(mix(hash3(i + vec3(0.0, 0.0, 0.0)), hash3(i + vec3(1.0, 0.0, 0.0)), u.x),
+          mix(hash3(i + vec3(0.0, 1.0, 0.0)), hash3(i + vec3(1.0, 1.0, 0.0)), u.x), u.y),
+      mix(mix(hash3(i + vec3(0.0, 0.0, 1.0)), hash3(i + vec3(1.0, 0.0, 1.0)), u.x),
+          mix(hash3(i + vec3(0.0, 1.0, 1.0)), hash3(i + vec3(1.0, 1.0, 1.0)), u.x), u.y),
+      u.z
+    );
+  }
+
+  // Two octaves, not five. This is a texture that lives BEHIND a headline at about 500px across —
+  // the third octave and beyond land at sub-pixel scale and cost a full fetch each to contribute
+  // nothing but shimmer.
+  float fbm(vec3 p) {
+    return vnoise(p) * 0.62 + vnoise(p * 2.17) * 0.31;
+  }
+`;
 
 /**
- * The atmosphere. Raw `THREE.ShaderMaterial` rather than drei's `shaderMaterial` helper, because
- * drei is not a dependency of this project — the helper's real benefit is the HMR `key`, and it is
- * not worth a package for one material.
+ * The body. Raw `THREE.ShaderMaterial` rather than drei's `shaderMaterial` helper, because drei is
+ * not a dependency of this project — the helper's real benefit is its HMR `key`, and that is not
+ * worth a package for two materials.
  */
+function makeSurfaceMaterial(): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uC0: { value: new THREE.Color(C0_SHADOW) },
+      uC1: { value: new THREE.Color(C1_DEEP) },
+      uC2: { value: new THREE.Color(C2_BLUE) },
+      uC3: { value: new THREE.Color(C3_VIOLET) },
+      uC4: { value: new THREE.Color(C4_MAGENTA) },
+      uRim: { value: new THREE.Color(RIM_COLOR) },
+      uLight: { value: LIGHT.clone() },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vNormal;
+      varying vec3 vWorld;
+      varying vec3 vObj;
+
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
+        // Object space, BEFORE any rotation — this is the one varying that turns with the mesh,
+        // and therefore the only reason the spin is visible at all. See the note at the top.
+        vObj = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      precision highp float;
+
+      uniform vec3 uC0;
+      uniform vec3 uC1;
+      uniform vec3 uC2;
+      uniform vec3 uC3;
+      uniform vec3 uC4;
+      uniform vec3 uRim;
+      uniform vec3 uLight;
+
+      varying vec3 vNormal;
+      varying vec3 vWorld;
+      varying vec3 vObj;
+
+      ${NOISE_GLSL}
+
+      void main() {
+        vec3 n = normalize(vNormal);
+        vec3 view = normalize(cameraPosition - vWorld);
+
+        // Half-Lambert (the *0.5+0.5 remap) rather than a raw clamped dot. A raw one drops to zero
+        // across the whole terminator and gives a hard edge halfway round the sphere; the remap
+        // keeps a gradient running all the way to the dark side, which is what makes a ball look
+        // round instead of like two painted halves.
+        float lit = dot(n, uLight) * 0.5 + 0.5;
+
+        // The clouds. Sampled in object space so they travel with the body while the ramp above
+        // stays welded to the light. Centred on zero so they push the ramp key both ways rather
+        // than only brightening it.
+        float clouds = fbm(vObj * 2.6) - 0.46;
+
+        // The key into the colour ramp. The noise perturbs it INSTEAD of being drawn on top: a
+        // separate overlay would sit at one brightness across the whole face, whereas warping the
+        // key means the texture is strong through the mid-tones and fades out on both the hottest
+        // highlight and the shadow — which is how cloud on a real body behaves.
+        float k = clamp(lit + clouds * 0.19, 0.0, 1.0);
+        // Biased toward the dark end so the saturated part of the ramp stays a shoulder rather
+        // than covering the whole disc. The reference's planet is mostly dark.
+        k = pow(k, 1.7);
+
+        vec3 c = uC0;
+        c = mix(c, uC1, smoothstep(0.06, 0.30, k));
+        c = mix(c, uC2, smoothstep(0.28, 0.55, k));
+        c = mix(c, uC3, smoothstep(0.55, 0.78, k));
+        c = mix(c, uC4, smoothstep(0.80, 0.97, k));
+
+        // The lit limb: bright where the surface turns away from the camera AND faces the light.
+        // Gated on `lit` because an ungated Fresnel outlines the entire disc, including the side
+        // in shadow, and a body with a complete halo has no light direction any more.
+        float fres = pow(1.0 - abs(dot(view, n)), 3.2);
+        c += uRim * fres * smoothstep(0.34, 0.92, lit) * 1.35;
+
+        gl_FragColor = vec4(c, 1.0);
+      }
+    `,
+  });
+}
+
+/** The atmosphere: a shell larger than the planet, seen from the inside. */
 function makeAtmosphereMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     uniforms: {
-      uColor: { value: new THREE.Color(ATMOSPHERE_COLOR) },
+      uCool: { value: new THREE.Color(ATMO_COOL) },
+      uWarm: { value: new THREE.Color(ATMO_WARM) },
       // How fast the glow falls off away from the silhouette. Higher = a tighter band hugging the
       // edge; lower = a wash that creeps across the whole disc and flattens it.
-      uPower: { value: 2.6 },
-      uIntensity: { value: 1.5 },
-      // Where the star is. The reference does not light its globe evenly — the rim is hot on one
-      // shoulder and nearly gone on the other, and that asymmetry is most of what stops it looking
-      // like a ring drawn around a circle. Normalised here rather than in the shader so it is not
-      // recomputed per fragment for a value that never changes.
-      uLight: { value: new THREE.Vector3(-0.55, 0.72, 0.42).normalize() },
+      uPower: { value: 2.8 },
+      uIntensity: { value: 1.35 },
+      uLight: { value: LIGHT.clone() },
     },
-    vertexShader: `
+    vertexShader: /* glsl */ `
       varying vec3 vNormal;
       varying vec3 vWorld;
 
@@ -134,11 +241,15 @@ function makeAtmosphereMaterial(): THREE.ShaderMaterial {
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
-    fragmentShader: `
-      uniform vec3 uColor;
+    fragmentShader: /* glsl */ `
+      precision highp float;
+
+      uniform vec3 uCool;
+      uniform vec3 uWarm;
       uniform float uPower;
       uniform float uIntensity;
       uniform vec3 uLight;
+
       varying vec3 vNormal;
       varying vec3 vWorld;
 
@@ -152,13 +263,15 @@ function makeAtmosphereMaterial(): THREE.ShaderMaterial {
         float facing = abs(dot(view, n));
         float rim = pow(1.0 - facing, uPower);
 
-        // Which shoulder the light is on. Remapped to 0.25..1 rather than 0..1 so the dark side
-        // keeps a trace of atmosphere instead of the rim vanishing halfway round and leaving the
-        // globe looking like a crescent.
         float lit = dot(n, uLight) * 0.5 + 0.5;
-        lit = 0.25 + 0.75 * lit * lit;
+        // Remapped to 0.22..1 rather than 0..1 so the dark side keeps a trace of atmosphere
+        // instead of the halo vanishing halfway round and leaving a crescent.
+        float shoulder = 0.22 + 0.78 * lit * lit;
 
-        gl_FragColor = vec4(uColor, rim * lit * uIntensity);
+        // Warm only where the light is strongest, matching the magenta end of the body's ramp.
+        vec3 tint = mix(uCool, uWarm, smoothstep(0.55, 1.0, lit));
+
+        gl_FragColor = vec4(tint, rim * shoulder * uIntensity);
       }
     `,
     side: THREE.BackSide,
@@ -170,113 +283,20 @@ function makeAtmosphereMaterial(): THREE.ShaderMaterial {
   });
 }
 
-/** The lit cheek on the front of the sphere. Same light vector as the atmosphere, deliberately. */
-function makeDaysideMaterial(): THREE.ShaderMaterial {
-  return new THREE.ShaderMaterial({
-    uniforms: {
-      uColor: { value: new THREE.Color('#4F46E5') },
-      uIntensity: { value: 0.5 },
-      uLight: { value: new THREE.Vector3(-0.55, 0.72, 0.42).normalize() },
-    },
-    vertexShader: `
-      varying vec3 vNormal;
-
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform vec3 uColor;
-      uniform float uIntensity;
-      uniform vec3 uLight;
-      varying vec3 vNormal;
-
-      void main() {
-        // Half-Lambert (the 0.5/+0.5 remap) rather than a raw clamped dot. A raw one drops to
-        // zero across the whole terminator and gives a hard edge halfway round the sphere; the
-        // remap keeps a gradient running all the way to the dark side, which is what makes a
-        // ball look round instead of like two painted halves.
-        float lit = dot(normalize(vNormal), uLight) * 0.5 + 0.5;
-        gl_FragColor = vec4(uColor, pow(lit, 2.4) * uIntensity);
-      }
-    `,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-  });
-}
-
 function Globe({ spin }: { spin: boolean }) {
-  const points = useRef<Points>(null);
   const body = useRef<THREE.Group>(null);
-  const dot = useMemo(makeDotTexture, []);
+  const surface = useRef<Mesh>(null);
+  const surfaceMat = useMemo(makeSurfaceMaterial, []);
   const atmosphere = useMemo(makeAtmosphereMaterial, []);
-  const dayside = useMemo(makeDaysideMaterial, []);
 
-  // Both are GPU resources React does not own, so they are released explicitly when the hero
-  // unmounts. R3F disposes what it created from JSX; these two were built here.
+  // GPU resources React does not own, so they are released explicitly when the hero unmounts.
+  // R3F disposes what it created from JSX; these two were built here.
   useEffect(() => {
     return () => {
-      dot.dispose();
+      surfaceMat.dispose();
       atmosphere.dispose();
-      dayside.dispose();
     };
-  }, [dot, atmosphere, dayside]);
-
-  const { positions, colors } = useMemo(() => {
-    const arr = new Float32Array(COUNT * 3);
-    /**
-     * Per-point brightness, and this is what makes the rotation visible at all.
-     *
-     * A sphere of EVENLY spread, identically bright points is rotationally symmetric: turn it and
-     * every frame looks like the last one, because each point that leaves a position is replaced
-     * by an identical point arriving. The globe was spinning the whole time and reading as
-     * completely still — the fix is not more speed, it is giving the surface something the eye
-     * can follow round.
-     *
-     * The variation is banded rather than per-point random. Random brightness is texture but not
-     * FEATURES: it shimmers and still has no landmarks. Two out-of-phase sine bands in latitude
-     * and longitude produce broad light and dark regions — continents, effectively — that sweep
-     * visibly across the silhouette as the globe turns. The small random term on top keeps those
-     * bands from looking like printed stripes.
-     */
-    const col = new Float32Array(COUNT * 3);
-    // The golden angle. Any rational angle here makes successive points line up into spokes
-    // radiating from the poles; an irrational one never repeats, which is the entire trick.
-    const golden = Math.PI * (3 - Math.sqrt(5));
-
-    for (let i = 0; i < COUNT; i++) {
-      // y walks the diameter linearly, and that is what makes the spacing even: equal steps in
-      // HEIGHT cut equal areas off a sphere, equal steps in latitude do not.
-      const y = 1 - (i / (COUNT - 1)) * 2;
-      const ring = Math.sqrt(Math.max(0, 1 - y * y));
-      const theta = golden * i;
-
-      arr[i * 3] = Math.cos(theta) * ring * RADIUS;
-      arr[i * 3 + 1] = y * RADIUS;
-      arr[i * 3 + 2] = Math.sin(theta) * ring * RADIUS;
-
-      // Longitude is the angle around the spin axis, so bands in it are what actually travel past
-      // the eye as the globe turns; latitude bands alone would rotate in place and change nothing.
-      const lon = Math.atan2(arr[i * 3 + 2], arr[i * 3]);
-      const bands =
-        Math.sin(lon * 3 + 0.8) * 0.5 +
-        Math.sin(lon * 5 + y * 4) * 0.3 +
-        Math.sin(y * 6) * 0.2;
-
-      // Wide range on purpose. At 0.3–1.0 the bands existed in the data and were invisible on
-      // screen: two captures nine seconds apart came back identical. The globe is small and the
-      // points are two pixels, so anything less than a near-full swing from dark to bright simply
-      // does not survive being drawn at that size. 0.12 floor, full range above it.
-      const k = Math.min(1, Math.max(0.12, 0.55 + bands * 0.62 + (Math.random() - 0.5) * 0.16));
-      col[i * 3] = k;
-      col[i * 3 + 1] = k;
-      col[i * 3 + 2] = k;
-    }
-
-    return { positions: arr, colors: col };
-  }, []);
+  }, [surfaceMat, atmosphere]);
 
   useFrame((state, delta) => {
     if (!spin) return;
@@ -286,107 +306,69 @@ function Globe({ spin }: { spin: boolean }) {
     // unclamped one would snap the globe forward by that entire gap the moment it returns.
     const step = Math.min(delta, 0.05);
 
-    // 0.2 rad/s — one turn every ~31 seconds. Slow, but slow is only readable if there is
-    // something to read: see the brightness attribute on the geometry. A rotation with no surface
-    // variation to carry it is not slow motion, it is no motion.
-    if (points.current) points.current.rotation.y += step * 0.2;
+    // 0.055 rad/s — one turn every ~114 seconds. Far slower than the point version needed, because
+    // the clouds are broad shapes rather than two-pixel dots: a feature this large crossing the
+    // face is legible at a speed that would have made individual points invisible.
+    if (surface.current) surface.current.rotation.y += step * 0.055;
 
-    // The tumble: the same 3D turn the credential card makes when it is dragged, except nobody
-    // has to drag this. The BODY's own axis leans slowly on two axes while the surface spins on a
-    // third, so the planet is never presented from the same angle twice.
+    // The tumble: the same 3D turn the credential card makes when it is dragged, except nobody has
+    // to drag this. The BODY's axis leans slowly on two axes while the surface spins on a third,
+    // so the planet is never presented from the same angle twice.
     //
-    // This is what a spin alone could not do. Rotation about a fixed axis on a sphere is
-    // ambiguous — the silhouette never changes, so there is no parallax and the eye is given no
-    // evidence of depth. Leaning the axis swings the ring through perspective and moves the lit
-    // shoulder across the face, and both of those are unmistakably three-dimensional.
+    // This is what a spin alone could not do. Rotation about a fixed axis on a sphere is ambiguous
+    // — the silhouette never changes, so there is no parallax and the eye is given no evidence of
+    // depth. Leaning the axis swings the RING through perspective, and that is unmistakably three
+    // dimensional.
     //
-    // 0.11 and 0.083 rad/s: deliberately not a ratio of small integers, so the two never come
-    // back into phase and the motion has no loop point to notice. Amplitudes stay small (±0.16
-    // and ±0.12 rad, roughly ±9° and ±7°) because this is meant to be felt rather than watched —
-    // the headline is the thing being read, and this is behind it.
+    // 0.11 and 0.083 rad/s: deliberately not a ratio of small integers, so the two never come back
+    // into phase and the motion has no loop point to notice. Amplitudes stay small (±0.16 and
+    // ±0.12 rad, roughly ±9° and ±7°) because this is meant to be felt rather than watched — the
+    // headline is the thing being read, and this is behind it.
     if (body.current) {
       const t = state.clock.elapsedTime;
-      body.current.rotation.x = 0.32 + Math.sin(t * 0.11) * 0.16;
+      body.current.rotation.x = 0.28 + Math.sin(t * 0.11) * 0.16;
       body.current.rotation.z = 0.16 + Math.sin(t * 0.083) * 0.12;
     }
   });
 
   return (
-    <group ref={body} rotation={[0.32, 0, 0.16]}>
-      {/* The occluder. Very slightly inside the point shell, so points on the near side stay in
-          front of it while the far side is hidden behind it. `basic`, not `standard`: there is no
-          light in this scene, and a lit material would render black. */}
-      <mesh>
-        <sphereGeometry args={[RADIUS * 0.985, 48, 48]} />
-        <meshBasicMaterial color={BODY_COLOR} />
-      </mesh>
-
-      <points ref={points}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-          <bufferAttribute attach="attributes-color" args={[colors, 3]} />
-        </bufferGeometry>
-        <pointsMaterial
-          // Roughly two screen pixels, and that ceiling is the design of this element. It sits
-          // DIRECTLY BEHIND the headline: at any size where a single point can be picked out it
-          // competes with the type in front of it. Dust, not confetti — which is also why the
-          // count went up as the size came down.
-          size={0.0085}
-          map={dot}
-          alphaMap={dot}
-          // `color` still applies with vertexColors on — the two MULTIPLY. So the attribute above
-          // carries brightness only (r = g = b) while this carries the hue, which means the
-          // palette can be retuned in one place without regenerating the geometry.
-          color={POINT_COLOR}
-          vertexColors
-          transparent
-          opacity={0.95}
-          // Perspective size: points on the far side are smaller as well as sparser, which is
-          // most of what separates a sphere from a flat ring of dots.
-          sizeAttenuation
-          depthWrite={false}
-        />
-      </points>
-
-      {/* The day side. The reference's sphere is not a flat dark disc with a lit edge — it has a
-          broad indigo cheek where the light falls, and the body fades from it into shadow. This is
-          that: the front of the sphere, additively tinted by how much each point faces the same
-          light the atmosphere uses, so the two agree about where the star is.
-
-          It has to be a shader for the same reason the rim does — the term is a dot product
-          against a direction, evaluated per fragment. A gradient texture would be this effect
-          painted from one angle, and it would slide off as soon as anything moved. */}
-      <mesh material={dayside}>
-        <sphereGeometry args={[RADIUS * 0.99, 48, 48]} />
+    <group ref={body} rotation={[0.28, 0, 0.16]}>
+      {/* The body. 64 segments rather than 48: the silhouette is now a hard edge between a lit
+          surface and the page instead of a soft cloud of points, so facet corners along the limb
+          are visible where they previously were not. */}
+      <mesh ref={surface} material={surfaceMat}>
+        <sphereGeometry args={[RADIUS, 64, 64]} />
       </mesh>
 
       {/* The ring. A torus rather than a flat `ringGeometry`, and that is the whole reason it works:
-          a flat ring has no thickness, so the half of it running across the front of the globe and
-          the half running behind are the same zero-depth plane, and at this shallow a tilt it
-          collapses to a line. A torus is a solid tube — its front arc passes IN FRONT of the planet
-          and its back arc is hidden behind, which is the read that makes the scene three
-          dimensional rather than a circle with a stripe on it.
+          a flat ring has no thickness, so the half running across the front of the globe and the
+          half running behind are the same zero-depth plane, and at this shallow a tilt it collapses
+          to a line. A torus is a solid tube — its front arc passes IN FRONT of the planet and its
+          back arc is hidden behind, which is the read that makes the scene three dimensional rather
+          than a circle with a stripe on it.
 
-          Tilted hard off the globe's own axis so the ellipse is wide and obviously in perspective;
-          a ring nearly edge-on reads as an accident. The tube is very thin (0.006 against a radius
-          of 1.34) because it is a line in the composition, not a body — thicker and it competes
-          with the planet it is supposed to be orbiting. */}
-      <mesh rotation={[Math.PI / 2 - 0.34, 0.16, 0]}>
-        <torusGeometry args={[RADIUS * 1.36, 0.009, 8, 160]} />
+          The Z term is new and it is what matches the reference: rotations apply in XYZ order, so a
+          Z rotation lands last and tips the finished ellipse in the SCREEN plane. The reference's
+          ring runs low-left to high-right; mirrored for RTL that is low-right to high-left, which
+          is +0.30 rad here.
+
+          The tube is very thin (0.008 against a radius of 1.36) because it is a line in the
+          composition, not a body — thicker and it competes with the planet it is orbiting. */}
+      <mesh rotation={[Math.PI / 2 - 0.42, 0, 0.3]}>
+        <torusGeometry args={[RADIUS * 1.36, 0.008, 8, 180]} />
         <meshBasicMaterial
           color={RING_COLOR}
           transparent
-          opacity={0.9}
-          // Writes depth, unlike everything else here — the ring is the one solid object in the
-          // scene and it has to be correctly occluded BY the planet, which only works if the depth
-          // buffer knows where it is.
+          opacity={0.85}
+          // Writes depth, unlike the atmosphere — the ring has to be correctly occluded BY the
+          // planet, which only works if the depth buffer knows where both of them are.
           toneMapped={false}
         />
       </mesh>
 
       {/* The atmosphere, outside everything else. */}
       <mesh material={atmosphere}>
-        <sphereGeometry args={[RADIUS * 1.16, 48, 48]} />
+        <sphereGeometry args={[RADIUS * 1.14, 48, 48]} />
       </mesh>
     </group>
   );
@@ -427,14 +409,15 @@ export const HeroGlobe: React.FC = () => {
           dpr={[1, 1.5]}
           // 3.9, and the exact value matters. At fov 45 the visible height at the origin is
           // 2·dist·tan(22.5°); at the 2.75 this started on that came to 2.278 world units, while
-          // the ATMOSPHERE shell is 2.32 across. The halo was therefore very slightly wider than
+          // the ATMOSPHERE shell is 2.28 across. The halo was therefore very slightly wider than
           // the frame and got sliced off flat against all four canvas edges — which showed up as
           // bright wedges in the corners of an obviously rectangular box.
           //
           // A glow has to fade out before it reaches the edge of its own canvas or the canvas
           // becomes visible, so the frame is sized to the widest thing in the scene plus margin,
-          // not to the planet. 3.9 gives 3.23 units of height for a 2.32 shell; the CSS box grew
-          // to match so the globe still lands the same size on the page.
+          // not to the planet. 3.9 gives 3.23 units of height for a 2.72-unit ring; the CSS box is
+          // sized so the SPHERE, which is only 2 of those units, still lands where the reference
+          // puts it — see `.hero-globe`, which carries that arithmetic.
           camera={{ position: [0, 0, 3.9], fov: 45 }}
           gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
         >

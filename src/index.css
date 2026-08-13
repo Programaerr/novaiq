@@ -2070,77 +2070,56 @@ html[data-scrolling] .rv::before {
    while the brief said 2D. It is gone rather than kept underneath, because a drawn arc and a real
    sphere in the same place read as two horizons that do not agree.
 
-   Sized in vw with a ceiling, not in px. The globe has to stay the same size RELATIVE to the
-   headline in front of it at every width, and a px width would leave it dwarfing a phone and
-   lost on a desktop. The cap stops it from growing without limit on very wide screens, where the
-   headline stops growing too.
+   ## THE BOX IS NOT THE PLANET, and every number below depends on that
 
-   Pinned above the fold and pulled up by a third of its own height, so what sits behind the copy
-   is the globe's upper half — the part where the point density is climbing towards the rim. Its
-   lower half is below the hero and clipped away by the section's overflow, exactly as the arc's
-   body was. */
+   The canvas has to be considerably larger than the sphere, because a glow that reaches the edge
+   of its own canvas makes the canvas visible — the halo comes out sliced flat against a hard
+   rectangle. So the frame is sized to the widest thing in the SCENE (the orbit ring, 2.72 world
+   units across) while the thing you are actually placing on the page is the sphere, which is 2.
+
+   With the camera at 3.9 and fov 45, the visible height at the origin is 2·3.9·tan(22.5°) =
+   3.2314 units. The sphere therefore occupies 2 / 3.2314 = 61.9% of this box, and nothing else in
+   here is a coincidence:
+
+     sphere on screen  =  box width × 0.619
+     box width         =  target sphere width ÷ 0.619
+
+   The reference puts its planet at 36% of the viewport width, so the box is 36 / 0.619 = 58vw.
+   Reading a size off this rule without applying that factor gives an answer 60% too large. */
 .hero-globe {
   position: absolute;
+  /* 126vw → a 78vw sphere: most of the width, cropped by the hero's overflow, with the copy
+     sitting over its crown. A phone has no second column for the planet to move into, so it goes
+     behind the text rather than beside it. */
+  width: min(126vw, 700px);
+  aspect-ratio: 1;
   top: 0;
   left: 50%;
-  width: min(186vw, 1520px);
-  aspect-ratio: 1;
-  /* -15%, not -20%. The globe's crown was landing within about fifteen pixels of the section's
-     top edge, so `overflow-hidden` shaved the dome flat and the only curve left in frame was at
-     the far corners — the shape read as a wall rather than as a body. Five percent of the box is
-     ~76px, which is the whole difference between a clipped edge and a visible horizon. */
-  transform: translate(-50%, -15%);
+  /* Pulled up so what sits behind the copy is the body's upper half and its lit limb. The lower
+     half is below the hero and clipped away by the section's overflow. */
+  transform: translate(-50%, -20%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* From `lg` up the globe leaves the middle and moves to the far side, opposite the copy — the
-   reference's arrangement, and the thing that gives a left-aligned headline something to be
-   aligned AGAINST. Below that breakpoint it stays centred and behind the text, because a phone
-   has no second column to move into and a planet pushed off one edge only looks cropped.
-
-   `inset-inline-end`, not `right`, so it follows the writing direction: the end side is the left
-   in Arabic and the right in English, and the copy and the globe swap together without a second
-   rule. Pushed a little past the edge on purpose — a sphere tangent to the frame reads as a
-   sticker, one running off it reads as something the frame happens to be showing part of. */
-@media (min-width: 1024px) {
-  .hero-globe {
-    left: auto;
-    /* Only just past the edge. At -14% the planet was half out of frame and read as cropped
-       rather than as placed; the reference keeps its sphere fully visible with the RING running
-       off both sides, which is what suggests the scene continues past the frame without
-       sacrificing the object the eye is meant to land on. */
-    /* Fully inside the frame now. It was at -3% with a 660px box, which put the sphere's edge
-       past the viewport and left it reading as cropped rather than placed — and at that size it
-       also crowded the headline it is supposed to sit beside rather than compete with. */
-    inset-inline-end: 1%;
-    width: min(38vw, 520px);
-    /* Lifts the sphere's centre to about the height of the headline beside it. Left at the
-       vertical middle of its own box it sat level with the buttons, and the composition read as
-       two unrelated things that happened to share a row. */
-    transform: translateY(-6%);
-  }
-
-  .hero-halo {
-    left: auto;
-    inset-inline-end: -4%;
-    width: min(46vw, 640px);
-    height: min(27vw, 380px);
-    transform: translateY(-2%);
-  }
-}
-
 /* The atmosphere, still CSS. A glow is a gradient wherever it is drawn, and drawing this one in
    the scene would mean re-rasterising it on every frame the globe turns — for a layer that never
-   changes. Sat behind the canvas so the points read as being INSIDE the light rather than
-   scattered on top of it. */
+   changes. Sat behind the canvas so the planet reads as being INSIDE the light rather than as
+   something with a light drawn on top of it.
+
+   This rule is DELIBERATELY ABOVE the `lg` block that overrides it, and that ordering is
+   load-bearing. A media query adds no specificity — it only gates a rule — so when this base rule
+   sat after the `@media` block it silently beat it, and the `lg` halo had no effect at all. The
+   measured result was a 1400×620 glow centred on the page while the globe it belongs to was 640px
+   wide off to one side: the hero was washed pale blue right across the headline, and the override
+   that was supposed to prevent that had been dead the whole time. */
 .hero-halo {
   position: absolute;
   top: 0;
   left: 50%;
-  width: min(160vw, 1400px);
-  height: min(70vw, 620px);
-  transform: translate(-50%, -22%);
+  width: min(150vw, 900px);
+  height: min(150vw, 900px);
+  transform: translate(-50%, -24%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
@@ -2150,10 +2129,51 @@ html[data-scrolling] .rv::before {
      past where the shell's geometry ends. */
   background: radial-gradient(
     closest-side,
-    rgba(99, 102, 241, 0.1) 0%,
-    rgba(99, 102, 241, 0.03) 44%,
-    transparent 74%
+    rgba(99, 102, 241, 0.14) 0%,
+    rgba(124, 58, 237, 0.05) 42%,
+    transparent 72%
   );
+}
+
+/* From `lg` up the globe leaves the middle and moves to the far side, opposite the copy — the
+   reference's arrangement, and the thing that gives an edge-aligned headline something to be
+   aligned AGAINST. Below that breakpoint it stays centred and behind the text, because a phone has
+   no second column to move into and a planet pushed off one edge only looks cropped.
+
+   `inset-inline-end`, not `right`, so it follows the writing direction: the end side is the left
+   in Arabic and the right in English, and the copy and the globe swap together without a second
+   rule. */
+@media (min-width: 1024px) {
+  .hero-globe {
+    left: auto;
+    /* Where the reference puts it, mirrored for RTL. Its planet's centre sits at 66% of the frame
+       — inboard, NOT tucked against the edge, with empty ground beyond it — which mirrors to 34%
+       here. The box is 58vw, so its centre lands at 34vw when the end inset is 34 − 29 = 5.
+
+       It was at 1% with a 520px box: that put the sphere's centre at 19% and its diameter at 22%
+       of the viewport, so the planet was both too small and shoved into the corner. Composition
+       aside, that is the measurable gap against the reference. */
+    inset-inline-end: 5%;
+    width: min(58vw, 840px);
+    /* Centred on the hero rather than hung off its top edge, because the hero is now a full screen
+       tall (see HeroSection) and a box pinned to the top of one would leave the planet stranded
+       above the copy. -56% rather than -50% lifts the centre by ~6% of the box: the reference's
+       planet sits slightly above the middle of its own frame, not on it. */
+    top: 50%;
+    transform: translateY(-56%);
+  }
+
+  .hero-halo {
+    left: auto;
+    /* Same centre as the globe: -3 + 37 = 34vw. The two are separate elements and will drift apart
+       under any edit that changes one and not the other, which is why both arrive at 34 by
+       arithmetic that is written down rather than by two numbers that happen to agree. */
+    inset-inline-end: -3%;
+    width: min(74vw, 1060px);
+    height: min(74vw, 1060px);
+    top: 50%;
+    transform: translateY(-56%);
+  }
 }
 
 /* The sky: a handful of points above the limb, on the same two-tile scheme the page background
