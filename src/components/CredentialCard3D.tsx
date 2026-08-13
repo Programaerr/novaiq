@@ -594,6 +594,19 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
  * a card is a bare sliver and looks broken.
  *
  * This watches the clock instead of the events. Nothing can fail to fire, because nothing has to.
+ *
+ * ## Why it sleeps
+ *
+ * It used to re-request a frame unconditionally, which made it a permanent main-thread wake-up at
+ * the display's refresh rate for the whole session. Instrumenting `requestAnimationFrame` on an
+ * idle, untouched page measured 301 of 301 calls over 2.5 seconds coming from this one loop —
+ * 120 a second, polling a counter that could not change, with the card sitting perfectly still.
+ * That is the cost that shows up as a page which feels heavy to scroll: the scroll itself is
+ * cheap, but it is sharing the main thread with something that never yields it.
+ *
+ * The loop has real work in exactly two windows — while the card is being turned, and for the
+ * three seconds afterwards when it may still need to bring itself home. Outside those it stops,
+ * and the canvas's own pointer events start it again.
  */
 function Waker({
   signal,
@@ -607,17 +620,22 @@ function Waker({
   target: React.MutableRefObject<{ x: number; y: number }>;
 }) {
   const invalidate = useThree((s) => s.invalidate);
+  const canvas = useThree((s) => s.gl.domElement);
   const seen = useRef(-1);
 
   useEffect(() => {
     let raf = 0;
+    let lastWorkAt = performance.now();
     const TAU = Math.PI * 2;
     const near = (v: number) => Math.round(v / TAU) * TAU;
 
     const tick = () => {
+      let didWork = false;
+
       if (seen.current !== signal.current) {
         seen.current = signal.current;
         invalidate();
+        didWork = true;
       }
       // Three seconds after the last movement, with nothing being dragged, the card goes back to
       // the nearest orientation that shows its front — the nearest, so a card turned twice round
@@ -630,14 +648,44 @@ function Waker({
           target.current = { x: rx, y: ry };
           signal.current++;
           touched.current = performance.now();
+          didWork = true;
         }
+      }
+
+      if (didWork || dragging.current) lastWorkAt = performance.now();
+
+      // A time-based tail, not a frame count. The homecoming above is armed three seconds after
+      // the last touch, so the loop has to outlive that by a margin or it would sleep straight
+      // through its own remaining job — and a frame count would mean a different amount of time
+      // on a 60Hz screen than on a 120Hz one, so the margin would silently change with hardware.
+      if (performance.now() - lastWorkAt > 4500) {
+        raf = 0;
+        return;
       }
       raf = requestAnimationFrame(tick);
     };
 
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [invalidate, signal, touched, dragging, target]);
+    // Anything that could move the card, or end a move. Bound to the canvas rather than the
+    // window: a pointer crossing some other part of the page cannot give this loop work, and a
+    // window-level pointermove handler would be its own small permanent cost on every mouse
+    // movement anywhere on the site — trading one always-on job for another.
+    const wake = () => {
+      lastWorkAt = performance.now();
+      if (raf === 0) raf = requestAnimationFrame(tick);
+    };
+
+    const events = ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'pointerleave', 'touchstart', 'touchmove'] as const;
+    events.forEach((e) => canvas.addEventListener(e, wake, { passive: true }));
+
+    // Started once on mount so the card can settle into place on first paint without waiting for
+    // someone to touch it.
+    wake();
+
+    return () => {
+      events.forEach((e) => canvas.removeEventListener(e, wake));
+      if (raf !== 0) cancelAnimationFrame(raf);
+    };
+  }, [invalidate, canvas, signal, touched, dragging, target]);
 
   return null;
 }
