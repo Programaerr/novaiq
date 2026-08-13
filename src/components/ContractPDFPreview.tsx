@@ -164,19 +164,6 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             </h4>
             <div className="space-y-2">
               <div>{isAr ? 'القالب المعتمد:' : 'Approved Template:'} <strong className="text-white text-sm font-bold">{templateTitle}</strong></div>
-              <div>{isAr ? 'المواصفات والإضافات المختارة:' : 'Selected Specifications & Add-ons:'}
-                <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  {translatedSpecs.length > 0 ? (
-                    translatedSpecs.map((s, i) => (
-                      <span key={i} className="px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-200 border border-zinc-800 text-[11px]">
-                        ✓ {s}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-zinc-400">{isAr ? 'مواصفات القالب القياسية' : 'Standard Template Specifications'}</span>
-                  )}
-                </div>
-              </div>
               {contract.customFeaturesText && (
                 <div className="pt-2 text-zinc-300">
                   {isAr ? 'ملاحظات الشركة الخاصة:' : "Company's Custom Notes:"} <p className="text-zinc-400 text-[11px] bg-black p-2.5 rounded-lg border border-zinc-800 mt-1">{customNotes}</p>
