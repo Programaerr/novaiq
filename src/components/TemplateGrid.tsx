@@ -229,6 +229,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     { id: 'education', label: translateText('تعليم ومعاهد تدريب', currentLang) },
     { id: 'mobile', label: translateText('هواتف وإلكترونيات', currentLang) },
     { id: 'watches', label: translateText('ساعات يد ومجوهرات', currentLang) },
+    { id: 'marketing', label: translateText('تسويق رقمي', currentLang) },
   ];
 
   const sortOptions = [
