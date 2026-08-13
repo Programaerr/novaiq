@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Settings } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language } from '../lib/i18n';
-import { Currency } from '../lib/currency';
+import { Currency, formatPrice } from '../lib/currency';
 import { subscribeToContracts } from '../lib/firebase';
 import { logoutAccount } from '../lib/auth';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
@@ -76,14 +76,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
     };
   }, [contracts]);
 
-  const tabs: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
-    { id: 'contracts', label: isAr ? 'إدارة العقود' : 'Contracts', icon: FileCheck },
-    { id: 'pricing', label: isAr ? 'الأسعار' : 'Pricing', icon: Tag },
-    { id: 'team', label: isAr ? 'الفريق' : 'Team', icon: Users },
-    { id: 'members', label: isAr ? 'المشتركون' : 'Subscribers', icon: UserCheck },
-    { id: 'settings', label: isAr ? 'التواصل الاجتماعي' : 'Social Links', icon: Settings },
+  // Grouped, not a flat list of six. "Contracts, Pricing, Team, Subscribers, Social Links" in one
+  // column gives every destination the same weight and makes the reader scan all six to find the
+  // one they came for. Money, people and configuration are three different jobs, visited at three
+  // different rhythms, and saying so in the nav is most of what makes a panel this size navigable.
+  const groups: { heading: string; items: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] }[] = [
+    {
+      heading: isAr ? 'الأعمال' : 'Business',
+      items: [
+        { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
+        { id: 'contracts', label: isAr ? 'العقود' : 'Contracts', icon: FileCheck },
+        { id: 'pricing', label: isAr ? 'الأسعار' : 'Pricing', icon: Tag },
+      ],
+    },
+    {
+      heading: isAr ? 'الأشخاص' : 'People',
+      items: [
+        { id: 'team', label: isAr ? 'الفريق' : 'Team', icon: Users },
+        { id: 'members', label: isAr ? 'المشتركون' : 'Subscribers', icon: UserCheck },
+      ],
+    },
+    {
+      heading: isAr ? 'الإعداد' : 'Configuration',
+      items: [
+        { id: 'settings', label: isAr ? 'التواصل الاجتماعي' : 'Social Links', icon: Settings },
+      ],
+    },
   ];
+  const tabs = groups.flatMap((g) => g.items);
+  const activeLabel = tabs.find((t) => t.id === tab)?.label ?? '';
 
   return (
     <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-12">
@@ -118,25 +139,61 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         </button>
       </div>
 
+      {/* The money, above everything, on every screen.
+          These four figures used to live inside the Overview tab, which meant the answer to "how
+          is the business doing" was only visible on the one screen nobody works on — you left it
+          the moment you went to edit a contract or a price. Kept here they are simply always true
+          and always in view, and Overview is free to be analysis rather than a scoreboard. */}
+      <div className="mb-6 rounded-2xl bg-zinc-950 border border-zinc-800 grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-zinc-800 rtl:divide-x-reverse overflow-hidden">
+        <KpiCell
+          label={isAr ? 'العقود' : 'Contracts'}
+          value={String(stats.count)}
+          hint={isAr ? `${stats.byStatus['completed'] || 0} مكتمل` : `${stats.byStatus['completed'] || 0} completed`}
+        />
+        <KpiCell label={isAr ? 'القيمة المتعاقدة' : 'Contracted value'} value={formatPrice(stats.totalIQD, language, currency)} />
+        <KpiCell
+          label={isAr ? 'المحصّل' : 'Collected'}
+          value={formatPrice(stats.totalCollectedIQD, language, currency)}
+          accent="text-emerald-400"
+          hint={isAr ? `${formatPrice(stats.totalOutstandingIQD, language, currency)} متبقٍّ` : `${formatPrice(stats.totalOutstandingIQD, language, currency)} outstanding`}
+        />
+        <KpiCell
+          label={isAr ? 'الربح المحقق' : 'Realized profit'}
+          value={formatPrice(stats.netProfitIQD, language, currency)}
+          accent={stats.netProfitIQD >= 0 ? 'text-emerald-400' : 'text-red-400'}
+        />
+      </div>
+
       <div className="lg:flex lg:items-start lg:gap-6">
         {/* Desktop sidebar nav — a horizontal wrapping pill row was the only layout at any
             width before, which left most of a wide monitor as empty background next to a
             narrow content column. A persistent sidebar reclaims that width for content and
             scales far better past tablet size. */}
-        <nav className="hidden lg:flex lg:flex-col lg:w-56 xl:w-64 shrink-0 gap-1.5 sticky lg:top-28 self-start">
-          {tabs.map((t) => (
-            <TabButton key={t.id} tabItem={t} active={tab === t.id} onClick={() => setTab(t.id)} full />
+        <nav className="hidden lg:flex lg:flex-col lg:w-56 xl:w-64 shrink-0 gap-5 sticky lg:top-28 self-start">
+          {groups.map((g) => (
+            <div key={g.heading} className="space-y-1.5">
+              <span className="px-2 text-[10px] uppercase tracking-wider font-bold text-zinc-600 block">{g.heading}</span>
+              {g.items.map((t) => (
+                <TabButton key={t.id} tabItem={t} active={tab === t.id} onClick={() => setTab(t.id)} full />
+              ))}
+            </div>
           ))}
         </nav>
 
-        {/* Mobile/tablet: the original horizontal wrapping pill row */}
-        <div className="flex lg:hidden flex-wrap gap-2 mb-6">
-          {tabs.map((t) => (
-            <TabButton key={t.id} tabItem={t} active={tab === t.id} onClick={() => setTab(t.id)} />
-          ))}
+        {/* Mobile/tablet: one scrolling row rather than a wrapping block. Six pills wrapping to
+            three lines pushed the actual content off a phone screen before it started. */}
+        <div className="lg:hidden -mx-4 px-4 mb-6 overflow-x-auto">
+          <div className="flex gap-2 w-max pb-1">
+            {tabs.map((t) => (
+              <TabButton key={t.id} tabItem={t} active={tab === t.id} onClick={() => setTab(t.id)} />
+            ))}
+          </div>
         </div>
 
         <div className="flex-1 min-w-0 space-y-6">
+          {/* Names the screen you are on. With the nav grouped and the mobile row scrolling, the
+              active pill is not always visible — the heading is. */}
+          <h2 className="text-sm font-bold text-zinc-400 border-b border-zinc-900 pb-2">{activeLabel}</h2>
           {tab === 'overview' && (
             <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} currency={currency} />
           )}

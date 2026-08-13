@@ -59,6 +59,51 @@ export function TabButton({
   );
 }
 
+/**
+ * A figure with its label, for the strip that runs across the top of every admin tab.
+ *
+ * Deliberately not StatTile: that carries an icon and a heavy bordered card, which is right for a
+ * grid of six on the overview page and far too loud repeated above every screen. This is the same
+ * information with the chrome removed — the numbers are the point, the boxes were never.
+ */
+export function KpiCell({ label, value, accent, hint }: { label: string; value: string; accent?: string; hint?: string }) {
+  return (
+    <div className="min-w-0 px-4 py-3">
+      <span className="text-[10px] uppercase tracking-wide text-zinc-500 block font-semibold truncate">{label}</span>
+      <div className={`text-sm sm:text-base font-extrabold font-mono leading-tight wrap-break-word mt-0.5 ${accent || 'text-white'}`}>
+        {value}
+      </div>
+      {hint && <span className="text-[10px] text-zinc-500 block mt-0.5 truncate">{hint}</span>}
+    </div>
+  );
+}
+
+/**
+ * How much of an agreed amount has actually been collected, as a bar.
+ *
+ * A "collected" figure and a "remaining" figure sitting side by side state the same fact twice and
+ * still leave the reader doing the division. One bar answers "where does this contract stand"
+ * before any number is read, which is the question the panel exists to answer.
+ */
+export function CollectionBar({ collected, total, isAr }: { collected: number; total: number; isAr: boolean }) {
+  const pct = total > 0 ? Math.min(100, Math.round((collected / total) * 100)) : 0;
+  const done = pct >= 100;
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-[10px] font-semibold">
+        <span className="text-zinc-500">{isAr ? 'نسبة التحصيل' : 'Collected'}</span>
+        <span className={`font-mono ${done ? 'text-emerald-400' : pct > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>{pct}%</span>
+      </div>
+      <div className="h-2 rounded-full bg-black border border-zinc-800 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-[width] duration-500 ${done ? 'bg-emerald-500' : 'bg-amber-500'}`}
+          style={{ width: `${pct}%`, [isAr ? 'marginLeft' : 'marginRight']: 'auto' }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function BarRow({ label, count, total, isAr }: { label: string; count: number; total: number; isAr: boolean }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
