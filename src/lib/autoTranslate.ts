@@ -118,49 +118,6 @@ function resolveStatic(text: string | undefined | null, lang: Language): string 
 }
 
 /**
- * Returns `texts` translated to the target language, resolving as a single batched request.
- */
-export function useAutoTranslateList(texts: string[], lang: Language): string[] {
-  const [resolved, setResolved] = useState<string[]>(() => texts.map((t) => resolveStatic(t, lang)));
-
-  // Keyed on the joined text so the effect re-runs when the actual content changes, not on
-  // every render (a fresh array literal would never be reference-equal).
-  const key = texts.join('\u0000');
-
-  useEffect(() => {
-    if (lang === 'ar') {
-      setResolved(texts);
-      return;
-    }
-
-    let cancelled = false;
-    const initial = texts.map((t) => resolveStatic(t, lang));
-    setResolved(initial);
-
-    Promise.all(
-      texts.map(async (text, i) => {
-        const staticTranslation = initial[i];
-        if (isFullyResolved(staticTranslation)) return staticTranslation;
-        try {
-          return await requestTranslation(text.trim());
-        } catch {
-          return staticTranslation;
-        }
-      })
-    ).then((all) => {
-      if (!cancelled) setResolved(all);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, lang]);
-
-  return resolved;
-}
-
-/**
  * Returns `text` translated to the target language. Known UI strings resolve instantly
  * via the static dictionary in i18n.ts; unrecognized (dynamic) Arabic text is shown as-is
  * on first render, then swapped in-place once the translation resolves and gets cached.

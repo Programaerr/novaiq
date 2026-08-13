@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { ContractData } from '../types';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { Language, translateText } from '../lib/i18n';
-import { useAutoTranslate, useAutoTranslateList } from '../lib/autoTranslate';
+import { useAutoTranslate } from '../lib/autoTranslate';
 import { formatPrice, Currency } from '../lib/currency';
 import { ContractPrintDocument } from './ContractPrintDocument';
 import { showToast } from '../lib/toast';
@@ -107,7 +107,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
                   {contract.contractNumber}
                 </span>
                 <span className="text-xs text-zinc-300 font-bold">
-                  {isAr ? 'عقد إلكتروني معتمد' : 'Verified Electronic Contract'}
+                  {isAr ? 'عقد إلكتروني بين الطرفين' : 'E-contract between the parties'}
                 </span>
               </div>
               <h3 className="text-lg sm:text-2xl font-bold text-white font-['Cairo'] mt-0.5">
@@ -138,7 +138,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             </div>
             <div className={`text-xs font-mono text-zinc-400 ${isAr ? 'text-right sm:text-left' : 'text-left sm:text-right'}`}>
               <div>{isAr ? 'تاريخ الإصدار:' : 'Issue Date:'} {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}</div>
-              <div>{isAr ? 'حالة العقد:' : 'Contract Status:'} <span className="text-white font-bold">{isAr ? 'موثق ومعتمد' : 'Verified & Approved'}</span></div>
+              <div>{isAr ? 'حالة العقد:' : 'Contract Status:'} <span className="text-white font-bold">{isAr ? 'موقّع من الطرفين' : 'Signed by both parties'}</span></div>
             </div>
           </div>
 

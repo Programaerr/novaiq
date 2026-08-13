@@ -1,7 +1,7 @@
 import React from 'react';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
-import { useAutoTranslate, useAutoTranslateList } from '../lib/autoTranslate';
+import { useAutoTranslate } from '../lib/autoTranslate';
 import { formatPrice } from '../lib/currency';
 import { contractTerms } from '../data/contractTerms';
 
