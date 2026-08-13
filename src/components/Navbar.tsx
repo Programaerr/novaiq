@@ -52,6 +52,10 @@ interface NavbarProps {
   setLanguage: (lang: Language) => void;
   currency: Currency;
   setCurrency: (currency: Currency) => void;
+  /** "Custom contract" — routed through App so a signed-out visitor is sent to the real sign-in
+   *  page and carried into the builder afterwards, rather than landing on the contract page and
+   *  meeting its gate's sign-in screen rendered inside it. See `startProject` in App.tsx. */
+  onStartProject: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -61,6 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setLanguage,
   currency,
   setCurrency,
+  onStartProject,
 }) => {
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
   // Stands in for :hover on touch screens — pressing the brand plays the same reveal, then it
@@ -141,6 +146,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const handleNavClick = (id: string, e?: React.MouseEvent) => {
     if (e) e.preventDefault();
+
+    // The contract builder is the one destination in this list that requires an account, so it
+    // does not navigate straight there. App decides: signed in goes to the builder, signed out
+    // goes to the full-screen sign-in page and is carried into the builder once it succeeds.
+    // Sent here directly, a signed-out visitor landed on the contract page and met the gate's
+    // sign-in screen rendered inside that page's own container — a panel hovering in the middle
+    // of a contract form rather than a sign-in page.
+    if (id === 'custom-request') {
+      setMenuDrawerOpen(false);
+      onStartProject();
+      return;
+    }
+
     setActivePage(id);
     setMenuDrawerOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });

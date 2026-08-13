@@ -489,6 +489,7 @@ export default function App() {
         setLanguage={setLanguage}
         currency={currency}
         setCurrency={setCurrency}
+        onStartProject={startProject}
       />
 
       {/* Main Content View with Hardware Accelerated Transitions. The Navbar above is
