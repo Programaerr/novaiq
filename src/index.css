@@ -272,7 +272,13 @@
    every frame but 0deg, which is what made the beam fly off the corners. */
 .filter-pill-beam {
   position: absolute;
-  inset: -2px;
+  /* On the outline, not around it. At -2px the ring floated two pixels clear of the button and
+     inherited a border-radius meant for a shape 4px narrower, so its curve ran slightly wide of
+     the corners it was tracing. At 0 the ring and the button share one box and one radius, and
+     the beam sits exactly on the edge. Kept in step with .nq-btn-beam — these two are the same
+     effect on two families of buttons, and a difference of a pixel between them is visible when
+     they sit on the same page. */
+  inset: 0;
   border-radius: inherit;
   padding: 2px;
   overflow: hidden;
@@ -562,7 +568,8 @@
    the button on every frame but 0deg, which reads as the beam flying off the corners. */
 .nq-btn-beam {
   position: absolute;
-  inset: -2px;
+  /* 0, matching .filter-pill-beam exactly — see the note there. */
+  inset: 0;
   border-radius: inherit;
   padding: 2px;
   overflow: hidden;
