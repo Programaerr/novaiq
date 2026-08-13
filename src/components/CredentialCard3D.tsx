@@ -333,9 +333,9 @@ const BACK_H = TEX_H / 2;
  * logo, rather than being blocked on the image. The caller flags the texture for re-upload.
  *
  * The mark is drawn through an offscreen `source-in` fill, which keeps the artwork's alpha and
- * replaces every colour in it with one flat black. That is what makes it a silhouette of the
- * logo rather than the logo's own light-on-dark rendering dropped onto a white card, where it
- * would have all but disappeared.
+ * replaces every colour in it with one flat tone — white now that the card is dark. That is what
+ * makes it a clean silhouette at any size, rather than the source PNG's own shading dropped onto
+ * a surface it was never drawn against.
  */
 function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
   const ctx = c.getContext('2d')!;
