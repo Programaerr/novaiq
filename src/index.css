@@ -1976,9 +1976,9 @@ html[data-scrolling] .rv::before {
   position: absolute;
   top: 0;
   left: 50%;
-  width: min(150vw, 1180px);
+  width: min(142vw, 1160px);
   aspect-ratio: 1;
-  transform: translate(-50%, -34%);
+  transform: translate(-50%, -27%);
   pointer-events: none;
   z-index: 0;
 }

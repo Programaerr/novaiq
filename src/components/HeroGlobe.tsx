@@ -131,12 +131,17 @@ function GlobePoints({ spin }: { spin: boolean }) {
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        // Small and dim. This sits behind the headline, and the moment the points are bright
-        // enough to notice individually they compete with the type in front of them.
-        size={0.011}
+        // Roughly two screen pixels, and that ceiling is the whole design of this element. This
+        // sits DIRECTLY BEHIND the headline: at any size where an individual point is something
+        // you can pick out, it competes with the type in front of it and the hero stops being
+        // readable. Dust, not confetti — the globe reads from the shape of the crowd, never from
+        // any one point, which is also why the count went up as the size came down.
+        size={0.0045}
+        map={dot}
+        alphaMap={dot}
         color="#ffffff"
         transparent
-        opacity={0.85}
+        opacity={0.6}
         // Perspective size: points on the far side of the globe are smaller as well as sparser,
         // which is most of what separates a sphere from a flat ring of dots.
         sizeAttenuation
