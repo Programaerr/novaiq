@@ -217,7 +217,9 @@
          centre rather than sat on it. Off-centre is the whole trick — a glow centred at 50%
          reads as a vignette, i.e. as an edge treatment, while an off-centre one reads as a
          light with a direction, and everything below it looks lit instead of masked. */
-      radial-gradient(62% 44% at 64% 2%, rgba(96, 118, 255, 0.26) 0%, rgba(72, 90, 226, 0.09) 46%, rgba(72, 90, 226, 0) 74%),
+      /* the core: small and hot, the part that reads as the source itself rather than as spill */
+      radial-gradient(26% 18% at 64% 3%, rgba(122, 142, 255, 0.34) 0%, rgba(122, 142, 255, 0) 100%),
+      radial-gradient(66% 48% at 64% 2%, rgba(96, 118, 255, 0.30) 0%, rgba(72, 90, 226, 0.11) 46%, rgba(72, 90, 226, 0) 76%),
       /* the counter-light: a second, much weaker pool low on the opposite side, so the lower
          half of a long page does not fall away into flat black once the bloom is scrolled past */
       radial-gradient(52% 38% at 8% 76%, rgba(66, 90, 220, 0.10) 0%, rgba(66, 90, 220, 0) 70%),
