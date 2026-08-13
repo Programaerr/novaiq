@@ -1,20 +1,39 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# NOVAIQ
 
-# Run and deploy your AI Studio app
+منصة NOVAIQ — عرض قوالب الويب الجاهزة وطلب العقود الإلكترونية للشركات والمؤسسات.
 
-This contains everything you need to run your app locally.
+React 19 · TypeScript · Vite · Tailwind v4 · Firebase · Express
 
-View your app in AI Studio: https://ai.studio/apps/2cbb402b-0f4d-4179-85f9-73430d2beebf
+## التشغيل محلياً
 
-## Run Locally
+**المتطلبات:** Node.js
 
-**Prerequisites:**  Node.js
+```bash
+npm install
+npm run dev        # يشغّل server.ts عبر tsx (واجهة + API على نفس المنفذ)
+```
 
+## البناء والنشر
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm run build      # vite build للواجهة + esbuild للسيرفر → dist/server.cjs
+npm start          # node dist/server.cjs
+```
+
+## الإعداد
+
+لا يحتاج المشروع أي مفتاح API لكي يعمل. المتغيرات الاختيارية:
+
+| المتغير | لماذا | بدونه |
+|---|---|---|
+| `PORT` | منفذ السيرفر | 3000 |
+| `FIREBASE_SERVICE_ACCOUNT_PATH` | مفتاح Firebase Admin، لازم للوحة «المشتركين» فقط | مسارات `/api/admin/*` ترد بـ503، وبقية الموقع يعمل طبيعياً (الافتراضي `./service-account.json`) |
+
+الترجمة التلقائية (`/api/translate`) تستعمل واجهة Google Translate العامة المجانية — بلا مفتاح ولا حساب فوترة — وتخزّن النتائج في `.translation-cache.json`.
+
+## أوامر أخرى
+
+```bash
+npm run lint          # tsc --noEmit
+npm run translations  # إعادة توليد قاموس الترجمة الثابت
+```

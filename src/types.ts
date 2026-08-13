@@ -135,9 +135,3 @@ export interface ContractData {
    *  purely informational, to show progress like "2 of 3 paid" in both dashboards. */
   installmentsPlanned?: number;
 }
-
-export interface AIConsultationState {
-  prompt: string;
-  response: string;
-  isLoading: boolean;
-}
