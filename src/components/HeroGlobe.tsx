@@ -4,60 +4,67 @@ import * as THREE from 'three';
 import type { Points } from 'three';
 
 /**
- * A globe made of points, turning slowly behind the hero.
+ * The globe behind the hero: a dark body, a lit atmosphere, and a shell of points turning on it.
  *
- * Replaces `.hero-limb`, which drew the same idea as a CSS arc: one enormous circle with a lit
- * rim, of which only the crown was ever in frame. That was the flat version and it was the right
- * call while the brief was "2D, no lag". The brief is now a real sphere, so this is one.
+ * ## Three parts, and each one is doing a job the others cannot
  *
- * ## Points rather than a mesh, and why the rim comes free
+ * 1. THE BODY — an opaque sphere just inside the point shell. It contributes almost no colour of
+ *    its own; it is there to OCCLUDE. Without it every point on the far hemisphere shows through
+ *    the near one, and what you get is a translucent ball of noise rather than a planet. It is the
+ *    single change that makes the thing read as solid.
  *
- * A shaded sphere on a dark page is a grey disc — there is no light source in this design to model
- * it with, and inventing one would put a second lighting direction on a page that already
- * committed to a single one. A point cloud has no shading to get wrong: it reads as a globe purely
- * from how the points are arranged.
+ * 2. THE ATMOSPHERE — a slightly larger sphere carrying a Fresnel shader, and the reason the rim
+ *    glows. See the note on the shader below for why it cannot be done with a gradient.
  *
- * It also solves the rim for nothing. Points spread evenly over a sphere do NOT project evenly
- * onto the screen — near the silhouette you are looking along the surface, so many points fall
- * into very little screen area, and the density rises sharply towards the edge. The bright rim in
- * the reference is a glow effect; here it is a consequence of the geometry, which means it stays
- * correct at every angle and costs nothing to draw.
+ * 3. THE POINTS — the surface detail, and the only part that turns. The body and the atmosphere are
+ *    spheres: rotating them would be work with no visible result, so they stay still.
  *
- * ## Fibonacci, not random
+ * ## Why the rim needs a shader and not a texture
  *
- * Points are placed on a Fibonacci spiral rather than by picking random spherical angles. Random
- * latitude/longitude bunches heavily at the poles — the classic sphere-sampling mistake — and the
- * result looks like a globe wearing two hats. The spiral gives near-uniform spacing, which is what
- * makes the silhouette read as a clean circle instead of a fuzzy one.
+ * The bright edge on the reference's globe is a VIEW-DEPENDENT effect: a surface is bright where
+ * you are looking along it and dark where you are looking straight at it. That relationship is
+ * between the surface normal and the camera, so it can only be evaluated per fragment, per frame —
+ * which is exactly what Fresnel is. A painted-on ring would be a picture of the effect from one
+ * angle and would sit still while the globe moved under it.
  *
- * ## What it costs, and the one honest trade
+ * `BackSide` and additive blending are what make it an ATMOSPHERE rather than a coating: rendering
+ * the inside of a shell larger than the planet means the glow you see is the far wall of that
+ * shell, seen past the planet's edge — light around the body rather than paint on it. Additive
+ * because light adds; normal blending would let the halo darken the sky it sits on.
  *
- * Everything else on this page settles to zero frames at rest. This cannot: a turning globe has to
- * draw while it is turning, and there is no version of that which is free. So the cost is bounded
- * instead of removed —
+ * ## Points rather than a shaded surface
  *
- * - `frameloop` is `'never'` unless the hero is actually on screen, so the globe stops completely
- *   the moment it is scrolled past and the page goes back to costing nothing.
- * - DPR is capped at 1.5. The card scene in this project caps at 2.5 and says in its own comment
- *   that it can afford to because it is a card and not a full screen. This IS full-width, so it
- *   takes the cap the card was allowed to skip.
- * - No antialiasing. Points are round sprites; there are no polygon edges for MSAA to smooth, so
- *   it would be paid for and not seen.
- * - Reduced-motion stops the rotation, which also means `frameloop` never runs.
+ * A lit sphere needs a light, and putting one here would mean a second lighting direction on a page
+ * that already commits to one. Points have no shading to get wrong — the globe reads from how they
+ * are arranged. Their spacing comes from a Fibonacci spiral, not random angles: random
+ * latitude/longitude bunches hard at the poles and the result looks like a globe wearing two hats.
+ *
+ * ## What it costs
+ *
+ * Everything else on this page settles to zero frames at rest. A turning globe cannot, so the cost
+ * is bounded rather than removed: `frameloop` is `'never'` unless the hero is on screen, DPR caps
+ * at 1.5 (the card scene in this project caps at 2.5 and says in its own comment that it can afford
+ * to because it is a card and not a full screen — this IS full-width), antialiasing is off because
+ * points are round sprites with no polygon edges to smooth, and reduced-motion stops the loop
+ * entirely.
  */
 
 const COUNT = 5200;
 const RADIUS = 1;
 
+/** Violet, from the reference. Kept beside each other so the scene's palette is one thing to read. */
+const POINT_COLOR = '#CBB8FF';
+const BODY_COLOR = '#0C0518';
+const ATMOSPHERE_COLOR = '#8B5CF6';
+
 /**
- * A round sprite for the points, because `pointsMaterial` draws SQUARES by default — every point
- * is a quad, and with no texture the whole quad is filled. At two pixels that reads as digital
- * noise rather than as dust, and the globe's silhouette comes out visibly serrated.
+ * A round sprite for the points, because `pointsMaterial` draws SQUARES by default — every point is
+ * a quad, and with no texture the whole quad is filled. At two pixels that reads as digital noise
+ * rather than as dust, and the globe's silhouette comes out visibly serrated.
  *
- * 32×32 and drawn once at module scope: every point in the scene samples this same texture, so
- * making it per-instance would upload the identical bitmap to the GPU again for nothing. The
- * falloff is squared at the end to keep the core opaque and put all the softness in the last
- * third, which is what stops a small sprite from just looking blurry.
+ * Built once and shared by every point, so the same bitmap is uploaded to the GPU a single time.
+ * The falloff is squared to keep the core opaque and put all the softness in the last third, which
+ * is what stops a small sprite from simply looking blurry.
  */
 function makeDotTexture(): THREE.Texture {
   const size = 32;
@@ -92,19 +99,79 @@ function makeDotTexture(): THREE.Texture {
   return tex;
 }
 
-function GlobePoints({ spin }: { spin: boolean }) {
-  const ref = useRef<Points>(null);
-  const dot = useMemo(makeDotTexture, []);
+/**
+ * The atmosphere. Raw `THREE.ShaderMaterial` rather than drei's `shaderMaterial` helper, because
+ * drei is not a dependency of this project — the helper's real benefit is the HMR `key`, and it is
+ * not worth a package for one material.
+ */
+function makeAtmosphereMaterial(): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uColor: { value: new THREE.Color(ATMOSPHERE_COLOR) },
+      // How fast the glow falls off away from the silhouette. Higher = a tighter band hugging the
+      // edge; lower = a wash that creeps across the whole disc and flattens it.
+      uPower: { value: 3.2 },
+      uIntensity: { value: 0.85 },
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+      varying vec3 vWorld;
 
-  // Fibonacci sphere. The golden angle is what keeps successive points from ever lining up into
-  // visible spokes — any rational angle here produces arms radiating from the poles.
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor;
+      uniform float uPower;
+      uniform float uIntensity;
+      varying vec3 vNormal;
+      varying vec3 vWorld;
+
+      void main() {
+        vec3 view = normalize(cameraPosition - vWorld);
+        // abs(), because this shell is rendered BackSide: the normals still point outward while
+        // the faces being drawn face away, so the raw dot product arrives negative and an
+        // unguarded pow() of it would clip the entire halo to nothing.
+        float facing = abs(dot(view, normalize(vNormal)));
+        float rim = pow(1.0 - facing, uPower);
+        gl_FragColor = vec4(uColor, rim * uIntensity);
+      }
+    `,
+    side: THREE.BackSide,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    // The halo must not occlude the planet in front of it, and additive layers should never write
+    // depth — two of them would otherwise cut each other out depending on draw order.
+    depthWrite: false,
+  });
+}
+
+function Globe({ spin }: { spin: boolean }) {
+  const points = useRef<Points>(null);
+  const dot = useMemo(makeDotTexture, []);
+  const atmosphere = useMemo(makeAtmosphereMaterial, []);
+
+  // Both are GPU resources React does not own, so they are released explicitly when the hero
+  // unmounts. R3F disposes what it created from JSX; these two were built here.
+  useEffect(() => {
+    return () => {
+      dot.dispose();
+      atmosphere.dispose();
+    };
+  }, [dot, atmosphere]);
+
   const positions = useMemo(() => {
     const arr = new Float32Array(COUNT * 3);
+    // The golden angle. Any rational angle here makes successive points line up into spokes
+    // radiating from the poles; an irrational one never repeats, which is the entire trick.
     const golden = Math.PI * (3 - Math.sqrt(5));
 
     for (let i = 0; i < COUNT; i++) {
-      // y walks the full diameter linearly, which is the part that makes the spacing uniform:
-      // equal steps in HEIGHT cut equal areas out of a sphere, equal steps in latitude do not.
+      // y walks the diameter linearly, and that is what makes the spacing even: equal steps in
+      // HEIGHT cut equal areas off a sphere, equal steps in latitude do not.
       const y = 1 - (i / (COUNT - 1)) * 2;
       const ring = Math.sqrt(Math.max(0, 1 - y * y));
       const theta = golden * i;
@@ -118,38 +185,50 @@ function GlobePoints({ spin }: { spin: boolean }) {
   }, []);
 
   useFrame((_, delta) => {
-    if (!spin || !ref.current) return;
-    // delta-based, not frame-based: the globe turns at the same speed on a 60Hz and a 120Hz
-    // screen. Clamped because delta is the length of the pause after the loop has been stopped
-    // off-screen, and an unclamped one would snap the globe forward by that whole gap on return.
-    ref.current.rotation.y += Math.min(delta, 0.05) * 0.045;
+    if (!spin || !points.current) return;
+    // Delta-based so the globe turns at one speed on a 60Hz and a 120Hz screen. Clamped because
+    // delta is the length of the pause after the loop has been stopped off-screen, and an
+    // unclamped one would snap the globe forward by that entire gap the moment it returns.
+    points.current.rotation.y += Math.min(delta, 0.05) * 0.045;
   });
 
   return (
-    <points ref={ref} rotation={[0.32, 0, 0.16]}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
-      <pointsMaterial
-        // Roughly two screen pixels, and that ceiling is the whole design of this element. This
-        // sits DIRECTLY BEHIND the headline: at any size where an individual point is something
-        // you can pick out, it competes with the type in front of it and the hero stops being
-        // readable. Dust, not confetti — the globe reads from the shape of the crowd, never from
-        // any one point, which is also why the count went up as the size came down.
-        size={0.0045}
-        map={dot}
-        alphaMap={dot}
-        color="#ffffff"
-        transparent
-        opacity={0.6}
-        // Perspective size: points on the far side of the globe are smaller as well as sparser,
-        // which is most of what separates a sphere from a flat ring of dots.
-        sizeAttenuation
-        // No depth writes — points are transparent sprites, and letting them occlude each other
-        // makes the far hemisphere punch holes in the near one depending on draw order.
-        depthWrite={false}
-      />
-    </points>
+    <group rotation={[0.32, 0, 0.16]}>
+      {/* The occluder. Very slightly inside the point shell, so points on the near side stay in
+          front of it while the far side is hidden behind it. `basic`, not `standard`: there is no
+          light in this scene, and a lit material would render black. */}
+      <mesh>
+        <sphereGeometry args={[RADIUS * 0.985, 48, 48]} />
+        <meshBasicMaterial color={BODY_COLOR} />
+      </mesh>
+
+      <points ref={points}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial
+          // Roughly two screen pixels, and that ceiling is the design of this element. It sits
+          // DIRECTLY BEHIND the headline: at any size where a single point can be picked out it
+          // competes with the type in front of it. Dust, not confetti — which is also why the
+          // count went up as the size came down.
+          size={0.0045}
+          map={dot}
+          alphaMap={dot}
+          color={POINT_COLOR}
+          transparent
+          opacity={0.72}
+          // Perspective size: points on the far side are smaller as well as sparser, which is
+          // most of what separates a sphere from a flat ring of dots.
+          sizeAttenuation
+          depthWrite={false}
+        />
+      </points>
+
+      {/* The atmosphere, outside everything else. */}
+      <mesh material={atmosphere}>
+        <sphereGeometry args={[RADIUS * 1.16, 48, 48]} />
+      </mesh>
+    </group>
   );
 }
 
@@ -182,14 +261,14 @@ export const HeroGlobe: React.FC = () => {
     <div ref={hostRef} className="hero-globe" aria-hidden="true">
       {active && (
         <Canvas
-          // The one scene on this site that genuinely animates at rest, so it is switched off
-          // rather than throttled: 'never' draws nothing at all, not fewer frames.
+          // The one scene here that genuinely animates at rest, so it is switched off rather than
+          // throttled: 'never' draws nothing at all, not fewer frames.
           frameloop={motion ? 'always' : 'never'}
           dpr={[1, 1.5]}
           camera={{ position: [0, 0, 2.75], fov: 45 }}
           gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
         >
-          <GlobePoints spin={motion} />
+          <Globe spin={motion} />
         </Canvas>
       )}
     </div>

@@ -148,8 +148,22 @@
        when a phone rubber-bands past either end. It has to match the backdrop below or a hard
        scroll flashes a different shade across the top or bottom of the page — which is why it
        is a variable read by both `html` and `body` rather than the same literal written twice
-       and left to drift. Charcoal rather than pure black: see the note on body::before. */
-    --nq-ground: #0E0E0E;
+       and left to drift. See the note on body::before. */
+    --nq-ground: #0B0714;
+
+    /* The accent, and the only chromatic thing in the system.
+       It is one token deliberately: an accent used from a variable can be re-tuned or pulled out
+       in a single edit, while the same colour typed into thirty components is a colour the site
+       is now stuck with. Everything that carries hue below reads from these — buttons, card
+       beams, the page vignette, and the globe's atmosphere (which takes it in JS, see
+       HeroGlobe.tsx, the one place the value is duplicated because a shader cannot read CSS).
+
+       --soft is not a second accent, it is the same hue at a lightness that survives being put on
+       a dark ground as TEXT: #8B5CF6 on this background is about 3.6:1, under the 4.5:1 body-text
+       line, and #A78BFA clears it. Fills can use the strong one because their contrast is carried
+       by the white sitting on top of them. */
+    --nq-accent: #8B5CF6;
+    --nq-accent-soft: #A78BFA;
     background-color: var(--nq-ground);
 
     /* Vertical rhythm below the floating Navbar. --nav-bottom is measured and written here at
@@ -194,9 +208,11 @@
      page cancel each other out. Whatever is brightest has to be the thing you are meant to look
      at. So the ground is a plain charcoal vignette now, and the hero owns the light.
 
-     Strictly neutral: white at some alpha over black, no hue at any stop. That matters downstream
-     as much as here — a page ground hands its tint to every grey above it, so the same zinc border
-     reads cool on a navy ground and neutral on this one without a character of it changing.
+     Tinted violet now, and the tint is the point rather than a side effect. A page ground hands
+     its hue to every grey above it: the same zinc border that read neutral on charcoal picks up
+     the violet here without a character of it changing, which is what ties the accent to the rest
+     of the interface instead of leaving it stranded on the buttons. It is kept very low in
+     saturation for the same reason — the ground has to carry the hue, not compete with it.
 
      ## Why this costs nothing
 
@@ -233,7 +249,7 @@
        What is left is one near-flat vignette: #171717 in the middle down to #050505 at the corner.
        That range is small enough not to read as a gradient anyone can point at, and just enough
        that a document this long never reads as a single dead rectangle. */
-    background-image: radial-gradient(130% 105% at 50% 22%, #171717 0%, #111111 44%, #050505 100%);
+    background-image: radial-gradient(130% 105% at 50% 22%, #1B1230 0%, #120C21 44%, #05030B 100%);
     background-repeat: no-repeat;
   }
 }
@@ -749,25 +765,32 @@
    layout box, and leaves every button on the site with a zero border — so one `inset: -2px`
    now means the same distance everywhere. (A white border on a white body was invisible at
    rest anyway; its only visible job was the dimmed rim on hover, which moves down with it.) */
+/* The primary is a violet fill with white on it, which is the reference's own arrangement and not
+   just its colour. White-on-violet is ~4.6:1 here; the previous white pill was carrying its
+   emphasis purely by being the brightest thing on the page, and a page with an accent should not
+   need that. The top inset highlight is what stops a flat fill reading as a sticker — a real
+   surface catches slightly more light along its upper edge. */
 .nq-btn--solid {
-  background: #FFFFFF;
-  color: #111111;
+  background: var(--nq-accent);
+  color: #FFFFFF;
   border: 0;
   box-shadow:
-    inset 0 0 0 1px #FFFFFF,
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.16);
 }
 
+/* Hover goes LIGHTER, not darker. On a dark page a darkening hover reads as the control receding
+   at the moment it is being reached for; brightening reads as it coming forward. */
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
-  background: #0A0A0A;
-  color: #FFFFFF;
+  background: #A78BFA;
+  color: #14082B;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.16);
 }
 
 /* The one secondary surface, and it exists for a single job: the hero offers two ways in at
@@ -803,15 +826,15 @@
    badge would resolve to the badge's OWN colour, which is the glyph colour, and the arrow would
    vanish into a disc of exactly its own shade. The two values have to arrive from the button. */
 .nq-btn--solid {
-  --nq-surface: #FFFFFF;   /* the button's body */
-  --nq-ink: #111111;       /* what is written on it */
+  --nq-surface: var(--nq-accent);  /* the button's body */
+  --nq-ink: #FFFFFF;               /* what is written on it */
 }
 
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
-  --nq-surface: #0A0A0A;
-  --nq-ink: #FFFFFF;
+  --nq-surface: #A78BFA;
+  --nq-ink: #14082B;
 }
 
 .nq-cta-badge {
@@ -1919,7 +1942,7 @@ html[data-scrolling] .rv::before {
       transparent 34%
     ),
     /* the pool at the corner the shaft enters through */
-    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(255, 255, 255, 0.12) 0%, transparent 72%),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(167, 139, 250, 0.2) 0%, transparent 72%),
     /* the surface: a shallow top-to-bottom lift, so the card is lighter than the page it is on
        without ever being an opaque colour that has to be restated when the ground changes */
     linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.018) 100%);
@@ -1950,7 +1973,7 @@ html[data-scrolling] .rv::before {
       rgba(255, 255, 255, 0.04) 25%,
       transparent 34%
     ),
-    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(255, 255, 255, 0.18) 0%, transparent 72%),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(167, 139, 250, 0.3) 0%, transparent 72%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.028) 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
 }
@@ -1999,8 +2022,8 @@ html[data-scrolling] .rv::before {
   z-index: 0;
   background: radial-gradient(
     closest-side,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.035) 44%,
+    rgba(139, 92, 246, 0.22) 0%,
+    rgba(139, 92, 246, 0.07) 44%,
     transparent 74%
   );
 }
