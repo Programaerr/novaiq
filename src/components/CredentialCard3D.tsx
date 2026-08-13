@@ -228,8 +228,13 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     ctx.fill();
   }
 
-  // Header: wordmark on the reading-start side, chip opposite it — mirrored as a pair so the
-  // card is laid out for the language rather than translated inside a Latin layout.
+  // Header: the wordmark, alone, on the reading-start side.
+  //
+  // A gold EMV chip and a contactless arc used to sit opposite it. They made this look like a
+  // payment card, which is the one thing it is not — it is an identity card, printed and handed
+  // to someone so they can find the company later. A chip on a card that carries no chip is a
+  // promise the object cannot keep, and on paper it prints as a gold rectangle that means
+  // nothing. The header is the name, and the space is the design.
   ctx.textBaseline = 'top';
   ctx.fillStyle = INK;
   ctx.font = `900 76px ${FONT}`;
@@ -238,35 +243,6 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   ctx.textAlign = isAr ? 'right' : 'left';
   ctx.fillText('NOVAIQ', isAr ? TEX_W - PAD : PAD, PAD - 6);
   ctx.letterSpacing = '0px';
-
-  const CHIP_W = 152;
-  const CHIP_H = 114;
-  const chipX = isAr ? PAD : TEX_W - PAD - CHIP_W;
-  const chipY = PAD - 12;
-  const chipG = ctx.createLinearGradient(chipX, chipY, chipX + CHIP_W, chipY + CHIP_H);
-  // Gold, because a steel chip on a white card is a pale shape on a pale ground and disappears.
-  chipG.addColorStop(0, '#e9d08a');
-  chipG.addColorStop(1, '#9d7826');
-  ctx.fillStyle = chipG;
-  roundRect(ctx, chipX, chipY, CHIP_W, CHIP_H, 16);
-  ctx.fill();
-  ctx.fillStyle = 'rgba(30,22,4,0.55)';
-  for (let r = 0; r < 2; r++) {
-    for (let col = 0; col < 2; col++) {
-      roundRect(ctx, chipX + 12 + col * 70, chipY + 12 + r * 51, 58, 39, 7);
-      ctx.fill();
-    }
-  }
-  // Contactless mark, beside the chip
-  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-  ctx.lineWidth = 5;
-  ctx.lineCap = 'round';
-  const waveX = isAr ? chipX + CHIP_W + 46 : chipX - 46;
-  for (let i = 1; i <= 3; i++) {
-    ctx.beginPath();
-    ctx.arc(waveX, chipY + CHIP_H / 2, i * 13, isAr ? Math.PI * 0.72 : -Math.PI * 0.28, isAr ? Math.PI * 1.28 : Math.PI * 0.28);
-    ctx.stroke();
-  }
 
   // The four guarantees: badge, title, and the description line underneath. The description is
   // what the DOM card dropped below the `sm` breakpoint; the texture is a fixed 1.586:1 canvas
@@ -517,10 +493,36 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
   const materials = useMemo(
     () => ({
       body: new THREE.MeshStandardMaterial({ color: '#e6e6ec', roughness: 0.35, metalness: 0.15 }),
-      // Barely metallic: a metallic white takes its colour from what it reflects, and with an
-      // empty scene around it that reads as grey rather than white.
-      front: new THREE.MeshStandardMaterial({ map: front, transparent: true, roughness: 0.44, metalness: 0.05 }),
-      back: new THREE.MeshStandardMaterial({ map: back, transparent: true, roughness: 0.55, metalness: 0.05 }),
+      // The artwork is its own bump map.
+      //
+      // Everything drawn on this card is dark ink on a pale ground, so the colour texture's own
+      // luminance is already a height field: white background high, ink low. Handing the same
+      // texture to `bumpMap` makes the shader perturb its normals along exactly those edges, and
+      // every letter and rule is lit as a groove cut into the surface rather than as paint lying
+      // flat on it. Tilt the card and the light genuinely runs along the engraving.
+      //
+      // It costs nothing extra: same texture object, already uploaded, sampled a second time.
+      // A separately generated height map would be a second canvas and a second upload to say
+      // the same thing.
+      //
+      // Lower roughness than before on the front — a matte surface scatters light too evenly for
+      // the grooves to catch a highlight, and the highlight is the whole point of engraving it.
+      front: new THREE.MeshStandardMaterial({
+        map: front,
+        bumpMap: front,
+        bumpScale: 2.2,
+        transparent: true,
+        roughness: 0.28,
+        metalness: 0.06,
+      }),
+      back: new THREE.MeshStandardMaterial({
+        map: back,
+        bumpMap: back,
+        bumpScale: 2.2,
+        transparent: true,
+        roughness: 0.32,
+        metalness: 0.06,
+      }),
     }),
     [front, back],
   );
@@ -884,15 +886,17 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           camera={{ position: [0, 0, 3.4], fov: 34 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         >
-          {/* Lower than a dark card needs. White is already near the top of the range, so the
-              lighting that made a black card read blew this one out to a flat slab with no
-              shading left to say which way it faces. */}
-          <ambientLight intensity={0.68} />
-          {/* One key light, and it is not decoration: the highlight sliding across the card as it
-              turns is this reflecting off a real surface, rather than the hand-positioned
-              gradient the CSS version had to fake. */}
-          <directionalLight position={[2.2, 2.6, 3.4]} intensity={1.25} />
-          <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.4} />
+          {/* Lower than a dark card needs — white is already near the top of the range — and lower
+              again now that the artwork is engraved. Ambient light arrives from every direction at
+              once, which is precisely the light that cannot cast a shadow inside a groove: raise it
+              and the bump map's shading is washed flat, and the carving disappears. */}
+          <ambientLight intensity={0.42} />
+          {/* The key, moved to graze the surface rather than face it. A light square-on to a card
+              lights the floor of every groove as brightly as the surface around it; a shallow angle
+              leaves one wall of each cut bright and the other in shadow, which is what the eye
+              reads as depth. It is also the highlight that slides across the card as it turns. */}
+          <directionalLight position={[3.1, 2.4, 1.6]} intensity={1.55} />
+          <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.45} />
           <Card isAr={isAr} targetRef={target} />
           <Waker signal={signal} touched={touched} dragging={drag} target={target} />
         </Canvas>
