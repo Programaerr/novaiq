@@ -148,8 +148,8 @@
        when a phone rubber-bands past either end. It has to match the backdrop below or a hard
        scroll flashes a different shade across the top or bottom of the page — which is why it
        is a variable read by both `html` and `body` rather than the same literal written twice
-       and left to drift. Deep navy rather than black: see the note on body::before. */
-    --nq-ground: #0A0F22;
+       and left to drift. Charcoal rather than pure black: see the note on body::before. */
+    --nq-ground: #0B0B0B;
     background-color: var(--nq-ground);
 
     /* Vertical rhythm below the floating Navbar. --nav-bottom is measured and written here at
@@ -177,26 +177,39 @@
     overflow-x: hidden;
   }
 
-  /* Deep navy with an indigo bloom — the page's entire background, and the only one it has.
+  /* A flat star chart — the page's entire background, and the only one it has.
 
-     Not black. A true-black page gives every surface on top of it the same problem: a card has
-     nowhere darker to sit, so it can only be told apart by its border. Lifting the ground gives
-     the interface a floor to stand on, which is what the reference this was matched to is doing
-     — its panels read as raised because the page behind them is not the darkest thing in frame.
+     ## Space drawn in 2D, which is a different thing from space drawn dimly
+
+     The usual way to put space on a page is atmosphere: a nebula wash, a bloom, blurred bokeh
+     stars, layers drifting at different speeds. All of that is depth — it is 3D pretending to be
+     a background, and every one of those techniques is bought with either a large blur radius
+     (expensive to raster) or a per-frame transform (expensive forever).
+
+     So this draws space the way an ORRERY or a star chart does instead: hard-edged points and
+     thin orbital arcs, flat on the surface, no blur anywhere, nothing implying a third axis. It
+     reads as space because of what is drawn, not because of how deep it looks — which is the
+     only version of the idea that survives being flat and being cheap at the same time.
+
+     ## Strictly black and charcoal
+
+     Two greys and white, no hue at any stop. That matters more than it sounds: a page ground
+     hands its tint to every grey above it, so the same zinc border reads cool on a navy ground
+     and neutral on this one without a character of it changing. Neutral here means the greys
+     already in the interface are the greys that show up.
+
+     ## Why this costs nothing
+
+     Every layer below is a `background-image` on ONE element, rasterised once when the viewport
+     is sized and then never touched again: no animation, no blur, no JavaScript, no canvas, no
+     `background-attachment`, nothing reading the scroll position. The starfields are small
+     REPEATING tiles rather than viewport-sized images, so the whole field costs two small
+     rasters tiled by the compositor instead of a dozen full-screen ones.
 
      What this replaces: a fixed component (CosmicBackground) that stacked five layers — four
      drifting star planes, a pointer-reactive canvas field, two ambient glows, a grid and two
-     vignettes — all composited on every page of the site for as long as it was open. This does
-     the job those layers were there for, which is to keep a dark page from reading as a dead
-     rectangle, and it does it with three gradients painted once.
-
-     Tinted, and deliberately so — this is the one thing that changed from the strictly-neutral
-     charcoal version, and it changes more than it looks like it does. A background of this kind
-     hands its hue to every grey above it: the same zinc border reads warm on charcoal and cool
-     on navy without a single character of it changing. So the tint has to be committed to at
-     the ground and nowhere else. Every stop below is on the same blue axis (~228deg) at
-     different lightness, which is what keeps it reading as one deep colour lit from above
-     rather than as separate blue and grey areas fighting each other.
+     vignettes — all composited on every page of the site for as long as it was open. Same idea,
+     none of the per-frame cost.
 
      `position: fixed` on a pseudo-element rather than `background-attachment: fixed` on the body.
      The two look identical and cost completely different things: a fixed *attachment* makes the
@@ -212,20 +225,50 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background:
-      /* the bloom: the indigo light source, hung just off the top edge and pushed right of
-         centre rather than sat on it. Off-centre is the whole trick — a glow centred at 50%
-         reads as a vignette, i.e. as an edge treatment, while an off-centre one reads as a
-         light with a direction, and everything below it looks lit instead of masked. */
-      /* the core: small and hot, the part that reads as the source itself rather than as spill */
-      radial-gradient(26% 18% at 64% 3%, rgba(122, 142, 255, 0.34) 0%, rgba(122, 142, 255, 0) 100%),
-      radial-gradient(66% 48% at 64% 2%, rgba(96, 118, 255, 0.30) 0%, rgba(72, 90, 226, 0.11) 46%, rgba(72, 90, 226, 0) 76%),
-      /* the counter-light: a second, much weaker pool low on the opposite side, so the lower
-         half of a long page does not fall away into flat black once the bloom is scrolled past */
-      radial-gradient(52% 38% at 8% 76%, rgba(66, 90, 220, 0.10) 0%, rgba(66, 90, 220, 0) 70%),
-      /* the body: navy through the middle falling to near-black at the edge. The falloff IS the
-         vignette — one gradient doing what a separate dimming overlay used to be needed for. */
-      radial-gradient(140% 115% at 50% 34%, #131B3E 0%, #0B1128 44%, #05070F 100%);
+    /* Listed top layer first, the way CSS paints them: near stars, far stars, orbits, ground. */
+    background-image:
+      /* ── near field: the bigger, brighter points. 1.6px and hard-stopped at 50% so the dot has
+            an EDGE. A soft-falloff star is a blur by another name — it is what makes a starfield
+            look like dust rather than like points of light, and it is the more expensive of the
+            two to raster. ─────────────────────────────────────────────────────────────────── */
+      radial-gradient(1.6px 1.6px at 34px 58px, rgba(255, 255, 255, 0.85) 50%, transparent 50%),
+      radial-gradient(1.4px 1.4px at 213px 27px, rgba(255, 255, 255, 0.7) 50%, transparent 50%),
+      radial-gradient(1.6px 1.6px at 128px 191px, rgba(255, 255, 255, 0.78) 50%, transparent 50%),
+      radial-gradient(1.3px 1.3px at 331px 143px, rgba(255, 255, 255, 0.6) 50%, transparent 50%),
+      radial-gradient(1.5px 1.5px at 279px 296px, rgba(255, 255, 255, 0.72) 50%, transparent 50%),
+      radial-gradient(1.3px 1.3px at 76px 331px, rgba(255, 255, 255, 0.55) 50%, transparent 50%),
+      /* ── far field: smaller, dimmer, on a tile of a DIFFERENT size to the near field. Two tiles
+            whose dimensions share no common factor never line up again, so the field never
+            repeats visibly — which is the whole reason there are two rather than one denser one.
+            Dimmer and smaller is also what carries distance here: with no blur and no parallax
+            available, size and value are the only depth cues left, and they are free. ─────── */
+      radial-gradient(1px 1px at 47px 21px, rgba(255, 255, 255, 0.5) 50%, transparent 50%),
+      radial-gradient(1px 1px at 168px 96px, rgba(255, 255, 255, 0.42) 50%, transparent 50%),
+      radial-gradient(1px 1px at 91px 154px, rgba(255, 255, 255, 0.46) 50%, transparent 50%),
+      radial-gradient(1px 1px at 232px 187px, rgba(255, 255, 255, 0.38) 50%, transparent 50%),
+      radial-gradient(1px 1px at 12px 227px, rgba(255, 255, 255, 0.44) 50%, transparent 50%),
+      /* ── the orbits: thin arcs, centred well OFF the viewport so what shows is a curve rather
+            than a complete circle. A full circle sitting on the page reads as a drawn ring — an
+            object — while an arc running out of frame reads as a path continuing past the edge,
+            which is the whole difference between decoration and a diagram.
+            Each is a band of hard stops, stepped 0.02 → 0.07 → 0.02 across ~3px rather than one
+            flat 1px step: a hard 1px edge on a curve this large aliases into a dotted line, and
+            the two faint outer stops are doing antialiasing by hand, for free. ─────────────── */
+      radial-gradient(circle 760px at 92% -12%, transparent 0 756px, rgba(255, 255, 255, 0.02) 756px, rgba(255, 255, 255, 0.07) 758px, rgba(255, 255, 255, 0.02) 759px, transparent 760px),
+      radial-gradient(circle 1180px at 78% -30%, transparent 0 1176px, rgba(255, 255, 255, 0.015) 1176px, rgba(255, 255, 255, 0.05) 1178px, rgba(255, 255, 255, 0.015) 1179px, transparent 1180px),
+      radial-gradient(circle 560px at 4% 112%, transparent 0 556px, rgba(255, 255, 255, 0.02) 556px, rgba(255, 255, 255, 0.06) 558px, rgba(255, 255, 255, 0.02) 559px, transparent 560px),
+      /* ── the ground: charcoal through the middle falling to near-black at the edge. Near-flat
+            on purpose — the range is only #16 → #05, which is a vignette rather than a gradient
+            you can point at, and it is what stops a page this long from reading as one dead
+            rectangle without adding any lighting the flat treatment has no business having. ── */
+      radial-gradient(135% 110% at 50% 32%, #161616 0%, #101010 45%, #050505 100%);
+    background-repeat: repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+    /* The six near stars share one tile and the five far stars share another, so each field is
+       one small raster the compositor tiles — not eleven full-viewport images. */
+    background-size:
+      383px 367px, 383px 367px, 383px 367px, 383px 367px, 383px 367px, 383px 367px,
+      271px 253px, 271px 253px, 271px 253px, 271px 253px, 271px 253px,
+      100% 100%, 100% 100%, 100% 100%, 100% 100%;
   }
 }
 

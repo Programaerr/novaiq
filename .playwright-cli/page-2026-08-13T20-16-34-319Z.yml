@@ -1,0 +1,15 @@
+- generic [ref=e7]:
+  - generic [ref=e9]:
+    - generic [ref=e10]: NOVAIQ
+    - img "NOVAIQ" [ref=e11]
+  - generic [ref=e13]:
+    - heading "سجّل دخولك إلى حسابك في NOVAIQ" [level=1] [ref=e14]: سجّل دخولك إلىحسابك في NOVAIQ
+    - paragraph [ref=e15]: ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.
+    - generic [ref=e16]:
+      - generic [ref=e17]: كل عقودك في مكان واحد خاص بك
+      - generic [ref=e24]: تابع حالة كل عقد لحظة بلحظة
+      - generic [ref=e30]: حمّل نسخة PDF من عقدك في أي وقت
+    - button "المتابعة عبر Google" [ref=e36] [cursor=pointer]
+    - button "أكمل كضيف" [ref=e43] [cursor=pointer]
+    - paragraph [ref=e45]: تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.
+  - paragraph [ref=e46]: © NOVAIQ — جميع الحقوق محفوظة

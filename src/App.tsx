@@ -563,12 +563,13 @@ export default function App() {
                     ].map((stat, idx) => (
                       <div
                         key={idx}
-                        // A translucent white lift, not an opaque colour. On a tinted ground an
-                        // opaque tile has to re-state the tint to match, and then goes wrong the
-                        // moment the ground is retuned; white at 4% takes the navy from whatever
-                        // is behind it and can only ever come out lighter than it. `bg-black`
-                        // here was the older, neutral ground's inverse — on navy it read as a
-                        // hole punched through the page rather than as a raised surface.
+                        // A translucent white lift, not an opaque colour — and the ground has been
+                        // retuned twice since without this line needing to change, which is the
+                        // argument for it. An opaque tile has to re-state whatever the ground is
+                        // and goes wrong the moment the ground moves; white at 4% takes its colour
+                        // from whatever is behind it and can only ever come out lighter than it,
+                        // so the tile reads as raised by construction. `bg-black` here could only
+                        // ever read as a hole punched through the page.
                         className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-white/[0.04] border border-zinc-700/80"
                       >
                         <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
