@@ -2449,23 +2449,28 @@ html[data-scrolling] .rv::before {
 
 
 
-/* ── The closing stage under the template carousel (TemplateGrid.tsx) ──────────────────────
-   The price caveat is the lamp; the light falls DOWNWARD out of it onto the brand mark.
 
-   Two things this went through before getting here, both worth keeping written down:
+/* ── The closing stage under the template carousel (TemplateGrid.tsx) ──────────────────────
+   The price caveat is the lamp; white light falls DOWNWARD out of it, and the brand mark below
+   is simply standing in it.
+
+   Three things this went through before getting here, all worth keeping written down:
 
    1. It was two straight-edged wedges cut with `clip-path`. That is what a beam looks like in a
       diagram, not in a room — real light has no edge, it runs out. Gradients only now.
    2. Then it glowed in every direction at once, which is a lamp with no shade: light climbing the
-      sides of the pill and spreading across the full width of the section reads as a smudge
-      behind the text rather than as a beam coming out of it.
+      sides of the pill and running the full width of the section read as a smudge behind the text
+      rather than as a beam coming out of it. Everything is offset downward and bounded now.
+   3. There was a second gradient pooled directly over the mark, to "land" the light on it. It
+      fought the mark instead — a bright ellipse sitting on top of the artwork, with its own edge
+      to notice. Deleted. The cone's own tail reaches that far on its own, which is the honest way
+      for light to arrive somewhere: nothing is drawn ON the mark, it is just in the beam.
 
-   So everything here is bounded and downward. The pill's own halo is offset down the Y axis with
-   no symmetric ring around it; the cone is anchored at the pill (`at 50% 0%`, so its top half is
-   outside the box and only the opening shows) and is deliberately far narrower than the section,
-   which is what keeps it from ever reaching the sides. The alpha ramp runs through six stops
-   rather than three — a soft gradient is soft because it has nowhere for the eye to catch, and
-   three stops leave two visible shoulders.
+   The pill stays dark. A white pill was not a lamp, it was a piece of the beam with text on it —
+   a lamp is a dark housing with light leaving its underside.
+
+   The alpha ramp runs through seven stops rather than three: a gradient reads as soft when the eye
+   has nowhere to catch, and three stops leave two visible shoulders.
 
    Deliberately no `filter: blur()`. A blurred layer this size is re-rasterized by the GPU whenever
    anything about it changes, which is real cost on a weak phone for something that never moves.
@@ -2477,56 +2482,37 @@ html[data-scrolling] .rv::before {
   overflow: hidden;
 }
 
-/* The source. The glow is offset downward and has no `0 0` ring, so light leaves the underside of
-   the pill rather than wrapping around it. */
+/* The source. Offset down the Y axis with no `0 0` ring, so the light leaves the underside of the
+   housing rather than wrapping around it. */
 .tpl-lamp {
   position: relative;
   z-index: 2;
   box-shadow:
-    0 6px 20px rgba(255, 255, 255, 0.3),
-    0 16px 46px rgba(255, 255, 255, 0.16),
-    0 30px 90px rgba(255, 255, 255, 0.09);
+    0 7px 24px rgba(255, 255, 255, 0.38),
+    0 18px 54px rgba(255, 255, 255, 0.2),
+    0 34px 100px rgba(255, 255, 255, 0.11);
 }
 
-/* The cone. Narrow, centred, and anchored at the pill. */
+/* The cone. Narrow and centred, anchored at the pill (`at 50% 0%`, so its upper half is outside
+   the box and only the opening shows) and reaching far enough down on its own to fall across the
+   mark — which is why nothing is drawn over the mark itself. */
 .tpl-lightstage__spill {
   position: absolute;
   top: 1.9rem;
   left: 50%;
-  width: min(76%, 620px);
-  height: 74%;
+  width: min(82%, 660px);
+  height: 96%;
   transform: translateX(-50%);
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(
     50% 100% at 50% 0%,
-    rgba(255, 255, 255, 0.26) 0%,
-    rgba(255, 255, 255, 0.175) 16%,
-    rgba(255, 255, 255, 0.105) 34%,
-    rgba(255, 255, 255, 0.055) 52%,
-    rgba(255, 255, 255, 0.022) 70%,
-    rgba(255, 255, 255, 0.006) 86%,
-    rgba(255, 255, 255, 0) 100%
-  );
-}
-
-/* Where the cone lands. Narrower than the section for the same reason the cone is — a pool that
-   runs to both edges is not a pool, it is a background. */
-.tpl-lightstage__pool {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(72%, 700px);
-  top: 46%;
-  bottom: -2%;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    58% 100% at 50% 46%,
-    rgba(255, 255, 255, 0.17) 0%,
-    rgba(255, 255, 255, 0.1) 30%,
-    rgba(255, 255, 255, 0.045) 54%,
-    rgba(255, 255, 255, 0.014) 76%,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.23) 16%,
+    rgba(255, 255, 255, 0.14) 34%,
+    rgba(255, 255, 255, 0.075) 52%,
+    rgba(255, 255, 255, 0.032) 70%,
+    rgba(255, 255, 255, 0.009) 86%,
     rgba(255, 255, 255, 0) 100%
   );
 }

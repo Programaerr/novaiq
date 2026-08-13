@@ -1049,13 +1049,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             and nothing animated: it rasterizes once and costs nothing after that. */}
         <div className="tpl-lightstage mt-20 sm:mt-28">
           <span className="tpl-lightstage__spill" aria-hidden="true" />
-          <span className="tpl-lightstage__pool" aria-hidden="true" />
 
-          {/* The lamp. White on white type, because this is the thing the light is coming out
-              of — a dark pill at the apex of two bright beams reads as a hole punched in them. */}
+          {/* The lamp — black again, in the site's own surface language rather than a white slab.
+              A dark housing with light leaving its underside is a lamp; the white pill read as a
+              piece of the beam that happened to have text on it. */}
           <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
-            <div className="tpl-lamp inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[11px] font-semibold text-black">
-              <Info className="w-3.5 h-3.5 text-black/60 shrink-0" />
+            <div className="tpl-lamp inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black border border-white/15 text-[11px] text-zinc-300">
+              <Info className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               <span>
                 {currentLang === 'ar'
                   ? 'السعر المعروض للقالب (التصميم) فقط، ويختلف عند طلب موقع متكامل وجاهز للعمل الفعلي'
