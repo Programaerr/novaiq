@@ -1,29 +1,106 @@
 import { useEffect } from 'react';
+import Lenis from 'lenis';
 
 // Scroll behaviour for the whole app, kept out of App.tsx: neither hook touches App's own
 // state beyond the arguments below, and together they were the longest stretch of App's body
 // that had nothing to do with what the page actually renders.
 
 /**
- * Kept as a no-op so the call site does not have to change, and so this note stays next to the
- * thing it explains.
+ * iPhone-style scrolling for wheel and trackpad input: the page follows the input immediately
+ * and keeps gliding for a moment after it stops.
  *
- * The site ran Lenis here: wheel input was intercepted and the scroll position eased towards it.
- * It has been removed, and the reason is the complaint it caused rather than any cost it had.
- * Smoothing is latency by construction — the page cannot move the full distance on the frame the
- * wheel arrives, because moving gradually is the entire feature. At the 1.1s easing this was
- * configured with, one wheel tick was measured still settling 952ms later, which is felt exactly
- * as "it waits, then it goes".
+ * ## The distinction this hook exists to get right
  *
- * Native scrolling has none of that: the compositor moves the page on the same frame as the
- * input, off the main thread, with nothing to schedule and nothing to catch up on. What is lost
- * is a stylistic glide; what is gained is that the page moves when the hand moves.
+ * "Smooth" and "laggy" are the same mechanism at different settings, which is why this was got
+ * wrong once already. What an iPhone actually does is track the finger 1:1 with no delay at all,
+ * and add momentum only AFTER the finger lifts. What this hook used to do was the opposite: every
+ * wheel tick started a fixed 1.1-second ease, so the page trailed the input for the whole gesture
+ * — one tick was measured still settling 952ms later. That is felt as "it waits, then it goes",
+ * and no amount of easing curve fixes it, because the delay is the setting.
  *
- * Also gone with it: a per-frame main-thread callback (the loop that drove the easing), a
- * ~20 idle-frame tail after every scroll, and the `lenis` module from the bundle.
+ * So: `lerp`, never `duration`. Lerp moves a fixed FRACTION of the remaining distance each frame,
+ * which means it has no fixed length and no start-up ramp — the first frame covers the largest
+ * share and the rest tapers into the glide. A second tick mid-glide moves the target instead of
+ * restarting a clock, so fast repeated scrolling stays under the hand rather than turning rubbery.
+ *
+ * 0.28 is high enough that roughly 90% of any tick is covered inside ~7 frames (about a tenth of
+ * a second at 60Hz) while the remaining tail is still visible as motion. Lower values look more
+ * dramatic and immediately start feeling like lag; that is the whole trade, and it is worth
+ * remembering before anyone tunes this down again.
  */
 export function useSmoothScroll() {
-  // Intentionally empty — see above.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Not on touch devices — and this is a performance fix, not a preference.
+    //
+    // Lenis smooths *wheel* input. A phone has no wheel: it scrolls by touch, which Lenis
+    // deliberately leaves to the OS because native touch scrolling already has momentum and
+    // runs on the compositor. So on a phone this instance was smoothing nothing at all — while
+    // still running its requestAnimationFrame callback on the main thread on every single
+    // frame, for the entire life of the session.
+    //
+    // Detected by pointer capability rather than by width: a small window on a laptop still has
+    // a wheel and should still get smoothing, and a large tablet still has none.
+    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+
+    const lenis = new Lenis({ lerp: 0.28 });
+
+    let rafId: number | null = null;
+    let idleFrames = 0;
+
+    // On-demand, not continuous — and a performance trace is what forced this.
+    //
+    // The loop used to re-request a frame unconditionally, which meant it ran at the display's
+    // full refresh rate from the moment the page opened until the tab closed, smoothing a scroll
+    // position that had not moved. Lenis only has work to do while it is easing towards a target;
+    // `isScrolling` reports exactly that, so the loop stops itself once that has been false for a
+    // short tail and restarts on the input that could have started a scroll.
+    const raf = (time: number) => {
+      lenis.raf(time);
+
+      if (lenis.isScrolling) idleFrames = 0;
+      else idleFrames++;
+
+      // A short tail rather than stopping the instant isScrolling drops: the flag can clear a
+      // frame or two before the easing has fully settled, and cutting the loop there would
+      // freeze the last pixels of every scroll.
+      if (idleFrames > 20) {
+        rafId = null;
+        return;
+      }
+      rafId = requestAnimationFrame(raf);
+    };
+
+    const start = () => {
+      idleFrames = 0;
+      if (rafId === null) rafId = requestAnimationFrame(raf);
+    };
+    const stop = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    // Everything that can begin a scroll. Lenis's own handlers update its target during the
+    // same event dispatch, so by the time the frame we request here actually runs, there is
+    // already something for it to ease towards.
+    const WAKE = ['wheel', 'keydown', 'pointerdown', 'touchstart'] as const;
+    for (const type of WAKE) window.addEventListener(type, start, { passive: true });
+
+    // Also gated on visibility: a scroll left mid-ease when the tab is hidden would otherwise
+    // keep its tail running with no viewer.
+    const onVisibility = () => (document.hidden ? stop() : undefined);
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      for (const type of WAKE) window.removeEventListener(type, start);
+      document.removeEventListener('visibilitychange', onVisibility);
+      stop();
+      lenis.destroy();
+    };
+  }, []);
 }
 
 /**
