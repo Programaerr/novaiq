@@ -1818,8 +1818,11 @@ html[data-flat] .cosmic-bg {
 
   position: relative;
   width: 100%;
-  height: 180px;
-  margin-top: 2.5rem;
+  /* Taller than the cards on purpose. This box is also the mask box, so it is the hard edge of
+     what can be drawn — a box sized exactly to the card leaves no tolerance at all, and anything
+     that rounds a pixel outward loses that pixel. The slack is 55px above and below the card. */
+  height: 245px;
+  margin-top: 4rem;
   /* A filmstrip has no reading order. Without this the ring's spin direction would flip with the
      site's language, for no reason a visitor could name. */
   direction: ltr;
@@ -1838,8 +1841,11 @@ html[data-flat] .cosmic-bg {
      perspective, so the whole fan shrinks toward a common baseline instead of toward its middle.
      With the default 50% the far cards contracted vertically about their centres, lifting their
      feet off the ground; the row read as a wall of cards floating at different heights rather
-     than as a fan standing on one. */
-  perspective-origin: 50% 92%;
+     than as a fan standing on one.
+
+     50% + (card_h / 2 ÷ height) × 100 — recomputed per breakpoint below, since both terms change.
+     Here: 50 + (67.5 / 245) × 100 = 77.6%. */
+  perspective-origin: 50% 77.6%;
   /* The outermost sliver dissolves instead of being cut. A mask removes pixels, so the carousel
      fades into the starfield rather than ending on a hard vertical line across the page. Kept
      narrow — a wide fade dims a whole card, which looks like a loading state, not an edge. */
@@ -1852,9 +1858,10 @@ html[data-flat] .cosmic-bg {
     --card-w: 168px;
     --card-h: 210px;
     --ring-r: 766px;      /* (168 + 18) / 0.2428 */
-    height: 260px;
+    height: 330px;        /* 210 card + 60 slack each side */
     perspective: 1200px;
-    margin-top: 3.5rem;
+    perspective-origin: 50% 81.8%;   /* 50 + (105 / 330) x 100 */
+    margin-top: 5rem;
   }
 }
 
@@ -1863,8 +1870,9 @@ html[data-flat] .cosmic-bg {
     --card-w: 232px;
     --card-h: 290px;
     --ring-r: 1054px;     /* (232 + 24) / 0.2428 */
-    height: 340px;
+    height: 430px;        /* 290 card + 70 slack each side */
     perspective: 1500px;
+    perspective-origin: 50% 83.7%;   /* 50 + (145 / 430) x 100 */
   }
 }
 
