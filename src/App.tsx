@@ -710,8 +710,13 @@ export default function App() {
             </div>
 
             {/* About Section */}
-            <div className="below-fold">
-              <AboutSection language={language} />
+            {/* The light panel in the alternation. `below-fold` stays on the outer wrapper: the
+                paint-skip it buys is genuinely safe here, unlike on the timeline, because nothing
+                in this section runs a live transform that would keep re-triggering the check. */}
+            <div className="below-fold max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="nq-panel nq-panel--light">
+                <AboutSection language={language} />
+              </div>
             </div>
           </div>
         )}

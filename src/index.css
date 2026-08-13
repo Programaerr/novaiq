@@ -2066,6 +2066,16 @@ html[data-scrolling] .rv::before {
   color: #4F46E5;
 }
 
+/* A section that already framed itself is now inside a frame. AboutSection wraps its content in
+   its own bordered, shimmering box — correct when it sat directly on the page, and a second panel
+   drawn inside the first now that it does not. Flattened rather than removed from the component,
+   because that box is still doing its job on any surface that is not this one. */
+.nq-panel--light .solid-shimmer {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
 /* ── The globe (HeroGlobe.tsx) ──────────────────────────────────────────────────────────────
    Where the WebGL canvas sits, and nothing else — the sphere itself is drawn in the scene.
 
