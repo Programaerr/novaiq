@@ -628,8 +628,22 @@ export default function App() {
               </div>
             </div>
 
-            {/* Structured Timeline */}
-            <div className="below-fold">
+            {/* Structured Timeline.
+                No `below-fold` on this one, for the same reason the panel above it lost its own:
+                `content-visibility: auto` brings paint containment with it, which CLIPS the
+                subtree to this wrapper's box — and the cards inside are on a scroll-driven
+                `translateY` that carries them up to 48px past it. The grid is the last thing in
+                the wrapper, so there is no headroom at the bottom at all: measured while
+                scrolling, the cards' feet sat 2, then 5px below the wrapper's edge and that
+                strip was simply cut off. It tracks the drift exactly, so at full drift the
+                bottom 48px of every card disappears — which is why the cards looked open at the
+                foot no matter what their border did.
+
+                Padding the wrapper to make room would have worked and would also have pushed
+                this section's gaps out of step with every other gap on the page. Dropping the
+                containment costs the paint-skip on one section of four text cards, whose
+                animations are scroll-progress-driven and therefore cost nothing at rest. */}
+            <div>
               <MilestoneTimeline language={language} />
             </div>
 

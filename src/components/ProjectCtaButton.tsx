@@ -19,9 +19,15 @@ export const ProjectCtaButton: React.FC<ProjectCtaButtonProps> = ({ onCreateCont
           onCreateContract();
           cosmicAudio.playWarp();
         }}
-        className="nq-btn nq-btn--solid px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full font-extrabold uppercase tracking-[0.1em] inline-flex items-center cursor-pointer"
+        // The templates page's filter pill, motion and all — the same white body that flips to
+        // black, the same 1.03 swell on hover and 0.98 press, and the same 2px conic beam
+        // rolling round the outline. `relative` is not decoration: .filter-pill-btn brings
+        // `isolation: isolate` but not a position, and the beam is `position: absolute;
+        // inset: -2px`, so without it the ring would hang off the nearest positioned ancestor
+        // instead of this button. (.nq-btn, which this replaces, supplied the position itself.)
+        className="filter-pill-btn relative px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full font-extrabold uppercase tracking-[0.1em] inline-flex items-center cursor-pointer"
       >
-        <span className="nq-btn-beam" aria-hidden="true" />
+        <span className="filter-pill-beam" aria-hidden="true" />
         <Rocket className="w-4 h-4 sm:w-5 sm:h-5" />
         <span>{language === 'ar' ? 'ابدأ تنفيذ مشروعك ووقع العقد الآن' : 'Start Your Project & Sign Contract Now'}</span>
         <ArrowLeft className={`w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
