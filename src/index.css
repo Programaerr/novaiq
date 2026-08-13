@@ -1971,7 +1971,7 @@ html[data-scrolling] .rv::before {
    Pinned above the fold and pulled up by a third of its own height, so what sits behind the copy
    is the globe's upper half — the part where the point density is climbing towards the rim. Its
    lower half is below the hero and clipped away by the section's overflow, exactly as the arc's
-   body was. 
+   body was. */
 .hero-globe {
   position: absolute;
   top: 0;

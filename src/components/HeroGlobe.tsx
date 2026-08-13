@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 import type { Points } from 'three';
 
 /**
@@ -45,11 +46,55 @@ import type { Points } from 'three';
  * - Reduced-motion stops the rotation, which also means `frameloop` never runs.
  */
 
-const COUNT = 2600;
+const COUNT = 5200;
 const RADIUS = 1;
+
+/**
+ * A round sprite for the points, because `pointsMaterial` draws SQUARES by default — every point
+ * is a quad, and with no texture the whole quad is filled. At two pixels that reads as digital
+ * noise rather than as dust, and the globe's silhouette comes out visibly serrated.
+ *
+ * 32×32 and drawn once at module scope: every point in the scene samples this same texture, so
+ * making it per-instance would upload the identical bitmap to the GPU again for nothing. The
+ * falloff is squared at the end to keep the core opaque and put all the softness in the last
+ * third, which is what stops a small sprite from just looking blurry.
+ */
+function makeDotTexture(): THREE.Texture {
+  const size = 32;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    const image = ctx.createImageData(size, size);
+    const mid = (size - 1) / 2;
+
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const dx = (x - mid) / mid;
+        const dy = (y - mid) / mid;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        const a = d >= 1 ? 0 : Math.pow(1 - d, 2);
+        const i = (y * size + x) * 4;
+        image.data[i] = 255;
+        image.data[i + 1] = 255;
+        image.data[i + 2] = 255;
+        image.data[i + 3] = Math.round(a * 255);
+      }
+    }
+
+    ctx.putImageData(image, 0, 0);
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
 
 function GlobePoints({ spin }: { spin: boolean }) {
   const ref = useRef<Points>(null);
+  const dot = useMemo(makeDotTexture, []);
 
   // Fibonacci sphere. The golden angle is what keeps successive points from ever lining up into
   // visible spokes — any rational angle here produces arms radiating from the poles.
