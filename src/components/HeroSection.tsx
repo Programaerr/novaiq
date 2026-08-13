@@ -40,7 +40,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
   const CtaArrow = isAr ? ArrowUpLeft : ArrowUpRight;
 
   return (
-    <section className="relative pt-4 pb-2 md:pt-8 md:pb-6 overflow-hidden">
+    <section className="relative pb-2 md:pb-6 overflow-hidden">
       {/* Ambient glow, drawn as a radial gradient rather than a blurred circle: an animated 600px
           `blur(140px)` layer has to be re-rasterized by the GPU continuously, which is pure cost
           on a low-end device for something that looks the same either way. */}

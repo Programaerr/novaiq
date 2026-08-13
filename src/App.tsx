@@ -487,9 +487,14 @@ export default function App() {
       >
 
         {activePage === 'home' && (
-          <div className="page-in space-y-20 sm:space-y-24">
+          /* The page's section rhythm — the one gap between every top-level block below.
+             Widened from 20/24: with the hero's carousel now ending in a fan of cards rather
+             than in a line of text, the old gap left the next section's heading sitting almost
+             on top of it. A section break has to be visibly larger than the spacing inside a
+             section, or the page reads as one long column instead of as parts. */
+          <div className="page-in space-y-28 sm:space-y-36">
             {/* Hero copy and the card/pitch panel are deliberately one block, held to their own
-                tight spacing rather than the page's `space-y-20`. Apart they read as two
+                tight spacing rather than the page's section rhythm. Apart they read as two
                 sections and the panel starts below the fold; together they are the first
                 screenful — headline, the card, and the claim it backs, all visible at once,
                 which is the whole point of moving the panel up here. The larger page rhythm
