@@ -82,7 +82,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
       <div className="hero-sky" aria-hidden="true" />
 
       {/* ── The claim ────────────────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* The top padding is the limb's clearance, not decoration: the copy has to start below the
+          arc's crown or the rim runs through the headline. It is on the content rather than on the
+          section because the limb is positioned against the section's own top edge — padding the
+          section would move the arc down by exactly as much and change nothing. */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-28 text-center">
         {/* Two lines by construction, not by luck. Left to wrap on its own the break would move
             with the viewport width and the emphasised half would sometimes trail on the end of
             the first line — the shape of this headline is half of what it is doing.

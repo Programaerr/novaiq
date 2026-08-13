@@ -1928,8 +1928,13 @@ html[data-scrolling] .rv::before {
    to blur, and a radial gradient produces the same falloff as part of the paint it was already
    doing. Same reasoning that governs the page background. */
 .hero-limb {
-  --limb-r: 620px;
-  --limb-top: 34px;
+  /* Radius is the curvature control, and bigger is flatter. At r = 620 the arc fell nearly 400px
+     between the crown and the side walls and swept straight through the headline; at 1900 it
+     falls about 140px across the same span, which is what a body large enough to be a horizon
+     actually looks like. The headline clears it because the copy below is padded down past the
+     crown, not because the arc was shrunk out of the way. */
+  --limb-r: 800px;
+  --limb-top: 14px;
 
   position: absolute;
   top: var(--limb-top);
@@ -1942,8 +1947,15 @@ html[data-scrolling] .rv::before {
   z-index: 0;
 
   background:
+    /* `closest-side`, and without it none of the stops below exist on screen.
+       A radial-gradient sizes itself `farthest-corner` by default, so in this square element 100%
+       of the gradient lands at the distance from the centre to a CORNER — r × √2, about 1980px
+       when r is 1400. The element's visible edge is the border-radius circle at r. So every stop
+       written near 100% was being painted 580px outside the rounded clip and thrown away, and the
+       only thing surviving was the flat body fill. `closest-side` is half the width in a square,
+       which puts 100% exactly on the rim. */
     radial-gradient(
-      circle at 50% 50%,
+      circle closest-side at 50% 50%,
       /* the body: the planet is DARKER than the sky it sits against, which is the half of this
          that makes the rim read as a rim. A bright line needs something unlit on one side of it;
          with the same charcoal above and below, the same line only reads as a drawn stroke. */
@@ -1989,13 +2001,13 @@ html[data-scrolling] .rv::before {
 }
 
 @media (min-width: 640px) {
-  .hero-limb { --limb-r: 1000px; --limb-top: 40px; }
-  .hero-limb::after { height: 440px; }
+  .hero-limb { --limb-r: 1300px; --limb-top: 16px; }
+  .hero-limb::after { height: 400px; }
 }
 
 @media (min-width: 1024px) {
-  .hero-limb { --limb-r: 1400px; --limb-top: 46px; }
-  .hero-limb::after { height: 520px; }
+  .hero-limb { --limb-r: 1900px; --limb-top: 18px; }
+  .hero-limb::after { height: 480px; }
 }
 
 /* The sky: a handful of points above the limb, on the same two-tile scheme the page background
@@ -2022,41 +2034,6 @@ html[data-scrolling] .rv::before {
     271px 187px, 271px 187px;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
-}
-
-/* The badge above the headline. A hairline ring drawn with an inset shadow rather than a border,
-   for the reason every other pill on this site does it: a real border sits outside the padding
-   box and pushes the contents in by its own width, so swapping it for a ring keeps the pill's
-   height identical whether or not it is outlined. */
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.4rem 0.9rem 0.4rem 0.4rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
-  color: #e4e4e7;
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-/* RTL flips which side the mark sits on, so the tighter padding has to follow it. */
-[dir='rtl'] .hero-badge {
-  padding: 0.4rem 0.4rem 0.4rem 0.9rem;
-}
-
-.hero-badge__mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #0a0a0a;
-  flex-shrink: 0;
 }
 
 /* ── Hero cover carousel (HeroCoverArc.tsx) ────────────────────────────────────────────────
