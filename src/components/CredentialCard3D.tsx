@@ -167,18 +167,24 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   const ctx = c.getContext('2d')!;
   clipRounded(ctx, TEX_W, TEX_H);
 
-  // Body. White, with everything on it in near-pure black — the point is contrast, so the type
-  // is #000 rather than the softened near-blacks used elsewhere on the site, and the card is
-  // lighter than anything around it on a near-black page.
+  // Body, in the site's own zinc rather than the white it used to be. A white card on a near-black
+  // page is a bright rectangle that the eye goes to before anything else on the screen and reads as
+  // borrowed from somewhere else — it belonged to no part of the design around it. In the page's
+  // own greys it is a machined object sitting on the same surface as everything else, and the
+  // lighting has something to play across instead of blowing out.
+  //
+  // Still a radial gradient from the upper left, because that is where the key light is: the corner
+  // nearest the light is the lightest part of the material, which is what makes a flat plane read
+  // as a solid rather than as a swatch.
   const g = ctx.createRadialGradient(TEX_W * 0.12, TEX_H * 0.08, 0, TEX_W * 0.12, TEX_H * 0.08, TEX_W * 1.1);
-  g.addColorStop(0, '#ffffff');
-  g.addColorStop(0.45, '#f6f6f8');
-  g.addColorStop(1, '#e4e4ea');
+  g.addColorStop(0, '#2b2b31');
+  g.addColorStop(0.45, '#1c1c21');
+  g.addColorStop(1, '#0e0e12');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
   const PAD = 92;
-  const INK = '#000000';
+  const INK = '#ffffff';
 
   // Circuit tracery, engraved rather than printed.
   //
@@ -213,16 +219,19 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     }
   };
 
-  strokeTraces(1.5, 1.5, 'rgba(255,255,255,0.95)', 3.5); // lit lip
-  strokeTraces(0, 0, 'rgba(0,0,0,0.3)', 3.5); // shadowed cut
+  // Same two cues on a dark body, at the tones a dark body actually gives them: the lit lip is a
+  // lighter grey than the card rather than pure white, and the cut goes darker than the card
+  // instead of being drawn in a black that has nowhere left to go.
+  strokeTraces(1.5, 1.5, 'rgba(255,255,255,0.22)', 3.5); // lit lip
+  strokeTraces(0, 0, 'rgba(0,0,0,0.62)', 3.5); // shadowed cut
 
   // The pads at the ends of each run, sunk the same way.
   for (const [cx, cy] of dots) {
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.beginPath();
     ctx.arc(cx + 1.5, cy + 1.5, 9, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = 'rgba(0,0,0,0.34)';
+    ctx.fillStyle = 'rgba(0,0,0,0.66)';
     ctx.beginPath();
     ctx.arc(cx, cy, 9, 0, Math.PI * 2);
     ctx.fill();
@@ -267,10 +276,10 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     const badgeX = isAr ? startX - BADGE : startX;
     const textX = isAr ? startX - BADGE - 24 : startX + BADGE + 24;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.06)';
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
     roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)';
     ctx.lineWidth = 2.5;
     roundRect(ctx, badgeX, top, BADGE, BADGE, 18);
     ctx.stroke();
@@ -284,9 +293,9 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
     ctx.font = `800 56px ${FONT}`;
     ctx.fillText(title, textX, top - 8, maxText);
 
-    // 600 rather than 500, and 82% black rather than 68%: on a white card at this size those two
-    // changes are the difference between a second line you read and one you merely notice.
-    ctx.fillStyle = 'rgba(0,0,0,0.82)';
+    // 600 rather than 500, and 78% rather than 68%: at this size those two changes are the
+    // difference between a second line you read and one you merely notice.
+    ctx.fillStyle = 'rgba(255,255,255,0.78)';
     ctx.font = `600 40px ${FONT}`;
     ctx.fillText(descs[i], textX, top + 62, maxText);
   });
@@ -295,7 +304,7 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   // Bigger and darker than it was: at 27px and half-opacity this line was reported as simply not
   // visible on a phone, which it effectively was not — it worked out to about nine screen pixels
   // tall after the canvas had been rendered and scaled.
-  ctx.fillStyle = 'rgba(0,0,0,0.66)';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
   ctx.font = `700 34px ${FONT}`;
   ctx.letterSpacing = '4px';
   ctx.direction = isAr ? 'rtl' : 'ltr';
@@ -337,11 +346,13 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
   // set of numbers; this is the only place the difference in size is handled.
   ctx.scale(0.5, 0.5);
 
-  ctx.fillStyle = '#f4f4f7';
+  // A touch lighter than the front's darkest corner, so turning the card is a change of shade and
+  // not a jump between two unrelated surfaces.
+  ctx.fillStyle = '#17171c';
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
   // A single hairline frame, and nothing else competing with the mark.
-  ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
   ctx.lineWidth = 4;
   roundRect(ctx, 34, 34, TEX_W - 68, TEX_H - 68, 44);
   ctx.stroke();
