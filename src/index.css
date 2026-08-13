@@ -149,7 +149,7 @@
        scroll flashes a different shade across the top or bottom of the page — which is why it
        is a variable read by both `html` and `body` rather than the same literal written twice
        and left to drift. Charcoal rather than pure black: see the note on body::before. */
-    --nq-ground: #0B0B0B;
+    --nq-ground: #0E0E0E;
     background-color: var(--nq-ground);
 
     /* Vertical rhythm below the floating Navbar. --nav-bottom is measured and written here at
@@ -261,9 +261,9 @@
             Each is a band of hard stops, stepped 0.02 → 0.07 → 0.02 across ~3px rather than one
             flat 1px step: a hard 1px edge on a curve this large aliases into a dotted line, and
             the two faint outer stops are doing antialiasing by hand, for free. ─────────────── */
-      radial-gradient(circle 760px at 92% -12%, transparent 0 756px, rgba(255, 255, 255, 0.02) 756px, rgba(255, 255, 255, 0.07) 758px, rgba(255, 255, 255, 0.02) 759px, transparent 760px),
-      radial-gradient(circle 1180px at 78% -30%, transparent 0 1176px, rgba(255, 255, 255, 0.015) 1176px, rgba(255, 255, 255, 0.05) 1178px, rgba(255, 255, 255, 0.015) 1179px, transparent 1180px),
-      radial-gradient(circle 560px at 4% 112%, transparent 0 556px, rgba(255, 255, 255, 0.02) 556px, rgba(255, 255, 255, 0.06) 558px, rgba(255, 255, 255, 0.02) 559px, transparent 560px),
+      radial-gradient(circle 760px at 92% -12%, transparent 0 756px, rgba(255, 255, 255, 0.014) 756px, rgba(255, 255, 255, 0.048) 758px, rgba(255, 255, 255, 0.014) 759px, transparent 760px),
+      radial-gradient(circle 1180px at 78% -30%, transparent 0 1176px, rgba(255, 255, 255, 0.01) 1176px, rgba(255, 255, 255, 0.034) 1178px, rgba(255, 255, 255, 0.01) 1179px, transparent 1180px),
+      radial-gradient(circle 560px at 4% 112%, transparent 0 556px, rgba(255, 255, 255, 0.014) 556px, rgba(255, 255, 255, 0.04) 558px, rgba(255, 255, 255, 0.014) 559px, transparent 560px),
       /* ── the ground: charcoal through the middle falling to near-black at the edge. Near-flat
             on purpose — the range is only #16 → #05, which is a vignette rather than a gradient
             you can point at, and it is what stops a page this long from reading as one dead
