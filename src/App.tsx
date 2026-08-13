@@ -575,7 +575,28 @@ export default function App() {
                             } as CSSProperties}
                           />
                         </div>
-                        <div className="relative z-10 text-lg sm:text-xl font-extrabold text-white font-mono text-center">
+                        {/* Not `font-mono`, and `dir="ltr"` — two separate faults that were
+                            producing one broken-looking number.
+
+                            `font-mono` resolves to `ui-monospace, SFMono-Regular, Menlo, …`:
+                            whatever the machine happens to have, none of it loaded by this site.
+                            Asked for `font-extrabold` on top of that, the browser finds no 800
+                            weight in those faces and synthesises one — it smears the glyphs
+                            sideways to fake the weight. That is the mangling. Cairo is already
+                            loaded and has a real 800, so simply not overriding the family fixes
+                            it and matches the rest of the page.
+
+                            `dir="ltr"` because a figure is not prose. Under the page's RTL
+                            direction the browser applies the bidi algorithm to "80%" and "3-4",
+                            and where a sign or separator lands is then decided by surrounding
+                            context rather than by what was written. Pinning the direction makes
+                            written order and visual order the same thing — the same fix the
+                            pager arrows and the currency badge needed.
+
+                            `tabular-nums` keeps what mono was actually wanted for: digits on one
+                            fixed advance, so the three figures stay aligned across the row
+                            instead of shifting as their values change. */}
+                        <div dir="ltr" className="relative z-10 text-lg sm:text-xl font-extrabold text-white tabular-nums text-center">
                           {stat.value}
                         </div>
                         <div className="relative z-10 text-[10px] text-zinc-400 text-center">{stat.label}</div>
