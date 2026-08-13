@@ -61,9 +61,8 @@ function PricingRow({
     setPreviewImage(template.previewImage);
     setDemoUrl(template.demoUrl || '');
     setBasePriceIQD(String(template.basePriceIQD));
-    setSpecPrices(Object.fromEntries(template.specificationsOptions.map((s) => [s.id, String(s.priceIQD)])));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [template.title, template.previewImage, template.demoUrl, template.basePriceIQD, template.specificationsOptions.map((s) => s.priceIQD).join(',')]);
+  }, [template.title, template.previewImage, template.demoUrl, template.basePriceIQD]);
 
   const handleSave = async () => {
     if (isSaving) return;
@@ -75,7 +74,6 @@ function PricingRow({
         demoUrl: demoUrl.trim(),
         basePriceIQD: Number(basePriceIQD) || 0,
         basePriceUSD: toUSD(Number(basePriceIQD) || 0),
-        specPriceIQD: Object.fromEntries(Object.entries(specPrices).map(([id, v]) => [id, Number(v) || 0])),
       });
       setJustSaved(true);
       cosmicAudio.playPing();
@@ -194,24 +192,6 @@ function PricingRow({
               className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-mono"
             />
           </div>
-
-          {template.specificationsOptions.length > 0 && (
-            <div className="space-y-2">
-              <label className="block text-[11px] font-semibold text-zinc-400">
-                {isAr ? 'أسعار الإضافات' : 'Add-on Prices'}
-              </label>
-              {template.specificationsOptions.map((spec) => (
-                <div key={spec.id} className="flex items-center gap-2">
-                  <span className="text-[11px] text-zinc-300 flex-1 truncate">{translateText(spec.label, language)}</span>
-                  <PriceInput
-                    value={specPrices[spec.id] ?? ''}
-                    onChange={(v) => setSpecPrices((prev) => ({ ...prev, [spec.id]: v }))}
-                    className="w-28 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-white text-xs font-mono shrink-0"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
 
           <div className="flex justify-end pt-1">
             <button
