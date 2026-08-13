@@ -43,14 +43,13 @@ export default defineConfig(() => {
             // before the page can paint, which is exactly what lazy-loading the scene
             // component was meant to prevent. Matched on the node_modules path segment so
             // a bare substring like "three" can't catch unrelated package names.
-            // The named packages were never the whole 3D stack. @react-three/drei and fiber
-            // drag in a long tail of their own — a reconciler, a gesture library, an HLS
-            // video demuxer, a GPU benchmark database, a text-shaping engine — none of which
-            // matched this list, so all of them were landing in the eager `vendor` chunk and
-            // downloading on every page view for a scene that is lazy-loaded and may never be
-            // reached. None of these are imported anywhere in src/; they are reachable only
-            // through drei, so they belong on the same deferred side of the line it is on.
-            if (/node_modules\/(three|three-stdlib|three-mesh-bvh|@react-three|postprocessing|maath|its-fine|react-reconciler|zustand|suspend-react|tunnel-rat|@use-gesture|camera-controls|troika-[^/]+|meshline|stats\.js|detect-gpu|hls\.js|potpack|bidi-js|@monogrid|glsl-noise|n8ao|webgl-sdf-generator)\//.test(id)) {
+            // three itself is only half of it: @react-three/fiber pulls its-fine, zustand and
+            // suspend-react along with it, and none of those are imported anywhere in src/.
+            // Left unmatched they fall through to the eager `vendor` bucket below and ship on
+            // every page view to support a scene that is lazy-loaded and may never be reached.
+            // Matched on the node_modules path segment so a bare substring like "three" can't
+            // catch an unrelated package name.
+            if (/node_modules\/(three|@react-three|its-fine|zustand|suspend-react)\//.test(id)) {
               return 'vendor-three';
             }
             if (id.includes('firebase')) return 'vendor-firebase';

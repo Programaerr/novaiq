@@ -167,9 +167,6 @@ export default function App() {
   // scrolling fires hover on its own as content slides under a still cursor, and that work
   // lands on the same main thread the scroll is using. See `html[data-scrolling]` in index.css.
   useScrollingFlag();
-  // useIdleRest() is deliberately not called. It stood everything down after five seconds of
-  // stillness, which reads as the site switching itself off while you are looking at it. The
-  // tab-hidden pause below is a different question and stays: nobody can see the page then.
 
   // Handle URL changes & popstate (browser back/forward)
   useEffect(() => {
