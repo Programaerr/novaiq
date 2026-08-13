@@ -516,18 +516,20 @@ export default function App() {
              that are all the same kind of break — a page whose spacing looked arbitrary because
              it was arbitrary. The sections have no vertical padding now; this owns all of it.
 
-             112 / 160 rather than a rounder number because the last gap on the page is not set
-             here — the Footer's own `mt-20 sm:mt-32` plus <main>'s `pb-8` makes it exactly 112 and
-             160. Matching those two means the run from the hero to the footer is one interval the
-             whole way down, with nothing to notice. */
-          <div className="page-in space-y-28 sm:space-y-40">
-            {/* Hero copy and the card/pitch panel are deliberately one block, held to their own
-                tight spacing rather than the page's section rhythm. Apart they read as two
-                sections and the panel starts below the fold; together they are the first
-                screenful — headline, the card, and the claim it backs, all visible at once,
-                which is the whole point of moving the panel up here. The larger page rhythm
-                resumes at the section after it. */}
-            <div className="space-y-6 sm:space-y-8">
+             128 / 192, up from 112 / 160. Not a rounder number because the last gap on the page is
+             not set here — the Footer's own `mt-24 sm:mt-40` plus <main>'s `pb-8` makes it exactly
+             128 and 192. Those two have to move together or the run from the hero to the footer
+             stops being one interval and the final break becomes the odd one out. */
+          <div className="page-in space-y-32 sm:space-y-48">
+            {/* Hero copy and the card/pitch panel are one block, on their own tighter spacing
+                rather than the page's section rhythm: apart they read as two sections and the
+                panel starts below the fold, while together they are the first screenful.
+
+                But 24 / 32px was too tight to be a break at all — the panel began before the hero
+                had visibly ended, which is most of what made the page feel like it had no
+                sections. 64 / 96 still reads as "one block, two parts" (it is half the page's own
+                interval, so the hierarchy is unmistakable) while actually separating them. */}
+            <div className="space-y-16 sm:space-y-24">
               {/* The evidence used to be a separate band under this (HeroProofStrip, deleted) —
                   it is inside the hero now, as the carousel the copy sits above, so the claim
                   and the work it rests on are one composition rather than two sections. */}
