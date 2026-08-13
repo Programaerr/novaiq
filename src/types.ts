@@ -74,7 +74,7 @@ export interface ContractData {
   // us, rather than assembled from a menu of options they had no way to evaluate.
   customFeaturesText: string;
   primaryColor: string;
-  themePreference: 'dark' | 'light' | 'cosmic';
+  themePreference: 'dark' | 'light';
   languageSupport: 'ar' | 'en' | 'ar_en';
   
   // Terms & Financial

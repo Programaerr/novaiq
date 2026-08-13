@@ -201,7 +201,6 @@ export const UI_TRANSLATIONS = {
     builderSubtext: 'قم بتعبئة معلومات شركتك وتحديد المتطلبات التقنية ليتم توليد وثيقة مواصفات وخطة العمل فوراً وحفظها.',
     stepCompanyInfo: '1. بيانات الشركة والطرف الثاني',
     stepTechSpecs: '2. المواصفات البرمجية والهوية',
-    stepTermsPayment: 'القيمة والجدول الزمني',
     stepSignature: 'بنود العقد والتوقيع',
 
     companyNameLabel: 'اسم الشركة / المؤسسة:',
@@ -314,7 +313,6 @@ export const UI_TRANSLATIONS = {
     builderSubtext: 'Fill in your company information and technical specifications to generate the official project plan and spec sheet immediately.',
     stepCompanyInfo: '1. Company & Client Information',
     stepTechSpecs: '2. Software Specs & Identity',
-    stepTermsPayment: 'Value & Timeline',
     stepSignature: 'Contract terms & signature',
 
     companyNameLabel: 'Company / Organization Name:',

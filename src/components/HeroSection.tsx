@@ -80,21 +80,22 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
 
       {/* ── The claim ────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Two lines by construction, not by luck. Left to wrap on its own the break would move
-            with the viewport width and the emphasised half would sometimes trail on the end of
-            the first line — the shape of this headline is half of what it is doing. */}
-        <h1 className="text-4xl sm:text-6xl lg:text-[4.4rem] font-extrabold text-white tracking-tight leading-[1.1] font-['Cairo']">
+        {/* One line, not two. It was split across two forced lines with the verb stranded alone
+            above its object, which reads as a heading with a subtitle rather than as one claim.
+            `text-balance` handles the small screens where it genuinely cannot fit on one line —
+            it splits it evenly instead of leaving a single orphaned word on the second. */}
+        <h1 className="text-4xl sm:text-6xl lg:text-[4.4rem] font-extrabold text-white tracking-tight leading-[1.1] font-['Cairo'] text-balance">
           {isAr ? (
             <>
-              <span className="block">بناء</span>
-              <span className="block underline decoration-zinc-700 decoration-2 underline-offset-[12px] font-black">
+              بناء{' '}
+              <span className="underline decoration-zinc-700 decoration-2 underline-offset-12 font-black">
                 مواقع وتطبيقات
               </span>
             </>
           ) : (
             <>
-              <span className="block">Web &amp; App</span>
-              <span className="block underline decoration-zinc-700 decoration-2 underline-offset-[12px] font-black">
+              Web &amp; App{' '}
+              <span className="underline decoration-zinc-700 decoration-2 underline-offset-12 font-black">
                 Development
               </span>
             </>
