@@ -167,19 +167,22 @@ function drawFront(isAr: boolean): HTMLCanvasElement {
   const ctx = c.getContext('2d')!;
   clipRounded(ctx, TEX_W, TEX_H);
 
-  // Body, in the site's own zinc rather than the white it used to be. A white card on a near-black
-  // page is a bright rectangle that the eye goes to before anything else on the screen and reads as
-  // borrowed from somewhere else — it belonged to no part of the design around it. In the page's
-  // own greys it is a machined object sitting on the same surface as everything else, and the
-  // lighting has something to play across instead of blowing out.
+  // Body, in the brand violet, dark. It was white: a bright rectangle on a near-black page that the
+  // eye went to before anything else and that belonged to no part of the design around it.
+  //
+  // Violet rather than a neutral grey because #8b5cf6 is the site's own accent — the colour the
+  // contract builder offers first and the one the interface leans on — so the card is recognisably
+  // the same product rather than a slab that happens to sit nearby. Dark, though: at full accent
+  // saturation a card this size stops being an object and becomes a colour swatch, and white type
+  // on mid-violet is a contrast problem rather than a design.
   //
   // Still a radial gradient from the upper left, because that is where the key light is: the corner
   // nearest the light is the lightest part of the material, which is what makes a flat plane read
-  // as a solid rather than as a swatch.
+  // as a solid rather than as a fill.
   const g = ctx.createRadialGradient(TEX_W * 0.12, TEX_H * 0.08, 0, TEX_W * 0.12, TEX_H * 0.08, TEX_W * 1.1);
-  g.addColorStop(0, '#2b2b31');
-  g.addColorStop(0.45, '#1c1c21');
-  g.addColorStop(1, '#0e0e12');
+  g.addColorStop(0, '#4b3b86');
+  g.addColorStop(0.45, '#2c2159');
+  g.addColorStop(1, '#150f2e');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
@@ -348,7 +351,7 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
 
   // A touch lighter than the front's darkest corner, so turning the card is a change of shade and
   // not a jump between two unrelated surfaces.
-  ctx.fillStyle = '#17171c';
+  ctx.fillStyle = '#221a44';
   ctx.fillRect(0, 0, TEX_W, TEX_H);
 
   // A single hairline frame, and nothing else competing with the mark.
@@ -499,11 +502,11 @@ function Card({ isAr, targetRef }: { isAr: boolean; targetRef: React.MutableRefO
    */
   const materials = useMemo(
     () => ({
-      // The edge and the unprinted core of the slab, in the same zinc as the faces. More metallic
+      // The edge and the unprinted core of the slab, in the same violet as the faces. More metallic
       // than the white version could be: a metallic surface takes its colour from what it
-      // reflects, which turned a white card grey, but on a dark card that is exactly the effect —
-      // it puts a moving sheen on the bevel as the card turns.
-      body: new THREE.MeshStandardMaterial({ color: '#191920', roughness: 0.3, metalness: 0.45 }),
+      // reflects, which turned a white card grey, but on a dark one that is exactly the effect —
+      // it puts a moving sheen along the bevel as the card turns.
+      body: new THREE.MeshStandardMaterial({ color: '#241b48', roughness: 0.3, metalness: 0.45 }),
       // The artwork is its own bump map.
       //
       // The colour texture's luminance is already a height field, so handing the same texture to
