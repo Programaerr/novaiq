@@ -529,7 +529,7 @@ export default function App() {
                 // subtree is on screen, so it skips and un-skips it repeatedly, throwing the
                 // section's rendering away and rebuilding it — many times a second, for as long
                 // as the card is moving. That is both the flicker and a large part of the heat.
-                className="panel-stars border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+                className="border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
               >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
                 {/* The credential card, in the same row as the pitch it illustrates rather than
