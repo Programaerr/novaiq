@@ -487,12 +487,19 @@ export default function App() {
       >
 
         {activePage === 'home' && (
-          /* The page's section rhythm — the one gap between every top-level block below.
-             Widened from 20/24: with the hero's carousel now ending in a fan of cards rather
-             than in a line of text, the old gap left the next section's heading sitting almost
-             on top of it. A section break has to be visibly larger than the spacing inside a
-             section, or the page reads as one long column instead of as parts. */
-          <div className="page-in space-y-28 sm:space-y-36">
+          /* The page's section rhythm, and the ONLY thing that sets the gap between top-level
+             blocks. That exclusivity is the point. This used to be half of the spacing: the
+             sections also carried `py-10 sm:py-14` of their own, and the CTA wrapper below added
+             another, so a break was this gap plus whatever the two blocks either side happened to
+             contribute. The result was measured at 152 / 192 / 192px on a phone for four breaks
+             that are all the same kind of break — a page whose spacing looked arbitrary because
+             it was arbitrary. The sections have no vertical padding now; this owns all of it.
+
+             112 / 160 rather than a rounder number because the last gap on the page is not set
+             here — the Footer's own `mt-20 sm:mt-32` plus <main>'s `pb-8` makes it exactly 112 and
+             160. Matching those two means the run from the hero to the footer is one interval the
+             whole way down, with nothing to notice. */
+          <div className="page-in space-y-28 sm:space-y-40">
             {/* Hero copy and the card/pitch panel are deliberately one block, held to their own
                 tight spacing rather than the page's section rhythm. Apart they read as two
                 sections and the panel starts below the fold; together they are the first
@@ -628,7 +635,11 @@ export default function App() {
 
             {/* Bridges the timeline and about sections rather than living inside either,
                 so it reads as a shared next step and not "the end of the roadmap." */}
-            <div className="below-fold py-10 sm:py-14">
+            {/* No padding of its own — see the rhythm note at the top of this page. A wrapper
+                that adds its own `py` on top of the parent's `space-y` makes the two breaks
+                around it half again as wide as every other break on the page, which is exactly
+                what used to single this one out. */}
+            <div className="below-fold">
               <ProjectCtaButton language={language} onCreateContract={() => navigateTo('custom-request')} />
             </div>
 

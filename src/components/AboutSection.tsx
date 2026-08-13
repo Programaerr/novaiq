@@ -14,7 +14,11 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
   const revealGroup = useRevealGroup<HTMLDivElement>();
 
   return (
-    <section id="about-section" className="py-10 sm:py-14 relative">
+    <section id="about-section" className="relative">
+      {/* No vertical padding here. The home page sets the gap between sections with a single
+          `space-y` (see App.tsx) — a section that also pads itself adds to that gap on both
+          sides, so this one break came out half again as wide as the others. Spacing between
+          blocks belongs to whatever is stacking them, not to the blocks. */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* The border itself glints — see .solid-shimmer. No overflow-hidden: the shimmer
@@ -43,7 +47,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
 
           {/* Concise Capabilities List — nested under the intro instead of split into a
               side-by-side column, so the whole card reads as one centered block. */}
-          <div ref={revealGroup} className="reveal-group grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 max-w-4xl mx-auto">
+          <div ref={revealGroup} className="reveal-group grid grid-cols-1 sm:grid-cols-3 gap-3 mt-10 sm:mt-14 max-w-4xl mx-auto">
             {[
               {
                 title: language === 'ar' ? 'تطوير منصات برمجية متكاملة' : 'Full-Stack Platform Engineering',

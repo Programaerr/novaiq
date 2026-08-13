@@ -1387,6 +1387,17 @@ html[data-flat] .cosmic-bg {
       rgba(255, 255, 255, 0.035) 70%,
       rgba(255, 255, 255, 0) 100%
     );
+  /* Clipped to the padding box, so the glow stops at the inside of the border instead of
+     painting underneath it. A CSS border is drawn ON TOP of the background by default, and
+     this one is semi-transparent — so along the bottom edge, where the glow is at its
+     brightest, a 1px rgba(255,255,255,0.3) line was compositing over a surface already
+     brighter than itself and vanishing into it. The card looked open at the bottom: three
+     crisp edges and one that just faded out.
+
+     Clipped here, whatever shows through the border is the page behind the card — black sky,
+     at every point of the outline — so the rim has identical contrast the whole way round no
+     matter what the card is doing behind it. */
+  background-clip: padding-box;
 }
 
 /* Cards drift gently on scroll — view(), not scroll(): a per-card "how far through the

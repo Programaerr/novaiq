@@ -68,11 +68,15 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
   ];
 
   return (
-    <section id="timeline-section" className="py-10 sm:py-14 relative">
+    <section id="timeline-section" className="relative">
+      {/* No vertical padding here. The home page sets the gap between sections with a single
+          `space-y` (see App.tsx) — a section that also pads itself adds to that gap on both
+          sides, so this one break came out half again as wide as the others. Spacing between
+          blocks belongs to whatever is stacking them, not to the blocks. */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
             {language === 'ar' ? 'جدول المراحل الزمنية لتنفيذ مشروعك' : 'Project Sprints & Delivery Timeline'}
           </h2>
@@ -97,10 +101,16 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                 // drift). Declaring a transition on the same property an animation is
                 // continuously driving makes the style system reconcile the two every
                 // frame for no benefit — nothing here animates transform on a state change.
-                className="milestone-card reveal-border border border-white/10 rounded-[26px] p-7 flex flex-col relative group transition-colors shadow-xl"
+                className="milestone-card reveal-face reveal-border border border-white/30 rounded-[26px] p-7 flex flex-col relative group transition-colors shadow-xl"
               >
 
-                <RevealLight />
+                {/* `face`, like every other lit card on the site. These four were the only
+                    ones carrying `reveal-border` alone, so the pointer lit their outline and
+                    left the surface itself dark — the card's inner face never came on. There
+                    was no reason for the exception; the `.rv` shell clips itself to the card's
+                    radius, so nothing about this card's deliberate lack of `overflow:hidden`
+                    stood in the way of it. */}
+                <RevealLight face />
 
                 {/* z-10 on the whole content column rather than on pieces of it: absolutely
                     positioned content paints after non-positioned siblings whatever the
