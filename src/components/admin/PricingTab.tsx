@@ -53,9 +53,6 @@ function PricingRow({
   const [imageBroken, setImageBroken] = useState(false);
   const [demoUrl, setDemoUrl] = useState(template.demoUrl || '');
   const [basePriceIQD, setBasePriceIQD] = useState(String(template.basePriceIQD));
-  const [specPrices, setSpecPrices] = useState<Record<string, string>>(() =>
-    Object.fromEntries(template.specificationsOptions.map((s) => [s.id, String(s.priceIQD)]))
-  );
   const [isSaving, setIsSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 

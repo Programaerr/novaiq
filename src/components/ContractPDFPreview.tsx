@@ -41,7 +41,6 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   // service and are cached after the first lookup.
   const customNotes = useAutoTranslate(contract.customFeaturesText, language);
   const translatedAdminNotes = useAutoTranslate(contract.adminNotes, language);
-  const translatedSpecs = useAutoTranslateList(contract.selectedSpecs, language);
   const templateTitle = translateText(contract.templateTitle, language);
   const city = translateText(contract.city, language);
   const country = translateText(contract.country, language);
@@ -87,7 +86,6 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
         ref={printRef}
         contract={contract}
         language={language}
-        translatedSpecs={translatedSpecs}
         translatedNotes={customNotes}
         translatedAdminNotes={translatedAdminNotes}
         templateTitle={templateTitle}

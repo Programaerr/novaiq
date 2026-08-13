@@ -106,10 +106,6 @@ export function applyPricingOverrides(
       demoUrl: o.demoUrl ?? t.demoUrl,
       basePriceIQD: o.basePriceIQD ?? t.basePriceIQD,
       basePriceUSD: o.basePriceUSD ?? t.basePriceUSD,
-      specificationsOptions: t.specificationsOptions.map((spec) => ({
-        ...spec,
-        priceIQD: o.specPriceIQD?.[spec.id] ?? spec.priceIQD,
-      })),
     };
   });
 }

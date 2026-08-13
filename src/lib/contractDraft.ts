@@ -7,7 +7,6 @@ export interface ContractDraft {
   email: string;
   phone: string;
   city: string;
-  selectedSpecIds: string[];
   customFeaturesText: string;
   primaryColor: string;
   themePreference: 'dark' | 'light' | 'cosmic';

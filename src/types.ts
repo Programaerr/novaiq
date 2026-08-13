@@ -21,13 +21,6 @@ export interface Template {
   tags: string[];
   features: string[];
   techStack: string[];
-  specificationsOptions: {
-    id: string;
-    label: string;
-    priceIQD: number;
-    priceSAR?: number;
-    recommended?: boolean;
-  }[];
   mockScreens: {
     title: string;
     description: string;
@@ -76,8 +69,9 @@ export interface ContractData {
   templateId: string;
   templateTitle: string;
   
-  // Customizations
-  selectedSpecs: string[];
+  // Customizations. The priced add-on checklist that used to sit here is gone: anything the
+  // customer wants beyond the template itself is written in `customFeaturesText` and quoted by
+  // us, rather than assembled from a menu of options they had no way to evaluate.
   customFeaturesText: string;
   primaryColor: string;
   themePreference: 'dark' | 'light' | 'cosmic';
@@ -85,11 +79,9 @@ export interface ContractData {
   
   // Terms & Financial
   basePriceIQD: number;
-  selectedSpecsPriceIQD: number;
   totalPriceIQD: number;
   // Legacy compatibility fields
   basePriceSAR?: number;
-  selectedSpecsPriceSAR?: number;
   totalPriceSAR?: number;
   paymentPlan: '50_50' | '100_upfront' | '3_milestones';
   deliveryTimelineWeeks: number;

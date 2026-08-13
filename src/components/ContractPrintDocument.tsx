@@ -8,8 +8,6 @@ import { contractTerms } from '../data/contractTerms';
 interface ContractPrintDocumentProps {
   contract: ContractData;
   language: Language;
-  /** Spec labels already resolved to the target language by the caller. */
-  translatedSpecs: string[];
   /** Custom notes already resolved to the target language by the caller. */
   translatedNotes: string;
   /** Admin's negotiated terms, already resolved to the target language by the caller. */
@@ -29,7 +27,7 @@ interface ContractPrintDocumentProps {
 // Letting the browser lay out the text and photographing the result is what makes a genuine
 // Arabic PDF possible at all.
 export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPrintDocumentProps>(
-  ({ contract, language, translatedSpecs, translatedNotes, translatedAdminNotes, templateTitle, city, country }, ref) => {
+  ({ contract, language, translatedNotes, translatedAdminNotes, templateTitle, city, country }, ref) => {
     const isAr = language === 'ar';
 
     const t = {
@@ -38,7 +36,8 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       ref: isAr ? 'رقم العقد' : 'Reference',
       date: isAr ? 'تاريخ الإصدار' : 'Issue Date',
       status: isAr ? 'الحالة' : 'Status',
-      statusValue: isAr ? 'موثّق ومعتمد' : 'Verified & Approved',
+      // "موثّق" reads in Arabic as notarised by an authority — see the seal/footer note below.
+      statusValue: isAr ? 'موقّع من الطرفين' : 'Signed by both parties',
 
       s1: isAr ? '1. بيانات الشركة والممثل القانوني' : '1. COMPANY & LEGAL REPRESENTATIVE',
       companyName: isAr ? 'اسم الشركة' : 'Company Name',
@@ -50,16 +49,12 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
       s2: isAr ? '2. القالب المعتمد والمواصفات الفنية' : '2. APPROVED TEMPLATE & TECHNICAL SPECIFICATIONS',
       template: isAr ? 'القالب المعتمد' : 'Approved Template',
-      addons: isAr ? 'الإضافات والمواصفات المختارة' : 'Selected Add-ons & Specifications',
-      standard: isAr ? 'مواصفات القالب القياسية' : 'Standard template specifications',
       notes: isAr ? 'ملاحظات ومتطلبات خاصة' : 'Custom Notes & Requirements',
       agreedTerms: isAr ? 'الشروط المتفق عليها بعد المراجعة' : 'Agreed Terms After Review',
       identity: isAr ? 'الهوية البصرية' : 'Visual Identity',
       langSupport: isAr ? 'لغات النظام' : 'System Languages',
 
       s3: isAr ? '3. القيمة المالية ومدة التنفيذ' : '3. FINANCIAL VALUE & DELIVERY TIMELINE',
-      basePrice: isAr ? 'سعر القالب الأساسي' : 'Base Template Price',
-      addonsTotal: isAr ? 'إجمالي الإضافات' : 'Add-ons Total',
       total: isAr ? 'الإجمالي الكلي المعتمد' : 'TOTAL AGREED VALUE',
       timeline: isAr ? 'مدة التنفيذ' : 'Delivery Timeline',
       weeks: isAr ? 'أسابيع' : 'weeks',
@@ -236,21 +231,6 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             </div>
             <Field label={t.langSupport} value={languageSupportLabel} />
 
-            <div style={{ marginTop: 7 }}>
-              <span style={{ color: '#64748b', fontSize: 11 }}>{t.addons}:</span>
-              {translatedSpecs.length > 0 ? (
-                <ul style={{ margin: '4px 0 0', paddingInlineStart: 18 }}>
-                  {translatedSpecs.map((s, i) => (
-                    <li key={i} style={{ fontSize: 11.5, color: '#1e293b', marginBottom: 2 }}>
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div style={{ fontSize: 11.5, color: '#475569', marginTop: 3 }}>{t.standard}</div>
-              )}
-            </div>
-
             {translatedNotes && (
               <div style={{ marginTop: 8 }}>
                 <span style={{ color: '#64748b', fontSize: 11 }}>{t.notes}:</span>
@@ -302,22 +282,9 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                 overflow: 'hidden',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', fontSize: 11.5 }}>
-                <span style={{ color: '#475569' }}>{t.basePrice}</span>
-                <strong>{formatPrice(contract.basePriceIQD || 0, language)}</strong>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  padding: '8px 14px',
-                  fontSize: 11.5,
-                  backgroundColor: '#f8fafc',
-                }}
-              >
-                <span style={{ color: '#475569' }}>{t.addonsTotal}</span>
-                <strong>{formatPrice(contract.selectedSpecsPriceIQD || 0, language)}</strong>
-              </div>
+              {/* One figure, not a breakdown. With the priced add-on list gone the base price
+                  and the total are by definition the same number, and printing it twice under
+                  two different headings invites the question of why they differ — they cannot. */}
               <div
                 style={{
                   display: 'flex',
@@ -453,7 +420,6 @@ export const ConnectedContractPrintDocument = React.forwardRef<
   HTMLDivElement,
   { contract: ContractData; language: Language }
 >(({ contract, language }, ref) => {
-  const translatedSpecs = useAutoTranslateList(contract.selectedSpecs || [], language);
   const translatedNotes = useAutoTranslate(contract.customFeaturesText, language);
   const translatedAdminNotes = useAutoTranslate(contract.adminNotes, language);
 
@@ -462,7 +428,6 @@ export const ConnectedContractPrintDocument = React.forwardRef<
       ref={ref}
       contract={contract}
       language={language}
-      translatedSpecs={translatedSpecs}
       translatedNotes={translatedNotes}
       translatedAdminNotes={translatedAdminNotes}
       templateTitle={translateText(contract.templateTitle, language)}

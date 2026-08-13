@@ -115,8 +115,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     return /^07\d{9}$/.test(clean);
   };
 
-  // Customizations
-  const [selectedSpecIds, setSelectedSpecIds] = useState<string[]>(draft?.selectedSpecIds || []);
+  // Customizations. There is no add-on checklist any more: a priced list of options asked the
+  // customer to make a dozen small purchasing decisions about things they could not evaluate,
+  // before they had even agreed to the project. Anything they actually want is written in the
+  // request field below and priced by us afterwards, which is what was happening anyway.
   const [customFeaturesText, setCustomFeaturesText] = useState(draft?.customFeaturesText || '');
   const [showCustomRequest, setShowCustomRequest] = useState(!!draft?.customFeaturesText);
 
@@ -152,10 +154,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     if (selectedTemplate) {
       setIsCustomProject(false);
       setTemplate(selectedTemplate);
-      const rec = selectedTemplate.specificationsOptions
-        .filter(s => s.recommended)
-        .map(s => s.id);
-      setSelectedSpecIds(rec);
       if (initialCustomFeaturesText) {
         setCustomFeaturesText(initialCustomFeaturesText);
         setShowCustomRequest(true);
@@ -175,7 +173,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       email,
       phone,
       city,
-      selectedSpecIds,
       customFeaturesText,
       primaryColor,
       themePreference,
@@ -190,7 +187,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     email,
     phone,
     city,
-    selectedSpecIds,
     customFeaturesText,
     primaryColor,
     themePreference,
@@ -203,12 +199,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // Price Calculation in IQD — a fully custom project has no catalogue price at all; its
   // final value is quoted by the team after reviewing the written description below.
   const basePriceIQD = isCustomProject ? 0 : (template.basePriceIQD || 0);
-  const selectedSpecsPriceIQD = isCustomProject ? 0 : selectedSpecIds.reduce((total, id) => {
-    const spec = template.specificationsOptions.find(s => s.id === id);
-    return total + (spec ? (spec.priceIQD || 0) : 0);
-  }, 0);
-
-  const totalPriceIQD = basePriceIQD + selectedSpecsPriceIQD;
+  const totalPriceIQD = basePriceIQD;
 
   // Shown to the customer in step 4 and printed as section 4 of their PDF, from one module so
   // the two can never disagree. The week count must match what handleSubmit writes into the
@@ -240,15 +231,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // expression so the disabled button and handleSubmit's guards cannot disagree about what
   // "ready" means.
   const canSubmit = hasSignature && agreedToTerms && isValidIraqiPhone(phone);
-
-  const toggleSpec = (specId: string) => {
-    if (selectedSpecIds.includes(specId)) {
-      setSelectedSpecIds(selectedSpecIds.filter(id => id !== specId));
-    } else {
-      setSelectedSpecIds([...selectedSpecIds, specId]);
-    }
-    cosmicAudio.playPing();
-  };
 
   const handleSubmitContract = (e: React.FormEvent) => {
     e.preventDefault();
@@ -315,10 +297,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     }
 
     const contractNumber = `NVQ-CTR-${Date.now().toString().slice(-6)}`;
-    const selectedSpecsLabels = isCustomProject ? [] : selectedSpecIds.map(id => {
-      const spec = template.specificationsOptions.find(s => s.id === id);
-      return spec ? spec.label : id;
-    });
 
     const contractData: ContractData = {
       // Conditionally spread (not `uid: accountUid || undefined`) — Firestore's setDoc
@@ -335,16 +313,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       city,
       templateId: isCustomProject ? CUSTOM_OPTION_VALUE : template.id,
       templateTitle: isCustomProject ? customProjectName.trim() : template.title,
-      selectedSpecs: selectedSpecsLabels,
       customFeaturesText,
       primaryColor,
       themePreference,
       languageSupport,
       basePriceIQD,
-      selectedSpecsPriceIQD,
       totalPriceIQD,
       basePriceSAR: basePriceIQD,
-      selectedSpecsPriceSAR: selectedSpecsPriceIQD,
       totalPriceSAR: totalPriceIQD,
       paymentPlan,
       deliveryTimelineWeeks,
@@ -670,41 +645,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </div>
               ) : (
                 <>
-                  {/* Specifications Checklist */}
-                  <div className="space-y-3">
-                    <label className="block text-xs font-bold text-zinc-300">
-                      {getTranslation('optionsLabel', lang)}
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {template.specificationsOptions.map((spec) => {
-                        const isSelected = selectedSpecIds.includes(spec.id);
-                        return (
-                          <div
-                            key={spec.id}
-                            onClick={() => toggleSpec(spec.id)}
-                            className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-3 ${
-                              isSelected
-                                ? 'bg-zinc-800 border-white text-white font-semibold glow-white'
-                                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-500 glow-white-hover'
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {isSelected ? (
-                                <CheckSquare className="w-4 h-4 text-white shrink-0" />
-                              ) : (
-                                <Square className="w-4 h-4 text-zinc-600 shrink-0" />
-                              )}
-                              <span className="text-xs font-medium text-zinc-200">{spec.label}</span>
-                            </div>
-                            <span className="text-xs font-mono font-bold text-white">
-                              +{formatPrice(spec.priceIQD || 0, lang, currency)}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
                   <div
                     onClick={() => setShowCustomRequest(v => !v)}
                     className={`p-3.5 rounded-2xl border-2 border-dashed cursor-pointer transition-all flex items-center justify-between gap-3 ${
@@ -893,10 +833,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   <div className="flex items-center justify-between text-xs text-zinc-400">
                     <span>{isAr ? 'سعر القالب الأساسي:' : 'Base Template Price:'}</span>
                     <span>{formatPrice(basePriceIQD, lang, currency)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span>{isAr ? 'إجمالي الإضافات المختارة:' : 'Selected Add-ons Total:'}</span>
-                    <span>+{formatPrice(selectedSpecsPriceIQD, lang, currency)}</span>
                   </div>
                   <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-base font-bold text-white">
                     <span>{getTranslation('totalCostSummary', lang)}</span>

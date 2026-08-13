@@ -74,7 +74,59 @@ function getLocalNetworkIP(): string | null {
   return null;
 }
 
+// Behind a reverse proxy (nginx on the deployment box) every request arrives from the proxy's
+// own address, so req.ip is identical for all of them and any per-IP limit becomes a global
+// one. Trusting the first hop fixes that — but only when there genuinely is a proxy in front:
+// trusting a hop that does not exist lets a direct client forge X-Forwarded-For and hand
+// itself a fresh identity per request. Hence a number from the environment, defaulting to
+// zero, rather than a hardcoded `true`.
+app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS) || 0);
+
 app.use(express.json({ limit: '10mb' }));
+
+// ---------------------------------------------------------------------------
+// Rate limiting — written here rather than pulled from express-rate-limit. This is the entire
+// feature in twenty lines, and a dependency taken on for twenty lines is one that has to be
+// audited, updated and carried forever.
+//
+// Fixed window per IP. In-memory on purpose: the site runs as a single Node process, so there
+// is no second instance to share counters with, and a limiter that survives a restart is not
+// worth a database round-trip on every request.
+// ---------------------------------------------------------------------------
+function rateLimit({ windowMs, max }: { windowMs: number; max: number }) {
+  const hits = new Map<string, { count: number; resetAt: number }>();
+
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const now = Date.now();
+    const key = req.ip || 'unknown';
+    const entry = hits.get(key);
+
+    if (!entry || now >= entry.resetAt) {
+      hits.set(key, { count: 1, resetAt: now + windowMs });
+      // Sweep expired keys once the map is large enough to be worth sweeping, so a long
+      // uptime cannot grow it without bound. Only runs on a window rollover, so it is not
+      // on the hot path.
+      if (hits.size > 5000) {
+        for (const [k, v] of hits) if (now >= v.resetAt) hits.delete(k);
+      }
+      return next();
+    }
+
+    if (entry.count >= max) {
+      res.setHeader('Retry-After', String(Math.ceil((entry.resetAt - now) / 1000)));
+      return res.status(429).json({ error: 'Too many requests' });
+    }
+
+    entry.count += 1;
+    return next();
+  };
+}
+
+// A ceiling on the whole API, generous enough that no real visitor meets it.
+app.use('/api', rateLimit({ windowMs: 60_000, max: 120 }));
+// Translation is tighter: every miss is an outbound call to Google's endpoint and a new entry
+// in the on-disk cache, so it is the one route where a script costs us something real.
+const translateLimit = rateLimit({ windowMs: 60_000, max: 20 });
 
 // API Health Check
 app.get('/api/health', (_req, res) => {
@@ -144,7 +196,7 @@ async function translateOne(text: string, source: string, target: string): Promi
   return translated;
 }
 
-app.post('/api/translate', async (req, res) => {
+app.post('/api/translate', translateLimit, async (req, res) => {
   try {
     const { text, texts, source = 'ar', target = 'en' } = req.body;
 

@@ -36,9 +36,35 @@ service cloud.firestore {
           (!('uid' in resource.data) && resource.data.email.lower() == request.auth.token.email.lower())
         );
       }
+      // Firestore has no field-level write control: "create" is all-or-nothing, so a rule that
+      // only checks ownership lets a signed-in customer hand us a contract that already carries
+      // our countersignature, an approved status, a paid balance, or an admin note. Every field
+      // below is written exclusively by AdminDashboard/ContractsTab, so none of them has any
+      // business being present on the document a customer creates — the only legitimate initial
+      // status is the 'submitted' that ContractBuilder sets.
+      //
+      // totalPriceIQD is deliberately NOT checked here. Validating it means recomputing it from
+      // the template catalogue and its add-ons, and that catalogue lives in application code,
+      // not in Firestore — a rule cannot read it. That check belongs on the server; until it
+      // exists, a wrong price is caught by the admin, who sets the final figure anyway.
+      function customerCreateIsClean() {
+        let d = request.resource.data;
+        return d.status == 'submitted'
+          && !('companySignatureDataUrl' in d)
+          && !('completedAt' in d)
+          && !('adminNotes' in d)
+          && !('costIQD' in d)
+          && !('paymentStatus' in d)
+          && !('paidAmountIQD' in d)
+          && !('payments' in d)
+          && !('installmentsPlanned' in d);
+      }
+
       allow read: if isAdmin() || ownsContract();
       allow create: if isAdmin() ||
-        (request.auth != null && request.resource.data.uid == request.auth.uid);
+        (request.auth != null
+          && request.resource.data.uid == request.auth.uid
+          && customerCreateIsClean());
       allow update, delete: if isAdmin();
     }
 
