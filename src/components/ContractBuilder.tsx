@@ -784,10 +784,14 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             </div>
           )}
 
-          {/* STEP 3: Price, terms, signature — the whole close, on one screen. */}
+          {/* STEP 3: terms, signature, then the figure — the whole close, on one screen.
+              Price last, immediately above the button that commits to it: the customer reads the
+              clauses, signs, then sees exactly what they are agreeing to pay and ticks one box
+              covering both. It sat at the top before, which meant the number had scrolled away by
+              the time anyone pressed the button. */}
           {currentStep === 3 && (
             <div className="space-y-6 animate-fade-in">
-              <div className="border-b border-zinc-800 pb-4 pt-2">
+              <div className="border-b border-zinc-800 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <FileSignature className="w-5 h-5 text-white" />
                   <span>{getTranslation('stepSignature', lang)}</span>
