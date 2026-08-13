@@ -9,7 +9,7 @@ export interface ContractDraft {
   city: string;
   customFeaturesText: string;
   primaryColor: string;
-  themePreference: 'dark' | 'light' | 'cosmic';
+  themePreference: 'dark' | 'light' | 'both';
   languageSupport: 'ar' | 'en' | 'ar_en';
   isCustomProject: boolean;
   customProjectName: string;

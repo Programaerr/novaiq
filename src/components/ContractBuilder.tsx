@@ -128,7 +128,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [primaryColor, setPrimaryColor] = useState(draft?.primaryColor || '#8b5cf6');
   const isCustomColor = !PRESET_COLORS.some((c) => c.hex === primaryColor);
   const customColorInputRef = useRef<HTMLInputElement | null>(null);
-  const [themePreference, setThemePreference] = useState<'dark' | 'light'>(draft?.themePreference || 'dark');
+  const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'both'>(draft?.themePreference || 'dark');
   const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>(draft?.languageSupport || 'ar_en');
   const [paymentPlan] = useState<'50_50' | '100_upfront' | '3_milestones'>('50_50');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -729,14 +729,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
                     {isAr ? 'نمط الوضع (فاتح/داكن):' : 'Interface Mode:'}
                   </label>
-                  {/* Two modes. "Cosmic" was a third option nobody was ever going to be delivered:
-                      it named this site's own look rather than anything the customer's build would
-                      get, so picking it promised something we do not do unless it is genuinely
-                      asked for and scoped. Dark and light are real, and they are the whole choice. */}
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* "Cosmic" used to be the third option. It named this site's own look rather
+                      than anything the customer's build would actually get, so choosing it promised
+                      something we do not deliver unless it is genuinely asked for and scoped.
+                      "Both" replaces it with a real, buildable choice: the site ships light and
+                      dark and lets its visitors switch. */}
+                  <div className="grid grid-cols-3 gap-2">
                     {([
                       { id: 'dark' as const, label: isAr ? 'داكن' : 'Dark' },
                       { id: 'light' as const, label: isAr ? 'فاتح' : 'Light' },
+                      { id: 'both' as const, label: isAr ? 'ثنائي' : 'Both' },
                     ]).map((opt) => (
                       <button
                         key={opt.id}

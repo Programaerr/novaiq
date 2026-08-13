@@ -101,14 +101,17 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       }
     })();
 
+    // Falls through to "dark" for anything unrecognised — including the retired 'cosmic' value
+    // that contracts signed before that option was removed still carry. A stored value that no
+    // longer exists must still print as something truthful rather than blank.
     const themeLabel = (() => {
       switch (contract.themePreference) {
-        case 'dark':
-          return isAr ? 'داكن' : 'Dark';
         case 'light':
           return isAr ? 'فاتح' : 'Light';
+        case 'both':
+          return isAr ? 'ثنائي (فاتح وداكن)' : 'Both (light & dark)';
         default:
-          return isAr ? 'فضائي' : 'Cosmic';
+          return isAr ? 'داكن' : 'Dark';
       }
     })();
 
