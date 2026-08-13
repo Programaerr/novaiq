@@ -1955,114 +1955,54 @@ html[data-scrolling] .rv::before {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
 }
 
-/* ── The planet limb (HeroSection.tsx) ─────────────────────────────────────────────────────
-   A world's edge rising across the top of the hero: only the crown of an enormous sphere is ever
-   in frame, its rim catching the light, that light bleeding upward into the sky above it.
+/* ── The globe (HeroGlobe.tsx) ──────────────────────────────────────────────────────────────
+   Where the WebGL canvas sits, and nothing else — the sphere itself is drawn in the scene.
 
-   ## Why a real circle and not a drawn arc
+   What was here before: .hero-limb, an enormous CSS circle with a lit rim, cropped to its crown
+   by the section's overflow. That was the flat answer to the same brief and it was a good one
+   while the brief said 2D. It is gone rather than kept underneath, because a drawn arc and a real
+   sphere in the same place read as two horizons that do not agree.
 
-   The curve has to be a genuine circle, several times wider than the viewport, positioned so the
-   viewport crops it. An arc drawn to fit the screen has the wrong curvature by definition — it
-   bends as much as the frame is wide — and it reads immediately as a drawn line rather than as
-   something enormous seen up close. Nearly all of this element is deliberately off-screen; the
-   part you see is the payload, and the section's `overflow-hidden` does the cropping.
+   Sized in vw with a ceiling, not in px. The globe has to stay the same size RELATIVE to the
+   headline in front of it at every width, and a px width would leave it dwarfing a phone and
+   lost on a desktop. The cap stops it from growing without limit on very wide screens, where the
+   headline stops growing too.
 
-   ## The rim is measured in pixels, not percentages
-
-   Every stop below is a `calc()` off `--limb-r` rather than a percentage, and that is what keeps
-   the rim the same thickness at every breakpoint. Percentages are relative to the radius, so the
-   same "99.94%" that gives a crisp two-pixel rim at r = 1900 gives a HALF-pixel one at r = 800 —
-   which is exactly what happened, and the arc all but disappeared on a phone while looking
-   correct on a desktop. Written as `calc(var(--limb-r) - 0.9px)` the rim is 0.9px from the edge
-   whatever the radius is, and the three breakpoints below only have to choose curvature.
-
-   ## Everything here is static
-
-   No blur, no filter, no animation, no shadow. The halo is a second gradient rather than a
-   `box-shadow` spread — a blurred shadow on a 2800px circle is a large surface for the rasteriser
-   to blur, and a radial gradient produces the same falloff as part of the paint it was already
-   doing. Same reasoning that governs the page background. */
-.hero-limb {
-  /* Radius is the curvature control, and bigger is flatter. At r = 620 the arc fell nearly 400px
-     between the crown and the side walls and swept straight through the headline; at 1900 it
-     falls about 140px across the same span, which is what a body large enough to be a horizon
-     actually looks like. The headline clears it because the copy below is padded down past the
-     crown, not because the arc was shrunk out of the way. */
-  --limb-r: 800px;
-  --limb-top: 14px;
-
+   Pinned above the fold and pulled up by a third of its own height, so what sits behind the copy
+   is the globe's upper half — the part where the point density is climbing towards the rim. Its
+   lower half is below the hero and clipped away by the section's overflow, exactly as the arc's
+   body was. 
+.hero-globe {
   position: absolute;
-  top: var(--limb-top);
+  top: 0;
   left: 50%;
-  width: calc(var(--limb-r) * 2);
-  height: calc(var(--limb-r) * 2);
-  transform: translateX(-50%);
+  width: min(150vw, 1180px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -34%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* The atmosphere, still CSS. A glow is a gradient wherever it is drawn, and drawing this one in
+   the scene would mean re-rasterising it on every frame the globe turns — for a layer that never
+   changes. Sat behind the canvas so the points read as being INSIDE the light rather than
+   scattered on top of it. */
+.hero-halo {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(160vw, 1400px);
+  height: min(70vw, 620px);
+  transform: translate(-50%, -22%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-
-  background:
-    /* `closest-side`, and without it none of the stops below exist on screen.
-       A radial-gradient sizes itself `farthest-corner` by default, so in this square element 100%
-       of the gradient lands at the distance from the centre to a CORNER — r × √2, about 1980px
-       when r is 1400. The element's visible edge is the border-radius circle at r. So every stop
-       written near 100% was being painted 580px outside the rounded clip and thrown away, and the
-       only thing surviving was the flat body fill. `closest-side` is half the width in a square,
-       which puts 100% exactly on the rim. */
-    radial-gradient(
-      circle closest-side at 50% 50%,
-      /* the body: the planet is DARKER than the sky it sits against, which is the half of this
-         that makes the rim read as a rim. A bright line needs something unlit on one side of it;
-         with the same charcoal above and below, the same line only reads as a drawn stroke. */
-      rgba(0, 0, 0, 0.38) 0 calc(var(--limb-r) - 9px),
-      /* the terminator: light wrapping around the curve, over about nine pixels */
-      rgba(255, 255, 255, 0.1) calc(var(--limb-r) - 6px),
-      rgba(255, 255, 255, 0.55) calc(var(--limb-r) - 2.6px),
-      /* the rim itself: about two pixels at full white, the brightest thing on the page */
-      rgba(255, 255, 255, 1) calc(var(--limb-r) - 0.9px),
-      /* and back down at the very edge — hand-rolled anti-aliasing, because a hard stop on a
-         curve this large stairsteps into a dotted line */
-      rgba(255, 255, 255, 0.6) var(--limb-r)
-    );
-
-  /* Faded off at both ends, so the rim is brightest at the crown and gone before the side walls.
-     Without it the arc runs into both edges at full strength and stops dead there, which reads as
-     a shape that was cropped rather than as a curve continuing past the frame. Wide plateau — the
-     arc should span most of the screen, and only the last fifth of each side is doing the fade. */
-  -webkit-mask-image: linear-gradient(to right, transparent 1%, #000 21%, #000 79%, transparent 99%);
-  mask-image: linear-gradient(to right, transparent 1%, #000 21%, #000 79%, transparent 99%);
-}
-
-/* The halo: atmosphere, and it belongs ABOVE the rim. Pushed up so roughly four fifths of it sits
-   in the open sky and only the last sliver laps back over the edge — light escaping outward past
-   the horizon. Centred on the crown instead (the obvious placement) it puts its brighter half
-   INSIDE the planet, which lights up the disc that is supposed to be the dark side and turns the
-   whole thing into a grey dome. */
-.hero-limb::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: calc(var(--limb-r) * 1.5);
-  height: 300px;
-  transform: translate(-50%, -80%);
-  border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    rgba(255, 255, 255, 0.13) 0%,
-    rgba(255, 255, 255, 0.04) 45%,
-    transparent 76%
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.035) 44%,
+    transparent 74%
   );
-}
-
-@media (min-width: 640px) {
-  .hero-limb { --limb-r: 1300px; --limb-top: 16px; }
-  .hero-limb::after { height: 400px; }
-}
-
-@media (min-width: 1024px) {
-  .hero-limb { --limb-r: 1900px; --limb-top: 18px; }
-  .hero-limb::after { height: 480px; }
 }
 
 /* The sky: a handful of points above the limb, on the same two-tile scheme the page background

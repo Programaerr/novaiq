@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
 import { HeroCoverArc } from './HeroCoverArc';
+import { HeroGlobe } from './HeroGlobe';
 
 interface HeroSectionProps {
   language: 'ar' | 'en';
@@ -70,15 +71,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
 
   return (
     <section ref={heroRef} className="relative pb-2 md:pb-6 overflow-hidden">
-      {/* ── The limb ─────────────────────────────────────────────────────────────────────────
-          A planet's edge rising across the top of the section: one enormous circle, of which only
-          the crown is ever in frame, with its rim catching the light and that light spilling
-          upward into the sky above it.
-
-          It replaces a 600px `animate-pulse-glow` disc that used to sit here. That was a soft blob
-          pulsing forever in the middle of the hero — one more permanently running animation, and
-          nothing to look at. This is bigger, sharper, still, and free. */}
-      <div className="hero-limb" aria-hidden="true" />
+      {/* ── The globe ────────────────────────────────────────────────────────────────────────
+          A real sphere of points, turning slowly (HeroGlobe.tsx). It took over from `.hero-limb`,
+          which drew the same idea flat: one enormous CSS circle with a lit rim, cropped to its
+          crown. The halo behind it is still CSS — a glow is a gradient wherever it is drawn, and
+          putting it in the scene would only mean paying to redraw it on every frame. */}
+      <div className="hero-halo" aria-hidden="true" />
+      <HeroGlobe />
       <div className="hero-sky" aria-hidden="true" />
 
       {/* ── The claim ────────────────────────────────────────────────────────────────────── */}
