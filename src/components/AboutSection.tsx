@@ -24,39 +24,40 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
         <div className="solid-shimmer p-5 sm:p-6 rounded-3xl border border-zinc-700 shadow-2xl">
 
           
-          <div className="max-w-3xl mx-auto text-center space-y-4">
+          {/* The heading, and nothing under it. A paragraph restating the same claim in longer
+              words used to sit here — "transparent IQD pricing and high standards" is a sentence
+              anyone can write about themselves, so it added length without adding anything a
+              reader would believe. The three cards below are the specifics; this line is the
+              whole of the introduction. */}
+          <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
               {language === 'ar' ? (
-                <>شركة برمجية متخصصة في تطوير <span className="text-white underline decoration-zinc-700 underline-offset-8">المواقع والتطبيقات الإلكترونية</span></>
+                <>شركة متخصصة في تطوير <span className="text-white underline decoration-zinc-700 underline-offset-8">المواقع والتطبيقات</span></>
               ) : (
-                <>Software Firm Specializing in <span className="text-white underline decoration-zinc-700 underline-offset-8">Websites &amp; Digital Applications</span></>
+                <>A firm specialised in <span className="text-white underline decoration-zinc-700 underline-offset-8">web &amp; app development</span></>
               )}
             </h2>
-
-            <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
-              {language === 'ar' ? (
-                <>تُقدم شركة <strong className="text-white">NOVAIQ</strong> حلولاً برمجية متطورة للشركات والمؤسسات بأسعار شفافة بالدينار العراقي ومعايير جودة عالية.</>
-              ) : (
-                <><strong className="text-white">NOVAIQ</strong> delivers cutting-edge software solutions for enterprises with transparent IQD pricing and high standards.</>
-              )}
-            </p>
           </div>
 
           {/* Concise Capabilities List — nested under the intro instead of split into a
               side-by-side column, so the whole card reads as one centered block. */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-10 sm:mt-14 max-w-4xl mx-auto">
             {[
+              // Titles trimmed to the thing itself. "A Formal Digital Contract for Every Project
+              // (IQD)" was a heading carrying a qualifier, a scope and a currency — and "رسمي"
+              // in particular is a word this contract must not use about itself: it is a private
+              // agreement between two parties, not an officially certified document.
               {
-                title: language === 'ar' ? 'تطوير منصات برمجية متكاملة' : 'Full-Stack Platform Engineering',
-                desc: language === 'ar' ? 'تصميم وتنفيذ أنظمة ويب حديثة مخصصة لاحتياجات المؤسسات.' : 'Custom web system architecture & full deployment for modern enterprises.'
+                title: language === 'ar' ? 'منصات متكاملة' : 'Complete platforms',
+                desc: language === 'ar' ? 'تصميم وتنفيذ أنظمة ويب حديثة مخصصة لاحتياجات المؤسسات.' : 'Modern web systems, designed and built around what an organisation actually needs.'
               },
               {
-                title: language === 'ar' ? 'عقد رقمي رسمي لكل مشروع (IQD)' : 'A Formal Digital Contract for Every Project (IQD)',
-                desc: language === 'ar' ? 'كل مشروع يُوثَّق باتفاقية واضحة تحدد التفاصيل الفنية والمالية وحقوق الطرفين قبل بدء العمل.' : 'Every project is documented with a clear agreement specifying technical/financial details and both parties\' rights before work begins.'
+                title: language === 'ar' ? 'عقد رقمي' : 'Digital contract',
+                desc: language === 'ar' ? 'كل مشروع يُوثَّق باتفاقية واضحة تحدد التفاصيل الفنية والمالية وحقوق الطرفين قبل بدء العمل.' : "Every project is documented in a clear agreement setting out the technical and financial details and both parties' rights before work begins."
               },
               {
-                title: language === 'ar' ? 'دعم فني ومتابعة دورية' : 'Ongoing Technical Support',
-                desc: language === 'ar' ? 'تحديثات استقرار ومتابعة فنية بحسب الاتفاق المبرم بين الطرفين.' : 'System updates and technical follow-ups according to mutual agreement.'
+                title: language === 'ar' ? 'دعم فني ومتابعة' : 'Support & follow-up',
+                desc: language === 'ar' ? 'متابعة فنية بحسب الاتفاق بين الطرفين.' : 'Technical follow-up as agreed between the two parties.'
               }
             ].map((item, idx) => (
               // Both halves of the reveal, the same pair the productivity panel wears:
