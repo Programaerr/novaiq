@@ -190,28 +190,37 @@ function makeSurfaceMaterial(): THREE.ShaderMaterial {
         // The clouds. Sampled in object space so they travel with the body while the ramp above
         // stays welded to the light. Centred on zero so they push the ramp key both ways rather
         // than only brightening it.
-        float clouds = fbm(vObj * 2.6) - 0.46;
+        float clouds = fbm(vObj * 3.1) - 0.46;
 
         // The key into the colour ramp. The noise perturbs it INSTEAD of being drawn on top: a
         // separate overlay would sit at one brightness across the whole face, whereas warping the
         // key means the texture is strong through the mid-tones and fades out on both the hottest
         // highlight and the shadow — which is how cloud on a real body behaves.
-        float k = clamp(lit + clouds * 0.19, 0.0, 1.0);
-        // Biased toward the dark end so the saturated part of the ramp stays a shoulder rather
-        // than covering the whole disc. The reference's planet is mostly dark.
-        k = pow(k, 1.7);
+        float k = clamp(lit + clouds * 0.22, 0.0, 1.0);
+
+        // Cubed, and this exponent is doing most of the work in the whole shader.
+        //
+        // Half-Lambert puts the TERMINATOR at 0.5, so a gentle curve leaves the entire dark
+        // hemisphere sitting in the middle of the ramp — which at 1.7 came out as a bright blue
+        // ball with a pink cap, roughly the inverse of the reference. The reference's planet is
+        // mostly black: the colour is a SHOULDER around the sub-solar point, not a coat of paint.
+        //
+        // At 3.0 the terminator lands at 0.125 and 60° from the light lands at 0.42, so the
+        // saturated part of the ramp is confined to the cap that actually faces the star and
+        // everything past it falls away into the page.
+        k = pow(k, 3.0);
 
         vec3 c = uC0;
-        c = mix(c, uC1, smoothstep(0.06, 0.30, k));
-        c = mix(c, uC2, smoothstep(0.28, 0.55, k));
-        c = mix(c, uC3, smoothstep(0.55, 0.78, k));
-        c = mix(c, uC4, smoothstep(0.80, 0.97, k));
+        c = mix(c, uC1, smoothstep(0.03, 0.14, k));
+        c = mix(c, uC2, smoothstep(0.14, 0.40, k));
+        c = mix(c, uC3, smoothstep(0.46, 0.72, k));
+        c = mix(c, uC4, smoothstep(0.82, 0.99, k));
 
         // The lit limb: bright where the surface turns away from the camera AND faces the light.
-        // Gated on `lit` because an ungated Fresnel outlines the entire disc, including the side
-        // in shadow, and a body with a complete halo has no light direction any more.
-        float fres = pow(1.0 - abs(dot(view, n)), 3.2);
-        c += uRim * fres * smoothstep(0.34, 0.92, lit) * 1.35;
+        // Gated on the light term because an ungated Fresnel outlines the entire disc, including
+        // the side in shadow, and a body with a complete halo has no light direction any more.
+        float fres = pow(1.0 - abs(dot(view, n)), 3.4);
+        c += uRim * fres * smoothstep(0.52, 0.96, lit) * 1.1;
 
         gl_FragColor = vec4(c, 1.0);
       }
@@ -219,16 +228,21 @@ function makeSurfaceMaterial(): THREE.ShaderMaterial {
   });
 }
 
+/** How far out the atmosphere shell sits, as a multiple of the planet's radius. */
+const ATMO_SHELL = 1.3;
+
 /** The atmosphere: a shell larger than the planet, seen from the inside. */
 function makeAtmosphereMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     uniforms: {
       uCool: { value: new THREE.Color(ATMO_COOL) },
       uWarm: { value: new THREE.Color(ATMO_WARM) },
-      // How fast the glow falls off away from the silhouette. Higher = a tighter band hugging the
-      // edge; lower = a wash that creeps across the whole disc and flattens it.
-      uPower: { value: 2.8 },
-      uIntensity: { value: 1.35 },
+      // How fast the glow falls off outward from the planet's edge. Higher = a tighter band
+      // hugging the limb; lower = a wash that spreads to the shell's own rim and flattens.
+      uPower: { value: 2.2 },
+      uIntensity: { value: 1.45 },
+      uInner: { value: RADIUS },
+      uOuter: { value: RADIUS * ATMO_SHELL },
       uLight: { value: LIGHT.clone() },
     },
     vertexShader: /* glsl */ `
@@ -248,6 +262,8 @@ function makeAtmosphereMaterial(): THREE.ShaderMaterial {
       uniform vec3 uWarm;
       uniform float uPower;
       uniform float uIntensity;
+      uniform float uInner;
+      uniform float uOuter;
       uniform vec3 uLight;
 
       varying vec3 vNormal;
@@ -255,23 +271,36 @@ function makeAtmosphereMaterial(): THREE.ShaderMaterial {
 
       void main() {
         vec3 n = normalize(vNormal);
-        vec3 view = normalize(cameraPosition - vWorld);
 
-        // abs(), because this shell is rendered BackSide: the normals still point outward while
-        // the faces being drawn face away, so the raw dot product arrives negative and an
-        // unguarded pow() of it would clip the entire halo to nothing.
-        float facing = abs(dot(view, n));
-        float rim = pow(1.0 - facing, uPower);
+        // ── Where the glow is brightest, and why it is NOT a Fresnel term ────────────────────
+        // The obvious pow(1 - dot(view, normal), p) peaks at the SHELL's own silhouette. Since
+        // the planet occludes everything inside its own outline, all you ever see of this shell is
+        // the annulus between the two rims — and across that annulus a Fresnel term ramps UP
+        // outward, so the glow is faintest against the planet and brightest at the shell's edge,
+        // where it then stops dead. That draws a hard bright circle floating clear of the planet,
+        // which is exactly what it looked like: an outline, not an atmosphere.
+        //
+        // Real limb glow is brightest AT the surface and fades outward, so the falloff has to be
+        // keyed to the distance from the planet's edge instead. The camera sits on the +Z axis
+        // looking at a sphere centred on the origin, which makes that distance simply the
+        // fragment's radius perpendicular to the view axis. Valid only for that arrangement —
+        // see the Canvas below, which pins it.
+        //
+        // Rotation-safe despite the group tumbling: the body is a sphere at the origin, so
+        // rotating it leaves the set of world positions unchanged.
+        float d = length(vWorld.xy);
+        float t = clamp((d - uInner) / (uOuter - uInner), 0.0, 1.0);
+        float glow = pow(1.0 - t, uPower);
 
         float lit = dot(n, uLight) * 0.5 + 0.5;
-        // Remapped to 0.22..1 rather than 0..1 so the dark side keeps a trace of atmosphere
+        // Remapped to 0.18..1 rather than 0..1 so the dark side keeps a trace of atmosphere
         // instead of the halo vanishing halfway round and leaving a crescent.
-        float shoulder = 0.22 + 0.78 * lit * lit;
+        float shoulder = 0.18 + 0.82 * lit * lit;
 
         // Warm only where the light is strongest, matching the magenta end of the body's ramp.
         vec3 tint = mix(uCool, uWarm, smoothstep(0.55, 1.0, lit));
 
-        gl_FragColor = vec4(tint, rim * shoulder * uIntensity);
+        gl_FragColor = vec4(tint, glow * shoulder * uIntensity);
       }
     `,
     side: THREE.BackSide,
@@ -359,16 +388,18 @@ function Globe({ spin }: { spin: boolean }) {
         <meshBasicMaterial
           color={RING_COLOR}
           transparent
-          opacity={0.85}
+          opacity={0.62}
           // Writes depth, unlike the atmosphere — the ring has to be correctly occluded BY the
           // planet, which only works if the depth buffer knows where both of them are.
           toneMapped={false}
         />
       </mesh>
 
-      {/* The atmosphere, outside everything else. */}
+      {/* The atmosphere, outside everything else. The shell's radius is now how far the glow
+          REACHES rather than where it is brightest, so it can be generous — see the fragment
+          shader, which fades from the planet's edge outward to exactly here. */}
       <mesh material={atmosphere}>
-        <sphereGeometry args={[RADIUS * 1.14, 48, 48]} />
+        <sphereGeometry args={[RADIUS * ATMO_SHELL, 48, 48]} />
       </mesh>
     </group>
   );

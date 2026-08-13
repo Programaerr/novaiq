@@ -2129,8 +2129,8 @@ html[data-scrolling] .rv::before {
      past where the shell's geometry ends. */
   background: radial-gradient(
     closest-side,
-    rgba(99, 102, 241, 0.14) 0%,
-    rgba(124, 58, 237, 0.05) 42%,
+    rgba(99, 102, 241, 0.07) 0%,
+    rgba(124, 58, 237, 0.028) 42%,
     transparent 72%
   );
 }
@@ -2146,33 +2146,43 @@ html[data-scrolling] .rv::before {
 @media (min-width: 1024px) {
   .hero-globe {
     left: auto;
-    /* Where the reference puts it, mirrored for RTL. Its planet's centre sits at 66% of the frame
-       — inboard, NOT tucked against the edge, with empty ground beyond it — which mirrors to 34%
-       here. The box is 58vw, so its centre lands at 34vw when the end inset is 34 − 29 = 5.
+    /* Placed where the reference puts it, mirrored for RTL: its planet's centre sits at 66% of the
+       frame — inboard, NOT tucked against the edge, with empty ground beyond it — which mirrors to
+       32% here. The box is 44vw, so its centre lands at 32vw when the end inset is 32 − 22 = 10.
 
-       It was at 1% with a 520px box: that put the sphere's centre at 19% and its diameter at 22%
-       of the viewport, so the planet was both too small and shoved into the corner. Composition
-       aside, that is the measurable gap against the reference. */
-    inset-inline-end: 5%;
-    width: min(58vw, 840px);
+       SIZE is the one place this deliberately departs from the reference. 44vw × 0.619 puts the
+       sphere at 27% of the viewport against the reference's 36%. At the matching 36% the planet
+       was the loudest thing on the page and the headline read as a caption to it; the reference
+       gets away with that because its headline runs four lines and holds its own half of the
+       frame, and this one is two.
+
+       Position stays at the reference's 32%, though, so the planet is still placed inboard with
+       ground beyond it rather than being shrunk back into the corner it came from. */
+    inset-inline-end: 10%;
+    width: min(44vw, 640px);
     /* Centred on the hero rather than hung off its top edge, because the hero is now a full screen
        tall (see HeroSection) and a box pinned to the top of one would leave the planet stranded
-       above the copy. -56% rather than -50% lifts the centre by ~6% of the box: the reference's
-       planet sits slightly above the middle of its own frame, not on it. */
+       above the copy.
+
+       -50% is a true centre: half the box below the hero's midline and half above. The offsets
+       either side of it were both worth trying and both read as a mistake — -56% left the sphere
+       crowding the header with a band of dead ground under it, -40% made it bottom-heavy and put
+       its lower limb into the fold. On a hero this tall the planet has room to simply be centred,
+       and the copy beside it is what carries the composition off-axis. */
     top: 50%;
-    transform: translateY(-56%);
+    transform: translateY(-50%);
   }
 
   .hero-halo {
     left: auto;
-    /* Same centre as the globe: -3 + 37 = 34vw. The two are separate elements and will drift apart
-       under any edit that changes one and not the other, which is why both arrive at 34 by
+    /* Same centre as the globe: -1 + 33 = 32vw. The two are separate elements and will drift apart
+       under any edit that changes one and not the other, which is why both arrive at 32 by
        arithmetic that is written down rather than by two numbers that happen to agree. */
-    inset-inline-end: -3%;
-    width: min(74vw, 1060px);
-    height: min(74vw, 1060px);
+    inset-inline-end: -1%;
+    width: min(66vw, 950px);
+    height: min(66vw, 950px);
     top: 50%;
-    transform: translateY(-56%);
+    transform: translateY(-50%);
   }
 }
 
