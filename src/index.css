@@ -839,15 +839,6 @@
   to { transform: translate3d(3%, -2%, 0) scale(1.08); }
 }
 
-/* ── One shooting star ─────────────────────────────────────────────────────────────────────
-   A single streak, and the timing is the whole design: a 26s cycle in which it is only visible
-   for about a second and a half. Rare enough to be a small event when it happens rather than a
-   decoration you stop seeing — and cheap for the same reason, since a 140px sliver moving on
-   the compositor for 6% of the time is nothing at all.
-
-   Angled with a rotation so it falls rather than slides, and faded at both ends of its travel
-   by the opacity keyframes so it never appears or vanishes at a hard edge. */
-}
 
 /* ── Login page's template gallery ────────────────────────────────────────────────────────
    Columns of template covers that creep past the sign-in panel and never stop. The loop is
