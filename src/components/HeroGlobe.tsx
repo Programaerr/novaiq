@@ -54,7 +54,12 @@ const RADIUS = 1;
 
 /** Violet, from the reference. Kept beside each other so the scene's palette is one thing to read. */
 const POINT_COLOR = '#CBB8FF';
-const BODY_COLOR = '#0C0518';
+/* Barely above the page's own ground (#0B0714), and that margin is the whole specification for
+   this colour. The body's job is to OCCLUDE, not to be seen: any darker and it stops reading as a
+   planet and starts reading as a hole punched through the page, which is exactly what happened at
+   #0C0518. It has to be dark enough to hide the far hemisphere and close enough to the ground that
+   its silhouette is drawn by the rim rather than by a step in brightness. */
+const BODY_COLOR = '#0E0920';
 const ATMOSPHERE_COLOR = '#8B5CF6';
 
 /**
@@ -110,8 +115,13 @@ function makeAtmosphereMaterial(): THREE.ShaderMaterial {
       uColor: { value: new THREE.Color(ATMOSPHERE_COLOR) },
       // How fast the glow falls off away from the silhouette. Higher = a tighter band hugging the
       // edge; lower = a wash that creeps across the whole disc and flattens it.
-      uPower: { value: 3.2 },
-      uIntensity: { value: 0.85 },
+      uPower: { value: 2.6 },
+      uIntensity: { value: 1.5 },
+      // Where the star is. The reference does not light its globe evenly — the rim is hot on one
+      // shoulder and nearly gone on the other, and that asymmetry is most of what stops it looking
+      // like a ring drawn around a circle. Normalised here rather than in the shader so it is not
+      // recomputed per fragment for a value that never changes.
+      uLight: { value: new THREE.Vector3(-0.55, 0.72, 0.42).normalize() },
     },
     vertexShader: `
       varying vec3 vNormal;
@@ -127,17 +137,27 @@ function makeAtmosphereMaterial(): THREE.ShaderMaterial {
       uniform vec3 uColor;
       uniform float uPower;
       uniform float uIntensity;
+      uniform vec3 uLight;
       varying vec3 vNormal;
       varying vec3 vWorld;
 
       void main() {
+        vec3 n = normalize(vNormal);
         vec3 view = normalize(cameraPosition - vWorld);
+
         // abs(), because this shell is rendered BackSide: the normals still point outward while
         // the faces being drawn face away, so the raw dot product arrives negative and an
         // unguarded pow() of it would clip the entire halo to nothing.
-        float facing = abs(dot(view, normalize(vNormal)));
+        float facing = abs(dot(view, n));
         float rim = pow(1.0 - facing, uPower);
-        gl_FragColor = vec4(uColor, rim * uIntensity);
+
+        // Which shoulder the light is on. Remapped to 0.25..1 rather than 0..1 so the dark side
+        // keeps a trace of atmosphere instead of the rim vanishing halfway round and leaving the
+        // globe looking like a crescent.
+        float lit = dot(n, uLight) * 0.5 + 0.5;
+        lit = 0.25 + 0.75 * lit * lit;
+
+        gl_FragColor = vec4(uColor, rim * lit * uIntensity);
       }
     `,
     side: THREE.BackSide,
@@ -211,12 +231,12 @@ function Globe({ spin }: { spin: boolean }) {
           // DIRECTLY BEHIND the headline: at any size where a single point can be picked out it
           // competes with the type in front of it. Dust, not confetti — which is also why the
           // count went up as the size came down.
-          size={0.0045}
+          size={0.005}
           map={dot}
           alphaMap={dot}
           color={POINT_COLOR}
           transparent
-          opacity={0.72}
+          opacity={0.9}
           // Perspective size: points on the far side are smaller as well as sparser, which is
           // most of what separates a sphere from a flat ring of dots.
           sizeAttenuation
@@ -265,7 +285,17 @@ export const HeroGlobe: React.FC = () => {
           // throttled: 'never' draws nothing at all, not fewer frames.
           frameloop={motion ? 'always' : 'never'}
           dpr={[1, 1.5]}
-          camera={{ position: [0, 0, 2.75], fov: 45 }}
+          // 3.9, and the exact value matters. At fov 45 the visible height at the origin is
+          // 2·dist·tan(22.5°); at the 2.75 this started on that came to 2.278 world units, while
+          // the ATMOSPHERE shell is 2.32 across. The halo was therefore very slightly wider than
+          // the frame and got sliced off flat against all four canvas edges — which showed up as
+          // bright wedges in the corners of an obviously rectangular box.
+          //
+          // A glow has to fade out before it reaches the edge of its own canvas or the canvas
+          // becomes visible, so the frame is sized to the widest thing in the scene plus margin,
+          // not to the planet. 3.9 gives 3.23 units of height for a 2.32 shell; the CSS box grew
+          // to match so the globe still lands the same size on the page.
+          camera={{ position: [0, 0, 3.9], fov: 45 }}
           gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
         >
           <Globe spin={motion} />

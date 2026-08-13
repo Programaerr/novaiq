@@ -1999,9 +1999,9 @@ html[data-scrolling] .rv::before {
   position: absolute;
   top: 0;
   left: 50%;
-  width: min(142vw, 1160px);
+  width: min(186vw, 1520px);
   aspect-ratio: 1;
-  transform: translate(-50%, -27%);
+  transform: translate(-50%, -20%);
   pointer-events: none;
   z-index: 0;
 }
@@ -2020,10 +2020,14 @@ html[data-scrolling] .rv::before {
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
+  /* Pulled back hard now that the atmosphere is a real shader. This was carrying the entire glow
+     when the globe was flat; with the Fresnel doing the rim, the same strength read as a second
+     halo sitting behind the first one. What is left is only the far spill — the part that reaches
+     past where the shell's geometry ends. */
   background: radial-gradient(
     closest-side,
-    rgba(139, 92, 246, 0.22) 0%,
-    rgba(139, 92, 246, 0.07) 44%,
+    rgba(139, 92, 246, 0.1) 0%,
+    rgba(139, 92, 246, 0.03) 44%,
     transparent 74%
   );
 }
