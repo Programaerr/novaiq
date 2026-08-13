@@ -640,11 +640,24 @@
 /* Primary surface — same flat white body and inverting hover as the filter pill.
    Icon, text and any badge inside use currentColor, so the single `color` flip carries
    them along with the background instead of needing a rule each. */
+/* No `border`, and that is the whole reason this rule was touched — it is not a tidy-up.
+   The beam is an absolutely positioned child at `inset: -2px`, and an absolutely positioned
+   child is laid out against the PADDING box. A 1px border pushes the padding box 1px inward,
+   so on a bordered button the ring landed only 1px clear of the visible edge and spent half
+   its 2px width painted on top of the button's own border instead of outside it. Measured:
+   2px of outset on the filter pills, 1px here — the same beam reading thinner and dimmer on
+   one family of buttons than the other, which is exactly the mismatch that was reported.
+
+   The edge is an inset ring in the shadow stack instead. It draws in the same place, costs no
+   layout box, and leaves every button on the site with a zero border — so one `inset: -2px`
+   now means the same distance everywhere. (A white border on a white body was invisible at
+   rest anyway; its only visible job was the dimmed rim on hover, which moves down with it.) */
 .nq-btn--solid {
   background: #FFFFFF;
   color: #111111;
-  border: 1px solid #FFFFFF;
+  border: 0;
   box-shadow:
+    inset 0 0 0 1px #FFFFFF,
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     inset 0 -1px 1px rgba(0, 0, 0, 0.05),
     0 8px 20px rgba(0, 0, 0, 0.22),
@@ -656,8 +669,8 @@
 .nq-btn--solid:active {
   background: #0A0A0A;
   color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.3);
   box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     inset 0 -1px 1px rgba(0, 0, 0, 0.4),
     0 10px 26px rgba(0, 0, 0, 0.45);
@@ -669,11 +682,15 @@
    lift, the same press as everything else, and differs only in that its body is glass instead
    of white. Outside the hero the rule still stands: use --solid, and let a cancel and a
    confirm differ by their label and position rather than by weight. */
+/* Border moved into the shadow stack for the same reason as --solid above: a bordered button
+   holds the beam 1px closer than an unbordered one, and these two sit side by side in the
+   hero where that difference is directly comparable. */
 .nq-btn--ghost {
   background: rgba(255, 255, 255, 0.06);
   color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 0;
   box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 8px 20px rgba(0, 0, 0, 0.28);
 }
@@ -682,7 +699,10 @@
 .nq-btn--ghost:focus-visible,
 .nq-btn--ghost:active {
   background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 20px rgba(0, 0, 0, 0.28);
 }
 
 /* The disc on the primary CTA: the button's two colours swapped over, so it stays inverted
