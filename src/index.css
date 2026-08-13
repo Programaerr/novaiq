@@ -2448,19 +2448,24 @@ html[data-scrolling] .rv::before {
 
 
 
+
 /* ── The closing stage under the template carousel (TemplateGrid.tsx) ──────────────────────
-   The price caveat is the lamp, and the light spills off it downward onto the brand mark.
+   The price caveat is the lamp; the light falls DOWNWARD out of it onto the brand mark.
 
-   The first version of this drew two straight-edged wedges with `clip-path`. That is what a beam
-   looks like in a diagram, not what one looks like in a room: a real spill has no edge at all, it
-   just runs out. So the wedges are gone and the light is radial gradients — a shape whose edge is
-   its own falloff. One narrow, bright cone directly under the pill, one much wider and fainter
-   wash behind it, and a pool where it lands on the mark.
+   Two things this went through before getting here, both worth keeping written down:
 
-   The pill's own halo is what makes the rest read as emission rather than as a stray gradient: a
-   beam whose source is invisible is just a light patch, and the eye has nothing to attribute it
-   to. Give it a bright object at the apex and the same pixels become light coming out of
-   something.
+   1. It was two straight-edged wedges cut with `clip-path`. That is what a beam looks like in a
+      diagram, not in a room — real light has no edge, it runs out. Gradients only now.
+   2. Then it glowed in every direction at once, which is a lamp with no shade: light climbing the
+      sides of the pill and spreading across the full width of the section reads as a smudge
+      behind the text rather than as a beam coming out of it.
+
+   So everything here is bounded and downward. The pill's own halo is offset down the Y axis with
+   no symmetric ring around it; the cone is anchored at the pill (`at 50% 0%`, so its top half is
+   outside the box and only the opening shows) and is deliberately far narrower than the section,
+   which is what keeps it from ever reaching the sides. The alpha ramp runs through six stops
+   rather than three — a soft gradient is soft because it has nowhere for the eye to catch, and
+   three stops leave two visible shoulders.
 
    Deliberately no `filter: blur()`. A blurred layer this size is re-rasterized by the GPU whenever
    anything about it changes, which is real cost on a weak phone for something that never moves.
@@ -2472,47 +2477,56 @@ html[data-scrolling] .rv::before {
   overflow: hidden;
 }
 
-/* The source. White, with light bleeding off it in every direction so the spill below has
-   somewhere to have come from. */
+/* The source. The glow is offset downward and has no `0 0` ring, so light leaves the underside of
+   the pill rather than wrapping around it. */
 .tpl-lamp {
   position: relative;
   z-index: 2;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.55),
-    0 0 26px rgba(255, 255, 255, 0.5),
-    0 0 70px rgba(255, 255, 255, 0.26),
-    0 18px 80px rgba(255, 255, 255, 0.18);
+    0 6px 20px rgba(255, 255, 255, 0.3),
+    0 16px 46px rgba(255, 255, 255, 0.16),
+    0 30px 90px rgba(255, 255, 255, 0.09);
 }
 
-/* The spill. Two stacked cones: a tight bright one that reads as the beam proper, and a broad
-   faint one behind it that keeps the first from ending in mid-air. Both are anchored at the top
-   (`at 50% 0%`) — that is what makes the light open downward from the pill instead of glowing
-   around a point in space. */
+/* The cone. Narrow, centred, and anchored at the pill. */
 .tpl-lightstage__spill {
   position: absolute;
-  top: 2rem;
+  top: 1.9rem;
   left: 50%;
-  width: min(150%, 1200px);
-  height: 100%;
+  width: min(76%, 620px);
+  height: 74%;
   transform: translateX(-50%);
   z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(42% 70% at 50% 0%, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0.13) 40%, rgba(255, 255, 255, 0) 74%),
-    radial-gradient(78% 104% at 50% 2%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 46%, rgba(255, 255, 255, 0) 78%);
+  background: radial-gradient(
+    50% 100% at 50% 0%,
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 255, 255, 0.175) 16%,
+    rgba(255, 255, 255, 0.105) 34%,
+    rgba(255, 255, 255, 0.055) 52%,
+    rgba(255, 255, 255, 0.022) 70%,
+    rgba(255, 255, 255, 0.006) 86%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
-/* Where the spill lands. Sitting the mark in its own pool is what separates "the light reaches
-   down there" from "the light is falling ON that". */
+/* Where the cone lands. Narrower than the section for the same reason the cone is — a pool that
+   runs to both edges is not a pool, it is a background. */
 .tpl-lightstage__pool {
   position: absolute;
-  inset: 38% 0 -4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(72%, 700px);
+  top: 46%;
+  bottom: -2%;
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(
-    52% 100% at 50% 58%,
-    rgba(255, 255, 255, 0.26) 0%,
-    rgba(255, 255, 255, 0.1) 46%,
-    rgba(255, 255, 255, 0) 78%
+    58% 100% at 50% 46%,
+    rgba(255, 255, 255, 0.17) 0%,
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 255, 255, 0.045) 54%,
+    rgba(255, 255, 255, 0.014) 76%,
+    rgba(255, 255, 255, 0) 100%
   );
 }
