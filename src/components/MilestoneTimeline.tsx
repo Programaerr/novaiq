@@ -7,8 +7,6 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { useRevealGroup } from '../lib/useRevealGroup';
-import { RevealLight } from './RevealLight';
 
 interface MilestoneTimelineProps {
   language?: Language;
@@ -18,7 +16,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
   // Border only — no `.reveal-face` on these cards. They used to carry a pointer-tracked
   // wash across their face as well; it is gone at the customer's request, and the light on
   // the card is now the fixed glow at its foot plus this ring.
-  const revealGroup = useRevealGroup<HTMLDivElement>();
 
   const milestones = [
     {
@@ -85,7 +82,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
         {/* Milestones Grid */}
         {/* Even gaps now the icon sits inside the card: gap-y used to be double gap-x purely
             to clear the badge that poked above each card's top edge. */}
-        <div ref={revealGroup} className="reveal-group grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
           {milestones.map((ms, index) => {
             const Icon = ms.icon;
             return (
@@ -101,21 +98,13 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                 // drift). Declaring a transition on the same property an animation is
                 // continuously driving makes the style system reconcile the two every
                 // frame for no benefit — nothing here animates transform on a state change.
-                className="milestone-card reveal-face reveal-border border border-white/30 rounded-[26px] p-7 flex flex-col relative group transition-colors shadow-xl"
+                className="milestone-card border border-white/30 rounded-[26px] p-7 flex flex-col relative group transition-colors shadow-xl"
               >
 
-                {/* `face`, like every other lit card on the site. These four were the only
-                    ones carrying `reveal-border` alone, so the pointer lit their outline and
-                    left the surface itself dark — the card's inner face never came on. There
-                    was no reason for the exception; the `.rv` shell clips itself to the card's
-                    radius, so nothing about this card's deliberate lack of `overflow:hidden`
-                    stood in the way of it. */}
-                <RevealLight face />
-
-                {/* z-10 on the whole content column rather than on pieces of it: absolutely
-                    positioned content paints after non-positioned siblings whatever the
-                    source order, so without this the glow layer above would sit on top of
-                    the text and the card would read as unlit wherever the two overlap. */}
+                {/* z-10 kept even though the pointer-tracked glow that used to sit above this
+                    is gone: the card still paints a background gradient of its own, and the
+                    rule that put this here — absolutely positioned content paints after
+                    non-positioned siblings whatever the source order — has not changed. */}
                 <div className="relative z-10 flex flex-col h-full">
 
                   <Icon className="w-8 h-8 text-white shrink-0 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />

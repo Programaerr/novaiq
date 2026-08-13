@@ -9,7 +9,10 @@
          screen", and the iOS metas make "Add to Home Screen" work on iPhone Safari too. -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <meta name="theme-color" content="#030712" />
+    <!-- Matches the page's own background exactly. Android/Chrome paints its address bar with
+         this, so a value even slightly off shows as a seam between the browser chrome and the
+         top of the site — and the old #030712 was blue-tinted against a black page. -->
+    <meta name="theme-color" content="#1C1C1C" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -25,7 +28,18 @@
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-variable-arabic.woff2" crossorigin>
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-variable-latin.woff2" crossorigin>
   </head>
-  <body class="bg-[#030712] text-slate-100 font-['Cairo',sans-serif] antialiased selection:bg-purple-600 selection:text-white min-h-screen overflow-x-hidden">
+  <!-- Background, text colour, font and overflow are NOT set here. They live in one place —
+       the `body` rule in @layer base (src/index.css) — and the utilities that used to be on this
+       tag were silently beating it: a Tailwind utility outranks the base layer, so the page was
+       #030712 while the stylesheet that looks authoritative said #000000, and every future edit
+       to that rule would have done nothing. #030712 is also blue-tinted, which is the one thing
+       this palette is not: the site is strictly monochrome, and a blue-black base put a cast
+       under every grey on the page.
+
+       What is left here is what genuinely belongs to the document rather than to the design:
+       font smoothing, the selection colours (matched to the app shell's own, replacing a purple
+       that was the only saturated colour anywhere on the site), and a minimum height. -->
+  <body class="antialiased selection:bg-zinc-100 selection:text-black min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

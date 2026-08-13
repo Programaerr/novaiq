@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 'react';
-import { CosmicBackground } from './components/CosmicBackground';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
-import { useRevealGroup } from './lib/useRevealGroup';
-import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { CredentialCard } from './components/CredentialCard';
@@ -149,12 +146,6 @@ export default function App() {
   // Carries the customer's exact choices from the interactive live-site demo into the contract form
   const [initialCustomFeaturesText, setInitialCustomFeaturesText] = useState<string>('');
   const [initialPrimaryColor, setInitialPrimaryColor] = useState<string>('');
-
-  // Dynamic active background image computation. The standalone preview sandbox used to feed
-  // its own template photo in here too, tinting the cosmic background behind it — but that tint
-  // is whatever color the photo happens to be, purple included, bleeding through the sandbox's
-  // own glass toolbar in a way nothing there was designed to sit on top of.
-  const activeBgImage = activePage === 'custom-request' && selectedTemplateForContract ? selectedTemplateForContract.previewImage : null;
 
   useSmoothScroll();
   useSectionScrollSpy(activePage, setActiveSection);
@@ -386,7 +377,6 @@ export default function App() {
   }, []);
 
   // Drives both halves of the Fluent reveal — ring and face — across the tiles below.
-  const revealGroup = useRevealGroup<HTMLDivElement>();
 
   // ── The gate ────────────────────────────────────────────────────────────────────────────
   // Sign-in is now the door to the whole site: nothing below this point renders until someone
@@ -432,8 +422,7 @@ export default function App() {
 
   if (standalonePreviewTemplate) {
     return (
-      <div className="min-h-screen bg-black text-white relative">
-        <CosmicBackground activeSection="templates" activeBgImage={activeBgImage} />
+      <div className="min-h-screen text-white relative">
         <Suspense fallback={<PageLoader />}>
           <TemplateInteractiveSandbox
             template={standalonePreviewTemplate}
@@ -455,10 +444,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 flex flex-col font-['Cairo'] relative selection:bg-zinc-100 selection:text-black overflow-x-hidden">
+    <div className="min-h-screen text-zinc-100 flex flex-col font-['Cairo'] relative selection:bg-zinc-100 selection:text-black overflow-x-hidden">
       
       {/* Supernova Atmospheric Background */}
-      <CosmicBackground activeSection={activeSection} activeBgImage={activeBgImage} />
 
       {/* Main Header Bar */}
       <Navbar
@@ -526,7 +514,6 @@ export default function App() {
                   starfield reads straight through it. The `bg-zinc-950/80` that used to be
                   here was near-black anyway, so what it mostly did was hide the stars. */}
               <div
-                ref={revealGroup}
                 // No `below-fold` here, and its removal is a bug fix rather than tidying.
                 //
                 // That class sets `content-visibility: auto`, which tells the browser it may
@@ -542,7 +529,7 @@ export default function App() {
                 // subtree is on screen, so it skips and un-skips it repeatedly, throwing the
                 // section's rendering away and rebuilding it — many times a second, for as long
                 // as the card is moving. That is both the flicker and a large part of the heat.
-                className="reveal-group border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
+                className="border border-zinc-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl"
               >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
                 {/* The credential card, in the same row as the pitch it illustrates rather than
@@ -576,9 +563,8 @@ export default function App() {
                     ].map((stat, idx) => (
                       <div
                         key={idx}
-                        className="reveal-face reveal-border group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
+                        className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
                       >
-                        <RevealLight face />
                         <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
                             className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-zinc-500 to-white"
@@ -616,9 +602,8 @@ export default function App() {
                   ].map((x, idx) => (
                     <div
                       key={idx}
-                      className="reveal-face reveal-border flex flex-col justify-center items-center text-center p-4 sm:p-5 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
+                      className="flex flex-col justify-center items-center text-center p-4 sm:p-5 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
                     >
-                      <RevealLight face />
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>
                     </div>

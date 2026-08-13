@@ -1,8 +1,6 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { useRevealGroup } from '../lib/useRevealGroup';
-import { RevealLight } from './RevealLight';
 
 interface AboutSectionProps {
   language?: Language;
@@ -11,7 +9,6 @@ interface AboutSectionProps {
 export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
   // Drives both halves of the Fluent reveal on every card below — the edge nearest the
   // pointer and the face under it — from one pointer position shared across the row.
-  const revealGroup = useRevealGroup<HTMLDivElement>();
 
   return (
     <section id="about-section" className="relative">
@@ -47,7 +44,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
 
           {/* Concise Capabilities List — nested under the intro instead of split into a
               side-by-side column, so the whole card reads as one centered block. */}
-          <div ref={revealGroup} className="reveal-group grid grid-cols-1 sm:grid-cols-3 gap-3 mt-10 sm:mt-14 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-10 sm:mt-14 max-w-4xl mx-auto">
             {[
               {
                 title: language === 'ar' ? 'تطوير منصات برمجية متكاملة' : 'Full-Stack Platform Engineering',
@@ -71,9 +68,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
               // of it is brighter than the rest.
               <div
                 key={idx}
-                className="reveal-face reveal-border min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 text-center transition-all"
+                className="min-h-[190px] flex flex-col items-center justify-center p-5 rounded-xl bg-black border border-zinc-700 text-center transition-all"
               >
-                <RevealLight face />
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>
                 <p className="relative z-10 text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{item.desc}</p>

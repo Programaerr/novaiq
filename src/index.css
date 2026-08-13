@@ -130,6 +130,18 @@
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
+    /* Tells the browser this page is dark, which is not the same as painting it dark. It is
+       what makes everything the site does NOT draw itself come out dark too: native scrollbars,
+       form controls, the autofill wash on inputs, `<select>` popups, and the flash of canvas
+       before first paint. Without it those all render in the light default and sit on a black
+       page as bright rectangles — the most common tell that a dark site was themed rather than
+       designed. It also stops the white flash between navigation and first paint. */
+    color-scheme: dark;
+    /* The page's flat base colour, and the one the browser uses for the area past the document
+       when a phone rubber-bands past either end. It has to match the backdrop below or a hard
+       scroll flashes a different shade across the top or bottom of the page. Charcoal rather
+       than black: see the note on body::before. */
+    background-color: #1C1C1C;
 
     /* Vertical rhythm below the floating Navbar. --nav-bottom is measured and written here at
        runtime by useFloatingBarBottom, and page content starts --content-gap below it, so
@@ -151,9 +163,47 @@
   }
   body {
     font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
-    background-color: #000000;
+    background-color: #1C1C1C;
     color: #f4f4f5;
     overflow-x: hidden;
+  }
+
+  /* Brushed charcoal — the page's entire background, and the only one it has.
+     Not black. A true-black page gives every surface on top of it the same problem: a card has
+     nowhere darker to sit, so it can only be told apart by its border. Lifting the ground to
+     charcoal gives the interface a floor to stand on, which is what the reference this was
+     matched to is doing — its panels read as raised because the page behind them is not the
+     darkest thing in the frame.
+     What this replaces: a fixed component (CosmicBackground) that stacked five layers — four
+     drifting star planes, a pointer-reactive canvas field, two ambient glows, a grid and two
+     vignettes — all composited on every page of the site for as long as it was open. This does
+     the job those layers were there for, which is to keep a black page from reading as a dead
+     rectangle, and it does it with two gradients painted once.
+
+     Strictly neutral: every stop is white at some alpha over black, so there is no hue anywhere
+     in it. That is what makes it read as silver rather than as blue-black or brown-black — the
+     moment a background of this kind picks up a tint, every grey in the interface inherits it.
+
+     `position: fixed` on a pseudo-element rather than `background-attachment: fixed` on the body.
+     The two look identical and cost completely different things: a fixed *attachment* makes the
+     browser re-resolve the background against the viewport as the page scrolls, which repaints;
+     a fixed *element* is one composited layer the compositor simply leaves where it is. On a
+     page that scrolls as much as this one that difference is the whole point.
+
+     z-index: -1 so it sits behind the app's own content without needing a stacking context of
+     its own — which also means the shells above it must not paint their own black over it. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      /* the sheen: a wide, soft light hung above the top edge, brightest where the eye lands */
+      radial-gradient(115% 62% at 50% -6%, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0) 70%),
+      /* the body: charcoal through the middle falling to a darker edge. The falloff IS the
+         vignette — one gradient doing what a separate dimming overlay used to be needed for. */
+      radial-gradient(135% 110% at 50% 40%, #2A2A2A 0%, #222222 45%, #161616 100%);
   }
 }
 
@@ -256,11 +306,15 @@
   isolation: isolate;
   background: #FFFFFF;
   color: #111111;
+  /* No omnidirectional bloom in this stack — only the directional drop below it. A
+     `0 0 36px rgba(0,0,0,…)` term spreads black evenly in every direction, which is invisible
+     on a black page and a grey smudge on any page that is not black. The moment the background
+     became charcoal it showed up as a dark haze ringing every button. A drop shadow implies a
+     light source and a surface; a black glow implies neither. */
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     inset 0 -1px 1px rgba(0, 0, 0, 0.05),
-    0 8px 20px rgba(0, 0, 0, 0.22),
-    0 0 36px rgba(0, 0, 0, 0.12);
+    0 8px 20px rgba(0, 0, 0, 0.22);
   transition: background 250ms ease, color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
 }
 
@@ -332,8 +386,7 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     inset 0 -1px 1px rgba(0, 0, 0, 0.05),
-    0 10px 26px rgba(0, 0, 0, 0.3),
-    0 0 50px rgba(0, 0, 0, 0.22);
+    0 10px 26px rgba(0, 0, 0, 0.3);
 }
 
 /* Deep-space search field. This toolbar sits on a starfield, and this control used to be the
@@ -355,18 +408,6 @@
    The box-shadows then supply the limb: a 1px inset white line along the top (the lit edge), a
    hairline ring around the whole shape so it stays legible against the sky behind it, and a
    wide soft drop shadow that lifts it off the stars. */
-.search-cosmic {
-  background:
-    radial-gradient(140% 120% at 50% -30%, rgba(255, 255, 255, 0.13), transparent 55%),
-    linear-gradient(180deg, #1a1b20 0%, #0b0c0f 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
-    0 0 0 1px rgba(255, 255, 255, 0.09),
-    0 10px 28px rgba(0, 0, 0, 0.6);
-  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
-}
-
 /* The search field borrows the button system's beam (see .nq-btn-beam) so the toolbar's
    two controls respond identically. It takes the white beam, not the --dark one it used to:
    that variant exists solely to keep the beam visible on a *pale* body, and against this
@@ -379,6 +420,18 @@
 .search-cosmic:hover .nq-btn-beam::before,
 .search-cosmic:focus-within .nq-btn-beam::before {
   animation: nq-beam-spin 2s ease-in-out infinite;
+}
+
+.search-cosmic {
+  background:
+    radial-gradient(140% 120% at 50% -30%, rgba(255, 255, 255, 0.13), transparent 55%),
+    linear-gradient(180deg, #1a1b20 0%, #0b0c0f 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+    0 0 0 1px rgba(255, 255, 255, 0.09),
+    0 10px 28px rgba(0, 0, 0, 0.6);
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
 }
 
 /* Focus lights it from within: the top limb brightens, the hairline ring firms up into a
@@ -667,8 +720,7 @@
     inset 0 0 0 1px #FFFFFF,
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     inset 0 -1px 1px rgba(0, 0, 0, 0.05),
-    0 8px 20px rgba(0, 0, 0, 0.22),
-    0 0 36px rgba(0, 0, 0, 0.12);
+    0 8px 20px rgba(0, 0, 0, 0.22);
 }
 
 .nq-btn--solid:hover,
@@ -755,6 +807,7 @@
   .nq-btn:active .nq-btn-beam::before {
     animation: none;
   }
+
 }
 
 .white-btn-glow:hover {
@@ -1192,12 +1245,11 @@ html[data-idle] .rv::before {
    and for a different reason: idle means nobody can see the page, so everything decorative may
    as well stop. This means the visitor is looking at the page but moving it, and the only
    things worth standing down are the ones the scroll itself wakes up.
-   That is specifically the hover beams. As the page slides under a stationary cursor, buttons
-   and pills enter :hover on their own, and each one starts a conic-gradient rotation inside a
-   mask — the single most expensive repaint on the site — for a hover the visitor never
-   performed, on every frame of the scroll. Paused rather than hidden, so a beam that was
-   genuinely being hovered before the scroll resumes exactly where it stopped.
-   `.rv::before` joins them because it is the same story: the reveal light's own hook already
+   The hover beams used to be the main entry here — as the page slides under a stationary
+   cursor, buttons enter :hover on their own and each one started a conic-gradient rotation
+   inside a mask for a hover the visitor never performed. Those are gone from the site
+   entirely now, which is a better fix than pausing them.
+   `.rv::before` remains for the same reason it was added: the reveal light's own hook already
    refuses to repaint mid-scroll, and this keeps its fade in step with that.
    Deliberately NOT here: the starfield, the milestone drift, the marquee. Those are pure
    compositor transforms that run off the main thread — pausing them would visibly stall the
@@ -1209,28 +1261,12 @@ html[data-scrolling] .rv::before {
   animation-play-state: paused;
 }
 
-/* A template demo is on screen (flag set by TemplateInteractiveSandbox while it is mounted).
-   The demo covers the whole viewport with its own opaque page, so the cosmic background is
-   not dimmed or partly seen behind it — it is not seen at all, while still animating two star
-   fields, two glow layers and a blurred photo underneath it.
-
-   `display: none` rather than `visibility` or opacity: this has to stop the work, not hide
-   the result, and only display removes the subtree from rendering outright. Nothing is lost
-   visually because the page wrappers on both routes into a demo are already `bg-black`, which
-   is exactly the flat black the background resolves to anyway once its layers are gone. The
-   demo then has the frame entirely to itself, which is the whole point — a customer judging a
-   template should be judging the template, not watching it compete with scenery behind it. */
-/* `data-flat` is the same statement made by a page that is not a demo: the admin control
-   panel and the customer's own contracts page (both via useDocumentFlag). Those are working
-   tools rather than showcases — dense tables, live figures, forms, read for long stretches —
-   and the background is composited underneath them the entire time while adding nothing a
-   person using the panel is there for. Same rule, same reason, so they share the declaration
-   rather than each getting a near-identical one. */
-html[data-demo] .cosmic-bg,
-html[data-flat] .cosmic-bg {
-  display: none;
-}
-
+/* `data-demo` / `data-flat` (useDocumentFlag) are still set by the template sandbox, the admin
+   panel and the contracts page, but nothing in this stylesheet reads them any more. They
+   existed to take the animated cosmic background out of rendering on pages that covered it —
+   and that background is gone, replaced by one static gradient on body::before which costs
+   nothing to leave in place. The flags are harmless and cheap; they are noted here so the next
+   person does not go looking for the rule that used to be at this line. */
 /* Low-end device lag fix: sections below the first viewport were being painted,
    animated (star drift, reveal, milestones) and composited at page load
    even though the visitor had not scrolled to them — doing the whole page's work up
@@ -1994,14 +2030,6 @@ html[data-flat] .cosmic-bg {
    the same reason the stars are — the vignette exists to dim the layers BEHIND the text, and this
    is meant to be the brightest thing in the sky. Deaf to the pointer: it reads the window's
    events, it never intercepts them. */
-.gravity-field {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 
 /* ── Hero device rig (HeroDevices.tsx) ─────────────────────────────────────────────────────
    A laptop, a tablet and a phone, drawn rather than photographed, with a site assembling itself

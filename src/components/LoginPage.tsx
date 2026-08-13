@@ -3,7 +3,6 @@ import { Loader2, FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { useLiveTemplates } from '../lib/pricingOverrides';
-import { CosmicBackground } from './CosmicBackground';
 import { NovaiqLogo } from './NovaiqLogo';
 
 interface LoginPageProps {
@@ -115,15 +114,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
   ];
 
   return (
-    <div className="min-h-screen bg-black text-zinc-100 font-['Cairo'] relative overflow-hidden selection:bg-zinc-100 selection:text-black">
+    <div className="min-h-screen text-zinc-100 font-['Cairo'] relative overflow-hidden selection:bg-zinc-100 selection:text-black">
       {/* Desktop only, and for once that is a performance decision rather than a layout one:
           below lg the gallery covers the entire viewport, so every star drifting behind it is
           being animated and composited under something opaque. Two full-screen infinite
           animations running at once, one of them invisible, is precisely the waste this site
           has spent its time removing. */}
       <div className="hidden lg:block">
-        <CosmicBackground activeSection="hero" activeBgImage={null} />
-      </div>
+        </div>
 
       {/* lg is where the split appears. Below it the gallery is dropped entirely rather than
           stacked under the form: it is atmosphere, and a phone that has to scroll past a
