@@ -44,8 +44,13 @@ export const HeroProofStrip: React.FC<HeroProofStripProps> = ({ language, onExpl
     // frame does not read as an endless belt — it reaches its end, snaps, and the loop becomes the
     // thing you notice. Eight is the point where two passes clear a desktop at the larger cover
     // size, so the repeat happens off-screen where it belongs.
+    // Padded until ONE pass is wider than any screen it can land on. This is what keeps the belt
+    // continuous: the loop restarts by jumping back exactly one pass, so if a pass is narrower
+    // than the viewport the tail leaves the frame before the head re-enters and you get an empty
+    // gap that sits there until the cycle comes round again. Twelve covers is ~3000px at the
+    // desktop size — wider than any display this will meet — so the seam is always off-screen.
     const out = [...base];
-    while (out.length < 8) out.push(...base);
+    while (out.length < 12) out.push(...base);
     return out;
   }, []);
 

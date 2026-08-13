@@ -95,10 +95,6 @@ export const CosmicBackground: React.FC<CosmicBackgroundProps> = ({
           afterwards — see GravityField for why that rule is the price of admission here. */}
       <GravityField />
 
-      {/* Two streaks on long, mismatched cycles — visible for a second or so out of every half
-          minute, so each one is a small event rather than wallpaper. */}
-      <div className="shooting-star" />
-      <div className="shooting-star shooting-star--b" />
     </div>
   );
 };
