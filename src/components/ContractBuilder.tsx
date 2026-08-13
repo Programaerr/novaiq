@@ -5,7 +5,6 @@ import {
   FileSignature,
   Building2,
   CheckSquare,
-  Square,
   RotateCcw,
   ShieldCheck,
   Layers,
@@ -120,7 +119,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // before they had even agreed to the project. Anything they actually want is written in the
   // request field below and priced by us afterwards, which is what was happening anyway.
   const [customFeaturesText, setCustomFeaturesText] = useState(draft?.customFeaturesText || '');
-  const [showCustomRequest, setShowCustomRequest] = useState(!!draft?.customFeaturesText);
 
   // A fully custom project — not based on any ready template at all. Arriving with no
   // selectedTemplate (e.g. via the navbar's direct "Custom Contract" link) opens straight
@@ -154,10 +152,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     if (selectedTemplate) {
       setIsCustomProject(false);
       setTemplate(selectedTemplate);
-      if (initialCustomFeaturesText) {
-        setCustomFeaturesText(initialCustomFeaturesText);
-        setShowCustomRequest(true);
-      }
+      if (initialCustomFeaturesText) setCustomFeaturesText(initialCustomFeaturesText);
       if (initialPrimaryColor) setPrimaryColor(initialPrimaryColor);
     }
   }, [selectedTemplate, initialCustomFeaturesText, initialPrimaryColor]);
@@ -644,48 +639,29 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </div>
                 </div>
               ) : (
-                <>
-                  <div
-                    onClick={() => setShowCustomRequest(v => !v)}
-                    className={`p-3.5 rounded-2xl border-2 border-dashed cursor-pointer transition-all flex items-center justify-between gap-3 ${
-                      showCustomRequest
-                        ? 'bg-zinc-800 border-white text-white font-semibold glow-white'
-                        : 'bg-zinc-900/60 border-zinc-700 text-zinc-400 hover:border-zinc-500 glow-white-hover'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {showCustomRequest ? (
-                        <CheckSquare className="w-4 h-4 text-white shrink-0" />
-                      ) : (
-                        <Square className="w-4 h-4 text-zinc-600 shrink-0" />
-                      )}
-                      <div className="flex items-center gap-2">
-                        <PenLine className="w-4 h-4 text-white shrink-0" />
-                        <span className="text-xs sm:text-sm font-bold">
-                          {isAr ? 'لم تجد ما تريده في القائمة أعلاه؟ اطلب ميزة مخصصة' : "Didn't find what you need above? Request a custom feature"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {showCustomRequest && (
-                    <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border-2 border-dashed border-zinc-700 animate-fade-in">
-                      <p className="text-[11px] text-zinc-400 mb-2.5">
-                        {isAr
-                          ? 'اكتب طلبك بالضبط هنا — أي ميزة أو فكرة خاصة بموقعك غير مذكورة في الإضافات الجاهزة، وسنقوم بدراستها وتسعيرها ضمن مشروعك.'
-                          : 'Describe exactly what you want here — any feature or idea for your site not covered by the ready-made add-ons above, and we\'ll scope and price it as part of your project.'}
-                      </p>
-                      <textarea
-                        rows={3}
-                        value={customFeaturesText}
-                        onChange={(e) => setCustomFeaturesText(e.target.value)}
-                        placeholder={getTranslation('customFeaturesPlaceholder', lang)}
-                        className="w-full p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs"
-                        autoFocus
-                      />
-                    </div>
-                  )}
-                </>
+                /* The one place the customer says what they actually want. This used to be a
+                   checkbox reading "didn't find it in the list above?" that revealed a textarea —
+                   but the list it pointed at is gone, and this is no longer an afterthought:
+                   with no add-on menu, the template plus this description IS the scope of work.
+                   So it is always open, and it is labelled as the requirement it now carries. */
+                <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border-2 border-dashed border-zinc-700 space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white">
+                    <PenLine className="w-4 h-4 shrink-0" />
+                    <span>{isAr ? 'وصف القالب والمطلوب تنفيذه' : 'Template description & what you need built'}</span>
+                  </label>
+                  <p className="text-[11px] text-zinc-400">
+                    {isAr
+                      ? 'اخترت القالب — اكتب هنا بالتفصيل ما تريد تنفيذه أو تعديله عليه، وسندرسه ونسعّره ضمن مشروعك.'
+                      : "You've picked the template — describe here what you want built or changed on it, and we'll scope and price it as part of your project."}
+                  </p>
+                  <textarea
+                    rows={4}
+                    value={customFeaturesText}
+                    onChange={(e) => setCustomFeaturesText(e.target.value)}
+                    placeholder={getTranslation('customFeaturesPlaceholder', lang)}
+                    className="w-full p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs"
+                  />
+                </div>
               )}
 
               {/* Color Scheme Picker */}
