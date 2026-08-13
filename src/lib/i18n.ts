@@ -234,7 +234,7 @@ export const UI_TRANSLATIONS = {
     plan100Upfront: '100% تسديد كامل مسبق (خصم 5% خاص)',
     plan3Milestones: '3 دفعات مقسمة حسب مراحل الإنجاز الموثقة للموقع/التطبيق',
 
-    totalCostSummary: 'إجمالي التكلفة التقديرية للبرمجة:',
+    totalCostSummary: 'إجمالي التكلفة التقديرية للبناء:',
     clearSignature: 'مسح التوقيع والاعتماد',
     agreeTermsCheckbox: 'أقر بصحة المواصفات الفنية المطلوبة ومراحل التسليم المذكورة لتخصيص طلبي وبدء التنفيذ.',
     generateContractBtn: 'إرسال العقد',
