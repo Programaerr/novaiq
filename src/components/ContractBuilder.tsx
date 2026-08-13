@@ -196,7 +196,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const basePriceIQD = isCustomProject ? 0 : (template.basePriceIQD || 0);
   const totalPriceIQD = basePriceIQD;
 
-  // Shown to the customer in step 4 and printed as section 4 of their PDF, from one module so
+  // Shown to the customer in step 3 and printed as section 4 of their PDF, from one module so
   // the two can never disagree. The week count must match what handleSubmit writes into the
   // contract below, which is why it is derived the same way rather than typed out again.
   const deliveryTimelineWeeks = isCustomProject ? 8 : template.deliveryWeeks;
@@ -787,53 +787,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           {/* STEP 3: Price, terms, signature — the whole close, on one screen. */}
           {currentStep === 3 && (
             <div className="space-y-6 animate-fade-in">
-              <div className="border-b border-zinc-800 pb-4">
-                <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-white" />
-                  <span>{getTranslation('stepTermsPayment', lang)}</span>
-                </h3>
-              </div>
-
-              {isCustomProject ? (
-                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-2">
-                  <div className="text-sm font-bold text-white">
-                    {isAr ? 'مشروع مخصص — السعر يُحدَّد بعد المراجعة' : 'Custom Project — price to be quoted after review'}
-                  </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    {isAr
-                      ? 'سيراجع فريقنا الوصف الذي كتبته في الخطوة السابقة ويتواصل معك بعرض سعر ومدة تنفيذ دقيقة بعد تقديم الطلب.'
-                      : 'Our team will review the description you wrote in the previous step and follow up with an accurate quote and timeline after you submit.'}
-                  </p>
-                </div>
-              ) : (
-                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 font-mono">
-                  <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <span>{isAr ? 'سعر القالب الأساسي:' : 'Base Template Price:'}</span>
-                    <span>{formatPrice(basePriceIQD, lang, currency)}</span>
-                  </div>
-                  <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-base font-bold text-white">
-                    <span>{getTranslation('totalCostSummary', lang)}</span>
-                    <span className="text-xl text-white font-extrabold">
-                      {formatPrice(totalPriceIQD, lang, currency)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="w-4 h-4 rounded bg-zinc-950 border-zinc-700 text-white focus:ring-white cursor-pointer"
-                  />
-                  <span className="text-xs font-semibold text-white">
-                    {getTranslation('agreeTermsCheckbox', lang)}
-                  </span>
-                </label>
-              </div>
-
               <div className="border-b border-zinc-800 pb-4 pt-2">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <FileSignature className="w-5 h-5 text-white" />
@@ -937,6 +890,53 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     <span>{isAr ? 'التوقيع مطلوب لإتمام العقد.' : 'A signature is required to complete the contract.'}</span>
                   </p>
                 )}
+              </div>
+
+              <div className="border-b border-zinc-800 pb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-white" />
+                  <span>{getTranslation('stepTermsPayment', lang)}</span>
+                </h3>
+              </div>
+
+              {isCustomProject ? (
+                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-2">
+                  <div className="text-sm font-bold text-white">
+                    {isAr ? 'مشروع مخصص — السعر يُحدَّد بعد المراجعة' : 'Custom Project — price to be quoted after review'}
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    {isAr
+                      ? 'سيراجع فريقنا الوصف الذي كتبته في الخطوة السابقة ويتواصل معك بعرض سعر ومدة تنفيذ دقيقة بعد تقديم الطلب.'
+                      : 'Our team will review the description you wrote in the previous step and follow up with an accurate quote and timeline after you submit.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 font-mono">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>{isAr ? 'سعر القالب الأساسي:' : 'Base Template Price:'}</span>
+                    <span>{formatPrice(basePriceIQD, lang, currency)}</span>
+                  </div>
+                  <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-base font-bold text-white">
+                    <span>{getTranslation('totalCostSummary', lang)}</span>
+                    <span className="text-xl text-white font-extrabold">
+                      {formatPrice(totalPriceIQD, lang, currency)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="w-4 h-4 rounded bg-zinc-950 border-zinc-700 text-white focus:ring-white cursor-pointer"
+                  />
+                  <span className="text-xs font-semibold text-white">
+                    {getTranslation('agreeTermsCheckbox', lang)}
+                  </span>
+                </label>
               </div>
             </div>
           )}
