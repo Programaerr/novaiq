@@ -278,14 +278,24 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [currentUser]);
 
-  // `?page=login` reached while already signed in — an old link, or the back button after
-  // signing in. Nothing below renders a 'login' page (the gate above owns that screen, and it
-  // only runs for signed-OUT visitors), so left alone this would draw the site shell around an
-  // empty middle.
+  // Where to go once the sign-in actually succeeds, set by whatever sent the visitor there.
+  // A ref rather than state: nothing renders from it, and it must survive the re-render that
+  // signing in causes without being a dependency of anything.
+  const postLoginPage = useRef<string | null>(null);
+
+  // `?page=login` reached while already signed in — either a visitor who just signed in, or an
+  // old link / the back button. Nothing below renders a 'login' page (the gate above owns that
+  // screen, and it only runs for signed-OUT visitors), so left alone this would draw the site
+  // shell around an empty middle.
   useEffect(() => {
     if (currentUser && activePage === 'login') {
-      setActivePage('home');
-      window.history.replaceState({}, '', window.location.pathname);
+      // Someone who pressed "start your project" and had to sign in on the way lands in the
+      // builder, not on the home page — being returned to the start after signing in is the
+      // point at which people give up on a form.
+      const next = postLoginPage.current || 'home';
+      postLoginPage.current = null;
+      setActivePage(next);
+      window.history.replaceState({}, '', next === 'home' ? window.location.pathname : `${window.location.pathname}?page=${next}`);
     }
   }, [currentUser, activePage]);
 
@@ -300,6 +310,29 @@ export default function App() {
       ? window.location.pathname 
       : `${window.location.pathname}?page=${page}`;
     window.history.pushState({}, '', newUrl);
+  };
+
+  /**
+   * "Start your project", from wherever it is pressed.
+   *
+   * It used to go straight to `custom-request` for everyone. A signed-out visitor therefore
+   * landed on the contract page, where ContractBuilderGate renders the sign-in screen *inside*
+   * that page's own `max-w-6xl` container — so instead of a sign-in page they got a panel
+   * hovering in the middle of a contract form, which is the "strange floating window" it read as.
+   *
+   * The gate stays exactly as it is: it is the wall that guarantees no contract is ever created
+   * without an account, and it still catches anyone who reaches the builder another way. This
+   * simply stops sending guests through it head-first — a visitor with no account is asked for
+   * one on the real sign-in page, and `postLoginPage` below carries them into the builder the
+   * moment they have it.
+   */
+  const startProject = () => {
+    if (!currentUser) {
+      postLoginPage.current = 'custom-request';
+      navigateTo('login');
+      return;
+    }
+    navigateTo('custom-request');
   };
 
   const handleSelectTemplateForContract = (template: Template, customNotes?: string, primaryColorHex?: string) => {
@@ -501,7 +534,7 @@ export default function App() {
               <HeroSection
                 language={language}
                 onStart={() => navigateTo('templates')}
-                onRequestProject={() => navigateTo('custom-request')}
+                onRequestProject={startProject}
               />
 
               {/* Quick Overview Grid to drive leads */}
@@ -667,7 +700,7 @@ export default function App() {
                 around it half again as wide as every other break on the page, which is exactly
                 what used to single this one out. */}
             <div className="below-fold">
-              <ProjectCtaButton language={language} onCreateContract={() => navigateTo('custom-request')} />
+              <ProjectCtaButton language={language} onCreateContract={startProject} />
             </div>
 
             {/* About Section */}
@@ -722,7 +755,7 @@ export default function App() {
           <div className="page-in">
             <MilestoneTimeline language={language} />
             <div className="py-10 sm:py-14">
-              <ProjectCtaButton language={language} onCreateContract={() => navigateTo('custom-request')} />
+              <ProjectCtaButton language={language} onCreateContract={startProject} />
             </div>
           </div>
         )}

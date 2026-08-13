@@ -29,7 +29,10 @@ export const ProjectCtaButton: React.FC<ProjectCtaButtonProps> = ({ onCreateCont
       >
         <span className="filter-pill-beam" aria-hidden="true" />
         <Rocket className="w-4 h-4 sm:w-5 sm:h-5" />
-        <span>{language === 'ar' ? 'ابدأ تنفيذ مشروعك ووقع العقد الآن' : 'Start Your Project & Sign Contract Now'}</span>
+        {/* Just the action. "…and sign the contract now" named a second step the button does not
+            take you to — the contract is at the end of the builder, not behind this press — and a
+            label that promises two things when it does one is a label people stop believing. */}
+        <span>{language === 'ar' ? 'ابدأ تنفيذ مشروعك' : 'Start Your Project'}</span>
         <ArrowLeft className={`w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
       </button>
     </div>

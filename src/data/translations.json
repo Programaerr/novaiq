@@ -162,7 +162,6 @@
   "جدول المراحل الزمنية لتنفيذ مشروعك": "Schedule the time stages for implementing your project",
   "نتبع خطة تسليم واضحة ومحددة خطوة بخطوة تضمن التزامنا الكامل بالمواعيد وجودة المنتج النهائي.": "We follow a clear and defined step-by-step delivery plan that ensures our complete commitment to deadlines and the quality of the final product.",
   "2 أسابيع": "2 weeks",
-  "ابدأ تنفيذ مشروعك ووقع العقد الآن": "Start implementing your project and sign the contract now",
   "الرئيسية": "Home",
   "القوالب البرمجية": "Software templates",
   "عقد مخصص وتطوير": "Custom contract and development",
@@ -1531,5 +1530,6 @@
   "دفع خلفي": "Rear-wheel drive",
   "ناقل أحادي السرعة": "Single-speed transmission",
   "محركان كهربائيان (دفع رباعي)": "Two electric motors (all-wheel drive)",
-  "كهربائية — 620 كم للشحنة": "Electric — 620 km per charge"
+  "كهربائية — 620 كم للشحنة": "Electric — 620 km per charge",
+  "ابدأ تنفيذ مشروعك": "Start Your Project"
 }
