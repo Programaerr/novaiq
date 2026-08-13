@@ -70,33 +70,38 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
 
   return (
     <section ref={heroRef} className="relative pb-2 md:pb-6 overflow-hidden">
-      {/* Ambient glow, drawn as a radial gradient rather than a blurred circle: an animated 600px
-          `blur(140px)` layer has to be re-rasterized by the GPU continuously, which is pure cost
-          on a low-end device for something that looks the same either way. */}
-      <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none animate-pulse-glow"
-        style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(39,39,42,0.55) 0%, rgba(39,39,42,0.18) 45%, rgba(0,0,0,0) 78%)' }}
-      />
+      {/* ── The limb ─────────────────────────────────────────────────────────────────────────
+          A planet's edge rising across the top of the section: one enormous circle, of which only
+          the crown is ever in frame, with its rim catching the light and that light spilling
+          upward into the sky above it.
+
+          It replaces a 600px `animate-pulse-glow` disc that used to sit here. That was a soft blob
+          pulsing forever in the middle of the hero — one more permanently running animation, and
+          nothing to look at. This is bigger, sharper, still, and free. */}
+      <div className="hero-limb" aria-hidden="true" />
+      <div className="hero-sky" aria-hidden="true" />
 
       {/* ── The claim ────────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Two lines by construction, not by luck. Left to wrap on its own the break would move
             with the viewport width and the emphasised half would sometimes trail on the end of
-            the first line — the shape of this headline is half of what it is doing. */}
-        <h1 className="text-4xl sm:text-6xl lg:text-[4.4rem] font-extrabold text-white tracking-tight leading-[1.1] font-['Cairo']">
+            the first line — the shape of this headline is half of what it is doing.
+
+            Two tones rather than an underline. The underline that used to mark the second line was
+            a rule drawn under the words; this makes the words themselves carry the emphasis, which
+            is what the reference does and is one less thing on the page. The quiet half stays at
+            zinc-500 — still ~7:1 on this ground, so the whole heading remains readable rather than
+            half of it turning into texture. */}
+        <h1 className="text-4xl sm:text-6xl lg:text-[4.4rem] font-extrabold tracking-tight leading-[1.1] font-['Cairo']">
           {isAr ? (
             <>
-              <span className="block">بناء</span>
-              <span className="block underline decoration-zinc-700 decoration-2 underline-offset-[12px] font-black">
-                مواقع وتطبيقات
-              </span>
+              <span className="block text-zinc-500">بناء</span>
+              <span className="block text-white font-black">مواقع وتطبيقات</span>
             </>
           ) : (
             <>
-              <span className="block">Web &amp; App</span>
-              <span className="block underline decoration-zinc-700 decoration-2 underline-offset-[12px] font-black">
-                Development
-              </span>
+              <span className="block text-zinc-500">Web &amp; App</span>
+              <span className="block text-white font-black">Development</span>
             </>
           )}
         </h1>

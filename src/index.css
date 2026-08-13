@@ -184,34 +184,24 @@
     overflow-x: hidden;
   }
 
-  /* Ambient light on charcoal — the page's entire background, and the only one it has.
+  /* Charcoal — the page's entire background, and the only one it has.
 
-     ## What is being matched, and what is deliberately not
+     ## Deliberately quiet
 
-     Modelled on a dark dashboard reference whose background is a wide shaft of light crossing the
-     upper right, with the ground falling away to near-black at the opposite corner. That
-     COMPOSITION is what is copied here. Its colour is not: the reference is indigo, and this page
-     is committed to black and charcoal, so every light below is white at a low alpha and there is
-     no hue at any stop. The two are separable — the reference reads the way it does because of
-     where its light is, not because that light is blue.
+     This used to carry the lighting: diagonal shafts from the upper right, a source, a spill. All
+     of it is gone, because the hero grew a light source of its own that is far stronger than any
+     of it — a planet's rim across the top of the first screen — and two light directions on one
+     page cancel each other out. Whatever is brightest has to be the thing you are meant to look
+     at. So the ground is a plain charcoal vignette now, and the hero owns the light.
 
-     Neutral also matters downstream: a page ground hands its tint to every grey above it, so the
-     same zinc border reads cool on a navy ground and neutral on this one without a character of
-     it changing. Neutral here means the greys already in the interface are the greys that show up.
-
-     ## The one rule that keeps it honest
-
-     No blur, anywhere. The usual way to build ambient light is a blurred blob — and the style
-     database's own entry for this look (Modern Dark / Cinema Mobile) prescribes exactly that,
-     animated, and rates its own performance with a warning because of it. A gradient with widely
-     spaced stops produces the same falloff for free, because a gradient IS a blur that the
-     rasteriser computes once instead of a filter it re-evaluates. Same picture, none of the cost,
-     which is why this stayed static when the reference's own recipe did not.
+     Strictly neutral: white at some alpha over black, no hue at any stop. That matters downstream
+     as much as here — a page ground hands its tint to every grey above it, so the same zinc border
+     reads cool on a navy ground and neutral on this one without a character of it changing.
 
      ## Why this costs nothing
 
-     Every layer below is a `background-image` on ONE element, rasterised once when the viewport is
-     sized and then never touched again: no animation, no blur, no JavaScript, no canvas, no
+     One `background-image` on ONE element, rasterised once when the viewport is sized and then
+     never touched again: no animation, no blur, no JavaScript, no canvas, no
      `background-attachment`, nothing reading the scroll position.
 
      What this replaces: a fixed component (CosmicBackground) that stacked five layers — four
@@ -233,35 +223,17 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    /* Listed top layer first, the way CSS paints them: shafts, source, spill, ground. */
-    background-image:
-      /* ── the shaft: the reference's signature, and the thing that makes its background read as
-            LIT rather than as coloured. A long band angled across the upper right, brightest
-            along its spine and falling off to nothing on both sides.
-            Built as a linear-gradient because the band runs perpendicular to the gradient's own
-            axis, which is what makes a straight-edged shaft possible at all — a radial can only
-            ever produce a pool. The stops are deliberately far apart (30% → 47% → 68%): a narrow
-            spread gives a hard-edged stripe that reads as a graphic element, and only a wide,
-            gradual one reads as light falling through something. ────────────────────────────── */
-      linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.062) 47%, rgba(255, 255, 255, 0.015) 58%, transparent 68%),
-      /* ── the second shaft: wider, weaker, at a different angle so the two cross rather than run
-            parallel. One shaft alone reads as a stripe someone drew; two at different angles read
-            as light with a source somewhere off-frame, which is the effect being copied. ────── */
-      linear-gradient(148deg, transparent 22%, rgba(255, 255, 255, 0.028) 44%, transparent 64%),
-      /* ── the source: the pool the shafts appear to come from, hung off the top-right corner so
-            it is never fully in frame. 0.10 at the core — the top of the 0.08–0.12 band the style
-            database gives for ambient light on a dark ground, and about the most a white glow can
-            take on charcoal before it stops reading as light and starts reading as grey paint. */
-      radial-gradient(46% 40% at 82% -6%, rgba(255, 255, 255, 0.115) 0%, rgba(255, 255, 255, 0.035) 45%, transparent 74%),
-      /* ── the spill: a much wider, fainter wash over the same corner, so the source has a falloff
-            around it instead of an edge where it stops. ───────────────────────────────────────── */
-      radial-gradient(90% 75% at 74% 2%, rgba(255, 255, 255, 0.035) 0%, transparent 70%),
-      /* ── the ground: and this is the other half of the reference's lighting. Its centre sits at
-            78% 4%, not in the middle — so the charcoal is brightest under the light source and
-            falls to near-black at the FAR corner, bottom-left. A vignette centred at 50% would
-            have dimmed all four edges equally and flattened the whole effect back out; offsetting
-            it is what gives the page a light direction instead of just a bright patch. ───────── */
-      radial-gradient(125% 105% at 78% 4%, #171717 0%, #101010 42%, #050505 100%);
+    /* Charcoal, and essentially nothing else.
+       The diagonal light shafts that used to be here are gone, and that is a composition decision
+       rather than a simplification: the hero now carries a real light source of its own (the
+       planet's rim, .hero-limb), and a page-wide shaft lighting from the upper right meant two
+       light directions arguing on the same screen. A page can only have one. So the light belongs
+       to the hero, and the ground under everything else goes quiet and lets it be the brightest
+       thing on the page.
+       What is left is one near-flat vignette: #171717 in the middle down to #050505 at the corner.
+       That range is small enough not to read as a gradient anyone can point at, and just enough
+       that a document this long never reads as a single dead rectangle. */
+    background-image: radial-gradient(130% 105% at 50% 22%, #171717 0%, #111111 44%, #050505 100%);
     background-repeat: no-repeat;
   }
 }
@@ -1927,6 +1899,165 @@ html[data-scrolling] .rv::before {
    star chart, so a second field inside one panel only made that panel denser than the page for
    no reason anyone could read as intentional. Nothing replaces it — the body's field shows
    through the panel exactly as it does everywhere else. */
+
+/* ── The planet limb (HeroSection.tsx) ─────────────────────────────────────────────────────
+   A world's edge rising across the top of the hero: only the crown of an enormous sphere is ever
+   in frame, its rim catching the light, that light bleeding upward into the sky above it.
+
+   ## Why a real circle and not a drawn arc
+
+   The curve has to be a genuine circle, several times wider than the viewport, positioned so the
+   viewport crops it. An arc drawn to fit the screen has the wrong curvature by definition — it
+   bends as much as the frame is wide — and it reads immediately as a drawn line rather than as
+   something enormous seen up close. Nearly all of this element is deliberately off-screen; the
+   part you see is the payload, and the section's `overflow-hidden` does the cropping.
+
+   ## The rim, and why its stops are bunched against 100%
+
+   `--limb-r` is 1400px at desktop, so one percent of the gradient is fourteen pixels. A rim light
+   is a few pixels, which puts every stop that matters inside the last half-percent — hence the
+   99.5 / 99.72 / 99.92 sequence, which is not fussiness but the only place the numbers can be.
+   The values step up and then back down slightly at the very edge: the ramp inward is the light
+   wrapping around the curve, and the dip on the outermost stop is anti-aliasing done by hand,
+   because a hard stop on a curve this large stairsteps visibly.
+
+   ## Everything here is static
+
+   No blur, no filter, no animation, no shadow. The halo is a second gradient rather than a
+   `box-shadow` spread — a blurred shadow on a 2800px circle is a large surface for the rasteriser
+   to blur, and a radial gradient produces the same falloff as part of the paint it was already
+   doing. Same reasoning that governs the page background. */
+.hero-limb {
+  --limb-r: 620px;
+  --limb-top: 34px;
+
+  position: absolute;
+  top: var(--limb-top);
+  left: 50%;
+  width: calc(var(--limb-r) * 2);
+  height: calc(var(--limb-r) * 2);
+  transform: translateX(-50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      /* the body: the planet is DARKER than the sky it sits against, which is the half of this
+         that makes the rim read as a rim. A bright line needs something unlit on one side of it;
+         with the same charcoal above and below, the same line only reads as a drawn stroke. */
+      rgba(0, 0, 0, 0.38) 0 99.35%,
+      /* the terminator: light wrapping around the curve, over about nine pixels */
+      rgba(255, 255, 255, 0.1) 99.6%,
+      rgba(255, 255, 255, 0.55) 99.82%,
+      /* the rim itself: one to two pixels at full white, the brightest thing on the page */
+      rgba(255, 255, 255, 1) 99.94%,
+      /* and back down at the very edge — hand-rolled anti-aliasing, because a hard stop on a
+         curve this large stairsteps into a dotted line */
+      rgba(255, 255, 255, 0.6) 100%
+    );
+
+  /* Faded off at both ends, so the rim is brightest at the crown and gone before the side walls.
+     Without it the arc runs into both edges at full strength and stops dead there, which reads as
+     a shape that was cropped rather than as a curve continuing past the frame. Wide plateau — the
+     arc should span most of the screen, and only the last fifth of each side is doing the fade. */
+  -webkit-mask-image: linear-gradient(to right, transparent 1%, #000 21%, #000 79%, transparent 99%);
+  mask-image: linear-gradient(to right, transparent 1%, #000 21%, #000 79%, transparent 99%);
+}
+
+/* The halo: atmosphere, and it belongs ABOVE the rim. Pushed up so roughly four fifths of it sits
+   in the open sky and only the last sliver laps back over the edge — light escaping outward past
+   the horizon. Centred on the crown instead (the obvious placement) it puts its brighter half
+   INSIDE the planet, which lights up the disc that is supposed to be the dark side and turns the
+   whole thing into a grey dome. */
+.hero-limb::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: calc(var(--limb-r) * 1.5);
+  height: 300px;
+  transform: translate(-50%, -80%);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.04) 45%,
+    transparent 76%
+  );
+}
+
+@media (min-width: 640px) {
+  .hero-limb { --limb-r: 1000px; --limb-top: 40px; }
+  .hero-limb::after { height: 440px; }
+}
+
+@media (min-width: 1024px) {
+  .hero-limb { --limb-r: 1400px; --limb-top: 46px; }
+  .hero-limb::after { height: 520px; }
+}
+
+/* The sky: a handful of points above the limb, on the same two-tile scheme the page background
+   used to carry. Scoped to the hero on purpose — the reference has stars around its headline and
+   nowhere else, and a field that runs the length of the whole document is a different decision
+   with a different cost. Masked to fade out well before the copy starts. */
+.hero-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 420px;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 41px 62px, rgba(255, 255, 255, 0.7) 50%, transparent 50%),
+    radial-gradient(1.3px 1.3px at 226px 31px, rgba(255, 255, 255, 0.55) 50%, transparent 50%),
+    radial-gradient(1.4px 1.4px at 138px 178px, rgba(255, 255, 255, 0.6) 50%, transparent 50%),
+    radial-gradient(1.2px 1.2px at 318px 133px, rgba(255, 255, 255, 0.45) 50%, transparent 50%),
+    radial-gradient(1px 1px at 74px 128px, rgba(255, 255, 255, 0.4) 50%, transparent 50%),
+    radial-gradient(1px 1px at 191px 96px, rgba(255, 255, 255, 0.33) 50%, transparent 50%);
+  background-size:
+    383px 241px, 383px 241px, 383px 241px, 383px 241px,
+    271px 187px, 271px 187px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+}
+
+/* The badge above the headline. A hairline ring drawn with an inset shadow rather than a border,
+   for the reason every other pill on this site does it: a real border sits outside the padding
+   box and pushes the contents in by its own width, so swapping it for a ring keeps the pill's
+   height identical whether or not it is outlined. */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  color: #e4e4e7;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* RTL flips which side the mark sits on, so the tighter padding has to follow it. */
+[dir='rtl'] .hero-badge {
+  padding: 0.4rem 0.4rem 0.4rem 0.9rem;
+}
+
+.hero-badge__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #0a0a0a;
+  flex-shrink: 0;
+}
 
 /* ── Hero cover carousel (HeroCoverArc.tsx) ────────────────────────────────────────────────
    The studio's covers standing on a slowly turning cylinder under the hero. Replaces the flat
