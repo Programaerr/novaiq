@@ -313,8 +313,7 @@
      light source and a surface; a black glow implies neither. */
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.05),
-    0 8px 20px rgba(0, 0, 0, 0.22);
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
   transition: background 250ms ease, color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
 }
 
@@ -385,8 +384,7 @@
 .filter-pill-btn.is-active {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.05),
-    0 10px 26px rgba(0, 0, 0, 0.3);
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
 }
 
 /* Deep-space search field. This toolbar sits on a starfield, and this control used to be the
@@ -537,8 +535,7 @@
   color: #FFFFFF;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.4),
-    0 10px 26px rgba(0, 0, 0, 0.45);
+    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
   transform: scale(1.03);
 }
 
@@ -561,6 +558,15 @@
   background: #FFFFFF;
   color: #111111;
 }
+
+/* No cast shadow on any button, resting or hovered — only inset bevels.
+   A drop shadow is a claim that the control is floating above the page, and it is paid for in
+   dark pixels spread under and around it. On a charcoal ground those pixels are visible, and a
+   crisp white pill with a grey smear beneath it reads as smudged rather than as raised. The
+   inset highlight along the top edge already says "lit from above", and the 1.03 swell on hover
+   already says "this is a thing you can press" — a shadow adds nothing either of those does not
+   already carry, and it is the one part of the button that got worse when the page stopped
+   being black. */
 
 /* ─── Unified button system ────────────────────────────────────────────────────
    One interaction language for every button on the site, modelled on the templates'
@@ -719,8 +725,7 @@
   box-shadow:
     inset 0 0 0 1px #FFFFFF,
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.05),
-    0 8px 20px rgba(0, 0, 0, 0.22);
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
 }
 
 .nq-btn--solid:hover,
@@ -731,8 +736,7 @@
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.4),
-    0 10px 26px rgba(0, 0, 0, 0.45);
+    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
 }
 
 /* The one secondary surface, and it exists for a single job: the hero offers two ways in at
@@ -750,8 +754,7 @@
   border: 0;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 8px 20px rgba(0, 0, 0, 0.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .nq-btn--ghost:hover,
@@ -760,8 +763,7 @@
   background: rgba(255, 255, 255, 0.13);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 8px 20px rgba(0, 0, 0, 0.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* The disc on the primary CTA: the button's two colours swapped over, so it stays inverted
