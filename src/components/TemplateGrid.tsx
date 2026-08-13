@@ -1048,8 +1048,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             The lighting is CSS gradients inside `.tpl-lightstage` — see index.css. No blur filter
             and nothing animated: it rasterizes once and costs nothing after that. */}
         <div className="tpl-lightstage mt-20 sm:mt-28">
-          <span className="tpl-lightstage__beam tpl-lightstage__beam--l" aria-hidden="true" />
-          <span className="tpl-lightstage__beam tpl-lightstage__beam--r" aria-hidden="true" />
+          <span className="tpl-lightstage__spill" aria-hidden="true" />
           <span className="tpl-lightstage__pool" aria-hidden="true" />
 
           {/* The lamp. White on white type, because this is the thing the light is coming out
