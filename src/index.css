@@ -146,9 +146,11 @@
     color-scheme: dark;
     /* The page's flat base colour, and the one the browser uses for the area past the document
        when a phone rubber-bands past either end. It has to match the backdrop below or a hard
-       scroll flashes a different shade across the top or bottom of the page. Charcoal rather
-       than black: see the note on body::before. */
-    background-color: #1C1C1C;
+       scroll flashes a different shade across the top or bottom of the page — which is why it
+       is a variable read by both `html` and `body` rather than the same literal written twice
+       and left to drift. Deep navy rather than black: see the note on body::before. */
+    --nq-ground: #0A0F22;
+    background-color: var(--nq-ground);
 
     /* Vertical rhythm below the floating Navbar. --nav-bottom is measured and written here at
        runtime by useFloatingBarBottom, and page content starts --content-gap below it, so
@@ -170,26 +172,31 @@
   }
   body {
     font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
-    background-color: #1C1C1C;
+    background-color: var(--nq-ground);
     color: #f4f4f5;
     overflow-x: hidden;
   }
 
-  /* Brushed charcoal — the page's entire background, and the only one it has.
+  /* Deep navy with an indigo bloom — the page's entire background, and the only one it has.
+
      Not black. A true-black page gives every surface on top of it the same problem: a card has
-     nowhere darker to sit, so it can only be told apart by its border. Lifting the ground to
-     charcoal gives the interface a floor to stand on, which is what the reference this was
-     matched to is doing — its panels read as raised because the page behind them is not the
-     darkest thing in the frame.
+     nowhere darker to sit, so it can only be told apart by its border. Lifting the ground gives
+     the interface a floor to stand on, which is what the reference this was matched to is doing
+     — its panels read as raised because the page behind them is not the darkest thing in frame.
+
      What this replaces: a fixed component (CosmicBackground) that stacked five layers — four
      drifting star planes, a pointer-reactive canvas field, two ambient glows, a grid and two
      vignettes — all composited on every page of the site for as long as it was open. This does
-     the job those layers were there for, which is to keep a black page from reading as a dead
-     rectangle, and it does it with two gradients painted once.
+     the job those layers were there for, which is to keep a dark page from reading as a dead
+     rectangle, and it does it with three gradients painted once.
 
-     Strictly neutral: every stop is white at some alpha over black, so there is no hue anywhere
-     in it. That is what makes it read as silver rather than as blue-black or brown-black — the
-     moment a background of this kind picks up a tint, every grey in the interface inherits it.
+     Tinted, and deliberately so — this is the one thing that changed from the strictly-neutral
+     charcoal version, and it changes more than it looks like it does. A background of this kind
+     hands its hue to every grey above it: the same zinc border reads warm on charcoal and cool
+     on navy without a single character of it changing. So the tint has to be committed to at
+     the ground and nowhere else. Every stop below is on the same blue axis (~228deg) at
+     different lightness, which is what keeps it reading as one deep colour lit from above
+     rather than as separate blue and grey areas fighting each other.
 
      `position: fixed` on a pseudo-element rather than `background-attachment: fixed` on the body.
      The two look identical and cost completely different things: a fixed *attachment* makes the
@@ -206,11 +213,17 @@
     z-index: -1;
     pointer-events: none;
     background:
-      /* the sheen: a wide, soft light hung above the top edge, brightest where the eye lands */
-      radial-gradient(115% 62% at 50% -6%, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0) 70%),
-      /* the body: charcoal through the middle falling to a darker edge. The falloff IS the
+      /* the bloom: the indigo light source, hung just off the top edge and pushed right of
+         centre rather than sat on it. Off-centre is the whole trick — a glow centred at 50%
+         reads as a vignette, i.e. as an edge treatment, while an off-centre one reads as a
+         light with a direction, and everything below it looks lit instead of masked. */
+      radial-gradient(62% 44% at 64% 2%, rgba(96, 118, 255, 0.26) 0%, rgba(72, 90, 226, 0.09) 46%, rgba(72, 90, 226, 0) 74%),
+      /* the counter-light: a second, much weaker pool low on the opposite side, so the lower
+         half of a long page does not fall away into flat black once the bloom is scrolled past */
+      radial-gradient(52% 38% at 8% 76%, rgba(66, 90, 220, 0.10) 0%, rgba(66, 90, 220, 0) 70%),
+      /* the body: navy through the middle falling to near-black at the edge. The falloff IS the
          vignette — one gradient doing what a separate dimming overlay used to be needed for. */
-      radial-gradient(135% 110% at 50% 40%, #2A2A2A 0%, #222222 45%, #161616 100%);
+      radial-gradient(140% 115% at 50% 34%, #131B3E 0%, #0B1128 44%, #05070F 100%);
   }
 }
 
@@ -1852,15 +1865,21 @@ html[data-scrolling] .rv::before {
 ::-webkit-scrollbar {
   width: 8px;
 }
+/* Transparent track, not a colour. The track runs the full height of a page whose ground is a
+   gradient, so any single value picked for it is only correct at one scroll position and reads
+   as a stripe everywhere else — which is what the old flat `#000000` did against the navy.
+   Letting the page show through means it is right at every position by construction. */
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  /* White alpha rather than a zinc hex, for the same reason the card surfaces are: it takes
+     the ground's tint instead of sitting on it as a grey bar. */
+  background: rgba(255, 255, 255, 0.14);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 

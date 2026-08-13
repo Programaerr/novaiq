@@ -563,7 +563,13 @@ export default function App() {
                     ].map((stat, idx) => (
                       <div
                         key={idx}
-                        className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-black border border-zinc-700/80"
+                        // A translucent white lift, not an opaque colour. On a tinted ground an
+                        // opaque tile has to re-state the tint to match, and then goes wrong the
+                        // moment the ground is retuned; white at 4% takes the navy from whatever
+                        // is behind it and can only ever come out lighter than it. `bg-black`
+                        // here was the older, neutral ground's inverse — on navy it read as a
+                        // hole punched through the page rather than as a raised surface.
+                        className="group flex flex-col items-center gap-2 text-center p-3 rounded-xl bg-white/[0.04] border border-zinc-700/80"
                       >
                         <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-zinc-900 overflow-hidden">
                           <div
@@ -623,7 +629,7 @@ export default function App() {
                   ].map((x, idx) => (
                     <div
                       key={idx}
-                      className="flex flex-col justify-center items-center text-center p-4 sm:p-5 rounded-2xl bg-black border border-zinc-700/80 space-y-1"
+                      className="flex flex-col justify-center items-center text-center p-4 sm:p-5 rounded-2xl bg-white/[0.04] border border-zinc-700/80 space-y-1"
                     >
                       <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
                       <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>
