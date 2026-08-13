@@ -1,37 +1,56 @@
 import React from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { HeroDevices } from './HeroDevices';
+import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
+import { HeroCoverArc } from './HeroCoverArc';
 
 interface HeroSectionProps {
   language: 'ar' | 'en';
-  /** Takes the visitor into the template gallery — the one thing this section asks them to do. */
+  /** Takes the visitor into the template gallery — the lighter of the two ways in. */
   onStart: () => void;
+  /** Straight to the contract form, for someone who already knows they want something built. */
+  onRequestProject: () => void;
 }
 
 /**
- * The hero: a claim, a reason, one way in, and a picture of the thing being sold.
+ * The hero: a claim, a reason, two ways in, and the studio's work curving away underneath.
  *
  * ## Why it is laid out this way now
  *
- * It was a centred column of text over a full-bleed render of a ringed planet. That failed on
- * both halves. The artwork was cropped by whatever height the copy happened to need, so the
- * devices in it were sliced off at the frame edge and what remained was an enormous planet with
- * no relationship to anything being said. And the headline sat directly on the brightest part of
- * it, which is a contrast problem no amount of dimming solves without throwing the picture away.
+ * It was two columns — copy on the left, a drawn render of a laptop/tablet/phone on the right —
+ * with a separate flat filmstrip of covers as its own section below (HeroProofStrip, now gone).
+ * That is three separate things competing for the first screenful, and the split meant the
+ * headline could never be more than about half the page wide.
  *
- * A hero does not need a backdrop. It needs to say what this company does and give one way to
- * proceed. So the render is now a subject rather than a background — a real product shot of a
- * laptop, a phone and a tablet, in its own column — and the copy sits beside it on clean ground
- * with the call to action directly under it, where the eye already is when it finishes reading.
+ * It is one centred composition now: the claim across the middle, the two actions directly under
+ * it where the eye already is, and the work itself fanning out below on a turning carousel. The
+ * evidence is still above the fold — that was the whole point of bringing the strip up here in
+ * the first place — it is just part of the hero instead of a section that follows it.
  *
- * Stacked below `lg`, where two columns would leave neither enough room: copy first, because a
- * visitor who has just arrived reads before they look, and the picture immediately after it.
+ * ## The sky
+ *
+ * Planets, drifting (see `.hero-planets` in index.css). The reference this was built from sets
+ * its cards against a bright sky full of clouds; a blue daylight backdrop under a black site
+ * would have made the hero look like a different website from everything below it, and clouds
+ * are not this brand's sky. Planets do the same job — depth and slow movement behind a static
+ * composition — in the language the rest of the page already speaks.
+ *
+ * They sit in the outer thirds and low on the frame, never behind the headline. Drifting texture
+ * under body text is a contrast problem that no amount of dimming fully solves.
  */
-export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onRequestProject }) => {
   const isAr = language === 'ar';
+  // The CTA arrow points "away, forward" — up and outward — so it has to follow the reading
+  // direction the way every other directional glyph on the site does.
+  const CtaArrow = isAr ? ArrowUpLeft : ArrowUpRight;
 
   return (
     <section className="relative pt-4 pb-2 md:pt-8 md:pb-6 overflow-hidden">
+      {/* ── The sky ─────────────────────────────────────────────────────────────────────── */}
+      <div className="hero-planets" aria-hidden="true">
+        <span className="hero-planet hero-planet--major" />
+        <span className="hero-planet hero-planet--mid" />
+        <span className="hero-planet hero-planet--far" />
+      </div>
+
       {/* Ambient glow, drawn as a radial gradient rather than a blurred circle: an animated 600px
           `blur(140px)` layer has to be re-rasterized by the GPU continuously, which is pure cost
           on a low-end device for something that looks the same either way. */}
@@ -40,52 +59,69 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart }) =
         style={{ backgroundImage: 'radial-gradient(circle closest-side, rgba(39,39,42,0.55) 0%, rgba(39,39,42,0.18) 45%, rgba(0,0,0,0) 78%)' }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-8 lg:gap-14 items-center">
+      {/* ── The claim ────────────────────────────────────────────────────────────────────── */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Two lines by construction, not by luck. Left to wrap on its own the break would move
+            with the viewport width and the emphasised half would sometimes trail on the end of
+            the first line — the shape of this headline is half of what it is doing. */}
+        <h1 className="text-4xl sm:text-6xl lg:text-[4.4rem] font-extrabold text-white tracking-tight leading-[1.1] font-['Cairo']">
+          {isAr ? (
+            <>
+              <span className="block">برمجة</span>
+              <span className="block underline decoration-zinc-700 decoration-2 underline-offset-[12px] font-black">
+                مواقع وتطبيقات
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="block">Web &amp; App</span>
+              <span className="block underline decoration-zinc-700 decoration-2 underline-offset-[12px] font-black">
+                Development
+              </span>
+            </>
+          )}
+        </h1>
 
-        {/* ── The claim ──────────────────────────────────────────────────────────────────── */}
-        <div className="flex flex-col items-center lg:items-start text-center lg:text-start">
-          <h1 className="text-3xl sm:text-5xl lg:text-[3.2rem] font-extrabold text-white tracking-tight leading-[1.15] mb-4 font-['Cairo']">
-            {isAr ? (
-              <>برمجة <span className="underline decoration-zinc-700 decoration-2 underline-offset-8 font-black">مواقع وتطبيقات</span></>
-            ) : (
-              <>Web &amp; <span className="underline decoration-zinc-700 decoration-2 underline-offset-8 font-black">App Development</span></>
-            )}
-          </h1>
+        <p className="mt-6 mx-auto max-w-2xl text-xs sm:text-sm text-zinc-300 leading-relaxed">
+          {isAr
+            ? 'نحن في NOVAIQ نبتكر منصات رقمية فائقة السرعة والأمان. تصفح معرض قوالبنا الجاهزة لشركتك، أو تواصل معنا لصياغة نظام خاص ومخصص يلبي احتياجاتك بدقة واحترافية متكاملة.'
+            : 'At NOVAIQ, we build high-performance, secure digital platforms. Explore our ready-made templates for your business, or contact us to build a custom application tailored exactly to your needs.'}
+        </p>
 
-          <p className="max-w-xl text-xs sm:text-sm text-zinc-300 leading-relaxed mb-7">
-            {isAr
-              ? 'نحن في NOVAIQ نبتكر منصات رقمية فائقة السرعة والأمان. تصفح معرض قوالبنا الجاهزة لشركتك، أو تواصل معنا لصياغة نظام خاص ومخصص يلبي احتياجاتك بدقة واحترافية متكاملة.'
-              : 'At NOVAIQ, we build high-performance, secure digital platforms. Explore our ready-made templates for your business, or contact us to build a custom application tailored exactly to your needs.'}
-          </p>
-
-          {/* One action, not two. A hero with a pair of equally weighted buttons asks the visitor
-              to make a decision before they know enough to make it; a single one tells them where
-              to go next. The label says what happens when it is pressed. */}
+        {/* Two buttons, which the single-CTA note that used to live here argued against — and the
+            objection it raised was the right one: a pair of equally weighted buttons makes the
+            visitor decide something before they know enough to decide it. These are not equally
+            weighted. They are two different destinations at two different levels of commitment —
+            browse the catalogue, or start a project — and the surfaces say which is which. */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
             onClick={onStart}
-            className="nq-btn nq-btn--solid px-7 py-3.5 rounded-full font-extrabold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+            className="nq-btn nq-btn--ghost px-6 py-3 rounded-full font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
           >
             <span className="nq-btn-beam" aria-hidden="true" />
-            <span>{isAr ? 'ابدأ معنا' : 'Start with us'}</span>
-            {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+            <span>{isAr ? 'شاهد القوالب' : 'View templates'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onRequestProject}
+            className="nq-btn nq-btn--solid ps-7 pe-2 py-2 rounded-full font-extrabold text-sm inline-flex items-center justify-center gap-3 cursor-pointer"
+          >
+            <span className="nq-btn-beam" aria-hidden="true" />
+            <span>{isAr ? 'ابدأ معنا' : 'Get started'}</span>
+            {/* The filled disc inverts along with the button: its background is `currentColor`
+                and the arrow inside is painted with the button's own surface colour, so one
+                `color` flip on hover carries both without a second rule. */}
+            <span className="nq-cta-badge" aria-hidden="true">
+              <CtaArrow className="w-4 h-4" strokeWidth={2.5} />
+            </span>
           </button>
         </div>
-
-        {/* ── The subject ────────────────────────────────────────────────────────────────
-            Drawn, not photographed. The generated render put four devices in the frame overlapping
-            each other and every screen came out blank white — a still cannot show a process, and a
-            model composes what it likes. This is one laptop, one tablet and one phone, and the
-            laptop is building a page. See HeroDevices.
-
-            Standing on a studio sweep (.hero-stage): the hero itself stays transparent so the
-            background reads through the copy, and the sweep only exists where the devices are,
-            fading up from near-white under them to nothing before it reaches the headline. */}
-        <div className="hero-stage">
-          <HeroDevices />
-        </div>
-
       </div>
+
+      {/* ── The work ─────────────────────────────────────────────────────────────────────── */}
+      <HeroCoverArc />
     </section>
   );
 };

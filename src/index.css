@@ -663,9 +663,56 @@
     0 10px 26px rgba(0, 0, 0, 0.45);
 }
 
-/* There is deliberately no second "secondary/ghost" surface. Every button outside the
-   templates page uses --solid, so a cancel and a confirm differ by their label and
-   position, not by weight — that uniformity is the point of this system. */
+/* The one secondary surface, and it exists for a single job: the hero offers two ways in at
+   two different levels of commitment, and two --solid pills side by side would say they are
+   the same size of decision. It is not a new interaction — it takes the same beam, the same
+   lift, the same press as everything else, and differs only in that its body is glass instead
+   of white. Outside the hero the rule still stands: use --solid, and let a cancel and a
+   confirm differ by their label and position rather than by weight. */
+.nq-btn--ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+.nq-btn--ghost:hover,
+.nq-btn--ghost:focus-visible,
+.nq-btn--ghost:active {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.38);
+}
+
+/* The disc on the primary CTA: the button's two colours swapped over, so it stays inverted
+   against its own body through the hover flip. Both are published as variables rather than
+   read from `currentColor`, and that is not a style choice — `background: currentColor` on the
+   badge would resolve to the badge's OWN colour, which is the glyph colour, and the arrow would
+   vanish into a disc of exactly its own shade. The two values have to arrive from the button. */
+.nq-btn--solid {
+  --nq-surface: #FFFFFF;   /* the button's body */
+  --nq-ink: #111111;       /* what is written on it */
+}
+
+.nq-btn--solid:hover,
+.nq-btn--solid:focus-visible,
+.nq-btn--solid:active {
+  --nq-surface: #0A0A0A;
+  --nq-ink: #FFFFFF;
+}
+
+.nq-cta-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--nq-ink, #111111);
+  color: var(--nq-surface, #FFFFFF);
+  transition: color 0.25s ease, background-color 0.25s ease;
+}
 
 /* The lift and the spin are decorative; the surface change alone still communicates
    "this responded", so honour a reduced-motion preference by dropping just the movement. */
@@ -1101,7 +1148,8 @@
    nothing (the markup is `.navbar-logo-dots span`) and `.navbar-logo-cursor` was never listed
    at all, so the navbar kept animating even with the tab in the background. */
 html[data-idle] :is(
-  .hero-proof__track,
+  .hero-ring__spin,
+  .hero-planet,
   .animate-pulse-glow,
   .product-card-wave,
   .milestone-card,
@@ -1747,64 +1795,256 @@ html[data-flat] .cosmic-bg {
 }
 
 
-/* ── Hero proof strip (HeroProofStrip.tsx) ─────────────────────────────────────────────────
-   A horizontal band of the studio's own screens, directly under the hero. Sizes as custom
-   properties so the marquee arithmetic and the markup read one set of numbers.
+/* ── Hero cover carousel (HeroCoverArc.tsx) ────────────────────────────────────────────────
+   The studio's covers standing on a slowly turning cylinder under the hero. Replaces the flat
+   filmstrip that used to live here; see the component for why a ring solves what a strip cannot.
 
-   Spacing lives on each cover as a margin rather than as a flex `gap`, and that is load-bearing:
-   with `gap`, a track of 2n items is 2n·item + (2n−1)·gap wide — one gap short of two identical
-   halves — so travelling exactly -50% lands half a gap out and the loop visibly jumps once per
-   cycle. Folded into the item, the track is exactly 2n·(item+gap) and -50% is one clean pass. */
-.hero-proof {
-  --proof-w: 168px;
-  --proof-h: 106px;
-  --proof-gap: 14px;
+   Every number is a custom property because they are not independent — the radius is DERIVED
+   from the card width and the gap. Cards sit at 360/N degrees apart, so for neighbours to be
+   `gap` apart at the rim the radius has to be (card + gap) / (2·tan(180/N)). Change the card
+   width without changing the radius and the cards either overlap into each other or open a gap
+   the ring cannot close. With N = 26 (HeroCoverArc.tsx) that divisor is 2·tan(6.923°) = 0.2428,
+   which is where each `--ring-r` below comes from.
+
+   The radius then decides how wide the fan lands: a ring covers about 1.45 × its radius on
+   screen once perspective has compressed the edges. The first pass of this used a 808px radius
+   at desktop and the fan stopped ~150px short of both frame edges, which reads as a widget
+   sitting on the page rather than a view continuing past it. */
+.hero-ring {
+  --card-w: 108px;
+  --card-h: 135px;
+  --ring-r: 494px;        /* (108 + 12) / 0.2428 */
+  --ring-spin: 150s;
+
+  position: relative;
+  width: 100%;
+  height: 180px;
+  margin-top: 2.5rem;
+  /* A filmstrip has no reading order. Without this the ring's spin direction would flip with the
+     site's language, for no reason a visitor could name. */
+  direction: ltr;
+  /* Weak on purpose. A short perspective (600–800px) collapses the arc into a fisheye where the
+     third card each side is already half size; this is the value that keeps the fan wide and
+     shallow, with the outer cards clearly turned but still readable — which is the look. */
+  /* Weak on purpose, and it scales with the breakpoint. A phone only sees the middle ±25° of the
+     ring, so at the desktop value the visible cards would all be near-square-on and the fan would
+     read as a plain row; a shorter perspective bends that narrow slice hard enough to still look
+     like a fan. Going the other way on a wide screen — a short perspective there — collapses the
+     arc into a fisheye where the third card each side is already half size. */
+  perspective: 900px;
+  /* The vanishing point sits on the cards' own bottom edge, and that number is derived, not
+     tuned: a card is centred in this box and is `--card-h` tall, so its foot is at
+     50% + (card/2 ÷ height) — 92% at every breakpoint here. Anything on that line is unmoved by
+     perspective, so the whole fan shrinks toward a common baseline instead of toward its middle.
+     With the default 50% the far cards contracted vertically about their centres, lifting their
+     feet off the ground; the row read as a wall of cards floating at different heights rather
+     than as a fan standing on one. */
+  perspective-origin: 50% 92%;
+  /* The outermost sliver dissolves instead of being cut. A mask removes pixels, so the carousel
+     fades into the starfield rather than ending on a hard vertical line across the page. Kept
+     narrow — a wide fade dims a whole card, which looks like a loading state, not an edge. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%);
 }
 
 @media (min-width: 640px) {
-  .hero-proof {
-    --proof-w: 232px;
-    --proof-h: 146px;
-    --proof-gap: 18px;
+  .hero-ring {
+    --card-w: 168px;
+    --card-h: 210px;
+    --ring-r: 766px;      /* (168 + 18) / 0.2428 */
+    height: 260px;
+    perspective: 1200px;
+    margin-top: 3.5rem;
   }
 }
 
-.hero-proof__cover {
-  width: var(--proof-w);
-  height: var(--proof-h);
-  /* margin-RIGHT, not margin-inline-end. The logical property flips to the left side in Arabic,
-     which put every gap on the opposite side from the one the -50% travel accounts for — the
-     track then pulled away from its own content and opened the gap that appeared before the loop
-     restarted. A filmstrip has no reading direction, so it must not have a logical one either. */
-  margin-right: var(--proof-gap);
+@media (min-width: 1024px) {
+  .hero-ring {
+    --card-w: 232px;
+    --card-h: 290px;
+    --ring-r: 1054px;     /* (232 + 24) / 0.2428 */
+    height: 340px;
+    perspective: 1500px;
+  }
 }
 
-/* Always leftward regardless of text direction: this is a filmstrip, not prose, and it should
-   not reverse when the site switches to English. */
-/* The FRAME is pinned to ltr, not just the track inside it — and that distinction is the bug.
-   The track is width: max-content, and a max-content box inside an RTL containing block is
-   aligned to its parent's RIGHT edge and extends leftward. So on an Arabic page the belt began
-   life mostly off-screen to the left, with only its tail end visible; the animation then carried
-   that tail further left and the visible area emptied out into the large gap that was reported,
-   until the loop snapped back. Direction has to be neutralised on the element that POSITIONS the
-   track, not only on the one that lays out its children. A filmstrip has no reading order. */
-.hero-proof__frame {
-  direction: ltr;
+/* Pushed back by exactly the radius, so the front of the ring lands on the screen plane: nothing
+   is ever nearer than z = 0. That is what keeps the carousel from projecting out of its own box
+   and being clipped by the hero's `overflow-hidden`, and what stops the front card being
+   magnified above its natural size. The tilt is the viewer standing slightly above the ring. */
+.hero-ring__stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(-1 * var(--ring-r))) rotateX(5deg);
 }
 
-.hero-proof__track {
-  direction: ltr;
-  animation: hero-proof-run 48s linear infinite;
+.hero-ring__spin {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: hero-ring-spin var(--ring-spin) linear infinite;
   will-change: transform;
 }
 
-@keyframes hero-proof-run {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-50%, 0, 0); }
+/* One full revolution, so the loop has no restart to hide — at 150s a card takes 7.5s to cross
+   the front of the frame, which is slow enough to read as drift rather than as a carousel that
+   is trying to get somewhere. */
+@keyframes hero-ring-spin {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(-360deg); }
+}
+
+.hero-ring__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--card-w);
+  height: var(--card-h);
+  margin-top: calc(var(--card-h) / -2);
+  margin-left: calc(var(--card-w) / -2);
+  transform: rotateY(var(--a)) translateZ(var(--ring-r));
+  /* The far half of the ring has its back to us. Without this every card behind the carousel
+     shows through the ones in front and the whole thing reads as transparent clutter — this one
+     line is what makes the ring look like a fan of cards rather than a sphere of them. */
+  backface-visibility: hidden;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
+}
+
+.hero-ring__card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Top-anchored: these frames are portrait and the sources are not, so something is cropped
+     either way. Cropping upward keeps the subject of a photograph, which sits above centre far
+     more often than below it. */
+  object-position: 50% 30%;
+  user-select: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-proof__track {
+  .hero-ring__spin {
+    animation: none;
+  }
+}
+
+/* ── Hero sky: drifting planets ────────────────────────────────────────────────────────────
+   Depth behind the hero. Painted, not modelled: a sphere here is one radial gradient plus an
+   inset shadow for the terminator, which the compositor rasterises once and then only moves.
+   The three.js scene that could draw a real one is already the largest chunk in the bundle, and
+   this is scenery — it does not earn a second renderer.
+
+   Greyscale with the faintest cool cast, because the site is monochrome. A coloured planet is
+   the only saturated thing on a black-and-white page and it stops being background instantly. */
+.hero-planets {
+  position: absolute;
+  inset: -10% -6% -4%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-planet {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  /* Lit from the upper left, in the same direction as every other highlight on the site. The
+     stops are close together near the terminator and far apart in the lit half, which is what
+     makes a flat gradient read as a curved surface rather than a disc. */
+  background: radial-gradient(circle at 30% 26%,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(190, 194, 205, 0.3) 20%,
+    rgba(98, 102, 115, 0.22) 48%,
+    rgba(24, 24, 27, 0.9) 76%,
+    rgba(9, 9, 11, 0.96) 100%);
+  box-shadow:
+    inset -16px -14px 38px rgba(0, 0, 0, 0.78),
+    0 0 80px rgba(150, 160, 190, 0.09);
+  will-change: transform;
+}
+
+/* Low and outboard on purpose — under the carousel and out past the copy's edges. The clouds in
+   the reference sit in exactly this band, and it is also the only part of the frame where a
+   drifting light source cannot get behind body text. */
+.hero-planet--major {
+  width: 300px;
+  height: 300px;
+  left: -90px;
+  bottom: -70px;
+  opacity: 0.62;
+  animation: hero-planet-drift-a 120s ease-in-out infinite;
+}
+
+/* The ring is drawn flat rather than in 3D: with no perspective on the parent, `rotateX` reduces
+   a circle to a true ellipse, which is what a ring seen from a distance is. Adding perspective
+   here would only introduce a near edge and a far edge to get wrong. */
+.hero-planet--major::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 205%;
+  height: 205%;
+  transform: translate(-50%, -50%) rotateX(74deg) rotateZ(-16deg);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.05);
+}
+
+.hero-planet--mid {
+  width: 150px;
+  height: 150px;
+  right: -40px;
+  top: 14%;
+  opacity: 0.5;
+  animation: hero-planet-drift-b 96s ease-in-out infinite;
+}
+
+/* Blurred because it is far, not because it is soft — the blur IS the distance cue, and it is
+   the reason three grey circles read as depth instead of as three grey circles. */
+.hero-planet--far {
+  width: 84px;
+  height: 84px;
+  left: 16%;
+  top: 6%;
+  opacity: 0.38;
+  filter: blur(1.5px);
+  animation: hero-planet-drift-c 150s ease-in-out infinite;
+}
+
+@media (min-width: 1024px) {
+  /* Held far enough into the frame that the LIT limb is on screen. Pushed out to -130px the
+     sphere's highlight — which sits at 30%/26% of it — fell outside the viewport and all that
+     remained was the dark half, which is indistinguishable from empty sky. A planet is only
+     legible as one if you can see where its light is coming from. */
+  .hero-planet--major { width: 440px; height: 440px; left: -60px; bottom: -110px; }
+  .hero-planet--mid   { width: 210px; height: 210px; right: -60px; }
+  .hero-planet--far   { width: 110px; height: 110px; }
+}
+
+/* Barely anywhere: tens of pixels over two minutes. A planet that visibly travels is a balloon —
+   the intent is that you cannot catch it moving, only notice later that it has. */
+@keyframes hero-planet-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(34px, -28px, 0); }
+}
+
+@keyframes hero-planet-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(-26px, 30px, 0); }
+}
+
+@keyframes hero-planet-drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(20px, 22px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-planet {
     animation: none;
   }
 }

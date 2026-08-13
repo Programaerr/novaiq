@@ -7,7 +7,6 @@ import { useRevealGroup } from './lib/useRevealGroup';
 import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
-import { HeroProofStrip } from './components/HeroProofStrip';
 import { FloatingTemplateCards } from './components/FloatingTemplateCards';
 import { CredentialCard } from './components/CredentialCard';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
@@ -497,14 +496,13 @@ export default function App() {
                 which is the whole point of moving the panel up here. The larger page rhythm
                 resumes at the section after it. */}
             <div className="space-y-6 sm:space-y-8">
-              <HeroSection language={language} onStart={() => setActivePage('templates')} />
-
-              {/* The evidence, immediately under the claim. Above the fold on purpose — see
-                  HeroProofStrip for why the studio's work had to come up to meet the visitor
-                  rather than wait for them to scroll to it. */}
-              <HeroProofStrip
+              {/* The evidence used to be a separate band under this (HeroProofStrip, deleted) —
+                  it is inside the hero now, as the carousel the copy sits above, so the claim
+                  and the work it rests on are one composition rather than two sections. */}
+              <HeroSection
                 language={language}
-                onExploreTemplates={() => setActivePage('templates')}
+                onStart={() => navigateTo('templates')}
+                onRequestProject={() => navigateTo('custom-request')}
               />
 
               {/* Quick Overview Grid to drive leads */}
