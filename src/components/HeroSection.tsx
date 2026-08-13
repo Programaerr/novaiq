@@ -27,14 +27,11 @@ interface HeroSectionProps {
  *
  * ## The sky
  *
- * Planets, drifting (see `.hero-planets` in index.css). The reference this was built from sets
- * its cards against a bright sky full of clouds; a blue daylight backdrop under a black site
- * would have made the hero look like a different website from everything below it, and clouds
- * are not this brand's sky. Planets do the same job — depth and slow movement behind a static
- * composition — in the language the rest of the page already speaks.
- *
- * They sit in the outer thirds and low on the frame, never behind the headline. Drifting texture
- * under body text is a contrast problem that no amount of dimming fully solves.
+ * The site's own starfield, and nothing else. A layer of drifting CSS planets stood here for one
+ * revision — the reference this hero was built from sets its cards against a sky full of clouds,
+ * and planets were the dark-site equivalent — but painted spheres on a black page read as grey
+ * smudges rather than as bodies, and the hero was better without them. The depth behind this
+ * section comes from CosmicBackground, which the whole page already shares.
  */
 export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onRequestProject }) => {
   const isAr = language === 'ar';
@@ -44,13 +41,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
 
   return (
     <section className="relative pt-4 pb-2 md:pt-8 md:pb-6 overflow-hidden">
-      {/* ── The sky ─────────────────────────────────────────────────────────────────────── */}
-      <div className="hero-planets" aria-hidden="true">
-        <span className="hero-planet hero-planet--major" />
-        <span className="hero-planet hero-planet--mid" />
-        <span className="hero-planet hero-planet--far" />
-      </div>
-
       {/* Ambient glow, drawn as a radial gradient rather than a blurred circle: an animated 600px
           `blur(140px)` layer has to be re-rasterized by the GPU continuously, which is pure cost
           on a low-end device for something that looks the same either way. */}

@@ -7,7 +7,6 @@ import { useRevealGroup } from './lib/useRevealGroup';
 import { RevealLight } from './components/RevealLight';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
-import { FloatingTemplateCards } from './components/FloatingTemplateCards';
 import { CredentialCard } from './components/CredentialCard';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
@@ -615,16 +614,6 @@ export default function App() {
                 </div>
               </div>
               </div>
-            </div>
-
-            {/* Floating 3D template cards — placed right after the speed/efficiency pitch
-                above, where "our templates give you an 80% head start" has just been made
-                and showing the actual templates is the natural next beat. */}
-            <div className="below-fold">
-              <FloatingTemplateCards
-                language={language}
-                onExploreTemplates={() => navigateTo('templates')}
-              />
             </div>
 
             {/* Structured Timeline */}

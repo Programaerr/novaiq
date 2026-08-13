@@ -975,25 +975,6 @@
   }
 }
 
-/* Cover geometry for the home page's template belt (FloatingTemplateCards.tsx). Its own scale
-   rather than the sign-in gallery's: that one fills half a screen, this one sits in a 26rem
-   frame beside a heading, and the gallery's 160x420 capsules would show barely one and a half
-   covers per column here. The proportion differs on purpose too — these read as template
-   screenshots, where the gallery's read as tall capsules. */
-.template-belt {
-  --belt-w: 104px;
-  --belt-h: 136px;
-  --belt-gap: 12px;
-}
-
-@media (min-width: 640px) {
-  .template-belt {
-    --belt-w: 132px;
-    --belt-h: 172px;
-    --belt-gap: 16px;
-  }
-}
-
 .login-marquee__track {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
@@ -1149,7 +1130,6 @@
    at all, so the navbar kept animating even with the tab in the background. */
 html[data-idle] :is(
   .hero-ring__spin,
-  .hero-planet,
   .animate-pulse-glow,
   .product-card-wave,
   .milestone-card,
@@ -1157,11 +1137,6 @@ html[data-idle] :is(
   .navbar-logo-cursor,
   .login-marquee__track
 ) {
-  animation-play-state: paused;
-}
-
-/* Belt scrolled out of view — set by the IntersectionObserver in FloatingTemplateCards. */
-[data-belt-off] .login-marquee__track {
   animation-play-state: paused;
 }
 
@@ -1822,7 +1797,10 @@ html[data-flat] .cosmic-bg {
      what can be drawn — a box sized exactly to the card leaves no tolerance at all, and anything
      that rounds a pixel outward loses that pixel. The slack is 55px above and below the card. */
   height: 245px;
-  margin-top: 4rem;
+  /* No margin of its own. The box is now 55px taller than the cards at each end (see above), and
+     that slack IS the gap to the buttons — a margin on top of it stacked two spacings and pushed
+     the fan a whole extra card-height down the page. */
+  margin-top: 0;
   /* A filmstrip has no reading order. Without this the ring's spin direction would flip with the
      site's language, for no reason a visitor could name. */
   direction: ltr;
@@ -1861,7 +1839,6 @@ html[data-flat] .cosmic-bg {
     height: 330px;        /* 210 card + 60 slack each side */
     perspective: 1200px;
     perspective-origin: 50% 81.8%;   /* 50 + (105 / 330) x 100 */
-    margin-top: 5rem;
   }
 }
 
@@ -1948,124 +1925,6 @@ html[data-flat] .cosmic-bg {
     animation: none;
   }
 }
-
-/* ── Hero sky: drifting planets ────────────────────────────────────────────────────────────
-   Depth behind the hero. Painted, not modelled: a sphere here is one radial gradient plus an
-   inset shadow for the terminator, which the compositor rasterises once and then only moves.
-   The three.js scene that could draw a real one is already the largest chunk in the bundle, and
-   this is scenery — it does not earn a second renderer.
-
-   Greyscale with the faintest cool cast, because the site is monochrome. A coloured planet is
-   the only saturated thing on a black-and-white page and it stops being background instantly. */
-.hero-planets {
-  position: absolute;
-  inset: -10% -6% -4%;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-}
-
-.hero-planet {
-  position: absolute;
-  display: block;
-  border-radius: 50%;
-  /* Lit from the upper left, in the same direction as every other highlight on the site. The
-     stops are close together near the terminator and far apart in the lit half, which is what
-     makes a flat gradient read as a curved surface rather than a disc. */
-  background: radial-gradient(circle at 30% 26%,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(190, 194, 205, 0.3) 20%,
-    rgba(98, 102, 115, 0.22) 48%,
-    rgba(24, 24, 27, 0.9) 76%,
-    rgba(9, 9, 11, 0.96) 100%);
-  box-shadow:
-    inset -16px -14px 38px rgba(0, 0, 0, 0.78),
-    0 0 80px rgba(150, 160, 190, 0.09);
-  will-change: transform;
-}
-
-/* Low and outboard on purpose — under the carousel and out past the copy's edges. The clouds in
-   the reference sit in exactly this band, and it is also the only part of the frame where a
-   drifting light source cannot get behind body text. */
-.hero-planet--major {
-  width: 300px;
-  height: 300px;
-  left: -90px;
-  bottom: -70px;
-  opacity: 0.62;
-  animation: hero-planet-drift-a 120s ease-in-out infinite;
-}
-
-/* The ring is drawn flat rather than in 3D: with no perspective on the parent, `rotateX` reduces
-   a circle to a true ellipse, which is what a ring seen from a distance is. Adding perspective
-   here would only introduce a near edge and a far edge to get wrong. */
-.hero-planet--major::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 205%;
-  height: 205%;
-  transform: translate(-50%, -50%) rotateX(74deg) rotateZ(-16deg);
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.13);
-  box-shadow: 0 0 24px rgba(255, 255, 255, 0.05);
-}
-
-.hero-planet--mid {
-  width: 150px;
-  height: 150px;
-  right: -40px;
-  top: 14%;
-  opacity: 0.5;
-  animation: hero-planet-drift-b 96s ease-in-out infinite;
-}
-
-/* Blurred because it is far, not because it is soft — the blur IS the distance cue, and it is
-   the reason three grey circles read as depth instead of as three grey circles. */
-.hero-planet--far {
-  width: 84px;
-  height: 84px;
-  left: 16%;
-  top: 6%;
-  opacity: 0.38;
-  filter: blur(1.5px);
-  animation: hero-planet-drift-c 150s ease-in-out infinite;
-}
-
-@media (min-width: 1024px) {
-  /* Held far enough into the frame that the LIT limb is on screen. Pushed out to -130px the
-     sphere's highlight — which sits at 30%/26% of it — fell outside the viewport and all that
-     remained was the dark half, which is indistinguishable from empty sky. A planet is only
-     legible as one if you can see where its light is coming from. */
-  .hero-planet--major { width: 440px; height: 440px; left: -60px; bottom: -110px; }
-  .hero-planet--mid   { width: 210px; height: 210px; right: -60px; }
-  .hero-planet--far   { width: 110px; height: 110px; }
-}
-
-/* Barely anywhere: tens of pixels over two minutes. A planet that visibly travels is a balloon —
-   the intent is that you cannot catch it moving, only notice later that it has. */
-@keyframes hero-planet-drift-a {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50%      { transform: translate3d(34px, -28px, 0); }
-}
-
-@keyframes hero-planet-drift-b {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50%      { transform: translate3d(-26px, 30px, 0); }
-}
-
-@keyframes hero-planet-drift-c {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50%      { transform: translate3d(20px, 22px, 0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-planet {
-    animation: none;
-  }
-}
-
 
 /* ── The sky answers the scroll ────────────────────────────────────────────────────────────
    Scroll-driven parallax with no JavaScript at all. `animation-timeline: scroll()` hands the

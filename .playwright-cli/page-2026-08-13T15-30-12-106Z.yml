@@ -1,0 +1,8 @@
+- generic [ref=e6]:
+  - heading "برمجة مواقع وتطبيقات" [level=1] [ref=e7]:
+    - generic [ref=e8]: برمجة
+    - generic [ref=e9]: مواقع وتطبيقات
+  - paragraph [ref=e10]: نحن في NOVAIQ نبتكر منصات رقمية فائقة السرعة والأمان. تصفح معرض قوالبنا الجاهزة لشركتك، أو تواصل معنا لصياغة نظام خاص ومخصص يلبي احتياجاتك بدقة واحترافية متكاملة.
+  - generic [ref=e11]:
+    - button "شاهد القوالب" [ref=e12] [cursor=pointer]
+    - button "ابدأ معنا" [ref=e14] [cursor=pointer]
