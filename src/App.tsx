@@ -689,8 +689,14 @@ export default function App() {
                 this section's gaps out of step with every other gap on the page. Dropping the
                 containment costs the paint-skip on one section of four text cards, whose
                 animations are scroll-progress-driven and therefore cost nothing at rest. */}
-            <div>
-              <MilestoneTimeline language={language} />
+            {/* Panels from here down, alternating value — see `.nq-panel`. The timeline is the
+                dark one and About is the light one, in that order, because the light panel is the
+                brighter surface and putting it second means the page opens dark (with the globe)
+                and lifts as it goes rather than flashing white immediately under the hero. */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="nq-panel">
+                <MilestoneTimeline language={language} />
+              </div>
             </div>
 
             {/* Bridges the timeline and about sections rather than living inside either,

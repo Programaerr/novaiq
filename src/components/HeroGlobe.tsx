@@ -52,15 +52,16 @@ import type { Points } from 'three';
 const COUNT = 5200;
 const RADIUS = 1;
 
-/** Violet, from the reference. Kept beside each other so the scene's palette is one thing to read. */
-const POINT_COLOR = '#CBB8FF';
-/* Barely above the page's own ground (#0B0714), and that margin is the whole specification for
+/** Indigo, from the reference. Kept beside each other so the scene's palette is one thing to read. */
+const POINT_COLOR = '#C7D2FE';
+const RING_COLOR = '#818CF8';
+/* Barely above the page's own ground (#070B22), and that margin is the whole specification for
    this colour. The body's job is to OCCLUDE, not to be seen: any darker and it stops reading as a
    planet and starts reading as a hole punched through the page, which is exactly what happened at
-   #0C0518. It has to be dark enough to hide the far hemisphere and close enough to the ground that
+   #0A0620. It has to be dark enough to hide the far hemisphere and close enough to the ground that
    its silhouette is drawn by the rim rather than by a step in brightness. */
-const BODY_COLOR = '#0E0920';
-const ATMOSPHERE_COLOR = '#8B5CF6';
+const BODY_COLOR = '#0A1030';
+const ATMOSPHERE_COLOR = '#6366F1';
 
 /**
  * A round sprite for the points, because `pointsMaterial` draws SQUARES by default — every point is
@@ -169,10 +170,48 @@ function makeAtmosphereMaterial(): THREE.ShaderMaterial {
   });
 }
 
+/** The lit cheek on the front of the sphere. Same light vector as the atmosphere, deliberately. */
+function makeDaysideMaterial(): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uColor: { value: new THREE.Color('#4F46E5') },
+      uIntensity: { value: 0.5 },
+      uLight: { value: new THREE.Vector3(-0.55, 0.72, 0.42).normalize() },
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+
+      void main() {
+        vNormal = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor;
+      uniform float uIntensity;
+      uniform vec3 uLight;
+      varying vec3 vNormal;
+
+      void main() {
+        // Half-Lambert (the 0.5/+0.5 remap) rather than a raw clamped dot. A raw one drops to
+        // zero across the whole terminator and gives a hard edge halfway round the sphere; the
+        // remap keeps a gradient running all the way to the dark side, which is what makes a
+        // ball look round instead of like two painted halves.
+        float lit = dot(normalize(vNormal), uLight) * 0.5 + 0.5;
+        gl_FragColor = vec4(uColor, pow(lit, 2.4) * uIntensity);
+      }
+    `,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+}
+
 function Globe({ spin }: { spin: boolean }) {
   const points = useRef<Points>(null);
   const dot = useMemo(makeDotTexture, []);
   const atmosphere = useMemo(makeAtmosphereMaterial, []);
+  const dayside = useMemo(makeDaysideMaterial, []);
 
   // Both are GPU resources React does not own, so they are released explicitly when the hero
   // unmounts. R3F disposes what it created from JSX; these two were built here.
@@ -180,8 +219,9 @@ function Globe({ spin }: { spin: boolean }) {
     return () => {
       dot.dispose();
       atmosphere.dispose();
+      dayside.dispose();
     };
-  }, [dot, atmosphere]);
+  }, [dot, atmosphere, dayside]);
 
   const positions = useMemo(() => {
     const arr = new Float32Array(COUNT * 3);
@@ -236,13 +276,49 @@ function Globe({ spin }: { spin: boolean }) {
           alphaMap={dot}
           color={POINT_COLOR}
           transparent
-          opacity={0.9}
+          opacity={0.95}
           // Perspective size: points on the far side are smaller as well as sparser, which is
           // most of what separates a sphere from a flat ring of dots.
           sizeAttenuation
           depthWrite={false}
         />
       </points>
+
+      {/* The day side. The reference's sphere is not a flat dark disc with a lit edge — it has a
+          broad indigo cheek where the light falls, and the body fades from it into shadow. This is
+          that: the front of the sphere, additively tinted by how much each point faces the same
+          light the atmosphere uses, so the two agree about where the star is.
+
+          It has to be a shader for the same reason the rim does — the term is a dot product
+          against a direction, evaluated per fragment. A gradient texture would be this effect
+          painted from one angle, and it would slide off as soon as anything moved. */}
+      <mesh material={dayside}>
+        <sphereGeometry args={[RADIUS * 0.99, 48, 48]} />
+      </mesh>
+
+      {/* The ring. A torus rather than a flat `ringGeometry`, and that is the whole reason it works:
+          a flat ring has no thickness, so the half of it running across the front of the globe and
+          the half running behind are the same zero-depth plane, and at this shallow a tilt it
+          collapses to a line. A torus is a solid tube — its front arc passes IN FRONT of the planet
+          and its back arc is hidden behind, which is the read that makes the scene three
+          dimensional rather than a circle with a stripe on it.
+
+          Tilted hard off the globe's own axis so the ellipse is wide and obviously in perspective;
+          a ring nearly edge-on reads as an accident. The tube is very thin (0.006 against a radius
+          of 1.34) because it is a line in the composition, not a body — thicker and it competes
+          with the planet it is supposed to be orbiting. */}
+      <mesh rotation={[Math.PI / 2 - 0.34, 0.16, 0]}>
+        <torusGeometry args={[RADIUS * 1.36, 0.009, 8, 160]} />
+        <meshBasicMaterial
+          color={RING_COLOR}
+          transparent
+          opacity={0.9}
+          // Writes depth, unlike everything else here — the ring is the one solid object in the
+          // scene and it has to be correctly occluded BY the planet, which only works if the depth
+          // buffer knows where it is.
+          toneMapped={false}
+        />
+      </mesh>
 
       {/* The atmosphere, outside everything else. */}
       <mesh material={atmosphere}>

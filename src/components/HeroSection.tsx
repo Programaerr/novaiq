@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
-import { HeroCoverArc } from './HeroCoverArc';
 import { HeroGlobe } from './HeroGlobe';
 
 interface HeroSectionProps {
@@ -85,7 +84,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
           arc's crown or the rim runs through the headline. It is on the content rather than on the
           section because the limb is positioned against the section's own top edge — padding the
           section would move the arc down by exactly as much and change nothing. */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-28 text-center">
+      {/* Centred on a phone, aligned to the reading edge from `lg` up — which is where the globe
+          moves out of the middle and off to the far side. The two go together: copy centred under
+          an off-centre planet looks like neither was placed on purpose. `max-w-2xl` keeps the
+          measure readable once the text stops being centred, since a left-aligned line that runs
+          the full width of a desktop is the thing centring was hiding. */}
+      <div className="relative z-10 max-w-4xl lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-28 text-center lg:text-start">
+        <div className="lg:max-w-2xl">
         {/* One line, two tones.
 
             One line because splitting it stranded the verb alone above its object, which reads as a
@@ -110,7 +115,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
           )}
         </h1>
 
-        <p className="mt-6 mx-auto max-w-2xl text-xs sm:text-sm text-zinc-300 leading-relaxed">
+        <p className="mt-6 mx-auto lg:mx-0 max-w-2xl text-xs sm:text-sm text-zinc-300 leading-relaxed">
           {isAr
             ? 'نحن في NOVAIQ نبتكر منصات رقمية فائقة السرعة والأمان. تصفح معرض قوالبنا الجاهزة لشركتك، أو تواصل معنا لصياغة نظام خاص ومخصص يلبي احتياجاتك بدقة واحترافية متكاملة.'
             : 'At NOVAIQ, we build high-performance, secure digital platforms. Explore our ready-made templates for your business, or contact us to build a custom application tailored exactly to your needs.'}
@@ -121,7 +126,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
             visitor decide something before they know enough to decide it. These are not equally
             weighted. They are two different destinations at two different levels of commitment —
             browse the catalogue, or start a project — and the surfaces say which is which. */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-3">
           <button
             type="button"
             onClick={onStart}
@@ -145,11 +150,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
               <CtaArrow className="w-4 h-4" strokeWidth={2.5} />
             </span>
           </button>
+          </div>
         </div>
       </div>
-
-      {/* ── The work ─────────────────────────────────────────────────────────────────────── */}
-      <HeroCoverArc />
     </section>
   );
 };

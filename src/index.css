@@ -149,7 +149,7 @@
        scroll flashes a different shade across the top or bottom of the page — which is why it
        is a variable read by both `html` and `body` rather than the same literal written twice
        and left to drift. See the note on body::before. */
-    --nq-ground: #0B0714;
+    --nq-ground: #070B22;
 
     /* The accent, and the only chromatic thing in the system.
        It is one token deliberately: an accent used from a variable can be re-tuned or pulled out
@@ -162,8 +162,8 @@
        a dark ground as TEXT: #8B5CF6 on this background is about 3.6:1, under the 4.5:1 body-text
        line, and #A78BFA clears it. Fills can use the strong one because their contrast is carried
        by the white sitting on top of them. */
-    --nq-accent: #8B5CF6;
-    --nq-accent-soft: #A78BFA;
+    --nq-accent: #6366F1;
+    --nq-accent-soft: #A5B4FC;
     background-color: var(--nq-ground);
 
     /* Vertical rhythm below the floating Navbar. --nav-bottom is measured and written here at
@@ -249,7 +249,7 @@
        What is left is one near-flat vignette: #171717 in the middle down to #050505 at the corner.
        That range is small enough not to read as a gradient anyone can point at, and just enough
        that a document this long never reads as a single dead rectangle. */
-    background-image: radial-gradient(130% 105% at 50% 22%, #1B1230 0%, #120C21 44%, #05030B 100%);
+    background-image: radial-gradient(130% 105% at 50% 22%, #1E2668 0%, #131A48 46%, #05071A 100%);
     background-repeat: no-repeat;
   }
 }
@@ -785,8 +785,8 @@
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
-  background: #A78BFA;
-  color: #14082B;
+  background: #818CF8;
+  color: #0B1030;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
@@ -833,8 +833,8 @@
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
-  --nq-surface: #A78BFA;
-  --nq-ink: #14082B;
+  --nq-surface: #818CF8;
+  --nq-ink: #0B1030;
 }
 
 .nq-cta-badge {
@@ -1942,7 +1942,7 @@ html[data-scrolling] .rv::before {
       transparent 34%
     ),
     /* the pool at the corner the shaft enters through */
-    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(167, 139, 250, 0.2) 0%, transparent 72%),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(165, 180, 252, 0.2) 0%, transparent 72%),
     /* the surface: a shallow top-to-bottom lift, so the card is lighter than the page it is on
        without ever being an opaque colour that has to be restated when the ground changes */
     linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.018) 100%);
@@ -1973,9 +1973,102 @@ html[data-scrolling] .rv::before {
       rgba(255, 255, 255, 0.04) 25%,
       transparent 34%
     ),
-    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(167, 139, 250, 0.3) 0%, transparent 72%),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(165, 180, 252, 0.3) 0%, transparent 72%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.028) 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+/* ── Section panels ────────────────────────────────────────────────────────────────────────
+   The reference does not lay its sections on the page — it stacks them as large rounded PANELS
+   floating on a coloured ground, with the ground showing between them. That is the structural
+   difference between the two designs, and it changes how the page is read: a run of full-bleed
+   sections is one continuous surface where only the spacing says a new topic has started, while
+   a stack of panels makes each one an object with edges, and the eye counts them.
+
+   Alternating light and dark is the other half of it, and the reason it works here is that the
+   panels are objects: two adjacent surfaces of the same value read as one panel with a seam,
+   whatever the gap between them.
+
+   `--panel-r` rather than a literal, because the inner cards have to stay visually concentric
+   with the panel that holds them — a 20px card inside a 20px panel with 40px of padding looks
+   wrong at the corner, and the fix is arithmetic on one number rather than a guess in two files. */
+.nq-panel {
+  --panel-r: 32px;
+  position: relative;
+  border-radius: var(--panel-r);
+  padding: 2.5rem 1.25rem;
+  background:
+    radial-gradient(120% 90% at 18% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+  background-clip: padding-box;
+}
+
+@media (min-width: 640px) {
+  .nq-panel {
+    padding: 4rem 2rem;
+  }
+}
+
+/* The light panel. Its text colours are set HERE, by descendant selector, rather than by editing
+   the colour utility on every element inside it — which is the trade being made deliberately.
+   Overriding utilities from a stylesheet is normally the wrong direction, but the alternative is
+   threading a light/dark variant through several components that have no other reason to know
+   which panel they are in, and every one of those is a place the two can fall out of step. One
+   rule that says "inside this panel, dark ink" cannot.
+
+   Contrast checked rather than eyeballed: #1E1B4B on #EEF0FB is 13.9:1, and the muted tone
+   #4A4A6A is 7.4:1 — both clear of AA for body text with room to spare, which matters because
+   this is the one surface on the site where the usual assumption of light-on-dark is inverted. */
+.nq-panel--light {
+  background:
+    radial-gradient(120% 90% at 18% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 62%),
+    linear-gradient(180deg, #F4F5FC 0%, #E7EAF8 100%);
+  box-shadow: inset 0 0 0 1px rgba(30, 27, 75, 0.08);
+  color: #1E1B4B;
+}
+
+.nq-panel--light :is(h1, h2, h3, h4, .text-white) {
+  color: #1E1B4B;
+}
+
+.nq-panel--light :is(.text-zinc-300, .text-zinc-400, .text-zinc-500, p) {
+  color: #4A4A6A;
+}
+
+/* Cards inside a light panel invert with it: their lighting is white-alpha, which simply
+   disappears on a pale ground, so the same shapes are drawn with dark alpha instead. */
+.nq-panel--light .nq-card {
+  background:
+    linear-gradient(
+      var(--beam-angle),
+      transparent 6%,
+      rgba(30, 27, 75, 0.07) 16%,
+      rgba(30, 27, 75, 0.015) 25%,
+      transparent 34%
+    ),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(79, 70, 229, 0.12) 0%, transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.55) 100%);
+  box-shadow: inset 0 0 0 1px rgba(30, 27, 75, 0.1);
+}
+
+.nq-panel--light .nq-card--hover:hover {
+  background:
+    linear-gradient(
+      var(--beam-angle),
+      transparent 6%,
+      rgba(30, 27, 75, 0.1) 16%,
+      rgba(30, 27, 75, 0.02) 25%,
+      transparent 34%
+    ),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(79, 70, 229, 0.18) 0%, transparent 72%),
+    linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.75) 100%);
+  box-shadow: inset 0 0 0 1px rgba(30, 27, 75, 0.18);
+}
+
+/* Icons and rules inside the light panel, which are `currentColor` or white in the components. */
+.nq-panel--light :is(svg) {
+  color: #4F46E5;
 }
 
 /* ── The globe (HeroGlobe.tsx) ──────────────────────────────────────────────────────────────
@@ -2010,6 +2103,39 @@ html[data-scrolling] .rv::before {
   z-index: 0;
 }
 
+/* From `lg` up the globe leaves the middle and moves to the far side, opposite the copy — the
+   reference's arrangement, and the thing that gives a left-aligned headline something to be
+   aligned AGAINST. Below that breakpoint it stays centred and behind the text, because a phone
+   has no second column to move into and a planet pushed off one edge only looks cropped.
+
+   `inset-inline-end`, not `right`, so it follows the writing direction: the end side is the left
+   in Arabic and the right in English, and the copy and the globe swap together without a second
+   rule. Pushed a little past the edge on purpose — a sphere tangent to the frame reads as a
+   sticker, one running off it reads as something the frame happens to be showing part of. */
+@media (min-width: 1024px) {
+  .hero-globe {
+    left: auto;
+    /* Only just past the edge. At -14% the planet was half out of frame and read as cropped
+       rather than as placed; the reference keeps its sphere fully visible with the RING running
+       off both sides, which is what suggests the scene continues past the frame without
+       sacrificing the object the eye is meant to land on. */
+    inset-inline-end: -3%;
+    width: min(48vw, 660px);
+    /* Lifts the sphere's centre to about the height of the headline beside it. Left at the
+       vertical middle of its own box it sat level with the buttons, and the composition read as
+       two unrelated things that happened to share a row. */
+    transform: translateY(-18%);
+  }
+
+  .hero-halo {
+    left: auto;
+    inset-inline-end: -8%;
+    width: min(58vw, 840px);
+    height: min(34vw, 480px);
+    transform: translateY(-14%);
+  }
+}
+
 /* The atmosphere, still CSS. A glow is a gradient wherever it is drawn, and drawing this one in
    the scene would mean re-rasterising it on every frame the globe turns — for a layer that never
    changes. Sat behind the canvas so the points read as being INSIDE the light rather than
@@ -2030,8 +2156,8 @@ html[data-scrolling] .rv::before {
      past where the shell's geometry ends. */
   background: radial-gradient(
     closest-side,
-    rgba(139, 92, 246, 0.1) 0%,
-    rgba(139, 92, 246, 0.03) 44%,
+    rgba(99, 102, 241, 0.1) 0%,
+    rgba(99, 102, 241, 0.03) 44%,
     transparent 74%
   );
 }
