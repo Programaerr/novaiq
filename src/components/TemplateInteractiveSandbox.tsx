@@ -72,7 +72,6 @@ import { EducationDemo } from './sandbox/templates/EducationDemo';
 import { PhoneStoreDemo, storageLabel } from './sandbox/templates/PhoneStoreDemo';
 import { WatchStoreDemo, engravingLabel } from './sandbox/templates/WatchStoreDemo';
 import { FintechDemo } from './sandbox/templates/FintechDemo';
-import { MarketingDemo } from './sandbox/templates/MarketingDemo';
 
 // Re-exported for callers that reach the palette through the sandbox (TemplateLivePage).
 export type { ThemeColor };
@@ -1004,23 +1003,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         );
 
       case 'NVQ-FINTECH-06':
-        return (
-          <FintechDemo
-            ctx={ctx}
-            setTransferAmount={setTransferAmount}
-            setTransfersLog={setTransfersLog}
-            setTwoFactorEnabled={setTwoFactorEnabled}
-            transferAmount={transferAmount}
-            transfersLog={transfersLog}
-            twoFactorEnabled={twoFactorEnabled}
-          />
-        );
-
-      case 'NVQ-MARKETING-11':
-        return (
-          <MarketingDemo ctx={ctx} />
-        );
-
       default:
         return (
           <FintechDemo
@@ -1091,7 +1073,6 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       case 'NVQ-FINTECH-06': return 'ابحث عن عملية أو بطاقة';
       case 'NVQ-CARS-03': return 'ابحث عن سيارة أو موديل';
       case 'NVQ-CORP-01': return 'ابحث عن خدمة أو مشروع';
-      case 'NVQ-MARKETING-11': return 'ابحث عن خدمة تسويقية';
       default: return 'ابحث في الموقع';
     }
   })();

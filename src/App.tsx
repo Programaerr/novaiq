@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, lazy, Suspense, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 'react';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
@@ -393,42 +393,6 @@ export default function App() {
   // anyone sees it). IntersectionObserver fires once, then disconnects.
   const [statsFilled, setStatsFilled] = useState(false);
   const statsRef = useRef<HTMLDivElement | null>(null);
-
-  // Animated stats cycling
-  const [activeStatStep, setActiveStatStep] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  const STAT_STEPS = [
-    { value: '80%', label: isAr ? 'جاهزية فورية' : 'Instant readiness', fill: 80 },
-    { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
-    { value: '100%', label: isAr ? 'ملكية الكود' : 'Code ownership', fill: 100 },
-  ];
-
-  const goToStatStep = useCallback((index: number) => {
-    setActiveStatStep(index);
-    setIsAutoPlaying(false);
-  }, []);
-
-  const toggleAutoPlay = useCallback(() => {
-    setIsAutoPlaying(prev => !prev);
-  }, []);
-
-  const nextStatStep = useCallback(() => {
-    setActiveStatStep(prev => (prev + 1) % STAT_STEPS.length);
-  }, []);
-
-  const prevStatStep = useCallback(() => {
-    setActiveStatStep(prev => (prev - 1 + STAT_STEPS.length) % STAT_STEPS.length);
-  }, []);
-
-  // Auto-advance stats every 8 seconds
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-    const timer = setInterval(() => {
-      setActiveStatStep(prev => (prev + 1) % STAT_STEPS.length);
-    }, 8000);
-    return () => clearInterval(timer);
-  }, [isAutoPlaying]);
   useEffect(() => {
     const el = statsRef.current;
     if (!el) return;
@@ -525,7 +489,6 @@ export default function App() {
         setLanguage={setLanguage}
         currency={currency}
         setCurrency={setCurrency}
-        onStartProject={startProject}
       />
 
       {/* Main Content View with Hardware Accelerated Transitions. The Navbar above is
@@ -627,106 +590,69 @@ export default function App() {
                     <h3 className="text-xl sm:text-3xl font-bold text-white">
                       {isAr ? 'الإنتاجية والسرعة في تسليم مشروعك' : 'Speed & Efficiency for Your Project'}
                     </h3>
+                    {/* The paragraph that sat here is gone. It restated the three figures directly
+                        below it in prose — 80%, the delivery weeks, the ownership — so a reader met
+                        the same claim twice, once as a sentence and once as a number. The numbers
+                        say it faster and are the reason this panel exists. */}
                   </div>
-
-                  {/* Animated Stats Banner - Full Width */}
-                  <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 border border-white/10 p-6">
-                    {/* Animated background glow */}
-                    <div className="absolute inset-0 opacity-20">
-                      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-indigo-600/30 via-purple-600/30 to-cyan-600/30 animate-pulse" />
-                    </div>
-
-                    <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-                      {/* Current Stat Display */}
-                      <div className="flex items-center gap-8">
-                        <div className="text-center">
-                          <div className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                            {STAT_STEPS[activeStatStep].value}
-                          </div>
-                          <div className="text-sm text-slate-400 mt-1">{STAT_STEPS[activeStatStep].label}</div>
-                        </div>
-                      </div>
-
-                      {/* Controls */}
-                      <div className="flex items-center gap-4">
-                        {/* Step indicators */}
-                        <div className="flex gap-2">
-                          {STAT_STEPS.map((_, i) => (
-                            <button
-                              key={i}
-                              onClick={() => goToStatStep(i)}
-                              className={`w-3 h-3 rounded-full transition-all cursor-pointer ${
-                                i === activeStatStep
-                                  ? 'bg-indigo-400 scale-125'
-                                  : 'bg-slate-600 hover:bg-slate-500'
-                              }`}
-                              aria-label={`Step ${i + 1}`}
-                            />
-                          ))}
-                        </div>
-
-                        {/* Play/Pause */}
-                        <button
-                          onClick={toggleAutoPlay}
-                          className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
-                          aria-label={isAutoPlaying ? 'Pause' : 'Play'}
-                        >
-                          {isAutoPlaying ? (
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                              <rect x="6" y="4" width="4" height="16" />
-                              <rect x="14" y="4" width="4" height="16" />
-                            </svg>
-                          ) : (
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                              <polygon points="5,3 19,12 5,21" />
-                            </svg>
-                          )}
-                        </button>
-
-                        {/* Prev/Next */}
-                        <div className="flex gap-1">
-                          <button
-                            onClick={prevStatStep}
-                            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
-                            aria-label="Previous"
-                          >
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={nextStatStep}
-                            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer"
-                            aria-label="Next"
-                          >
-                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Progress bar */}
-                    <div className="mt-4 h-1 bg-slate-800 rounded-full overflow-hidden">
+                  <div ref={statsRef} className="grid grid-cols-3 gap-3 items-end">
+                    {[
+                      { value: '80%', label: isAr ? 'جاهزية فورية' : 'Instant readiness', fill: 80 },
+                      { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
+                      { value: '100%', label: isAr ? 'ملكية الكود' : 'Code ownership', fill: 100 },
+                    ].map((stat, idx) => (
                       <div
-                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"
-                        style={{ width: `${STAT_STEPS[activeStatStep].fill}%` }}
-                      />
-                    </div>
-                  </div>
+                        key={idx}
+                        // A translucent white lift, not an opaque colour — and the ground has been
+                        // retuned twice since without this line needing to change, which is the
+                        // argument for it. An opaque tile has to re-state whatever the ground is
+                        // and goes wrong the moment the ground moves; white at 4% takes its colour
+                        // from whatever is behind it and can only ever come out lighter than it,
+                        // so the tile reads as raised by construction. `bg-black` here could only
+                        // ever read as a hole punched through the page.
+                        className="nq-card nq-card--hover group flex flex-col items-center gap-2 text-center p-3"
+                      >
+                        <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-white/10 overflow-hidden">
+                          {/* Indigo, not the old zinc→white ramp. These bars are the only place on
+                              the page where a value is shown as a QUANTITY rather than written, so
+                              they should be the accent doing its job — a neutral bar in an accented
+                              system reads as a component nobody updated. */}
+                          <div
+                            className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-indigo-600 to-indigo-300"
+                            style={{
+                              '--fill': statsFilled ? `${stat.fill}%` : '0%',
+                              '--fill-hover': `${Math.min(stat.fill + 15, 100)}%`,
+                              transitionDelay: `${idx * 150}ms`,
+                            } as CSSProperties}
+                          />
+                        </div>
+                        {/* Not `font-mono`, and `dir="ltr"` — two separate faults that were
+                            producing one broken-looking number.
 
-                  {/* Buttons Section (Red Area) */}
-                  <div className="flex flex-col sm:flex-row gap-3 mt-2">
-                    <button
-                      onClick={startProject}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-rose-500/25 cursor-pointer"
-                    >
-                      {isAr ? 'ابدأ مشروعك الآن' : 'Start Your Project'}
-                    </button>
-                    <button className="flex-1 px-6 py-3 border border-slate-600 hover:border-slate-500 text-white font-semibold rounded-xl transition-all hover:bg-slate-800/50 cursor-pointer">
-                      {isAr ? 'احجز استشارة مجانية' : 'Book Free Consultation'}
-                    </button>
+                            `font-mono` resolves to `ui-monospace, SFMono-Regular, Menlo, …`:
+                            whatever the machine happens to have, none of it loaded by this site.
+                            Asked for `font-extrabold` on top of that, the browser finds no 800
+                            weight in those faces and synthesises one — it smears the glyphs
+                            sideways to fake the weight. That is the mangling. Cairo is already
+                            loaded and has a real 800, so simply not overriding the family fixes
+                            it and matches the rest of the page.
+
+                            `dir="ltr"` because a figure is not prose. Under the page's RTL
+                            direction the browser applies the bidi algorithm to "80%" and "3-4",
+                            and where a sign or separator lands is then decided by surrounding
+                            context rather than by what was written. Pinning the direction makes
+                            written order and visual order the same thing — the same fix the
+                            pager arrows and the currency badge needed.
+
+                            `tabular-nums` keeps what mono was actually wanted for: digits on one
+                            fixed advance, so the three figures stay aligned across the row
+                            instead of shifting as their values change. */}
+                        <div dir="ltr" className="relative z-10 text-lg sm:text-xl font-extrabold text-white tabular-nums text-center">
+                          {stat.value}
+                        </div>
+                        <div className="relative z-10 text-[10px] text-zinc-400 text-center">{stat.label}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
