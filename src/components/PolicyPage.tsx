@@ -50,8 +50,10 @@ const PRIVACY_SECTIONS: Section[] = [
     icon: Mail,
     title: { ar: 'حقوقك والتواصل معنا', en: 'Your Rights & Contact' },
     body: {
-      ar: 'يحق لك الاطلاع على بياناتك المحفوظة أو طلب حذفها بالكامل في أي وقت. لأي استفسار يخص خصوصيتك، راسلنا على support@novaiq.space.',
-      en: 'You have the right to review your saved data or request its complete deletion at any time. For any privacy inquiry, contact us at support@novaiq.space.',
+      // No email address here until one genuinely exists. A privacy policy that names an inbox
+      // nobody reads is worse than one that points at the channels we actually answer on.
+      ar: 'يحق لك الاطلاع على بياناتك المحفوظة أو طلب حذفها بالكامل في أي وقت. لأي استفسار يخص خصوصيتك، تواصل معنا عبر قنوات التواصل الموضّحة في أسفل الموقع.',
+      en: 'You have the right to review your saved data or request its complete deletion at any time. For any privacy inquiry, reach us through the contact channels listed in the site footer.',
     },
   },
 ];

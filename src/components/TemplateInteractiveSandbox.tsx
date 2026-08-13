@@ -1036,7 +1036,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         badge: template.categoryLabel,
         contact: {
           phone: '07700000000',
-          email: 'info@novaiq.space',
+          // Placeholder contact for a demo site that has no identity of its own — matched to the
+          // obviously-fake phone above rather than borrowing a NOVAIQ address.
+          email: 'info@example.com',
           address: 'بغداد، العراق',
           hours: 'الأحد - الخميس، 9 صباحاً - 5 مساءً',
         },

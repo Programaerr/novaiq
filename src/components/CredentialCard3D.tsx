@@ -362,14 +362,10 @@ function drawBack(c: HTMLCanvasElement, mark?: HTMLImageElement) {
     ctx.drawImage(off, (TEX_W - size) / 2, (TEX_H - size) / 2);
   }
 
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.font = `600 30px ${FONT}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.direction = 'ltr';
-  ctx.letterSpacing = '6px';
-  ctx.fillText('novaiq.space', TEX_W / 2 + 3, TEX_H - 92 - 30);
-  ctx.letterSpacing = '0px';
+  // No domain under the mark. `novaiq.space` was printed here before a domain had actually been
+  // registered — and this is the face of a card meant to be printed and handed to people, where a
+  // wrong address is worse than no address: it sends someone to nothing and cannot be corrected
+  // once the card is in their hand. The mark stands on its own until there is a real one to add.
   ctx.restore();
 }
 
