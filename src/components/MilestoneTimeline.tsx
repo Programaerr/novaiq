@@ -23,46 +23,46 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
   const milestones = [
     {
       weeks: language === 'ar' ? 'الأسبوع 1 - 2' : 'Weeks 1 - 2',
-      phaseTitle: language === 'ar' ? 'المرحلة الأولى: التحليل والاعتماد العادي' : 'Phase 1: Analysis & Official Approval',
+      phaseTitle: language === 'ar' ? 'المرحلة الأولى: التحليل والاعتماد' : 'Phase 1: Analysis & Official Approval',
       icon: Calendar,
       status: language === 'ar' ? 'مرحلة الاعتماد' : 'Approval Phase',
       tasks: [
-        language === 'ar' ? 'توقيع واعتماد العقد الإلكتروني الرسمي وطباعة ملف PDF' : 'Sign & approve official electronic contract and export PDF',
-        language === 'ar' ? 'تحديد الهوية البصرية، الألوان، واللغات المطلوبة للمشروع' : 'Define visual identity, colors, and required system languages',
-        language === 'ar' ? 'هيكلة الخوادم والنطاق الخاص بالشركة (Domain & Cloud)' : 'Configure domain, cloud infrastructure, and server architecture',
+        language === 'ar' ? 'توقيع واعتماد العقد' : 'Sign & approve official electronic contract and export PDF',
+        language === 'ar' ? 'تحديد الهوية البصرية' : 'Define visual identity, colors, and required system languages',
+        language === 'ar' ? 'الخوادم والنطاق الخاص بالشركة' : 'Configure domain, cloud infrastructure, and server architecture',
       ]
     },
     {
       weeks: language === 'ar' ? 'الأسبوع 3 - 4' : 'Weeks 3 - 4',
-      phaseTitle: language === 'ar' ? 'المرحلة الثانية: بناء التصميم والواجهات التفاعلية' : 'Phase 2: Interactive Design & UI/UX',
+      phaseTitle: language === 'ar' ? 'المرحلة الثانية: بناء التصميم' : 'Phase 2: Interactive Design & UI/UX',
       icon: Code2,
       status: language === 'ar' ? 'التطوير البصري' : 'Visual Development',
       tasks: [
-        language === 'ar' ? 'تطوير وتوليد واجهات المستخدم وفق أعلى معايير الجودة (UX/UI)' : 'Develop responsive user interfaces with top UX/UI standards',
-        language === 'ar' ? 'ضمان الاستجابة التامة على الكمبيوتر، التاب، والجوال' : 'Ensure full responsiveness on desktop, tablet, and mobile',
-        language === 'ar' ? 'دمج تأثيرات الحركة والسلاسة التفاعلية' : 'Integrate motion effects and smooth interactivity',
+        language === 'ar' ? 'تطوير واجهات المستخدم' : 'Develop responsive user interfaces with top UX/UI standards',
+        language === 'ar' ? 'دمج تأثيرات الحركة والسلاسة' : 'Integrate motion effects and smooth interactivity',
+        language === 'ar' ? 'ضمان الاستجابة التامة' : 'Ensure full responsiveness on desktop, tablet, and mobile',
       ]
     },
     {
       weeks: language === 'ar' ? 'الأسبوع 5 - 6' : 'Weeks 5 - 6',
-      phaseTitle: language === 'ar' ? 'المرحلة الثالثة: الربط البرمجي وإعداد الخدمات المتقدمة' : 'Phase 3: Core Engineering & Backend Integration',
+      phaseTitle: language === 'ar' ? 'المرحلة الثالثة: الربط البرمجي' : 'Phase 3: Core Engineering & Backend Integration',
       icon: Cpu,
       status: language === 'ar' ? 'البرمجة والخوادم' : 'Engineering & Cloud',
       tasks: [
-        language === 'ar' ? 'ربط بوابات الدفع الإلكتروني (Apple Pay / Mada / Visa)' : 'Integrate payment gateways (ZainCash, Card, Visa, Apple Pay)',
-        language === 'ar' ? 'تطوير وتجهيز نظام المحادثة والدعم الفني المتكامل لجمهور الشركة' : 'Develop integrated customer support & communication modules',
-        language === 'ar' ? 'ربط وتوثيق البيانات السحابية الحية (Database & Cloud Storage)' : 'Connect & secure live cloud databases (Firebase / Cloud Store)',
+        language === 'ar' ? 'ربط بوابات الدفع الإلكتروني' : 'Integrate payment gateways (ZainCash, Card, Visa, Apple Pay)',
+        language === 'ar' ? 'تجهيز نظام المحادثة والدعم' : 'Develop integrated customer support & communication modules',
+        language === 'ar' ? 'ربط البيانات السحابية' : 'Connect & secure live cloud databases (Firebase / Cloud Store)',
       ]
     },
     {
       weeks: language === 'ar' ? 'الأسبوع 7 - 8' : 'Weeks 7 - 8',
-      phaseTitle: language === 'ar' ? 'المرحلة الرابعة: الاختبار النهائي والإطلاق المباشر' : 'Phase 4: Final Testing & Live Launch',
+      phaseTitle: language === 'ar' ? 'المرحلة الرابعة: الاختبار النهائي' : 'Phase 4: Final Testing & Live Launch',
       icon: ShieldCheck,
       status: language === 'ar' ? 'الإطلاق المكتمل' : 'Live Launch',
       tasks: [
-        language === 'ar' ? 'اختبارات الأمان والسرعة وضغط الزوار (Performance & Security Tests)' : 'Run load tests, security audits, and performance tuning',
+        language === 'ar' ? 'اختبارات الأمان والسرعة' : 'Run load tests, security audits, and performance tuning',
         language === 'ar' ? 'تسليم الكود المصدري ولوحات التحكم بالكامل لممثل الشركة' : 'Deliver full source code and admin panels to company owner',
-        language === 'ar' ? 'التسليم النهائي وإمكانية تفعيل خطة صيانة مخصصة حسب الاتفاق' : 'Final delivery and optional maintenance plan per agreement',
+        language === 'ar' ? 'إمكانية تفعيل خطة صيانة مخصصة حسب الاتفاق' : 'Final delivery and optional maintenance plan per agreement',
       ]
     }
   ];
@@ -76,11 +76,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
             {language === 'ar' ? 'جدول المراحل الزمنية لتنفيذ مشروعك' : 'Project Sprints & Delivery Timeline'}
           </h2>
-          <p className="text-zinc-300 text-xs sm:text-sm">
-            {language === 'ar'
-              ? 'نتبع خطة تسليم واضحة ومحددة خطوة بخطوة تضمن التزامنا الكامل بالمواعيد وجودة المنتج النهائي.'
-              : 'We follow a structured step-by-step roadmap guaranteeing deadline compliance and peak product quality.'}
-          </p>
         </div>
 
         {/* Milestones Grid */}

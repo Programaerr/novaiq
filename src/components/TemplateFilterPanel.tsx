@@ -1,8 +1,12 @@
-import { motion, AnimatePresence } from 'motion/react';
+import { LazyMotion, AnimatePresence, m } from 'motion/react';
 import { RotateCcw, ArrowUpDown } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
 import { formatPrice, IQD_PER_USD, Currency } from '../lib/currency';
+
+// Deferred so the animation feature set is a chunk of its own rather than part of first
+// paint — see src/lib/motionFeatures.ts for why it has to go through a separate module.
+const loadDomAnimation = () => import('../lib/motionFeatures').then((mod) => mod.default);
 
 // The filter dropdown that floats over the template grid. Split out of TemplateGrid.tsx —
 // it is a self-contained panel of controls, and inlining its ~120 lines of markup made the
@@ -39,9 +43,13 @@ export const TemplateFilterPanel: React.FC<TemplateFilterPanelProps> = ({
   activeFiltersCount,
   resetAllFilters,
 }) => (
+  // `strict` bans the feature-laden `motion.*` components inside this tree, so a later
+  // edit can't quietly re-import the full bundle and undo the split — it fails loudly at
+  // dev time instead. Features are fetched on mount, well before anyone clicks Filter.
+  <LazyMotion features={loadDomAnimation} strict>
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -163,7 +171,8 @@ export const TemplateFilterPanel: React.FC<TemplateFilterPanelProps> = ({
               </div>
 
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
+  </LazyMotion>
 );

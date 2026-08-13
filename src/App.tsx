@@ -500,7 +500,7 @@ export default function App() {
                 which is the whole point of moving the panel up here. The larger page rhythm
                 resumes at the section after it. */}
             <div className="space-y-6 sm:space-y-8">
-              <HeroSection language={language} />
+              <HeroSection language={language} onStart={() => setActivePage('templates')} />
 
               {/* The evidence, immediately under the claim. Above the fold on purpose — see
                   HeroProofStrip for why the studio's work had to come up to meet the visitor
@@ -557,11 +557,10 @@ export default function App() {
                     <h3 className="text-xl sm:text-3xl font-bold text-white">
                       {isAr ? 'الإنتاجية والسرعة في تسليم مشروعك' : 'Speed & Efficiency for Your Project'}
                     </h3>
-                    <p className="text-sm sm:text-base text-zinc-300 leading-relaxed">
-                      {isAr
-                        ? 'نحن لا نضيع وقتك في نقاشات ومفاوضات مطولة. قوالبنا البرمجية الجاهزة تمنحك انطلاقة فورية بنسبة 80% من مشروعك، بينما نتولى نحن تخصيص الـ 20% المتبقية لتلائم هوية شركتك ومتطلباتك الخاصة.'
-                        : 'We get straight to execution. Our pre-built production templates give you an instant 80% head start, while we customize the remaining 20% specifically for your brand identity.'}
-                    </p>
+                    {/* The paragraph that sat here is gone. It restated the three figures directly
+                        below it in prose — 80%, the delivery weeks, the ownership — so a reader met
+                        the same claim twice, once as a sentence and once as a number. The numbers
+                        say it faster and are the reason this panel exists. */}
                   </div>
                   <div ref={statsRef} className="grid grid-cols-3 gap-3 items-end">
                     {[

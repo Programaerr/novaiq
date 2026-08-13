@@ -43,17 +43,38 @@ export default defineConfig(() => {
             // before the page can paint, which is exactly what lazy-loading the scene
             // component was meant to prevent. Matched on the node_modules path segment so
             // a bare substring like "three" can't catch unrelated package names.
-            if (/node_modules\/(three|three-stdlib|three-mesh-bvh|@react-three|postprocessing|maath)\//.test(id)) {
+            // The named packages were never the whole 3D stack. @react-three/drei and fiber
+            // drag in a long tail of their own — a reconciler, a gesture library, an HLS
+            // video demuxer, a GPU benchmark database, a text-shaping engine — none of which
+            // matched this list, so all of them were landing in the eager `vendor` chunk and
+            // downloading on every page view for a scene that is lazy-loaded and may never be
+            // reached. None of these are imported anywhere in src/; they are reachable only
+            // through drei, so they belong on the same deferred side of the line it is on.
+            if (/node_modules\/(three|three-stdlib|three-mesh-bvh|@react-three|postprocessing|maath|its-fine|react-reconciler|zustand|suspend-react|tunnel-rat|@use-gesture|camera-controls|troika-[^/]+|meshline|stats\.js|detect-gpu|hls\.js|potpack|bidi-js|@monogrid|glsl-noise|n8ao|webgl-sdf-generator)\//.test(id)) {
               return 'vendor-three';
             }
             if (id.includes('firebase')) return 'vendor-firebase';
+            // React and the icon set are both eager and both almost never change, while the
+            // rest of `vendor` does. Splitting them off means a dependency bump elsewhere no
+            // longer invalidates ~200 kB of framework the browser already had cached. It also
+            // makes the eager payload legible in the build output instead of one opaque lump.
+            if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'vendor-react';
+            if (id.includes('lucide-react')) return 'vendor-icons';
             // jsPDF itself carries the ORIGINAL html2canvas as a transitive dependency
             // (for its optional .html() method, which we never call) — matching only
             // "html2canvas-pro" missed that plain "html2canvas" package entirely, so it
             // was silently landing in the generic eager `vendor` bucket below, undoing
             // the whole point of deferring PDF generation until it's actually used.
             if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
-            if (id.includes('motion')) return 'vendor-motion';
+            // Animation library, reachable only from the lazily-loaded template grid. It has
+            // to keep a bucket of its own: dropped into the generic `vendor` chunk below it
+            // becomes part of first paint for every visitor, including the ones who never
+            // open the filter panel it exists for. Matched on the node_modules path segment
+            // rather than on the bare substring "motion", which would also swallow the app's
+            // own src/lib/motionFeatures.ts and defeat the point of splitting it out.
+            if (/node_modules\/(motion|framer-motion|motion-dom|motion-utils)\//.test(id)) {
+              return 'vendor-motion';
+            }
             return 'vendor';
           },
         },
