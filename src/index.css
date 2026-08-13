@@ -2001,7 +2001,11 @@ html[data-scrolling] .rv::before {
   left: 50%;
   width: min(186vw, 1520px);
   aspect-ratio: 1;
-  transform: translate(-50%, -20%);
+  /* -15%, not -20%. The globe's crown was landing within about fifteen pixels of the section's
+     top edge, so `overflow-hidden` shaved the dome flat and the only curve left in frame was at
+     the far corners — the shape read as a wall rather than as a body. Five percent of the box is
+     ~76px, which is the whole difference between a clipped edge and a visible horizon. */
+  transform: translate(-50%, -15%);
   pointer-events: none;
   z-index: 0;
 }
