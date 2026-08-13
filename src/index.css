@@ -172,7 +172,14 @@
   }
   body {
     font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
-    background-color: var(--nq-ground);
+    /* No `background-color` here, and this is load-bearing rather than tidiness.
+       `body::before` below sits at `z-index: -1`, which puts it in the ROOT stacking context's
+       negative-z layer. That layer paints after the root element's background but BEFORE the
+       backgrounds of block-level descendants — and `body` is a block-level descendant. So an
+       opaque colour on `body` paints straight over its own pseudo-element and hides the entire
+       background composition; the page still looks dark, which is exactly why it can sit there
+       unnoticed. The flat colour belongs on `html` (see --nq-ground), which is also the element
+       whose colour fills the overscroll area, so nothing is lost by taking it off here. */
     color: #f4f4f5;
     overflow-x: hidden;
   }
