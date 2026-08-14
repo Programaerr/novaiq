@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Declares `<html data-scrolling>` while the page is being scrolled, and removes it ~140ms
@@ -48,4 +48,37 @@ export function useScrollingFlag(): void {
       delete root.dataset.scrolling;
     };
   }, []);
+}
+
+/**
+ * The same flag, readable from JavaScript.
+ *
+ * CSS can key off `html[data-scrolling]` directly, which is how every decorative animation on this
+ * site stands down for the length of a scroll. A WebGL canvas cannot: its render loop is driven by
+ * `requestAnimationFrame` inside R3F, and no stylesheet reaches that. So the flag is mirrored into
+ * React state here and the canvases switch `frameloop` on it.
+ *
+ * This is the last real source of stutter on the home page. Three WebGL contexts and a scroll are
+ * competing for one main thread and one GPU, and the scroll is the only one of the four the
+ * visitor is actually doing — so the other three give way for the fraction of a second it lasts,
+ * and resume 140ms after it ends.
+ *
+ * A MutationObserver on one attribute of one element, not a second scroll listener: the timing
+ * (including the trailing delay that keeps a continuous scroll from flickering the flag) is
+ * already solved above, and duplicating it would be two sources of truth that drift.
+ */
+export function useIsScrolling(): boolean {
+  const [scrolling, setScrolling] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const sync = () => setScrolling(root.dataset.scrolling === 'true');
+    sync();
+
+    const mo = new MutationObserver(sync);
+    mo.observe(root, { attributes: true, attributeFilter: ['data-scrolling'] });
+    return () => mo.disconnect();
+  }, []);
+
+  return scrolling;
 }

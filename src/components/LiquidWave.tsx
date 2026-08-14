@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useIsScrolling } from '../lib/useScrollingFlag';
 
 /**
  * The stat card's liquid, as a real WebGL surface.
@@ -357,6 +358,8 @@ export const LiquidWave: React.FC<LiquidWaveProps> = ({ fill }) => {
   const hostRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const [motion, setMotion] = useState(true);
+  // Holds the water still for the length of a scroll — see useIsScrolling.
+  const scrolling = useIsScrolling();
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -392,7 +395,7 @@ export const LiquidWave: React.FC<LiquidWaveProps> = ({ fill }) => {
           motion sits on 'demand', which costs one frame when the figure changes and nothing at
           any other time. */}
       <Canvas
-          frameloop={!motion ? 'demand' : active ? 'always' : 'never'}
+          frameloop={!motion ? 'demand' : active && !scrolling ? 'always' : 'never'}
           dpr={[1, 1.5]}
           gl={{ antialias: false, alpha: true, depth: false, powerPreference: 'low-power' }}
         >

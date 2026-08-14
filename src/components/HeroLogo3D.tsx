@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useIsScrolling } from '../lib/useScrollingFlag';
 
 /**
  * The NOVAIQ mark, built as real geometry and turning in 3D. It replaces HeroGlobe's planet.
@@ -281,6 +282,9 @@ export const HeroLogo3D: React.FC = () => {
   const hostRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const [motion, setMotion] = useState(true);
+  // Stands the scene down for the length of a scroll — see useIsScrolling for why a canvas cannot
+  // key off the CSS flag the rest of the site's decorative motion uses.
+  const scrolling = useIsScrolling();
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -316,7 +320,7 @@ export const HeroLogo3D: React.FC = () => {
       <Canvas
           // The one scene here that genuinely animates at rest, so it is switched off rather than
           // throttled when it has no audience.
-          frameloop={motion && active ? 'always' : 'never'}
+          frameloop={motion && active && !scrolling ? 'always' : 'never'}
           dpr={[1, 1.5]}
           // At fov 45 the visible height at the origin is 2·dist·tan(22.5°); 3.9 gives 3.23 world
           // units. The mark is 2.24 across at the ring and 2 tall at the braces, and it TUMBLES —
