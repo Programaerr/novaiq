@@ -7,7 +7,6 @@ import { HeroSection } from './components/HeroSection';
 import { CredentialCard } from './components/CredentialCard';
 import { StatWaveCard } from './components/StatWaveCard';
 import { OrbitGlyph, ConstellationGlyph } from './components/SpaceGlyph';
-import { NovaiqLogo } from './components/NovaiqLogo';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -575,21 +574,26 @@ export default function App() {
                 </div>
 
                 {/* ── The bento ──────────────────────────────────────────────────────────────
-                    Six cells on a 3×3, with two spans, matching the reference's arrangement:
+                    Four cells on a 3×2, with the same two spans it has always had:
 
                       ┌─────────┬─────────────────────┐
                       │  water  │   credential card   │   row 1
                       │  (tall) ├──────────┬──────────┤
-                      │         │  orbit   │  brand   │   row 2
-                      ├─────────┴──────────┼──────────┤
-                      │   the two actions  │   stars  │   row 3
-                      └────────────────────┴──────────┘
+                      │         │  orbit   │  stars   │   row 2
+                      └─────────┴──────────┴──────────┘
+
+                    It was a 3×3 of six. The brand cell and the two plain capability claims are
+                    deleted, and nothing had to be re-tuned to absorb that: the two remaining
+                    spans already leave exactly four free cells, so the grid closes on its own with
+                    no hole and no tail. Worth stating because it is the property that breaks
+                    first — remove any ONE more card and the auto-flow leaves a gap in the corner
+                    that has to be paid for with a third span.
 
                     Placed by plain auto-flow rather than by naming lines: the cursor fills row 1
                     (col 1 is held by the tall card's row-span, so the wide card takes 2-3), then
-                    row 2 fills the two cells the tall card leaves, then row 3. Explicit
-                    `col-start`/`row-start` on six items is six more numbers to keep in agreement
-                    when one card changes size, and the flow already lands them here.
+                    row 2 fills the two cells the tall card leaves. Explicit `col-start`/`row-start`
+                    would be more numbers to keep in agreement when one card changes size, and the
+                    flow already lands them here.
 
                     One column on a phone, two at `md`, three at `lg`. The spans are `lg:` only —
                     a 2-column span inside a 2-column grid is just a full-width row, which is the
@@ -649,30 +653,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* ── The brand ────────────────────────────────────────────────────────────
-                      The cell the reference fills with a magnifier. It is the panel's one cell
-                      with nothing to prove, so it carries the mark itself. */}
-                  <div className="nq-card nq-card--hover relative overflow-hidden flex flex-col items-center justify-center gap-3 p-5 min-h-[10rem] text-center">
-                    <div className="relative z-10">
-                      <NovaiqLogo size={40} showText={false} />
-                    </div>
-                    <div className="relative z-10">
-                      <div className="text-sm font-black tracking-[0.2em] text-white font-mono">NOVAIQ</div>
-                      <div className="mt-1 text-[11px] text-zinc-400">
-                        {isAr ? 'شركة برمجية عراقية' : 'Iraqi software company'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── The bottom row ───────────────────────────────────────────────────────
-                      The wide call-to-action card that stood here is deleted. Its two buttons were
-                      the same pair the hero already offers, one screen up.
-
-                      Losing it is what let the last two capability claims come back INTO the grid.
-                      They had been pushed out to a separate two-across band underneath, because the
-                      six bento cells were already spoken for — a strip below a bento is the shape
-                      "there was no room" takes, and here there is room. Row three is three equal
-                      cells now and the grid closes cleanly at 3×3 with no hole and no tail. */}
                   <div className="nq-card nq-card--hover relative overflow-hidden flex flex-col justify-end p-5 min-h-[10rem]">
                     <ConstellationGlyph className="absolute -top-3 -end-3 w-28 h-28 text-white/25 pointer-events-none" />
                     <div className="relative z-10">
@@ -684,19 +664,6 @@ export default function App() {
                       </div>
                     </div>
                   </div>
-
-                  {[
-                    { label: isAr ? 'قوالب مجربة ومعتمدة' : 'Verified Templates', desc: isAr ? 'جاهزة للتركيب الفوري' : 'Instant deployment' },
-                    { label: isAr ? 'ربط وحفظ في Firebase' : 'Firebase Cloud Storage', desc: isAr ? 'ضمان حفظ كل البيانات' : 'Persistent data sync' },
-                  ].map((x, idx) => (
-                    <div
-                      key={idx}
-                      className="nq-card nq-card--hover flex flex-col justify-end p-5 min-h-[10rem]"
-                    >
-                      <div className="relative z-10 text-sm font-bold text-white">{x.label}</div>
-                      <div className="relative z-10 mt-1 text-[11px] text-zinc-400 leading-relaxed">{x.desc}</div>
-                    </div>
-                  ))}
                 </div>
               </div>
               </div>
