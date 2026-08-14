@@ -2086,30 +2086,32 @@ html[data-scrolling] .rv::before {
   }
 }
 
-/* ── The mark (HeroLogo3D.tsx) ──────────────────────────────────────────────────────────────
-   Where the WebGL canvas sits, and nothing else — the logo itself is built in the scene.
+/* ── The hero's artwork (HeroPlanet.tsx) ────────────────────────────────────────────────────
+   Where the WebGL canvas sits, and nothing else — the planet and the mark inside it are built in
+   the scene.
 
-   Two things stood here before: `.hero-limb`, an enormous CSS circle with a lit rim, and then a
-   real sphere of points. Both are gone. The hero shows NOVAIQ's own mark now, so the ornament and
-   the brand are the same object instead of two.
+   Three things stood here before: `.hero-limb`, an enormous CSS circle with a lit rim; a real
+   sphere of points; and NOVAIQ's mark on its own as tube geometry. This is a planet that splits
+   open and lets that mark out, so the ornament and the brand are one object with two states.
 
-   ## THE BOX IS NOT THE MARK, and every number below depends on that
+   ## THE BOX IS NOT THE ARTWORK, and every number below depends on that
 
    The canvas has to be larger than what it contains, for two separate reasons. A glow that reaches
-   the edge of its own canvas makes the canvas visible — the halo comes out sliced flat against a
-   hard rectangle. And this object TUMBLES, so the figure that has to fit is the diagonal it sweeps
-   through, not its resting width; sizing the frame to what you see standing still means clipping a
-   corner of the ring every time it leans.
+   the edge of its own canvas makes the canvas visible — the limb comes out sliced flat against a
+   hard rectangle. And this object OPENS, so the figure that has to fit is its full extension, not
+   its resting diameter; sizing the frame to the closed sphere looks right until the first hover,
+   and then the lid slides off the top.
 
    With the camera at 3.9 and fov 45, the visible height at the origin is 2·3.9·tan(22.5°) =
-   3.2314 units. The mark is 2.24 across at the ring, so it occupies 2.24 / 3.2314 = 69% of this
-   box:
+   3.2314 units. The scene is scaled to 0.66 so the OPEN lid clears that, which leaves the closed
+   planet 1.69 across — 1.69 / 3.2314 = 52% of this box:
 
-     mark on screen  =  box width × 0.69
-     box width       =  target mark width ÷ 0.69
+     artwork on screen  =  box width × 0.52
+     box width          =  target artwork width ÷ 0.52
 
-   (It was 0.619 while this was a sphere, whose 2-unit diameter was narrower than the ring around
-   it. Reading a size off this rule without applying the factor gives an answer ~45% too large.) */
+   (It was 0.69 when this was the mark alone, and 0.619 when it was a sphere of points. The factor
+   changes whenever the artwork does, and every size below is stated against it — reading one off
+   this rule without applying the current factor gives an answer well over 30% too large.) */
 .hero-mark {
   position: absolute;
   width: min(70vw, 390px);
@@ -2135,8 +2137,11 @@ html[data-scrolling] .rv::before {
      which is a different failure from the one being fixed, not a fix.
 
      And it is sized to fit that band rather than being cropped into it: the hero clips at its own
-     top edge, so anything oversized loses its top to the clip. 70vw × 0.69 is a 48vw mark, which
-     sits between the header and the headline whole with a few pixels either side. */
+     top edge, so anything oversized loses its top to the clip. 70vw × 0.52 is a 36vw planet, and
+     it sits between the header and the headline whole. It was 48vw when the artwork was the mark
+     alone at a 0.69 factor and it fitted then with a few pixels either side, so the planet has
+     gained clearance rather than lost it — the box did not change, the thing inside it got
+     smaller to make room for the lid to open. */
   transform: translate(-50%, -14%);
   pointer-events: none;
   z-index: 0;
@@ -2240,8 +2245,8 @@ html[data-scrolling] .rv::before {
   }
 
   .hero-mark {
-    /* SIZE is where this departs from the reference it started as. 44vw × 0.69 puts the mark at
-       30% of the viewport against the reference's 36%; at the matching size it was the loudest
+    /* SIZE is where this departs from the reference it started as. 44vw × 0.52 puts the planet at
+       23% of the viewport against the reference's 36%; at the matching size it was the loudest
        thing on the page and the headline read as a caption to it. The reference gets away with 36%
        because its headline runs four lines and holds its own half of the frame, and this one is
        two.

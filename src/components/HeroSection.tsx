@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
-import { HeroLogo3D } from './HeroLogo3D';
 
 interface HeroSectionProps {
   language: 'ar' | 'en';
@@ -81,35 +80,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
       ref={heroRef}
       className="relative pb-2 md:pb-6 overflow-hidden lg:min-h-[calc(100vh-6rem)] lg:flex lg:items-center"
     >
-      {/* ── The mark ─────────────────────────────────────────────────────────────────────────
-          NOVAIQ's own logo as real geometry, standing on a base ring (HeroLogo3D.tsx). It took
-          over from the planet, which took over from `.hero-limb` — a flat CSS arc.
+      {/* ── No artwork ───────────────────────────────────────────────────────────────────────
+          The hero has no object in it. There was one through every previous revision — a flat CSS
+          arc, then a sphere of points, then a planet, then NOVAIQ's mark as tube geometry, then a
+          planet that split open and let that mark out — and all of them are gone. What is left is
+          the sky, the claim and the two ways in.
 
-          `.hero-halo` below is the AMBIENT glow and is still CSS, because it never changes: a
-          gradient that sits there is cheaper drawn once by the compositor than re-rasterised by a
-          scene. The one that answers the hover is a different thing and lives in the scene — it
-          has to stand in the same space as the mark and be occluded by it, which a div behind the
-          canvas can never do. */}
-      <div className="hero-halo" aria-hidden="true" />
-      <HeroLogo3D />
+          `.hero-halo` went with the artwork rather than staying as ambient light. It was sized and
+          centred to sit BEHIND a specific object, and above `lg` that object was off to one side:
+          with nothing there, it is a soft grey smudge floating in the empty half of the hero,
+          which reads as a mistake rather than as atmosphere.
+
+          Its CSS (`.hero-mark`, `.hero-halo`, and the `lg` block positioning both) is inert now,
+          not deleted. This section has changed its mind about the artwork several times and unused
+          rules cost nothing at runtime — but they are dead weight in a stylesheet, so they should
+          go if the hero stays bare. */}
       <div className="hero-sky" aria-hidden="true" />
 
-      {/* ── The claim ────────────────────────────────────────────────────────────────────── */}
-      {/* The top padding is the limb's clearance, not decoration: the copy has to start below the
-          arc's crown or the rim runs through the headline. It is on the content rather than on the
-          section because the limb is positioned against the section's own top edge — padding the
-          section would move the arc down by exactly as much and change nothing. */}
-      {/* Centred on a phone, aligned to the reading edge from `lg` up — which is where the globe
-          moves out of the middle and off to the far side. The two go together: copy centred under
-          an off-centre planet looks like neither was placed on purpose.
-
-          `w-full` because this is now the only in-flow child of a flex container, and a flex item
+      {/* ── The claim ──────────────────────────────────────────────────────────────────────
+          `w-full` because this is the only in-flow child of a flex container, and a flex item
           shrinks to its content unless told otherwise — without it `mx-auto` has nothing to centre
-          and the whole column collapses against one edge. */}
-      {/* `pt-52` on a phone is the mark's band, not decoration — see the note on `.hero-mark`
-          about why the copy cannot sit on top of a lit 3D object. It drops back to 0 at `lg`, where
-          the mark moves out of the column entirely and the hero centres itself instead. */}
-      <div className="relative z-10 w-full nq-container pt-52 sm:pt-56 lg:pt-0 text-center lg:text-start">
+          and the whole column collapses against one edge.
+
+          The top padding was `pt-52 sm:pt-56` and that was the ARTWORK'S BAND, not styling: on a
+          phone there was no second column for the object to move into, so it got a strip of its own
+          above the headline and this padding is what held the strip open. With nothing to clear it
+          would be holding open 208px of empty page, so it returns to the `pt-16 sm:pt-24` this hero
+          used before there was any artwork at all. */}
+      <div className="relative z-10 w-full nq-container pt-16 sm:pt-24 lg:pt-0 text-center lg:text-start">
         {/* 35rem = 560px, which is 38.9% of a 1440px viewport — the reference's text column, whose
             copy runs from 7% to 46% of the frame. It was `max-w-2xl` (672px, 46.7%), and the extra
             110px is what pushed the headline into the planet's half of the composition. */}
