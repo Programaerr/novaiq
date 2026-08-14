@@ -3,7 +3,6 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { View, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import logoMark from '../assets/images/novaiq-icon.png';
-import { MAX_DPR } from '../lib/renderBudget';
 
 interface CredentialCard3DProps {
   language: 'ar' | 'en';
@@ -864,8 +863,10 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
       }
     >
       {ready && (
-        <View
-        >
+        // A View, not a Canvas: the site has exactly one WebGL context now and this scene is drawn
+        // into the rectangle this element occupies. See GLStage.tsx for why three contexts on one
+        // page was not a tuning problem.
+        <View className="absolute inset-0">
           {/* Each view brings its own camera — the hero mark is framed at fov 45 from 3.9 and
               the two must not share one. Everything the old `camera` prop carried is here.
 
