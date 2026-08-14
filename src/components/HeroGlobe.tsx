@@ -217,10 +217,19 @@ function makeSurfaceMaterial(): THREE.ShaderMaterial {
         c = mix(c, uC4, smoothstep(0.82, 0.99, k));
 
         // The lit limb: bright where the surface turns away from the camera AND faces the light.
+<<<<<<< HEAD
         // Gated on the light term because an ungated Fresnel outlines the entire disc, including
         // the side in shadow, and a body with a complete halo has no light direction any more.
         float fres = pow(1.0 - abs(dot(view, n)), 3.4);
         c += uRim * fres * smoothstep(0.52, 0.96, lit) * 1.1;
+=======
+        // Gated on lit (NO backticks in here — this comment is inside a JS template literal, and
+        // a backtick would close the string mid-shader) because an ungated Fresnel outlines the
+        // entire disc, including the side
+        // in shadow, and a body with a complete halo has no light direction any more.
+        float fres = pow(1.0 - abs(dot(view, n)), 3.2);
+        c += uRim * fres * smoothstep(0.34, 0.92, lit) * 1.35;
+>>>>>>> 30049565563f449dae357543dd2412e290fb80a4
 
         gl_FragColor = vec4(c, 1.0);
       }

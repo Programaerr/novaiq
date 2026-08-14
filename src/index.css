@@ -2464,69 +2464,82 @@ html[data-scrolling] .rv::before {
 }
 
 
+
 /* ── The closing stage under the template carousel (TemplateGrid.tsx) ──────────────────────
-   Two street lamps, angled in from either edge, meeting on the brand mark.
+   The price caveat IS the lamp. Two beams leave it at a slant and open downward onto the brand
+   mark below, the way a street light throws a cone onto the ground under it.
 
-   The brief was light that arrives from the sides at a slant, pure white, fading as it falls —
-   street lighting rather than a spotlight aimed at the camera. So each beam is a single linear
-   gradient, brightest where it enters and gone before it reaches the floor, cut to a wedge with
-   `clip-path`: narrow at the lamp, wide where it lands. A wedge is what makes it read as a beam
-   rather than as a glow; the gradient is what stops the wedge from having an end.
+   That is the whole reason the light starts at the pill rather than at the page edges: a beam
+   whose source is off-screen is just a gradient, and the eye has nothing to attribute it to. Give
+   it a visible origin — a small bright object at the apex of its own cone — and the same gradient
+   reads as light being emitted. The pill's own glow is what sells that; without it the beams look
+   like they are passing behind the text rather than coming out of it.
 
-   Deliberately no `filter: blur()`. A blurred layer this size has to be re-rasterized by the GPU
-   every time anything about it changes, which is real cost on a weak phone for something that
-   never moves. The softness here is in the gradients' own stops and in the pool's radial falloff,
-   which is free — the whole stage paints once and is never touched again.
-
-   `overflow: hidden` on the section above it is what keeps the wedges from spilling sideways past
-   the page; the stage itself only has to contain them vertically.
+   Every layer here is a static gradient clipped to a polygon. Deliberately no `filter: blur()`: a
+   blurred layer this size is re-rasterized by the GPU whenever anything about it changes, which is
+   real cost on a weak phone for something that never moves. The softness lives in the gradients'
+   own stops and in the pool's radial falloff, which is free — the stage paints once and is then
+   never touched again.
    ───────────────────────────────────────────────────────────────────────────────────────── */
 .tpl-lightstage {
   position: relative;
   isolation: isolate;
+  /* Keeps the wedges from spilling sideways out of the page on narrow screens, where they are
+     wider than the column that contains them. */
   overflow: hidden;
 }
 
+/* The source. A white pill with light bleeding off it, so the beams below have somewhere to have
+   come from. */
+.tpl-lamp {
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    0 0 22px rgba(255, 255, 255, 0.35),
+    0 0 60px rgba(255, 255, 255, 0.18),
+    0 14px 60px rgba(255, 255, 255, 0.12);
+}
+
+/* The two beams. Both start as a narrow mouth directly under the middle of the pill and open
+   outward and downward, so their pools overlap exactly where the mark sits. Anchored below the
+   pill rather than at the top of the stage — light leaves the lamp, it does not surround it. */
 .tpl-lightstage__beam {
   position: absolute;
-  top: -6%;
-  height: 112%;
-  width: 58%;
+  top: 2.4rem;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 0;
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.22) 26%,
-    rgba(255, 255, 255, 0.08) 58%,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0.2) 24%,
+    rgba(255, 255, 255, 0.07) 58%,
     rgba(255, 255, 255, 0) 92%
   );
 }
 
-/* The wedges. Both start as a narrow mouth at the top outer corner and open inward and downward,
-   so the two pools overlap exactly where the mark sits. */
 .tpl-lightstage__beam--l {
-  left: 0;
-  clip-path: polygon(0% 0%, 13% 0%, 100% 100%, 30% 100%);
+  clip-path: polygon(45% 0%, 50% 0%, 40% 100%, 2% 100%);
 }
 
 .tpl-lightstage__beam--r {
-  right: 0;
-  clip-path: polygon(87% 0%, 100% 0%, 70% 100%, 0% 100%);
+  clip-path: polygon(50% 0%, 55% 0%, 98% 100%, 60% 100%);
 }
 
-/* Where the two beams land. Without this the mark sits in the overlap of two straight-edged
-   wedges and the join is visible as a seam; a soft ellipse over the top is the pool of light on
-   the ground that the beams are supposed to be making. */
+/* Where the two beams land. Without it the mark sits in the overlap of two straight-edged wedges
+   and the join shows as a seam; a soft ellipse over the top is the pool of light on the ground
+   that the beams are supposed to be making. */
 .tpl-lightstage__pool {
   position: absolute;
-  inset: 30% 0 -4%;
+  inset: 34% 0 -4%;
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(
-    58% 100% at 50% 62%,
-    rgba(255, 255, 255, 0.3) 0%,
-    rgba(255, 255, 255, 0.12) 42%,
+    54% 100% at 50% 60%,
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(255, 255, 255, 0.11) 44%,
     rgba(255, 255, 255, 0) 76%
   );
 }
