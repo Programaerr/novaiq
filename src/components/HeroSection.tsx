@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
-import { HeroGlobe } from './HeroGlobe';
+import { HeroLogo3D } from './HeroLogo3D';
 
 interface HeroSectionProps {
   language: 'ar' | 'en';
@@ -81,13 +81,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
       ref={heroRef}
       className="relative pb-2 md:pb-6 overflow-hidden lg:min-h-[calc(100vh-6rem)] lg:flex lg:items-center"
     >
-      {/* ── The globe ────────────────────────────────────────────────────────────────────────
-          A real sphere of points, turning slowly (HeroGlobe.tsx). It took over from `.hero-limb`,
-          which drew the same idea flat: one enormous CSS circle with a lit rim, cropped to its
-          crown. The halo behind it is still CSS — a glow is a gradient wherever it is drawn, and
-          putting it in the scene would only mean paying to redraw it on every frame. */}
+      {/* ── The mark ─────────────────────────────────────────────────────────────────────────
+          NOVAIQ's own logo as real geometry, tumbling (HeroLogo3D.tsx). It took over from the
+          planet, which took over from `.hero-limb` — a flat CSS arc. The halo behind it is still
+          CSS: a glow is a gradient wherever it is drawn, and putting it in the scene would only
+          mean paying to re-rasterise it on every frame. */}
       <div className="hero-halo" aria-hidden="true" />
-      <HeroGlobe />
+      <HeroLogo3D />
       <div className="hero-sky" aria-hidden="true" />
 
       {/* ── The claim ────────────────────────────────────────────────────────────────────── */}
@@ -102,7 +102,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
           `w-full` because this is now the only in-flow child of a flex container, and a flex item
           shrinks to its content unless told otherwise — without it `mx-auto` has nothing to centre
           and the whole column collapses against one edge. */}
-      <div className="relative z-10 w-full max-w-4xl lg:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-0 text-center lg:text-start">
+      {/* `pt-52` on a phone is the mark's band, not decoration — see the note on `.hero-mark`
+          about why the copy cannot sit on top of a lit 3D object. It drops back to 0 at `lg`, where
+          the mark moves out of the column entirely and the hero centres itself instead. */}
+      <div className="relative z-10 w-full nq-container pt-52 sm:pt-56 lg:pt-0 text-center lg:text-start">
         {/* 35rem = 560px, which is 38.9% of a 1440px viewport — the reference's text column, whose
             copy runs from 7% to 46% of the frame. It was `max-w-2xl` (672px, 46.7%), and the extra
             110px is what pushed the headline into the planet's half of the composition. */}
@@ -115,8 +118,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
             orphaned word behind.
 
             Two tones rather than an underline: the words themselves carry the emphasis instead of a
-            rule drawn beneath them. The quiet half stays at zinc-500 — still ~7:1 on this ground, so
-            the whole heading stays readable rather than half of it turning into texture. */}
+            rule drawn beneath them. The quiet half stays at zinc-500.
+
+            That measures 4.3:1 on the black ground, and the note here used to claim ~7:1, which was
+            simply wrong — worth stating rather than quietly correcting, because the number is what
+            the next person will trust. It passes: at 4.4rem this is WCAG "large text", whose floor
+            is 3:1, not the 4.5:1 that applies to body copy. It is also BETTER than it was — on the
+            old navy ground the same grey came to 4.1:1, since a tinted dark ground is lighter than
+            a black one. If this tone is ever reused at body size it will need to move to zinc-400. */}
         <h1 className="text-4xl sm:text-6xl lg:text-[4.4rem] font-extrabold tracking-tight leading-[1.1] font-['Cairo'] text-balance">
           {isAr ? (
             <>
@@ -144,23 +153,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
             objection it raised was the right one: a pair of equally weighted buttons makes the
             visitor decide something before they know enough to decide it. These are not equally
             weighted. They are two different destinations at two different levels of commitment —
-            browse the catalogue, or start a project — and the surfaces say which is which. */}
+            browse the catalogue, or start a project — and the surfaces say which is which.
+
+            Both wear `.filter-pill-btn` now, the same object as ProjectCtaButton and the templates
+            toolbar: the white body that inverts to black, the 1.03 swell on hover, the 0.98 press,
+            and the 2px conic ring rolling round the outline. They were on `.nq-btn`, which is the
+            site's OTHER button family — it has the beam but none of the motion, so the hero's two
+            controls sat dead while every other button on the page moved under the pointer.
+
+            `relative` is not decoration: `.filter-pill-btn` brings `isolation: isolate` but not a
+            position, and the beam is `position: absolute; inset: 0`, so without it the ring hangs
+            off the nearest positioned ancestor instead of the button. (`.nq-btn` supplied the
+            position itself, which is exactly why this is easy to drop when converting.) */}
         <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-3">
           <button
             type="button"
             onClick={onStart}
-            className="nq-btn nq-btn--ghost px-6 py-3 rounded-full font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+            className="filter-pill-btn filter-pill-btn--ghost relative px-6 py-3 rounded-full font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span className="nq-btn-beam" aria-hidden="true" />
+            <span className="filter-pill-beam" aria-hidden="true" />
             <span>{isAr ? 'شاهد القوالب' : 'View templates'}</span>
           </button>
 
           <button
             type="button"
             onClick={onRequestProject}
-            className="nq-btn nq-btn--solid ps-7 pe-2 py-2 rounded-full font-extrabold text-sm inline-flex items-center justify-center gap-3 cursor-pointer"
+            className="filter-pill-btn relative ps-7 pe-2 py-2 rounded-full font-extrabold text-sm inline-flex items-center justify-center gap-3 cursor-pointer"
           >
-            <span className="nq-btn-beam" aria-hidden="true" />
+            <span className="filter-pill-beam" aria-hidden="true" />
             <span>{isAr ? 'ابدأ معنا' : 'Get started'}</span>
             {/* The filled disc inverts along with the button: its background is `currentColor`
                 and the arrow inside is painted with the button's own surface colour, so one

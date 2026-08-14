@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState, lazy, Suspense, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { CredentialCard } from './components/CredentialCard';
+import { StatWaveCard } from './components/StatWaveCard';
+import { OrbitGlyph, ConstellationGlyph } from './components/SpaceGlyph';
+import { NovaiqLogo } from './components/NovaiqLogo';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -388,26 +391,10 @@ export default function App() {
   const isAr = language === 'ar';
 
 
-  // Stat bars start empty and only fill up once the visitor actually scrolls them
-  // into view (not on page mount, which would finish the animation off-screen before
-  // anyone sees it). IntersectionObserver fires once, then disconnects.
-  const [statsFilled, setStatsFilled] = useState(false);
-  const statsRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const el = statsRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setStatsFilled(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.4 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  // The `statsFilled` observer that stood here is gone with the three bars it drove. StatWaveCard
+  // replaced them, and it does not need a scroll trigger for the same reason it does not need
+  // three columns: it shows one figure at a time and cycles, so its level is already changing on
+  // its own whenever anyone is looking at it.
 
   // Drives both halves of the Fluent reveal — ring and face — across the tiles below.
 
@@ -538,7 +525,7 @@ export default function App() {
               />
 
               {/* Quick Overview Grid to drive leads */}
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="nq-container">
               {/* The reveal group is this whole panel, not each grid — so moving across the
                   copy on one side already lights the near edges of the cards on the other,
                   which is the cross-card proximity the effect is for.
@@ -569,113 +556,143 @@ export default function App() {
                 // it. Nobody would name that as wrong; everybody sees it.
                 className="nq-panel"
               >
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
-                {/* The credential card, in the same row as the pitch it illustrates rather than
-                    alone in the hero above. Two reasons, both about the screen rather than the
-                    card: alone it left a wide empty band beside it at any desktop width, and
-                    this panel — which used to start below the fold — was carrying the page's
-                    strongest claim where nobody had scrolled to it yet. Paired, the first
-                    screenful now holds the claim and the proof of it side by side.
-                    `order-first lg:order-none`: stacked on a phone the card leads, because it
-                    is the thing worth seeing before a paragraph is read; side by side the grid's
-                    own order puts the words first, which is the reading order. */}
-                <div className="order-first lg:order-none">
-                  <CredentialCard language={language} />
+                {/* The heading, centred over the grid rather than sharing a column with it — the
+                    reference states the section once across the top and then lets the tiles speak.
+                    It was a left-aligned h3 inside one half of a two-column split, which is what a
+                    heading does when it is a caption to the thing beside it rather than a title
+                    for everything under it. */}
+                <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+                  <h3 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    {isAr ? 'الإنتاجية والسرعة في تسليم مشروعك' : 'Speed & Efficiency for Your Project'}
+                  </h3>
+                  <p className="mt-3 text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                    {isAr
+                      ? 'من العقد الموثّق إلى الكود المُسلَّم — كل ما تحتاجه لتشغيل مشروعك، مبني ومختبر ومملوك لك بالكامل.'
+                      : 'From a signed contract to delivered code — everything your project needs, built, tested and owned outright by you.'}
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-5">
-                  <div className="flex flex-col justify-start space-y-3 text-start">
-                    <h3 className="text-xl sm:text-3xl font-bold text-white">
-                      {isAr ? 'الإنتاجية والسرعة في تسليم مشروعك' : 'Speed & Efficiency for Your Project'}
-                    </h3>
-                    {/* The paragraph that sat here is gone. It restated the three figures directly
-                        below it in prose — 80%, the delivery weeks, the ownership — so a reader met
-                        the same claim twice, once as a sentence and once as a number. The numbers
-                        say it faster and are the reason this panel exists. */}
+                {/* ── The bento ──────────────────────────────────────────────────────────────
+                    Six cells on a 3×3, with two spans, matching the reference's arrangement:
+
+                      ┌─────────┬─────────────────────┐
+                      │  water  │   credential card   │   row 1
+                      │  (tall) ├──────────┬──────────┤
+                      │         │  orbit   │  brand   │   row 2
+                      ├─────────┴──────────┼──────────┤
+                      │   the two actions  │   stars  │   row 3
+                      └────────────────────┴──────────┘
+
+                    Placed by plain auto-flow rather than by naming lines: the cursor fills row 1
+                    (col 1 is held by the tall card's row-span, so the wide card takes 2-3), then
+                    row 2 fills the two cells the tall card leaves, then row 3. Explicit
+                    `col-start`/`row-start` on six items is six more numbers to keep in agreement
+                    when one card changes size, and the flow already lands them here.
+
+                    One column on a phone, two at `md`, three at `lg`. The spans are `lg:` only —
+                    a 2-column span inside a 2-column grid is just a full-width row, which is the
+                    right answer at that width but must not fire at `grid-cols-1`. */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {/* ── The figures, as a water level ─────────────────────────────────────── */}
+                  <div className="lg:row-span-2">
+                    <StatWaveCard
+                      language={language}
+                      stats={[
+                        {
+                          value: '100%',
+                          label: isAr ? 'ملكية الكود' : 'Code ownership',
+                          note: isAr ? 'الكود كامل باسمك' : 'Full source, in your name',
+                          fill: 100,
+                        },
+                        {
+                          value: '3-4',
+                          label: isAr ? 'أسابيع تسليم' : 'Weeks to delivery',
+                          note: isAr ? 'من الاتفاق إلى الإطلاق' : 'Agreement to launch',
+                          // 65, not 87. This is the one figure on the card that is not already a
+                          // percentage, so the level has to be chosen rather than read — and it is
+                          // read as "how full", not "how long". A fast delivery drawn as a nearly
+                          // full tank would say the opposite of what the number means.
+                          fill: 65,
+                        },
+                        {
+                          value: '80%',
+                          label: isAr ? 'جاهزية فورية' : 'Instant readiness',
+                          note: isAr ? 'جاهز قبل أول سطر' : 'Ready before line one',
+                          fill: 80,
+                        },
+                      ]}
+                    />
                   </div>
-                  <div ref={statsRef} className="grid grid-cols-3 gap-3 items-end">
-                    {[
-                      { value: '80%', label: isAr ? 'جاهزية فورية' : 'Instant readiness', fill: 80 },
-                      { value: isAr ? '3-4' : '3-4', label: isAr ? 'أسابيع تسليم' : 'Weeks delivery', fill: 65 },
-                      { value: '100%', label: isAr ? 'ملكية الكود' : 'Code ownership', fill: 100 },
-                    ].map((stat, idx) => (
-                      <div
-                        key={idx}
-                        // A translucent white lift, not an opaque colour — and the ground has been
-                        // retuned twice since without this line needing to change, which is the
-                        // argument for it. An opaque tile has to re-state whatever the ground is
-                        // and goes wrong the moment the ground moves; white at 4% takes its colour
-                        // from whatever is behind it and can only ever come out lighter than it,
-                        // so the tile reads as raised by construction. `bg-black` here could only
-                        // ever read as a hole punched through the page.
-                        className="nq-card nq-card--hover group flex flex-col items-center gap-2 text-center p-3"
-                      >
-                        <div className="relative z-10 w-2.5 h-16 sm:h-20 rounded-full bg-white/10 overflow-hidden">
-                          {/* Indigo, not the old zinc→white ramp. These bars are the only place on
-                              the page where a value is shown as a QUANTITY rather than written, so
-                              they should be the accent doing its job — a neutral bar in an accented
-                              system reads as a component nobody updated. */}
-                          <div
-                            className="stat-bar-fill absolute bottom-0 left-0 right-0 rounded-full bg-gradient-to-t from-indigo-600 to-indigo-300"
-                            style={{
-                              '--fill': statsFilled ? `${stat.fill}%` : '0%',
-                              '--fill-hover': `${Math.min(stat.fill + 15, 100)}%`,
-                              transitionDelay: `${idx * 150}ms`,
-                            } as CSSProperties}
-                          />
-                        </div>
-                        {/* Not `font-mono`, and `dir="ltr"` — two separate faults that were
-                            producing one broken-looking number.
 
-                            `font-mono` resolves to `ui-monospace, SFMono-Regular, Menlo, …`:
-                            whatever the machine happens to have, none of it loaded by this site.
-                            Asked for `font-extrabold` on top of that, the browser finds no 800
-                            weight in those faces and synthesises one — it smears the glyphs
-                            sideways to fake the weight. That is the mangling. Cairo is already
-                            loaded and has a real 800, so simply not overriding the family fixes
-                            it and matches the rest of the page.
+                  {/* ── The proof ────────────────────────────────────────────────────────────
+                      The credential card, in the widest cell. It is the page's strongest claim and
+                      the only object in the panel with real depth, so it takes the position the
+                      reference gives its own hero tile. */}
+                  <div className="lg:col-span-2 nq-card nq-card--hover flex items-center justify-center p-5 sm:p-6">
+                    <div className="relative z-10 w-full">
+                      <CredentialCard language={language} />
+                    </div>
+                  </div>
 
-                            `dir="ltr"` because a figure is not prose. Under the page's RTL
-                            direction the browser applies the bidi algorithm to "80%" and "3-4",
-                            and where a sign or separator lands is then decided by surrounding
-                            context rather than by what was written. Pinning the direction makes
-                            written order and visual order the same thing — the same fix the
-                            pager arrows and the currency badge needed.
-
-                            `tabular-nums` keeps what mono was actually wanted for: digits on one
-                            fixed advance, so the three figures stay aligned across the row
-                            instead of shifting as their values change. */}
-                        <div dir="ltr" className="relative z-10 text-lg sm:text-xl font-extrabold text-white tabular-nums text-center">
-                          {stat.value}
-                        </div>
-                        <div className="relative z-10 text-[10px] text-zinc-400 text-center">{stat.label}</div>
+                  {/* ── Two capabilities, each with a motif ───────────────────────────────── */}
+                  <div className="nq-card nq-card--hover relative overflow-hidden flex flex-col justify-end p-5 min-h-[10rem]">
+                    <OrbitGlyph className="absolute -top-4 -end-4 w-28 h-28 text-white/25 pointer-events-none" />
+                    <div className="relative z-10">
+                      <div className="text-sm font-bold text-white">
+                        {isAr ? 'بناء مرن مخصص' : 'Flexible Engineering'}
                       </div>
-                    ))}
+                      <div className="mt-1 text-[11px] text-zinc-400 leading-relaxed">
+                        {isAr ? 'نطور كل ما تريده، ويتوسّع معك' : 'Built to your spec, and it scales'}
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-              </div>
+                  {/* ── The brand ────────────────────────────────────────────────────────────
+                      The cell the reference fills with a magnifier. It is the panel's one cell
+                      with nothing to prove, so it carries the mark itself. */}
+                  <div className="nq-card nq-card--hover relative overflow-hidden flex flex-col items-center justify-center gap-3 p-5 min-h-[10rem] text-center">
+                    <div className="relative z-10">
+                      <NovaiqLogo size={40} showText={false} />
+                    </div>
+                    <div className="relative z-10">
+                      <div className="text-sm font-black tracking-[0.2em] text-white font-mono">NOVAIQ</div>
+                      <div className="mt-1 text-[11px] text-zinc-400">
+                        {isAr ? 'شركة برمجية عراقية' : 'Iraqi software company'}
+                      </div>
+                    </div>
+                  </div>
 
-                {/* The four capability tiles, now a full-width band under both columns instead
-                    of a 2×2 block squeezed into one of them. The card took the column they used
-                    to share, and rather than shrink them further they get the whole width — at
-                    which point four across reads as a row of facts, and the square aspect they
-                    needed to look deliberate at 2×2 is no longer holding them to a shape the
-                    text has to fit inside. Two across on a phone, where four would leave nothing
-                    but a word per line. */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-8 border-t border-zinc-800">
+                  {/* ── The bottom row ───────────────────────────────────────────────────────
+                      The wide call-to-action card that stood here is deleted. Its two buttons were
+                      the same pair the hero already offers, one screen up.
+
+                      Losing it is what let the last two capability claims come back INTO the grid.
+                      They had been pushed out to a separate two-across band underneath, because the
+                      six bento cells were already spoken for — a strip below a bento is the shape
+                      "there was no room" takes, and here there is room. Row three is three equal
+                      cells now and the grid closes cleanly at 3×3 with no hole and no tail. */}
+                  <div className="nq-card nq-card--hover relative overflow-hidden flex flex-col justify-end p-5 min-h-[10rem]">
+                    <ConstellationGlyph className="absolute -top-3 -end-3 w-28 h-28 text-white/25 pointer-events-none" />
+                    <div className="relative z-10">
+                      <div className="text-sm font-bold text-white">
+                        {isAr ? 'أكواد برمجية نظيفة' : 'Clean Source Code'}
+                      </div>
+                      <div className="mt-1 text-[11px] text-zinc-400 leading-relaxed">
+                        {isAr ? 'سهلة الصيانة والتشغيل' : 'Maintainable architecture'}
+                      </div>
+                    </div>
+                  </div>
+
                   {[
-                    { label: isAr ? "قوالب مجربة ومعتمدة" : "Verified Templates", desc: isAr ? "جاهزة للتركيب الفوري" : "Instant deployment" },
-                    { label: isAr ? "بناء مرن مخصص" : "Flexible Engineering", desc: isAr ? "نطور كل ما تريده" : "Custom built features" },
-                    { label: isAr ? "ربط وحفظ في Firebase" : "Firebase Cloud Storage", desc: isAr ? "ضمان حفظ كل البيانات" : "Persistent data sync" },
-                    { label: isAr ? "أكواد برمجية نظيفة" : "Clean Source Code", desc: isAr ? "سهلة الصيانة والتشغيل" : "Maintainable architecture" }
+                    { label: isAr ? 'قوالب مجربة ومعتمدة' : 'Verified Templates', desc: isAr ? 'جاهزة للتركيب الفوري' : 'Instant deployment' },
+                    { label: isAr ? 'ربط وحفظ في Firebase' : 'Firebase Cloud Storage', desc: isAr ? 'ضمان حفظ كل البيانات' : 'Persistent data sync' },
                   ].map((x, idx) => (
                     <div
                       key={idx}
-                      className="nq-card nq-card--hover flex flex-col justify-center items-center text-center p-4 sm:p-5 space-y-1"
+                      className="nq-card nq-card--hover flex flex-col justify-end p-5 min-h-[10rem]"
                     >
-                      <div className="relative z-10 text-xs font-bold text-white">{x.label}</div>
-                      <div className="relative z-10 text-[11px] text-zinc-400">{x.desc}</div>
+                      <div className="relative z-10 text-sm font-bold text-white">{x.label}</div>
+                      <div className="relative z-10 mt-1 text-[11px] text-zinc-400 leading-relaxed">{x.desc}</div>
                     </div>
                   ))}
                 </div>
@@ -702,7 +719,7 @@ export default function App() {
                 dark one and About is the light one, in that order, because the light panel is the
                 brighter surface and putting it second means the page opens dark (with the globe)
                 and lifts as it goes rather than flashing white immediately under the hero. */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="nq-container">
               <div className="nq-panel">
                 <MilestoneTimeline language={language} />
               </div>
@@ -726,7 +743,7 @@ export default function App() {
                 not. It is the same class that had to come off the timeline for a related reason.
                 The saving it buys is one paint of a static section; the failure mode is the
                 section not being there, and that trade is not close. */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="nq-container">
               <div className="nq-panel nq-panel--light">
                 <AboutSection language={language} />
               </div>

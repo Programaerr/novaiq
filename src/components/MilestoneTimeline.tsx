@@ -70,7 +70,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
           `space-y` (see App.tsx) — a section that also pads itself adds to that gap on both
           sides, so this one break came out half again as wide as the others. Spacing between
           blocks belongs to whatever is stacking them, not to the blocks. */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="nq-container">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">

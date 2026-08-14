@@ -149,22 +149,40 @@
        scroll flashes a different shade across the top or bottom of the page — which is why it
        is a variable read by both `html` and `body` rather than the same literal written twice
        and left to drift. See the note on body::before. */
-    --nq-ground: #070B22;
+    --nq-ground: #000000;
 
-    /* The accent, and the only chromatic thing in the system.
-       It is one token deliberately: an accent used from a variable can be re-tuned or pulled out
-       in a single edit, while the same colour typed into thirty components is a colour the site
-       is now stuck with. Everything that carries hue below reads from these — buttons, card
-       beams, the page vignette, and the globe's atmosphere (which takes it in JS, see
-       HeroGlobe.tsx, the one place the value is duplicated because a shader cannot read CSS).
+    /* The accent. There is NO HUE ANYWHERE IN THE PAGE any more — the site is black and white, and
+       the only colour left on it is the hero mark itself (HeroLogo3D.tsx), which keeps the blue →
+       violet → white ramp it was tuned to. That is the whole design now: a monochrome page with a
+       single chromatic object on it. One colourful thing on a grey page is an accent; the same
+       colour repeated through the buttons, the panels and the card beams is a theme, and the two
+       cannot both be true.
 
-       --soft is not a second accent, it is the same hue at a lightness that survives being put on
-       a dark ground as TEXT: #8B5CF6 on this background is about 3.6:1, under the 4.5:1 body-text
-       line, and #A78BFA clears it. Fills can use the strong one because their contrast is carried
-       by the white sitting on top of them. */
-    --nq-accent: #6366F1;
-    --nq-accent-soft: #A5B4FC;
+       So this token is no longer a hue, it is an EMPHASIS LEVEL: the brightest surface the page is
+       allowed to draw. It stays a variable for the reason it always was — a value used from one
+       place can be retuned in one edit, while the same colour typed into thirty components is a
+       colour the site is stuck with.
+
+       Not #FFFFFF, deliberately. `.nq-btn--solid` fills with this and BRIGHTENS on hover, which is
+       the one direction that reads as the control coming forward on a dark page. A fill that
+       already sits at pure white has nowhere left to go and the hover has to invert its logic. */
+    --nq-accent: #E4E4E7;
+    --nq-accent-soft: #D4D4D8;
     background-color: var(--nq-ground);
+
+    /* ── The content container, as a NUMBER rather than a utility class ────────────────────────
+       Every top-level section is 80rem wide and centred. That was written as
+       `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8` in seven separate files, and the cost of that only
+       became visible on a 3440px monitor: the hero's copy sat inside an 80rem box centred on the
+       screen, while the hero's ARTWORK was positioned in `vw` against the whole viewport. On a
+       1440px screen those two coordinate systems are nearly the same and nobody notices. On an
+       ultrawide the container leaves a 1000px gutter down each side, and the mark was placed out
+       in it — floating in empty space beside the site rather than in it.
+
+       So the container is a value now, and both the sections and the art read it. Positioning
+       artwork against the viewport when the content is in a fixed-width column is the bug; the
+       repetition across seven files was just what hid it. */
+    --nq-container: min(100vw, 80rem);
 
     /* Vertical rhythm below the floating Navbar. --nav-bottom is measured and written here at
        runtime by useFloatingBarBottom, and page content starts --content-gap below it, so
@@ -182,6 +200,19 @@
   @media (min-width: 640px) {
     html {
       --content-gap: 1rem;
+    }
+  }
+
+  /* Ultrawide gets a wider column, and only ultrawide. 80rem on a 3440px screen is 37% of the
+     display with a 1000px void down either side, which does not read as a considered margin — it
+     reads as a phone layout that was never told the screen got bigger. 100rem takes it to 46%.
+
+     Gated at 1700px rather than at the 1536px `2xl` breakpoint, because 1536-1700 is where ordinary
+     laptops sit and the 80rem measure is correct there. This step is for displays that are wide
+     because they are ultrawide, not because they are large. */
+  @media (min-width: 1700px) {
+    html {
+      --nq-container: 100rem;
     }
   }
   body {
@@ -241,15 +272,19 @@
     pointer-events: none;
     /* Charcoal, and essentially nothing else.
        The diagonal light shafts that used to be here are gone, and that is a composition decision
-       rather than a simplification: the hero now carries a real light source of its own (the
-       planet's rim, .hero-limb), and a page-wide shaft lighting from the upper right meant two
-       light directions arguing on the same screen. A page can only have one. So the light belongs
-       to the hero, and the ground under everything else goes quiet and lets it be the brightest
-       thing on the page.
-       What is left is one near-flat vignette: #171717 in the middle down to #050505 at the corner.
-       That range is small enough not to read as a gradient anyone can point at, and just enough
-       that a document this long never reads as a single dead rectangle. */
-    background-image: radial-gradient(130% 105% at 50% 22%, #1E2668 0%, #131A48 46%, #05071A 100%);
+       rather than a simplification: the hero carries a real light source of its own (the mark's
+       lit rim), and a page-wide shaft lighting from the upper right meant two light directions
+       arguing on the same screen. A page can only have one. So the light belongs to the hero, and
+       the ground under everything else goes quiet and lets it be the brightest thing on the page.
+
+       Neutral greys, not the navy this was. The three stops keep the exact LIGHTNESS structure of
+       the blue version they replace — #26262A/#161619/#000000 against #1E2668/#131A48/#05071A — so
+       the page has the same sense of depth and none of the hue. A vignette is the easiest place
+       for a colour cast to survive a repaint unnoticed, because nobody looks straight at it.
+
+       #26262A in the middle down to black at the corner: small enough not to read as a gradient
+       anyone can point at, and just enough that a document this long is never a dead rectangle. */
+    background-image: radial-gradient(130% 105% at 50% 22%, #26262A 0%, #161619 46%, #000000 100%);
     background-repeat: no-repeat;
   }
 }
@@ -405,13 +440,20 @@
   /* Centring uses the standalone `translate` property, not a translate() inside transform —
      the spin keyframe owns `transform`, and would overwrite the centring if they shared it. */
   translate: -50% -50%;
+  /* --beam-ink, not a literal. THE BEAM MUST CONTRAST WITH THE SURFACE IT IS HOVERING OVER, and
+     that surface is not the same on every button: a white beam is right on every dark body and
+     completely invisible on a pale one. This was written out four times as two hardcoded
+     gradients — white here, white on .nq-btn-beam, and a black copy of each for the pale
+     surfaces — and the fourth was added only after the primary CTA went pale and its animation
+     silently stopped existing. One token, inherited from the button, is the whole fix: a button
+     that knows it is pale says so once and both beam families follow. */
   background: conic-gradient(
     from 0deg,
     transparent,
-    #FFFFFF 10%,
+    var(--beam-ink, #FFFFFF) 10%,
     transparent 25%,
     transparent 50%,
-    #FFFFFF 60%,
+    var(--beam-ink, #FFFFFF) 60%,
     transparent 75%,
     transparent
   );
@@ -419,12 +461,18 @@
 
 /* ease-in-out (not linear) on a full turn is what makes it undulate — the beam surges
    through the middle of each rotation and eases at the ends, reading as a wave rolling
-   around the pill rather than a motor spinning at constant speed. */
-.filter-pill-btn:hover .filter-pill-beam {
+   around the pill rather than a motor spinning at constant speed.
+
+   `:focus-visible` alongside `:hover` throughout: this is the site's primary control surface and
+   it was reachable by keyboard with no feedback at all — the pill did not invert, did not swell,
+   and did not light its ring. A pointer user got three signals and a keyboard user got none. */
+.filter-pill-btn:hover .filter-pill-beam,
+.filter-pill-btn:focus-visible .filter-pill-beam {
   opacity: 1;
 }
 
-.filter-pill-btn:hover .filter-pill-beam::before {
+.filter-pill-btn:hover .filter-pill-beam::before,
+.filter-pill-btn:focus-visible .filter-pill-beam::before {
   animation: filter-pill-mist-spin 2s ease-in-out infinite;
 }
 
@@ -577,7 +625,8 @@
    too — a black bloom would disappear against a black pill, a white one reads as the
    surface catching light instead. Declared after .is-active so hover wins when both apply
    (same selector specificity; source order breaks the tie). */
-.filter-pill-btn:hover {
+.filter-pill-btn:hover,
+.filter-pill-btn:focus-visible {
   background: #0A0A0A;
   color: #FFFFFF;
   box-shadow:
@@ -588,6 +637,54 @@
 
 .filter-pill-btn:active {
   transform: scale(0.98);
+}
+
+/* ── The secondary pill ────────────────────────────────────────────────────────────────────
+   The hero offers two ways in at two different levels of commitment, and two identical white
+   pills side by side would say they are the same size of decision. This is the same object as
+   the pill above in every respect that MOVES — the 1.03 swell, the 0.98 press, the 2px ring
+   rolling round the outline, the 250ms transitions — and differs only in its resting surface.
+
+   Its hover fills to white while the primary's inverts to black, so the two converge on opposite
+   states and are never mistaken for each other mid-interaction. That is also why it publishes
+   --beam-ink: a white ring on a white body is the exact failure this token was added to prevent,
+   and the secondary is the one button on the site whose hover surface is pale. */
+.filter-pill-btn--ghost {
+  background: transparent;
+  color: #FFFFFF;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.filter-pill-btn--ghost:hover,
+.filter-pill-btn--ghost:focus-visible {
+  --beam-ink: #111111;
+  background: #FFFFFF;
+  color: #111111;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
+}
+
+/* The disc on the primary CTA reads these two, inverted against the button's own body (see
+   .nq-cta-badge). Published here so a `.filter-pill-btn` can carry that badge without the
+   component having to know which button family it is wearing. */
+.filter-pill-btn {
+  --nq-ink: #111111;
+  --nq-surface: #FFFFFF;
+}
+
+.filter-pill-btn:hover,
+.filter-pill-btn:focus-visible {
+  --nq-ink: #FFFFFF;
+  --nq-surface: #0A0A0A;
+}
+
+.filter-pill-btn--ghost:hover,
+.filter-pill-btn--ghost:focus-visible {
+  --nq-ink: #111111;
+  --nq-surface: #FFFFFF;
 }
 
 @keyframes filter-pill-mist-spin {
@@ -702,32 +799,36 @@
   /* Centring uses the standalone `translate` property, not a translate() inside transform —
      the spin keyframe owns `transform` and would otherwise overwrite the centring. */
   translate: -50% -50%;
+  /* One gradient, coloured by --beam-ink — see the note on .filter-pill-beam::before for why the
+     colour is a token rather than a literal. */
   background: conic-gradient(
     from 0deg,
     transparent,
-    #FFFFFF 10%,
+    var(--beam-ink, #FFFFFF) 10%,
     transparent 25%,
     transparent 50%,
-    #FFFFFF 60%,
+    var(--beam-ink, #FFFFFF) 60%,
     transparent 75%,
     transparent
   );
 }
 
 /* A white beam disappears on a white/pale surface (the search field, the white "select
-   template" button) — this swaps just the conic-gradient's color to black so the beam stays
-   visible there instead of vanishing into the body it's supposed to be tracing. */
-.nq-btn-beam--dark::before {
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    #111111 10%,
-    transparent 25%,
-    transparent 50%,
-    #111111 60%,
-    transparent 75%,
-    transparent
-  );
+   template" button) — this sets the token to black so the beam stays visible there instead of
+   vanishing into the body it is supposed to be tracing. */
+.nq-btn-beam--dark {
+  --beam-ink: #111111;
+}
+
+/* The primary button takes the DARK beam, and this is a direct consequence of the palette change
+   rather than a preference: `.nq-btn--solid` used to be violet and is now #E4E4E7, so a white beam
+   was drawing white-on-near-white and the button simply stopped animating on hover.
+
+   Declared here rather than by adding the modifier class in JSX, because the thing that decides it
+   is the surface colour, and the surface colour is decided in this file. A component should not
+   have to know which way its own beam has to point. */
+.nq-btn--solid {
+  --beam-ink: #111111;
 }
 
 .nq-btn:hover .nq-btn-beam,
@@ -765,14 +866,16 @@
    layout box, and leaves every button on the site with a zero border — so one `inset: -2px`
    now means the same distance everywhere. (A white border on a white body was invisible at
    rest anyway; its only visible job was the dimmed rim on hover, which moves down with it.) */
-/* The primary is a violet fill with white on it, which is the reference's own arrangement and not
-   just its colour. White-on-violet is ~4.6:1 here; the previous white pill was carrying its
-   emphasis purely by being the brightest thing on the page, and a page with an accent should not
-   need that. The top inset highlight is what stops a flat fill reading as a sticker — a real
-   surface catches slightly more light along its upper edge. */
+/* The primary is a pale fill with BLACK on it. It was violet with white, at ~4.6:1 — scraping past
+   AA — and the swap to a monochrome palette turns that into the strongest contrast on the site:
+   black on #E4E4E7 is 17.4:1. Worth stating plainly, because a black-and-white palette is usually
+   assumed to cost accessibility and here it bought nearly four times the margin on the one control
+   that matters most.
+   The top inset highlight is what stops a flat fill reading as a sticker — a real surface catches
+   slightly more light along its upper edge. */
 .nq-btn--solid {
   background: var(--nq-accent);
-  color: #FFFFFF;
+  color: #000000;
   border: 0;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.18),
@@ -781,12 +884,16 @@
 }
 
 /* Hover goes LIGHTER, not darker. On a dark page a darkening hover reads as the control receding
-   at the moment it is being reached for; brightening reads as it coming forward. */
+   at the moment it is being reached for; brightening reads as it coming forward.
+
+   This is why --nq-accent rests at #E4E4E7 instead of pure white: the resting fill has to leave
+   somewhere brighter to go. Pure white at rest would have forced the hover to darken, inverting
+   the rule the rest of the site's controls follow. */
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
-  background: #818CF8;
-  color: #0B1030;
+  background: #FFFFFF;
+  color: #000000;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
@@ -827,14 +934,14 @@
    vanish into a disc of exactly its own shade. The two values have to arrive from the button. */
 .nq-btn--solid {
   --nq-surface: var(--nq-accent);  /* the button's body */
-  --nq-ink: #FFFFFF;               /* what is written on it */
+  --nq-ink: #000000;               /* what is written on it */
 }
 
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
-  --nq-surface: #818CF8;
-  --nq-ink: #0B1030;
+  --nq-surface: #FFFFFF;
+  --nq-ink: #000000;
 }
 
 .nq-cta-badge {
@@ -1258,14 +1365,18 @@ html[data-idle] :is(
   .navbar-logo-dots span,
   .navbar-logo-cursor,
   .login-marquee__track
+  /* The stat card's water used to be listed here as `.wave-layer`. It is WebGL now
+     (LiquidWave.tsx) and needs no entry: this rule pauses CSS animations, and a rAF loop is
+     already suspended by the browser under the exact condition that sets `data-idle` — the tab
+     being hidden. Anything NEW and infinite declared in CSS still has to be added here. */
 ) {
   animation-play-state: paused;
 }
 
 /* The `data-hero-off` rule that used to sit here is gone with the things it paused — the cover
    carousel and the pulsing glow disc are both deleted. The flag is still set by HeroSection's
-   IntersectionObserver and is still worth keeping: the globe reads the same "is the hero on
-   screen" question in JS to decide whether its render loop runs at all (HeroGlobe.tsx), which is
+   IntersectionObserver and is still worth keeping: the hero mark reads the same "is the hero on
+   screen" question in JS to decide whether its render loop runs at all (HeroLogo3D.tsx), which is
    a far bigger saving than pausing a CSS animation ever was. */
 
 /* The pseudo-element half, written out longhand: `:is()` accepts compound selectors but NOT
@@ -1321,17 +1432,6 @@ html[data-scrolling] .rv::before {
 
 .animate-pulse-glow {
   animation: pulse-glow 8s ease-in-out infinite;
-}
-
-/* Stat bar meters — the fill grows a little further on hover, in step with the "+"
-   revealed next to the number, to read as the metric ticking up. */
-.stat-bar-fill {
-  height: var(--fill);
-  transition: height 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.group:hover .stat-bar-fill {
-  height: var(--fill-hover);
 }
 
 /* The face half of the Fluent reveal, opted into alongside `.reveal-border`: the edge
@@ -1923,7 +2023,7 @@ html[data-scrolling] .rv::before {
       transparent 34%
     ),
     /* the pool at the corner the shaft enters through */
-    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(165, 180, 252, 0.2) 0%, transparent 72%),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(255, 255, 255, 0.14) 0%, transparent 72%),
     /* the surface: a shallow top-to-bottom lift, so the card is lighter than the page it is on
        without ever being an opaque colour that has to be restated when the ground changes */
     linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.018) 100%);
@@ -1954,7 +2054,7 @@ html[data-scrolling] .rv::before {
       rgba(255, 255, 255, 0.04) 25%,
       transparent 34%
     ),
-    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(165, 180, 252, 0.3) 0%, transparent 72%),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(255, 255, 255, 0.22) 0%, transparent 72%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.028) 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
 }
@@ -1979,7 +2079,7 @@ html[data-scrolling] .rv::before {
   border-radius: var(--panel-r);
   padding: 2.5rem 1.25rem;
   background:
-    radial-gradient(120% 90% at 18% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 62%),
+    radial-gradient(120% 90% at 18% 0%, rgba(255, 255, 255, 0.075) 0%, transparent 62%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.02) 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
   background-clip: padding-box;
@@ -1998,23 +2098,25 @@ html[data-scrolling] .rv::before {
    which panel they are in, and every one of those is a place the two can fall out of step. One
    rule that says "inside this panel, dark ink" cannot.
 
-   Contrast checked rather than eyeballed: #1E1B4B on #EEF0FB is 13.9:1, and the muted tone
-   #4A4A6A is 7.4:1 — both clear of AA for body text with room to spare, which matters because
-   this is the one surface on the site where the usual assumption of light-on-dark is inverted. */
+   Contrast checked rather than eyeballed: #09090B on #FAFAFA is 19.9:1, and the muted tone #52525B
+   is 7.6:1 — both clear of AA for body text with room to spare, which matters because this is the
+   one surface on the site where the usual assumption of light-on-dark is inverted. Both improved
+   on the tinted pair they replace (13.9:1 and 7.4:1): a neutral grey and a blue-tinted one at the
+   same lightness are not the same contrast against a neutral ground. */
 .nq-panel--light {
   background:
-    radial-gradient(120% 90% at 18% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 62%),
-    linear-gradient(180deg, #F4F5FC 0%, #E7EAF8 100%);
-  box-shadow: inset 0 0 0 1px rgba(30, 27, 75, 0.08);
-  color: #1E1B4B;
+    radial-gradient(120% 90% at 18% 0%, rgba(0, 0, 0, 0.05) 0%, transparent 62%),
+    linear-gradient(180deg, #FAFAFA 0%, #E7E7EA 100%);
+  box-shadow: inset 0 0 0 1px rgba(9, 9, 11, 0.08);
+  color: #09090B;
 }
 
 .nq-panel--light :is(h1, h2, h3, h4, .text-white) {
-  color: #1E1B4B;
+  color: #09090B;
 }
 
 .nq-panel--light :is(.text-zinc-300, .text-zinc-400, .text-zinc-500, p) {
-  color: #4A4A6A;
+  color: #52525B;
 }
 
 /* Cards inside a light panel invert with it: their lighting is white-alpha, which simply
@@ -2024,13 +2126,13 @@ html[data-scrolling] .rv::before {
     linear-gradient(
       var(--beam-angle),
       transparent 6%,
-      rgba(30, 27, 75, 0.07) 16%,
-      rgba(30, 27, 75, 0.015) 25%,
+      rgba(9, 9, 11, 0.07) 16%,
+      rgba(9, 9, 11, 0.015) 25%,
       transparent 34%
     ),
-    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(79, 70, 229, 0.12) 0%, transparent 72%),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(0, 0, 0, 0.06) 0%, transparent 72%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.55) 100%);
-  box-shadow: inset 0 0 0 1px rgba(30, 27, 75, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(9, 9, 11, 0.1);
 }
 
 .nq-panel--light .nq-card--hover:hover {
@@ -2038,18 +2140,18 @@ html[data-scrolling] .rv::before {
     linear-gradient(
       var(--beam-angle),
       transparent 6%,
-      rgba(30, 27, 75, 0.1) 16%,
-      rgba(30, 27, 75, 0.02) 25%,
+      rgba(9, 9, 11, 0.1) 16%,
+      rgba(9, 9, 11, 0.02) 25%,
       transparent 34%
     ),
-    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(79, 70, 229, 0.18) 0%, transparent 72%),
+    radial-gradient(62% 52% at var(--beam-x) 0%, rgba(0, 0, 0, 0.09) 0%, transparent 72%),
     linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.75) 100%);
-  box-shadow: inset 0 0 0 1px rgba(30, 27, 75, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(9, 9, 11, 0.18);
 }
 
 /* Icons and rules inside the light panel, which are `currentColor` or white in the components. */
 .nq-panel--light :is(svg) {
-  color: #4F46E5;
+  color: #18181B;
 }
 
 /* A section that already framed itself is now inside a frame. AboutSection wraps its content in
@@ -2062,50 +2164,143 @@ html[data-scrolling] .rv::before {
   box-shadow: none;
 }
 
-/* ── The globe (HeroGlobe.tsx) ──────────────────────────────────────────────────────────────
-   Where the WebGL canvas sits, and nothing else — the sphere itself is drawn in the scene.
+/* ── The wave stat card (StatWaveCard.tsx) ──────────────────────────────────────────────────
+   One figure shown as a water level, cycling. The reference for it is a water-tracker card whose
+   fill is a vivid blue gradient; this is that construction in the site's own palette.
 
-   What was here before: .hero-limb, an enormous CSS circle with a lit rim, cropped to its crown
-   by the section's overflow. That was the flat answer to the same brief and it was a good one
-   while the brief said 2D. It is gone rather than kept underneath, because a drawn arc and a real
-   sphere in the same place read as two horizons that do not agree.
+   THE WATER IS NOT HERE ANY MORE. It used to be this file's job: a clipped `.wave-fill` with two
+   SVG paths translating sideways inside it, an animated `height`, and a hand-matched gradient
+   underneath. All of that is now a WebGL surface — see LiquidWave.tsx, which owns the colours
+   (the same #E8B448 / #9A6B12 pair the `--wave-gold` / `--wave-bronze` tokens held), the level,
+   the slosh and the chop. A translating path can only ever move a rigid shape past a window, and
+   what makes a filling glass read as liquid is the surface CHANGING SHAPE: overshooting the new
+   level and rocking afterwards. That is a per-pixel function, not a transform.
 
-   ## THE BOX IS NOT THE PLANET, and every number below depends on that
+   GOLD, and this is still the one place besides the hero mark where the site spends a hue. The
+   rule the palette was rebuilt under is that the page is black and white with a single chromatic
+   object on it — and the point of an accent is to mark the thing worth looking at. The mark and
+   the panel's one live figure are those things. A third would make it a theme rather than an
+   accent, so there is not one.
 
-   The canvas has to be considerably larger than the sphere, because a glow that reaches the edge
-   of its own canvas makes the canvas visible — the halo comes out sliced flat against a hard
-   rectangle. So the frame is sized to the widest thing in the SCENE (the orbit ring, 2.72 world
-   units across) while the thing you are actually placing on the page is the sphere, which is 2.
+   `.wave-card` itself carries no declarations now and is kept as the card's name in the markup —
+   it is what the card is identified by when this section is measured. */
+
+/* The scrim that keeps the heading readable once the water reaches it. See the note at its element
+   in StatWaveCard.tsx for the measurements.
+
+   The numbers come from the worst pixel that was actually sampled behind the note at the 100%
+   figure: rgb(240,178,86) at 74% alpha, with the crest reaching 53px down a 595px card while the
+   note runs 46-63px. Composited over the card that is luminance 0.27, where zinc-400 sits at
+   1.3:1 — the copy is genuinely unreadable at that moment without this layer.
+
+   0.55 takes that to 0.05, which is 7.0:1 for the zinc-300 the copy was moved to. The pair is
+   deliberate: scrim alone at this depth leaves zinc-400 at 4.1:1, just under the floor, and text
+   colour alone leaves it at 2.2:1. Going heavier here instead was the alternative and it is
+   worse — past about 0.7 the top of the card stops reading as the vignette it already has and
+   becomes a visible dark bar, on every figure including the ones whose water never gets up there.
+
+   120px because the copy block ends at 63px and the falloff needs room to be a gradient rather
+   than an edge — held nearly flat through the copy, then given the rest of its length to reach
+   zero. `transparent` is spelled out as an explicit transparent BLACK: the bare keyword
+   interpolates through transparent white in some engines and leaves a grey haze across the middle
+   of the gradient. */
+.wave-scrim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.62) 0%,
+    rgba(0, 0, 0, 0.55) 46%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.wave-dot:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+  border-radius: 9999px;
+}
+
+/* ── The content container ──────────────────────────────────────────────────────────────────
+   The one box every top-level section sits in, replacing `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`
+   copied across seven files. Its width comes from --nq-container so the hero's artwork can be
+   positioned against exactly the same box the copy is in — see `.hero-mark`, and the note on the
+   token for what went wrong when they were measured against different things. */
+.nq-container {
+  width: 100%;
+  max-width: var(--nq-container);
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .nq-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nq-container {
+    padding-inline: 2rem;
+  }
+}
+
+/* ── The mark (HeroLogo3D.tsx) ──────────────────────────────────────────────────────────────
+   Where the WebGL canvas sits, and nothing else — the logo itself is built in the scene.
+
+   Two things stood here before: `.hero-limb`, an enormous CSS circle with a lit rim, and then a
+   real sphere of points. Both are gone. The hero shows NOVAIQ's own mark now, so the ornament and
+   the brand are the same object instead of two.
+
+   ## THE BOX IS NOT THE MARK, and every number below depends on that
+
+   The canvas has to be larger than what it contains, for two separate reasons. A glow that reaches
+   the edge of its own canvas makes the canvas visible — the halo comes out sliced flat against a
+   hard rectangle. And this object TUMBLES, so the figure that has to fit is the diagonal it sweeps
+   through, not its resting width; sizing the frame to what you see standing still means clipping a
+   corner of the ring every time it leans.
 
    With the camera at 3.9 and fov 45, the visible height at the origin is 2·3.9·tan(22.5°) =
-   3.2314 units. The sphere therefore occupies 2 / 3.2314 = 61.9% of this box, and nothing else in
-   here is a coincidence:
+   3.2314 units. The mark is 2.24 across at the ring, so it occupies 2.24 / 3.2314 = 69% of this
+   box:
 
-     sphere on screen  =  box width × 0.619
-     box width         =  target sphere width ÷ 0.619
+     mark on screen  =  box width × 0.69
+     box width       =  target mark width ÷ 0.69
 
-   The reference puts its planet at 36% of the viewport width, so the box is 36 / 0.619 = 58vw.
-   Reading a size off this rule without applying that factor gives an answer 60% too large. */
-.hero-globe {
+   (It was 0.619 while this was a sphere, whose 2-unit diameter was narrower than the ring around
+   it. Reading a size off this rule without applying the factor gives an answer ~45% too large.) */
+.hero-mark {
   position: absolute;
-  width: min(112vw, 600px);
+  width: min(70vw, 390px);
   aspect-ratio: 1;
   top: 0;
   left: 50%;
   /* ── The phone is a HORIZON, not a backdrop, and that is a legibility requirement ──────────
-     A phone has no second column for the planet to move into, so the only two options are behind
-     the copy or above it. Behind the copy is what the previous version did and it was fine THEN:
-     the globe was 5,200 two-pixel sprites, i.e. dust, and dust is something you can set type on.
+     A phone has no second column for the mark to move into, so the only two options are behind the
+     copy or above it. Behind the copy was fine for an earlier version of this hero, whose globe was
+     5,200 two-pixel sprites — i.e. dust, and dust is something you can set type on.
 
-     This body is opaque and lit. Sitting the copy over its middle put zinc-300 paragraph text on a
-     #2563EB face at about 4.4:1 — under the 4.5 floor before you even reach the violet, where it
-     is worse — with the orbit ring running straight through the second line.
+     Nothing here is dust any more. A lit, opaque object under the copy put zinc-300 paragraph text
+     on a #2563EB face at about 4.4:1 — under the 4.5 floor before you even reach the violet, where
+     it is worse — with the orbit ring running straight through the second line.
 
-     So the sphere is pulled up until its centre is level with the top of the section: the crown
-     shows as a horizon above the headline, and the copy below it sits on the page's own ground
-     where its contrast is the 13:1 it was designed against. Nothing is dimmed or scrimmed to make
-     this work; the text simply is not on top of it. */
-  transform: translate(-50%, -50%);
+     So the mark gets a BAND OF ITS OWN above the headline, and the copy below it sits on the page's
+     own ground where its contrast is the 13:1 it was designed against. Nothing is dimmed or
+     scrimmed to make this work; the text simply is not on top of it.
+
+     The room comes from the copy's top padding (see HeroSection: pt-52 on a phone, against the
+     pt-16 that was there when the hero art was dust). Pulling the object up without also making
+     that room just deletes it — at -50% the phone showed a sliver of orbit ring and nothing else,
+     which is a different failure from the one being fixed, not a fix.
+
+     And it is sized to fit that band rather than being cropped into it: the hero clips at its own
+     top edge, so anything oversized loses its top to the clip. 70vw × 0.69 is a 48vw mark, which
+     sits between the header and the headline whole with a few pixels either side. */
+  transform: translate(-50%, -14%);
   pointer-events: none;
   z-index: 0;
 }
@@ -2125,9 +2320,15 @@ html[data-scrolling] .rv::before {
   position: absolute;
   top: 0;
   left: 50%;
-  width: min(150vw, 900px);
-  height: min(150vw, 900px);
-  transform: translate(-50%, -24%);
+  /* Deliberately the SAME box as the globe here, rather than a larger one. These are two elements
+     drawing one object, and the vertical offset below is a percentage of each element's own
+     height — so the moment their boxes differ, one shared number stops meaning one shared centre
+     and the glow silently slides off the planet. Identical boxes make the offset transferable.
+     (The `lg` block below does use different boxes, and pays for it with arithmetic in a comment.)
+     The gradient runs all the way to the box edge to compensate for the smaller frame. */
+  width: min(70vw, 390px);
+  height: min(70vw, 390px);
+  transform: translate(-50%, -14%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
@@ -2135,11 +2336,15 @@ html[data-scrolling] .rv::before {
      when the globe was flat; with the Fresnel doing the rim, the same strength read as a second
      halo sitting behind the first one. What is left is only the far spill — the part that reaches
      past where the shell's geometry ends. */
+  /* Neutral, even though the object it sits behind is the one coloured thing on the page. A glow
+     borrowing the mark's violet would put that hue back into the page's own background — which is
+     exactly the thing being removed, just spread softly enough that nobody could name where it came
+     from. The mark keeps its colour; the page around it does not get to. */
   background: radial-gradient(
     closest-side,
-    rgba(99, 102, 241, 0.07) 0%,
-    rgba(124, 58, 237, 0.028) 42%,
-    transparent 72%
+    rgba(255, 255, 255, 0.055) 0%,
+    rgba(255, 255, 255, 0.02) 48%,
+    transparent 100%
   );
 }
 
@@ -2152,45 +2357,53 @@ html[data-scrolling] .rv::before {
    in Arabic and the right in English, and the copy and the globe swap together without a second
    rule. */
 @media (min-width: 1024px) {
-  .hero-globe {
+  /* ── ONE CENTRE, MEASURED AGAINST THE CONTAINER ────────────────────────────────────────────
+     The mark's centre sits at 32% of the CONTENT COLUMN — not 32% of the viewport, and that
+     distinction is the whole ultrawide fix.
+
+     It used to be `inset-inline-end: 10%` with `width: min(44vw, 640px)`, so the centre landed at
+     10% + 22% = 32% of the viewport. On a 1440px screen the container fills most of the width and
+     32% of one is roughly 32% of the other, so it looked right. On a 3440px screen the container is
+     an 80rem strip in the middle with a ~1000px gutter each side — and worse, the box hits its
+     640px cap, so `10%` (344px) no longer means "22% back from the centre" at all. The mark landed
+     at 19% of the screen, entirely outside the column the copy lives in: a logo floating in the
+     margin next to the site.
+
+     `--hero-cx` is that centre in viewport coordinates: the left gutter, plus 32% of the container.
+     Both elements derive their own inset from it by subtracting half of their OWN width, so they
+     share a centre by construction — no pair of hand-tuned numbers that have to be kept in
+     agreement, which is what the previous version relied on and documented as a known hazard. */
+  .hero-mark,
+  .hero-halo {
+    --hero-cx: calc((100% - var(--nq-container)) / 2 + var(--nq-container) * 0.32);
     left: auto;
-    /* Placed where the reference puts it, mirrored for RTL: its planet's centre sits at 66% of the
-       frame — inboard, NOT tucked against the edge, with empty ground beyond it — which mirrors to
-       32% here. The box is 44vw, so its centre lands at 32vw when the end inset is 32 − 22 = 10.
-
-       SIZE is the one place this deliberately departs from the reference. 44vw × 0.619 puts the
-       sphere at 27% of the viewport against the reference's 36%. At the matching 36% the planet
-       was the loudest thing on the page and the headline read as a caption to it; the reference
-       gets away with that because its headline runs four lines and holds its own half of the
-       frame, and this one is two.
-
-       Position stays at the reference's 32%, though, so the planet is still placed inboard with
-       ground beyond it rather than being shrunk back into the corner it came from. */
-    inset-inline-end: 10%;
-    width: min(44vw, 640px);
-    /* Centred on the hero rather than hung off its top edge, because the hero is now a full screen
-       tall (see HeroSection) and a box pinned to the top of one would leave the planet stranded
-       above the copy.
-
-       -50% is a true centre: half the box below the hero's midline and half above. The offsets
-       either side of it were both worth trying and both read as a mistake — -56% left the sphere
-       crowding the header with a band of dead ground under it, -40% made it bottom-heavy and put
-       its lower limb into the fold. On a hero this tall the planet has room to simply be centred,
-       and the copy beside it is what carries the composition off-axis. */
+    /* Centred on the hero rather than hung off its top edge, because the hero is a full screen tall
+       (see HeroSection) and a box pinned to the top of one leaves the mark stranded above the copy.
+       A true centre: the offsets either side of it were both tried and both read as a mistake —
+       -56% crowded the header with dead ground beneath, -40% put the lower limb into the fold. */
     top: 50%;
     transform: translateY(-50%);
   }
 
+  .hero-mark {
+    /* SIZE is where this departs from the reference it started as. 44vw × 0.69 puts the mark at
+       30% of the viewport against the reference's 36%; at the matching size it was the loudest
+       thing on the page and the headline read as a caption to it. The reference gets away with 36%
+       because its headline runs four lines and holds its own half of the frame, and this one is
+       two.
+
+       The cap matters more than the vw now: past 1455px the mark stops growing, exactly as the
+       headline beside it does. Position is what keeps it composed after that, not scale. */
+    --mark-w: min(44vw, 640px);
+    width: var(--mark-w);
+    inset-inline-end: calc(var(--hero-cx) - var(--mark-w) / 2);
+  }
+
   .hero-halo {
-    left: auto;
-    /* Same centre as the globe: -1 + 33 = 32vw. The two are separate elements and will drift apart
-       under any edit that changes one and not the other, which is why both arrive at 32 by
-       arithmetic that is written down rather than by two numbers that happen to agree. */
-    inset-inline-end: -1%;
-    width: min(66vw, 950px);
-    height: min(66vw, 950px);
-    top: 50%;
-    transform: translateY(-50%);
+    --halo-w: min(66vw, 950px);
+    width: var(--halo-w);
+    height: var(--halo-w);
+    inset-inline-end: calc(var(--hero-cx) - var(--halo-w) / 2);
   }
 }
 

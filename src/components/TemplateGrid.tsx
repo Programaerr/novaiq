@@ -515,7 +515,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
   return (
     <section id="templates-section" className="py-4 sm:py-6 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="nq-container">
         
         {/* Filter & Search bar — first thing on the page now, with the price notice below it.
             `relative` anchors the dropdown below it — the dropdown itself is `absolute`, so

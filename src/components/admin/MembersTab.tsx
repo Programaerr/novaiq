@@ -96,7 +96,7 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
           icon={UserCheck}
           label={isAr ? 'إجمالي المشتركين' : 'Total Subscribers'}
           value={users === null ? '—' : String(users.length)}
-          accent="text-indigo-400"
+          accent="text-zinc-300"
         />
       </div>
 

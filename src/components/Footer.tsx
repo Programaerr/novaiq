@@ -39,7 +39,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
           shadow, written when the page behind it was black and everything on it was neutral. On
           the indigo ground it read as a hole cut in the bottom of the page, and it was the last
           block on the site still drawing itself a different way. */}
-      <div className="nq-panel max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 pt-12 pb-10 overflow-hidden">
+      <div className="nq-panel nq-container pt-12 pb-10 overflow-hidden">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           

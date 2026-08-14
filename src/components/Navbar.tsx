@@ -178,7 +178,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     // top-3 on mobile is left exactly as tuned; sm:top-2 lifts the whole bar 4px on larger
     // screens, where there was more dead space above it. Everything underneath re-derives
     // from the measured bottom edge, so this one value is all that needs changing.
-    <header dir="ltr" className="fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-7xl mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
+    // Width comes from --nq-container, the same token every section below reads, rather than from
+    // its own `max-w-7xl`. The two agreed while both were 80rem; once the container widened on
+    // ultrawide the header stayed at 1280 against 1600 of content and sat visibly inset — a
+    // floating bar narrower than the page it belongs to. Its PADDING stays its own: this is a pill
+    // with its own edge, not a text column, so it does not want the container's gutters.
+    <header dir="ltr" className="fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-[var(--nq-container)] mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
       {/* pb trimmed below pt on mobile only (sm+ restores the even p-3) — shrinks the bar's
           own footprint from its bottom edge so it clears the page content just beneath it on
           small screens without moving its top position at all. */}

@@ -16,7 +16,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
           `space-y` (see App.tsx) — a section that also pads itself adds to that gap on both
           sides, so this one break came out half again as wide as the others. Spacing between
           blocks belongs to whatever is stacking them, not to the blocks. */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="nq-container">
         
         {/* The border itself glints — see .solid-shimmer. No overflow-hidden: the shimmer
             ring sits at inset:-1px, on the border and therefore outside the padding box a
