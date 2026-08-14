@@ -82,10 +82,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
       className="relative pb-2 md:pb-6 overflow-hidden lg:min-h-[calc(100vh-6rem)] lg:flex lg:items-center"
     >
       {/* ── The mark ─────────────────────────────────────────────────────────────────────────
-          NOVAIQ's own logo as real geometry, tumbling (HeroLogo3D.tsx). It took over from the
-          planet, which took over from `.hero-limb` — a flat CSS arc. The halo behind it is still
-          CSS: a glow is a gradient wherever it is drawn, and putting it in the scene would only
-          mean paying to re-rasterise it on every frame. */}
+          NOVAIQ's own logo as real geometry, standing on a base ring (HeroLogo3D.tsx). It took
+          over from the planet, which took over from `.hero-limb` — a flat CSS arc.
+
+          `.hero-halo` below is the AMBIENT glow and is still CSS, because it never changes: a
+          gradient that sits there is cheaper drawn once by the compositor than re-rasterised by a
+          scene. The one that answers the hover is a different thing and lives in the scene — it
+          has to stand in the same space as the mark and be occluded by it, which a div behind the
+          canvas can never do. */}
       <div className="hero-halo" aria-hidden="true" />
       <HeroLogo3D />
       <div className="hero-sky" aria-hidden="true" />

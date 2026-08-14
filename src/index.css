@@ -2300,6 +2300,12 @@ html[data-scrolling] .rv::before {
   z-index: 0;
 }
 
+/* This element stays `pointer-events: none`, and the rule that briefly turned it back on for the
+   hover is gone. It could not have worked: the hero's copy column is `z-10` and full width, so it
+   is stacked over the mark across the mark's whole area — `elementFromPoint` at the mark's own
+   centre returns the copy, not this. The hover is read from the pointer's coordinates instead
+   (HeroLogo3D), which needs no hit testing and so needs nothing here. */
+
 /* The atmosphere, still CSS. A glow is a gradient wherever it is drawn, and drawing this one in
    the scene would mean re-rasterising it on every frame the globe turns — for a layer that never
    changes. Sat behind the canvas so the planet reads as being INSIDE the light rather than as
@@ -2342,6 +2348,17 @@ html[data-scrolling] .rv::before {
     transparent 100%
   );
 }
+
+/* The hover halo that stood here — a scale and a brightness on this element, driven by a
+   `data-mark-hover` attribute up on the section — is gone, and so is the attribute and the state
+   in HeroSection that set it. It is geometry in the scene now (see `makeHaloMaterial` in
+   HeroLogo3D): a cone of light standing on the mark's base ring.
+
+   Worth saying why, because the CSS version was cheaper. This element is a div BEHIND the canvas,
+   so its glow can only ever be behind the whole mark — it cannot pass in front of one stroke and
+   behind another, and it cannot occupy the same space the logo does. That is the difference
+   between a glow drawn around a logo and light the logo is standing in. What is left here is the
+   ambient wash, which never changes and is correctly a gradient. */
 
 /* From `lg` up the globe leaves the middle and moves to the far side, opposite the copy — the
    reference's arrangement, and the thing that gives an edge-aligned headline something to be
@@ -2400,6 +2417,7 @@ html[data-scrolling] .rv::before {
     height: var(--halo-w);
     inset-inline-end: calc(var(--hero-cx) - var(--halo-w) / 2);
   }
+
 }
 
 /* The sky: a handful of points above the limb, on the same two-tile scheme the page background
