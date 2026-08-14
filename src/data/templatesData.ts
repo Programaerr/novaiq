@@ -326,5 +326,41 @@ export const templatesData: Template[] = [
         contentPreview: 'Engraving & Checkout'
       }
     ]
+  },
+  {
+    id: 'NVQ-MARKETING-11',
+    title: 'نوفا ماركتتنج (NovaMarketing)',
+    subtitle: 'منصة وكالة التسويق الرقمي المتكاملة',
+    category: 'marketing',
+    categoryLabel: 'تسويق رقمي',
+    description: 'وكالة تسويق رقمي فضائية تعرض الحملات والاستراتيجيات والتحليلات بتصميم مستقبلي مع بطاقات تفاعلية.',
+    longDescription: 'مصمم لوكالات التسويق الرقمي والشركات التي تريد عرض خدماتها بشكل احترافي، يوفر عرض حملات مستهدفة، استراتيجية مدعومة بالبيانات، إدارة وسائل التواصل، SEO والمحتوى، العلامة التجارية الإبداعية، وتحليلات الأداء مع بطاقات تفاعلية ونسب متحركة.',
+    previewImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=60',
+    basePriceIQD: 1550000,
+    basePriceUSD: 1070,
+    deliveryWeeks: 3,
+    tags: ['تسويق رقمي', 'حملات مستهدفة', 'تحليلات أداء', 'علامة تجارية'],
+    techStack: ['React 19', 'Tailwind CSS v4', 'Framer Motion', 'Chart.js', 'Firebase'],
+    features: [
+      'عرض الحملات المستهدفة مع نسب التحويل التفاعلية',
+      'استراتيجية مدعومة بالبيانات مع رسوم بيانية حية',
+      'إدارة وسائل التواصل الاجتماعي مع جدولة المحتوى',
+      'تحسين SEO والمحتوى مع تتبع الترتيب',
+      'تحليلات أداء بالوقت الحقيقي مع تقارير PDF'
+    ],
+    mockScreens: [
+      {
+        title: 'لوحة تحكم التسويق',
+        description: 'عرض الحملات والتحليلات والنسب التفاعلية',
+        colorGrad: 'from-blue-900/60 to-slate-950',
+        contentPreview: 'NovaMarketing - Digital Marketing Dashboard'
+      },
+      {
+        title: 'بطاقات الخدمات',
+        description: 'بطاقات تفاعلية لعرض الخدمات مع نسب التحويل',
+        colorGrad: 'from-purple-900/60 to-slate-950',
+        contentPreview: 'Marketing Services - Interactive Cards'
+      }
+    ]
   }
 ];

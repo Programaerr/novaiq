@@ -923,6 +923,16 @@ export const SITE_IDENTITIES: Record<string, { name: string; badge: string; cont
       hours: 'خدمة العملاء 24 ساعة',
     },
   },
+  'NVQ-MARKETING-11': {
+    name: 'NovaMarketing',
+    badge: 'وكالة تسويق رقمي',
+    contact: {
+      phone: '07708889900',
+      email: 'hello@novamarketing.iq',
+      address: 'بغداد - الجادرية، برج نوفا',
+      hours: 'الأحد - الخميس، 9 صباحاً - 6 مساءً',
+    },
+  },
 };
 
 // Section lists for the shared side menu. Every template used to spell its sections out as
@@ -985,6 +995,12 @@ export const SITE_NAV_ITEMS: Record<string, Array<{ id: string; label: string }>
     { id: 'watches', label: 'الساعات' },
     { id: 'order', label: 'إتمام الطلب' },
     { id: 'confirmation', label: 'تأكيد الطلب' },
+  ],
+  'NVQ-MARKETING-11': [
+    { id: 'home', label: 'الرئيسية' },
+    { id: 'services', label: 'خدماتنا' },
+    { id: 'analytics', label: 'التحليلات' },
+    { id: 'contact', label: 'تواصل معنا' },
   ],
 };
 
