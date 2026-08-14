@@ -304,35 +304,24 @@ export const HeroLogo3D: React.FC = () => {
   }, []);
 
   return (
-    <div ref={hostRef} className="hero-mark" aria-hidden="true">
-      {/* Paused, NOT unmounted.
-          This was `{active && <Canvas .../>}`, which destroyed the WebGL context every time the
-          mark scrolled off screen and built a new one every time it came back. That is what filled
-          the console with `THREE.WebGLRenderer: Context Lost` and what the browser was reporting as
-          84–203ms rAF handlers: a remount is a fresh context, a shader recompile and a scene
-          rebuild, all on the main thread, every single scroll past.
+    // No canvas of its own any more. This is a `View` — a plain DOM box that the site's single
+    // shared context draws into (see GLStage.tsx). Three canvases on this page meant three WebGL
+    // contexts, which the browser was visibly failing to hold: the console filled with
+    // `Context Lost` and rebuilding one mid-scroll showed up as 84-203ms rAF handlers.
+    //
+    // The mark is not unmounted when it scrolls away either — `View` simply stops drawing a view
+    // whose element is off screen, so there is nothing to tear down and nothing to rebuild.
+    <View ref={hostRef} className="hero-mark" aria-hidden="true">
+      {/* At fov 45 the visible height at the origin is 2·dist·tan(22.5°); 3.9 gives 3.23 world
+          units. The mark is 2.24 across at the ring and 2 tall at the braces, and it TUMBLES — so
+          the figure that matters is the diagonal it sweeps through, not its resting width. The
+          margin keeps a corner of the ring from clipping against the view's edge at the extremes
+          of the lean.
 
-          Kept mounted with `frameloop="never"` there is no context churn at all and the cost while
-          off screen is the same zero — 'never' draws nothing, it does not draw fewer frames. */}
-      <Canvas
-          // The one scene here that genuinely animates at rest, so it is switched off rather than
-          // throttled when it has no audience.
-          // NOT paused during scroll, unlike LiquidWave. Freezing a steady rotation and restarting
-          // it is far more visible than freezing water: the mark stops dead the instant a scroll
-          // begins and lurches back into motion 140ms after it ends, which reads as the hero
-          // jerking along with the page. Its cost is paid down with the pixel ratio below instead.
-          frameloop={motion && active ? 'always' : 'never'}
-          dpr={[1, MAX_DPR]}
-          // At fov 45 the visible height at the origin is 2·dist·tan(22.5°); 3.9 gives 3.23 world
-          // units. The mark is 2.24 across at the ring and 2 tall at the braces, and it TUMBLES —
-          // so the figure that matters is the diagonal it sweeps through, not its resting width.
-          // The margin is what keeps a corner of the ring from clipping against the canvas edge at
-          // the extremes of the lean.
-          camera={{ position: [0, 0, 3.9], fov: 45 }}
-          gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
-        >
-          <Mark spin={motion && active} />
-      </Canvas>
-    </div>
+          `makeDefault` because each view brings its own camera: the credential card is framed at
+          fov 34 from 3.4, and the two must not share one. */}
+      <PerspectiveCamera makeDefault position={[0, 0, 3.9]} fov={45} />
+      <Mark spin={motion && active} />
+    </View>
   );
 };
