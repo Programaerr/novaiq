@@ -2656,3 +2656,99 @@ html[data-idle] .liquid__crest {
   .liquid__body { transition: none; }
   .liquid__body--slosh { animation: none; }
 }
+
+/* ── The liquid's second pass: meniscus, bubbles, sheen ────────────────────────────────────
+   Everything below is additive and every one of them is a transform or an opacity, so the whole
+   set costs the compositor a handful of small layers and the main thread nothing at all.
+
+   What each is for, because "more effect" is not a reason to add a layer:
+   · the meniscus reads as a SURFACE rather than an edge — the bright line is where liquid meets
+     air, and without it the water looks like a filled shape with a wavy top;
+   · the bubbles are the only thing on the card that says the liquid has depth, because they come
+     from behind the surface and disappear through it;
+   · the sheen belongs to the glass, not the water, which is why it sits outside .liquid__body and
+     does not move with the level.
+   ───────────────────────────────────────────────────────────────────────────────────────── */
+
+/* Rides on top of the front wave strip, matching its shape exactly — same tile geometry, same
+   animation, drawn as a stroke instead of a fill. */
+.liquid__meniscus {
+  position: absolute;
+  left: 0;
+  top: -12px;
+  width: 200%;
+  height: 26px;
+  background-repeat: repeat-x;
+  background-size: 25% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 26' preserveAspectRatio='none'%3E%3Cpath d='M0 13 C 25 1 25 25 50 13 C 75 1 75 25 100 13' fill='none' stroke='%23FFE8B4' stroke-width='2.4' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  opacity: 0.9;
+  animation: liquid-drift-b 6.2s linear infinite;
+  will-change: transform;
+}
+
+/* Up through the body and out through the surface. `bottom: -10%` starts them below the visible
+   fill so they enter from nowhere, and the opacity curve puts their whole life inside the liquid:
+   they fade in as they leave the murk at the bottom and are gone by the time they reach the top,
+   which is what stops them from popping out of existence at the crest. */
+.liquid__bubble {
+  position: absolute;
+  bottom: -10%;
+  width: var(--s, 4px);
+  height: var(--s, 4px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 245, 214, 0.95), rgba(255, 232, 180, 0.35) 70%, rgba(255, 232, 180, 0) 100%);
+  opacity: 0;
+  animation: liquid-rise var(--d, 7s) linear var(--o, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes liquid-rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  12% { opacity: 0.75; }
+  50% { transform: translateY(-52cqh) translateX(3px); opacity: 0.6; }
+  82% { opacity: 0.25; }
+  100% { transform: translateY(-104cqh) translateX(-2px); opacity: 0; }
+}
+
+/* The light on the glass in front. Wider than the card and travelling slowly across it, at a lean
+   so it reads as a reflection rather than a wipe. */
+.liquid__sheen {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  width: 42%;
+  left: -50%;
+  pointer-events: none;
+  transform: skewX(-14deg);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.07) 45%,
+    rgba(255, 255, 255, 0.11) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: liquid-sheen 11s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes liquid-sheen {
+  0%, 12% { transform: translateX(0) skewX(-14deg); }
+  55%, 100% { transform: translateX(360%) skewX(-14deg); }
+}
+
+/* The bubbles measure their travel in container-query height units, so their rise is a share of
+   the CARD rather than a pixel count that would be a full trip on a phone and a twitch on a
+   desktop. That needs the card to be a size container. */
+.liquid {
+  container-type: size;
+}
+
+html[data-idle] :is(.liquid__meniscus, .liquid__bubble, .liquid__sheen) {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid__meniscus { animation: none; }
+  .liquid__bubble,
+  .liquid__sheen { display: none; }
+}
