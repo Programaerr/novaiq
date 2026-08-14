@@ -17,8 +17,17 @@ interface StatWaveCardProps {
   stats: WaveStat[];
 }
 
-/** How long each figure holds before the card moves to the next one. */
-const DWELL_MS = 8000;
+/**
+ * How long each figure holds before the card moves to the next one.
+ *
+ * 5s, and it is not an arbitrary number any more — it is close enough to the liquid's own physics
+ * that the two have to be checked against each other. The level spring settles in about 1.2s and
+ * the slosh has rung itself out by about 2.7s, so a 5s dwell still leaves better than two seconds
+ * of still water to read the figure against. Take this much below 4s and the next change starts
+ * while the last one is still moving, and the card stops reading as a glass being filled and
+ * starts reading as one that is never allowed to settle.
+ */
+const DWELL_MS = 5000;
 
 /**
  * The tall card at the head of the panel: one figure at a time, shown as a water level.

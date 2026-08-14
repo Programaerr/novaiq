@@ -23,13 +23,46 @@ import { MAX_DPR } from '../lib/renderBudget';
  * trace automatically — no SVG exists anywhere in the repo. The curve below is the mark rebuilt
  * from its construction rather than converted from its pixels.
  *
- * ## Why it can spin without the trick the globe needed
+ * ## The braces hold still. Only the ring moves.
  *
- * The globe spent two rounds of work on making its rotation visible, because a sphere lit from a
- * fixed direction is rotationally symmetric: every frame looks like the last one. This has no such
- * problem. The mark is not symmetric about any axis, so its silhouette changes continuously and the
- * rotation is legible for free. No cloud layer, no banded brightness — the shader here is only a
- * lit ramp and a rim, and it is simpler than the planet's for that reason.
+ * The mark is drawn once, at its artwork pose, and never touched again — and the ring tumbles
+ * around it through every orientation there is. One moving element against something perfectly
+ * still reads harder than everything drifting together, because the motion finally has a fixed
+ * thing to be measured against. It also means the brand is legible in every single frame, which a
+ * turning mark is not: rotate the braces past 90° and they are two vertical lines.
+ *
+ * ## Why the ring cannot simply spin
+ *
+ * The obvious way to animate a ring is to spin it, and spinning a torus about its own axis
+ * produces LITERALLY NO CHANGE — a torus is rotationally symmetric about that axis, so every frame
+ * is identical to the last and the GPU draws a still image at 60fps. It is the same trap the globe
+ * fell into, where a sphere lit from a fixed direction gave identical frames however fast it
+ * turned.
+ *
+ * A ring has exactly ONE visible degree of freedom: where its normal points. So the ring is carried
+ * around the mark's VERTICAL axis while holding the artwork's tilt fixed — which is a different
+ * axis from its own, so the normal sweeps a 33° cone and the ellipse on screen opens from a bare
+ * line out to about half-width and back, its long axis rocking with it.
+ *
+ * Holding the tilt is the whole difference between this and a tumble. Rolling the ring freely
+ * through every orientation also moves, and it stops being the LOGO's ring while it does: the
+ * diagonal is a fixed part of the artwork, and a free tumble is only in the artwork's pose for an
+ * instant per cycle. Carried around the vertical it is in that pose at every instant, and what
+ * changes is where along the orbit you are watching it from.
+ *
+ * The clearance is stated as a bounding-sphere test in RING_RADIUS rather than a case analysis of
+ * which angles the ring meets the braces at. That is deliberately stronger than this motion needs
+ * — it holds for ANY orientation — so the next change to how the ring moves cannot quietly put it
+ * through the mark.
+ *
+ * ## Its own clock, not the scene's
+ *
+ * The ring's angles are integrated from `delta` into a ref rather than read off
+ * `state.clock.elapsedTime`, and that is not a style preference. This canvas is kept MOUNTED when
+ * the hero scrolls away and parked at frameloop="never" — the render loop stops, wall-clock time
+ * does not, and what the scene clock does across that gap is R3F's business. Read it and a long
+ * scroll away can return as several whole rotations in a single frame. An accumulator that only
+ * advances on drawn frames cannot, and the clamp bounds the worst single step regardless.
  *
  * ## The mark does not mirror in RTL
  *
@@ -39,21 +72,27 @@ import { MAX_DPR } from '../lib/renderBudget';
  * one thing deliberately does not.
  */
 
-/* Gold, and it is the ONLY hue left anywhere on the site — the page around it is strictly black
-   and white (see the --nq-accent note in index.css). That is the entire colour strategy: one
-   chromatic object on a monochrome ground. It cost nothing to spend the site's only colour here,
-   because this is the brand's own mark.
-   The ramp runs bronze → gold → cream → white rather than dark-gold → light-gold. A single hue
-   lightened toward its own tint reads as a flat sticker; letting the shadow end go browner and the
-   highlight end go white is what makes it read as metal catching a light. */
-const C0_SHADOW = '#2A1C05';
-const C1_BRONZE = '#9A6B12';
-const C2_GOLD = '#E8B448';
-const C3_CREAM = '#FFF2D0';
+/* Charcoal to white. This was gold, and dropping the hue leaves the panel's water level as the one
+   place on the whole site that carries a colour — which is a cleaner statement than the two-object
+   version it replaces, not a weaker one: an accent that appears twice is starting to be a theme.
+
+   The ramp is still FIVE stops rather than a fade from dark grey to white, and that is what keeps
+   it reading as metal. Two stops give a flat plastic gradient; the extra steps put a shoulder
+   where the light rolls off and a knee where it catches, which is what an eye reads as a hard
+   reflective surface.
+
+   The darkest stop is #2A2A2E and not something nearer black on purpose. The hero's ground runs
+   about #161619 behind the mark, so a true black shadow would let the turned-away side dissolve
+   straight into the page and the mark would lose half its form. This sits clearly above it. */
+const C0_CHARCOAL = '#2A2A2E';
+const C1_SLATE = '#52525B';
+const C2_STEEL = '#8E8E97';
+const C3_SILVER = '#DCDCE1';
 const C4_WHITE = '#FFFFFF';
-/* Warm white, not the page's neutral white: a cool rim on a gold body reads as a separate chrome
-   edge stuck onto it rather than as the same metal turning away from the eye. */
-const RIM_COLOR = '#FFE3A0';
+/* Neutral white now, where a warm one was correct against gold — on a warm body a cool rim reads
+   as separate chrome stuck onto it, and on this neutral one the warm version would be the thing
+   that looks bolted on. The rim moves with the body it belongs to. */
+const RIM_COLOR = '#FFFFFF';
 
 /* Same light as the globe used, and for the same reason: up and toward the page's outer edge, so
    the lit shoulder faces away from the copy instead of into it. */
@@ -65,6 +104,51 @@ const STROKE = 0.105;
 /** How far each brace sits from the centre line. Set from the INNER edge rather than by eye: the
     arms reach x = 0.48 in the curve below, so 0.70 leaves 0.44 of clear air down the middle. */
 const BRACE_X = 0.7;
+
+/* ── Motion ─────────────────────────────────────────────────────────────────────────────────
+   The braces do not move at all. The ring does everything. */
+
+/** The ring's starting pose — the artwork's own tip and diagonal. The tumble runs on from here, so
+    the first frame anyone sees is the logo exactly as it is drawn. */
+const RING_TILT_X = Math.PI / 2 - 0.38;
+const RING_TILT_Z = 0.44;
+
+/** The orbit: one revolution about the mark's VERTICAL axis every 10.1s.
+
+    The tilt above is not animated any more — it is carried, unchanged, around Y. That distinction
+    is the whole point. Tumbling the ring on two axes did take it through every orientation, and
+    the cost was that it stopped being the logo's ring: the artwork's diagonal is a fixed part of
+    the mark, and a ring that rolls through every angle is only in the artwork's pose for an
+    instant per cycle. Carried around Y it is in that pose ALWAYS — the tilt relative to its own
+    orbital plane never changes — and what moves is where along the orbit you are seeing it from.
+
+    It is still fully visible motion, which is the thing that is easy to get wrong here: a torus
+    spun about its OWN axis produces literally no change at all, because it is rotationally
+    symmetric about it. This axis is a different one. The ring's normal sweeps a 33° cone about the
+    vertical, so the ellipse on screen opens from a bare line out to about half-width and back, and
+    its long axis rocks with it. */
+const RING_ORBIT_RATE = 0.62;
+
+/** Radius, and this is now a HARD constraint rather than a matter of taste.
+    Every point of the ring's tube lies between R − tube and R + tube from the centre, whatever
+    orientation it is in. So if R − tube clears the sphere that contains the braces, the ring
+    cannot touch them at ANY angle — which is the only kind of guarantee worth having once it
+    tumbles freely.
+    The braces' furthest point is the top arm at (−0.38, 1.00), 1.070 out, plus STROKE = 1.175.
+    1.30 − 0.058 = 1.242 clears that by 0.067.
+    This was 1.12 while the ring only precessed inside a narrow cone, where the two angles at which
+    it crossed the braces' plane were pinned near the nub and it got away with it. Anything freer
+    puts the ring near the braces' own plane, and at 1.12 it would saw through both arms. */
+const RING_RADIUS = 1.3;
+
+/** The ring eases up from rest instead of starting at speed: 1 − e^(−0.7t) is at 94% by 4s.
+    Multiplying the ANGLE by it (rather than adding an eased offset) keeps this absolute-time —
+    t·rate·wake starts at zero position AND zero speed, then converges on a constant rate with no
+    lasting phase error. It is the cheapest line here and the one that does most to make the motion
+    read as authored: a loop already running when you arrive has no beginning, and a thing with no
+    beginning is a screensaver. It plays again on every remount, which is every time the hero
+    scrolls back into view. */
+const WAKE_RATE = 0.7;
 
 /**
  * One curly brace, as a path from its top terminal to its bottom one.
@@ -126,10 +210,10 @@ function makeBraceCurve(mirrored: boolean): THREE.CatmullRomCurve3 {
 function makeMarkMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     uniforms: {
-      uC0: { value: new THREE.Color(C0_SHADOW) },
-      uC1: { value: new THREE.Color(C1_BRONZE) },
-      uC2: { value: new THREE.Color(C2_GOLD) },
-      uC3: { value: new THREE.Color(C3_CREAM) },
+      uC0: { value: new THREE.Color(C0_CHARCOAL) },
+      uC1: { value: new THREE.Color(C1_SLATE) },
+      uC2: { value: new THREE.Color(C2_STEEL) },
+      uC3: { value: new THREE.Color(C3_SILVER) },
       uC4: { value: new THREE.Color(C4_WHITE) },
       uRim: { value: new THREE.Color(RIM_COLOR) },
       uLight: { value: LIGHT.clone() },
@@ -195,8 +279,8 @@ function makeMarkMaterial(): THREE.ShaderMaterial {
 }
 
 function Mark({ spin }: { spin: boolean }) {
-  const tilt = useRef<THREE.Group>(null);
-  const spinner = useRef<THREE.Group>(null);
+  const orbit = useRef<THREE.Group>(null);
+  const clock = useRef(0);
   const material = useMemo(makeMarkMaterial, []);
 
   const leftBrace = useMemo(() => makeBraceCurve(false), []);
@@ -206,30 +290,31 @@ function Mark({ spin }: { spin: boolean }) {
   // disposes what it created from JSX; this was built here.
   useEffect(() => () => material.dispose(), [material]);
 
-  useFrame((state, delta) => {
-    if (!spin) return;
+  // The ONLY thing that moves. The braces below carry no ref and are never touched — they sit at
+  // the artwork's pose from the first frame to the last, and the shared lean they used to drift on
+  // is gone with them. That stillness is not laziness: one element in motion against a mark that
+  // is perfectly still reads far harder than everything drifting at once, because the ring now has
+  // something fixed to be measured against.
+  useFrame((_, delta) => {
+    if (!spin || !orbit.current) return;
 
-    // Delta-based so it turns at one speed on a 60Hz and a 120Hz screen. Clamped because delta is
-    // the length of the pause after the loop has been stopped off-screen, and an unclamped one
-    // would snap the mark forward by that whole gap the moment it comes back.
-    const step = Math.min(delta, 0.05);
-
-    // 0.34 rad/s — one full turn every ~18 seconds. Faster than the globe's, and it can afford to
-    // be: a sphere turning at this rate would be a blur of texture, whereas the mark's silhouette
-    // is the thing changing and it needs to travel far enough to be seen doing it.
-    if (spinner.current) spinner.current.rotation.y += step * 0.34;
-
-    // The lean, on top of the spin. Rotation about a single fixed axis is a lathe — everything
-    // travels on parallel circles and the object never shows you its top or bottom. Tipping the
-    // axis itself is what turns that into a tumble.
+    // Our OWN clock, advanced only by frames that were actually drawn, and clamped.
     //
-    // 0.11 and 0.083 rad/s: deliberately not a ratio of small integers, so the two never come back
-    // into phase and the motion has no loop point to notice.
-    if (tilt.current) {
-      const t = state.clock.elapsedTime;
-      tilt.current.rotation.x = Math.sin(t * 0.11) * 0.2;
-      tilt.current.rotation.z = 0.06 + Math.sin(t * 0.083) * 0.1;
-    }
+    // `state.clock.elapsedTime` is the obvious thing to use here and it is not safe in this
+    // component. The canvas stays MOUNTED while the hero is off screen and is parked at
+    // frameloop="never" instead — so the render loop stops while wall-clock time keeps running,
+    // and what the clock does across that gap is R3F's business, not ours. If it carries the gap
+    // through, a 30s scroll away comes back as 17 radians of instant rotation: nearly three whole
+    // turns in one frame. This accumulator cannot do that whatever the clock decides, and the
+    // clamp caps the worst single step at one frame's worth.
+    clock.current += Math.min(delta, 0.05);
+    const t = clock.current;
+    const wake = 1 - Math.exp(-t * WAKE_RATE);
+
+    // ONE axis, and it is the axis the ring is not symmetric about. The tilt itself lives on the
+    // child group below and is never written to — so the ring holds the artwork's exact diagonal
+    // at every instant, and this only carries it round.
+    orbit.current.rotation.y = t * RING_ORBIT_RATE * wake;
   });
 
   // Both braces and both of their end caps share ONE material instance, so retuning the mark's
@@ -240,8 +325,10 @@ function Mark({ spin }: { spin: boolean }) {
   ];
 
   return (
-    <group ref={tilt}>
-      <group ref={spinner}>
+    <group>
+      {/* The braces. No ref, no group of their own to be animated by — static geometry, drawn once
+          at the artwork's pose and left there. */}
+      <group>
         {braces.map(({ curve, x }, i) => (
           <group key={i} position={[x, 0, 0]}>
             <mesh material={material}>
@@ -263,16 +350,34 @@ function Mark({ spin }: { spin: boolean }) {
             })}
           </group>
         ))}
+      </group>
 
-        {/* The orbit ring, at the artwork's own diagonal: low-left to high-right. Rotations apply
-            in XYZ order, so the Z term lands last and tips the finished ellipse in the screen
-            plane, which is where that diagonal actually lives. */}
-        <mesh rotation={[Math.PI / 2 - 0.38, 0, 0.44]} material={material}>
-          {/* 1.12 clears the braces, whose nubs reach 0.70 + 0.14 + STROKE = 0.945. Thinner tube
-              than the strokes it orbits (0.55×), because in the artwork the ring is a hairline
-              drawn AROUND the mark — at equal weight the two stop being figure and ground. */}
-          <torusGeometry args={[1.12, STROKE * 0.55, 10, 180]} />
-        </mesh>
+      {/* The ring, a SIBLING of the braces rather than a child of them. That one move is what the
+          whole thing rests on: nested inside the braces it could only ever inherit their transform,
+          and here the braces have none to give.
+
+          TWO nested groups, not one, and this is the part that is easy to get wrong. The outer one
+          is the only thing animated — it carries the ring around the vertical. The inner one holds
+          the artwork's own tilt and is never written to.
+
+          Folding them into a single animated group is the obvious simplification and it does not
+          work: Euler angles do not add. Writing rotation.y onto a group that already carries an X
+          and a Z term composes into an orientation that is not "the logo's ring, turned" — it is a
+          different tilt every frame, and the ring wanders off the diagonal that makes it the
+          logo's at all. Kept apart, the tilt is applied first and the spin second, every time. */}
+      <group ref={orbit}>
+        {/* Rotations apply in XYZ order, so the Z term lands last and tips the finished ellipse in
+            the screen plane, which is where the artwork's diagonal actually lives. */}
+        <group rotation={[RING_TILT_X, 0, RING_TILT_Z]}>
+          <mesh material={material}>
+            {/* Thinner tube than the strokes it orbits (0.55×), because in the artwork the ring is
+                a hairline drawn AROUND the mark — at equal weight the two stop being figure and
+                ground. 180 segments around the path, which is what keeps it a smooth curve at the
+                point in the orbit where it comes near edge-on and the whole ring collapses into a
+                few pixels of height. See RING_RADIUS for why it grew when the motion changed. */}
+            <torusGeometry args={[RING_RADIUS, STROKE * 0.55, 10, 180]} />
+          </mesh>
+        </group>
       </group>
     </group>
   );
@@ -323,10 +428,10 @@ export const HeroLogo3D: React.FC = () => {
         frameloop={motion && active ? 'always' : 'never'}
         dpr={[1, MAX_DPR]}
         // At fov 45 the visible height at the origin is 2·dist·tan(22.5°); 3.9 gives 3.23 world
-        // units. The mark is 2.24 across at the ring and 2 tall at the braces, and it TUMBLES — so
-        // the figure that matters is the diagonal it sweeps through, not its resting width. The
-        // margin keeps a corner of the ring from clipping the canvas edge at the extremes of the
-        // lean.
+        // units. Only one figure matters now that the braces hold still and the ring tumbles: the
+        // ring's bounding sphere, 1.30 + 0.058 = 1.358, which is orientation-independent — so
+        // 2.72 across whatever it is doing, inside 3.23 with 8% clear on each side. The braces sit
+        // entirely within that sphere, so nothing else can reach the canvas edge.
         camera={{ position: [0, 0, 3.9], fov: 45 }}
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
       >

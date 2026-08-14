@@ -9,9 +9,9 @@ import React from 'react';
  * are drawn in the same language as the hero mark rather than in a generic icon style: thin
  * strokes, an orbit, round terminals. The section reads as one place that way.
  *
- * Monochrome, deliberately. Gold is spent in exactly two places on this site — the hero mark and
- * the panel's live figure — and both are things the eye is supposed to land on. Decoration that
- * takes the accent competes with the content that earned it.
+ * Monochrome, deliberately. Gold is spent in exactly ONE place on this site — the panel's live
+ * figure, in the card right beside these — and that is the thing the eye is supposed to land on.
+ * Decoration that takes the accent competes with the content that earned it.
  *
  * `aria-hidden` on both: every card states its meaning in text beside the glyph, so announcing
  * these would only add noise to a screen reader.
