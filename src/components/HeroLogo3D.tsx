@@ -326,9 +326,8 @@ export const HeroLogo3D: React.FC = () => {
           camera={{ position: [0, 0, 3.9], fov: 45 }}
           gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         >
-          <Mark spin={motion} />
-        </Canvas>
-      )}
+          <Mark spin={motion && active} />
+      </Canvas>
     </div>
   );
 };

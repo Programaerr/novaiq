@@ -381,18 +381,23 @@ export const LiquidWave: React.FC<LiquidWaveProps> = ({ fill }) => {
 
   return (
     <div ref={hostRef} className="absolute inset-0 pointer-events-none" aria-hidden="true">
-      {active && (
-        <Canvas
-          // 'demand' under reduced motion rather than 'never': the card still has to draw its level
-          // once, and once is all 'demand' costs — the component invalidates when the figure
-          // changes and the renderer is otherwise completely idle.
-          frameloop={motion ? 'always' : 'demand'}
+      {/* Paused, NOT unmounted — same correction as HeroLogo3D, and for the same measured reason.
+          `{active && <Canvas/>}` tore down the WebGL context on every scroll past this card and
+          rebuilt it on the way back: that is the `Context Lost` spam in the console and the
+          84–203ms rAF handlers, which are a context creation plus a shader compile landing on the
+          main thread mid-scroll.
+
+          Three states, not two, because this card is not purely decorative: it has a level to
+          show. Moving and on screen draws every frame; off screen draws nothing at all; reduced
+          motion sits on 'demand', which costs one frame when the figure changes and nothing at
+          any other time. */}
+      <Canvas
+          frameloop={!motion ? 'demand' : active ? 'always' : 'never'}
           dpr={[1, 1.5]}
           gl={{ antialias: false, alpha: true, depth: false, powerPreference: 'low-power' }}
         >
-          <Liquid fill={fill} motion={motion} />
-        </Canvas>
-      )}
+          <Liquid fill={fill} motion={motion && active} />
+      </Canvas>
     </div>
   );
 };
