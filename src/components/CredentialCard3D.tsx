@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import logoMark from '../assets/images/novaiq-icon.png';
+import { MAX_DPR } from '../lib/renderBudget';
 
 interface CredentialCard3DProps {
   language: 'ar' | 'en';
@@ -874,7 +875,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           // exists to stop a full-screen scene rendering nine times the pixels on a phone, and
           // this scene is a card, not a full screen; the higher cap costs a few hundred thousand
           // pixels on an element that only renders at all while it is being turned.
-          dpr={[1, 2.5]}
+          dpr={[1, Math.max(MAX_DPR, 1.75)]}
           // 3.4 — deliberately far more room than the arithmetic below demands, because every
           // tighter value tried here was still reported as cutting the card off somewhere.
           //

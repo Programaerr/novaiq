@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useIsScrolling } from '../lib/useScrollingFlag';
+import { MAX_DPR } from '../lib/renderBudget';
 
 /**
  * The NOVAIQ mark, built as real geometry and turning in 3D. It replaces HeroGlobe's planet.
@@ -282,9 +282,6 @@ export const HeroLogo3D: React.FC = () => {
   const hostRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const [motion, setMotion] = useState(true);
-  // Stands the scene down for the length of a scroll — see useIsScrolling for why a canvas cannot
-  // key off the CSS flag the rest of the site's decorative motion uses.
-  const scrolling = useIsScrolling();
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -320,8 +317,12 @@ export const HeroLogo3D: React.FC = () => {
       <Canvas
           // The one scene here that genuinely animates at rest, so it is switched off rather than
           // throttled when it has no audience.
-          frameloop={motion && active && !scrolling ? 'always' : 'never'}
-          dpr={[1, 1.5]}
+          // NOT paused during scroll, unlike LiquidWave. Freezing a steady rotation and restarting
+          // it is far more visible than freezing water: the mark stops dead the instant a scroll
+          // begins and lurches back into motion 140ms after it ends, which reads as the hero
+          // jerking along with the page. Its cost is paid down with the pixel ratio below instead.
+          frameloop={motion && active ? 'always' : 'never'}
+          dpr={[1, MAX_DPR]}
           // At fov 45 the visible height at the origin is 2·dist·tan(22.5°); 3.9 gives 3.23 world
           // units. The mark is 2.24 across at the ring and 2 tall at the braces, and it TUMBLES —
           // so the figure that matters is the diagonal it sweeps through, not its resting width.

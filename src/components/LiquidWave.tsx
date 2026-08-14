@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useIsScrolling } from '../lib/useScrollingFlag';
+import { MAX_DPR } from '../lib/renderBudget';
 
 /**
  * The stat card's liquid, as a real WebGL surface.
@@ -396,7 +397,7 @@ export const LiquidWave: React.FC<LiquidWaveProps> = ({ fill }) => {
           any other time. */}
       <Canvas
           frameloop={!motion ? 'demand' : active && !scrolling ? 'always' : 'never'}
-          dpr={[1, 1.5]}
+          dpr={[1, MAX_DPR]}
           gl={{ antialias: false, alpha: true, depth: false, powerPreference: 'low-power' }}
         >
           <Liquid fill={fill} motion={motion && active} />
