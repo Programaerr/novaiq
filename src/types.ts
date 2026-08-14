@@ -8,7 +8,7 @@ export interface Template {
   title: string;
   subtitle: string;
   category: 'corporate' | 'ecommerce' | 'realestate' | 'healthcare' | 'fintech'
-    | 'restaurant' | 'education' | 'mobile' | 'watches' | 'cars';
+    | 'restaurant' | 'education' | 'mobile' | 'watches' | 'cars' | 'marketing';
   categoryLabel: string;
   description: string;
   longDescription: string;

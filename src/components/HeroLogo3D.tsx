@@ -304,11 +304,19 @@ export const HeroLogo3D: React.FC = () => {
 
   return (
     <div ref={hostRef} className="hero-mark" aria-hidden="true">
-      {active && (
-        <Canvas
+      {/* Paused, NOT unmounted.
+          This was `{active && <Canvas .../>}`, which destroyed the WebGL context every time the
+          mark scrolled off screen and built a new one every time it came back. That is what filled
+          the console with `THREE.WebGLRenderer: Context Lost` and what the browser was reporting as
+          84–203ms rAF handlers: a remount is a fresh context, a shader recompile and a scene
+          rebuild, all on the main thread, every single scroll past.
+
+          Kept mounted with `frameloop="never"` there is no context churn at all and the cost while
+          off screen is the same zero — 'never' draws nothing, it does not draw fewer frames. */}
+      <Canvas
           // The one scene here that genuinely animates at rest, so it is switched off rather than
-          // throttled: 'never' draws nothing at all, not fewer frames.
-          frameloop={motion ? 'always' : 'never'}
+          // throttled when it has no audience.
+          frameloop={motion && active ? 'always' : 'never'}
           dpr={[1, 1.5]}
           // At fov 45 the visible height at the origin is 2·dist·tan(22.5°); 3.9 gives 3.23 world
           // units. The mark is 2.24 across at the ring and 2 tall at the braces, and it TUMBLES —
