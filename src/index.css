@@ -2752,15 +2752,3 @@ html[data-idle] :is(.liquid__meniscus, .liquid__bubble, .liquid__sheen) {
   .liquid__bubble,
   .liquid__sheen { display: none; }
 }
-
-/* The single shared WebGL surface (GLStage.tsx). Fixed across the viewport, behind the page's own
-   content and deaf to the pointer — every scene on the site is drawn into it through a `<View>`,
-   each into the rectangle its own DOM element happens to occupy. */
-.gl-stage {
-  position: fixed !important;
-  inset: 0;
-  width: 100vw !important;
-  height: 100vh !important;
-  pointer-events: none;
-  z-index: 2;
-}

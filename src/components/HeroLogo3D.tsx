@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { View, PerspectiveCamera } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { MAX_DPR } from '../lib/renderBudget';
 
 /**
  * The NOVAIQ mark, built as real geometry and turning in 3D. It replaces HeroGlobe's planet.
@@ -304,24 +304,34 @@ export const HeroLogo3D: React.FC = () => {
   }, []);
 
   return (
-    // No canvas of its own any more. This is a `View` — a plain DOM box that the site's single
-    // shared context draws into (see GLStage.tsx). Three canvases on this page meant three WebGL
-    // contexts, which the browser was visibly failing to hold: the console filled with
-    // `Context Lost` and rebuilding one mid-scroll showed up as 84-203ms rAF handlers.
+    // The site's only WebGL scene, and therefore its only context.
     //
-    // The mark is not unmounted when it scrolls away either — `View` simply stops drawing a view
-    // whose element is off screen, so there is nothing to tear down and nothing to rebuild.
-    <View ref={hostRef} className="hero-mark" aria-hidden="true">
-      {/* At fov 45 the visible height at the origin is 2·dist·tan(22.5°); 3.9 gives 3.23 world
-          units. The mark is 2.24 across at the ring and 2 tall at the braces, and it TUMBLES — so
-          the figure that matters is the diagonal it sweeps through, not its resting width. The
-          margin keeps a corner of the ring from clipping against the view's edge at the extremes
-          of the lean.
-
-          `makeDefault` because each view brings its own camera: the credential card is framed at
-          fov 34 from 3.4, and the two must not share one. */}
-      <PerspectiveCamera makeDefault position={[0, 0, 3.9]} fov={45} />
-      <Mark spin={motion && active} />
-    </View>
+    // It briefly shared a single canvas with the credential card through drei's `<View>`, which is
+    // the right answer when several scenes have to coexist — three contexts on this page had the
+    // browser dropping them mid-scroll. The card left the site entirely (it is a 3D-printed object
+    // now, see tools/export-card-model.mjs), so there is nothing left to share with, and one scene
+    // in its own canvas is simpler than one scene in a shared one.
+    //
+    // If a second scene is ever added, `@react-three/drei`'s View is what to reach for again —
+    // not a second `<Canvas>`.
+    <div ref={hostRef} className="hero-mark" aria-hidden="true">
+      {/* Paused, NOT unmounted. `{active && <Canvas/>}` destroyed the context on every scroll past
+          and rebuilt it on the way back, which is a fresh context, a shader recompile and a scene
+          rebuild on the main thread each time. Kept mounted, `frameloop="never"` costs the same
+          zero while off screen and churns nothing. */}
+      <Canvas
+        frameloop={motion && active ? 'always' : 'never'}
+        dpr={[1, MAX_DPR]}
+        // At fov 45 the visible height at the origin is 2·dist·tan(22.5°); 3.9 gives 3.23 world
+        // units. The mark is 2.24 across at the ring and 2 tall at the braces, and it TUMBLES — so
+        // the figure that matters is the diagonal it sweeps through, not its resting width. The
+        // margin keeps a corner of the ring from clipping the canvas edge at the extremes of the
+        // lean.
+        camera={{ position: [0, 0, 3.9], fov: 45 }}
+        gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
+      >
+        <Mark spin={motion && active} />
+      </Canvas>
+    </div>
   );
 };
