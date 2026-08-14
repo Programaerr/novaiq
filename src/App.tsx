@@ -638,16 +638,14 @@ export default function App() {
                     />
                   </div>
 
-                  {/* ── The proof ────────────────────────────────────────────────────────────
-                      The credential card, in the widest cell. It is the page's strongest claim and
-                      the only object in the panel with real depth, so it takes the position the
-                      reference gives its own hero tile. */}
-                  <div className="lg:col-span-2 nq-card nq-card--hover flex items-center justify-center p-5 sm:p-6">
-                    <div className="relative z-10 w-full">
-                      <CredentialCard language={language} />
-                    </div>
-                  </div>
+                  {/* The credential card stood in this cell — a WebGL slab that turned under the
+                      pointer. It is a physical object now: `tools/export-card-model.mjs` exports it
+                      as an STL at real card size, to be 3D-printed and handed to a client. That is
+                      a better life for it than a widget nobody could hold, and taking it off the
+                      page left the site with ONE 3D scene, which is what actually ended the
+                      context-loss and frame-drop problem rather than mitigating it.
 
+                      The two capability tiles below now share this row. */}
                   {/* ── Two capabilities, each with a motif ───────────────────────────────── */}
                   <div className="nq-card nq-card--hover relative overflow-hidden flex flex-col justify-end p-5 min-h-[10rem]">
                     <OrbitGlyph className="absolute -top-4 -end-4 w-28 h-28 text-white/25 pointer-events-none" />
