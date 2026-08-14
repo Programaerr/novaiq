@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
+import { View, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
-import { MAX_DPR } from '../lib/renderBudget';
 
 /**
  * The NOVAIQ mark, built as real geometry and turning in 3D. It replaces HeroGlobe's planet.

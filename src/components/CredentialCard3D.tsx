@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
+import { View, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import logoMark from '../assets/images/novaiq-icon.png';
 import { MAX_DPR } from '../lib/renderBudget';
@@ -863,46 +864,24 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
       }
     >
       {ready && (
-        <Canvas
-          // Renders on request only. An untouched card draws zero frames, which is the whole
-          // reason a WebGL card can be cheaper than the CSS one it replaced.
-          frameloop="demand"
-          // 2.5, up from 1.75, and this is what the blurred text was.
-          //
-          // A phone reports a device pixel ratio of 3. Capped at 1.75 the scene was rendered at
-          // 58% of the pixels the screen actually has and then stretched up to fill it — an
-          // upscale of a finished image, which no amount of texture resolution can undo. The cap
-          // exists to stop a full-screen scene rendering nine times the pixels on a phone, and
-          // this scene is a card, not a full screen; the higher cap costs a few hundred thousand
-          // pixels on an element that only renders at all while it is being turned.
-          dpr={[1, Math.max(MAX_DPR, 1.75)]}
-          // 3.4 — deliberately far more room than the arithmetic below demands, because every
-          // tighter value tried here was still reported as cutting the card off somewhere.
-          //
-          // A canvas is a rectangle and cannot draw outside itself, so the card must fit inside
-          // the frame at EVERY angle, not just at rest. The binding case is a quarter turn about
-          // Y: the near long edge swings (W/2 = 0.793) units towards the camera, so it is
-          // magnified by d/(d − 0.793) — at a tight framing that is enough to push its full
-          // height past the top and bottom of the frame, which is exactly the straight cut across
-          // the card in the report that prompted this.
-          //
-          //   frame height  = 2·d·tan(17°) = 0.6116·d
-          //   near-edge height = 1 · d/(d − 0.793)
-          //   fits when 0.6116·d ≥ d/(d − 0.793)  ⟺  d ≥ 2.428
-          //
-          // The worst case is a quarter turn about the card's long axis, where the near edge is
-          // magnified by d/(d − 0.793) — 1.30 at this distance — while the frame is 0.6116·d =
-          // 2.08 tall. 1.30 against 2.08 is 60% headroom, and the diagonal case (both axes at
-          // once) still clears comfortably. There is no angle at which any corner reaches an
-          // edge.
-          //
-          // The card occupies about 48% of the frame, so more than half of the canvas is empty
-          // transparent space. That is not waste: it is the room the card turns in, and because
-          // it is transparent it is invisible — what remains is an object moving freely in the
-          // page rather than one pressed against the sides of a box.
-          camera={{ position: [0, 0, 3.4], fov: 34 }}
-          gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
+        <View
         >
+          {/* Each view brings its own camera — the hero mark is framed at fov 45 from 3.9 and
+              the two must not share one. Everything the old `camera` prop carried is here.
+
+              3.4 is deliberately more room than the arithmetic demands. A view is a rectangle
+              and cannot draw outside itself, so the card has to fit at EVERY angle, not at rest.
+              The binding case is a quarter turn about Y: the near long edge swings W/2 = 0.793
+              towards the camera and is magnified by d/(d − 0.793), which at a tight framing is
+              enough to push its height past the top and bottom of the frame.
+
+                frame height     = 2·d·tan(17°) = 0.6116·d
+                near-edge height = 1 · d/(d − 0.793)
+                fits when 0.6116·d ≥ d/(d − 0.793)  ⟺  d ≥ 2.428
+
+              At 3.4 that is 1.30 against 2.08 — 60% headroom, and the diagonal case still
+              clears. The card fills about 48% of the view; the rest is the room it turns in. */}
+          <PerspectiveCamera makeDefault position={[0, 0, 3.4]} fov={34} />
           {/* Raised for the dark body — a near-black surface reflects a fraction of what a white
               one did, and at the level the white card wanted this one read as a silhouette — but
               deliberately kept well under the key. Ambient light arrives from every direction at
@@ -918,7 +897,7 @@ export const CredentialCard3D: React.FC<CredentialCard3DProps> = ({ language }) 
           <directionalLight position={[-2.5, -1.5, -2.5]} intensity={0.7} />
           <Card isAr={isAr} targetRef={target} />
           <Waker signal={signal} touched={touched} dragging={drag} target={target} />
-        </Canvas>
+        </View>
       )}
 
       {/* The only part of this that takes input: the card's own footprint at rest.
