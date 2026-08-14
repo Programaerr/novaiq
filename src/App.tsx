@@ -38,6 +38,7 @@ const PolicyPage = lazy(() => import('./components/PolicyPage').then((m) => ({ d
 const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox })));
 const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ default: m.AdminPage })));
 const LoginPage = lazy(() => import('./components/LoginPage').then((m) => ({ default: m.LoginPage })));
+const GLStage = lazy(() => import('./components/GLStage').then((m) => ({ default: m.GLStage })));
 
 // A visitor who chose "أكمل كضيف" at the sign-in screen.
 //
@@ -468,6 +469,13 @@ export default function App() {
       {/* Supernova Atmospheric Background */}
 
       {/* Main Header Bar */}
+      {/* The site's single WebGL context, mounted once for the whole app. Every 3D scene draws
+          into it through a `<View>` rather than opening a context of its own — see GLStage.tsx.
+          Lazy, so the ~890KB of three.js still arrives after first paint rather than inside it. */}
+      <Suspense fallback={null}>
+        <GLStage />
+      </Suspense>
+
       <Navbar
         activePage={activePage}
         setActivePage={(page) => navigateTo(page)}

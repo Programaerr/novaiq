@@ -49,7 +49,7 @@ export default defineConfig(() => {
             // every page view to support a scene that is lazy-loaded and may never be reached.
             // Matched on the node_modules path segment so a bare substring like "three" can't
             // catch an unrelated package name.
-            if (/node_modules\/(three|@react-three|its-fine|zustand|suspend-react)\//.test(id)) {
+            if (/node_modules\/(three|three-stdlib|three-mesh-bvh|@react-three|its-fine|zustand|suspend-react|tunnel-rat|@use-gesture|camera-controls|troika-[^/]+|meshline|stats\.js|detect-gpu|hls\.js|potpack|bidi-js|@monogrid|glsl-noise|maath)\//.test(id)) {
               return 'vendor-three';
             }
             if (id.includes('firebase')) return 'vendor-firebase';
