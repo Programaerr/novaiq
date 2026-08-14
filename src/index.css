@@ -2293,6 +2293,42 @@ html[data-scrolling] .rv::before {
   mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
 }
 
+/* ── Hero background video ──────────────────────────────────────────────────────────────────
+   Fills the hero section behind the 3D mark, halo, and starfield. `object-fit: cover`
+   stretches it to fill without letterboxing on any aspect ratio. A dark radial vignette
+   overlay keeps the text readable by fading the video edges to black — the same
+   approach as the hero-red-ball standalone page. */
+.hero-video {
+  position: absolute;
+  /* Start behind the navbar (~6rem = 96px) and extend 80px below the section */
+  top: -6rem;
+  left: 0;
+  right: 0;
+  bottom: -80px;
+  width: 100%;
+  height: calc(100% + 6rem + 80px);
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+  /* Slight desaturation to keep the video from competing with the mark's metallic palette.
+     brightness(0.85) pulls it back just enough for white text to hold contrast. */
+  filter: saturate(0.6) brightness(0.85);
+}
+
+/* Dark vignette over the video so the headline and CTAs stay legible */
+.hero-video::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 80% at 50% 50%,
+    transparent 30%,
+    rgba(0, 0, 0, 0.55) 70%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+  pointer-events: none;
+}
+
 /* The hero cover carousel that used to live here is deleted, along with HeroCoverArc.tsx.
    It was a 26-card ring in 3D and by some distance the most expensive permanent thing on the
    site — one CSS rotation driving twenty-six separately composited, transformed layers. The hero
