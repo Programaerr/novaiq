@@ -54,6 +54,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
   // its first pixel appears — arriving at a frozen carousel that then starts moving is more
   // noticeable than the saving is worth.
   const heroRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Pause the background video for users who prefer reduced motion.
+  useEffect(() => {
+    const mq = matchMedia('(prefers-reduced-motion: reduce)');
+    const video = videoRef.current;
+    if (!video) return;
+
+    const apply = () => {
+      if (mq.matches) video.pause();
+      else video.play().catch(() => {});
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+
   useEffect(() => {
     const el = heroRef.current;
     if (!el) return;
@@ -79,8 +96,31 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
     // near the middle by arithmetic, and the same padding on an 800px one strands it at the top.
     <section
       ref={heroRef}
-      className="relative pb-2 md:pb-6 overflow-hidden lg:min-h-[calc(100vh-6rem)] lg:flex lg:items-center"
+      className="relative pb-2 md:pb-6 overflow-visible lg:min-h-screen lg:flex lg:items-center"
     >
+      {/* ── Background video ──────────────────────────────────────────────────────────────────
+          Plays behind everything: 3D mark, halo, starfield, and copy all sit on top.
+          `preload="metadata"` avoids downloading the full file on load — only the first
+          frame + duration are fetched, keeping initial payload small on slow networks.
+          `playsInline` is required for iOS autoplay. The poster is a 1×1 transparent
+          SVG so there is no layout shift before the video paints. */}
+      <video
+        ref={videoRef}
+        className="hero-video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect fill='%23000'/%3E%3C/svg%3E"
+        aria-hidden="true"
+      >
+        <source
+          src="https://motionbgs.com/media/2289/astronaut-and-hands.960x540.mp4"
+          type="video/mp4"
+        />
+      </video>
+
       {/* ── The mark ─────────────────────────────────────────────────────────────────────────
           NOVAIQ's own logo as real geometry, tumbling (HeroLogo3D.tsx). It took over from the
           planet, which took over from `.hero-limb` — a flat CSS arc. The halo behind it is still
@@ -182,13 +222,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ language, onStart, onR
           >
             <span className="filter-pill-beam" aria-hidden="true" />
             <span>{isAr ? 'ابدأ معنا' : 'Get started'}</span>
-            {/* The filled disc inverts along with the button: its background is `currentColor`
-                and the arrow inside is painted with the button's own surface colour, so one
-                `color` flip on hover carries both without a second rule. */}
             <span className="nq-cta-badge" aria-hidden="true">
               <CtaArrow className="w-4 h-4" strokeWidth={2.5} />
             </span>
           </button>
+
+          <a
+            href="/hero-red-ball.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="filter-pill-btn filter-pill-btn--ghost relative px-6 py-3 rounded-full font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span className="filter-pill-beam" aria-hidden="true" />
+            <span>{isAr ? 'معاينة الهيرو' : 'Preview Hero'}</span>
+          </a>
           </div>
         </div>
       </div>
