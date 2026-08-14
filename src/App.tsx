@@ -489,10 +489,13 @@ export default function App() {
         className="flex-1 relative z-10 pb-8"
       >
 
-        {/* Home stays empty — everything that used to render here (hero, bento grid,
-            timeline, about) was pulled out on purpose and is not coming back in this pass.
-            The other seven pages below are unaffected and render exactly as they did
-            before. */}
+        {activePage === 'home' && (
+          <div className="page-in">
+            {/* Sections go here, one by one — each section is its own component file.
+                No width/spacing classes on this div except page-in; each section owns its own
+                <section>, .nq-container (or deliberate variant), and vertical padding. */}
+          </div>
+        )}
 
         {activePage === 'templates' && (
           <div className="page-in">
