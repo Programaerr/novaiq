@@ -82,7 +82,20 @@ export const LiquidWave: React.FC<LiquidWaveProps> = ({ fill }) => {
       >
         <span className="liquid__crest liquid__crest--back" />
         <span className="liquid__crest liquid__crest--front" />
+        {/* The meniscus: the bright line where the surface meets the air. It rides the front wave
+            rather than sitting flat, which is why it is a child of that strip's own layer. */}
+        <span className="liquid__meniscus" />
+        {/* Rising bubbles. Four, at four sizes and four rates, so nothing about them lines up.
+            Positions are literals rather than random: a random layout re-rolls on every render and
+            the bubbles would teleport whenever the figure changed. */}
+        <span className="liquid__bubble" style={{ left: '18%', '--d': '7.5s', '--s': '5px', '--o': '0s' } as React.CSSProperties} />
+        <span className="liquid__bubble" style={{ left: '39%', '--d': '5.8s', '--s': '3px', '--o': '1.9s' } as React.CSSProperties} />
+        <span className="liquid__bubble" style={{ left: '63%', '--d': '9.2s', '--s': '4px', '--o': '3.4s' } as React.CSSProperties} />
+        <span className="liquid__bubble" style={{ left: '81%', '--d': '6.6s', '--s': '2.5px', '--o': '0.8s' } as React.CSSProperties} />
       </div>
+      {/* The glass. A single slow highlight travelling across the whole card, above the water and
+          independent of it — it is the light on the front of the vessel, not on the liquid. */}
+      <span className="liquid__sheen" />
     </div>
   );
 };
