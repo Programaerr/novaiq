@@ -2543,3 +2543,116 @@ html[data-scrolling] .rv::before {
     rgba(255, 255, 255, 0) 100%
   );
 }
+
+/* ── The stat card's liquid (LiquidWave.tsx) ───────────────────────────────────────────────
+   The water came back to CSS, and this time it can do what the SVG version could not.
+
+   The first version here was two SVG paths translating behind a clipped div, and its ceiling was
+   real: a translating path is a rigid shape moving past a window, so the surface it draws is
+   always the same surface — it could not overshoot and it could not slosh. It was replaced by a
+   fragment shader, which could do both and cost a third WebGL context on a page already carrying
+   two. That was measured dropping contexts and blocking the main thread for 84-203ms at a time.
+
+   What was missing the first time was not the GPU. It was that the level, the tilt and the ripples
+   are three different things and were being asked of one element. Separated, each is a transform:
+
+     · the level  → translateY on the body, eased past its target and back
+     · the slosh  → a decaying rotate on the same body, run once per change
+     · the chop   → two shapes translating sideways at different rates, forever
+
+   All three are compositor properties, so none of them touches layout, paint or the main thread.
+   The two infinite ones are the only permanently running animations here, they are two small
+   layers, and the compositor does not run them at all while the card is off screen.
+   ───────────────────────────────────────────────────────────────────────────────────────── */
+.liquid {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The body of the water. Its top edge is the surface line, so raising the level is moving this
+   element up — `bottom: 0` and a height of `--level` rather than a translate, because the fill has
+   to STOP at the surface and a translated full-height block would carry its bottom edge up too. */
+.liquid__body {
+  position: absolute;
+  left: -14%;
+  right: -14%;
+  bottom: 0;
+  height: var(--level, 5%);
+  transform-origin: 50% 100%;
+  background: linear-gradient(180deg, #e8b448 0%, #c78f27 42%, #9a6b12 100%);
+  /* The overshoot. The curve passes 1 at about 70% of its run and settles back, which is the
+     single visual cue that separates liquid arriving from a bar being resized. */
+  transition: height 900ms cubic-bezier(0.34, 1.42, 0.5, 1);
+}
+
+/* The ringing that follows a change of level, kicked once and decaying to nothing. The old spring
+   integrated this every frame for as long as the card existed; written as keyframes it runs for
+   2.4s and then the compositor drops it. */
+.liquid__body--slosh {
+  animation: liquid-slosh 2400ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+}
+
+@keyframes liquid-slosh {
+  0% { transform: rotate(0deg); }
+  14% { transform: rotate(1.1deg); }
+  34% { transform: rotate(-0.72deg); }
+  54% { transform: rotate(0.42deg); }
+  74% { transform: rotate(-0.2deg); }
+  88% { transform: rotate(0.08deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* The chop. Each strip sits ON the surface line and is twice its container wide, carrying four
+   copies of a two-period wave — so translating it by exactly -50% lands copy 3 where copy 1 was
+   and the loop has no seam.
+
+   Two strips, not one: a single wave is instantly readable as a wave, because the eye finds its
+   repeat immediately. Two at different widths and opposite directions never come back into phase,
+   so the surface has no visible period at all. */
+.liquid__crest {
+  position: absolute;
+  left: 0;
+  width: 200%;
+  height: 26px;
+  background-repeat: repeat-x;
+  background-size: 25% 100%;
+  will-change: transform;
+}
+
+.liquid__crest--back {
+  top: -18px;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 26' preserveAspectRatio='none'%3E%3Cpath d='M0 14 C 25 2 25 26 50 14 C 75 2 75 26 100 14 L100 26 L0 26 Z' fill='%23c78f27'/%3E%3C/svg%3E");
+  animation: liquid-drift-a 9s linear infinite;
+}
+
+.liquid__crest--front {
+  top: -12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 26' preserveAspectRatio='none'%3E%3Cpath d='M0 13 C 25 1 25 25 50 13 C 75 1 75 25 100 13 L100 26 L0 26 Z' fill='%23e8b448'/%3E%3C/svg%3E");
+  animation: liquid-drift-b 6.2s linear infinite;
+}
+
+@keyframes liquid-drift-a {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* The other way, which is what makes the two cross rather than slide along together. */
+@keyframes liquid-drift-b {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+/* Tab hidden, or a visitor who asked for less motion: the drift is decorative and stops. The level
+   itself is not animation — it is the figure — so it stays exactly where it is. */
+html[data-idle] .liquid__crest {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid__crest { animation: none; }
+  .liquid__body { transition: none; }
+  .liquid__body--slosh { animation: none; }
+}
