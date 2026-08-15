@@ -122,7 +122,13 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover"
+        // `contain` below `sm`: the source is landscape and a phone screen is portrait, so
+        // `cover` zooms in and crops the ball out of frame — the backdrop is "there" but the
+        // thing in it is cut off. `contain` shows the whole frame, centred on the black ground
+        // (which is exactly the ground this section already paints behind the video), so the
+        // backdrop reads complete at its real size. From `sm` the wider viewport makes `cover`
+        // the right call again: it fills the whole hero with no visible crop.
+        className="absolute inset-0 w-full h-full object-contain object-top sm:object-cover"
         // Drained of colour entirely, not recoloured. The source is a red sphere; rotating its hue
         // to violet only swapped one colour the site does not have for another, and a violet
         // backdrop is precisely what made this section look like it belonged to a different page.

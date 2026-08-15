@@ -386,12 +386,6 @@ export default function App() {
 
   const isAr = language === 'ar';
 
-
-  // The `statsFilled` observer that stood here is gone with the three bars it drove. StatWaveCard
-  // replaced them, and it does not need a scroll trigger for the same reason it does not need
-  // three columns: it shows one figure at a time and cycles, so its level is already changing on
-  // its own whenever anyone is looking at it.
-
   // Drives both halves of the Fluent reveal — ring and face — across the tiles below.
 
   // ── The gate ────────────────────────────────────────────────────────────────────────────

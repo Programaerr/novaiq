@@ -7,9 +7,6 @@ interface AboutSectionProps {
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
-  // Drives both halves of the Fluent reveal on every card below — the edge nearest the
-  // pointer and the face under it — from one pointer position shared across the row.
-
   return (
     <section id="about-section" className="relative">
       {/* No vertical padding here. The home page sets the gap between sections with a single
@@ -64,13 +61,6 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
                 desc: language === 'ar' ? 'متابعة فنية بحسب الاتفاق بين الطرفين.' : 'Technical follow-up as agreed between the two parties.'
               }
             ].map((item, idx) => (
-              // Both halves of the reveal, the same pair the productivity panel wears:
-              // `reveal-border` lights the edge nearest the pointer, `reveal-face` lifts the
-              // surface under it, and both read the group's pointer so the light carries
-              // across the gap onto the neighbouring card instead of stopping at this one's
-              // edge. `hover:border-white/40` is long gone for a related reason: brightening
-              // the whole border at once fights a light whose entire point is that one side
-              // of it is brighter than the rest.
               <div
                 key={idx}
                 className="nq-card nq-card--hover min-h-[190px] flex flex-col items-center justify-center p-5 text-center"

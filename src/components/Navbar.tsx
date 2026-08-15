@@ -182,13 +182,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     // floating bar narrower than the page it belongs to. Its PADDING stays its own: this is a pill
     // with its own edge, not a text column, so it does not want the container's gutters.
     <header dir="ltr" className="fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-[var(--nq-container)] mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
-      {/* Transparent spacer holding the two halves apart — it paints nothing itself. Each half
-          below is its own independent glass bar: the LOGIN cluster and the NAVIGATION group are
-          two completely separate bars with no connection between them. No border, no outline
-          anywhere (see .navbar-glass in index.css). */}
+      {/* Transparent spacer on desktop holding the two halves apart — it paints nothing itself,
+          and the LOGIN cluster and NAVIGATION group stay two separate glass bars. On phones
+          (.navbar-connect) the spacer becomes one continuous glass bar and the halves defrost into
+          it, so the whole navbar reads as a single connected strip edge to edge. */}
       <div
         ref={barRef}
-        className="flex items-center justify-between gap-6 sm:gap-10 relative"
+        className="navbar-connect flex items-center justify-between gap-3 sm:gap-10 relative"
       >
 
         {/* ── Half 1 (physical left): LOGIN — the brand logo and the account/login entry in one

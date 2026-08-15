@@ -14,9 +14,7 @@
     "graph:watch": "$(cat graphify-out/.graphify_python 2>/dev/null || echo python) -m graphify.watch . --debounce 3"
   },
   "dependencies": {
-    "@react-three/fiber": "^9.7.0",
     "@tailwindcss/vite": "^4.1.14",
-    "@types/three": "^0.185.4",
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
@@ -28,8 +26,7 @@
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",
-    "react-dom": "^19.0.1",
-    "three": "^0.185.1"
+    "react-dom": "^19.0.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -40,6 +37,7 @@
     "esbuild": "^0.25.0",
     "shadcn": "^4.17.0",
     "tailwindcss": "^4.1.14",
+    "three": "^0.185.1",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"

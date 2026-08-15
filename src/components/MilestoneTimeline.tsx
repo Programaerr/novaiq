@@ -13,10 +13,6 @@ interface MilestoneTimelineProps {
 }
 
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language = 'ar' }) => {
-  // Border only — no `.reveal-face` on these cards. They used to carry a pointer-tracked
-  // wash across their face as well; it is gone at the customer's request, and the light on
-  // the card is now the fixed glow at its foot plus this ring.
-
   const milestones = [
     {
       weeks: language === 'ar' ? 'الأسبوع 1 - 2' : 'Weeks 1 - 2',
@@ -88,11 +84,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
             return (
               <div
                 key={index}
-                // No overflow:hidden on the card, deliberately. `.reveal-border` draws its
-                // ring at inset:-1px — outside the padding box — and the card's own overflow
-                // would clip that away. The card's light is a `background` instead (the
-                // border-radius clips it for free) and the two layers that genuinely need
-                // clipping sit in the absolutely positioned wrapper below.
                 // transition-colors, not transition-all: `all` includes `transform`, and
                 // these cards run a scroll-driven transform animation (.milestone-card's
                 // drift). Declaring a transition on the same property an animation is

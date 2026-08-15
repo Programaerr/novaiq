@@ -29,7 +29,7 @@ export default defineConfig(() => {
         // view. Excluding it keeps the true "only pay for it when you click into a
         // contract PDF" behavior that React.lazy() is supposed to provide.
         resolveDependencies: (_filename, deps) =>
-          deps.filter((dep) => !dep.includes('vendor-pdf') && !dep.includes('vendor-three')),
+          deps.filter((dep) => !dep.includes('vendor-pdf')),
       },
       rollupOptions: {
         output: {
@@ -37,21 +37,10 @@ export default defineConfig(() => {
           // rarely-changing chunks independently of frequently-changing app code.
           manualChunks(id) {
             if (!id.includes('node_modules')) return undefined;
-            // three.js and its R3F ecosystem power one optional hero decoration and
-            // nothing else. Without its own bucket the whole ~1MB stack falls through to
-            // the eager `vendor` chunk below and every visitor downloads a 3D engine
-            // before the page can paint, which is exactly what lazy-loading the scene
-            // component was meant to prevent. Matched on the node_modules path segment so
-            // a bare substring like "three" can't catch unrelated package names.
-            // three itself is only half of it: @react-three/fiber pulls its-fine, zustand and
-            // suspend-react along with it, and none of those are imported anywhere in src/.
-            // Left unmatched they fall through to the eager `vendor` bucket below and ship on
-            // every page view to support a scene that is lazy-loaded and may never be reached.
-            // Matched on the node_modules path segment so a bare substring like "three" can't
-            // catch an unrelated package name.
-            if (/node_modules\/(three|@react-three|its-fine|zustand|suspend-react)\//.test(id)) {
-              return 'vendor-three';
-            }
+            // No 3D scene renders in the browser any more — three.js is a devDependency now,
+            // used only by tools/export-card-model.mjs to build the printable credential-card
+            // mesh offline in Node (see that file). It is never imported from src/, so it never
+            // reaches this function or the client bundle at all; there is nothing here to chunk.
             if (id.includes('firebase')) return 'vendor-firebase';
             // React and the icon set are both eager and both almost never change, while the
             // rest of `vendor` does. Splitting them off means a dependency bump elsewhere no
