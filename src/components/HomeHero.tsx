@@ -138,7 +138,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               a margin for the copy growing a line. The tightest case is a 360×740 phone, which has
               654px of section, 334 of it spoken for — hence 40svh, which lands at 296 there and is
               capped well before it matters on anything taller. */}
-          <div className="relative mx-auto aspect-square h-[min(40svh,21rem)] sm:h-[min(42svh,24rem)] md:h-[min(44svh,28rem)] lg:h-[min(68svh,40rem)] w-auto">
+          <div className="relative mx-auto aspect-square h-[min(40svh,21rem)] sm:h-[min(42svh,24rem)] md:h-[min(44svh,28rem)] lg:h-[min(68svh,37.5rem)] w-auto">
             <HeroStack />
           </div>
         </div>
