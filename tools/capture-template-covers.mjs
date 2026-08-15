@@ -245,6 +245,30 @@ async function main() {
     });
     if (navRes.value !== 'ok') throw new Error(`${id}: ${navRes.value}`);
 
+    // Wait for the section's OWN photographs.
+    //
+    // The document was already 'complete' before this tab existed — its images are fetched only
+    // once the tab is revealed, so a shot taken on the old readiness signal caught the product
+    // cards with empty frames where the goods should be. That is the worst possible cover: it
+    // advertises the template as broken. Polled per image rather than slept, because these come
+    // over the network and a fixed delay is either too short on a bad line or wasted on a good one.
+    let imagesReady = false;
+    for (let i = 0; i < 60; i++) {
+      const { result } = await cdp.send('Runtime.evaluate', {
+        expression: `(() => {
+          const pane = [...document.querySelectorAll('[data-lenis-prevent]')]
+            .sort((a, b) => b.getBoundingClientRect().height - a.getBoundingClientRect().height)[0];
+          if (!pane) return false;
+          const imgs = [...pane.querySelectorAll('img')];
+          return imgs.length === 0 || imgs.every(im => im.complete && im.naturalWidth > 0);
+        })()`,
+        returnByValue: true,
+      });
+      if (result.value) { imagesReady = true; break; }
+      await sleep(250);
+    }
+    if (!imagesReady) console.warn(`  ! ${id}: some images never loaded — cover may show empty frames`);
+
     await sleep(900); // one beat for entrance animations to settle on their final frame
 
     // Find the demo's own pane and clip to it. `data-lenis-prevent` marks the scrollable preview
