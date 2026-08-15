@@ -1,5 +1,29 @@
 import { Template } from '../types';
 
+/* Template covers.
+ *
+ * These are screenshots of each template's OWN demo, captured at a phone viewport by
+ * `tools/capture-template-covers.mjs`. They replace eleven stock photographs from Unsplash — a
+ * shopfront for the store, a stethoscope for the clinic — which showed the customer's INDUSTRY
+ * rather than the product, so the one question a cover exists to answer was the one it could not.
+ *
+ * Imported rather than referenced by path so the bundler fingerprints and serves them: a missing
+ * or renamed file then fails the build instead of becoming a broken image in production.
+ *
+ * Re-run the capture tool after changing any demo, or a cover will quietly show the old design.
+ */
+import coverCORP01 from '../assets/covers/NVQ-CORP-01.webp';
+import coverECOM02 from '../assets/covers/NVQ-ECOM-02.webp';
+import coverCARS03 from '../assets/covers/NVQ-CARS-03.webp';
+import coverREAL04 from '../assets/covers/NVQ-REAL-04.webp';
+import coverHEALTH05 from '../assets/covers/NVQ-HEALTH-05.webp';
+import coverFINTECH06 from '../assets/covers/NVQ-FINTECH-06.webp';
+import coverFOOD07 from '../assets/covers/NVQ-FOOD-07.webp';
+import coverEDU08 from '../assets/covers/NVQ-EDU-08.webp';
+import coverPHONE09 from '../assets/covers/NVQ-PHONE-09.webp';
+import coverWATCH10 from '../assets/covers/NVQ-WATCH-10.webp';
+import coverMARKETING11 from '../assets/covers/NVQ-MARKETING-11.webp';
+
 export const templatesData: Template[] = [
   {
     id: 'NVQ-CORP-01',
@@ -9,7 +33,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'شركات ومؤسسات',
     description: 'واجهة بصرية فضائية مستقبليّة للمؤسسات الكبرى تعكس الثقة والابتكار، مع لوحة تحكم متطورة لإدارة الأعمال والمشاريع.',
     longDescription: 'تم تصميم قالب Stella Corporate خصيصاً للشركات القابضة والمجموعات الكبرى. يوفر هيكلية متكاملة لعرض الخدمات، المشاريع، التقارير السنوية، وهيكل الحوكمة، مع دمج نظام إدارة العملاء المتقدم.',
-    previewImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverCORP01,
     basePriceIQD: 1450000,
     basePriceUSD: 1000,
     deliveryWeeks: 3,
@@ -45,7 +69,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'تجارة إلكترونية',
     description: 'تجربة تسوق فضائية فريدة مع محرك توصيات متقدم وبوابات دفع إلكترونية معتمدة.',
     longDescription: 'يوفر قالب Orion تجربة شراء سريعة بدون تعقيدات، مع دعم التخصيص التفاعلي للمنتجات، ونظام تتبع الطلبات الحي، وربط آلي مع شركات الشحن والمدفوعات.',
-    previewImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverECOM02,
     basePriceIQD: 1750000,
     basePriceUSD: 1210,
     deliveryWeeks: 4,
@@ -75,7 +99,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'معارض سيارات',
     description: 'معرض سيارات إلكتروني يعرض كل سيارة بمحركها وناقل حركتها واستهلاك وقودها، مع حاسبة تقسيط فورية وحجز تجربة قيادة.',
     longDescription: 'مصمم لمعارض ووكلاء السيارات، يعرض كل سيارة ببطاقة مواصفات كاملة (المحرك، ناقل الحركة، الدفع، استهلاك الوقود، سنة الصنع)، مع حاسبة أقساط تحسب الدفعة الأولى والقسط الشهري لحظياً، ونموذج حجز تجربة قيادة يصل مباشرة إلى صالة العرض.',
-    previewImage: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverCARS03,
     basePriceIQD: 1900000,
     basePriceUSD: 1310,
     deliveryWeeks: 4,
@@ -104,7 +128,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'عقارات وتطوير',
     description: 'استعراض العقارات والفلل والأبراج برؤية فضائية مبتكرة، مع حاسبة التمويل العقاري وجولات افتراضية.',
     longDescription: 'قالب عقاري متكامل يستعرض المشاريع الفاخرة، المخططات السكنية، المساحات، وجداول الدفع مع إمكانية حجز المعاينة الإلكترونية مباشرة.',
-    previewImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverREAL04,
     basePriceIQD: 1600000,
     basePriceUSD: 1100,
     deliveryWeeks: 3,
@@ -133,7 +157,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'خدمات وطب',
     description: 'بوابة إلكترونية متكاملة لإدارة المواعيد الطبية، الاستشارات عن بُعد، والملفات الصحية الإلكترونية.',
     longDescription: 'تم إنشاؤه وفق أعلى معايير أمان البيانات الصحية، يوفر نظام حجز الأطباء، الأقسام الطبية، نتائج التحاليل، والدردشة مع طبيبك.',
-    previewImage: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverHEALTH05,
     basePriceIQD: 1550000,
     basePriceUSD: 1070,
     deliveryWeeks: 3,
@@ -162,7 +186,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'فينتك وخدمات مالية',
     description: 'نظام مالي رقمي متكامل يتيح إدارة الحسابات، التحويلات الفورية، المحافظ الإلكترونية، وتقارير الشفافية المالية.',
     longDescription: 'تم إنشاؤه لشركات الفينتك والمؤسسات المالية، يدمج أعلى مستويات التشفير والأمان، مع دعم بوابات الدفع الإلكترونية السريعة وإشارات التنبيه التلقائية.',
-    previewImage: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverFINTECH06,
     basePriceIQD: 1850000,
     basePriceUSD: 1280,
     deliveryWeeks: 4,
@@ -191,7 +215,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'مطاعم وتوصيل الطلبات',
     description: 'منصة رقمية متكاملة لعرض قوائم الطعام، استقبال الطلبات الفورية، وإدارة حجوزات الطاولات بتجربة مستخدم سلسة.',
     longDescription: 'مصمم لمطاعم وسلاسل التوصيل، يوفر عرض قائمة طعام مصنفة بصور عالية الجودة، سلة طلبات ذكية بالإضافات والملاحظات، تتبع حالة الطلب من المطبخ حتى التسليم، ونظام حجز طاولات فوري.',
-    previewImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverFOOD07,
     basePriceIQD: 1500000,
     basePriceUSD: 1035,
     deliveryWeeks: 3,
@@ -227,7 +251,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'تعليم ومعاهد تدريب',
     description: 'منصة رقمية لمعاهد التدريب والتعليم تتيح عرض الدورات، التسجيل الإلكتروني الفوري، ومتابعة الطالب لدرجاته وحضوره.',
     longDescription: 'مصمم لمعاهد التدريب والمؤسسات التعليمية، يقدم كتالوج دورات تفاعلي، تسجيل والتحاق إلكتروني بخطوة واحدة، لوحة تحكم طالب شاملة للدرجات والحضور والشهادات، وتقويم محاضرات ذكي.',
-    previewImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverEDU08,
     basePriceIQD: 1650000,
     basePriceUSD: 1140,
     deliveryWeeks: 4,
@@ -263,7 +287,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'هواتف وإلكترونيات',
     description: 'متجر هواتف متكامل يعرض الموديلات بمواصفاتها، ويتيح اختيار الذاكرة واللون وحساب السعر النهائي قبل تأكيد الطلب.',
     longDescription: 'مصمم لمتاجر الهواتف الذكية ومحلات الإلكترونيات، يوفر كتالوج موديلات بمواصفات تفصيلية وشارات (الأكثر مبيعاً / أفضل سعر)، اختيار سعة الذاكرة واللون مع تحديث فوري للسعر، إضافة كفالة سنة إضافية، حاسبة تقسيط شهري، وتأكيد طلب برقم مرجعي وفاتورة إلكترونية.',
-    previewImage: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverPHONE09,
     basePriceIQD: 1650000,
     basePriceUSD: 1138,
     deliveryWeeks: 4,
@@ -299,7 +323,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'ساعات يد ومجوهرات',
     description: 'متجر إلكتروني لساعات اليد يعرض كل ساعة بحركتها ومقاس علبتها وخامة سوارها، مع نقش مجاني على ظهر العلبة وشهادة أصالة.',
     longDescription: 'مصمم لمحلات الساعات الفاخرة، يعرض كل موديل بتفاصيله الحقيقية — نوع الحركة (أوتوماتيك أو كوارتز)، قطر العلبة بالمليمتر، مقاومة الماء، وخيارات السوار — مع اختيار السوار ونقش اسم على ظهر العلبة، وشهادة أصالة وكفالة دولية مع كل قطعة.',
-    previewImage: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverWATCH10,
     basePriceIQD: 1600000,
     basePriceUSD: 1103,
     deliveryWeeks: 3,
@@ -335,7 +359,7 @@ export const templatesData: Template[] = [
     categoryLabel: 'تسويق رقمي',
     description: 'وكالة تسويق رقمي فضائية تعرض الحملات والاستراتيجيات والتحليلات بتصميم مستقبلي مع بطاقات تفاعلية.',
     longDescription: 'مصمم لوكالات التسويق الرقمي والشركات التي تريد عرض خدماتها بشكل احترافي، يوفر عرض حملات مستهدفة، استراتيجية مدعومة بالبيانات، إدارة وسائل التواصل، SEO والمحتوى، العلامة التجارية الإبداعية، وتحليلات الأداء مع بطاقات تفاعلية ونسب متحركة.',
-    previewImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=600&q=60',
+    previewImage: coverMARKETING11,
     basePriceIQD: 1550000,
     basePriceUSD: 1070,
     deliveryWeeks: 3,
