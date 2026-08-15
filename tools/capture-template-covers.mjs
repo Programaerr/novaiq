@@ -62,6 +62,36 @@ const COVER_H = 662;
 const DPR = 2;
 const WEBP_QUALITY = 0.82;
 
+/**
+ * Which section of each demo the cover shows.
+ *
+ * Not the home page. Every demo opens on the same shape of landing screen — a top bar, a hero card
+ * with two buttons, a row of stat tiles — because they share a design system, so eleven covers
+ * taken from the top produced eleven nearly identical thumbnails. That is worse than the stock
+ * photographs it replaced: at least those were different from each other.
+ *
+ * The section that actually distinguishes a template is the one that shows its GOODS. The watch
+ * store's grid of watches is a picture of a watch store in a way its hero is not, and the clinic's
+ * roster of doctors is a picture of a clinic. So each cover is that tab.
+ *
+ * Keyed by the nav ids in src/data/sandboxDemoData.ts (SITE_NAV_ITEMS / STORE_NAV_ITEMS). If a nav
+ * id is renamed there, the capture fails loudly for that template rather than quietly falling back
+ * to the home screen.
+ */
+const COVER_SECTION = {
+  'NVQ-CORP-01': 'خدماتنا',
+  'NVQ-ECOM-02': 'كل المنتجات',
+  'NVQ-CARS-03': 'المعرض',
+  'NVQ-REAL-04': 'العقارات',
+  'NVQ-HEALTH-05': 'الأطباء والتخصصات',
+  'NVQ-FINTECH-06': 'البطاقات',
+  'NVQ-FOOD-07': 'قائمة الطعام',
+  'NVQ-EDU-08': 'الدورات',
+  'NVQ-PHONE-09': 'الهواتف',
+  'NVQ-WATCH-10': 'الساعات',
+  'NVQ-MARKETING-11': 'خدماتنا',
+};
+
 const CHROME = [
   'C:/Program Files/Google/Chrome/Application/chrome.exe',
   'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
@@ -185,6 +215,36 @@ async function main() {
       if (result.value) break;
       await sleep(250);
     }
+    await sleep(700);
+
+    // Open the demo's own section menu and choose the tab that shows its goods. The menu is a
+    // drawer behind a hamburger, so it is two clicks: the button carries an aria-label, and the
+    // drawer's items are ordinary buttons carrying the label text from sandboxDemoData.ts.
+    const wanted = COVER_SECTION[id];
+    if (!wanted) throw new Error(`${id}: no cover section defined in COVER_SECTION`);
+    const { result: navRes } = await cdp.send('Runtime.evaluate', {
+      expression: `(async () => {
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        const menu = document.querySelector('button[aria-label="فتح قائمة أقسام الموقع"]');
+        if (!menu) return 'no menu button';
+        menu.click();
+        await sleep(450);
+        const item = [...document.querySelectorAll('button')]
+          .find(b => b.textContent && b.textContent.trim() === ${JSON.stringify(wanted)});
+        if (!item) return 'no nav item: ' + ${JSON.stringify(wanted)};
+        item.click();
+        await sleep(700);
+        // The drawer closes itself on selection; belt and braces in case a demo does not.
+        const close = document.querySelector('button[aria-label="إغلاق القائمة"]');
+        if (close && close.offsetParent) close.click();
+        await sleep(250);
+        return 'ok';
+      })()`,
+      awaitPromise: true,
+      returnByValue: true,
+    });
+    if (navRes.value !== 'ok') throw new Error(`${id}: ${navRes.value}`);
+
     await sleep(900); // one beat for entrance animations to settle on their final frame
 
     // Find the demo's own pane and clip to it. `data-lenis-prevent` marks the scrollable preview
