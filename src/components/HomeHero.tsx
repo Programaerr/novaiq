@@ -120,9 +120,21 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           rather than a white hole. */}
       <div className="absolute inset-0" style={{ background: GROUND }} aria-hidden="true" />
 
+      {/* Sized so the SPHERE fits the screen, not so the frame does.
+          `h-full object-cover` fills the section, which on a portrait phone means the shorter
+          dimension drives the scale: a 16:9 source on a 390x844 screen renders about 1500px wide
+          and is cropped to 390, so the ball — roughly three quarters of the frame's height — comes
+          out 590px across on a 390px screen and all that survives the crop is a patch of its
+          middle. The backdrop stopped reading as a sphere at all and became texture.
+          Cover only works out when the viewport is wider than about 0.75 of its height, which
+          tablets and every desktop clear and no phone does.
+          So the height is capped at 115vw: below that ratio the video becomes a centred band
+          scaled to the WIDTH, the ball lands at ~86% of the screen and is whole, and the crop
+          moves to the empty black sides where there is nothing to lose. At tablet size and up
+          `100%` is the smaller of the two and this changes nothing. */}
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full h-[min(100%,115vw)] object-cover"
         // Drained of colour entirely, not recoloured. The source is a red sphere; rotating its hue
         // to violet only swapped one colour the site does not have for another, and a violet
         // backdrop is precisely what made this section look like it belonged to a different page.
@@ -200,12 +212,17 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
             {/* Display type: heavy, tight and uppercase, set at a leading under 1 so the lines lock
                 into a block rather than reading as a paragraph. `text-balance` covers the narrow
-                screens where a line cannot fit. */}
-            <h1 className="mt-5 text-[2.6rem] sm:text-6xl lg:text-[4.6rem] font-black uppercase leading-[0.96] tracking-tight text-white font-['Cairo'] text-balance">
+                screens where a line cannot fit.
+
+                Phone sizing is a clamp on `vw` rather than one fixed value, because a headline
+                picked to look right on a 430px screen is oversized on a 360px one — same pixels,
+                a fifth less room. Tying it to the width keeps the same PROPORTION across every
+                phone and the bounds stop it running away at either end. */}
+            <h1 className="mt-4 sm:mt-5 text-[clamp(1.8rem,7.8vw,2.35rem)] sm:text-5xl lg:text-[4.6rem] font-black uppercase leading-[0.96] tracking-tight text-white font-['Cairo'] text-balance">
               {isAr ? 'تجارب رقمية' : 'Digital experiences'}
             </h1>
 
-            <p className="mt-6 max-w-md text-sm text-white/70 leading-relaxed">
+            <p className="mt-4 sm:mt-6 max-w-md text-[0.8125rem] sm:text-sm text-white/70 leading-relaxed">
               {isAr
                 ? 'نصنع في NOVAIQ تجارب رقمية غامرة تزيد التفاعل، تلهم الإبداع، وتوصل نتائج حقيقية لشركتك.'
                 : 'At NOVAIQ we craft immersive digital experiences that drive engagement, inspire creativity and deliver real results.'}
@@ -214,13 +231,15 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             <button
               type="button"
               onClick={onStart}
-              className="mt-9 inline-flex items-center gap-3 ps-7 pe-2 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-xs font-bold tracking-[0.16em] uppercase text-white hover:bg-white/10 hover:border-white/40 transition-colors cursor-pointer"
+              // Smaller on a phone, but not below the 44px a finger needs: the disc drops to 2rem
+              // and the padding to 0.375rem, which lands the whole pill at exactly 44px tall.
+              className="mt-7 sm:mt-9 inline-flex items-center gap-2.5 sm:gap-3 ps-6 sm:ps-7 pe-1.5 sm:pe-2 py-1.5 sm:py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-[0.6875rem] sm:text-xs font-bold tracking-[0.16em] uppercase text-white hover:bg-white/10 hover:border-white/40 transition-colors cursor-pointer"
             >
               <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
               {/* The disc is the accent and the arrow is the ground, which is the same inversion
                   `.nq-cta-badge` uses everywhere else on the site. */}
               <span
-                className="w-9 h-9 rounded-full grid place-items-center"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full grid place-items-center"
                 style={{ background: ACCENT, color: '#000000' }}
                 aria-hidden="true"
               >
