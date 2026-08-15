@@ -1,33 +1,38 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowDown, ArrowUpLeft, ArrowUpRight } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { HeroOrb } from './HeroOrb';
 
 /**
- * The home page's first section: the claim and the work.
+ * The home page's first section: what NOVAIQ does, and the two ways in.
  *
- * ## No header of its own any more
+ * ## Three things and nothing else
  *
- * This briefly carried a full duplicate of the shared Navbar — its own logo bar, links, language
- * toggle and mobile drawer — because App.tsx hid the real bar on `home` and let this section sit
- * directly on the video backdrop instead. That duplication was the wrong trade: a second, hand-kept
- * copy of the navbar is a second place for every future nav change to be applied, and a merge is
- * exactly where two copies of the same thing drift apart and stop compiling.
+ * A claim, a route to the work, a route to a contract. Everything the previous versions of this
+ * hero carried beyond those — a second copy of the navbar, a canvas of drifting dust, a streamed
+ * video of somebody else's sphere, three numbered service cards — has been taken out rather than
+ * rearranged. A hero is the one screen where every extra element competes with the sentence the
+ * visitor came to read.
  *
- * The shared Navbar now renders on every page, including this one — see App.tsx, which no longer
- * special-cases `home`. Its floating pill sits fixed above the video regardless, so the "sitting on
- * the backdrop" look is unchanged; what changed is that there is only one navbar to maintain.
+ * What survives of the services is a capability strip on the bottom rule: the same three ideas at
+ * a tenth of the height, positioned where they read as a footer to the claim instead of as a
+ * second column arguing with it.
+ *
+ * ## The two buttons are the design system's, not this file's
+ *
+ * `.nq-btn--ghost` exists in index.css for exactly this pair, and says so where it is defined:
+ * the hero offers two ways in at two different levels of commitment, and two solid pills side by
+ * side would say they are the same size of decision. Starting a project is the primary; browsing
+ * the work is the low-commitment one. Both props were always on this component — until now only
+ * one of them was wired to anything.
  *
  * ## The backdrop
  *
- * A video and a vignette, and nothing else — a canvas of drifting dust motes sat over both and has
- * been removed. The video is drained of colour rather than used as shot: it is a red sphere, and
- * this site is monochrome, so greyscale puts it in the same palette as everything else.
- *
- * The vignette is an ellipse rather than a linear fade. A straight gradient leaves a visible
- * horizontal edge across the frame, which is the one thing a backdrop must never do.
- *
- * The video stops under `prefers-reduced-motion`. It is now the only thing in this section that
- * moves at all.
+ * HeroOrb — a real object, rendered here, replacing a video that was streamed from a third
+ * party's CDN. Over it sit two scrims and a vignette, and each one has a job: the copy has to
+ * stay legible over a moving surface, and the surface has to stay visible in the space the copy
+ * leaves. The scrim is DIRECTIONAL and follows the layout — down the copy's side on desktop,
+ * top-and-bottom on a phone where the copy is above the object rather than beside it.
  */
 
 /**
@@ -35,14 +40,14 @@ import { Language } from '../lib/i18n';
  *
  * `--nq-ground` is #000000 and `--nq-accent` is #E4E4E7 — a near-white rather than pure white,
  * because the accent is an EMPHASIS LEVEL rather than a hue and a fill already at #FFFFFF has
- * nowhere left to go on hover. Between them the whole site is monochrome, and it had violet in it
- * only here, which is exactly what made this section read as a different page.
- *
- * Written as `var(...)` rather than copied hex so retuning the site retunes this too — a colour
- * typed into thirty components is a colour the site is stuck with.
+ * nowhere left to go on hover. Written as `var(...)` rather than copied hex so retuning the site
+ * retunes this too.
  */
 const GROUND = 'var(--nq-ground, #000000)';
 const ACCENT = 'var(--nq-accent, #E4E4E7)';
+
+/** Entrance stagger, in ms. Small: this is meant to be felt as the page settling, not watched. */
+const STEP = 70;
 
 interface HomeHeroProps {
   language?: Language;
@@ -52,226 +57,209 @@ interface HomeHeroProps {
   onRequestProject?: () => void;
 }
 
-/* ── The section ──────────────────────────────────────────────────────────────────────────── */
-
 export const HomeHero: React.FC<HomeHeroProps> = ({
   language = 'ar',
   onStart,
   onRequestProject,
 }) => {
   const isAr = language === 'ar';
-  // The CTA arrow points "away, forward" — up and outward — so it follows the reading direction the
-  // way every other directional glyph on the site does.
+  // The CTA arrow points "away, forward" — up and outward — so it follows the reading direction
+  // the way every other directional glyph on the site does.
   const CtaArrow = isAr ? ArrowUpLeft : ArrowUpRight;
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // The backdrop holds still for anyone who asked for that. It is the only thing left in this
-  // section that moves at all.
+  /* Read once here rather than left to CSS, because the entrance below is an inline `animation`
+     and an inline longhand cannot be overridden by a `motion-reduce:` utility — .page-in is
+     unlayered, so it outranks the utilities layer whichever order they land in. Deciding it in JS
+     is the version that actually honours the preference instead of appearing to. */
+  const [reduced, setReduced] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const apply = () => {
-      const v = videoRef.current;
-      if (!v) return;
-      if (mq.matches) v.pause();
-      else void v.play().catch(() => {});
-    };
-    apply();
-    mq.addEventListener('change', apply);
-    return () => mq.removeEventListener('change', apply);
+    const read = () => setReduced(mq.matches);
+    read();
+    mq.addEventListener('change', read);
+    return () => mq.removeEventListener('change', read);
   }, []);
 
-  const cards = [
-    {
-      n: '01',
-      t: isAr ? 'تصميم إبداعي' : 'Creative design',
-      d: isAr ? 'واجهات تُبنى لتُقنع، مو بس تُعجب.' : 'Interfaces built to convince, not only to please.',
-    },
-    {
-      n: '02',
-      t: isAr ? 'هوية واستراتيجية' : 'Brand strategy',
-      d: isAr ? 'هوية تخليك تنعرف من أول نظرة.' : 'A brand that is recognised at first glance.',
-    },
-    {
-      n: '03',
-      t: isAr ? 'حلول رقمية' : 'Digital solutions',
-      d: isAr ? 'أنظمة تشتغل بهدوء وتكبر معك.' : 'Systems that run quietly and grow with you.',
-    },
-  ];
+  /** Staggered entrance for one element, or nothing at all if motion is not wanted. */
+  const enter = (i: number): React.CSSProperties =>
+    reduced ? {} : { animation: 'page-in 0.5s ease-out both', animationDelay: `${i * STEP}ms` };
+
+  const capabilities = isAr
+    ? ['تصميم واجهات', 'هوية بصرية', 'أنظمة وتطبيقات']
+    : ['Interface design', 'Brand identity', 'Systems & apps'];
 
   return (
     <section
       id="home-hero"
-      // The full first screen, pulled up behind the floating (transparent) Navbar: `<main>`'s
-      // padding reserves the nav band + gap, so without a matching negative margin this section
-      // would start below that padding and leave an empty strip between the navbar and the video.
-      // This margin cancels it, the video's `absolute inset-0` then runs from the very top of the
-      // viewport and reads as sitting behind the navbar instead of leaving a gap above it.
-      // `svh` rather than `vh` so a phone's collapsing address bar cannot make this taller than the
-      // screen it is meant to match.
+      /* The full first screen, pulled up behind the floating (transparent) Navbar: `<main>`'s
+         padding reserves the nav band + gap, so without a matching negative margin this section
+         would start below that padding and leave an empty strip between the navbar and the
+         artwork. `svh` rather than `vh` so a phone's collapsing address bar cannot make this
+         taller than the screen it is meant to match. */
       style={{
         minHeight: '100svh',
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
       className="relative flex flex-col overflow-hidden"
     >
-      {/* ── Backdrop ────────────────────────────────────────────────────────────────────────
-          A flat ground under the video, so a slow network or a blocked CDN leaves a dark section
-          rather than a white hole. */}
+      {/* A flat ground under everything, so a slow first frame leaves a dark section rather than
+          a white hole. */}
       <div className="absolute inset-0" style={{ background: GROUND }} aria-hidden="true" />
 
-      {/* Sized so the SPHERE fits the screen, not so the frame does.
-          `h-full object-cover` fills the section, which on a portrait phone means the shorter
-          dimension drives the scale: a 16:9 source on a 390x844 screen renders about 1500px wide
-          and is cropped to 390, so the ball — roughly three quarters of the frame's height — comes
-          out 590px across on a 390px screen and all that survives the crop is a patch of its
-          middle. The backdrop stopped reading as a sphere at all and became texture.
-          Cover only works out when the viewport is wider than about 0.75 of its height, which
-          tablets and every desktop clear and no phone does.
-          So the height is capped at 115vw: below that ratio the video becomes a centred band
-          scaled to the WIDTH, the ball lands at ~86% of the screen and is whole, and the crop
-          moves to the empty black sides where there is nothing to lose. At tablet size and up
-          `100%` is the smaller of the two and this changes nothing. */}
-      <video
-        ref={videoRef}
-        className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full h-[min(100%,115vw)] object-cover"
-        // Drained of colour entirely, not recoloured. The source is a red sphere; rotating its hue
-        // to violet only swapped one colour the site does not have for another, and a violet
-        // backdrop is precisely what made this section look like it belonged to a different page.
-        // Greyscale puts it in the site's own monochrome, where the only thing separating it from
-        // the ground is value. Contrast is lifted a little because desaturating a mid-red flattens
-        // it toward one grey.
-        style={{ filter: 'grayscale(1) contrast(1.18) brightness(0.52)' }}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%23000000'/%3E%3C/svg%3E"
-        aria-hidden="true"
-      >
-        <source
-          src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/bg-red-ball.mp4"
-          type="video/mp4"
-        />
-      </video>
+      <HeroOrb flip={!isAr} />
 
-      {/* An ELLIPSE, not a linear fade. A straight gradient across a full-bleed backdrop leaves a
-          visible horizontal edge, which reads as a seam in the page; a radial one has no edge to
-          see and darkens exactly where the copy needs contrast. */}
+      {/* The copy-side scrim, and it follows the layout rather than the screen. On desktop the
+          copy is beside the object, so the darkening runs across from the copy's own edge and
+          leaves the far side clear; on a phone the copy is above it and the strip below it, so it
+          runs top and bottom instead. Getting this backwards costs either a headline over a
+          moving highlight or an object nobody can see. */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 lg:hidden"
         style={{
           background:
-            'radial-gradient(ellipse 68% 68% at 50% 50%, transparent 22%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.82) 75%, rgba(0,0,0,0.98) 100%)',
+            'linear-gradient(to bottom, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 26%, rgba(0,0,0,0.05) 46%, rgba(0,0,0,0.45) 82%, rgba(0,0,0,0.9) 100%)',
+        }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 hidden lg:block"
+        style={{
+          background: `linear-gradient(to ${isAr ? 'left' : 'right'}, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.62) 30%, rgba(0,0,0,0.12) 55%, rgba(0,0,0,0) 72%)`,
         }}
         aria-hidden="true"
       />
 
+      {/* An ELLIPSE, not a linear fade. A straight gradient across a full-bleed backdrop leaves a
+          visible horizontal edge, which reads as a seam in the page; a radial one has no edge to
+          see and darkens exactly the corners where the object's rim light would otherwise run
+          into the section boundary. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 78% 72% at 50% 50%, transparent 30%, rgba(0,0,0,0.45) 62%, rgba(0,0,0,0.9) 100%)',
+        }}
+        aria-hidden="true"
+      />
 
-      {/* ── The content ─────────────────────────────────────────────────────────────────── */}
-      {/* Stacked, the two blocks are ANCHORED to the ends of the screen rather than sharing the
-          slack out between them.
+      {/* ── The claim ───────────────────────────────────────────────────────────────────────
+          The grid IS the flex child, with no wrapper between them. Nested one level down it would
+          need a percentage height to know how tall to be, and a percentage height inside a
+          flex-derived box does not resolve — it collapses to its content and stops distributing.
 
-          Centring was the first thing tried and it left 180px of dead band above the copy and
-          another 180 below the cards on a tablet — a third of the screen empty with both blocks
-          afloat in the middle of it. Distributing evenly fixed the symptom and kept the cause: an
-          even split hands each gap the same THIRD of whatever is left over, so every gap grows and
-          shrinks with the screen. Measured across phones that meant 11px between the navbar and
-          the eyebrow at 360x740 — nearly touching — against 74px at 499x928, and a 142px void
-          under the last card on the taller one. Neither number was chosen; both fell out of the
-          screen height.
-
-          So the two ends are pinned instead. The copy starts a FIXED 1.75rem below wherever the
-          floating navbar actually ends (`--nav-bottom` is measured at runtime, so this holds at
-          every width without a per-breakpoint offset), and the cards end a bottom margin that
-          scales gently with the screen rather than with the leftover. Everything left over lands
-          in the middle — which is not dead space here, it is the one part of the frame where the
-          backdrop is unobstructed, and it is the same hole the empty middle column keeps open on
-          desktop. `svh` for the same reason the section uses it: a collapsing address bar must not
-          change the margin.
-
-          From `lg` the two are side by side in one row, so there is nothing to distribute and it
-          goes back to centred with even padding. */}
-      {/* The grid IS the flex child, with no wrapper between them, and that is what makes the
-          distribution work at all. Nested one level down it needed `h-100%` to know how tall to be,
-          and a percentage height inside a flex-derived box does not resolve — the grid stayed at
-          its content height of 535px inside a 766px parent, so there was no free space for
-          `space-between` to hand out and the cards never moved. As the flex child itself it takes
-          the height directly.
-
-          Twelve columns from `lg`, split 5 / 3 / 4. The middle three are EMPTY on purpose — that is
-          the gap the sphere behind shows through, and it is the whole reason the copy sits in two
-          side columns rather than one centred block. Below `lg` there are no columns to keep clear,
-          so it collapses to a single stack. */}
-      <div className="relative z-10 flex-1 nq-container pt-[calc(var(--nav-bottom,74px)+1.75rem)] pb-[9svh] lg:pt-16 lg:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center content-between lg:content-center">
-          <div className="lg:col-span-5">
-            <span className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT }}>
-              {isAr ? 'نحن نصمم' : 'We design'}
+          Top padding clears the floating navbar by a FIXED 1.75rem, measured from `--nav-bottom`
+          at runtime rather than guessed per breakpoint. `content-start` below `lg` because the
+          object owns the middle of the screen and the strip owns the bottom; from `lg` the copy
+          is beside the object and centres in its own column. */}
+      <div className="relative z-10 flex-1 nq-container pt-[calc(var(--nav-bottom,74px)+1.75rem)] lg:pt-16 pb-8 lg:pb-16 grid grid-cols-1 lg:grid-cols-12 content-start lg:content-center">
+        <div className="lg:col-span-6 xl:col-span-5">
+          {/* Availability, not a slogan. It is the one line here that is time-sensitive and
+              therefore the one that reads as a real company rather than a template. */}
+          <span
+            className="inline-flex items-center gap-2 rounded-full ps-2 pe-3.5 py-1.5 text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.2em] uppercase text-white/80 glass-bar glass-bar--blur"
+            style={enter(0)}
+          >
+            <span className="relative flex w-1.5 h-1.5" aria-hidden="true">
+              <span
+                className="absolute inset-0 rounded-full opacity-70 animate-ping motion-reduce:animate-none"
+                style={{ background: ACCENT }}
+              />
+              <span className="relative w-1.5 h-1.5 rounded-full" style={{ background: ACCENT }} />
             </span>
+            {isAr ? 'متاح لمشاريع جديدة' : 'Open for new projects'}
+          </span>
 
-            {/* Display type: heavy, tight and uppercase, set at a leading under 1 so the lines lock
-                into a block rather than reading as a paragraph. `text-balance` covers the narrow
-                screens where a line cannot fit.
+          {/* Display type: heavy and tight, but NOT at the sub-1 leading Latin display type takes.
+              Arabic sets its own limit here — نصمّم carries a shadda above the line and تجارب a
+              descender below it, so at 0.98 the two lines physically collided. 1.14 is the point
+              where they stop touching at every size this renders at, and it is set here rather
+              than left to the font's default because the default is looser than a headline wants.
 
-                Phone sizing is a clamp on `vw` rather than one fixed value, because a headline
-                picked to look right on a 430px screen is oversized on a 360px one — same pixels,
-                a fifth less room. Tying it to the width keeps the same PROPORTION across every
-                phone and the bounds stop it running away at either end. */}
-            <h1 className="mt-4 sm:mt-5 text-[clamp(1.8rem,7.8vw,2.35rem)] sm:text-5xl lg:text-[4.6rem] font-black uppercase leading-[0.96] tracking-tight text-white font-['Cairo'] text-balance">
-              {isAr ? 'تجارب رقمية' : 'Digital experiences'}
-            </h1>
+              Phone sizing is a clamp on `vw` rather than one fixed value, because a headline
+              picked to look right on a 430px screen is oversized on a 360px one — same pixels, a
+              fifth less room. */}
+          <h1
+            className="mt-5 sm:mt-6 text-[clamp(2rem,8.4vw,2.6rem)] sm:text-5xl lg:text-[4.2rem] xl:text-[4.8rem] font-black leading-[1.14] tracking-tight font-['Cairo'] text-balance"
+            style={enter(1)}
+          >
+            <span className="block text-white">{isAr ? 'نصمّم ونبني' : 'We design and build'}</span>
+            {/* The second line carries the accent, which is the whole hierarchy of the headline:
+                one thing said in two weights beats two things said in one. */}
+            <span className="block" style={{ color: ACCENT }}>
+              {isAr ? 'تجارب رقمية' : 'digital experiences'}
+            </span>
+          </h1>
 
-            <p className="mt-4 sm:mt-6 max-w-md text-[0.8125rem] sm:text-sm text-white/70 leading-relaxed">
-              {isAr
-                ? 'نصنع في NOVAIQ تجارب رقمية غامرة تزيد التفاعل، تلهم الإبداع، وتوصل نتائج حقيقية لشركتك.'
-                : 'At NOVAIQ we craft immersive digital experiences that drive engagement, inspire creativity and deliver real results.'}
-            </p>
+          <p
+            className="mt-5 sm:mt-6 max-w-lg text-[0.8125rem] sm:text-[0.95rem] text-white/70 leading-relaxed"
+            style={enter(2)}
+          >
+            {isAr
+              ? 'من الهوية للواجهة للنظام اللي وراها. نشتغل مع الشركات اللي تريد موقعاً يشتغل ويبيع، مو بس يبيّن حلو.'
+              : 'From the brand to the interface to the system behind it. We work with companies that want a site that performs, not just one that looks the part.'}
+          </p>
+
+          <div className="mt-7 sm:mt-9 flex flex-wrap items-center gap-3" style={enter(3)}>
+            <button
+              type="button"
+              onClick={onRequestProject}
+              className="nq-btn nq-btn--solid group ps-6 pe-1.5 py-1.5 rounded-full flex items-center gap-3 text-xs sm:text-sm font-extrabold cursor-pointer"
+            >
+              <span className="nq-btn-beam" aria-hidden="true" />
+              <span>{isAr ? 'ابدأ مشروعك' : 'Start your project'}</span>
+              {/* The disc takes the button's two colours swapped over, so it stays inverted
+                  against its own body through the hover flip — see .nq-cta-badge. */}
+              <span className="nq-cta-badge" aria-hidden="true">
+                <CtaArrow className="w-4 h-4" strokeWidth={2.6} />
+              </span>
+            </button>
 
             <button
               type="button"
               onClick={onStart}
-              // Smaller on a phone, but not below the 44px a finger needs: the disc drops to 2rem
-              // and the padding to 0.375rem, which lands the whole pill at exactly 44px tall.
-              className="mt-7 sm:mt-9 inline-flex items-center gap-2.5 sm:gap-3 ps-6 sm:ps-7 pe-1.5 sm:pe-2 py-1.5 sm:py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-[0.6875rem] sm:text-xs font-bold tracking-[0.16em] uppercase text-white hover:bg-white/10 hover:border-white/40 transition-colors cursor-pointer"
+              // `min-h-11` rather than relying on the padding: at the phone's smaller type this
+              // measured 40px tall, and 44 is the floor for something a finger has to hit.
+              className="nq-btn nq-btn--ghost min-h-11 px-6 py-3 rounded-full inline-flex items-center text-xs sm:text-sm font-bold cursor-pointer"
             >
-              <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
-              {/* The disc is the accent and the arrow is the ground, which is the same inversion
-                  `.nq-cta-badge` uses everywhere else on the site. */}
-              <span
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full grid place-items-center"
-                style={{ background: ACCENT, color: '#000000' }}
-                aria-hidden="true"
-              >
-                <CtaArrow className="w-4 h-4" strokeWidth={2.6} />
-              </span>
+              <span className="nq-btn-beam" aria-hidden="true" />
+              {isAr ? 'شاهد أعمالنا' : 'See our work'}
             </button>
           </div>
+        </div>
+      </div>
 
-          {/* The clear middle. It holds no content at any size — it exists to keep the backdrop's
-              centre unobstructed. */}
-          <div className="hidden lg:block lg:col-span-3" aria-hidden="true" />
+      {/* ── The bottom rule ─────────────────────────────────────────────────────────────────
+          A real flex child at the end of the section rather than a row inside the grid, which is
+          what pins it to the bottom of the screen at every height without any space having to be
+          distributed to put it there. */}
+      <div className="relative z-10 nq-container pb-5 sm:pb-7" style={enter(4)}>
+        <div className="border-t border-white/12 pt-4 sm:pt-5 flex items-center justify-between gap-4">
+          <ul className="flex items-center">
+            {capabilities.map((c, i) => (
+              <li
+                key={c}
+                /* `border-s` rather than `border-l`: the logical side flips with the document
+                   direction on its own, so this stays a divider BETWEEN items in both languages
+                   instead of landing on the outside edge in one of them. */
+                className={`text-[0.6rem] sm:text-[0.7rem] font-bold tracking-[0.14em] sm:tracking-[0.2em] uppercase text-white/55 px-3 sm:px-5 first:ps-0 ${
+                  i > 0 ? 'border-s border-white/12' : ''
+                }`}
+              >
+                {c}
+              </li>
+            ))}
+          </ul>
 
-          <div className="lg:col-span-4">
-            <ul className="flex flex-col">
-              {cards.map((c, i) => (
-                <li
-                  key={c.n}
-                  className={`py-5 sm:py-6 ${i > 0 ? 'border-t border-white/12' : ''} flex gap-4 sm:gap-5`}
-                >
-                  <span className="text-xs font-bold tracking-widest pt-1" style={{ color: ACCENT }}>
-                    {c.n}
-                  </span>
-                  <div>
-                    <h2 className="text-sm sm:text-base font-extrabold tracking-[0.1em] uppercase text-white">
-                      {c.t}
-                    </h2>
-                    <p className="mt-1.5 text-xs sm:text-sm text-white/60 leading-relaxed">{c.d}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+          {/* Decorative: the section below is reachable by scrolling whether or not this is here,
+              so it is hidden from assistive technology rather than announced as a control. */}
+          <div
+            className="hidden sm:flex items-center gap-2 text-[0.6rem] font-bold tracking-[0.2em] uppercase text-white/40 shrink-0"
+            aria-hidden="true"
+          >
+            <span>{isAr ? 'اكتشف أكثر' : 'Scroll'}</span>
+            <ArrowDown className="w-3.5 h-3.5 animate-bounce motion-reduce:animate-none" />
           </div>
+        </div>
       </div>
     </section>
   );

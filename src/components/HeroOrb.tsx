@@ -57,16 +57,23 @@ import { MAX_DPR } from '../lib/renderBudget';
    exception and it is barely one: a few points of blue, because a grazing highlight on any real
    surface carries the colour temperature of the sky rather than of the body. */
 const C_INK = '#06070A';
-const C_BODY = '#31343B';
+const C_BODY = '#494D57';
 const C_PALE = '#E4E4E7';
 const C_RIM = '#EEF2F8';
 
 /** Fixed key direction, in VIEW space — see the header. Up, and from the far side of the copy. */
 const LIGHT = new THREE.Vector3(-0.44, 0.68, 0.58).normalize();
 
-/** Peak displacement as a fraction of the radius. Every size calculation below has to allow for
-    it, or the ridges clip the frame that the smooth sphere fits inside. */
-const AMP = 0.15;
+/**
+ * Peak displacement as a fraction of the radius. Every size calculation below has to allow for it,
+ * or the ridges clip the frame that the smooth sphere fits inside.
+ *
+ * Deliberately small. The relief here should read in the SHADING, not in the silhouette: past
+ * about 0.12 the outline goes lumpy and the object stops being a sphere with a surface and starts
+ * being an asteroid. The ridges are made visible by the crest term in the fragment shader instead,
+ * which costs nothing and does not touch the edge.
+ */
+const AMP = 0.1;
 
 /** Radians per second. Slow enough that the flowing surface, not the rotation, is the motion. */
 const SPIN = 0.055;
@@ -104,7 +111,13 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
       float vnoise(vec3 x) {
         vec3 i = floor(x);
         vec3 f = fract(x);
-        f = f * f * (3.0 - 2.0 * f);
+        // QUINTIC, not the usual cubic smoothstep. Cubic leaves the second derivative
+        // discontinuous at every cell boundary, which a colour lookup never shows but a NORMAL
+        // computed from the field shows immediately: the first build of this shader had a lattice
+        // of diamond-shaped creases across the body, one per noise cell, and they were the grid
+        // itself catching the specular. Quintic is flat to the second derivative at the joins and
+        // they disappear.
+        f = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
         return mix(
           mix(mix(hash31(i), hash31(i + vec3(1, 0, 0)), f.x),
               mix(hash31(i + vec3(0, 1, 0)), hash31(i + vec3(1, 1, 0)), f.x), f.y),
@@ -128,12 +141,20 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
 
       // The height field, sampled on the unit sphere. The warp — feeding the first result back in
       // as a coordinate offset — is what turns dunes into folded ridges.
+      //
+      // The remap at the end is not cosmetic. Three octaves at halving amplitude sum to at most
+      // 0.875 and sit around 0.44 on average, so a raw fbm centred by subtracting 0.5 swings about
+      // 0.12 either way, NOT 0.5 — and uAmp, which is meant to read as "displacement as a
+      // fraction of the radius", silently delivered a sixth of what it said. The first build of
+      // this shader looked like a smooth black ball for exactly that reason. Centring on the real
+      // mean and scaling by its reciprocal puts the field back in about -1..1 so the constant
+      // means what it claims.
       float field(vec3 dir) {
-        vec3 q = dir * 1.7;
+        vec3 q = dir * 2.0;
         q.y -= uTime * 0.10;
         float n = fbm(q);
         float w = fbm(q * 2.05 + n * 1.6 + 7.3);
-        return n * 0.6 + w * 0.4 - 0.5;
+        return (n * 0.6 + w * 0.4 - 0.44) * 2.9;
       }
 
       vec3 place(vec3 dir, out float h) {
@@ -195,25 +216,27 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
         // Half-Lambert. A raw clamped dot drops to zero across the whole terminator and puts a
         // hard black band round the body; the remap keeps a gradient going into the dark side.
         float lit = dot(n, uLight) * 0.5 + 0.5;
-        float k = pow(lit, 1.9);
+        float k = pow(lit, 1.5);
 
         vec3 c = mix(uInk, uBody, smoothstep(0.04, 0.78, k));
-        c = mix(c, uPale, smoothstep(0.74, 1.0, k) * 0.5);
+        c = mix(c, uPale, smoothstep(0.72, 1.0, k) * 0.62);
 
         // Crests catch light and troughs hold shadow, beyond what the normals alone give. This is
-        // the term that keeps the ridges readable once the body turns away from the key.
-        c *= 0.86 + 0.46 * smoothstep(-0.12, 0.34, vH);
+        // the term that keeps the ridges readable once the body turns away from the key — a
+        // surface lit only by its normals loses all its relief across the terminator.
+        c *= 0.66 + 0.78 * smoothstep(-0.55, 0.5, vH);
 
         // The limb. Ungated by the light term: on a body this dark it is also what separates the
         // silhouette from the page behind it, and the page behind it is the same black.
         float fres = pow(1.0 - max(dot(v, n), 0.0), 3.2);
         c += uRim * fres * 0.40;
 
-        // One tight specular. Everything above is soft, and soft alone reads as clay.
+        // One tight specular. Everything above is soft, and soft alone reads as clay — this is
+        // what puts a wet highlight on the crests and tells you the ridges have edges.
         vec3 hv = normalize(uLight + v);
-        c += vec3(1.0) * pow(max(dot(n, hv), 0.0), 52.0) * 0.28;
+        c += vec3(1.0) * pow(max(dot(n, hv), 0.0), 38.0) * 0.42;
 
-        gl_FragColor = vec4(c, 1.0);
+        gl_FragColor = vec4(n * 0.5 + 0.5, 1.0);
       }
     `,
   });
@@ -279,8 +302,8 @@ const Orb: React.FC<OrbProps> = ({ pointer, flip, reduced }) => {
    */
   const wide = width >= 1024;
   const diameter = wide
-    ? Math.min(viewport.height * 0.86, viewport.width * 0.5)
-    : Math.min(viewport.width * 0.92, viewport.height * 0.52);
+    ? Math.min(viewport.height * 0.74, viewport.width * 0.44)
+    : Math.min(viewport.width * 0.9, viewport.height * 0.5);
   const scale = diameter / 2 / (1 + AMP);
   const x = wide ? (flip ? 1 : -1) * viewport.width * 0.21 : 0;
 
