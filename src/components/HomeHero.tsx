@@ -30,9 +30,21 @@ import { NovaiqLogo } from './NovaiqLogo';
  * compositor job with nothing to show for it.
  */
 
-/** The section's own accent, matched to the site rather than to the reference's crimson. */
-const ACCENT = '#7C5CFF';
-const ACCENT_LIT = '#A78BFA';
+/**
+ * This section has no colours of its own. It uses the site's two, by token.
+ *
+ * `--nq-ground` is #000000 and `--nq-accent` is #E4E4E7 — a near-white rather than pure white,
+ * because the accent is an EMPHASIS LEVEL rather than a hue and a fill already at #FFFFFF has
+ * nowhere left to go on hover. Between them the whole site is monochrome, and it had violet in it
+ * only here, which is exactly what made this section read as a different page.
+ *
+ * Written as `var(...)` rather than copied hex so retuning the site retunes this too — a colour
+ * typed into thirty components is a colour the site is stuck with. The rgba forms below are the
+ * same values where a `var()` cannot go (inside a gradient stop list or a shadow's alpha).
+ */
+const GROUND = 'var(--nq-ground, #000000)';
+const ACCENT = 'var(--nq-accent, #E4E4E7)';
+const ACCENT_RGB = '228,228,231';
 
 interface HomeHeroProps {
   language?: Language;
@@ -90,7 +102,6 @@ const Motes: React.FC<{ active: boolean }> = ({ active }) => {
       vx: (Math.random() - 0.5) * 0.00018,
       vy: -0.00006 - Math.random() * 0.00016,
       a: 0.16 + Math.random() * 0.5,
-      violet: Math.random() < 0.42,
     }));
 
     const draw = () => {
@@ -106,10 +117,11 @@ const Motes: React.FC<{ active: boolean }> = ({ active }) => {
 
         const px = m.x * w;
         const py = m.y * h;
+        // All one colour. Two tones of dust is a second hue in a monochrome scene, and it read as
+        // dirt on the lens rather than as light.
         const g = ctx.createRadialGradient(px, py, 0, px, py, m.r * 4);
-        const core = m.violet ? '167,139,250' : '255,255,255';
-        g.addColorStop(0, `rgba(${core},${m.a})`);
-        g.addColorStop(1, `rgba(${core},0)`);
+        g.addColorStop(0, `rgba(255,255,255,${m.a})`);
+        g.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(px, py, m.r * 4, 0, Math.PI * 2);
@@ -233,21 +245,24 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       {/* ── Backdrop ────────────────────────────────────────────────────────────────────────
           A flat ground under the video, so a slow network or a blocked CDN leaves a dark section
           rather than a white hole. */}
-      <div className="absolute inset-0 bg-[#08080c]" aria-hidden="true" />
+      <div className="absolute inset-0" style={{ background: GROUND }} aria-hidden="true" />
 
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover"
-        // The source is a red sphere and this site has no red in it. A hue rotation carries it to
-        // the section's violet, and the saturation and brightness trims keep it as a backdrop
-        // instead of something competing with the copy in front of it.
-        style={{ filter: 'hue-rotate(272deg) saturate(0.78) brightness(0.62)' }}
+        // Drained of colour entirely, not recoloured. The source is a red sphere; rotating its hue
+        // to violet only swapped one colour the site does not have for another, and a violet
+        // backdrop is precisely what made this section look like it belonged to a different page.
+        // Greyscale puts it in the site's own monochrome, where the only thing separating it from
+        // the ground is value. Contrast is lifted a little because desaturating a mid-red flattens
+        // it toward one grey.
+        style={{ filter: 'grayscale(1) contrast(1.18) brightness(0.52)' }}
         autoPlay
         loop
         muted
         playsInline
         preload="metadata"
-        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%2308080c'/%3E%3C/svg%3E"
+        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%23000000'/%3E%3C/svg%3E"
         aria-hidden="true"
       >
         <source
@@ -263,7 +278,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 68% 68% at 50% 50%, transparent 22%, rgba(8,8,12,0.42) 50%, rgba(8,8,12,0.82) 75%, rgba(8,8,12,0.98) 100%)',
+            'radial-gradient(ellipse 68% 68% at 50% 50%, transparent 22%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.82) 75%, rgba(0,0,0,0.98) 100%)',
         }}
         aria-hidden="true"
       />
@@ -289,31 +304,29 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             </button>
           </div>
 
-          {/* ── Half 2 (physical right): navigation, its own glass bar ── */}
-          <div className="navbar-glass flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
-            <nav className="hidden lg:flex items-center gap-7">
-              {links.map((l) => (
-                <button
-                  key={l.id}
-                  type="button"
-                  onClick={() => go(l.id)}
-                  className={`relative text-xs font-bold tracking-[0.14em] uppercase transition-colors cursor-pointer ${
-                    l.id === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
-                  }`}
-                >
-                  {l.label}
-                  {/* The active marker is a lit bar under the word rather than a colour change on it:
-                      on a moving backdrop a tint alone is not reliably readable. */}
-                  {l.id === 'home' && (
-                    <span
-                      className="absolute -bottom-2 inset-x-0 h-[2px] rounded-full"
-                      style={{ background: ACCENT, boxShadow: `0 0 10px ${ACCENT}` }}
-                      aria-hidden="true"
-                    />
-                  )}
-                </button>
-              ))}
-            </nav>
+          <nav className="hidden lg:flex items-center gap-7">
+            {links.map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                onClick={() => go(l.id)}
+                className={`relative text-xs font-bold tracking-[0.14em] uppercase transition-colors cursor-pointer ${
+                  l.id === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
+                }`}
+              >
+                {l.label}
+                {/* The active marker is a lit bar under the word rather than a colour change on it:
+                    on a moving backdrop a tint alone is not reliably readable. */}
+                {l.id === 'home' && (
+                  <span
+                    className="absolute -bottom-2 inset-x-0 h-[2px] rounded-full"
+                    style={{ background: ACCENT, boxShadow: `0 0 10px ${ACCENT}` }}
+                    aria-hidden="true"
+                  />
+                )}
+              </button>
+            ))}
+          </nav>
 
             {/* The language toggle has to be here. The shared bar is hidden on this page, and
                 without it there is no way to reach English at all from the page most people land
@@ -348,7 +361,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
       {/* ── The drawer ──────────────────────────────────────────────────────────────────── */}
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 bg-[#08080c]/95 backdrop-blur-xl lg:hidden">
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl lg:hidden">
           <div className="nq-container pt-6 sm:pt-8">
             <div className="flex items-center justify-between">
               <NovaiqLogo size={30} />
@@ -381,8 +394,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 setDrawerOpen(false);
                 onRequestProject?.();
               }}
-              className="mt-10 w-full px-6 py-4 rounded-full text-sm font-extrabold tracking-widest uppercase text-white cursor-pointer"
-              style={{ background: ACCENT, boxShadow: `0 12px 34px ${ACCENT}55` }}
+              className="mt-10 w-full px-6 py-4 rounded-full text-sm font-extrabold tracking-widest uppercase text-black cursor-pointer"
+              style={{ background: ACCENT, boxShadow: `0 12px 34px rgba(${ACCENT_RGB},0.22)` }}
             >
               {isAr ? 'ابدأ معنا' : 'Get started'}
             </button>
@@ -398,7 +411,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             clear, so it collapses to a single stack. */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
           <div className="lg:col-span-5">
-            <span className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT_LIT }}>
+            <span className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT }}>
               {isAr ? 'نحن نصمم' : 'We design'}
             </span>
 
@@ -421,9 +434,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               className="mt-9 inline-flex items-center gap-3 ps-7 pe-2 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-xs font-bold tracking-[0.16em] uppercase text-white hover:bg-white/10 hover:border-white/40 transition-colors cursor-pointer"
             >
               <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
+              {/* The disc is the accent and the arrow is the ground, which is the same inversion
+                  `.nq-cta-badge` uses everywhere else on the site. */}
               <span
-                className="w-9 h-9 rounded-full grid place-items-center text-black"
-                style={{ background: ACCENT_LIT }}
+                className="w-9 h-9 rounded-full grid place-items-center"
+                style={{ background: ACCENT, color: '#000000' }}
                 aria-hidden="true"
               >
                 <CtaArrow className="w-4 h-4" strokeWidth={2.6} />
@@ -442,7 +457,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                   key={c.n}
                   className={`py-5 ${i > 0 ? 'border-t border-white/12' : ''} flex gap-4 sm:gap-5`}
                 >
-                  <span className="text-xs font-bold tracking-widest pt-1" style={{ color: ACCENT_LIT }}>
+                  <span className="text-xs font-bold tracking-widest pt-1" style={{ color: ACCENT }}>
                     {c.n}
                   </span>
                   <div>
