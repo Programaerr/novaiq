@@ -55,13 +55,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       // taller than the screen it is supposed to match.
       className="relative flex items-center overflow-hidden py-8 sm:py-14 lg:py-16 min-h-[calc(100svh-var(--nav-bottom,74px)-var(--content-gap))]"
     >
-      {/* The violet wash the composition sits in. Anchored to the artwork's half of the frame in
-          both directions at once — 22% and 78% — because a single-sided gradient would be behind
-          the copy instead of behind the object as soon as the language changed. */}
-      <div
-        className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_22%_50%,rgba(124,92,255,0.16),transparent_55%),radial-gradient(circle_at_78%_50%,rgba(124,92,255,0.16),transparent_55%)]"
-        aria-hidden="true"
-      />
+      {/* No background layer of its own. A violet wash sat here and it is deliberately gone — the
+          section takes the page's own ground, and the only violet left in view is on the objects
+          themselves (the platform's seam and two of the blocks), where it reads as light coming
+          off something rather than as a tint over everything. */}
 
       <div className="relative z-10 nq-container">
         <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-8">
