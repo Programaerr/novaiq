@@ -743,6 +743,7 @@ const Scene: React.FC<{ still: boolean; replayRef: React.MutableRefObject<(() =>
   const groups = useRef<(THREE.Group | null)[]>([]);
   const camera = useThree((s) => s.camera);
   const width = useThree((s) => s.size.width);
+  const height = useThree((s) => s.size.height);
 
   /**
    * The composition tightens on a small canvas, and it has to do BOTH halves of that or it does
@@ -759,24 +760,39 @@ const Scene: React.FC<{ still: boolean; replayRef: React.MutableRefObject<(() =>
   const spread = compact ? 0.72 : 1;
 
   /**
-   * The camera closes in on a small canvas, and its ANGLE stays put.
+   * The camera frames the composition, at whatever shape the canvas happens to be.
    *
-   * Raising it was tried, for a real reason: the composition is a wide, shallow ring, so from 29°
-   * up it projects about half as tall as it is wide and leaves dead bands above and below in a
-   * square frame. At 41° it filled the square — and the mark, which is the whole point of the
-   * scene, foreshortened into an unreadable smudge, because a taller angle looks further down onto
-   * an object whose shape lives in its height. The frame was the thing that was wrong, not the
-   * angle: the artwork's box is no longer square below `lg` (see HomeHero), so a wide composition
-   * now sits in a wide box and the logo keeps the three-quarter view that makes it legible.
+   * The distance is solved rather than tuned. The canvas is square on a desktop, 1.5:1 on a tablet
+   * and something else again on a phone, and a fixed distance can only be right for one of them —
+   * every other shape gets dead bands on two sides. So: take the composition's own half-width and
+   * half-height in world units, work out the visible height that contains BOTH at this aspect, and
+   * put the camera at the distance that produces it. Nothing here is a magic number except the
+   * margin, which is the 10% of breathing room around the edges.
+   *
+   * The ANGLE never changes, and that is deliberate. Raising it was tried — from 29° up the ring
+   * projects about half as tall as it is wide, and at 41° it filled a square frame properly — but
+   * the mark foreshortened into an unreadable smudge, because a taller angle looks further down
+   * onto an object whose shape lives in its height. The logo is the point of the scene; the frame
+   * bends around it, not the other way round.
    */
   useEffect(() => {
-    const f = compact ? 0.86 : 1;
-    camera.position.set(18 * f, 14 * f, 18 * f);
+    if (!width || !height) return;
+    /** The composition's half-extents in world units: the module ring plus a module, and from the
+        mark's crown down to the shadows under the platform. */
+    const halfW = 5.2 * spread;
+    const halfH = 2.9;
+    const aspect = width / height;
+    const fov = (camera as THREE.PerspectiveCamera).fov ?? 26;
+    // Whichever of the two runs out of room first sets the frame.
+    const visibleH = (Math.max(halfH, halfW / aspect) * 2) / 0.9;
+    const dist = visibleH / (2 * Math.tan((fov * Math.PI) / 360));
+    // The viewing direction, normalised — 45° round and about 29° up.
+    camera.position.set(dist * 0.6197, dist * 0.4819, dist * 0.6197);
     // Aimed at the composition's own middle rather than the origin: the mark rises to about 2.4 and
     // the modules sit near 0, so the origin is not the centre of what is on screen.
     camera.lookAt(0, 0.9, 0);
     camera.updateProjectionMatrix();
-  }, [camera, compact]);
+  }, [camera, width, height, spread]);
 
   /** Rest positions, the outward direction of the shove, and how far along the wave each module is
       — all fixed at build time, since none of them depend on the animation. */
