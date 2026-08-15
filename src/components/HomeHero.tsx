@@ -121,26 +121,21 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             </div>
           </div>
 
-          {/* The artwork's box, and it is deliberately NOT square when the layout is stacked.
+          {/* The artwork's box. Square, and driven by HEIGHT with the width following.
               `relative` so the canvas inside can fill it absolutely without measuring anything.
 
-              Stacked, it takes the full column width and is then clamped by height: `aspect-square`
-              states the intent, `max-h` overrides it, and what comes out is a WIDE box. That is the
-              shape the artwork actually wants. The composition is a shallow ring of modules seen
-              from a three-quarter angle, so it projects about half as tall as it is wide — in a
-              square frame that leaves a third of the canvas empty above it and another third below,
-              and the whole thing reads as small and stranded no matter how many pixels it is given.
-              In a wide box the same height budget buys real width, and the artwork is bigger where
-              being bigger shows.
+              It was briefly wide below `lg`, for a good reason at the time: the artwork was a
+              shallow ring of eight modules that projected about half as tall as it was wide, and a
+              square frame spent a third of its height on empty space above it and another third
+              below. The modules are gone — what is left is a platform with the mark standing over
+              it, which is very nearly as tall as it is wide — so a square frame is the right one
+              again and a wide one would waste the width instead.
 
               The height clamps are set from the measured fit rather than picked: the copy, the gap
               and the section's padding are known at every size, so the artwork takes what is left
               minus a margin for the copy growing a line. The tightest case is a 360×740 phone,
-              which has 654px of section with 334 already spoken for — hence 40svh.
-
-              From `lg` the two-column layout gives this its own half of the page, which is nowhere
-              near wide, so it goes back to a square driven by height. */}
-          <div className="relative mx-auto aspect-square w-full max-h-[40svh] sm:max-h-[42svh] md:max-h-[46svh] lg:h-[min(68svh,37.5rem)] lg:w-auto lg:max-h-none">
+              which has 654px of section with 334 already spoken for — hence 40svh. */}
+          <div className="relative mx-auto aspect-square w-auto h-[min(40svh,21rem)] sm:h-[min(42svh,24rem)] md:h-[min(46svh,28rem)] lg:h-[min(68svh,37.5rem)]">
             <HeroStack />
           </div>
         </div>
