@@ -180,7 +180,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           the gap the sphere behind shows through, and it is the whole reason the copy sits in two
           side columns rather than one centred block. Below `lg` there are no columns to keep clear,
           so it collapses to a single stack. */}
-      <div className="relative z-10 flex-1 nq-container py-8 sm:py-10 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center content-between lg:content-center">
+      <div className="relative z-10 flex-1 nq-container py-8 sm:py-10 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center content-evenly lg:content-center">
           <div className="lg:col-span-5">
             <span className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT }}>
               {isAr ? 'نحن نصمم' : 'We design'}
