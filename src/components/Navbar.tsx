@@ -3,7 +3,6 @@ import {
   Calendar,
   Layers,
   Compass,
-  FileSignature,
   Home,
   Building2,
   Globe,

@@ -259,7 +259,12 @@ async function main() {
           const pane = [...document.querySelectorAll('[data-lenis-prevent]')]
             .sort((a, b) => b.getBoundingClientRect().height - a.getBoundingClientRect().height)[0];
           if (!pane) return false;
-          const imgs = [...pane.querySelectorAll('img')];
+          // Only the images the cover will actually contain. Everything below the crop is
+          // loading="lazy" and never enters the viewport, so it never loads — waiting on those
+          // meant the check could not succeed and every template logged a false warning.
+          const top = pane.getBoundingClientRect().top;
+          const imgs = [...pane.querySelectorAll('img')]
+            .filter(im => im.getBoundingClientRect().top - top < ${COVER_H});
           return imgs.length === 0 || imgs.every(im => im.complete && im.naturalWidth > 0);
         })()`,
         returnByValue: true,
