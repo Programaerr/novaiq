@@ -50,7 +50,15 @@ const PORT = 4317;
 /** Phone-shaped, matching the card's 0.65 aspect. Captured at dpr 2 and written at that size, so
  *  the cover is crisp on a retina screen without being a full-resolution page dump. */
 const VIEW_W = 430;
-const VIEW_H = 662;
+/* Taller than the cover, on purpose. The sandbox wraps the demo in chrome of its own — a device
+   switcher and a back arrow along the top, a price and a contract button along the bottom — worth
+   roughly 190px. That chrome is OUR interface, not the template, and a thumbnail containing it
+   advertises the preview page rather than the product. So the shot is taken tall, the demo pane is
+   located in the DOM, and everything outside it is clipped away; 662 + 190 leaves the pane itself
+   at the cover's own 0.65 aspect. */
+const VIEW_H = 852;
+const COVER_W = 430;
+const COVER_H = 662;
 const DPR = 2;
 const WEBP_QUALITY = 0.82;
 
@@ -179,7 +187,28 @@ async function main() {
     }
     await sleep(900); // one beat for entrance animations to settle on their final frame
 
-    const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+    // Find the demo's own pane and clip to it. `data-lenis-prevent` marks the scrollable preview
+    // area; it appears on a few elements in this app, so the largest one is taken — the demo pane
+    // is by far the biggest box on this screen. Its own padding is trimmed off so the thumbnail
+    // starts at the template's first pixel rather than at a black margin.
+    const { result: rectRes } = await cdp.send('Runtime.evaluate', {
+      expression: `(() => {
+        const panes = [...document.querySelectorAll('[data-lenis-prevent]')]
+          .map(el => ({ el, r: el.getBoundingClientRect() }))
+          .filter(o => o.r.width > 100 && o.r.height > 100)
+          .sort((a, b) => b.r.width * b.r.height - a.r.width * a.r.height);
+        if (!panes.length) return null;
+        const inner = panes[0].el.firstElementChild || panes[0].el;
+        inner.scrollTop = 0;
+        const r = inner.getBoundingClientRect();
+        return { x: Math.max(0, r.x), y: Math.max(0, r.y), width: r.width, height: r.height };
+      })()`,
+      returnByValue: true,
+    });
+    if (!rectRes.value) throw new Error(`${id}: could not find the demo pane`);
+    const clip = { ...rectRes.value, scale: 1 };
+
+    const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false, clip });
 
     // Re-encoded to WebP in the same browser: a PNG of a UI screenshot is several hundred KB and
     // WebP takes it to a fraction of that, and there is a working encoder right here.
@@ -189,8 +218,12 @@ async function main() {
         img.src = 'data:image/png;base64,${data}';
         await img.decode();
         const c = document.createElement('canvas');
-        c.width = ${VIEW_W * DPR}; c.height = ${VIEW_H * DPR};
-        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.width = ${COVER_W * DPR}; c.height = ${COVER_H * DPR};
+        const ctx = c.getContext('2d');
+        // Cover-fit from the TOP, not centre-cropped. A site's identity is in its header and hero;
+        // centring the crop would throw exactly that away and keep the middle of the page.
+        const scale = Math.max(c.width / img.width, c.height / img.height);
+        ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width * scale, img.height * scale);
         return c.toDataURL('image/webp', ${WEBP_QUALITY});
       })()`,
       awaitPromise: true,
