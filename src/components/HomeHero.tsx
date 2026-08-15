@@ -309,12 +309,23 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       )}
 
       {/* ── The content ─────────────────────────────────────────────────────────────────── */}
-      <div className="relative z-10 flex-1 flex items-center nq-container py-12 sm:py-16">
+      {/* Stacked, the two blocks are pushed APART to the ends of the screen rather than centred as
+          one lump. Centred, they measured 574px of content in 934px of section on a tablet — 180px
+          of dead band above and another 180 below, a third of the screen empty, with the copy and
+          the cards floating in the middle of it. Padding cannot fix that: the leftover space is
+          redistributed by the centring, so trimming the padding just hands the same gap back.
+          Growing the content is the only real lever, and `content-between` is that lever costing
+          nothing — the copy takes the top, the cards take the bottom, and the free space goes
+          between them where it reads as breathing room instead of as a margin.
+
+          From `lg` the two are side by side in one row, so there is nothing to distribute and it
+          goes back to centred. */}
+      <div className="relative z-10 flex-1 flex items-stretch lg:items-center nq-container py-8 sm:py-10 lg:py-16">
         {/* Twelve columns from `lg`, split 5 / 3 / 4. The middle three are EMPTY on purpose — that
             is the gap the sphere behind shows through, and it is the whole reason the copy is in
             two side columns rather than one centred block. Below `lg` there are no columns to keep
             clear, so it collapses to a single stack. */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
+        <div className="w-full h-full lg:h-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center content-between lg:content-center">
           <div className="lg:col-span-5">
             <span className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT }}>
               {isAr ? 'نحن نصمم' : 'We design'}
@@ -360,7 +371,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               {cards.map((c, i) => (
                 <li
                   key={c.n}
-                  className={`py-5 ${i > 0 ? 'border-t border-white/12' : ''} flex gap-4 sm:gap-5`}
+                  className={`py-5 sm:py-6 ${i > 0 ? 'border-t border-white/12' : ''} flex gap-4 sm:gap-5`}
                 >
                   <span className="text-xs font-bold tracking-widest pt-1" style={{ color: ACCENT }}>
                     {c.n}
