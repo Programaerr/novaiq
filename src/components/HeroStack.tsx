@@ -139,17 +139,19 @@ const Mark: React.FC<{ spin: boolean; material: THREE.Material }> = ({ spin, mat
       {braces.map(({ curve, x }, i) => (
         <group key={i} position={[x, 0, 0]}>
           <mesh material={material} castShadow>
-            {/* 128 along the path: the nub is a tight reversal and a coarser sweep visibly facets
-                it into a corner. 10 around is plenty for a stroke this thin. */}
-            <tubeGeometry args={[curve, 128, STROKE, 10, false]} />
+            {/* 96 along the path: the nub is a tight reversal and a coarser sweep visibly facets it
+                into a corner, so this end stays generous. 8 around is plenty for a stroke this thin
+                — the two braces and the ring were carrying 5,700 triangles between them at 10, for
+                tubes that are a few pixels wide on a phone. */}
+            <tubeGeometry args={[curve, 96, STROKE, 8, false]} />
           </mesh>
           {/* TubeGeometry builds an OPEN pipe, so without caps you see straight down the hollow
               inside of every stroke as the mark turns. */}
           {[0, 1].map((end) => {
             const p = curve.getPoint(end);
             return (
-              <mesh key={end} position={[p.x, p.y, p.z]} material={material} castShadow>
-                <sphereGeometry args={[STROKE, 12, 8]} />
+              <mesh key={end} position={[p.x, p.y, p.z]} material={material}>
+                <sphereGeometry args={[STROKE, 10, 6]} />
               </mesh>
             );
           })}
@@ -163,7 +165,7 @@ const Mark: React.FC<{ spin: boolean; material: THREE.Material }> = ({ spin, mat
           <mesh material={material} castShadow>
             {/* Thinner than the strokes it orbits (0.55×): in the artwork the ring is a hairline
                 drawn AROUND the mark, and at equal weight the two stop being figure and ground. */}
-            <torusGeometry args={[RING_RADIUS, STROKE * 0.55, 10, 180]} />
+            <torusGeometry args={[RING_RADIUS, STROKE * 0.55, 8, 128]} />
           </mesh>
         </group>
       </group>
@@ -367,6 +369,18 @@ const PLATFORM_TOP = L.base + L.seamLow + L.skirt + L.seamTop + L.body;
 /** How proud of that face the processor stands. */
 const CHIP_H = 0.07;
 
+/**
+ * How far every stacked part sinks into the one below it.
+ *
+ * Not a style value — a correctness one. Layers whose faces meet EXACTLY, which is what happens
+ * when each one's height is added to the last, give the depth buffer two surfaces at the same
+ * distance and no way to choose between them. Which one wins is then decided by floating-point
+ * noise, and it changes as the camera moves: the seams flicker on and off and the colours appear to
+ * come and go. Sinking each part a hair into its neighbour means no two faces are ever coplanar and
+ * there is nothing left to arbitrate.
+ */
+const BITE = 0.015;
+
 const Platform: React.FC<{ mats: Materials; clock: React.RefObject<number>; still: boolean }> = ({
   mats,
   clock,
@@ -377,9 +391,11 @@ const Platform: React.FC<{ mats: Materials; clock: React.RefObject<number>; stil
   const geo = useMemo(
     () => ({
       body: roundedBox(PLATFORM_W, L.body, PLATFORM_D, PLATFORM_R),
-      seamTop: roundedBox(PLATFORM_W + 0.04, L.seamTop, PLATFORM_D + 0.04, PLATFORM_R),
+      // The two seams are built TALLER than the gaps they fill, so each one reaches up into the
+      // slab above and down into the one below instead of stopping flush against either.
+      seamTop: roundedBox(PLATFORM_W + 0.04, L.seamTop + BITE * 2, PLATFORM_D + 0.04, PLATFORM_R),
       skirt: roundedBox(PLATFORM_W - 0.18, L.skirt, PLATFORM_D - 0.18, PLATFORM_R * 0.9),
-      seamLow: roundedBox(PLATFORM_W - 0.02, L.seamLow, PLATFORM_D - 0.02, PLATFORM_R * 0.9),
+      seamLow: roundedBox(PLATFORM_W - 0.02, L.seamLow + BITE * 2, PLATFORM_D - 0.02, PLATFORM_R * 0.9),
       base: roundedBox(PLATFORM_W - 0.42, L.base, PLATFORM_D - 0.42, PLATFORM_R * 0.8),
       inset: roundedBox(PLATFORM_W - 0.5, 0.04, PLATFORM_D - 0.5, PLATFORM_R * 0.8),
       bar: roundedBox(0.16, 0.05, PLATFORM_D - 1.5, 0.08),
@@ -426,9 +442,11 @@ const Platform: React.FC<{ mats: Materials; clock: React.RefObject<number>; stil
           dark ones rather than a glow painted on the sides. Light escaping from between two solids
           is what gives the stack its thickness — a single box with a bright stripe on it reads as a
           decal, whatever the stripe is doing. */}
-      <mesh geometry={geo.base} position={[0, Y_BASE, 0]} material={mats.darker} castShadow receiveShadow />
+      {/* Only the body casts. The slabs beneath it sit inside its own shadow and adding them to the
+          map changes nothing anyone can see. */}
+      <mesh geometry={geo.base} position={[0, Y_BASE, 0]} material={mats.darker} />
       <mesh geometry={geo.seamLow} position={[0, Y_SEAM_LOW, 0]} material={mats.seam} />
-      <mesh geometry={geo.skirt} position={[0, Y_SKIRT, 0]} material={mats.darker} castShadow />
+      <mesh geometry={geo.skirt} position={[0, Y_SKIRT, 0]} material={mats.darker} />
       <mesh geometry={geo.seamTop} position={[0, Y_SEAM_TOP, 0]} material={mats.seam} />
       <mesh geometry={geo.body} position={[0, Y_BODY, 0]} material={mats.dark} castShadow receiveShadow />
       {/* The recessed panel on the top face, and the lit bar let into it. */}
@@ -438,7 +456,7 @@ const Platform: React.FC<{ mats: Materials; clock: React.RefObject<number>; stil
       {/* The processor the mark comes down onto. It is the reason the platform's top face is a
           face rather than a lid: the logo now lands ON something specific, and a bare black square
           gave it nothing to land on. Pins first, so the die and body sit over them. */}
-      <group position={[0, PLATFORM_TOP + CHIP_H / 2, 0]}>
+      <group position={[0, PLATFORM_TOP + CHIP_H / 2 - BITE, 0]}>
         {pins.map((p, i) => (
           <mesh
             key={i}
@@ -448,7 +466,7 @@ const Platform: React.FC<{ mats: Materials; clock: React.RefObject<number>; stil
             material={mats.silver}
           />
         ))}
-        <mesh geometry={geo.chip} material={mats.dark} castShadow receiveShadow />
+        <mesh geometry={geo.chip} material={mats.dark} receiveShadow />
         {/* Bright enough to read as a lit die, dim enough not to wash out the braces standing on
             it — this sits directly under the mark, and at full seam brightness it lights the logo
             from below and flattens all of its shading. */}
@@ -528,16 +546,16 @@ const Module: React.FC<{ spec: ModuleSpec; mats: Materials; geo: ModuleGeometry 
           {/* Every module stands on a plate. That is what stops them looking like boxes hanging in
               the air: a base gives each one its own ground, which the reference uses on all of
               them and which also catches the shadow the body above it throws. */}
-          <mesh geometry={geo.plate} position={[0, -0.53, 0]} material={mats.darker} receiveShadow />
-          <mesh geometry={geo.cube} material={mats.white} castShadow receiveShadow />
+          <mesh geometry={geo.plate} position={[0, -0.53 + BITE, 0]} material={mats.darker} receiveShadow />
+          <mesh geometry={geo.cube} material={mats.white} castShadow />
           <mesh geometry={geo.chip} position={[0, 0.46, 0]} material={mats.purple} />
         </>
       )}
 
       {spec.kind === 'darkCube' && (
         <>
-          <mesh geometry={geo.plate} position={[0, -0.53, 0]} material={mats.white} receiveShadow />
-          <mesh geometry={geo.cube} material={mats.dark} castShadow receiveShadow />
+          <mesh geometry={geo.plate} position={[0, -0.53 + BITE, 0]} material={mats.white} receiveShadow />
+          <mesh geometry={geo.cube} material={mats.dark} castShadow />
           <mesh geometry={geo.chip} position={[0, 0.46, 0]} material={mats.purple} />
           <mesh geometry={geo.chipSide} position={[0, 0, 0.46]} material={mats.purple} />
           <mesh
@@ -551,8 +569,8 @@ const Module: React.FC<{ spec: ModuleSpec; mats: Materials; geo: ModuleGeometry 
 
       {spec.kind === 'wallet' && (
         <>
-          <mesh geometry={geo.wallet} position={[0, 0.02, 0]} material={mats.dark} castShadow receiveShadow />
-          <mesh geometry={geo.wallet} position={[0, -0.18, 0.04]} material={mats.darker} castShadow />
+          <mesh geometry={geo.wallet} position={[0, 0.02, 0]} material={mats.dark} castShadow />
+          <mesh geometry={geo.wallet} position={[0, -0.18, 0.04]} material={mats.darker} />
           {/* The strap, and the stud that closes it. The one warm note in the whole composition. */}
           <mesh geometry={geo.band} position={[0.44, 0.0, 0]} material={mats.purple} />
           <mesh position={[0.44, 0.0, 0.5]} material={mats.brass}>
@@ -571,8 +589,7 @@ const Module: React.FC<{ spec: ModuleSpec; mats: Materials; geo: ModuleGeometry 
                 geometry={geo.tray}
                 position={[0, -0.55 + i * 0.34, 0]}
                 material={mats.darker}
-                castShadow
-                receiveShadow
+                castShadow={i === 2}
               />
               <mesh geometry={geo.chip} position={[0, -0.45 + i * 0.34, 0.32]} material={mats.purple} />
             </group>
@@ -666,13 +683,16 @@ const Cable: React.FC<{
 
   return (
     <>
-      <mesh ref={tube} material={mats.cable} castShadow>
-        <cylinderGeometry args={[0.07, 0.07, 1, 10, 1, true]} />
+      {/* No castShadow on any of the cable parts. They are thin, they are lit from above, and their
+          shadows land as faint threads nobody looks at — but every caster is another object drawn
+          into the shadow map on every single frame. */}
+      <mesh ref={tube} material={mats.cable}>
+        <cylinderGeometry args={[0.07, 0.07, 1, 8, 1, true]} />
       </mesh>
       {/* The collar: a short thicker sleeve part way along, which every cable in the reference has
           and which is most of what stops them reading as plain sticks. */}
       <mesh ref={collar} material={mats.white}>
-        <cylinderGeometry args={[0.1, 0.1, 0.18, 10]} />
+        <cylinderGeometry args={[0.1, 0.1, 0.18, 8]} />
       </mesh>
       {/* The lit plug where the cable meets the platform. Fixed, because the platform end does not
           move — only the module end does. Core plus halo, the same two-part build as the charge. */}
@@ -960,12 +980,16 @@ const Scene: React.FC<{ still: boolean; replayRef: React.MutableRefObject<(() =>
         // Only the key light casts. A second shadow-casting light means a second full render of the
         // scene from its point of view, every frame, for a difference nobody looks at.
         shadow-mapSize={[1024, 1024]}
-        shadow-camera-left={-9}
-        shadow-camera-right={9}
-        shadow-camera-top={9}
-        shadow-camera-bottom={-9}
-        shadow-camera-near={0.5}
-        shadow-camera-far={30}
+        // Tight to the composition. The shadow camera's box is spread over the map's fixed 1024
+        // pixels whatever size it is, so every unit of slack costs resolution everywhere — and a
+        // box far larger than the thing casting into it is the usual reason soft shadows come out
+        // blocky.
+        shadow-camera-left={-7}
+        shadow-camera-right={7}
+        shadow-camera-top={7}
+        shadow-camera-bottom={-7}
+        shadow-camera-near={1}
+        shadow-camera-far={26}
         shadow-bias={-0.0012}
       />
       <directionalLight position={[6, 4, -6]} intensity={0.5} />
@@ -996,6 +1020,7 @@ const Scene: React.FC<{ still: boolean; replayRef: React.MutableRefObject<(() =>
           index={i}
           anchor={l.anchor}
           mats={mats}
+          glow={glow}
           clock={clock}
           still={still}
         />
