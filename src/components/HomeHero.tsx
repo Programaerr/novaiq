@@ -19,15 +19,15 @@ import { NovaiqLogo } from './NovaiqLogo';
  *
  * ## The backdrop
  *
- * A video, a vignette and a canvas of drifting motes, in that order back to front. The video is
- * colour-corrected rather than used as shot: it is a red sphere, and this site has no red in it
- * anywhere, so a hue rotation carries it round to the violet the rest of the section is built from.
- * The vignette is an ellipse rather than a linear fade — a straight gradient leaves a visible
+ * A video and a vignette, and nothing else — a canvas of drifting dust motes sat over both and has
+ * been removed. The video is drained of colour rather than used as shot: it is a red sphere, and
+ * this site is monochrome, so greyscale puts it in the same palette as everything else.
+ *
+ * The vignette is an ellipse rather than a linear fade. A straight gradient leaves a visible
  * horizontal edge across the frame, which is the one thing a backdrop must never do.
  *
- * Both the video and the motes stop under `prefers-reduced-motion`, and the motes stop when the
- * section leaves the screen: a canvas animating behind content nobody is looking at is a permanent
- * compositor job with nothing to show for it.
+ * The video stops under `prefers-reduced-motion`. It is now the only thing in this section that
+ * moves at all.
  */
 
 /**
@@ -57,91 +57,6 @@ interface HomeHeroProps {
   onSetLanguage?: (lang: Language) => void;
 }
 
-/* ── The motes ────────────────────────────────────────────────────────────────────────────── */
-
-/**
- * Drifting dust, on a canvas rather than as DOM nodes.
- *
- * Sixty-five absolutely-positioned divs with their own transforms is sixty-five things for the
- * compositor to lay out and paint every frame; one canvas is one. They are drawn as radial
- * gradients rather than flat discs because a hard-edged dot reads as a dead pixel, not as a mote
- * catching the light.
- */
-const Motes: React.FC<{ active: boolean }> = ({ active }) => {
-  const ref = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    if (!active) return;
-
-    // Capped at 1.5 for the same reason every WebGL canvas here is: the motes are soft blurs with
-    // no detail for extra pixels to resolve, and the cost of a full-bleed canvas is per-pixel.
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    let raf = 0;
-    let w = 0;
-    let h = 0;
-
-    const resize = () => {
-      const r = canvas.getBoundingClientRect();
-      w = r.width;
-      h = r.height;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-
-    const motes = Array.from({ length: 65 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      r: 0.6 + Math.random() * 1.9,
-      // Upward and slightly sideways, slowly. Anything faster stops being dust and becomes snow.
-      vx: (Math.random() - 0.5) * 0.00018,
-      vy: -0.00006 - Math.random() * 0.00016,
-      a: 0.16 + Math.random() * 0.5,
-    }));
-
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      for (const m of motes) {
-        m.x += m.vx;
-        m.y += m.vy;
-        // Wrap rather than respawn: a mote that vanishes and reappears somewhere else is a blink,
-        // and at this density the eye catches it.
-        if (m.y < -0.02) m.y = 1.02;
-        if (m.x < -0.02) m.x = 1.02;
-        if (m.x > 1.02) m.x = -0.02;
-
-        const px = m.x * w;
-        const py = m.y * h;
-        // All one colour. Two tones of dust is a second hue in a monochrome scene, and it read as
-        // dirt on the lens rather than as light.
-        const g = ctx.createRadialGradient(px, py, 0, px, py, m.r * 4);
-        g.addColorStop(0, `rgba(255,255,255,${m.a})`);
-        g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(px, py, m.r * 4, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-    };
-  }, [active]);
-
-  return <canvas ref={ref} className="absolute inset-0 w-full h-full" aria-hidden="true" />;
-};
-
 /* ── The section ──────────────────────────────────────────────────────────────────────────── */
 
 export const HomeHero: React.FC<HomeHeroProps> = ({
@@ -156,16 +71,14 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   // way every other directional glyph on the site does.
   const CtaArrow = isAr ? ArrowUpLeft : ArrowUpRight;
 
-  const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [onScreen, setOnScreen] = useState(true);
-  const [motion, setMotion] = useState(true);
 
+  // The backdrop holds still for anyone who asked for that. It is the only thing left in this
+  // section that moves at all.
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const apply = () => {
-      setMotion(!mq.matches);
       const v = videoRef.current;
       if (!v) return;
       if (mq.matches) v.pause();
@@ -174,16 +87,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
     apply();
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
-  }, []);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting), {
-      rootMargin: '120px 0px',
-    });
-    io.observe(el);
-    return () => io.disconnect();
   }, []);
 
   // The drawer is the only thing on this page that can be dismissed, so it owns Escape outright.
@@ -235,7 +138,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
   return (
     <section
-      ref={sectionRef}
       id="home-hero"
       // A full screen, and nothing subtracted from it: the header lives inside this section now, so
       // there is no floating bar above to leave room for. `svh` rather than `vh` so a phone's
@@ -282,8 +184,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
         }}
         aria-hidden="true"
       />
-
-      <Motes active={motion && onScreen} />
 
       {/* ── Header ──────────────────────────────────────────────────────────────────────── */}
       <header className="relative z-20 nq-container pt-6 sm:pt-8">
