@@ -158,17 +158,29 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
 
       {/* ── The content ─────────────────────────────────────────────────────────────────── */}
-      {/* Stacked, the two blocks are pushed APART to the ends of the screen rather than centred as
-          one lump. Centred, they measured 574px of content in 934px of section on a tablet — 180px
-          of dead band above and another 180 below, a third of the screen empty, with the copy and
-          the cards floating in the middle of it. Padding cannot fix that: the leftover space is
-          redistributed by the centring, so trimming the padding just hands the same gap back.
-          Growing the content is the only real lever, and `content-between` is that lever costing
-          nothing — the copy takes the top, the cards take the bottom, and the free space goes
-          between them where it reads as breathing room instead of as a margin.
+      {/* Stacked, the two blocks are ANCHORED to the ends of the screen rather than sharing the
+          slack out between them.
+
+          Centring was the first thing tried and it left 180px of dead band above the copy and
+          another 180 below the cards on a tablet — a third of the screen empty with both blocks
+          afloat in the middle of it. Distributing evenly fixed the symptom and kept the cause: an
+          even split hands each gap the same THIRD of whatever is left over, so every gap grows and
+          shrinks with the screen. Measured across phones that meant 11px between the navbar and
+          the eyebrow at 360x740 — nearly touching — against 74px at 499x928, and a 142px void
+          under the last card on the taller one. Neither number was chosen; both fell out of the
+          screen height.
+
+          So the two ends are pinned instead. The copy starts a FIXED 1.75rem below wherever the
+          floating navbar actually ends (`--nav-bottom` is measured at runtime, so this holds at
+          every width without a per-breakpoint offset), and the cards end a bottom margin that
+          scales gently with the screen rather than with the leftover. Everything left over lands
+          in the middle — which is not dead space here, it is the one part of the frame where the
+          backdrop is unobstructed, and it is the same hole the empty middle column keeps open on
+          desktop. `svh` for the same reason the section uses it: a collapsing address bar must not
+          change the margin.
 
           From `lg` the two are side by side in one row, so there is nothing to distribute and it
-          goes back to centred. */}
+          goes back to centred with even padding. */}
       {/* The grid IS the flex child, with no wrapper between them, and that is what makes the
           distribution work at all. Nested one level down it needed `h-100%` to know how tall to be,
           and a percentage height inside a flex-derived box does not resolve — the grid stayed at
@@ -180,7 +192,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           the gap the sphere behind shows through, and it is the whole reason the copy sits in two
           side columns rather than one centred block. Below `lg` there are no columns to keep clear,
           so it collapses to a single stack. */}
-      <div className="relative z-10 flex-1 nq-container py-8 sm:py-10 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center content-evenly lg:content-center">
+      <div className="relative z-10 flex-1 nq-container pt-[calc(var(--nav-bottom,74px)+1.75rem)] pb-[9svh] lg:pt-16 lg:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center content-between lg:content-center">
           <div className="lg:col-span-5">
             <span className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT }}>
               {isAr ? 'نحن نصمم' : 'We design'}
