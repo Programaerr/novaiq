@@ -464,15 +464,22 @@ export default function App() {
       
       {/* Supernova Atmospheric Background */}
 
-      {/* Main Header Bar */}
-      <Navbar
-        activePage={activePage}
-        setActivePage={(page) => navigateTo(page)}
-        language={language}
-        setLanguage={setLanguage}
-        currency={currency}
-        setCurrency={setCurrency}
-      />
+      {/* Main Header Bar — everywhere EXCEPT the home page, which carries its own.
+          HomeHero's design puts the header inside the hero itself, sitting on the backdrop rather
+          than floating over it, and two headers on one screen is not a thing that can be styled
+          out. The hero's header therefore has to offer everything this bar does — the same
+          destinations, the language toggle, the way into the contract flow — or those simply
+          vanish for anyone landing on the page most visitors land on. */}
+      {activePage !== 'home' && (
+        <Navbar
+          activePage={activePage}
+          setActivePage={(page) => navigateTo(page)}
+          language={language}
+          setLanguage={setLanguage}
+          currency={currency}
+          setCurrency={setCurrency}
+        />
+      )}
 
       {/* Main Content View with Hardware Accelerated Transitions. The Navbar above is
           fixed/floating, so it doesn't push content down like an in-flow element would —
@@ -486,7 +493,12 @@ export default function App() {
           the branch would have left inner pages padding down to --backbar-bottom's 126px
           fallback — a gap held open for something no longer rendered. */}
       <main
-        style={{ paddingTop: 'calc(var(--nav-bottom, 74px) + var(--content-gap))' }}
+        // No top padding on home: that padding exists to clear the floating Navbar, and home does
+        // not render one — its hero owns the top of the page and has to start at pixel zero.
+        style={{
+          paddingTop:
+            activePage === 'home' ? 0 : 'calc(var(--nav-bottom, 74px) + var(--content-gap))',
+        }}
         className="flex-1 relative z-10 pb-8"
       >
 
@@ -499,6 +511,8 @@ export default function App() {
               language={language}
               onStart={() => navigateTo('templates')}
               onRequestProject={startProject}
+              onNavigate={navigateTo}
+              onSetLanguage={setLanguage}
             />
           </div>
         )}

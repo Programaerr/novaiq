@@ -1,33 +1,38 @@
-import React from 'react';
-import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowUpLeft, ArrowUpRight, Menu, X } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { HeroStack } from './HeroStack';
+import { NovaiqLogo } from './NovaiqLogo';
 
 /**
- * The home page's first section: the claim, the two ways in, and NOVAIQ's mark landing beside it.
+ * The home page's first section: the claim, the work, and a header of its own.
  *
- * ## Why this owns its own screen
+ * ## It carries its own header
  *
- * It is the FIRST section of the home page, and the rule the home page is being rebuilt under is
- * that the first section fills the viewport on its own — nothing from the section below may show
- * until the visitor scrolls. That is the `min-h` below, and it subtracts the floating navbar's
- * measured height and the gap <main> already holds under it, so "one screen" means one screen
- * rather than one screen plus the header's band.
+ * Every other page on this site sits under the floating Navbar. This one does not — App.tsx hides
+ * that bar on `home` and drops <main>'s top padding, and the header below takes over. That is why
+ * the section is `min-h-[100svh]` rather than the viewport less the navbar's band: there is no band
+ * to subtract any more, the header is INSIDE the thing it sits on.
  *
- * Everything about this section's size lives in this file: its own <section>, its own
- * `.nq-container`, its own padding. No ancestor spaces it against its neighbours.
+ * The trade is that everything the shared bar provides has to be provided here too, or it simply
+ * disappears for anyone who lands on the home page — which is most people. So the header carries
+ * the same seven destinations, the language toggle and the way into the contract flow.
  *
- * ## Two columns, and they swap sides on their own
+ * ## The backdrop
  *
- * Copy on one side, artwork on the other. The DOM order is copy first and there is no explicit
- * ordering anywhere — a grid lays its items out along the writing direction, so in Arabic the copy
- * takes the right half and the artwork the left, and in English they trade places. Pinning either
- * one with `order-*` or `left-*` is what breaks that, and it breaks it silently in only one of the
- * two languages.
+ * A video, a vignette and a canvas of drifting motes, in that order back to front. The video is
+ * colour-corrected rather than used as shot: it is a red sphere, and this site has no red in it
+ * anywhere, so a hue rotation carries it round to the violet the rest of the section is built from.
+ * The vignette is an ellipse rather than a linear fade — a straight gradient leaves a visible
+ * horizontal edge across the frame, which is the one thing a backdrop must never do.
  *
- * Below `lg` the columns stack, copy first, and the copy centres — a left-aligned column under a
- * centred object on a narrow screen reads as a mistake rather than as alignment.
+ * Both the video and the motes stop under `prefers-reduced-motion`, and the motes stop when the
+ * section leaves the screen: a canvas animating behind content nobody is looking at is a permanent
+ * compositor job with nothing to show for it.
  */
+
+/** The section's own accent, matched to the site rather than to the reference's crimson. */
+const ACCENT = '#7C5CFF';
+const ACCENT_LIT = '#A78BFA';
 
 interface HomeHeroProps {
   language?: Language;
@@ -35,108 +40,412 @@ interface HomeHeroProps {
   onStart?: () => void;
   /** Straight to the contract form, for someone who already knows they want something built. */
   onRequestProject?: () => void;
+  /** The header's own links, so this section can navigate the way the shared bar does. */
+  onNavigate?: (page: string) => void;
+  onSetLanguage?: (lang: Language) => void;
 }
+
+/* ── The motes ────────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Drifting dust, on a canvas rather than as DOM nodes.
+ *
+ * Sixty-five absolutely-positioned divs with their own transforms is sixty-five things for the
+ * compositor to lay out and paint every frame; one canvas is one. They are drawn as radial
+ * gradients rather than flat discs because a hard-edged dot reads as a dead pixel, not as a mote
+ * catching the light.
+ */
+const Motes: React.FC<{ active: boolean }> = ({ active }) => {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    if (!active) return;
+
+    // Capped at 1.5 for the same reason every WebGL canvas here is: the motes are soft blurs with
+    // no detail for extra pixels to resolve, and the cost of a full-bleed canvas is per-pixel.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    let raf = 0;
+    let w = 0;
+    let h = 0;
+
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      w = r.width;
+      h = r.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+
+    const motes = Array.from({ length: 65 }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: 0.6 + Math.random() * 1.9,
+      // Upward and slightly sideways, slowly. Anything faster stops being dust and becomes snow.
+      vx: (Math.random() - 0.5) * 0.00018,
+      vy: -0.00006 - Math.random() * 0.00016,
+      a: 0.16 + Math.random() * 0.5,
+      violet: Math.random() < 0.42,
+    }));
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const m of motes) {
+        m.x += m.vx;
+        m.y += m.vy;
+        // Wrap rather than respawn: a mote that vanishes and reappears somewhere else is a blink,
+        // and at this density the eye catches it.
+        if (m.y < -0.02) m.y = 1.02;
+        if (m.x < -0.02) m.x = 1.02;
+        if (m.x > 1.02) m.x = -0.02;
+
+        const px = m.x * w;
+        const py = m.y * h;
+        const g = ctx.createRadialGradient(px, py, 0, px, py, m.r * 4);
+        const core = m.violet ? '167,139,250' : '255,255,255';
+        g.addColorStop(0, `rgba(${core},${m.a})`);
+        g.addColorStop(1, `rgba(${core},0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(px, py, m.r * 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, [active]);
+
+  return <canvas ref={ref} className="absolute inset-0 w-full h-full" aria-hidden="true" />;
+};
+
+/* ── The section ──────────────────────────────────────────────────────────────────────────── */
 
 export const HomeHero: React.FC<HomeHeroProps> = ({
   language = 'ar',
   onStart,
   onRequestProject,
+  onNavigate,
+  onSetLanguage,
 }) => {
   const isAr = language === 'ar';
   // The CTA arrow points "away, forward" — up and outward — so it follows the reading direction the
   // way every other directional glyph on the site does.
   const CtaArrow = isAr ? ArrowUpLeft : ArrowUpRight;
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [onScreen, setOnScreen] = useState(true);
+  const [motion, setMotion] = useState(true);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => {
+      setMotion(!mq.matches);
+      const v = videoRef.current;
+      if (!v) return;
+      if (mq.matches) v.pause();
+      else void v.play().catch(() => {});
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting), {
+      rootMargin: '120px 0px',
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  // The drawer is the only thing on this page that can be dismissed, so it owns Escape outright.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDrawerOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawerOpen]);
+
+  // The same destinations the shared Navbar offers. They are listed here rather than imported
+  // because this header shows a SHORT set in the middle and the full one in the drawer, which is a
+  // presentation decision belonging to this section.
+  const links: { id: string; label: string }[] = [
+    { id: 'home', label: isAr ? 'الرئيسية' : 'Home' },
+    { id: 'templates', label: isAr ? 'القوالب' : 'Templates' },
+    { id: 'custom-request', label: isAr ? 'عقد مخصص' : 'Custom' },
+    { id: 'timeline', label: isAr ? 'مراحل العمل' : 'Process' },
+    { id: 'about', label: isAr ? 'عن NOVAIQ' : 'About' },
+  ];
+  const drawerLinks = [
+    ...links,
+    { id: 'privacy', label: isAr ? 'سياسة الخصوصية' : 'Privacy' },
+    { id: 'terms', label: isAr ? 'الشروط والأحكام' : 'Terms' },
+  ];
+
+  const go = (page: string) => {
+    setDrawerOpen(false);
+    onNavigate?.(page);
+  };
+
+  const cards = [
+    {
+      n: '01',
+      t: isAr ? 'تصميم إبداعي' : 'Creative design',
+      d: isAr ? 'واجهات تُبنى لتُقنع، مو بس تُعجب.' : 'Interfaces built to convince, not only to please.',
+    },
+    {
+      n: '02',
+      t: isAr ? 'هوية واستراتيجية' : 'Brand strategy',
+      d: isAr ? 'هوية تخليك تنعرف من أول نظرة.' : 'A brand that is recognised at first glance.',
+    },
+    {
+      n: '03',
+      t: isAr ? 'حلول رقمية' : 'Digital solutions',
+      d: isAr ? 'أنظمة تشتغل بهدوء وتكبر معك.' : 'Systems that run quietly and grow with you.',
+    },
+  ];
+
   return (
     <section
+      ref={sectionRef}
       id="home-hero"
-      // One full screen, less the floating navbar's measured height and the gap <main> already
-      // holds under it. `svh` rather than `vh` so a phone's collapsing address bar cannot make this
-      // taller than the screen it is supposed to match.
-      className="relative flex items-center overflow-hidden py-6 sm:py-10 lg:py-12 min-h-[calc(100svh-var(--nav-bottom,74px)-var(--content-gap))]"
+      // A full screen, and nothing subtracted from it: the header lives inside this section now, so
+      // there is no floating bar above to leave room for. `svh` rather than `vh` so a phone's
+      // collapsing address bar cannot make this taller than the screen it is meant to match.
+      className="relative min-h-[100svh] flex flex-col overflow-hidden"
     >
-      {/* No background layer of its own. A violet wash sat here and it is deliberately gone — the
-          section takes the page's own ground, and the only violet left in view is on the objects
-          themselves (the platform's seam and two of the blocks), where it reads as light coming
-          off something rather than as a tint over everything. */}
+      {/* ── Backdrop ────────────────────────────────────────────────────────────────────────
+          A flat ground under the video, so a slow network or a blocked CDN leaves a dark section
+          rather than a white hole. */}
+      <div className="absolute inset-0 bg-[#08080c]" aria-hidden="true" />
 
-      <div className="relative z-10 nq-container">
-        <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-8">
-          <div className="text-center lg:text-start">
-            <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#7C5CFF]/10 border border-[#7C5CFF]/30 text-[#c4b5fd] text-[0.62rem] sm:text-[0.7rem] font-semibold tracking-wider uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#7C5CFF]" aria-hidden="true" />
-              {isAr ? 'مبني لمستقبل الأعمال الرقمية' : 'Built for the future of business'}
-            </span>
+      <video
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover"
+        // The source is a red sphere and this site has no red in it. A hue rotation carries it to
+        // the section's violet, and the saturation and brightness trims keep it as a backdrop
+        // instead of something competing with the copy in front of it.
+        style={{ filter: 'hue-rotate(272deg) saturate(0.78) brightness(0.62)' }}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%2308080c'/%3E%3C/svg%3E"
+        aria-hidden="true"
+      >
+        <source
+          src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/bg-red-ball.mp4"
+          type="video/mp4"
+        />
+      </video>
 
-            {/* Two tones on separate lines, which is the reference's own device: the WHAT in white
-                and the HOW in the accent, so the second line reads as the promise rather than as a
-                continuation of the sentence. `text-balance` covers the narrow screens where a line
-                cannot fit, splitting it evenly instead of orphaning one word. */}
-            {/* The `lg` step DOWN from `md` is not a typo. Up to `md` the headline has the full
-                container to run across; at `lg` the layout splits into two columns and the same
-                type suddenly has half the width, which took it to four lines on a 1024 tablet in
-                landscape. It goes back up at `xl`, where the half-column is wide enough again. */}
-            <h1 className="mt-4 sm:mt-6 text-[2rem] sm:text-5xl md:text-6xl lg:text-[3.1rem] xl:text-[3.9rem] font-extrabold tracking-tight leading-[1.12] font-['Cairo'] text-balance">
-              <span className="block text-white">
-                {isAr ? 'بناء مواقع وتطبيقات' : 'Powering digital'}
-              </span>
-              <span className="block bg-clip-text text-transparent bg-gradient-to-l from-[#7C5CFF] to-[#c4b5fd]">
-                {isAr ? 'سريعة. آمنة. متكاملة.' : 'Fast. Secure. Complete.'}
-              </span>
-            </h1>
+      {/* An ELLIPSE, not a linear fade. A straight gradient across a full-bleed backdrop leaves a
+          visible horizontal edge, which reads as a seam in the page; a radial one has no edge to
+          see and darkens exactly where the copy needs contrast. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 68% 68% at 50% 50%, transparent 22%, rgba(8,8,12,0.42) 50%, rgba(8,8,12,0.82) 75%, rgba(8,8,12,0.98) 100%)',
+        }}
+        aria-hidden="true"
+      />
 
-            <p className="mt-4 sm:mt-6 mx-auto lg:mx-0 max-w-xl text-xs sm:text-sm text-zinc-400 leading-relaxed">
-              {isAr
-                ? 'نحن في NOVAIQ نبتكر منصات رقمية فائقة السرعة والأمان. تصفح معرض قوالبنا الجاهزة لشركتك، أو تواصل معنا لصياغة نظام خاص ومخصص يلبي احتياجاتك بدقة واحترافية متكاملة.'
-                : 'At NOVAIQ, we build high-performance, secure digital platforms. Explore our ready-made templates for your business, or contact us to build a custom application tailored exactly to your needs.'}
-            </p>
+      <Motes active={motion && onScreen} />
 
-            {/* `.filter-pill-btn` is the site's button with the motion — the swell on hover, the
-                press, and the conic ring rolling round the outline — the same object ProjectCtaButton
-                and the templates toolbar already wear. `relative` is not decoration: the class brings
-                `isolation: isolate` but not a position, and the beam is `position: absolute; inset: 0`,
-                so without it the ring hangs off the nearest positioned ancestor instead of the
-                button. */}
-            <div className="mt-6 sm:mt-9 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+      {/* ── Header ──────────────────────────────────────────────────────────────────────── */}
+      <header className="relative z-20 nq-container pt-6 sm:pt-8">
+        <div className="flex items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => go('home')}
+            className="shrink-0 cursor-pointer"
+            aria-label="NOVAIQ"
+          >
+            <NovaiqLogo size={30} />
+          </button>
+
+          <nav className="hidden lg:flex items-center gap-7">
+            {links.map((l) => (
               <button
+                key={l.id}
                 type="button"
-                onClick={onRequestProject}
-                className="filter-pill-btn relative ps-7 pe-2 py-2 rounded-full font-extrabold text-sm inline-flex items-center justify-center gap-3 cursor-pointer"
+                onClick={() => go(l.id)}
+                className={`relative text-xs font-bold tracking-[0.14em] uppercase transition-colors cursor-pointer ${
+                  l.id === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
+                }`}
               >
-                <span className="filter-pill-beam" aria-hidden="true" />
-                <span>{isAr ? 'ابدأ معنا' : 'Get started'}</span>
-                <span className="nq-cta-badge" aria-hidden="true">
-                  <CtaArrow className="w-4 h-4" strokeWidth={2.5} />
-                </span>
+                {l.label}
+                {/* The active marker is a lit bar under the word rather than a colour change on it:
+                    on a moving backdrop a tint alone is not reliably readable. */}
+                {l.id === 'home' && (
+                  <span
+                    className="absolute -bottom-2 inset-x-0 h-[2px] rounded-full"
+                    style={{ background: ACCENT, boxShadow: `0 0 10px ${ACCENT}` }}
+                    aria-hidden="true"
+                  />
+                )}
               </button>
+            ))}
+          </nav>
 
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* The language toggle has to be here. The shared bar is hidden on this page, and
+                without it there is no way to reach English at all from the page most people land
+                on. */}
+            <button
+              type="button"
+              onClick={() => onSetLanguage?.(isAr ? 'en' : 'ar')}
+              className="px-3 py-2 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-[0.68rem] font-bold tracking-widest text-white/80 hover:text-white hover:border-white/30 transition-colors cursor-pointer"
+            >
+              {isAr ? 'EN' : 'AR'}
+            </button>
+
+            <button
+              type="button"
+              onClick={onRequestProject}
+              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-[0.68rem] font-bold tracking-[0.16em] uppercase text-white hover:bg-white/10 hover:border-white/40 transition-colors cursor-pointer"
+            >
+              {isAr ? 'تواصل معنا' : "Let's talk"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="lg:hidden p-2.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-white cursor-pointer"
+              aria-label={isAr ? 'القائمة' : 'Menu'}
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ── The drawer ──────────────────────────────────────────────────────────────────── */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 bg-[#08080c]/95 backdrop-blur-xl lg:hidden">
+          <div className="nq-container pt-6 sm:pt-8">
+            <div className="flex items-center justify-between">
+              <NovaiqLogo size={30} />
               <button
                 type="button"
-                onClick={onStart}
-                className="filter-pill-btn filter-pill-btn--ghost relative px-6 py-3 rounded-full font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
+                onClick={() => setDrawerOpen(false)}
+                className="p-2.5 rounded-full border border-white/15 bg-white/5 text-white cursor-pointer"
+                aria-label={isAr ? 'إغلاق' : 'Close'}
               >
-                <span className="filter-pill-beam" aria-hidden="true" />
-                <span>{isAr ? 'شاهد القوالب' : 'View templates'}</span>
+                <X className="w-4 h-4" />
               </button>
             </div>
+
+            <nav className="mt-12 flex flex-col gap-1">
+              {drawerLinks.map((l) => (
+                <button
+                  key={l.id}
+                  type="button"
+                  onClick={() => go(l.id)}
+                  className="py-4 text-start text-2xl font-extrabold tracking-tight text-white/85 hover:text-white border-b border-white/10 transition-colors cursor-pointer"
+                >
+                  {l.label}
+                </button>
+              ))}
+            </nav>
+
+            <button
+              type="button"
+              onClick={() => {
+                setDrawerOpen(false);
+                onRequestProject?.();
+              }}
+              className="mt-10 w-full px-6 py-4 rounded-full text-sm font-extrabold tracking-widest uppercase text-white cursor-pointer"
+              style={{ background: ACCENT, boxShadow: `0 12px 34px ${ACCENT}55` }}
+            >
+              {isAr ? 'ابدأ معنا' : 'Get started'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── The content ─────────────────────────────────────────────────────────────────── */}
+      <div className="relative z-10 flex-1 flex items-center nq-container py-12 sm:py-16">
+        {/* Twelve columns from `lg`, split 5 / 3 / 4. The middle three are EMPTY on purpose — that
+            is the gap the sphere behind shows through, and it is the whole reason the copy is in
+            two side columns rather than one centred block. Below `lg` there are no columns to keep
+            clear, so it collapses to a single stack. */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
+          <div className="lg:col-span-5">
+            <span className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT_LIT }}>
+              {isAr ? 'نحن نصمم' : 'We design'}
+            </span>
+
+            {/* Display type: heavy, tight and uppercase, set at a leading under 1 so the lines lock
+                into a block rather than reading as a paragraph. `text-balance` covers the narrow
+                screens where a line cannot fit. */}
+            <h1 className="mt-5 text-[2.6rem] sm:text-6xl lg:text-[4.6rem] font-black uppercase leading-[0.96] tracking-tight text-white font-['Cairo'] text-balance">
+              {isAr ? 'تجارب رقمية' : 'Digital experiences'}
+            </h1>
+
+            <p className="mt-6 max-w-md text-sm text-white/70 leading-relaxed">
+              {isAr
+                ? 'نصنع في NOVAIQ تجارب رقمية غامرة تزيد التفاعل، تلهم الإبداع، وتوصل نتائج حقيقية لشركتك.'
+                : 'At NOVAIQ we craft immersive digital experiences that drive engagement, inspire creativity and deliver real results.'}
+            </p>
+
+            <button
+              type="button"
+              onClick={onStart}
+              className="mt-9 inline-flex items-center gap-3 ps-7 pe-2 py-2 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-xs font-bold tracking-[0.16em] uppercase text-white hover:bg-white/10 hover:border-white/40 transition-colors cursor-pointer"
+            >
+              <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
+              <span
+                className="w-9 h-9 rounded-full grid place-items-center text-black"
+                style={{ background: ACCENT_LIT }}
+                aria-hidden="true"
+              >
+                <CtaArrow className="w-4 h-4" strokeWidth={2.6} />
+              </span>
+            </button>
           </div>
 
-          {/* The artwork's box. Square, and driven by HEIGHT with the width following.
-              `relative` so the canvas inside can fill it absolutely without measuring anything.
+          {/* The clear middle. It holds no content at any size — it exists to keep the backdrop's
+              centre unobstructed. */}
+          <div className="hidden lg:block lg:col-span-3" aria-hidden="true" />
 
-              It was briefly wide below `lg`, for a good reason at the time: the artwork was a
-              shallow ring of eight modules that projected about half as tall as it was wide, and a
-              square frame spent a third of its height on empty space above it and another third
-              below. The modules are gone — what is left is a platform with the mark standing over
-              it, which is very nearly as tall as it is wide — so a square frame is the right one
-              again and a wide one would waste the width instead.
-
-              The height clamps are set from the measured fit rather than picked: the copy, the gap
-              and the section's padding are known at every size, so the artwork takes what is left
-              minus a margin for the copy growing a line. The tightest case is a 360×740 phone,
-              which has 654px of section with 334 already spoken for — hence 40svh. */}
-          <div className="relative mx-auto aspect-square w-auto h-[min(40svh,21rem)] sm:h-[min(42svh,24rem)] md:h-[min(46svh,28rem)] lg:h-[min(68svh,37.5rem)]">
-            <HeroStack />
+          <div className="lg:col-span-4">
+            <ul className="flex flex-col">
+              {cards.map((c, i) => (
+                <li
+                  key={c.n}
+                  className={`py-5 ${i > 0 ? 'border-t border-white/12' : ''} flex gap-4 sm:gap-5`}
+                >
+                  <span className="text-xs font-bold tracking-widest pt-1" style={{ color: ACCENT_LIT }}>
+                    {c.n}
+                  </span>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-extrabold tracking-[0.1em] uppercase text-white">
+                      {c.t}
+                    </h2>
+                    <p className="mt-1.5 text-xs sm:text-sm text-white/60 leading-relaxed">{c.d}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
