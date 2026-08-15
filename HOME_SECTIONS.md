@@ -82,29 +82,36 @@ import { SectionName } from './components/SectionName';
 - التعليقات القديمة اللي تقول "بدون padding، الأب يحدد المسافة" — هذا نظام قديم انحذفنا منه
 - `space-y-*` أو `gap-y-*` على wrapper الخارجي — هذا الفخ اللي نتجنبه
 
-## مثال فعلي
+## مثال فعلي — القسم الأول (موجود بالكود)
 
-قسم "من نحن" (موجود بالفعل):
+`src/components/HomeHero.tsx` هو أول قسم انبنى على هذي القاعدة، وهو المرجع الصح للنسخ منه:
 
 ```tsx
-// src/components/AboutSection.tsx
-export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) => {
-  return (
-    <section className="relative py-24 sm:py-40">
-      <div className="nq-container">
-        {/* محتوى من نحن */}
-      </div>
-    </section>
-  );
-};
+// src/components/HomeHero.tsx
+<section
+  id="home-hero"
+  className="relative flex items-center overflow-hidden py-16 sm:py-24
+             min-h-[calc(100svh-var(--nav-bottom,74px)-var(--content-gap))]"
+>
+  {/* خلفية القسم (canvas / تدرّج) — absolute inset-0 z-0، جوا القسم نفسه */}
+  <div className="relative z-10 nq-container text-center">
+    {/* المحتوى */}
+  </div>
+</section>
 ```
+
+لاحظ `min-h` بالضبط: `100svh` ناقص ارتفاع النافبار العائم (`--nav-bottom`) وناقص الفجوة اللي
+`<main>` أصلاً حاططها تحته (`--content-gap`). بدون الطرح، "شاشة كاملة" تصير شاشة + شريط
+النافبار، والفولد ينزل جوا القسم الثاني. و`svh` مو `vh` عشان شريط عنوان الموبايل المتحرك ما
+يخلي القسم أطول من الشاشة.
 
 في `App.tsx`:
 
 ```tsx
 {activePage === 'home' && (
   <div className="page-in">
-    <AboutSection language={language} />
+    <HomeHero language={language} onStart={...} onRequestProject={...} />
+    {/* القسم الثاني يجي هنا — بـ py-* خاص فيه، بدون min-h-screen */}
   </div>
 )}
 ```
