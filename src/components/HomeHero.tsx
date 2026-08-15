@@ -53,7 +53,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       // One full screen, less the floating navbar's measured height and the gap <main> already
       // holds under it. `svh` rather than `vh` so a phone's collapsing address bar cannot make this
       // taller than the screen it is supposed to match.
-      className="relative flex items-center overflow-hidden py-12 sm:py-20 min-h-[calc(100svh-var(--nav-bottom,74px)-var(--content-gap))]"
+      className="relative flex items-center overflow-hidden py-8 sm:py-14 lg:py-16 min-h-[calc(100svh-var(--nav-bottom,74px)-var(--content-gap))]"
     >
       {/* The violet wash the composition sits in. Anchored to the artwork's half of the frame in
           both directions at once — 22% and 78% — because a single-sided gradient would be behind
@@ -64,7 +64,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       />
 
       <div className="relative z-10 nq-container">
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-8">
+        <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-8">
           <div className="text-center lg:text-start">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#7C5CFF]/10 border border-[#7C5CFF]/30 text-[#c4b5fd] text-[0.7rem] font-semibold tracking-wider uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-[#7C5CFF]" aria-hidden="true" />
@@ -122,8 +122,21 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
           {/* The artwork's box. Square, because the composition is as tall as it is wide and a
               letterboxed canvas would crop the blocks off its corners. It is `relative` so the
-              canvas inside can fill it absolutely without measuring anything. */}
-          <div className="relative w-full aspect-square max-h-[62svh] mx-auto max-w-[36rem] lg:max-h-none">
+              canvas inside can fill it absolutely without measuring anything.
+
+              The width is capped hard below `lg`, and that is a FIT constraint rather than taste.
+              Stacked, this column and the copy above it have to live inside one screen: 758px on a
+              390×844 phone, of which the copy takes 352 and the padding and gap take 88. A square
+              that fills the container is 358 tall and puts the section 88px over the fold — the
+              one thing this section is not allowed to do. 17rem leaves 46px of slack for the copy
+              to grow into if a line ever wraps differently.
+
+              From `lg` up it is sized by HEIGHT instead, with the width following from the square.
+              Sized by width, this column takes half the container — 576px on a 1280 screen — and
+              that is fine at 900px tall and 110px over the fold on a 720p laptop, which is an
+              ordinary screen rather than an edge case. Driving it from `svh` ties the artwork to
+              the dimension that is actually scarce here. */}
+          <div className="relative mx-auto aspect-square w-[min(72vw,17rem)] sm:w-[min(52vw,20rem)] lg:h-[min(60svh,34rem)] lg:w-auto">
             <HeroStack />
           </div>
         </div>
