@@ -3,7 +3,6 @@ import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
-import { HomeHero } from './components/HomeHero';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -464,13 +463,14 @@ export default function App() {
       
       {/* Supernova Atmospheric Background */}
 
-      {/* Main Header Bar — on every page, home included.
-          HomeHero briefly carried a full duplicate of this bar so it could sit directly on the
-          hero's video without App.tsx rendering a second one. That duplication was the actual bug:
-          two hand-kept copies of the same navigation are two places for a nav change to land, and a
-          merge is exactly where they drift apart and stop compiling. One Navbar, everywhere — its
-          floating pill is fixed and transparent, so it still reads as sitting on the hero's backdrop
-          rather than pushing it down. */}
+      {/* Main Header Bar — on every page, home included, and currently the only thing the home
+          page has on it at all.
+          A hero section here once carried a full duplicate of this bar so it could sit directly on
+          its own backdrop without App.tsx rendering a second one. That duplication was the actual
+          bug: two hand-kept copies of the same navigation are two places for a nav change to land,
+          and a merge is exactly where they drift apart and stop compiling. One Navbar, everywhere —
+          its floating pill is fixed and transparent, so whatever is built on the home page next
+          will read as sitting under it rather than being pushed down by it. */}
       <Navbar
         activePage={activePage}
         setActivePage={(page) => navigateTo(page)}
@@ -486,9 +486,9 @@ export default function App() {
           ends. That offset is measured at runtime rather than hardcoded per breakpoint, so a
           change to the bar's own size re-flows the page automatically instead of silently
           overlapping it.
-          One value for every page, home included now — see HomeHero's own top-of-section note
-          for how it accounts for the same clearance in its `min-height` instead of losing a
-          screenful of hero to it. */}
+          One value for every page, home included. A full-screen first section wanting to sit
+          BEHIND the bar rather than below it cancels this with a matching negative margin of its
+          own, so that the clearance stays defined in exactly one place. */}
       <main
         style={{ paddingTop: 'calc(var(--nav-bottom, 74px) + var(--content-gap))' }}
         className="flex-1 relative z-10 pb-8"
@@ -496,14 +496,12 @@ export default function App() {
 
         {activePage === 'home' && (
           <div className="page-in">
-            {/* Sections go here, one by one — each section is its own component file.
-                No width/spacing classes on this div except page-in; each section owns its own
-                <section>, .nq-container (or deliberate variant), and vertical padding. */}
-            <HomeHero
-              language={language}
-              onStart={() => navigateTo('templates')}
-              onRequestProject={startProject}
-            />
+            {/* Empty on purpose. The home page carries the Navbar and nothing else.
+
+                Sections go here, one by one — each section is its own component file. No
+                width/spacing classes on this div except page-in; each section owns its own
+                <section>, .nq-container (or deliberate variant), and vertical padding, so that
+                moving or retuning one section cannot shift the ones around it. */}
           </div>
         )}
 
