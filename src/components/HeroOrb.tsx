@@ -82,6 +82,7 @@ const SPIN = 0.055;
 
 function makeOrbMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
+    wireframe: true,
     uniforms: {
       uTime: { value: 0 },
       uAmp: { value: AMP },
@@ -209,6 +210,12 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
       varying vec3 vVP;
       varying float vH;
 
+      float hash21(vec2 p) {
+        vec3 q = fract(vec3(p.xyx) * 0.1031);
+        q += dot(q, q.yzx + 33.33);
+        return fract((q.x + q.y) * q.z);
+      }
+
       void main() {
         vec3 n = normalize(vN);
         vec3 v = normalize(-vVP);
@@ -236,7 +243,22 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
         vec3 hv = normalize(uLight + v);
         c += vec3(1.0) * pow(max(dot(n, hv), 0.0), 38.0) * 0.42;
 
-        gl_FragColor = vec4(n * 0.5 + 0.5, 1.0);
+        /* DITHER, and it is not a finishing touch — it is what makes this object look like a
+           rendered surface rather than a set of plates.
+
+           Everything above lives between #06 and #4A. A framebuffer has 256 steps across the whole
+           range, so a gradient that dark gets maybe thirty of them, and the boundary between one
+           step and the next draws a hard contour line across the body. On a curved surface those
+           contours follow the ridges and come out looking like flat polygonal facets — which is
+           exactly what this looked like, and it was misread as a geometry problem first: rendering
+           the normals showed them perfectly smooth, so nothing was faceted except the colour.
+
+           A pixel of noise under half a step is invisible on its own and pushes each pixel to
+           whichever side of the boundary it was already nearest, which turns a hard contour into a
+           soft one. Standard practice for any dark render; mandatory for one this dark. */
+        c += (hash21(gl_FragCoord.xy) - 0.5) * (1.6 / 255.0);
+
+        gl_FragColor = vec4(c, 1.0);
       }
     `,
   });
