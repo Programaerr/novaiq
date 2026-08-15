@@ -53,7 +53,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       // One full screen, less the floating navbar's measured height and the gap <main> already
       // holds under it. `svh` rather than `vh` so a phone's collapsing address bar cannot make this
       // taller than the screen it is supposed to match.
-      className="relative flex items-center overflow-hidden py-8 sm:py-14 lg:py-16 min-h-[calc(100svh-var(--nav-bottom,74px)-var(--content-gap))]"
+      className="relative flex items-center overflow-hidden py-6 sm:py-10 lg:py-12 min-h-[calc(100svh-var(--nav-bottom,74px)-var(--content-gap))]"
     >
       {/* No background layer of its own. A violet wash sat here and it is deliberately gone — the
           section takes the page's own ground, and the only violet left in view is on the objects
@@ -63,7 +63,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       <div className="relative z-10 nq-container">
         <div className="grid items-center gap-6 lg:grid-cols-2 lg:gap-8">
           <div className="text-center lg:text-start">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#7C5CFF]/10 border border-[#7C5CFF]/30 text-[#c4b5fd] text-[0.7rem] font-semibold tracking-wider uppercase">
+            <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[#7C5CFF]/10 border border-[#7C5CFF]/30 text-[#c4b5fd] text-[0.62rem] sm:text-[0.7rem] font-semibold tracking-wider uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-[#7C5CFF]" aria-hidden="true" />
               {isAr ? 'مبني لمستقبل الأعمال الرقمية' : 'Built for the future of business'}
             </span>
@@ -72,7 +72,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 and the HOW in the accent, so the second line reads as the promise rather than as a
                 continuation of the sentence. `text-balance` covers the narrow screens where a line
                 cannot fit, splitting it evenly instead of orphaning one word. */}
-            <h1 className="mt-6 text-4xl sm:text-6xl lg:text-[3.9rem] font-extrabold tracking-tight leading-[1.12] font-['Cairo'] text-balance">
+            {/* The `lg` step DOWN from `md` is not a typo. Up to `md` the headline has the full
+                container to run across; at `lg` the layout splits into two columns and the same
+                type suddenly has half the width, which took it to four lines on a 1024 tablet in
+                landscape. It goes back up at `xl`, where the half-column is wide enough again. */}
+            <h1 className="mt-4 sm:mt-6 text-[2rem] sm:text-5xl md:text-6xl lg:text-[3.1rem] xl:text-[3.9rem] font-extrabold tracking-tight leading-[1.12] font-['Cairo'] text-balance">
               <span className="block text-white">
                 {isAr ? 'بناء مواقع وتطبيقات' : 'Powering digital'}
               </span>
@@ -81,7 +85,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </span>
             </h1>
 
-            <p className="mt-6 mx-auto lg:mx-0 max-w-xl text-sm text-zinc-400 leading-relaxed">
+            <p className="mt-4 sm:mt-6 mx-auto lg:mx-0 max-w-xl text-xs sm:text-sm text-zinc-400 leading-relaxed">
               {isAr
                 ? 'نحن في NOVAIQ نبتكر منصات رقمية فائقة السرعة والأمان. تصفح معرض قوالبنا الجاهزة لشركتك، أو تواصل معنا لصياغة نظام خاص ومخصص يلبي احتياجاتك بدقة واحترافية متكاملة.'
                 : 'At NOVAIQ, we build high-performance, secure digital platforms. Explore our ready-made templates for your business, or contact us to build a custom application tailored exactly to your needs.'}
@@ -93,7 +97,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 `isolation: isolate` but not a position, and the beam is `position: absolute; inset: 0`,
                 so without it the ring hangs off the nearest positioned ancestor instead of the
                 button. */}
-            <div className="mt-9 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+            <div className="mt-6 sm:mt-9 flex flex-wrap items-center justify-center lg:justify-start gap-3">
               <button
                 type="button"
                 onClick={onRequestProject}
@@ -121,19 +125,20 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               letterboxed canvas would crop the blocks off its corners. It is `relative` so the
               canvas inside can fill it absolutely without measuring anything.
 
-              The width is capped hard below `lg`, and that is a FIT constraint rather than taste.
-              Stacked, this column and the copy above it have to live inside one screen: 758px on a
-              390×844 phone, of which the copy takes 352 and the padding and gap take 88. A square
-              that fills the container is 358 tall and puts the section 88px over the fold — the
-              one thing this section is not allowed to do. 17rem leaves 46px of slack for the copy
-              to grow into if a line ever wraps differently.
+              Sized by HEIGHT at every breakpoint, with the width following from the square, and
+              that is a FIT constraint rather than taste. Stacked, this column and the copy above it
+              have to live inside ONE screen, and the scarce dimension there is height — so the
+              artwork is measured in `svh` and shrinks on its own as the screen gets shorter, rather
+              than being pinned to a width that happens to be fine at 844px tall and 108px over the
+              fold at 740px.
 
-              From `lg` up it is sized by HEIGHT instead, with the width following from the square.
-              Sized by width, this column takes half the container — 576px on a 1280 screen — and
-              that is fine at 900px tall and 110px over the fold on a 720p laptop, which is an
-              ordinary screen rather than an edge case. Driving it from `svh` ties the artwork to
-              the dimension that is actually scarce here. */}
-          <div className="relative mx-auto aspect-square w-[min(72vw,17rem)] sm:w-[min(52vw,20rem)] lg:h-[min(60svh,34rem)] lg:w-auto">
+              The caps step up per breakpoint because the space each device has to spare does, and
+              each one is set from the measured fit rather than picked: the copy, the gap and the
+              section's own padding are known at every size, so the artwork takes what is left minus
+              a margin for the copy growing a line. The tightest case is a 360×740 phone, which has
+              654px of section, 334 of it spoken for — hence 40svh, which lands at 296 there and is
+              capped well before it matters on anything taller. */}
+          <div className="relative mx-auto aspect-square h-[min(40svh,21rem)] sm:h-[min(42svh,24rem)] md:h-[min(44svh,28rem)] lg:h-[min(68svh,40rem)] w-auto">
             <HeroStack />
           </div>
         </div>
