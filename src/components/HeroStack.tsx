@@ -302,6 +302,45 @@ function useMaterials() {
 
 type Materials = ReturnType<typeof useMaterials>;
 
+/**
+ * The halo every light in this scene is wearing.
+ *
+ * An emissive sphere is not a light — it is a ball painted a bright colour, and it reads as exactly
+ * that: a hard-edged white bead sliding along a cable. What makes a real one read is what happens
+ * AROUND it: the falloff into the dark, which is glare in the camera rather than anything on the
+ * object.
+ *
+ * The honest way to get it is a bloom pass, and that means an EffectComposer, a second render
+ * target and a multi-pass blur every frame — the most expensive thing that could be added to a
+ * scene that is meant to run on a phone. An additive sprite carrying a radial falloff is the same
+ * effect drawn directly: one textured quad, no extra passes, and because a sprite always faces the
+ * camera it costs nothing per frame to keep it turned the right way.
+ *
+ * The curve matters. A linear ramp gives a flat disc with a visible rim; the eased stops below put
+ * a hot core in the middle and a long tail into nothing, which is what glare actually looks like.
+ */
+function useGlowTexture(): THREE.Texture | null {
+  const tex = useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const ctx = c.getContext('2d');
+    if (!ctx) return null;
+    const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.12, 'rgba(245,240,255,0.92)');
+    g.addColorStop(0.3, 'rgba(190,170,255,0.42)');
+    g.addColorStop(0.6, 'rgba(140,110,255,0.12)');
+    g.addColorStop(1, 'rgba(120,90,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }, []);
+  useEffect(() => () => tex?.dispose(), [tex]);
+  return tex;
+}
+
 /* ── The platform ─────────────────────────────────────────────────────────────────────────── */
 
 const PLATFORM_W = 3.9;
@@ -447,7 +486,16 @@ const MODULES: ModuleSpec[] = [
   { kind: 'darkCube', pos: [-1.1, 0.85, -3.6], rot: 0.35, phase: 5.0, scale: 0.85 },
 ];
 
-const Module: React.FC<{ spec: ModuleSpec; mats: Materials }> = ({ spec, mats }) => {
+/**
+ * The parts every module is built from, made ONCE and shared by all eight.
+ *
+ * This used to live inside Module, which meant each instance built its own set: eight copies of
+ * seven extruded, bevelled solids where seven would do. Fifty-six geometries is fifty-six vertex
+ * buffers uploaded to the GPU and fifty-six lots of ExtrudeGeometry running on the main thread
+ * during mount, for shapes that are identical. The modules differ by position, rotation, scale and
+ * material — never by geometry.
+ */
+function useModuleGeometry() {
   const geo = useMemo(
     () => ({
       cube: roundedBox(0.9, 0.9, 0.9, 0.22),
@@ -461,7 +509,16 @@ const Module: React.FC<{ spec: ModuleSpec; mats: Materials }> = ({ spec, mats })
     [],
   );
   useEffect(() => () => Object.values(geo).forEach((g) => g.dispose()), [geo]);
+  return geo;
+}
 
+type ModuleGeometry = ReturnType<typeof useModuleGeometry>;
+
+const Module: React.FC<{ spec: ModuleSpec; mats: Materials; geo: ModuleGeometry }> = ({
+  spec,
+  mats,
+  geo,
+}) => {
   const s = spec.scale ?? 1;
 
   return (
@@ -549,13 +606,13 @@ const Cable: React.FC<{
   index: number;
   anchor: THREE.Vector3;
   mats: Materials;
+  glow: THREE.Texture | null;
   clock: React.RefObject<number>;
   still: boolean;
-}> = ({ groups, index, anchor, mats, clock, still }) => {
+}> = ({ groups, index, anchor, mats, glow, clock, still }) => {
   const tube = useRef<THREE.Mesh>(null);
-  const plug = useRef<THREE.Mesh>(null);
   const collar = useRef<THREE.Mesh>(null);
-  const charge = useRef<THREE.Mesh>(null);
+  const charge = useRef<THREE.Group>(null);
 
   const a = useMemo(() => new THREE.Vector3(), []);
   const mid = useMemo(() => new THREE.Vector3(), []);
@@ -618,15 +675,42 @@ const Cable: React.FC<{
         <cylinderGeometry args={[0.1, 0.1, 0.18, 10]} />
       </mesh>
       {/* The lit plug where the cable meets the platform. Fixed, because the platform end does not
-          move — only the module end does. */}
-      <mesh ref={plug} position={anchor} material={mats.connector}>
-        <sphereGeometry args={[0.11, 14, 12]} />
-      </mesh>
-      {/* The charge itself, riding the cable. Starts hidden; the frame loop above owns it from the
-          moment the mark lands. */}
-      <mesh ref={charge} material={mats.charge} visible={false}>
-        <sphereGeometry args={[0.1, 12, 10]} />
-      </mesh>
+          move — only the module end does. Core plus halo, the same two-part build as the charge. */}
+      <group position={anchor}>
+        <mesh material={mats.connector}>
+          <sphereGeometry args={[0.1, 12, 10]} />
+        </mesh>
+        {glow && (
+          <sprite scale={[0.62, 0.62, 1]}>
+            <spriteMaterial
+              map={glow}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              transparent
+              opacity={0.75}
+            />
+          </sprite>
+        )}
+      </group>
+
+      {/* The charge riding the cable: a small hot core inside a much larger halo. The core alone is
+          a white bead; the halo alone is a smudge with nothing in it. Starts hidden — the frame loop
+          above owns it from the moment the mark lands. */}
+      <group ref={charge} visible={false}>
+        <mesh material={mats.charge}>
+          <sphereGeometry args={[0.065, 10, 8]} />
+        </mesh>
+        {glow && (
+          <sprite scale={[0.9, 0.9, 1]}>
+            <spriteMaterial
+              map={glow}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              transparent
+            />
+          </sprite>
+        )}
+      </group>
     </>
   );
 };
@@ -739,6 +823,8 @@ const Scene: React.FC<{ still: boolean; replayRef: React.MutableRefObject<(() =>
   replayRef,
 }) => {
   const mats = useMaterials();
+  const moduleGeo = useModuleGeometry();
+  const glow = useGlowTexture();
   const clock = useRef(0);
   const groups = useRef<(THREE.Group | null)[]>([]);
   const camera = useThree((s) => s.camera);
@@ -899,7 +985,7 @@ const Scene: React.FC<{ still: boolean; replayRef: React.MutableRefObject<(() =>
           }}
           position={layout[i].rest}
         >
-          <Module spec={spec} mats={mats} />
+          <Module spec={spec} mats={mats} geo={moduleGeo} />
         </group>
       ))}
 
