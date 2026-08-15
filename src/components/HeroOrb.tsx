@@ -82,7 +82,6 @@ const SPIN = 0.055;
 
 function makeOrbMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
-    wireframe: true,
     uniforms: {
       uTime: { value: 0 },
       uAmp: { value: AMP },
@@ -127,15 +126,22 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
           f.z);
       }
 
-      // Three octaves, and 2.03 rather than a flat 2.0 — doubling exactly lines the octaves' grids
-      // up and leaves a faint square lattice across the surface.
+      // TWO octaves, not the usual three or four, and the second one damped harder than the
+      // classic halving. This surface is read through its normals, and a normal responds to the
+      // SLOPE of the field rather than its height: an octave at four times the frequency and a
+      // quarter of the amplitude contributes as much slope as the base does, so the octave that
+      // barely shows in the silhouette is the one that turns a poured surface into gravel. Three
+      // octaves here came out looking like a walnut.
+      //
+      // 2.03 rather than a flat 2.0 — doubling exactly lines the octaves' grids up and leaves a
+      // faint square lattice across the surface.
       float fbm(vec3 p) {
         float v = 0.0;
         float a = 0.5;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
           v += a * vnoise(p);
           p *= 2.03;
-          a *= 0.5;
+          a *= 0.42;
         }
         return v;
       }
@@ -154,8 +160,11 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
         vec3 q = dir * 2.0;
         q.y -= uTime * 0.10;
         float n = fbm(q);
-        float w = fbm(q * 2.05 + n * 1.6 + 7.3);
-        return (n * 0.6 + w * 0.4 - 0.44) * 2.9;
+        float w = fbm(q * 2.05 + n * 0.95 + 7.3);
+        // Centre and scale track the octave count above: two octaves at 0.5 and 0.21 sum to 0.71
+        // at most and sit near 0.355, so those are the numbers that put the field back in -1..1
+        // and let uAmp mean what it says. Change the loop and these change with it.
+        return (n * 0.6 + w * 0.4 - 0.355) * 3.4;
       }
 
       vec3 place(vec3 dir, out float h) {
@@ -175,8 +184,9 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
         vec3 b = cross(dir, t);
 
         // Wide enough to straddle real ridges. Too small and the difference is noise-floor and the
-        // shading speckles; too large and the surface flattens back toward the smooth sphere.
-        float e = 0.045;
+        // shading speckles; too large and the surface flattens back toward the smooth sphere. It
+        // is also a low-pass filter on the relief, which is the second reason this sits high.
+        float e = 0.055;
         float ht;
         float hb;
         vec3 pt = place(normalize(dir + t * e), ht);
@@ -226,12 +236,12 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
         float k = pow(lit, 1.5);
 
         vec3 c = mix(uInk, uBody, smoothstep(0.04, 0.78, k));
-        c = mix(c, uPale, smoothstep(0.72, 1.0, k) * 0.62);
+        c = mix(c, uPale, smoothstep(0.74, 1.0, k) * 0.46);
 
         // Crests catch light and troughs hold shadow, beyond what the normals alone give. This is
         // the term that keeps the ridges readable once the body turns away from the key — a
         // surface lit only by its normals loses all its relief across the terminator.
-        c *= 0.66 + 0.78 * smoothstep(-0.55, 0.5, vH);
+        c *= 0.74 + 0.6 * smoothstep(-0.6, 0.55, vH);
 
         // The limb. Ungated by the light term: on a body this dark it is also what separates the
         // silhouette from the page behind it, and the page behind it is the same black.
@@ -241,7 +251,7 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
         // One tight specular. Everything above is soft, and soft alone reads as clay — this is
         // what puts a wet highlight on the crests and tells you the ridges have edges.
         vec3 hv = normalize(uLight + v);
-        c += vec3(1.0) * pow(max(dot(n, hv), 0.0), 38.0) * 0.42;
+        c += vec3(1.0) * pow(max(dot(n, hv), 0.0), 30.0) * 0.30;
 
         /* DITHER, and it is not a finishing touch — it is what makes this object look like a
            rendered surface rather than a set of plates.
@@ -266,11 +276,27 @@ function makeOrbMaterial(): THREE.ShaderMaterial {
 
 /* ── The scene ──────────────────────────────────────────────────────────────────────────── */
 
-/** Vertices = 20 · 4^detail · 3 (icosahedron geometry is non-indexed). 4 -> 15k, 5 -> 61k.
-    An icosahedron rather than a UV sphere because its triangles are all the same size: noise
-    displacement on a UV sphere is finely resolved at the poles and coarse at the equator, and the
-    seam between the two is visible as a change in ridge scale. */
-const DETAIL = MAX_DPR > 1 ? 5 : 4;
+/**
+ * Tessellation, as segments around and over.
+ *
+ * The displacement is per-VERTEX, so the mesh has to be fine enough to carry it: normals vary
+ * across the surface faster than a coarse mesh can interpolate, and what that looks like is flat
+ * plates with straight edges — the whole body reads as a low-poly rock no matter how smooth the
+ * field underneath is.
+ *
+ * This started on an IcosahedronGeometry at "detail 5", on the assumption that detail subdivides
+ * each face into 4^detail triangles. It does not: PolyhedronGeometry divides each edge into
+ * detail+1, so each face becomes (detail+1)^2 and the whole body came to 720 triangles rather than
+ * the 20,000 intended. Rendering it in wireframe was what settled it, after the normals had
+ * already been ruled out.
+ *
+ * A UV sphere rather than a polyhedron now, because it is INDEXED: 192x128 is 49k triangles off
+ * 24.9k vertices, where the same triangle count from a non-indexed polyhedron would run the vertex
+ * shader 147k times — and the vertex shader is where all the cost is here. Its uneven triangle
+ * density does not show at this resolution, and the poles are safe because the field is sampled
+ * from the 3D position rather than from UVs, so there is no seam to split.
+ */
+const SEGMENTS: [number, number] = MAX_DPR > 1 ? [192, 128] : [128, 84];
 
 interface OrbProps {
   /** Normalised pointer, written by the host from the SECTION's pointermove. -1..1, y up. */
@@ -282,7 +308,7 @@ interface OrbProps {
 
 const Orb: React.FC<OrbProps> = ({ pointer, flip, reduced }) => {
   const material = useMemo(makeOrbMaterial, []);
-  const geometry = useMemo(() => new THREE.IcosahedronGeometry(1, DETAIL), []);
+  const geometry = useMemo(() => new THREE.SphereGeometry(1, SEGMENTS[0], SEGMENTS[1]), []);
 
   const spin = useRef<THREE.Group>(null);
   const lean = useRef<THREE.Group>(null);
