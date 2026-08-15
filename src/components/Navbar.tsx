@@ -241,7 +241,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <a
               href="?page=login"
               onClick={goToLogin}
-              className="filter-pill-btn relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold cursor-pointer"
+              className="filter-pill-btn relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer"
             >
               <span className="filter-pill-beam" aria-hidden="true" />
               <LogIn className="w-4 h-4 text-current shrink-0" />
