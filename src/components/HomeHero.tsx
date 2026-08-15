@@ -320,12 +320,18 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
           From `lg` the two are side by side in one row, so there is nothing to distribute and it
           goes back to centred. */}
-      <div className="relative z-10 flex-1 flex items-stretch lg:items-center nq-container py-8 sm:py-10 lg:py-16">
-        {/* Twelve columns from `lg`, split 5 / 3 / 4. The middle three are EMPTY on purpose — that
-            is the gap the sphere behind shows through, and it is the whole reason the copy is in
-            two side columns rather than one centred block. Below `lg` there are no columns to keep
-            clear, so it collapses to a single stack. */}
-        <div className="w-full h-full lg:h-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center content-between lg:content-center">
+      {/* The grid IS the flex child, with no wrapper between them, and that is what makes the
+          distribution work at all. Nested one level down it needed `h-100%` to know how tall to be,
+          and a percentage height inside a flex-derived box does not resolve — the grid stayed at
+          its content height of 535px inside a 766px parent, so there was no free space for
+          `space-between` to hand out and the cards never moved. As the flex child itself it takes
+          the height directly.
+
+          Twelve columns from `lg`, split 5 / 3 / 4. The middle three are EMPTY on purpose — that is
+          the gap the sphere behind shows through, and it is the whole reason the copy sits in two
+          side columns rather than one centred block. Below `lg` there are no columns to keep clear,
+          so it collapses to a single stack. */}
+      <div className="relative z-10 flex-1 nq-container py-8 sm:py-10 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center content-between lg:content-center">
           <div className="lg:col-span-5">
             <span className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT }}>
               {isAr ? 'نحن نصمم' : 'We design'}
@@ -386,7 +392,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               ))}
             </ul>
           </div>
-        </div>
       </div>
     </section>
   );
