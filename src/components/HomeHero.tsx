@@ -121,24 +121,26 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             </div>
           </div>
 
-          {/* The artwork's box. Square, because the composition is as tall as it is wide and a
-              letterboxed canvas would crop the blocks off its corners. It is `relative` so the
-              canvas inside can fill it absolutely without measuring anything.
+          {/* The artwork's box, and it is deliberately NOT square when the layout is stacked.
+              `relative` so the canvas inside can fill it absolutely without measuring anything.
 
-              Sized by HEIGHT at every breakpoint, with the width following from the square, and
-              that is a FIT constraint rather than taste. Stacked, this column and the copy above it
-              have to live inside ONE screen, and the scarce dimension there is height — so the
-              artwork is measured in `svh` and shrinks on its own as the screen gets shorter, rather
-              than being pinned to a width that happens to be fine at 844px tall and 108px over the
-              fold at 740px.
+              Stacked, it takes the full column width and is then clamped by height: `aspect-square`
+              states the intent, `max-h` overrides it, and what comes out is a WIDE box. That is the
+              shape the artwork actually wants. The composition is a shallow ring of modules seen
+              from a three-quarter angle, so it projects about half as tall as it is wide — in a
+              square frame that leaves a third of the canvas empty above it and another third below,
+              and the whole thing reads as small and stranded no matter how many pixels it is given.
+              In a wide box the same height budget buys real width, and the artwork is bigger where
+              being bigger shows.
 
-              The caps step up per breakpoint because the space each device has to spare does, and
-              each one is set from the measured fit rather than picked: the copy, the gap and the
-              section's own padding are known at every size, so the artwork takes what is left minus
-              a margin for the copy growing a line. The tightest case is a 360×740 phone, which has
-              654px of section, 334 of it spoken for — hence 40svh, which lands at 296 there and is
-              capped well before it matters on anything taller. */}
-          <div className="relative mx-auto aspect-square h-[min(40svh,21rem)] sm:h-[min(42svh,24rem)] md:h-[min(44svh,28rem)] lg:h-[min(68svh,37.5rem)] w-auto">
+              The height clamps are set from the measured fit rather than picked: the copy, the gap
+              and the section's padding are known at every size, so the artwork takes what is left
+              minus a margin for the copy growing a line. The tightest case is a 360×740 phone,
+              which has 654px of section with 334 already spoken for — hence 40svh.
+
+              From `lg` the two-column layout gives this its own half of the page, which is nowhere
+              near wide, so it goes back to a square driven by height. */}
+          <div className="relative mx-auto aspect-square w-full max-h-[40svh] sm:max-h-[42svh] md:max-h-[46svh] lg:h-[min(68svh,37.5rem)] lg:w-auto lg:max-h-none">
             <HeroStack />
           </div>
         </div>

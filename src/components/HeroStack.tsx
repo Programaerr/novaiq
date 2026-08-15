@@ -758,9 +758,22 @@ const Scene: React.FC<{ still: boolean; replayRef: React.MutableRefObject<(() =>
   const compact = width > 0 && width < 460;
   const spread = compact ? 0.72 : 1;
 
+  /**
+   * The camera closes in on a small canvas, and its ANGLE stays put.
+   *
+   * Raising it was tried, for a real reason: the composition is a wide, shallow ring, so from 29°
+   * up it projects about half as tall as it is wide and leaves dead bands above and below in a
+   * square frame. At 41° it filled the square — and the mark, which is the whole point of the
+   * scene, foreshortened into an unreadable smudge, because a taller angle looks further down onto
+   * an object whose shape lives in its height. The frame was the thing that was wrong, not the
+   * angle: the artwork's box is no longer square below `lg` (see HomeHero), so a wide composition
+   * now sits in a wide box and the logo keeps the three-quarter view that makes it legible.
+   */
   useEffect(() => {
     const f = compact ? 0.86 : 1;
     camera.position.set(18 * f, 14 * f, 18 * f);
+    // Aimed at the composition's own middle rather than the origin: the mark rises to about 2.4 and
+    // the modules sit near 0, so the origin is not the centre of what is on screen.
     camera.lookAt(0, 0.9, 0);
     camera.updateProjectionMatrix();
   }, [camera, compact]);
