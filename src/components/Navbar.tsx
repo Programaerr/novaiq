@@ -131,7 +131,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems = [
     { id: 'home', label: isAr ? 'الرئيسية' : 'Home', icon: Home, href: '/' },
     { id: 'templates', label: isAr ? 'القوالب البرمجية' : 'Ready Templates', icon: Layers, href: '?page=templates' },
-    { id: 'custom-request', label: isAr ? 'عقد مخصص وتطوير' : 'Custom Contract', icon: FileSignature, href: '?page=custom-request' },
     { id: 'timeline', label: isAr ? 'مراحل العمل والتسليم' : 'Roadmap & Process', icon: Calendar, href: '?page=timeline' },
     { id: 'about', label: isAr ? 'عن NOVAIQ' : 'About NOVAIQ', icon: Building2, href: '?page=about' },
     { id: 'privacy', label: isAr ? 'سياسة الخصوصية' : 'Privacy Policy', icon: ShieldCheck, href: '?page=privacy' },
@@ -183,24 +182,33 @@ export const Navbar: React.FC<NavbarProps> = ({
     // floating bar narrower than the page it belongs to. Its PADDING stays its own: this is a pill
     // with its own edge, not a text column, so it does not want the container's gutters.
     <header dir="ltr" className="fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-[var(--nq-container)] mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
-      {/* pb trimmed below pt on mobile only (sm+ restores the even p-3) — shrinks the bar's
-          own footprint from its bottom edge so it clears the page content just beneath it on
-          small screens without moving its top position at all. */}
+      {/* Transparent spacer holding the two halves apart — it paints nothing itself. Each half
+          below is its own independent glass bar: the LOGIN cluster and the NAVIGATION group are
+          two completely separate bars with no connection between them. No border, no outline
+          anywhere (see .navbar-glass in index.css). */}
       <div
         ref={barRef}
-        // No drop shadow: shadow-2xl shadow-black cast a wide, fully opaque smear well past
-        // the bar's own bottom edge, darkening whatever sat beneath it (the back bar, the top
-        // of the page content) rather than reading as depth. The white/15 border already
-        // separates the bar from the page, so the shadow was only ever costing contrast.
-        className="glass-bar glass-bar--blur border border-white/15 rounded-2xl sm:rounded-3xl pt-3 pb-2 px-3 sm:p-3 sm:px-6 flex items-center justify-between gap-3 relative"
+        className="flex items-center justify-between gap-6 sm:gap-10 relative"
       >
 
-        {/* Side 1 (physical left): Account — before login, a single "Login" entry point
-            (Google sign-in covers both login and first-time sign-up in one click, so a
-            separate "Sign Up" button would just be a second path to the exact same screen);
-            once signed in, one "My Account" button (own contracts, or the control panel if
-            the account is an admin — AdminPage decides which). */}
-        <div className="flex items-center gap-2 relative z-10">
+        {/* ── Half 1 (physical left): LOGIN — the brand logo and the account/login entry in one
+            self-contained glass bar. Logo sits inside this half, per the requested split. */}
+        <div className="navbar-glass flex items-center gap-3 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
+          <a
+            href="/"
+            onClick={(e) => handleNavClick('home', e)}
+            onTouchStart={() => {
+              setLogoRevealed(true);
+              if (logoRevealTimer.current) window.clearTimeout(logoRevealTimer.current);
+              logoRevealTimer.current = window.setTimeout(() => setLogoRevealed(false), 2200);
+            }}
+            className="flex items-center justify-center cursor-pointer group"
+          >
+            <NovaiqLogo size={34} showText={true} animated revealed={logoRevealed} />
+          </a>
+
+          <span aria-hidden="true" className="hidden sm:block h-7 w-px bg-white/10" />
+
           {isLoggedIn === undefined ? (
             <div
               aria-hidden="true"
@@ -230,18 +238,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </a>
           ) : (
-            /* Wears the templates toolbar's Filter pill outright (.filter-pill-btn +
-               .filter-pill-beam) — same bevelled white surface, same inversion to black on
-               hover, and the same beam tracing its outline. The hand-rolled
-               bg-white/hover:bg-zinc-200/border/white-btn-glow it carried before had to go
-               rather than sit alongside: .filter-pill-btn owns `background`, `color` and
-               `box-shadow` itself, and white-btn-glow's own black bloom would have fought it
-               for the shadow and cancelled the hover inversion's glow.
-               The icon takes text-current instead of text-black so it flips to white with the
-               body — pinned black it would vanish the moment the pill inverted. Radius stays
-               rounded-xl, matching the navbar's own geometry rather than the toolbar's full
-               pill; the beam reads `border-radius: inherit`, so it traces whatever shape it
-               is given. */
             <a
               href="?page=login"
               onClick={goToLogin}
@@ -254,28 +250,30 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </div>
 
-        {/* Center: Brand Logo — absolutely positioned against the bar (which is `relative`)
-            instead of just being the middle flex child, so it stays pixel-perfect centered
-            regardless of how wide the menu button or account button happen to be (their
-            widths differ by auth state and language, which would otherwise nudge it off-center). */}
-        <a
-          href="/"
-          onClick={(e) => handleNavClick('home', e)}
-          onTouchStart={() => {
-            setLogoRevealed(true);
-            if (logoRevealTimer.current) window.clearTimeout(logoRevealTimer.current);
-            logoRevealTimer.current = window.setTimeout(() => setLogoRevealed(false), 2200);
-          }}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group z-10"
-        >
-          <NovaiqLogo size={34} showText={true} animated revealed={logoRevealed} />
-        </a>
+        {/* ── Half 2 (physical right): NAVIGATION — its own glass bar, completely separate from
+            the login cluster. Page links render inline from `lg` up; the hamburger menu button
+            is mobile-only and hidden from `lg` up. */}
+        <div className="navbar-glass flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
+          <nav className="hidden lg:flex items-center gap-0.5" aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}>
+            {navItems.map((item) => {
+              const isActive = activePage === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={(e) => handleNavClick(item.id, e)}
+                  className={`px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-white text-black shadow-lg'
+                      : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
+          </nav>
 
-        {/* Side 2 (physical right): Menu & Language toggle */}
-        <div className="flex items-center gap-1.5 relative z-10">
-          {/* Language toggle — moved out of the drawer to sit right in the main bar, so
-              switching language is a single always-visible tap instead of needing the
-              drawer opened first. */}
           <button
             onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
             title={isAr ? 'تبديل اللغة' : 'Switch language'}
@@ -290,7 +288,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setMenuDrawerOpen(!menuDrawerOpen)}
             aria-label={isAr ? (menuDrawerOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (menuDrawerOpen ? 'Close menu' : 'Open menu')}
             aria-expanded={menuDrawerOpen}
-            className={`group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 ${
+            className={`lg:hidden group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 ${
               menuDrawerOpen ? 'text-white' : 'text-zinc-400 hover:text-white'
             }`}
           >
