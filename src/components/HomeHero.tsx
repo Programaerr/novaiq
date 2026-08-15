@@ -1,21 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { NovaiqLogo } from './NovaiqLogo';
 
 /**
- * The home page's first section: the claim, the work, and a header of its own.
+ * The home page's first section: the claim and the work.
  *
- * ## It carries its own header
+ * ## No header of its own any more
  *
- * Every other page on this site sits under the floating Navbar. This one does not — App.tsx hides
- * that bar on `home` and drops <main>'s top padding, and the header below takes over. That is why
- * the section is `min-h-[100svh]` rather than the viewport less the navbar's band: there is no band
- * to subtract any more, the header is INSIDE the thing it sits on.
+ * This briefly carried a full duplicate of the shared Navbar — its own logo bar, links, language
+ * toggle and mobile drawer — because App.tsx hid the real bar on `home` and let this section sit
+ * directly on the video backdrop instead. That duplication was the wrong trade: a second, hand-kept
+ * copy of the navbar is a second place for every future nav change to be applied, and a merge is
+ * exactly where two copies of the same thing drift apart and stop compiling.
  *
- * The trade is that everything the shared bar provides has to be provided here too, or it simply
- * disappears for anyone who lands on the home page — which is most people. So the header carries
- * the same seven destinations, the language toggle and the way into the contract flow.
+ * The shared Navbar now renders on every page, including this one — see App.tsx, which no longer
+ * special-cases `home`. Its floating pill sits fixed above the video regardless, so the "sitting on
+ * the backdrop" look is unchanged; what changed is that there is only one navbar to maintain.
  *
  * ## The backdrop
  *
@@ -39,12 +39,10 @@ import { NovaiqLogo } from './NovaiqLogo';
  * only here, which is exactly what made this section read as a different page.
  *
  * Written as `var(...)` rather than copied hex so retuning the site retunes this too — a colour
- * typed into thirty components is a colour the site is stuck with. The rgba forms below are the
- * same values where a `var()` cannot go (inside a gradient stop list or a shadow's alpha).
+ * typed into thirty components is a colour the site is stuck with.
  */
 const GROUND = 'var(--nq-ground, #000000)';
 const ACCENT = 'var(--nq-accent, #E4E4E7)';
-const ACCENT_RGB = '228,228,231';
 
 interface HomeHeroProps {
   language?: Language;
@@ -52,9 +50,6 @@ interface HomeHeroProps {
   onStart?: () => void;
   /** Straight to the contract form, for someone who already knows they want something built. */
   onRequestProject?: () => void;
-  /** The header's own links, so this section can navigate the way the shared bar does. */
-  onNavigate?: (page: string) => void;
-  onSetLanguage?: (lang: Language) => void;
 }
 
 /* ── The motes ────────────────────────────────────────────────────────────────────────────── */
@@ -148,8 +143,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   language = 'ar',
   onStart,
   onRequestProject,
-  onNavigate,
-  onSetLanguage,
 }) => {
   const isAr = language === 'ar';
   // The CTA arrow points "away, forward" — up and outward — so it follows the reading direction the
@@ -158,7 +151,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [onScreen, setOnScreen] = useState(true);
   const [motion, setMotion] = useState(true);
 
@@ -186,35 +178,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
     return () => io.disconnect();
   }, []);
 
-  // The drawer is the only thing on this page that can be dismissed, so it owns Escape outright.
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDrawerOpen(false);
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [drawerOpen]);
-
-  // The same destinations the shared Navbar offers. They are listed here rather than imported
-  // because this header shows a SHORT set in the middle and the full one in the drawer, which is a
-  // presentation decision belonging to this section.
-  const links: { id: string; label: string }[] = [
-    { id: 'home', label: isAr ? 'الرئيسية' : 'Home' },
-    { id: 'templates', label: isAr ? 'القوالب' : 'Templates' },
-    { id: 'custom-request', label: isAr ? 'عقد مخصص' : 'Custom' },
-    { id: 'timeline', label: isAr ? 'مراحل العمل' : 'Process' },
-    { id: 'about', label: isAr ? 'عن NOVAIQ' : 'About' },
-  ];
-  const drawerLinks = [
-    ...links,
-    { id: 'privacy', label: isAr ? 'سياسة الخصوصية' : 'Privacy' },
-    { id: 'terms', label: isAr ? 'الشروط والأحكام' : 'Terms' },
-  ];
-
-  const go = (page: string) => {
-    setDrawerOpen(false);
-    onNavigate?.(page);
-  };
-
   const cards = [
     {
       n: '01',
@@ -237,10 +200,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
     <section
       ref={sectionRef}
       id="home-hero"
-      // A full screen, and nothing subtracted from it: the header lives inside this section now, so
-      // there is no floating bar above to leave room for. `svh` rather than `vh` so a phone's
-      // collapsing address bar cannot make this taller than the screen it is meant to match.
-      className="relative min-h-[100svh] flex flex-col overflow-hidden"
+      // The viewport less the floating Navbar's own band — the same clearance every other full-
+      // height section on the site subtracts, now that this one sits under that bar again instead
+      // of carrying a copy of it. `svh` rather than `vh` so a phone's collapsing address bar cannot
+      // make this taller than the screen it is meant to match.
+      style={{ minHeight: 'calc(100svh - var(--nav-bottom, 74px) - var(--content-gap, 0.75rem))' }}
+      className="relative flex flex-col overflow-hidden"
     >
       {/* ── Backdrop ────────────────────────────────────────────────────────────────────────
           A flat ground under the video, so a slow network or a blocked CDN leaves a dark section
@@ -284,124 +249,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       />
 
       <Motes active={motion && onScreen} />
-
-      {/* ── Header ──────────────────────────────────────────────────────────────────────── */}
-      <header className="relative z-20 nq-container pt-6 sm:pt-8">
-        {/* Two independent glass halves, mirroring the shared Navbar's split: the LOGO sits in its
-            own frosted bar (physical left) and the NAVIGATION (links + language + "تواصل معنا" +
-            menu) in a completely separate one (physical right). No border, no outline — the same
-            .navbar-glass material the navbar uses. */}
-        <div className="flex items-center justify-between gap-6 sm:gap-10">
-          {/* ── Half 1 (physical left): the brand logo, its own glass bar ── */}
-          <div className="navbar-glass flex items-center px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
-            <button
-              type="button"
-              onClick={() => go('home')}
-              className="shrink-0 cursor-pointer"
-              aria-label="NOVAIQ"
-            >
-              <NovaiqLogo size={30} />
-            </button>
-          </div>
-
-          <nav className="hidden lg:flex items-center gap-7">
-            {links.map((l) => (
-              <button
-                key={l.id}
-                type="button"
-                onClick={() => go(l.id)}
-                className={`relative text-xs font-bold tracking-[0.14em] uppercase transition-colors cursor-pointer ${
-                  l.id === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
-                }`}
-              >
-                {l.label}
-                {/* The active marker is a lit bar under the word rather than a colour change on it:
-                    on a moving backdrop a tint alone is not reliably readable. */}
-                {l.id === 'home' && (
-                  <span
-                    className="absolute -bottom-2 inset-x-0 h-[2px] rounded-full"
-                    style={{ background: ACCENT, boxShadow: `0 0 10px ${ACCENT}` }}
-                    aria-hidden="true"
-                  />
-                )}
-              </button>
-            ))}
-          </nav>
-
-            {/* The language toggle has to be here. The shared bar is hidden on this page, and
-                without it there is no way to reach English at all from the page most people land
-                on. */}
-            <button
-              type="button"
-              onClick={() => onSetLanguage?.(isAr ? 'en' : 'ar')}
-              className="px-3 py-2 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-[0.68rem] font-bold tracking-widest text-white/80 hover:text-white hover:border-white/30 transition-colors cursor-pointer"
-            >
-              {isAr ? 'EN' : 'AR'}
-            </button>
-
-            <button
-              type="button"
-              onClick={onRequestProject}
-              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-[0.68rem] font-bold tracking-[0.16em] uppercase text-white hover:bg-white/10 hover:border-white/40 transition-colors cursor-pointer"
-            >
-              {isAr ? 'تواصل معنا' : "Let's talk"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(true)}
-              className="lg:hidden p-2.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-white cursor-pointer"
-              aria-label={isAr ? 'القائمة' : 'Menu'}
-            >
-              <Menu className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* ── The drawer ──────────────────────────────────────────────────────────────────── */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl lg:hidden">
-          <div className="nq-container pt-6 sm:pt-8">
-            <div className="flex items-center justify-between">
-              <NovaiqLogo size={30} />
-              <button
-                type="button"
-                onClick={() => setDrawerOpen(false)}
-                className="p-2.5 rounded-full border border-white/15 bg-white/5 text-white cursor-pointer"
-                aria-label={isAr ? 'إغلاق' : 'Close'}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <nav className="mt-12 flex flex-col gap-1">
-              {drawerLinks.map((l) => (
-                <button
-                  key={l.id}
-                  type="button"
-                  onClick={() => go(l.id)}
-                  className="py-4 text-start text-2xl font-extrabold tracking-tight text-white/85 hover:text-white border-b border-white/10 transition-colors cursor-pointer"
-                >
-                  {l.label}
-                </button>
-              ))}
-            </nav>
-
-            <button
-              type="button"
-              onClick={() => {
-                setDrawerOpen(false);
-                onRequestProject?.();
-              }}
-              className="mt-10 w-full px-6 py-4 rounded-full text-sm font-extrabold tracking-widest uppercase text-black cursor-pointer"
-              style={{ background: ACCENT, boxShadow: `0 12px 34px rgba(${ACCENT_RGB},0.22)` }}
-            >
-              {isAr ? 'ابدأ معنا' : 'Get started'}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── The content ─────────────────────────────────────────────────────────────────── */}
       <div className="relative z-10 flex-1 flex items-center nq-container py-12 sm:py-16">
