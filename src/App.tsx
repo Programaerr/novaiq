@@ -4,6 +4,12 @@ import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
 import { HomeHero } from './components/HomeHero';
+import { HomeStats } from './components/home/HomeStats';
+import { ServicesSection } from './components/home/ServicesSection';
+import { ShowcaseSection } from './components/home/ShowcaseSection';
+import { ProcessSection } from './components/home/ProcessSection';
+import { TestimonialsSection } from './components/home/TestimonialsSection';
+import { FinalCta } from './components/home/FinalCta';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -490,10 +496,30 @@ export default function App() {
 
         {activePage === 'home' && (
           <div className="page-in">
-            {/* Sections go here, one by one — each section is its own component file.
-                No width/spacing classes on this div except page-in; each section owns its own
-                <section>, .nq-container (or deliberate variant), and vertical padding. */}
+            {/* The homepage, section by section — each is its own component file so the home
+                route stays a list of concerns rather than one growing file. The hero pulls
+                itself up behind the floating Navbar; everything below sits in normal flow. */}
             <HomeHero
+              language={language}
+              onStart={() => navigateTo('templates')}
+              onRequestProject={startProject}
+            />
+
+            <HomeStats language={language} />
+
+            <ServicesSection language={language} />
+
+            <ShowcaseSection
+              language={language}
+              onViewAll={() => navigateTo('templates')}
+              onSelectTemplate={(template) => handleSelectTemplateForContract(template)}
+            />
+
+            <ProcessSection language={language} onRequestProject={startProject} />
+
+            <TestimonialsSection language={language} />
+
+            <FinalCta
               language={language}
               onStart={() => navigateTo('templates')}
               onRequestProject={startProject}
