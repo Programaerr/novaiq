@@ -187,41 +187,52 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 
       {/* ── Header ──────────────────────────────────────────────────────────────────────── */}
       <header className="relative z-20 nq-container pt-6 sm:pt-8">
-        <div className="flex items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={() => go('home')}
-            className="shrink-0 cursor-pointer"
-            aria-label="NOVAIQ"
-          >
-            <NovaiqLogo size={30} />
-          </button>
+        {/* Two independent glass halves, mirroring the shared Navbar's split: the LOGO sits in its
+            own frosted bar (physical left) and the NAVIGATION (links + language + "تواصل معنا" +
+            menu) in a completely separate one (physical right). No border, no outline — the same
+            .navbar-glass material the navbar uses. */}
+        <div className="flex items-center justify-between gap-6 sm:gap-10">
+          {/* ── Half 1 (physical left): the brand logo, its own glass bar ── */}
+          <div className="navbar-glass flex items-center px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
+            <button
+              type="button"
+              onClick={() => go('home')}
+              className="shrink-0 cursor-pointer"
+              aria-label="NOVAIQ"
+            >
+              <NovaiqLogo size={30} />
+            </button>
+          </div>
 
-          <nav className="hidden lg:flex items-center gap-7">
-            {links.map((l) => (
-              <button
-                key={l.id}
-                type="button"
-                onClick={() => go(l.id)}
-                className={`relative text-xs font-bold tracking-[0.14em] uppercase transition-colors cursor-pointer ${
-                  l.id === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
-                }`}
-              >
-                {l.label}
-                {/* The active marker is a lit bar under the word rather than a colour change on it:
-                    on a moving backdrop a tint alone is not reliably readable. */}
-                {l.id === 'home' && (
-                  <span
-                    className="absolute -bottom-2 inset-x-0 h-[2px] rounded-full"
-                    style={{ background: ACCENT, boxShadow: `0 0 10px rgba(${ACCENT_RGB},0.6)` }}
-                    aria-hidden="true"
-                  />
-                )}
-              </button>
-            ))}
-          </nav>
+          {/* ── Half 2 (physical right): navigation, its own glass bar ── */}
+          <div className="navbar-glass flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
+            <nav className="hidden lg:flex items-center gap-7">
+              {links.map((l) => (
+                <button
+                  key={l.id}
+                  type="button"
+                  onClick={() => go(l.id)}
+                  className={`relative text-xs font-bold tracking-[0.14em] uppercase transition-colors cursor-pointer ${
+                    l.id === 'home' ? 'text-white' : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  {l.label}
+                  {/* The active marker is a lit bar under the word rather than a colour change on it:
+                      on a moving backdrop a tint alone is not reliably readable. */}
+                  {l.id === 'home' && (
+                    <span
+                      className="absolute -bottom-2 inset-x-0 h-[2px] rounded-full"
+                      // Alpha rather than the bare token: `0 0 10px <accent>` is a fully opaque
+                      // near-white halo, which on a glass bar spreads into a smear. The glow wants
+                      // to be the same colour at a fraction of its strength.
+                      style={{ background: ACCENT, boxShadow: `0 0 10px rgba(${ACCENT_RGB},0.6)` }}
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              ))}
+            </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
             {/* The language toggle has to be here. The shared bar is hidden on this page, and
                 without it there is no way to reach English at all from the page most people land
                 on. */}
