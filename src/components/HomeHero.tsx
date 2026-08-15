@@ -200,11 +200,17 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
     <section
       ref={sectionRef}
       id="home-hero"
-      // The viewport less the floating Navbar's own band — the same clearance every other full-
-      // height section on the site subtracts, now that this one sits under that bar again instead
-      // of carrying a copy of it. `svh` rather than `vh` so a phone's collapsing address bar cannot
-      // make this taller than the screen it is meant to match.
-      style={{ minHeight: 'calc(100svh - var(--nav-bottom, 74px) - var(--content-gap, 0.75rem))' }}
+      // The full first screen, pulled up behind the floating (transparent) Navbar: `<main>`'s
+      // padding reserves the nav band + gap, so without a matching negative margin this section
+      // would start below that padding and leave an empty strip between the navbar and the video.
+      // This margin cancels it, the video's `absolute inset-0` then runs from the very top of the
+      // viewport and reads as sitting behind the navbar instead of leaving a gap above it.
+      // `svh` rather than `vh` so a phone's collapsing address bar cannot make this taller than the
+      // screen it is meant to match.
+      style={{
+        minHeight: '100svh',
+        marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
+      }}
       className="relative flex flex-col overflow-hidden"
     >
       {/* ── Backdrop ────────────────────────────────────────────────────────────────────────
