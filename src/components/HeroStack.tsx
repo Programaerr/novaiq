@@ -316,8 +316,14 @@ const IMPACT_T = Math.sqrt((2 * DROP_HEIGHT) / GRAVITY);
 /** How fast the impact travels outward through the blocks. Slow enough that the stagger is legible
     — at 20 units/s the whole cluster moves at once and the wave stops reading as a wave. */
 const WAVE_SPEED = 5.5;
-/** The blocks' spring: how hard the kick decays, and how fast it oscillates. */
-const KICK_DECAY = 3.1;
+/** The blocks' spring: how far the first throw carries, how fast it dies away, and how quickly it
+    oscillates while it does.
+    KICK_AMP is the figure worth stating: at 0.5 the whole reaction measured about a fifth of a unit
+    once distance falloff had taken its cut, which is smaller than the blocks' own idle bob — the
+    wave was running correctly and simply could not be seen. It has to be a visible shove or the
+    causal link between the landing and the movement is lost, which is the entire point of it. */
+const KICK_AMP = 1.15;
+const KICK_DECAY = 2.6;
 const KICK_FREQ = 9.5;
 
 interface BlockSpec {
@@ -386,7 +392,8 @@ const Block: React.FC<{ spec: BlockSpec; clock: React.RefObject<number>; still: 
     const tau = t - IMPACT_T - dist / WAVE_SPEED;
     // One damped oscillation, in closed form. A solved spring cannot drift, cannot blow up on a
     // long frame, and ends exactly where it started.
-    const kick = tau > 0 ? Math.exp(-KICK_DECAY * tau) * Math.sin(KICK_FREQ * tau) * falloff * 0.5 : 0;
+    const kick =
+      tau > 0 ? Math.exp(-KICK_DECAY * tau) * Math.sin(KICK_FREQ * tau) * falloff * KICK_AMP : 0;
     // The bob fades IN as the kick fades out, so the two never fight over the same block.
     const settled = tau > 0 ? 1 - Math.exp(-1.2 * tau) : 0;
     const bob = Math.sin(t * 0.85 + spec.phase) * 0.07 * settled;
