@@ -4,12 +4,9 @@ import {
   Layers,
   Compass,
   Home,
-  Building2,
   Globe,
   LogIn,
   UserCircle2,
-  ShieldCheck,
-  FileText,
   DollarSign
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
@@ -132,9 +129,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: isAr ? 'الرئيسية' : 'Home', icon: Home, href: '/' },
     { id: 'templates', label: isAr ? 'القوالب البرمجية' : 'Ready Templates', icon: Layers, href: '?page=templates' },
     { id: 'timeline', label: isAr ? 'مراحل العمل والتسليم' : 'Roadmap & Process', icon: Calendar, href: '?page=timeline' },
-    { id: 'about', label: isAr ? 'عن NOVAIQ' : 'About NOVAIQ', icon: Building2, href: '?page=about' },
-    { id: 'privacy', label: isAr ? 'سياسة الخصوصية' : 'Privacy Policy', icon: ShieldCheck, href: '?page=privacy' },
-    { id: 'terms', label: isAr ? 'الشروط والأحكام' : 'Terms of Service', icon: FileText, href: '?page=terms' },
   ];
 
   const handleNavClick = (id: string, e?: React.MouseEvent) => {
