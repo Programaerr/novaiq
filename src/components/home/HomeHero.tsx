@@ -109,7 +109,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
 
           <m.h1
             {...fade(0.15)}
-            className="mt-7 text-[2.8rem] sm:text-7xl lg:text-[6rem] font-black uppercase leading-[0.92] tracking-tight font-['Cairo'] text-balance"
+            className="mt-7 text-5xl sm:text-7xl lg:text-[7.5rem] font-black uppercase leading-[0.95] tracking-tight font-['Cairo'] text-balance"
             style={{
               background: 'linear-gradient(120deg, #ffffff 0%, #ffffff 30%, #b9b9c2 65%, #ffffff 100%)',
               WebkitBackgroundClip: 'text',
@@ -117,7 +117,17 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
               color: 'transparent',
             }}
           >
-            {isAr ? 'تجارب رقمية في الفضاء' : 'Digital experiences in space'}
+            {isAr ? (
+              <>
+                تجارب رقمية
+                <span className="block">في الفضاء</span>
+              </>
+            ) : (
+              <>
+                Digital experiences
+                <span className="block">in space</span>
+              </>
+            )}
           </m.h1>
 
           {/* Glow beneath the headline — the soft white halo. */}
@@ -133,7 +143,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
             />
           )}
 
-          <m.p {...fade(0.25)} className="mt-7 max-w-xl text-sm sm:text-base text-white/80 leading-relaxed">
+          <m.p {...fade(0.25)} className="mt-7 max-w-2xl text-base sm:text-lg text-white/85 leading-relaxed">
             {isAr
               ? 'نصمم ونطوّر في NOVAIQ أنظمة وتطبيقات ذكية من الفكرة والمواصفات حتى الإطلاق — بعقود إلكترونية، وتصميم يجعل علامتك لا تُنسى.'
               : 'At NOVAIQ we design and build smart systems and applications — from idea and spec to launch, with e-contracts and a brand that is never forgotten.'}
