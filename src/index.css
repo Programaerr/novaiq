@@ -166,8 +166,8 @@
        Not #FFFFFF, deliberately. `.nq-btn--solid` fills with this and BRIGHTENS on hover, which is
        the one direction that reads as the control coming forward on a dark page. A fill that
        already sits at pure white has nowhere left to go and the hover has to invert its logic. */
-    --nq-accent: #E4E4E7;
-    --nq-accent-soft: #D4D4D8;
+--nq-accent: #ffffff;
+        --nq-accent-soft: #ffffff;
     background-color: var(--nq-ground);
 
     /* ── The content container, as a NUMBER rather than a utility class ────────────────────────
