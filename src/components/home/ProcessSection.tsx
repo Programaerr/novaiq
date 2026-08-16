@@ -63,7 +63,7 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl"
+            className="max-w-2xl mx-auto text-center"
           >
             <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#ffffff' }}>
               {isAr ? 'كيف نعمل' : 'How we work'}

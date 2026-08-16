@@ -88,7 +88,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-end justify-between gap-6 pb-8"
+            className="flex flex-col items-center text-center gap-4 pb-8"
           >
             <div className="max-w-2xl">
               <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/60">
@@ -102,7 +102,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
               </h2>
             </div>
             <span
-              className="hidden lg:block font-black text-6xl leading-none tabular-nums"
+              className="font-black text-5xl leading-none tabular-nums"
               style={{
                 background: 'linear-gradient(120deg, rgba(255,255,255,0.5), transparent)',
                 WebkitBackgroundClip: 'text',
