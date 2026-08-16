@@ -53,7 +53,14 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
     <LazyMotion features={loadDomAnimation} strict>
       <section
         id="home-hero"
-        style={{ minHeight: '100svh' }}
+        // `<main>` reserves the nav band + gap as padding; a matching negative margin pulls this
+        // section up so the hero's backdrop runs from the very top of the viewport behind the
+        // transparent Navbar instead of starting below it. `svh` (not `vh`) so a phone's
+        // collapsing address bar cannot make this taller than the screen it is meant to match.
+        style={{
+          minHeight: '100svh',
+          marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
+        }}
         className="relative flex flex-col overflow-hidden"
       >
         <div className="absolute inset-0" style={{ background: GROUND }} aria-hidden="true" />
