@@ -11,8 +11,9 @@ interface ProcessSectionProps {
 }
 
 /**
- * The process — four steps that walk in one after another across the row, each card rising
- * and settling as the reader reaches it.
+ * The process, redesigned as a ruled ledger rather than cards: each step is a slim cell with a
+ * giant hollow numeral on top and a hairline that runs the full height of the row, tying the
+ * four into one continuous line.
  */
 export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar', onRequestProject }) => {
   const isAr = language === 'ar';
@@ -62,7 +63,7 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl"
+            className="max-w-2xl border-b border-white/15 pb-8"
           >
             <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/50">
               {isAr ? 'كيف نعمل' : 'How we work'}
@@ -75,7 +76,7 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
             </h2>
           </m.header>
 
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-s border-t border-white/15">
             {steps.map((s, i) => (
               <m.div
                 key={s.n}
@@ -83,23 +84,24 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-32px' }}
                 transition={{ duration: 0.6, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-                className="nq-card nq-card--hover p-6 sm:p-8"
+                className="relative border-e border-b border-white/15 p-6 sm:p-8"
               >
-                <div className="flex items-center justify-between">
-                  <span
-                    className="w-11 h-11 rounded-xl grid place-items-center"
-                    style={{ background: 'rgba(255,255,255,0.06)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)' }}
-                  >
-                    <s.icon className="w-5 h-5 text-white/90" strokeWidth={1.8} />
+                <span
+                  className="block text-6xl font-black leading-none text-transparent tabular-nums"
+                  style={{ WebkitTextStroke: '1.5px #ffffff' }}
+                  aria-hidden="true"
+                >
+                  {s.n}
+                </span>
+                <div className="mt-8 flex items-center gap-3">
+                  <span className="w-9 h-9 grid place-items-center" style={{ boxShadow: 'inset 0 0 0 1px #ffffff' }}>
+                    <s.icon className="w-4 h-4 text-white" strokeWidth={1.6} />
                   </span>
-                  <span className="text-[0.65rem] font-black tracking-widest text-white/30 tabular-nums">
-                    {s.n}
-                  </span>
+                  <h3 className="text-sm sm:text-base font-extrabold tracking-[0.08em] uppercase text-white">
+                    {s.t}
+                  </h3>
                 </div>
-                <h3 className="mt-6 text-base sm:text-lg font-extrabold tracking-[0.08em] uppercase text-white">
-                  {s.t}
-                </h3>
-                <p className="mt-2.5 text-xs sm:text-sm text-white/60 leading-relaxed">{s.d}</p>
+                <p className="mt-3 text-xs sm:text-sm text-white/60 leading-relaxed">{s.d}</p>
               </m.div>
             ))}
           </div>
@@ -110,14 +112,13 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-10 text-center"
+              className="mt-12 text-center"
             >
               <button
                 type="button"
                 onClick={onRequestProject}
-                className="nq-btn nq-btn--solid inline-flex items-center gap-2 px-8 py-3 rounded-full text-xs font-bold tracking-[0.16em] uppercase cursor-pointer"
+                className="inline-flex items-center gap-3 px-9 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase hover:bg-black hover:text-white hover:ring-1 hover:ring-white transition-colors cursor-pointer"
               >
-                <span className="nq-btn-beam" aria-hidden="true" />
                 {isAr ? 'ابدأ مشروعك الآن' : 'Start your project'}
               </button>
             </m.div>

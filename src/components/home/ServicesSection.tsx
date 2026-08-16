@@ -10,8 +10,9 @@ interface ServicesSectionProps {
 }
 
 /**
- * The capabilities grid. Six `nq-card` panels, each fading and lifting in as the grid enters
- * the viewport — a soft stagger so the eye travels the grid instead of taking it all at once.
+ * The capabilities grid, redesigned: square cells with hairline borders only — no card fills.
+ * Each panel is split into a slim icon bar across the top and the copy below, so the eye reads
+ * the six as a ruled ledger rather than a pile of boxes.
  */
 export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar' }) => {
   const isAr = language === 'ar';
@@ -77,50 +78,54 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl"
+            className="flex items-end justify-between gap-6 border-b border-white/15 pb-8"
           >
-            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/50">
-              {isAr ? 'ماذا نبني' : 'What we build'}
+            <div className="max-w-2xl">
+              <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/50">
+                {isAr ? 'ماذا نبني' : 'What we build'}
+              </span>
+              <h2
+                id="services-title"
+                className="mt-4 text-3xl sm:text-4xl lg:text-[3.2rem] font-black uppercase leading-[1.02] tracking-tight text-white"
+              >
+                {isAr ? 'من الفكرة إلى النُضج' : 'From idea to maturity'}
+              </h2>
+            </div>
+            <span className="hidden lg:block text-white/30 font-black text-6xl leading-none text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.25)' }} aria-hidden="true">
+              06
             </span>
-            <h2
-              id="services-title"
-              className="mt-4 text-3xl sm:text-4xl lg:text-[3.2rem] font-black uppercase leading-[1.02] tracking-tight text-white"
-            >
-              {isAr ? 'من الفكرة إلى النُضج' : 'From idea to maturity'}
-            </h2>
-            <p className="mt-4 text-sm sm:text-base text-white/60 leading-relaxed max-w-xl">
-              {isAr
-                ? 'ستة خطوط عمل تغطي كل ما تحتاجه شركتك على الإنترنت — نصنعها داخلياً بمعايير موحّدة بدل أن نشتت المشروع بين مقاولين.'
-                : 'Six disciplines covering everything your business needs online — built in-house to one standard instead of scattered across vendors.'}
-            </p>
           </m.header>
 
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border-s border-t border-white/15">
             {services.map((s, i) => (
-              <m.article
+              <m.div
                 key={s.n}
                 initial={reduce ? { opacity: 0 } : { opacity: 0, y: 26 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-32px' }}
                 transition={{ duration: 0.6, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="nq-card nq-card--hover p-6 sm:p-8"
+                className="group relative border-e border-b border-white/15 p-6 sm:p-8 hover:bg-white/[0.04] transition-colors"
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-center justify-between">
                   <span
-                    className="w-11 h-11 rounded-xl grid place-items-center"
-                    style={{ background: 'rgba(255,255,255,0.06)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)' }}
+                    className="w-12 h-12 grid place-items-center"
+                    style={{ boxShadow: 'inset 0 0 0 1px #ffffff' }}
                   >
-                    <s.icon className="w-5 h-5 text-white/90" strokeWidth={1.8} />
+                    <s.icon className="w-5 h-5 text-white" strokeWidth={1.6} />
                   </span>
-                  <span className="text-[0.65rem] font-black tracking-widest text-white/30 tabular-nums">
+                  <span className="text-sm font-black tracking-widest text-transparent tabular-nums" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>
                     {s.n}
                   </span>
                 </div>
-                <h3 className="mt-6 text-base sm:text-lg font-extrabold tracking-[0.08em] uppercase text-white">
+                <h3 className="mt-8 text-base sm:text-lg font-extrabold tracking-[0.08em] uppercase text-white">
                   {s.t}
                 </h3>
                 <p className="mt-2.5 text-xs sm:text-sm text-white/60 leading-relaxed">{s.d}</p>
-              </m.article>
+                <span
+                  className="absolute bottom-0 start-0 h-px w-0 bg-white transition-all duration-300 group-hover:w-full"
+                  aria-hidden="true"
+                />
+              </m.div>
             ))}
           </div>
         </div>

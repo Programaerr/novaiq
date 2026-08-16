@@ -10,8 +10,8 @@ interface TestimonialsSectionProps {
 }
 
 /**
- * Client voices. Three cards that rise one after the other as the section scrolls into view —
- * the words carry the weight, so the motion stays a quiet stagger with no extra flourish.
+ * Client voices, redesigned: three square cells with hairlines and a giant hollow quote mark
+ * pinned to each corner — the words carry the weight, the rules keep the section quiet.
  */
 export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ language = 'ar' }) => {
   const isAr = language === 'ar';
@@ -47,7 +47,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ langua
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl"
+            className="max-w-2xl border-b border-white/15 pb-8"
           >
             <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/50">
               {isAr ? 'قالوا عنّا' : 'What clients say'}
@@ -60,7 +60,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ langua
             </h2>
           </m.header>
 
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-3 gap-px bg-white/15">
             {items.map((it, i) => (
               <m.figure
                 key={it.a}
@@ -68,18 +68,18 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ langua
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-32px' }}
                 transition={{ duration: 0.6, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-                className="nq-card nq-card--hover p-6 sm:p-8 flex flex-col"
+                className="bg-black p-6 sm:p-8 flex flex-col relative"
               >
                 <Quote
-                  className="w-7 h-7 text-white/25"
-                  strokeWidth={1.5}
-                  style={{ transform: 'scaleX(-1)' }}
+                  className="w-10 h-10 text-transparent"
+                  strokeWidth={1.2}
+                  style={{ transform: 'scaleX(-1)', WebkitTextStroke: '1px rgba(255,255,255,0.5)' }}
                   aria-hidden="true"
                 />
-                <blockquote className="mt-5 flex-1 text-sm sm:text-[0.95rem] text-white/75 leading-relaxed">
+                <blockquote className="mt-6 flex-1 text-sm sm:text-[0.95rem] text-white/80 leading-relaxed">
                   {it.q}
                 </blockquote>
-                <figcaption className="mt-6 pt-4 border-t border-white/10 text-[0.7rem] font-bold tracking-[0.14em] uppercase text-white/45">
+                <figcaption className="mt-8 pt-4 border-t border-white/15 text-[0.7rem] font-bold tracking-[0.14em] uppercase text-white/60">
                   {it.a}
                 </figcaption>
               </m.figure>

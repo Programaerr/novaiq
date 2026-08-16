@@ -14,9 +14,9 @@ interface ShowcaseSectionProps {
 }
 
 /**
- * The portfolio grid — a preview of the ready template catalogue, using each template's REAL
- * captured screen as its cover. Cards stagger in on scroll, and hover lifts the cover with a
- * motion `whileHover` instead of the flat CSS swell the cards use elsewhere.
+ * The portfolio grid, redesigned for the black-and-white system: numbered frames with square
+ * corners and a hairline border. Each cover sits inside a ruled cell with a big index numeral
+ * beside it — the frames read as film stills on a contact sheet.
  */
 export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
   language = 'ar',
@@ -41,7 +41,7 @@ export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
+            className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between border-b border-white/15 pb-8"
           >
             <div className="max-w-2xl">
               <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/50">
@@ -67,7 +67,7 @@ export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
               <span>{isAr ? 'كل القوالب' : 'All templates'}</span>
               <span
                 className="w-8 h-8 rounded-full grid place-items-center"
-                style={{ background: 'var(--nq-accent, #E4E4E7)', color: '#000000' }}
+                style={{ background: '#ffffff', color: '#000000' }}
                 aria-hidden="true"
               >
                 <Arrow className="w-4 h-4" strokeWidth={2.6} />
@@ -75,7 +75,7 @@ export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
             </button>
           </m.header>
 
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/15">
             {items.map((t, i) => (
               <m.button
                 key={t.id}
@@ -86,41 +86,43 @@ export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
                 viewport={{ once: true, margin: '-32px' }}
                 transition={{ duration: 0.6, delay: (i % 3) * 0.12, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={reduce ? undefined : { y: -6 }}
-                className="group text-start cursor-pointer w-full"
+                className="group text-start cursor-pointer w-full bg-black p-4 sm:p-5"
                 aria-label={t.title}
               >
-                <div className="nq-card nq-card--hover overflow-hidden" style={{ aspectRatio: '9 / 12', padding: '0.75rem' }}>
+                <div
+                  className="overflow-hidden relative"
+                  style={{ aspectRatio: '9 / 12', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}
+                >
+                  <img
+                    src={t.previewImage}
+                    alt={t.title}
+                    loading={i > 1 ? 'lazy' : 'eager'}
+                    decoding="async"
+                    className="w-full h-full object-cover object-top grayscale-[0.35] group-hover:grayscale-0 group-hover:scale-[1.03] transition-all duration-500"
+                  />
                   <div
-                    className="h-full rounded-2xl overflow-hidden relative"
-                    style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)' }}
+                    className="absolute inset-x-0 bottom-0 h-28"
+                    style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.9))' }}
+                    aria-hidden="true"
+                  />
+                  <span className="absolute top-3 start-3 text-lg font-black tabular-nums text-transparent" style={{ WebkitTextStroke: '1px #ffffff' }} aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span
+                    className="absolute bottom-3 start-3 px-2.5 py-1 text-[0.6rem] font-bold tracking-widest uppercase"
+                    style={{ background: '#ffffff', color: '#000000' }}
                   >
-                    <img
-                      src={t.previewImage}
-                      alt={t.title}
-                      loading={i > 1 ? 'lazy' : 'eager'}
-                      decoding="async"
-                      className="w-full h-full object-cover object-top"
-                    />
-                    <div
-                      className="absolute inset-x-0 bottom-0 h-24"
-                      style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.85))' }}
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <div className="relative z-10 -mt-9 px-2 pb-2">
-                    <span
-                      className="inline-block px-2.5 py-1 rounded-full text-[0.6rem] font-bold tracking-widest uppercase"
-                      style={{ background: 'rgba(0,0,0,0.6)', color: 'var(--nq-accent, #E4E4E7)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12)' }}
-                    >
-                      {t.categoryLabel}
-                    </span>
-                  </div>
+                    {t.categoryLabel}
+                  </span>
                 </div>
-                <div className="mt-3 px-1">
-                  <h3 className="text-sm font-extrabold tracking-[0.06em] text-white group-hover:text-white/90 transition-colors">
-                    {t.title}
-                  </h3>
-                  <p className="mt-1 text-xs text-white/50 leading-relaxed">{t.subtitle}</p>
+                <div className="mt-4 px-1 flex items-end justify-between gap-3 border-t border-white/10 pt-3">
+                  <div>
+                    <h3 className="text-sm font-extrabold tracking-[0.06em] text-white">
+                      {t.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-white/50 leading-relaxed">{t.subtitle}</p>
+                  </div>
+                  <Arrow className="w-4 h-4 shrink-0 text-white/40 group-hover:text-white transition-colors" strokeWidth={2.4} />
                 </div>
               </m.button>
             ))}
