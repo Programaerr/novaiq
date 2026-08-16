@@ -9,7 +9,6 @@ import { ServicesSection } from './components/home/ServicesSection';
 import { ShowcaseSection } from './components/home/ShowcaseSection';
 import { ProcessSection } from './components/home/ProcessSection';
 import { TestimonialsSection } from './components/home/TestimonialsSection';
-import { FinalCta } from './components/home/FinalCta';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -511,12 +510,6 @@ export default function App() {
             <ProcessSection language={language} onRequestProject={startProject} />
 
             <TestimonialsSection language={language} />
-
-            <FinalCta
-              language={language}
-              onStart={() => navigateTo('templates')}
-              onRequestProject={startProject}
-            />
           </div>
         )}
 
