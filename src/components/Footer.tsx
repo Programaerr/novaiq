@@ -116,15 +116,12 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
               <FooterLink label={isAr ? 'الرئيسية' : 'Home'} onClick={go('home')} />
               <FooterLink label={isAr ? 'القوالب البرمجية' : 'Ready Templates'} onClick={go('templates')} />
               <FooterLink label={isAr ? 'مراحل العمل' : 'Roadmap & Process'} onClick={go('timeline')} />
-              <FooterLink label={isAr ? 'عن NOVAIQ' : 'About NOVAIQ'} onClick={go('about')} />
             </FooterColumn>
           </div>
 
           {/* Legal. */}
           <div className="lg:col-span-2">
             <FooterColumn heading={isAr ? 'قانوني' : 'Legal'}>
-              <FooterLink label={isAr ? 'سياسة الخصوصية' : 'Privacy Policy'} onClick={go('privacy')} />
-              <FooterLink label={isAr ? 'الشروط والأحكام' : 'Terms of Service'} onClick={go('terms')} />
               <FooterLink label={isAr ? 'العقود الإلكترونية' : 'E-contracts'} onClick={go('templates')} />
               <FooterLink label={isAr ? 'الدعم الفني' : 'Support'} onClick={go('about')} />
             </FooterColumn>

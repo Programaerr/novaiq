@@ -3,11 +3,6 @@ import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
-import { HomeHero } from './components/home/HomeHero';
-import { HomeStats } from './components/home/HomeStats';
-import { ServicesSection } from './components/home/ServicesSection';
-import { ProcessSection } from './components/home/ProcessSection';
-import { TestimonialsSection } from './components/home/TestimonialsSection';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -485,25 +480,7 @@ export default function App() {
       >
 
         {activePage === 'home' && (
-          <div className="page-in">
-            {/* The homepage, section by section — each is its own component file so the home
-                route stays a list of concerns rather than one growing file. All motion runs
-                through LazyMotion + domAnimation (see lib/motionFeatures.ts) and honours
-                prefers-reduced-motion. */}
-            <HomeHero
-              language={language}
-              onStart={() => navigateTo('templates')}
-              onRequestProject={startProject}
-            />
-
-            <HomeStats language={language} />
-
-            <ServicesSection language={language} />
-
-            <ProcessSection language={language} onRequestProject={startProject} />
-
-            <TestimonialsSection language={language} />
-          </div>
+          <div className="page-in"></div>
         )}
 
         {activePage === 'templates' && (
