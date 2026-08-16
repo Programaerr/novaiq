@@ -85,28 +85,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
           aria-hidden="true"
         />
 
-        {/* Aurora shimmer — slow white drift across the whole hero. */}
-        <m.div
-          className="absolute inset-0"
-          aria-hidden="true"
-          animate={reduce ? undefined : { x: [0, 40, -30, 0], y: [0, -30, 25, 0] }}
-          transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
-          style={{
-            background:
-              'radial-gradient(40% 45% at 28% 30%, rgba(255,255,255,0.12) 0%, transparent 60%), radial-gradient(45% 50% at 74% 68%, rgba(255,255,255,0.1) 0%, transparent 62%)',
-          }}
-        />
-
         {/* ── CONTENT ── */}
         <div className="relative z-10 flex-1 nq-container py-20 lg:py-24 flex flex-col justify-center items-center text-center">
-          <m.span
-            {...fade(0.05)}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/[0.06] backdrop-blur-md text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.3em] uppercase text-white"
-          >
-            {isAr ? 'أعمال مختارة — مشاريع جاهزة للبناء' : 'Selected work — Ready projects to build on'}
-          </m.span>
-
-          <m.h1
+                    <m.h1
             {...fade(0.15)}
             className="mt-7 text-3xl sm:text-5xl lg:text-[5rem] font-black uppercase leading-[1.02] tracking-tight font-['Cairo'] text-balance"
             style={{
@@ -130,17 +111,13 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
           </m.h1>
 
           {/* Glow beneath the headline — the soft white halo. */}
-          {!reduce && (
-            <m.div
-              className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[46%] -z-10 w-[60vw] h-40 rounded-full"
-              style={{
-                background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,0.28) 0%, transparent 70%)',
-                filter: 'blur(24px)',
-                animation: 'nq-orb-float 9s ease-in-out infinite',
-              }}
-              aria-hidden="true"
-            />
-          )}
+          <div
+            className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[46%] -z-10 w-[60vw] h-40 rounded-full"
+            style={{
+              background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,0.28) 0%, transparent 70%)',
+            }}
+            aria-hidden="true"
+          />
 
           <m.p {...fade(0.25)} className="mt-6 max-w-xl text-sm sm:text-base text-white/80 leading-relaxed">
             {isAr
@@ -163,7 +140,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
               <button
                 type="button"
                 onClick={onRequestProject}
-                className="inline-flex items-center justify-center px-8 py-3 rounded-full text-white text-xs font-bold tracking-[0.16em] uppercase cursor-pointer w-full sm:w-auto bg-white/[0.06] backdrop-blur-md"
+                className="inline-flex items-center justify-center px-8 py-3 rounded-full text-white text-xs font-bold tracking-[0.16em] uppercase cursor-pointer w-full sm:w-auto bg-black/50"
                 style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.28)' }}
               >
                 {isAr ? 'اطلب مشروعك' : 'Request a project'}
