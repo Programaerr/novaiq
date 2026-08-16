@@ -15,7 +15,7 @@ function read(): MobileTrait {
     isTouch,
     isMobile:
       typeof window !== 'undefined' &&
-      (isTouch || window.matchMedia?.('(max-width: 767px)').matches ?? false),
+      (isTouch || (window.matchMedia?.('(max-width: 767px)').matches ?? false)),
   };
 }
 
