@@ -1,13 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { LazyMotion, m, useReducedMotion } from 'motion/react';
 import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
 import { Language } from '../../lib/i18n';
 
 // Deferred so the animation feature set lands in its own chunk — see motionFeatures.ts.
 const loadDomAnimation = () => import('../../lib/motionFeatures').then((mod) => mod.default);
-
-const GROUND = 'var(--nq-ground, #000000)';
-const ACCENT = 'var(--nq-accent, #E4E4E7)';
 
 interface HomeHeroProps {
   language?: Language;
@@ -16,38 +13,42 @@ interface HomeHeroProps {
 }
 
 /**
- * The opening section. Motion does the talking where the deleted video used to: the eyebrow,
- * headline, copy and CTA enter one after the other, and a slow drifting light orbits the
- * composition behind them. Everything is off unless `prefers-reduced-motion` is honoured.
+ * The opening section — a different design to the previous centred grid.
+ *
+ * Strictly two colours, #000000 and #ffffff, both hardcoded here: this section is the one
+ * place the site's near-white accent is deliberately set aside for a true white, and the video
+ * below is drained to greyscale so a coloured source reads as black-and-white film.
+ *
+ * Layout: one centred stack — eyebrow, giant two-line headline, copy, then a single
+ * full-width CTA row with a live "now" counter and a scroll hint. The space video sits behind
+ * it as a moving plane, slowed and darkened so the type always wins.
  */
 export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, onRequestProject }) => {
   const isAr = language === 'ar';
   const reduce = useReducedMotion();
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // The backdrop holds still for anyone who asked for that — it is the only thing in this
+  // section that moves continuously.
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => {
+      const v = videoRef.current;
+      if (!v) return;
+      if (mq.matches) v.pause();
+      else void v.play().catch(() => {});
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
 
   const fade = (delay: number) => ({
-    initial: reduce ? { opacity: 0 } : { opacity: 0, y: 28 },
+    initial: reduce ? { opacity: 0 } : { opacity: 0, y: 26 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] as const },
   });
-
-  const cards = [
-    {
-      n: '01',
-      t: isAr ? 'تصميم إبداعي' : 'Creative design',
-      d: isAr ? 'واجهات تُبنى لتُقنع، مو بس تُعجب.' : 'Interfaces built to convince, not only to please.',
-    },
-    {
-      n: '02',
-      t: isAr ? 'هوية واستراتيجية' : 'Brand strategy',
-      d: isAr ? 'هوية تخليك تنعرف من أول نظرة.' : 'A brand recognised at first glance.',
-    },
-    {
-      n: '03',
-      t: isAr ? 'حلول رقمية' : 'Digital solutions',
-      d: isAr ? 'أنظمة تشتغل بهدوء وتكبر معك.' : 'Systems that run quietly and grow with you.',
-    },
-  ];
 
   return (
     <LazyMotion features={loadDomAnimation} strict>
@@ -63,85 +64,148 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
         }}
         className="relative flex flex-col overflow-hidden"
       >
-        <div className="absolute inset-0" style={{ background: GROUND }} aria-hidden="true" />
+        {/* Pure black ground — the second colour of the two. */}
+        <div className="absolute inset-0" style={{ background: '#000000' }} aria-hidden="true" />
 
-        {/* A slow, soft radial bloom that drifts — the video's quiet successor. */}
-        <m.div
-          className="absolute inset-0"
+        {/* The moving space plane. Drained to greyscale and slowed so the film reads as texture
+            in motion rather than as a shot; the type sits in front of it. */}
+        <video
+          ref={videoRef}
+          className="absolute inset-0 w-full h-full object-cover object-top"
+          style={{ filter: 'grayscale(1) contrast(1.15) brightness(0.55)' }}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%23000000'/%3E%3C/svg%3E"
           aria-hidden="true"
-          animate={reduce ? undefined : { x: [0, 30, -20, 0], y: [0, -25, 20, 0] }}
-          transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <source
+            src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/bg-red-ball.mp4"
+            type="video/mp4"
+          />
+        </video>
+
+        {/* A white vignette, not a linear fade — it darkens exactly where the copy needs
+            contrast and has no visible edge to read as a seam in the page. */}
+        <div
+          className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(60% 55% at 50% 44%, rgba(255,255,255,0.07) 0%, transparent 68%)',
+              'radial-gradient(ellipse 70% 70% at 50% 45%, transparent 20%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.9) 82%, #000000 100%)',
+          }}
+          aria-hidden="true"
+        />
+
+        {/* A fine white hairline grid, very faint, giving the empty space structure. */}
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)',
+            backgroundSize: '88px 88px',
+            maskImage: 'radial-gradient(ellipse 75% 70% at 50% 45%, #000 30%, transparent 78%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 75% 70% at 50% 45%, #000 30%, transparent 78%)',
           }}
         />
 
-        <div className="relative z-10 flex-1 nq-container py-16 lg:py-24 flex flex-col justify-center">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
-            <div className="lg:col-span-6">
-              <m.span {...fade(0.05)} className="block text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: ACCENT }}>
-                {isAr ? 'نحن نصمم' : 'We design'}
-              </m.span>
+        {/* ── The content: a single centred stack, the opposite layout to a side grid. */}
+        <div className="relative z-10 flex-1 nq-container py-20 lg:py-24 flex flex-col justify-center items-center text-center">
+          <m.span
+            {...fade(0.05)}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/25 text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.3em] uppercase text-white"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-white" aria-hidden="true" />
+            {isAr ? 'استوديو عراقي' : 'An Iraqi studio'}
+          </m.span>
 
-              <m.h1
-                {...fade(0.15)}
-                className="mt-5 text-[2.6rem] sm:text-6xl lg:text-[4.6rem] font-black uppercase leading-[0.96] tracking-tight text-white font-['Cairo'] text-balance"
-              >
-                {isAr ? 'تجارب رقمية' : 'Digital experiences'}
-              </m.h1>
+          <m.h1
+            {...fade(0.15)}
+            className="mt-7 text-[2.8rem] sm:text-7xl lg:text-[6rem] font-black uppercase leading-[0.92] tracking-tight text-white font-['Cairo'] text-balance"
+          >
+            {isAr ? (
+              <>
+                تجارب رقمية
+                <span className="block text-transparent" style={{ WebkitTextStroke: '1.5px #ffffff' }}>
+                  في الفضاء
+                </span>
+              </>
+            ) : (
+              <>
+                Digital
+                <span className="block text-transparent" style={{ WebkitTextStroke: '1.5px #ffffff' }}>
+                  experiences
+                </span>
+              </>
+            )}
+          </m.h1>
 
-              <m.p
-                {...fade(0.25)}
-                className="mt-6 max-w-md text-sm text-white/70 leading-relaxed"
-              >
-                {isAr
-                  ? 'نصنع في NOVAIQ تجارب رقمية غامرة تزيد التفاعل، تلهم الإبداع، وتوصل نتائج حقيقية لشركتك.'
-                  : 'At NOVAIQ we craft immersive digital experiences that drive engagement, inspire creativity and deliver real results.'}
-              </m.p>
+          <m.p {...fade(0.25)} className="mt-7 max-w-xl text-sm sm:text-base text-white/80 leading-relaxed">
+            {isAr
+              ? 'نصمم ونطوّر في NOVAIQ أنظمة وتطبيقات ذكية من الفكرة والمواصفات حتى الإطلاق — بعقود إلكترونية، وتصميم يجعل علامتك لا تُنسى.'
+              : 'At NOVAIQ we design and build smart systems and applications — from idea and spec to launch, with e-contracts and a brand that is never forgotten.'}
+          </m.p>
 
-              <m.div {...fade(0.35)} className="mt-9 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={onStart}
-                  className="nq-btn nq-btn--solid inline-flex items-center gap-3 px-7 py-2.5 rounded-full text-xs font-bold tracking-[0.16em] uppercase cursor-pointer"
-                >
-                  <span className="nq-btn-beam" aria-hidden="true" />
-                  <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
-                  <Arrow className="w-4 h-4" strokeWidth={2.6} />
-                </button>
-                <button
-                  type="button"
-                  onClick={onRequestProject}
-                  className="nq-btn inline-flex items-center justify-center px-7 py-2.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-md text-xs font-bold tracking-[0.16em] uppercase text-white hover:bg-white/10 hover:border-white/40 transition-colors cursor-pointer"
-                >
-                  {isAr ? 'اطلب مشروعك' : 'Request a project'}
-                </button>
-              </m.div>
+          <m.div {...fade(0.35)} className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <button
+              type="button"
+              onClick={onStart}
+              className="inline-flex items-center justify-center gap-3 px-8 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase hover:bg-black hover:text-white hover:ring-1 hover:ring-white transition-colors cursor-pointer w-full sm:w-auto"
+            >
+              <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
+              <Arrow className="w-4 h-4" strokeWidth={2.6} />
+            </button>
+            <button
+              type="button"
+              onClick={onRequestProject}
+              className="inline-flex items-center justify-center px-8 py-3 rounded-full border border-white text-white text-xs font-bold tracking-[0.16em] uppercase hover:bg-white hover:text-black transition-colors cursor-pointer w-full sm:w-auto"
+            >
+              {isAr ? 'اطلب مشروعك' : 'Request a project'}
+            </button>
+          </m.div>
+
+          {/* Bottom meta row: two counters and a scroll hint, split by hairlines. */}
+          <m.div
+            {...fade(0.5)}
+            className="mt-16 sm:mt-20 w-full max-w-3xl flex items-center justify-center gap-6 sm:gap-10 text-white"
+          >
+            <div className="text-center">
+              <p className="text-xl sm:text-2xl font-black text-white tabular-nums">{isAr ? '١١+' : '11+'}</p>
+              <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
+                {isAr ? 'قالب جاهز' : 'Templates'}
+              </p>
             </div>
-
-            <div className="lg:col-span-6">
-              <ul className="flex flex-col">
-                {cards.map((c, i) => (
-                  <m.li
-                    key={c.n}
-                    {...fade(0.45 + i * 0.12)}
-                    className={`py-5 sm:py-6 ${i > 0 ? 'border-t border-white/12' : ''} flex gap-4 sm:gap-5`}
-                  >
-                    <span className="text-xs font-bold tracking-widest pt-1" style={{ color: ACCENT }}>
-                      {c.n}
-                    </span>
-                    <div>
-                      <h2 className="text-sm sm:text-base font-extrabold tracking-[0.1em] uppercase text-white">
-                        {c.t}
-                      </h2>
-                      <p className="mt-1.5 text-xs sm:text-sm text-white/60 leading-relaxed">{c.d}</p>
-                    </div>
-                  </m.li>
-                ))}
-              </ul>
+            <span className="h-8 w-px bg-white/25" aria-hidden="true" />
+            <div className="text-center">
+              <p className="text-xl sm:text-2xl font-black text-white tabular-nums">{isAr ? '١٢٠+' : '120+'}</p>
+              <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
+                {isAr ? 'تسليم' : 'Deliveries'}
+              </p>
             </div>
-          </div>
+            <span className="hidden sm:block h-8 w-px bg-white/25" aria-hidden="true" />
+            <div className="hidden sm:block text-center">
+              <p className="text-xl sm:text-2xl font-black text-white tabular-nums">100%</p>
+              <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
+                {isAr ? 'ضمان التوقيت' : 'On-time'}
+              </p>
+            </div>
+          </m.div>
+
+          {/* Scroll hint — a single thin vertical line that pulses downward. */}
+          <m.div
+            {...fade(0.7)}
+            className="mt-12"
+            aria-hidden="true"
+          >
+            <m.span
+              className="block mx-auto h-12 w-px bg-white/70"
+              animate={reduce ? undefined : { scaleY: [0.4, 1], opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ transformOrigin: 'top' }}
+            />
+          </m.div>
         </div>
       </section>
     </LazyMotion>
