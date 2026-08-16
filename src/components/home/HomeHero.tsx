@@ -111,7 +111,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
             {...fade(0.15)}
             className="mt-7 text-3xl sm:text-5xl lg:text-[5rem] font-black uppercase leading-[1.02] tracking-tight font-['Cairo'] text-balance"
             style={{
-              background: 'linear-gradient(120deg, #ffffff 0%, #ffffff 30%, #b9b9c2 65%, #ffffff 100%)',
+              background: 'linear-gradient(120deg, #ffffff 0%, #ffffff 30%, #ffffff 65%, #ffffff 100%)',
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               color: 'transparent',

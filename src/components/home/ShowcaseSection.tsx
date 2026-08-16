@@ -44,7 +44,7 @@ export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
             className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
           >
             <div className="max-w-2xl">
-              <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#7ab2ff' }}>
+              <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#ffffff' }}>
                 {isAr ? 'معرض الأعمال' : 'Selected work'}
               </span>
               <h2
@@ -68,7 +68,7 @@ export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
               <span>{isAr ? 'كل القوالب' : 'All templates'}</span>
               <span
                 className="w-8 h-8 rounded-full grid place-items-center text-black"
-                style={{ background: 'linear-gradient(120deg, #ffffff, #9cc3ff)' }}
+                style={{ background: 'linear-gradient(120deg, #ffffff, #ffffff)' }}
                 aria-hidden="true"
               >
                 <Arrow className="w-4 h-4" strokeWidth={2.6} />
@@ -95,7 +95,7 @@ export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
                     style={{ aspectRatio: '9 / 12', padding: '0.75rem', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)' }}
                   >
                     {/* Rising blue glow under the cover. */}
-                    <div className="absolute inset-x-6 bottom-6 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 100%, rgba(56,109,255,0.4) 0%, transparent 70%)', filter: 'blur(12px)' }} aria-hidden="true" />
+                    <div className="absolute inset-x-6 bottom-6 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 100%, rgba(255,255,255,0.4) 0%, transparent 70%)', filter: 'blur(12px)' }} aria-hidden="true" />
 
                     <div
                       className="relative h-full rounded-xl overflow-hidden"
@@ -108,17 +108,17 @@ export const ShowcaseSection: React.FC<ShowcaseSectionProps> = ({
                         decoding="async"
                         className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500"
                       />
-                      <div className="absolute inset-x-0 bottom-0 h-24" style={{ background: 'linear-gradient(180deg, transparent, rgba(5,6,15,0.9))' }} aria-hidden="true" />
+                      <div className="absolute inset-x-0 bottom-0 h-24" style={{ background: 'linear-gradient(180deg, transparent, rgba(0,0,0,0.9))' }} aria-hidden="true" />
                       <span
                         className="absolute top-3 start-3 grid place-items-center w-8 h-8 rounded-lg text-xs font-black tabular-nums backdrop-blur-md text-white"
-                        style={{ background: 'rgba(5,6,15,0.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}
+                        style={{ background: 'rgba(0,0,0,0.55)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}
                         aria-hidden="true"
                       >
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <span
                         className="absolute bottom-3 start-3 px-2.5 py-1 rounded-full text-[0.6rem] font-bold tracking-widest uppercase text-white backdrop-blur-md"
-                        style={{ background: 'rgba(5,6,15,0.6)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2)' }}
+                        style={{ background: 'rgba(0,0,0,0.6)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2)' }}
                       >
                         {t.categoryLabel}
                       </span>

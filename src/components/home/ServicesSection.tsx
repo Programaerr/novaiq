@@ -104,7 +104,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
             <span
               className="hidden lg:block font-black text-6xl leading-none tabular-nums"
               style={{
-                background: 'linear-gradient(120deg, rgba(156,195,255,0.5), transparent)',
+                background: 'linear-gradient(120deg, rgba(255,255,255,0.5), transparent)',
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
                 color: 'transparent',
@@ -127,14 +127,14 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
                   style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)' }}
                 >
                   {/* Icon glow */}
-                  <div className="absolute -top-10 -end-10 w-36 h-36 rounded-full opacity-60" style={{ background: 'radial-gradient(circle, rgba(56,109,255,0.35) 0%, transparent 70%)', filter: 'blur(8px)' }} aria-hidden="true" />
+                  <div className="absolute -top-10 -end-10 w-36 h-36 rounded-full opacity-60" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%)', filter: 'blur(8px)' }} aria-hidden="true" />
 
                   <div className="relative flex items-start justify-between">
                     <span
                       className="w-12 h-12 rounded-full grid place-items-center"
-                      style={{ background: 'rgba(56,109,255,0.16)', boxShadow: 'inset 0 0 0 1px rgba(122,178,255,0.4), 0 0 24px -6px rgba(56,109,255,0.6)' }}
+                      style={{ background: 'rgba(255,255,255,0.16)', boxShadow: 'inset 0 0 0 1px rgba(122,178,255,0.4), 0 0 24px -6px rgba(56,109,255,0.6)' }}
                     >
-                      <s.icon className="w-5 h-5" strokeWidth={1.6} style={{ color: '#9cc3ff' }} />
+                      <s.icon className="w-5 h-5" strokeWidth={1.6} style={{ color: '#ffffff' }} />
                     </span>
                     <span className="text-sm font-black tracking-widest tabular-nums text-white/35">
                       {s.n}
@@ -145,7 +145,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
                   </h3>
                   <p className="relative mt-2.5 text-xs sm:text-sm text-white/60 leading-relaxed">{s.d}</p>
                   <span
-                    className="absolute bottom-0 start-0 h-px w-0 bg-gradient-to-r from-transparent via-[#7ab2ff] to-transparent transition-all duration-500 group-hover:w-full"
+                    className="absolute bottom-0 start-0 h-px w-0 bg-gradient-to-r from-transparent via-[#ffffff] to-transparent transition-all duration-500 group-hover:w-full"
                     aria-hidden="true"
                   />
                 </m.article>

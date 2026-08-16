@@ -50,7 +50,7 @@ export const HomeStats: React.FC<HomeStatsProps> = ({ language = 'ar' }) => {
                   <span
                     className="block text-4xl sm:text-5xl font-black tracking-tight tabular-nums"
                     style={{
-                      background: 'linear-gradient(120deg, #ffffff, #b9b9c2 55%, #ffffff)',
+                      background: 'linear-gradient(120deg, #ffffff, #ffffff 55%, #ffffff)',
                       WebkitBackgroundClip: 'text',
                       backgroundClip: 'text',
                       color: 'transparent',

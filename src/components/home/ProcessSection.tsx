@@ -65,7 +65,7 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-2xl"
           >
-            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#7ab2ff' }}>
+            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#ffffff' }}>
               {isAr ? 'كيف نعمل' : 'How we work'}
             </span>
             <h2
@@ -91,7 +91,7 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
                 {i < steps.length - 1 && (
                   <span
                     className="hidden lg:block absolute top-1/2 -end-4 w-4 h-px"
-                    style={{ background: 'linear-gradient(90deg, rgba(122,178,255,0.5), transparent)' }}
+                    style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.5), transparent)' }}
                     aria-hidden="true"
                   />
                 )}
@@ -100,17 +100,17 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
                   <span
                     className="w-11 h-11 rounded-full grid place-items-center text-xs font-black tabular-nums text-white"
                     style={{
-                      background: 'radial-gradient(circle at 30% 30%, rgba(56,109,255,0.55), rgba(5,6,15,0.9))',
-                      boxShadow: 'inset 0 0 0 1px rgba(122,178,255,0.5), 0 0 22px -6px rgba(56,109,255,0.7)',
+                      background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), rgba(0,0,0,0.9))',
+                      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.5), 0 0 22px -6px rgba(255,255,255,0.7)',
                     }}
                   >
                     {s.n}
                   </span>
                   <span
                     className="w-9 h-9 rounded-full grid place-items-center"
-                    style={{ background: 'rgba(56,109,255,0.16)', boxShadow: 'inset 0 0 0 1px rgba(122,178,255,0.35)' }}
+                    style={{ background: 'rgba(255,255,255,0.16)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.35)' }}
                   >
-                    <s.icon className="w-4 h-4" strokeWidth={1.6} style={{ color: '#9cc3ff' }} />
+                    <s.icon className="w-4 h-4" strokeWidth={1.6} style={{ color: '#ffffff' }} />
                   </span>
                 </div>
                 <h3 className="mt-7 text-sm sm:text-base font-extrabold tracking-[0.08em] uppercase text-white">
@@ -134,7 +134,7 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
                   type="button"
                   onClick={onRequestProject}
                   className="inline-flex items-center gap-3 px-9 py-3 rounded-full text-black text-xs font-bold tracking-[0.16em] uppercase cursor-pointer"
-                  style={{ background: 'linear-gradient(120deg, #ffffff, #9cc3ff)' }}
+                  style={{ background: 'linear-gradient(120deg, #ffffff, #ffffff)' }}
                 >
                   {isAr ? 'ابدأ مشروعك الآن' : 'Start your project'}
                 </button>

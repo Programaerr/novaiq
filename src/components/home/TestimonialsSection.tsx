@@ -49,7 +49,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ langua
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-2xl"
           >
-            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#7ab2ff' }}>
+            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#ffffff' }}>
               {isAr ? 'قالوا عنّا' : 'What clients say'}
             </span>
             <h2
@@ -71,12 +71,12 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ langua
                 className="relative flex flex-col rounded-2xl bg-white/[0.04] backdrop-blur-xl p-6 sm:p-8 overflow-hidden"
                 style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)' }}
               >
-                <div className="absolute -top-8 -start-8 w-28 h-28 rounded-full opacity-60" style={{ background: 'radial-gradient(circle, rgba(56,109,255,0.35) 0%, transparent 70%)', filter: 'blur(10px)' }} aria-hidden="true" />
+                <div className="absolute -top-8 -start-8 w-28 h-28 rounded-full opacity-60" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%)', filter: 'blur(10px)' }} aria-hidden="true" />
 
                 <Quote
                   className="relative w-8 h-8"
                   strokeWidth={1.4}
-                  style={{ transform: 'scaleX(-1)', color: '#9cc3ff' }}
+                  style={{ transform: 'scaleX(-1)', color: '#ffffff' }}
                   aria-hidden="true"
                 />
                 <blockquote className="relative mt-5 flex-1 text-sm sm:text-[0.95rem] text-white/80 leading-relaxed">
