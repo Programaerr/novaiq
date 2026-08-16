@@ -72,12 +72,12 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
   return (
     <LazyMotion features={loadDomAnimation} strict>
       <section className="relative py-16 sm:py-24" aria-labelledby="services-title">
-        {/* Soft blue ambient glow behind the whole section. */}
+        {/* Soft white ambient glow behind the whole section. */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(42% 38% at 20% 20%, rgba(56,109,255,0.08) 0%, transparent 60%), radial-gradient(45% 42% at 82% 72%, rgba(147,105,255,0.07) 0%, transparent 62%)',
+              'radial-gradient(42% 38% at 20% 20%, rgba(255,255,255,0.06) 0%, transparent 60%), radial-gradient(45% 42% at 82% 72%, rgba(255,255,255,0.05) 0%, transparent 62%)',
           }}
           aria-hidden="true"
         />
@@ -91,7 +91,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
             className="flex items-end justify-between gap-6 pb-8"
           >
             <div className="max-w-2xl">
-              <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#7ab2ff' }}>
+              <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/60">
                 {isAr ? 'ماذا نبني' : 'What we build'}
               </span>
               <h2

@@ -14,9 +14,9 @@ interface HomeHeroProps {
 }
 
 /**
- * The opening section — the luxury blue pass. A full-colour nebula film runs behind everything,
- * a blue→violet gradient washes the headline, glass panels carry the meta row, and soft glows
- * sit behind the composition. One design for every screen — the film scales, the type breathes.
+ * The opening section — strictly #000000 and #ffffff, nothing else. A grayscale space film runs
+ * behind everything, a white→grey gradient washes the headline, glass panels carry the meta row,
+ * and soft white glows sit behind the composition. One design for every screen.
  */
 export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, onRequestProject }) => {
   const isAr = language === 'ar';
@@ -53,20 +53,20 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
         }}
         className="relative flex flex-col overflow-hidden"
       >
-        {/* Deep blue-black ground. */}
-        <div className="absolute inset-0" style={{ background: '#05060f' }} aria-hidden="true" />
+        {/* Pure black ground. */}
+        <div className="absolute inset-0" style={{ background: '#000000' }} aria-hidden="true" />
 
-        {/* The nebula film — full colour this time. */}
+        {/* The space film — drained to grayscale so a coloured source reads as black-and-white. */}
         <video
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ filter: 'saturate(1.25) contrast(1.05) brightness(0.72)' }}
+          style={{ filter: 'grayscale(1) contrast(1.2) brightness(0.62)' }}
           autoPlay
           loop
           muted
           playsInline
           preload="metadata"
-          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%2305060f'/%3E%3C/svg%3E"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%23000000'/%3E%3C/svg%3E"
           aria-hidden="true"
         >
           <source
@@ -75,17 +75,17 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
           />
         </video>
 
-        {/* Blue wash — unifies the film with the page. */}
+        {/* White wash — unifies the film with the black page. */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 80% 70% at 50% 42%, rgba(56,109,255,0.22) 0%, transparent 55%), linear-gradient(180deg, rgba(5,6,15,0.35) 0%, rgba(5,6,15,0.55) 55%, #05060f 100%)',
+              'radial-gradient(ellipse 80% 70% at 50% 42%, rgba(255,255,255,0.16) 0%, transparent 55%), linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 55%, #000000 100%)',
           }}
           aria-hidden="true"
         />
 
-        {/* Aurora shimmer — slow colour drift across the whole hero. */}
+        {/* Aurora shimmer — slow white drift across the whole hero. */}
         <m.div
           className="absolute inset-0"
           aria-hidden="true"
@@ -93,7 +93,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
           transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
           style={{
             background:
-              'radial-gradient(40% 45% at 28% 30%, rgba(99,151,255,0.18) 0%, transparent 60%), radial-gradient(45% 50% at 74% 68%, rgba(147,105,255,0.14) 0%, transparent 62%)',
+              'radial-gradient(40% 45% at 28% 30%, rgba(255,255,255,0.12) 0%, transparent 60%), radial-gradient(45% 50% at 74% 68%, rgba(255,255,255,0.1) 0%, transparent 62%)',
           }}
         />
 
@@ -103,7 +103,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
             {...fade(0.05)}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/[0.06] backdrop-blur-md text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.3em] uppercase text-white"
           >
-            <Sparkles className="w-3.5 h-3.5" style={{ color: '#7ab2ff' }} strokeWidth={2} />
+            <Sparkles className="w-3.5 h-3.5 text-white" strokeWidth={2} />
             {isAr ? 'استوديو عراقي' : 'An Iraqi studio'}
           </m.span>
 
@@ -111,8 +111,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
             {...fade(0.15)}
             className="mt-7 text-[2.8rem] sm:text-7xl lg:text-[6rem] font-black uppercase leading-[0.92] tracking-tight font-['Cairo'] text-balance"
             style={{
-              background:
-                'linear-gradient(120deg, #ffffff 0%, #9cc3ff 42%, #6f8fff 62%, #a78bfa 100%)',
+              background: 'linear-gradient(120deg, #ffffff 0%, #ffffff 30%, #b9b9c2 65%, #ffffff 100%)',
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               color: 'transparent',
@@ -121,12 +120,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
             {isAr ? 'تجارب رقمية في الفضاء' : 'Digital experiences in space'}
           </m.h1>
 
-          {/* Glow beneath the headline — the luxury halo. */}
+          {/* Glow beneath the headline — the soft white halo. */}
           {!reduce && (
             <m.div
               className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[46%] -z-10 w-[60vw] h-40 rounded-full"
               style={{
-                background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(90,140,255,0.35) 0%, transparent 70%)',
+                background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,255,255,0.28) 0%, transparent 70%)',
                 filter: 'blur(24px)',
                 animation: 'nq-orb-float 9s ease-in-out infinite',
               }}
@@ -145,8 +144,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
               <button
                 type="button"
                 onClick={onStart}
-                className="inline-flex items-center justify-center gap-3 px-8 py-3 rounded-full text-black text-xs font-bold tracking-[0.16em] uppercase cursor-pointer w-full sm:w-auto"
-                style={{ background: 'linear-gradient(120deg, #ffffff, #bcd6ff)' }}
+                className="inline-flex items-center justify-center gap-3 px-8 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase cursor-pointer w-full sm:w-auto"
               >
                 <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
                 <Arrow className="w-4 h-4" strokeWidth={2.6} />
@@ -168,7 +166,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
           <m.div
             {...fade(0.5)}
             className="mt-16 sm:mt-20 w-full max-w-2xl flex items-center justify-center gap-6 sm:gap-10 text-white rounded-2xl bg-white/[0.05] backdrop-blur-xl px-6 py-5"
-            style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12), 0 18px 50px -20px rgba(40,80,200,0.5)' }}
+            style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12), 0 18px 50px -20px rgba(255,255,255,0.12)' }}
           >
             <div className="text-center">
               <p className="text-xl sm:text-2xl font-black text-white tabular-nums">11+</p>
@@ -196,7 +194,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
           <m.div {...fade(0.7)} className="mt-12" aria-hidden="true">
             <m.span
               className="block mx-auto h-12 w-px"
-              style={{ background: 'linear-gradient(180deg, transparent, #7ab2ff)' }}
+              style={{ background: 'linear-gradient(180deg, transparent, #ffffff)' }}
               animate={reduce ? undefined : { scaleY: [0.4, 1], opacity: [0.3, 1, 0.3] }}
               transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
             />

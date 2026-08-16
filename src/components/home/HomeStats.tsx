@@ -34,7 +34,7 @@ export const HomeStats: React.FC<HomeStatsProps> = ({ language = 'ar' }) => {
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="grid grid-cols-2 lg:grid-cols-4 rounded-2xl bg-white/[0.04] backdrop-blur-xl px-4 sm:px-6 py-8 sm:py-10"
-            style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1), 0 24px 60px -30px rgba(40,80,200,0.45)' }}
+            style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1), 0 24px 60px -30px rgba(255,255,255,0.12)' }}
           >
             {stats.map((s, i) => (
               <m.div
@@ -50,7 +50,7 @@ export const HomeStats: React.FC<HomeStatsProps> = ({ language = 'ar' }) => {
                   <span
                     className="block text-4xl sm:text-5xl font-black tracking-tight tabular-nums"
                     style={{
-                      background: 'linear-gradient(120deg, #ffffff, #9cc3ff 55%, #6f8fff)',
+                      background: 'linear-gradient(120deg, #ffffff, #b9b9c2 55%, #ffffff)',
                       WebkitBackgroundClip: 'text',
                       backgroundClip: 'text',
                       color: 'transparent',
