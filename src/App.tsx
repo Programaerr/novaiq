@@ -6,7 +6,6 @@ import { Navbar } from './components/Navbar';
 import { HomeHero } from './components/home/HomeHero';
 import { HomeStats } from './components/home/HomeStats';
 import { ServicesSection } from './components/home/ServicesSection';
-import { ShowcaseSection } from './components/home/ShowcaseSection';
 import { ProcessSection } from './components/home/ProcessSection';
 import { TestimonialsSection } from './components/home/TestimonialsSection';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
@@ -500,12 +499,6 @@ export default function App() {
             <HomeStats language={language} />
 
             <ServicesSection language={language} />
-
-            <ShowcaseSection
-              language={language}
-              onViewAll={() => navigateTo('templates')}
-              onSelectTemplate={(template) => handleSelectTemplateForContract(template)}
-            />
 
             <ProcessSection language={language} onRequestProject={startProject} />
 
