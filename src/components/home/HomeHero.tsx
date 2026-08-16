@@ -59,8 +59,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
         {/* The space film — drained to grayscale so a coloured source reads as black-and-white. */}
         <video
           ref={videoRef}
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ filter: 'grayscale(1) contrast(1.2) brightness(0.62)' }}
+          className="absolute inset-0 w-full h-full object-cover object-center will-change-transform"
+          style={{ filter: 'grayscale(1)', opacity: 0.55 }}
           autoPlay
           loop
           muted
@@ -151,7 +151,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
           {/* Bottom meta row — glass panel. */}
           <m.div
             {...fade(0.5)}
-            className="mt-16 sm:mt-20 w-full max-w-2xl flex items-center justify-center gap-6 sm:gap-10 text-white rounded-2xl bg-white/[0.05] backdrop-blur-xl px-6 py-5"
+            className="mt-16 sm:mt-20 w-full max-w-2xl flex items-center justify-center gap-6 sm:gap-10 text-white rounded-2xl bg-black/50 px-6 py-5"
             style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12), 0 18px 50px -20px rgba(255,255,255,0.12)' }}
           >
             <div className="text-center">
