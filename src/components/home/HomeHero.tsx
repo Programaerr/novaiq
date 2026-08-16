@@ -99,6 +99,13 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
 
         {/* ── CONTENT ── */}
         <div className="relative z-10 flex-1 nq-container py-20 lg:py-24 flex flex-col justify-center items-center text-center">
+          <m.span
+            {...fade(0.05)}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/[0.06] backdrop-blur-md text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.3em] uppercase text-white"
+          >
+            {isAr ? 'أعمال مختارة — مشاريع جاهزة للبناء' : 'Selected work — Ready projects to build on'}
+          </m.span>
+
           <m.h1
             {...fade(0.15)}
             className="mt-7 text-3xl sm:text-5xl lg:text-[5rem] font-black uppercase leading-[1.02] tracking-tight font-['Cairo'] text-balance"
