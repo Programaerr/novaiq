@@ -1686,3 +1686,35 @@ html[data-scrolling] .filter-pill-beam::before {
     rgba(255, 255, 255, 0) 100%
   );
 }
+
+/* ── Mobile motion system ────────────────────────────────────────────── */
+
+/* Tap ripple — a ring that expands from the exact touch point. */
+@keyframes nq-touch-ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(26);
+    opacity: 0;
+  }
+}
+
+/* Star twinkle — fades a speck in and out on a per-star delay. */
+@keyframes nq-twinkle {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.9; }
+}
+
+/* Star drift — a slow downward-left travel so the field feels alive, not pinned. */
+@keyframes nq-star-drift {
+  from { transform: translateY(0) translateX(0); }
+  to { transform: translateY(-6vh) translateX(-2vw); }
+}
+
+/* Floating orbs behind the phone hero headline. */
+@keyframes nq-orb-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { transform: translateY(-18px) scale(1.06); opacity: 1; }
+}
