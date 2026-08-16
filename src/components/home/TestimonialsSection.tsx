@@ -10,8 +10,8 @@ interface TestimonialsSectionProps {
 }
 
 /**
- * Client voices, redesigned: three square cells with hairlines and a giant hollow quote mark
- * pinned to each corner — the words carry the weight, the rules keep the section quiet.
+ * Client voices — the blue pass. Three glass cards, each with a glowing blue quote mark and a
+ * thin top seam; the words carry the weight, the glow keeps the section feeling elevated.
  */
 export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ language = 'ar' }) => {
   const isAr = language === 'ar';
@@ -47,9 +47,9 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ langua
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl border-b border-white/15 pb-8"
+            className="max-w-2xl"
           >
-            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/50">
+            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#7ab2ff' }}>
               {isAr ? 'قالوا عنّا' : 'What clients say'}
             </span>
             <h2
@@ -60,7 +60,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ langua
             </h2>
           </m.header>
 
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-3 gap-px bg-white/15">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
             {items.map((it, i) => (
               <m.figure
                 key={it.a}
@@ -68,18 +68,21 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ langua
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-32px' }}
                 transition={{ duration: 0.6, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-                className="bg-black p-6 sm:p-8 flex flex-col relative"
+                className="relative flex flex-col rounded-2xl bg-white/[0.04] backdrop-blur-xl p-6 sm:p-8 overflow-hidden"
+                style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)' }}
               >
+                <div className="absolute -top-8 -start-8 w-28 h-28 rounded-full opacity-60" style={{ background: 'radial-gradient(circle, rgba(56,109,255,0.35) 0%, transparent 70%)', filter: 'blur(10px)' }} aria-hidden="true" />
+
                 <Quote
-                  className="w-10 h-10 text-transparent"
-                  strokeWidth={1.2}
-                  style={{ transform: 'scaleX(-1)', WebkitTextStroke: '1px rgba(255,255,255,0.5)' }}
+                  className="relative w-8 h-8"
+                  strokeWidth={1.4}
+                  style={{ transform: 'scaleX(-1)', color: '#9cc3ff' }}
                   aria-hidden="true"
                 />
-                <blockquote className="mt-6 flex-1 text-sm sm:text-[0.95rem] text-white/80 leading-relaxed">
+                <blockquote className="relative mt-5 flex-1 text-sm sm:text-[0.95rem] text-white/80 leading-relaxed">
                   {it.q}
                 </blockquote>
-                <figcaption className="mt-8 pt-4 border-t border-white/15 text-[0.7rem] font-bold tracking-[0.14em] uppercase text-white/60">
+                <figcaption className="relative mt-6 pt-4 border-t border-white/12 text-[0.7rem] font-bold tracking-[0.14em] uppercase text-white/60">
                   {it.a}
                 </figcaption>
               </m.figure>

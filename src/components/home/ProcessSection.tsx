@@ -12,9 +12,8 @@ interface ProcessSectionProps {
 }
 
 /**
- * The process, redesigned as a ruled ledger rather than cards: each step is a slim cell with a
- * giant hollow numeral on top and a hairline that runs the full height of the row, tying the
- * four into one continuous line.
+ * The process — the blue pass. Four steps on a connecting hairline, each with a glowing number
+ * disc and a small icon chip; the row reads as a pipeline with a soft blue seam between cells.
  */
 export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar', onRequestProject }) => {
   const isAr = language === 'ar';
@@ -64,9 +63,9 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl border-b border-white/15 pb-8"
+            className="max-w-2xl"
           >
-            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/50">
+            <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#7ab2ff' }}>
               {isAr ? 'كيف نعمل' : 'How we work'}
             </span>
             <h2
@@ -77,7 +76,7 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
             </h2>
           </m.header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-s border-t border-white/15">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {steps.map((s, i) => (
               <m.div
                 key={s.n}
@@ -85,23 +84,38 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-32px' }}
                 transition={{ duration: 0.6, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-                className="relative border-e border-b border-white/15 p-6 sm:p-8"
+                className="relative rounded-2xl bg-white/[0.04] backdrop-blur-xl p-6 sm:p-8 overflow-hidden"
+                style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)' }}
               >
-                <span
-                  className="block text-6xl font-black leading-none text-transparent tabular-nums"
-                  style={{ WebkitTextStroke: '1.5px #ffffff' }}
-                  aria-hidden="true"
-                >
-                  {s.n}
-                </span>
-                <div className="mt-8 flex items-center gap-3">
-                  <span className="w-9 h-9 grid place-items-center" style={{ boxShadow: 'inset 0 0 0 1px #ffffff' }}>
-                    <s.icon className="w-4 h-4 text-white" strokeWidth={1.6} />
+                {/* Step connector — a soft blue seam between cells. */}
+                {i < steps.length - 1 && (
+                  <span
+                    className="hidden lg:block absolute top-1/2 -end-4 w-4 h-px"
+                    style={{ background: 'linear-gradient(90deg, rgba(122,178,255,0.5), transparent)' }}
+                    aria-hidden="true"
+                  />
+                )}
+
+                <div className="flex items-center justify-between">
+                  <span
+                    className="w-11 h-11 rounded-full grid place-items-center text-xs font-black tabular-nums text-white"
+                    style={{
+                      background: 'radial-gradient(circle at 30% 30%, rgba(56,109,255,0.55), rgba(5,6,15,0.9))',
+                      boxShadow: 'inset 0 0 0 1px rgba(122,178,255,0.5), 0 0 22px -6px rgba(56,109,255,0.7)',
+                    }}
+                  >
+                    {s.n}
                   </span>
-                  <h3 className="text-sm sm:text-base font-extrabold tracking-[0.08em] uppercase text-white">
-                    {s.t}
-                  </h3>
+                  <span
+                    className="w-9 h-9 rounded-full grid place-items-center"
+                    style={{ background: 'rgba(56,109,255,0.16)', boxShadow: 'inset 0 0 0 1px rgba(122,178,255,0.35)' }}
+                  >
+                    <s.icon className="w-4 h-4" strokeWidth={1.6} style={{ color: '#9cc3ff' }} />
+                  </span>
                 </div>
+                <h3 className="mt-7 text-sm sm:text-base font-extrabold tracking-[0.08em] uppercase text-white">
+                  {s.t}
+                </h3>
                 <p className="mt-3 text-xs sm:text-sm text-white/60 leading-relaxed">{s.d}</p>
               </m.div>
             ))}
@@ -119,7 +133,8 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
                 <button
                   type="button"
                   onClick={onRequestProject}
-                  className="inline-flex items-center gap-3 px-9 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase hover:bg-black hover:text-white hover:ring-1 hover:ring-white transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-3 px-9 py-3 rounded-full text-black text-xs font-bold tracking-[0.16em] uppercase cursor-pointer"
+                  style={{ background: 'linear-gradient(120deg, #ffffff, #9cc3ff)' }}
                 >
                   {isAr ? 'ابدأ مشروعك الآن' : 'Start your project'}
                 </button>
