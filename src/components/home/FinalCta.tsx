@@ -2,6 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { LazyMotion, m, useReducedMotion } from 'motion/react';
 import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
 import { Language } from '../../lib/i18n';
+import { useIsMobile } from '../../lib/useIsMobile';
+import { StarField } from './mobile/StarField';
+import { TouchRipple } from './mobile/TouchRipple';
 
 const loadDomAnimation = () => import('../../lib/motionFeatures').then((mod) => mod.default);
 
@@ -21,6 +24,7 @@ export const FinalCta: React.FC<FinalCtaProps> = ({ language = 'ar', onStart, on
   const reduce = useReducedMotion();
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { isMobile } = useIsMobile();
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -66,6 +70,8 @@ export const FinalCta: React.FC<FinalCtaProps> = ({ language = 'ar', onStart, on
           aria-hidden="true"
         />
 
+        {isMobile && <StarField count={45} />}
+
         <m.div
           className="nq-container relative text-center"
           initial={reduce ? { opacity: 0 } : { opacity: 0, y: 20 }}
@@ -89,22 +95,26 @@ export const FinalCta: React.FC<FinalCtaProps> = ({ language = 'ar', onStart, on
               : 'Start from a ready template or describe a project from scratch — forms, specs, contract and signature are all digital, and delivery is on time.'}
           </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-            <button
-              type="button"
-              onClick={onRequestProject}
-              className="inline-flex items-center gap-3 px-8 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase hover:bg-black hover:text-white hover:ring-1 hover:ring-white transition-colors cursor-pointer w-full sm:w-auto justify-center"
-            >
-              <span>{isAr ? 'اطلب مشروعك' : 'Request a project'}</span>
-              <Arrow className="w-4 h-4" strokeWidth={2.6} />
-            </button>
-            <button
-              type="button"
-              onClick={onStart}
-              className="inline-flex items-center justify-center px-8 py-3 rounded-full border border-white text-white text-xs font-bold tracking-[0.16em] uppercase hover:bg-white hover:text-black transition-colors cursor-pointer w-full sm:w-auto"
-            >
-              {isAr ? 'تصفح القوالب' : 'Browse templates'}
-            </button>
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <TouchRipple className="w-full sm:w-auto rounded-full">
+              <button
+                type="button"
+                onClick={onRequestProject}
+                className="inline-flex items-center gap-3 px-8 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase hover:bg-black hover:text-white hover:ring-1 hover:ring-white transition-colors cursor-pointer w-full sm:w-auto justify-center"
+              >
+                <span>{isAr ? 'اطلب مشروعك' : 'Request a project'}</span>
+                <Arrow className="w-4 h-4" strokeWidth={2.6} />
+              </button>
+            </TouchRipple>
+            <TouchRipple className="w-full sm:w-auto rounded-full">
+              <button
+                type="button"
+                onClick={onStart}
+                className="inline-flex items-center justify-center px-8 py-3 rounded-full border border-white text-white text-xs font-bold tracking-[0.16em] uppercase hover:bg-white hover:text-black transition-colors cursor-pointer w-full sm:w-auto"
+              >
+                {isAr ? 'تصفح القوالب' : 'Browse templates'}
+              </button>
+            </TouchRipple>
           </div>
         </m.div>
       </section>

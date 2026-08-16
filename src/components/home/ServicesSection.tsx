@@ -2,6 +2,7 @@ import React from 'react';
 import { LazyMotion, m, useReducedMotion } from 'motion/react';
 import { AppWindow, Boxes, MonitorSmartphone, Palette, ShoppingBag, LayoutTemplate } from 'lucide-react';
 import { Language } from '../../lib/i18n';
+import { TouchRipple } from './mobile/TouchRipple';
 
 const loadDomAnimation = () => import('../../lib/motionFeatures').then((mod) => mod.default);
 

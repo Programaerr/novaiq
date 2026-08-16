@@ -2,6 +2,7 @@ import React from 'react';
 import { LazyMotion, m, useReducedMotion } from 'motion/react';
 import { FileSignature, Palette, Rocket, SearchCheck } from 'lucide-react';
 import { Language } from '../../lib/i18n';
+import { TouchRipple } from './mobile/TouchRipple';
 
 const loadDomAnimation = () => import('../../lib/motionFeatures').then((mod) => mod.default);
 
@@ -114,13 +115,15 @@ export const ProcessSection: React.FC<ProcessSectionProps> = ({ language = 'ar',
               transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="mt-12 text-center"
             >
-              <button
-                type="button"
-                onClick={onRequestProject}
-                className="inline-flex items-center gap-3 px-9 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase hover:bg-black hover:text-white hover:ring-1 hover:ring-white transition-colors cursor-pointer"
-              >
-                {isAr ? 'ابدأ مشروعك الآن' : 'Start your project'}
-              </button>
+              <TouchRipple className="inline-flex rounded-full">
+                <button
+                  type="button"
+                  onClick={onRequestProject}
+                  className="inline-flex items-center gap-3 px-9 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase hover:bg-black hover:text-white hover:ring-1 hover:ring-white transition-colors cursor-pointer"
+                >
+                  {isAr ? 'ابدأ مشروعك الآن' : 'Start your project'}
+                </button>
+              </TouchRipple>
             </m.div>
           )}
         </div>
