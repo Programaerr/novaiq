@@ -191,8 +191,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         className="navbar-connect flex items-center justify-between gap-3 sm:gap-10 relative"
       >
 
-        {/* ── Half 1 (physical left): LOGIN — the brand logo and the account/login entry in one
-            self-contained glass bar. Logo sits inside this half, per the requested split. */}
+        {/* ── Half 1 (physical left): the brand logo on its own, in a self-contained glass
+            bar. The account/login entry lives in the navigation half (Half 2) — see below. */}
         <div className="navbar-glass flex items-center gap-3 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
           <a
             href="/"
@@ -206,48 +206,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <NovaiqLogo size={34} showText={true} animated revealed={logoRevealed} />
           </a>
-
-          <span aria-hidden="true" className="hidden sm:block h-7 w-px bg-white/10" />
-
-          {isLoggedIn === undefined ? (
-            <div
-              aria-hidden="true"
-              className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 animate-pulse"
-            />
-          ) : isLoggedIn ? (
-            <a
-              href="?page=orders"
-              onClick={(e) => handleNavClick('orders', e)}
-              title={isAr ? 'حسابي' : 'My Account'}
-              className={`relative flex items-center justify-center p-1 rounded-full border transition-all cursor-pointer ${
-                activePage === 'orders'
-                  ? 'border-white'
-                  : 'border-zinc-700 hover:border-zinc-500'
-              }`}
-            >
-              {avatarUrl && !avatarBroken ? (
-                <img
-                  src={avatarUrl}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  onError={() => setAvatarBroken(true)}
-                  className="w-7 h-7 rounded-full object-cover"
-                />
-              ) : (
-                <UserCircle2 className="w-7 h-7 text-zinc-300" />
-              )}
-            </a>
-          ) : (
-            <a
-              href="?page=login"
-              onClick={goToLogin}
-              className="filter-pill-btn relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer"
-            >
-              <span className="filter-pill-beam" aria-hidden="true" />
-              <LogIn className="w-4 h-4 text-current shrink-0" />
-              <span className="hidden sm:inline text-current">{isAr ? 'تسجيل دخول' : 'Login'}</span>
-            </a>
-          )}
         </div>
 
         {/* ── Half 2 (physical right): NAVIGATION — its own glass bar, completely separate from
@@ -273,6 +231,50 @@ export const Navbar: React.FC<NavbarProps> = ({
               );
             })}
           </nav>
+
+          {/* Account/login — lives in the navigation half on desktop, and moves INSIDE the
+              drawer menu on phones (`lg:hidden` hides it here; the drawer renders it below). */}
+          <div className="hidden lg:block">
+            {isLoggedIn === undefined ? (
+              <div
+                aria-hidden="true"
+                className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 animate-pulse"
+              />
+            ) : isLoggedIn ? (
+              <a
+                href="?page=orders"
+                onClick={(e) => handleNavClick('orders', e)}
+                title={isAr ? 'حسابي' : 'My Account'}
+                className={`relative flex items-center justify-center p-1 rounded-full border transition-all cursor-pointer ${
+                  activePage === 'orders'
+                    ? 'border-white'
+                    : 'border-zinc-700 hover:border-zinc-500'
+                }`}
+              >
+                {avatarUrl && !avatarBroken ? (
+                  <img
+                    src={avatarUrl}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    onError={() => setAvatarBroken(true)}
+                    className="w-7 h-7 rounded-full object-cover"
+                  />
+                ) : (
+                  <UserCircle2 className="w-7 h-7 text-zinc-300" />
+                )}
+              </a>
+            ) : (
+              <a
+                href="?page=login"
+                onClick={goToLogin}
+                className="filter-pill-btn relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer"
+              >
+                <span className="filter-pill-beam" aria-hidden="true" />
+                <LogIn className="w-4 h-4 text-current shrink-0" />
+                <span className="hidden sm:inline text-current">{isAr ? 'تسجيل دخول' : 'Login'}</span>
+              </a>
+            )}
+          </div>
 
           <button
             onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
@@ -325,6 +327,54 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Compass className="w-3.5 h-3.5 text-white" />
               <span>{isAr ? 'أقسام منصة NOVAIQ' : 'NOVAIQ Pages'}</span>
             </span>
+          </div>
+
+          {/* Account/login for phones — hidden from the inline bar, this is the only place it
+              appears on mobile. Same states as the desktop button: loading, signed-in avatar,
+              or the sign-in pill. */}
+          <div className="lg:hidden">
+            {isLoggedIn === undefined ? (
+              <div
+                aria-hidden="true"
+                className="w-full h-10 rounded-xl bg-zinc-800 border border-zinc-700 animate-pulse"
+              />
+            ) : isLoggedIn ? (
+              <a
+                href="?page=orders"
+                onClick={(e) => handleNavClick('orders', e)}
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white transition-all cursor-pointer"
+              >
+                <span
+                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-zinc-900 border border-zinc-800 text-zinc-300 overflow-hidden"
+                >
+                  {avatarUrl && !avatarBroken ? (
+                    <img
+                      src={avatarUrl}
+                      alt=""
+                      referrerPolicy="no-referrer"
+                      onError={() => setAvatarBroken(true)}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <UserCircle2 className="w-3.5 h-3.5" />
+                  )}
+                </span>
+                <span>{isAr ? 'حسابي' : 'My Account'}</span>
+              </a>
+            ) : (
+              <a
+                href="?page=login"
+                onClick={goToLogin}
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] font-bold text-white bg-white/10 border border-white/10 hover:bg-white/15 transition-all cursor-pointer"
+              >
+                <span
+                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-black text-white"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                </span>
+                <span>{isAr ? 'تسجيل دخول' : 'Sign in'}</span>
+              </a>
+            )}
           </div>
 
           {/* Row height is what the panel's height actually is — seven of these are the whole
