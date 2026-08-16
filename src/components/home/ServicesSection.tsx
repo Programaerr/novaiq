@@ -132,7 +132,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
                   <div className="relative flex items-start justify-between">
                     <span
                       className="w-12 h-12 rounded-full grid place-items-center"
-                      style={{ background: 'rgba(255,255,255,0.16)', boxShadow: 'inset 0 0 0 1px rgba(122,178,255,0.4), 0 0 24px -6px rgba(56,109,255,0.6)' }}
+                      style={{ background: 'rgba(255,255,255,0.16)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.4), 0 0 24px -6px rgba(255,255,255,0.6)' }}
                     >
                       <s.icon className="w-5 h-5" strokeWidth={1.6} style={{ color: '#ffffff' }} />
                     </span>

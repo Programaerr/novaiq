@@ -284,8 +284,7 @@
 
        #26262A in the middle down to black at the corner: small enough not to read as a gradient
        anyone can point at, and just enough that a document this long is never a dead rectangle. */
-    background-image: radial-gradient(130% 105% at 50% 22%, #26262A 0%, #161619 46%, #000000 100%);
-    background-repeat: no-repeat;
+    background-color: #000000;
   }
 }
 
