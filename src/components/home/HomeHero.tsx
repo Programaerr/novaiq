@@ -1,10 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { LazyMotion, m, useReducedMotion } from 'motion/react';
-import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowUpLeft, ArrowUpRight, Sparkles } from 'lucide-react';
 import { Language } from '../../lib/i18n';
-import { useIsMobile } from '../../lib/useIsMobile';
-import { StarField } from './mobile/StarField';
-import { TouchParallax } from './mobile/TouchParallax';
 import { TouchRipple } from './mobile/TouchRipple';
 
 // Deferred so the animation feature set lands in its own chunk — see motionFeatures.ts.
@@ -17,19 +14,13 @@ interface HomeHeroProps {
 }
 
 /**
- * The opening section — two distinct designs.
- *
- * Desktop: one centred stack over the drained space film, hairline grid, hollow numerals.
- *
- * Phone: a completely different composition. The film is tighter and brighter, a live star
- * field drifts over it, three floating orbs orbit the headline, and the whole surface answers
- * the finger — the content shifts with the gesture (`TouchParallax`) and every button answers
- * a touch with a ripple (`TouchRipple`). Strictly #000000 / #ffffff either way.
+ * The opening section — the luxury blue pass. A full-colour nebula film runs behind everything,
+ * a blue→violet gradient washes the headline, glass panels carry the meta row, and soft glows
+ * sit behind the composition. One design for every screen — the film scales, the type breathes.
  */
 export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, onRequestProject }) => {
   const isAr = language === 'ar';
   const reduce = useReducedMotion();
-  const { isMobile } = useIsMobile();
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -52,12 +43,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
     transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] as const },
   });
 
-  const mobileVideoStyle = {
-    filter: 'grayscale(1) contrast(1.3) brightness(0.62)',
-    transform: 'scale(1.15)',
-    transformOrigin: 'center 30%',
-  };
-
   return (
     <LazyMotion features={loadDomAnimation} strict>
       <section
@@ -68,162 +53,155 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
         }}
         className="relative flex flex-col overflow-hidden"
       >
-        <div className="absolute inset-0" style={{ background: '#000000' }} aria-hidden="true" />
+        {/* Deep blue-black ground. */}
+        <div className="absolute inset-0" style={{ background: '#05060f' }} aria-hidden="true" />
 
-        {/* The film — tighter and closer on a phone so it fills the small screen. */}
+        {/* The nebula film — full colour this time. */}
         <video
           ref={videoRef}
-          className="absolute inset-0 w-full h-full object-cover object-top"
-          style={isMobile ? mobileVideoStyle : { filter: 'grayscale(1) contrast(1.15) brightness(0.55)' }}
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          style={{ filter: 'saturate(1.25) contrast(1.05) brightness(0.72)' }}
           autoPlay
           loop
           muted
           playsInline
           preload="metadata"
-          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%23000000'/%3E%3C/svg%3E"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='9'%3E%3Crect width='16' height='9' fill='%2305060f'/%3E%3C/svg%3E"
           aria-hidden="true"
         >
           <source
-            src="https://strvid.nyc3.cdn.digitaloceanspaces.com/motionsite/bg-red-ball.mp4"
+            src="https://assets.mixkit.co/videos/26794/26794-720.mp4"
             type="video/mp4"
           />
         </video>
 
-        {/* Vignette — deeper on phones so type survives the brighter film. */}
+        {/* Blue wash — unifies the film with the page. */}
         <div
           className="absolute inset-0"
           style={{
-            background: isMobile
-              ? 'radial-gradient(ellipse 120% 90% at 50% 40%, transparent 8%, rgba(0,0,0,0.5) 52%, rgba(0,0,0,0.92) 82%, #000000 100%)'
-              : 'radial-gradient(ellipse 70% 70% at 50% 45%, transparent 20%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.9) 82%, #000000 100%)',
+            background:
+              'radial-gradient(ellipse 80% 70% at 50% 42%, rgba(56,109,255,0.22) 0%, transparent 55%), linear-gradient(180deg, rgba(5,6,15,0.35) 0%, rgba(5,6,15,0.55) 55%, #05060f 100%)',
           }}
           aria-hidden="true"
         />
 
-        {/* Phones get the drifting star field over the film. */}
-        {isMobile && <StarField count={80} />}
+        {/* Aurora shimmer — slow colour drift across the whole hero. */}
+        <m.div
+          className="absolute inset-0"
+          aria-hidden="true"
+          animate={reduce ? undefined : { x: [0, 40, -30, 0], y: [0, -30, 25, 0] }}
+          transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            background:
+              'radial-gradient(40% 45% at 28% 30%, rgba(99,151,255,0.18) 0%, transparent 60%), radial-gradient(45% 50% at 74% 68%, rgba(147,105,255,0.14) 0%, transparent 62%)',
+          }}
+        />
 
-        {/* ── CONTENT ──
-            Phone: a parallax surface. The whole composition shifts with the finger; the
-            buttons individually ripple on touch. */}
-        <TouchParallax strength={20} className="relative z-10 flex-1">
-          <div className="relative w-full h-full nq-container py-20 lg:py-24 flex flex-col justify-center items-center text-center">
-            {/* Floating orbs around the headline (phones only). */}
-            {isMobile && !reduce && (
-              <>
-                <span
-                  className="absolute top-[24%] start-[8%] w-20 h-20 rounded-full bg-white/15 blur-2xl"
-                  style={{ animation: 'nq-orb-float 7s ease-in-out infinite' }}
-                  aria-hidden="true"
-                />
-                <span
-                  className="absolute top-[38%] end-[6%] w-14 h-14 rounded-full bg-white/10 blur-xl"
-                  style={{ animation: 'nq-orb-float 9s ease-in-out 1.2s infinite' }}
-                  aria-hidden="true"
-                />
-                <span
-                  className="absolute bottom-[22%] start-[16%] w-10 h-10 rounded-full bg-white/10 blur-lg"
-                  style={{ animation: 'nq-orb-float 8s ease-in-out 2.1s infinite' }}
-                  aria-hidden="true"
-                />
-              </>
-            )}
+        {/* ── CONTENT ── */}
+        <div className="relative z-10 flex-1 nq-container py-20 lg:py-24 flex flex-col justify-center items-center text-center">
+          <m.span
+            {...fade(0.05)}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 bg-white/[0.06] backdrop-blur-md text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.3em] uppercase text-white"
+          >
+            <Sparkles className="w-3.5 h-3.5" style={{ color: '#7ab2ff' }} strokeWidth={2} />
+            {isAr ? 'استوديو عراقي' : 'An Iraqi studio'}
+          </m.span>
 
-            <m.span
-              {...fade(0.05)}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/25 text-[0.65rem] sm:text-[0.7rem] font-bold tracking-[0.3em] uppercase text-white"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-white" aria-hidden="true" />
-              {isAr ? 'استوديو عراقي' : 'An Iraqi studio'}
-            </m.span>
+          <m.h1
+            {...fade(0.15)}
+            className="mt-7 text-[2.8rem] sm:text-7xl lg:text-[6rem] font-black uppercase leading-[0.92] tracking-tight font-['Cairo'] text-balance"
+            style={{
+              background:
+                'linear-gradient(120deg, #ffffff 0%, #9cc3ff 42%, #6f8fff 62%, #a78bfa 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
+            }}
+          >
+            {isAr ? 'تجارب رقمية في الفضاء' : 'Digital experiences in space'}
+          </m.h1>
 
-            <m.h1
-              {...fade(0.15)}
-              className="mt-7 text-[2.8rem] sm:text-7xl lg:text-[6rem] font-black uppercase leading-[0.92] tracking-tight text-white font-['Cairo'] text-balance"
-            >
-              {isAr ? (
-                <>
-                  تجارب رقمية
-                  <span className="block text-transparent" style={{ WebkitTextStroke: '1.5px #ffffff' }}>
-                    في الفضاء
-                  </span>
-                </>
-              ) : (
-                <>
-                  Digital
-                  <span className="block text-transparent" style={{ WebkitTextStroke: '1.5px #ffffff' }}>
-                    experiences
-                  </span>
-                </>
-              )}
-            </m.h1>
-
-            <m.p {...fade(0.25)} className="mt-7 max-w-xl text-sm sm:text-base text-white/80 leading-relaxed">
-              {isAr
-                ? 'نصمم ونطوّر في NOVAIQ أنظمة وتطبيقات ذكية من الفكرة والمواصفات حتى الإطلاق — بعقود إلكترونية، وتصميم يجعل علامتك لا تُنسى.'
-                : 'At NOVAIQ we design and build smart systems and applications — from idea and spec to launch, with e-contracts and a brand that is never forgotten.'}
-            </m.p>
-
-            <m.div {...fade(0.35)} className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
-              <TouchRipple className="w-full sm:w-auto rounded-full">
-                <button
-                  type="button"
-                  onClick={onStart}
-                  className="inline-flex items-center justify-center gap-3 px-8 py-3 rounded-full bg-white text-black text-xs font-bold tracking-[0.16em] uppercase hover:bg-black hover:text-white hover:ring-1 hover:ring-white transition-colors cursor-pointer w-full sm:w-auto"
-                >
-                  <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
-                  <Arrow className="w-4 h-4" strokeWidth={2.6} />
-                </button>
-              </TouchRipple>
-              <TouchRipple className="w-full sm:w-auto rounded-full">
-                <button
-                  type="button"
-                  onClick={onRequestProject}
-                  className="inline-flex items-center justify-center px-8 py-3 rounded-full border border-white text-white text-xs font-bold tracking-[0.16em] uppercase hover:bg-white hover:text-black transition-colors cursor-pointer w-full sm:w-auto"
-                >
-                  {isAr ? 'اطلب مشروعك' : 'Request a project'}
-                </button>
-              </TouchRipple>
-            </m.div>
-
-            {/* Bottom meta row — two counters and a scroll hint. */}
+          {/* Glow beneath the headline — the luxury halo. */}
+          {!reduce && (
             <m.div
-              {...fade(0.5)}
-              className="mt-16 sm:mt-20 w-full max-w-3xl flex items-center justify-center gap-6 sm:gap-10 text-white"
-            >
-              <div className="text-center">
-                <p className="text-xl sm:text-2xl font-black text-white tabular-nums">{isAr ? '١١+' : '11+'}</p>
-                <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
-                  {isAr ? 'قالب جاهز' : 'Templates'}
-                </p>
-              </div>
-              <span className="h-8 w-px bg-white/25" aria-hidden="true" />
-              <div className="text-center">
-                <p className="text-xl sm:text-2xl font-black text-white tabular-nums">{isAr ? '١٢٠+' : '120+'}</p>
-                <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
-                  {isAr ? 'تسليم' : 'Deliveries'}
-                </p>
-              </div>
-              <span className="hidden sm:block h-8 w-px bg-white/25" aria-hidden="true" />
-              <div className="hidden sm:block text-center">
-                <p className="text-xl sm:text-2xl font-black text-white tabular-nums">100%</p>
-                <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
-                  {isAr ? 'ضمان التوقيت' : 'On-time'}
-                </p>
-              </div>
-            </m.div>
+              className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-[46%] -z-10 w-[60vw] h-40 rounded-full"
+              style={{
+                background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(90,140,255,0.35) 0%, transparent 70%)',
+                filter: 'blur(24px)',
+                animation: 'nq-orb-float 9s ease-in-out infinite',
+              }}
+              aria-hidden="true"
+            />
+          )}
 
-            {/* Scroll hint */}
-            <m.div {...fade(0.7)} className="mt-12" aria-hidden="true">
-              <m.span
-                className="block mx-auto h-12 w-px bg-white/70"
-                animate={reduce ? undefined : { scaleY: [0.4, 1], opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ transformOrigin: 'top' }}
-              />
-            </m.div>
-          </div>
-        </TouchParallax>
+          <m.p {...fade(0.25)} className="mt-7 max-w-xl text-sm sm:text-base text-white/80 leading-relaxed">
+            {isAr
+              ? 'نصمم ونطوّر في NOVAIQ أنظمة وتطبيقات ذكية من الفكرة والمواصفات حتى الإطلاق — بعقود إلكترونية، وتصميم يجعل علامتك لا تُنسى.'
+              : 'At NOVAIQ we design and build smart systems and applications — from idea and spec to launch, with e-contracts and a brand that is never forgotten.'}
+          </m.p>
+
+          <m.div {...fade(0.35)} className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <TouchRipple className="w-full sm:w-auto rounded-full">
+              <button
+                type="button"
+                onClick={onStart}
+                className="inline-flex items-center justify-center gap-3 px-8 py-3 rounded-full text-black text-xs font-bold tracking-[0.16em] uppercase cursor-pointer w-full sm:w-auto"
+                style={{ background: 'linear-gradient(120deg, #ffffff, #bcd6ff)' }}
+              >
+                <span>{isAr ? 'شاهد أعمالنا' : 'Explore our work'}</span>
+                <Arrow className="w-4 h-4" strokeWidth={2.6} />
+              </button>
+            </TouchRipple>
+            <TouchRipple className="w-full sm:w-auto rounded-full">
+              <button
+                type="button"
+                onClick={onRequestProject}
+                className="inline-flex items-center justify-center px-8 py-3 rounded-full text-white text-xs font-bold tracking-[0.16em] uppercase cursor-pointer w-full sm:w-auto bg-white/[0.06] backdrop-blur-md"
+                style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.28)' }}
+              >
+                {isAr ? 'اطلب مشروعك' : 'Request a project'}
+              </button>
+            </TouchRipple>
+          </m.div>
+
+          {/* Bottom meta row — glass panel. */}
+          <m.div
+            {...fade(0.5)}
+            className="mt-16 sm:mt-20 w-full max-w-2xl flex items-center justify-center gap-6 sm:gap-10 text-white rounded-2xl bg-white/[0.05] backdrop-blur-xl px-6 py-5"
+            style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12), 0 18px 50px -20px rgba(40,80,200,0.5)' }}
+          >
+            <div className="text-center">
+              <p className="text-xl sm:text-2xl font-black text-white tabular-nums">11+</p>
+              <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
+                {isAr ? 'قالب جاهز' : 'Templates'}
+              </p>
+            </div>
+            <span className="h-8 w-px bg-white/20" aria-hidden="true" />
+            <div className="text-center">
+              <p className="text-xl sm:text-2xl font-black text-white tabular-nums">120+</p>
+              <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
+                {isAr ? 'تسليم' : 'Deliveries'}
+              </p>
+            </div>
+            <span className="hidden sm:block h-8 w-px bg-white/20" aria-hidden="true" />
+            <div className="hidden sm:block text-center">
+              <p className="text-xl sm:text-2xl font-black text-white tabular-nums">100%</p>
+              <p className="mt-1 text-[0.6rem] sm:text-[0.65rem] font-bold tracking-[0.22em] uppercase text-white/60">
+                {isAr ? 'ضمان التوقيت' : 'On-time'}
+              </p>
+            </div>
+          </m.div>
+
+          {/* Scroll hint */}
+          <m.div {...fade(0.7)} className="mt-12" aria-hidden="true">
+            <m.span
+              className="block mx-auto h-12 w-px"
+              style={{ background: 'linear-gradient(180deg, transparent, #7ab2ff)' }}
+              animate={reduce ? undefined : { scaleY: [0.4, 1], opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </m.div>
+        </div>
       </section>
     </LazyMotion>
   );

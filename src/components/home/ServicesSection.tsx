@@ -11,9 +11,8 @@ interface ServicesSectionProps {
 }
 
 /**
- * The capabilities grid, redesigned: square cells with hairline borders only — no card fills.
- * Each panel is split into a slim icon bar across the top and the copy below, so the eye reads
- * the six as a ruled ledger rather than a pile of boxes.
+ * The capabilities grid — the blue pass. Six glass cards with a soft blue radial glow behind
+ * each icon, a gradient heading, and a hairline that fills on hover. Cards are touch-reactive.
  */
 export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar' }) => {
   const isAr = language === 'ar';
@@ -73,16 +72,26 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
   return (
     <LazyMotion features={loadDomAnimation} strict>
       <section className="relative py-16 sm:py-24" aria-labelledby="services-title">
-        <div className="nq-container">
+        {/* Soft blue ambient glow behind the whole section. */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(42% 38% at 20% 20%, rgba(56,109,255,0.08) 0%, transparent 60%), radial-gradient(45% 42% at 82% 72%, rgba(147,105,255,0.07) 0%, transparent 62%)',
+          }}
+          aria-hidden="true"
+        />
+
+        <div className="nq-container relative">
           <m.header
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-end justify-between gap-6 border-b border-white/15 pb-8"
+            className="flex items-end justify-between gap-6 pb-8"
           >
             <div className="max-w-2xl">
-              <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase text-white/50">
+              <span className="text-[0.7rem] sm:text-xs font-bold tracking-[0.3em] uppercase" style={{ color: '#7ab2ff' }}>
                 {isAr ? 'ماذا نبني' : 'What we build'}
               </span>
               <h2
@@ -92,41 +101,55 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ language = 'ar
                 {isAr ? 'من الفكرة إلى النُضج' : 'From idea to maturity'}
               </h2>
             </div>
-            <span className="hidden lg:block text-white/30 font-black text-6xl leading-none text-transparent" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.25)' }} aria-hidden="true">
+            <span
+              className="hidden lg:block font-black text-6xl leading-none tabular-nums"
+              style={{
+                background: 'linear-gradient(120deg, rgba(156,195,255,0.5), transparent)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent',
+              }}
+              aria-hidden="true"
+            >
               06
             </span>
           </m.header>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border-s border-t border-white/15">
+          <div className="mt-10 sm:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {services.map((s, i) => (
-              <m.div
-                key={s.n}
-                initial={reduce ? { opacity: 0 } : { opacity: 0, y: 26 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-32px' }}
-                transition={{ duration: 0.6, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative border-e border-b border-white/15 p-6 sm:p-8 hover:bg-white/[0.04] transition-colors"
-              >
-                <div className="flex items-center justify-between">
+              <TouchRipple key={s.n} className="rounded-2xl">
+                <m.article
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, y: 26 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-32px' }}
+                  transition={{ duration: 0.6, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  className="group relative h-full rounded-2xl bg-white/[0.04] backdrop-blur-xl p-6 sm:p-8 overflow-hidden"
+                  style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1)' }}
+                >
+                  {/* Icon glow */}
+                  <div className="absolute -top-10 -end-10 w-36 h-36 rounded-full opacity-60" style={{ background: 'radial-gradient(circle, rgba(56,109,255,0.35) 0%, transparent 70%)', filter: 'blur(8px)' }} aria-hidden="true" />
+
+                  <div className="relative flex items-start justify-between">
+                    <span
+                      className="w-12 h-12 rounded-full grid place-items-center"
+                      style={{ background: 'rgba(56,109,255,0.16)', boxShadow: 'inset 0 0 0 1px rgba(122,178,255,0.4), 0 0 24px -6px rgba(56,109,255,0.6)' }}
+                    >
+                      <s.icon className="w-5 h-5" strokeWidth={1.6} style={{ color: '#9cc3ff' }} />
+                    </span>
+                    <span className="text-sm font-black tracking-widest tabular-nums text-white/35">
+                      {s.n}
+                    </span>
+                  </div>
+                  <h3 className="relative mt-8 text-base sm:text-lg font-extrabold tracking-[0.08em] uppercase text-white">
+                    {s.t}
+                  </h3>
+                  <p className="relative mt-2.5 text-xs sm:text-sm text-white/60 leading-relaxed">{s.d}</p>
                   <span
-                    className="w-12 h-12 grid place-items-center"
-                    style={{ boxShadow: 'inset 0 0 0 1px #ffffff' }}
-                  >
-                    <s.icon className="w-5 h-5 text-white" strokeWidth={1.6} />
-                  </span>
-                  <span className="text-sm font-black tracking-widest text-transparent tabular-nums" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>
-                    {s.n}
-                  </span>
-                </div>
-                <h3 className="mt-8 text-base sm:text-lg font-extrabold tracking-[0.08em] uppercase text-white">
-                  {s.t}
-                </h3>
-                <p className="mt-2.5 text-xs sm:text-sm text-white/60 leading-relaxed">{s.d}</p>
-                <span
-                  className="absolute bottom-0 start-0 h-px w-0 bg-white transition-all duration-300 group-hover:w-full"
-                  aria-hidden="true"
-                />
-              </m.div>
+                    className="absolute bottom-0 start-0 h-px w-0 bg-gradient-to-r from-transparent via-[#7ab2ff] to-transparent transition-all duration-500 group-hover:w-full"
+                    aria-hidden="true"
+                  />
+                </m.article>
+              </TouchRipple>
             ))}
           </div>
         </div>

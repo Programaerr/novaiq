@@ -9,9 +9,9 @@ interface HomeStatsProps {
 }
 
 /**
- * The proof strip, redesigned for the black-and-white system: four enormous outlined numbers
- * in a single band, split by hairlines instead of cards. No fills — just white type, space and
- * one vertical rule per cell.
+ * The proof strip — the blue pass. Four large gradient-blue numbers sit in a glass band with a
+ * faint top rule, each one fading up as the band enters. No hard cells: the dividers are soft
+ * hairlines that let the glow carry the section.
  */
 export const HomeStats: React.FC<HomeStatsProps> = ({ language = 'ar' }) => {
   const isAr = language === 'ar';
@@ -26,35 +26,45 @@ export const HomeStats: React.FC<HomeStatsProps> = ({ language = 'ar' }) => {
 
   return (
     <LazyMotion features={loadDomAnimation} strict>
-      <section className="relative border-y border-white/15">
+      <section className="relative py-12 sm:py-16">
         <div className="nq-container">
-          <dl className="grid grid-cols-2 lg:grid-cols-4">
+          <m.dl
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 22 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="grid grid-cols-2 lg:grid-cols-4 rounded-2xl bg-white/[0.04] backdrop-blur-xl px-4 sm:px-6 py-8 sm:py-10"
+            style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1), 0 24px 60px -30px rgba(40,80,200,0.45)' }}
+          >
             {stats.map((s, i) => (
               <m.div
                 key={s.n}
-                initial={reduce ? { opacity: 0 } : { opacity: 0, y: 18 }}
+                initial={reduce ? { opacity: 0 } : { opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className={`py-10 sm:py-14 px-4 sm:px-8 ${
-                  i > 0 ? 'border-s border-white/15' : ''
-                } max-lg:[&:nth-child(even)]:border-s-0 max-lg:odd:border-e max-lg:odd:border-white/15 max-lg:[&:nth-child(n+3)]:border-t max-lg:border-white/15`}
+                className={`py-4 px-3 sm:px-6 ${i > 0 ? 'border-s border-white/10' : ''} max-lg:[&:nth-child(even)]:border-s-0 max-lg:odd:border-e max-lg:odd:border-white/10 max-lg:[&:nth-child(n+3)]:border-t max-lg:border-white/10`}
               >
                 <dt className="sr-only">{s.l}</dt>
-                <dd>
+                <dd className="text-center">
                   <span
-                    className="block text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-none tabular-nums text-transparent"
-                    style={{ WebkitTextStroke: '1.5px #ffffff' }}
+                    className="block text-4xl sm:text-5xl font-black tracking-tight tabular-nums"
+                    style={{
+                      background: 'linear-gradient(120deg, #ffffff, #9cc3ff 55%, #6f8fff)',
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      color: 'transparent',
+                    }}
                   >
                     {s.n}
                   </span>
-                  <span className="mt-4 block text-[0.65rem] sm:text-xs font-bold tracking-[0.22em] uppercase text-white">
+                  <span className="mt-2 block text-[0.65rem] sm:text-xs font-bold tracking-[0.22em] uppercase text-white/60">
                     {s.l}
                   </span>
                 </dd>
               </m.div>
             ))}
-          </dl>
+          </m.dl>
         </div>
       </section>
     </LazyMotion>
