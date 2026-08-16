@@ -37,6 +37,20 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
     return () => mq.removeEventListener('change', apply);
   }, []);
 
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!v.paused && !entry.isIntersecting) v.pause();
+        else if (v.paused && entry.isIntersecting) void v.play().catch(() => {});
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+
   const fade = (delay: number) => ({
     initial: reduce ? { opacity: 0 } : { opacity: 0, y: 26 },
     animate: { opacity: 1, y: 0 },
