@@ -3,6 +3,7 @@ import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
+import { HomeHero } from './components/HomeHero';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -480,7 +481,17 @@ export default function App() {
       >
 
         {activePage === 'home' && (
-          <div className="page-in"></div>
+          <div className="page-in">
+            {/* Sections go here, one by one — each section is its own component file. No
+                width/spacing classes on this div except page-in; each section owns its own
+                <section>, .nq-container (or deliberate variant), and vertical padding, so that
+                moving or retuning one section cannot shift the ones around it. */}
+            <HomeHero
+              language={language}
+              onStart={() => navigateTo('templates')}
+              onRequestProject={startProject}
+            />
+          </div>
         )}
 
         {activePage === 'templates' && (

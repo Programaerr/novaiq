@@ -1092,6 +1092,72 @@
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
+/* ── The hero card's book ──────────────────────────────────────────────────────────────────
+   The name card swings open on load the way a cover does. Three things make it read as a
+   book rather than as a box that happens to rotate:
+
+   1. The origin is the SPINE, not the centre. Rotating about the middle is a card flip; a
+      cover is hinged down one edge and everything else follows from that.
+   2. The perspective is on the element itself rather than on a parent, so the panel around it
+      is not dragged into the same 3D context. A shared perspective would tip the whole panel's
+      children a fraction of a degree each and cost every one of them their crisp text.
+   3. It starts past 90 degrees, at 105. A cover opening from exactly 90 is edge-on at frame
+      one and appears out of nothing; a few degrees the other side means it is already swinging
+      when it becomes visible.
+
+   The spine side follows the reading direction: an Arabic book is bound on the RIGHT, so the
+   cover it opens is hinged there. Getting that backwards is the kind of detail nobody names
+   and everybody feels. */
+@keyframes nq-book-open {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) rotateY(-105deg);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(0deg);
+  }
+}
+
+@keyframes nq-book-open-rtl {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) rotateY(105deg);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1400px) rotateY(0deg);
+  }
+}
+
+.nq-book {
+  transform-origin: left center;
+  backface-visibility: hidden;
+  animation: nq-book-open 0.95s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+.nq-book--rtl {
+  transform-origin: right center;
+  animation-name: nq-book-open-rtl;
+}
+
+/* A cover swinging open is decorative: it says nothing the card does not already say by being
+   there. Under a reduced-motion preference the card is simply present, at rest, with nothing to
+   sit through. `both` fill on the animation above means dropping it also has to drop the from-state
+   it would otherwise be stuck in, which `animation: none` does. */
+@media (prefers-reduced-motion: reduce) {
+  .nq-book,
+  .nq-book--rtl {
+    animation: none;
+  }
+}
+
 /* Gentle up/down drift for the wave divider on the store product cards — reads as the
    wave "breathing" rather than a static cut-out shape. Plain transform keyframes only
    (no custom properties), so it doesn't depend on @property surviving the build the way
