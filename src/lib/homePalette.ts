@@ -20,7 +20,18 @@ export const SAND = '#D5BDAC';
 export const SAND_DEEP = '#C9AE95';
 /** A step up, for a raised surface on sand. */
 export const SAND_LIGHT = '#E4D3C4';
-/** The panel. */
+/**
+ * The ground for a section that has to read as a clean break from the sand without leaving the
+ * family.
+ *
+ * The wireframe draws the phases section on plain white, and plain white is what it must LOOK
+ * like sitting under a #D5BDAC screen — but a true #FFF next to sand goes blue by comparison, the
+ * same way a white shirt goes blue next to tan. This is the crest tone of the hero's own tile
+ * shader (#F3E8DC) lightened until it reads as paper, so the break between the two sections is a
+ * change in value rather than in temperature.
+ */
+export const PAPER = '#F6F1E9';
+/** The panel, and the one accent that marks state on the light grounds. */
 export const PERIWINKLE = '#8295CF';
 /**
  * One ink for everything on the light surfaces.

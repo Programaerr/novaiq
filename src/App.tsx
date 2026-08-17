@@ -4,6 +4,7 @@ import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
 import { HomeHero } from './components/HomeHero';
+import { PhasesSection } from './components/PhasesSection';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
@@ -491,6 +492,7 @@ export default function App() {
               onStart={() => navigateTo('templates')}
               onRequestProject={startProject}
             />
+            <PhasesSection language={language} />
           </div>
         )}
 
