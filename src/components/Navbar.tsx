@@ -76,6 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(undefined);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarBroken, setAvatarBroken] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
   const isAr = language === 'ar';
 
   // Everything below the navbar (PageBackBar, page content) positions itself off this.
@@ -94,6 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       unsubscribe = subscribeToAuthState((user) => {
         setIsLoggedIn(!!user);
         setAvatarUrl(user?.photoURL || null);
+        setUserName(user?.displayName || null);
         setAvatarBroken(false);
       });
     });
@@ -238,7 +240,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <a
                 href="?page=orders"
                 onClick={(e) => handleNavClick('orders', e)}
-                title={isAr ? 'حسابي' : 'My Account'}
+                title={userName || (isAr ? 'حسابي' : 'My Account')}
                 className={`relative flex items-center justify-center p-1 rounded-full border transition-all cursor-pointer ${
                   activePage === 'orders'
                     ? 'border-white'
@@ -284,9 +286,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => setMenuDrawerOpen(!menuDrawerOpen)}
             aria-label={isAr ? (menuDrawerOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (menuDrawerOpen ? 'Close menu' : 'Open menu')}
             aria-expanded={menuDrawerOpen}
-            className={`lg:hidden group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 ${
-              menuDrawerOpen ? 'text-white' : 'text-zinc-400 hover:text-white'
-            }`}
+            className={`lg:hidden group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 text-white`}
           >
             <AnimatedMenuIcon open={menuDrawerOpen} />
           </button>
@@ -353,7 +353,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <UserCircle2 className="w-3.5 h-3.5" />
                   )}
                 </span>
-                <span>{isAr ? 'حسابي' : 'My Account'}</span>
+                <span>{userName || (isAr ? 'حسابي' : 'My Account')}</span>
               </a>
             ) : (
               <a

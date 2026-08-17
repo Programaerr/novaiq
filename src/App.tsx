@@ -3,12 +3,10 @@ import { useSmoothScroll, useSectionScrollSpy } from './lib/useScrollBehavior';
 import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
-import { HomeHero } from './components/HomeHero';
-import { PhasesSection } from './components/PhasesSection';
+import { LazyOnView } from './components/LazyOnView';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
-import { Footer } from './components/Footer';
 import { CookieConsent } from './components/CookieConsent';
 import { ToastHost } from './components/ToastHost';
 import { PageLoader } from './components/PageLoader';
@@ -36,6 +34,9 @@ const PolicyPage = lazy(() => import('./components/PolicyPage').then((m) => ({ d
 const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox })));
 const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ default: m.AdminPage })));
 const LoginPage = lazy(() => import('./components/LoginPage').then((m) => ({ default: m.LoginPage })));
+const HomeHero = lazy(() => import('./components/HomeHero').then((m) => ({ default: m.HomeHero })));
+const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
+const Footer = lazy(() => import('./components/Footer').then((m) => ({ default: m.Footer })));
 
 // A visitor who chose "أكمل كضيف" at the sign-in screen.
 //
@@ -486,13 +487,27 @@ export default function App() {
             {/* Sections go here, one by one — each section is its own component file. No
                 width/spacing classes on this div except page-in; each section owns its own
                 <section>, .nq-container (or deliberate variant), and vertical padding, so that
-                moving or retuning one section cannot shift the ones around it. */}
-            <HomeHero
-              language={language}
-              onStart={() => navigateTo('templates')}
-              onRequestProject={startProject}
-            />
-            <PhasesSection language={language} />
+                moving or retuning one section cannot shift the ones around it.
+
+                Sections below the fold load lazily (LazyOnView + React.lazy): the browser
+                downloads and parses each section's code only when it approaches the viewport,
+                so a visitor pays for the part they actually see, not the whole page at once. */}
+            <Suspense fallback={<PageLoader />}>
+              <HomeHero
+                language={language}
+                onStart={() => navigateTo('templates')}
+                onRequestProject={startProject}
+              />
+            </Suspense>
+
+            <LazyOnView
+              rootMargin="800px 0px"
+              placeholder={<div className="h-[40vh] bg-[var(--nq-ground)]" aria-hidden="true" />}
+            >
+              <Suspense fallback={<PageLoader />}>
+                <PhasesSection language={language} />
+              </Suspense>
+            </LazyOnView>
           </div>
         )}
 
@@ -570,8 +585,15 @@ export default function App() {
 
       </main>
 
-      {/* Footer */}
-      <Footer language={language} onNavigate={navigateTo} />
+      {/* Footer — mounted only when scrolled near, like the sections above. Not shown on the
+        control panel (orders), where it is not wanted. */}
+      {activePage !== 'orders' && (
+        <LazyOnView rootMargin="800px 0px" placeholder={<div className="h-[60vh] bg-[var(--nq-ground)]" aria-hidden="true" />}>
+          <Suspense fallback={<PageLoader />}>
+            <Footer language={language} onNavigate={navigateTo} />
+          </Suspense>
+        </LazyOnView>
+      )}
 
       {/* Bottom Cookie Consent Banner */}
       <CookieConsent language={language} onNavigateToPrivacy={() => navigateTo('privacy')} />

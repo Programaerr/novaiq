@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft, ArrowUpRight, Github, Instagram, Mail, MapPin, MessageCircle, Send } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { NovaiqLogo } from './NovaiqLogo';
 
 interface FooterProps {
   language?: Language;
@@ -73,16 +74,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate }) =
               onClick={(e) => { e.preventDefault(); go('home')(); }}
               className="inline-flex items-center gap-3 cursor-pointer"
             >
-              <span
-                className="w-9 h-9 grid place-items-center font-black text-black text-sm"
-                style={{ background: '#ffffff', boxShadow: 'inset 0 0 0 1px #ffffff' }}
-                aria-hidden="true"
-              >
-                N
-              </span>
-              <span className="text-lg font-black tracking-[0.18em] text-white">
-                NOVAIQ
-              </span>
+              <NovaiqLogo size={34} showText={false} />
             </a>
             <p className="mt-5 max-w-sm text-xs sm:text-sm text-white/55 leading-relaxed">
               {isAr
