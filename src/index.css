@@ -195,6 +195,19 @@
        Mobile keeps the tighter value the current layout was tuned to; sm+ opens it up
        slightly, which is also where the Navbar itself lifts a few px (see Navbar.tsx). */
     --content-gap: 0.75rem;
+
+    /* How far the home page's first section reaches PAST the fold, so that the section below it
+       can cut across the overlap on a slant instead of meeting it on a flat line.
+
+       Two things read this and they have to agree: the hero adds exactly this much height below
+       its centred panel — extra ground for the tile field to keep running through, not extra room
+       for the content — and the phases section draws its own top edge diagonally across the same
+       band. Change it in one place and the slant and the ground it cuts through move together.
+
+       Proportional rather than fixed, because the slant is an ANGLE: a 6rem drop reads steep
+       across a phone and almost flat across a television. Floored so it does not vanish on a
+       narrow screen and capped so it does not eat a tenth of an ultrawide one. */
+    --nq-wedge: clamp(2.5rem, 7.5vw, 8.5rem);
   }
 
   @media (min-width: 640px) {

@@ -31,6 +31,15 @@ export const SAND_LIGHT = '#E4D3C4';
  * change in value rather than in temperature.
  */
 export const PAPER = '#F6F1E9';
+/**
+ * PAPER at zero alpha, for the end of a fade.
+ *
+ * Spelled out rather than written `transparent`, because `transparent` is rgba(0,0,0,0) and a
+ * gradient running to it passes through darkening greys on the way — a grey bruise down the middle
+ * of a fade that is supposed to be paper dissolving into nothing. Most engines premultiply and
+ * hide it; the ones that do not, do it on exactly the large soft gradients where it shows most.
+ */
+export const PAPER_CLEAR = 'rgba(246, 241, 233, 0)';
 /** The panel, and the one accent that marks state on the light grounds. */
 export const PERIWINKLE = '#8295CF';
 /**
