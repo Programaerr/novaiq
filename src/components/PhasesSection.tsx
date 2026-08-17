@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Blocks, FileSignature, PencilRuler, Rocket } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { INK, PAPER, PERIWINKLE, SAND, SAND_DEEP } from '../lib/homePalette';
@@ -136,33 +136,6 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
      moving it under them is the thing carousels are hated for. */
   const [held, setHeld] = useState(false);
 
-  const railRef = useRef<HTMLOListElement>(null);
-  const stepRefs = useRef<(HTMLLIElement | null)[]>([]);
-  /* The sliding block behind the live step. Measured rather than expressed as `25% * index`,
-     because the four segments are only equal until a label wraps or a font loads late. */
-  const [pill, setPill] = useState({ x: 0, w: 0, ready: false });
-
-  const measure = useCallback(() => {
-    const el = stepRefs.current[active];
-    if (!railRef.current || !el) return;
-    /* offsetLeft is measured from the offsetParent's border box; the rail is `relative` and
-       borderless, so this is the same origin the absolutely positioned pill sits at. */
-    setPill({ x: el.offsetLeft, w: el.offsetWidth, ready: true });
-  }, [active]);
-
-  useLayoutEffect(measure, [measure]);
-
-  useEffect(() => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(rail);
-    /* Arabic labels are laid out twice — once in the fallback face, once in Cairo — and the
-       second pass is what the pill has to agree with. */
-    document.fonts?.ready.then(measure).catch(() => {});
-    return () => ro.disconnect();
-  }, [measure]);
-
   useEffect(() => {
     if (!seen || held) return;
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
@@ -197,37 +170,46 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
             opens to 100rem, and a four-item bar stretched across 1600px stops reading as a bar
             and starts reading as a table. */}
         <ol
-          ref={railRef}
           className={`nq-ph-sweep-${isAr ? 'r' : 'l'} relative grid grid-cols-4 mx-auto max-w-[56rem] p-1.5 rounded-2xl`}
           style={{ background: INK }}
           onPointerEnter={hold}
           onFocusCapture={hold}
         >
-          {/* The indicator, behind the labels. Kept out of the accessibility tree: it says
-              exactly what `aria-pressed` on the live button already says. */}
+          {/* The indicator, behind the labels. Kept out of the accessibility tree: it says exactly
+              what `aria-pressed` on the live button already says.
+
+              Its position is DERIVED, not measured. The first build of this measured the live
+              step's `offsetLeft` and slid the pill to it, which is correct until the language
+              changes: flipping the document to LTR moves every step without changing the rail's
+              size, so no ResizeObserver fires, and the pill stays on the segment the RTL layout
+              put it under. The live label — near-black, because it is meant to be read on blue —
+              was then near-black on the near-black bar, so switching to English made step 4
+              disappear.
+
+              Four `1fr` columns are exactly a quarter each by construction, so a quarter-width
+              block offset by whole multiples of itself lands on the segment by arithmetic, with
+              nothing to fall out of date. `inset-inline-start` puts it at the reading start — the
+              right in Arabic — and the sign flip is what sends it the same way the numbers go. */}
           <span
             aria-hidden="true"
-            className="absolute top-1.5 bottom-1.5 left-0 rounded-xl"
+            className="absolute top-1.5 bottom-1.5 rounded-xl"
+            /* The 0.375rem/0.75rem are the rail's own `p-1.5`, and they are here because an
+               absolutely positioned child measures against its ancestor's PADDING box while the
+               grid columns divide up the CONTENT box. A plain `w-1/4` is a quarter of the wrong
+               box and drifts 3px further off at every step. */
             style={{
               background: PERIWINKLE,
-              width: pill.w,
-              transform: `translateX(${pill.x}px)`,
-              opacity: pill.ready ? 1 : 0,
-              transition:
-                'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), width 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s linear',
+              insetInlineStart: '0.375rem',
+              width: 'calc((100% - 0.75rem) / 4)',
+              transform: `translateX(${(isAr ? -100 : 100) * active}%)`,
+              transition: 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
           />
 
           {PHASES.map((phase, i) => {
             const isActive = i === active;
             return (
-              <li
-                key={phase.key}
-                ref={(el) => {
-                  stepRefs.current[i] = el;
-                }}
-                className="min-w-0"
-              >
+              <li key={phase.key} className="min-w-0">
                 <button
                   type="button"
                   aria-pressed={isActive}
