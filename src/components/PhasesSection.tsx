@@ -248,7 +248,11 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
         {/* ── The four cells ──────────────────────────────────────────────────────────────────
             `grid-flow-col` with two rows is what puts 1 above 2 and 3 above 4, as drawn. A plain
             two-column grid fills across instead and would put 1 beside 2. */}
-        <div className="relative mx-auto max-w-[64rem] mt-14 sm:mt-20">
+        {/* The same 56rem measure as the rail, so the first cell's numeral starts on the bar's
+            edge and the centre rule falls on the seam between steps 2 and 3. A wider grid here
+            reads as the bar being too short for the section it heads, which is the sort of thing
+            that looks like nothing in particular and is felt as untidiness. */}
+        <div className="relative mx-auto max-w-[56rem] mt-14 sm:mt-20">
           {/* The rule between the columns, with a short mark that follows the live row. Only from
               `sm` up, because below that the cells are one column and a rule down the middle of
               them would be crossing out the content. */}
