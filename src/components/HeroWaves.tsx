@@ -188,7 +188,7 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
         // sand-coloured section brown. Lifting the floor keeps the three faces distinguishable
         // while the field's average stays where the background is.
         float lam = max(dot(normalize(vN), uLight), 0.0);
-        c *= 0.64 + 0.46 * lam;
+        c *= 0.72 + 0.4 * lam;
 
         // Troughs sink toward the ground they stand on instead of just being short. Without it the
         // low cubes are still full-strength colour and the field looks like a bar chart; with it
