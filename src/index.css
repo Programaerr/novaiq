@@ -1092,58 +1092,55 @@
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-/* ── The hero panel's sail ─────────────────────────────────────────────────────────────────
-   The panel unfurls on load the way a sail does when it is let out and takes the wind. What
-   separates a sail from a door swinging open is that a sail is CLOTH: it does not travel from
-   A to B and stop, it overshoots as the wind fills it and then settles back against its own
-   tension. That is the whole animation — the arc is the easy part, the two beats after it are
-   what sell the material.
+/* ── The hero panel's curtain ──────────────────────────────────────────────────────────────
+   The panel is uncovered on load the way a single curtain is drawn: one edge, travelling
+   rightward across the panel, uncovering it as it goes.
 
-   1. The origin is the MAST: the leading edge the cloth is bent to. Rotating about the centre
-      is a card flip, which is a completely different object.
-   2. It starts furled rather than merely rotated — `scaleX` near zero is the sail rolled
-      against the mast, and unrolling is most of what the eye actually reads here.
-   3. Frames at 55% and 78% carry the fill and the settle: past the mark with a slight skew as
-      it bellies out, then back a touch, then flat. Skew rather than scale for the give, because
-      cloth under pressure shears; it does not stretch evenly.
+   It is a CLIP rather than a transform, and that is the whole idea. A curtain does not stretch
+   what is behind it, it stops covering it — so scaling the panel open would be the one thing a
+   curtain never does to a view. Clipping reveals the wordmark and the buttons at their true
+   size the entire way, which is also why they stay crisp: nothing behind the clip is ever
+   transformed, so there is no compositing layer to soften the text and nothing left applied
+   after the animation ends.
 
-   `backwards` rather than `both` fill, and that matters beyond tidiness: `both` leaves the last
-   keyframe's transform applied forever, and an element left inside a 3D rendering context keeps
-   a compositing layer and renders its text a shade softer than the rest of the page. With
-   `backwards` the from-state applies before the animation and the element returns to its own
-   untransformed styles the moment it finishes, so the panel that people actually read has no
-   transform on it at all. */
-@keyframes nq-sail-open {
+   `round 1.5rem` on the inset is load-bearing. Without it the clip is a hard rectangle and the
+   panel's rounded corners square off for the length of the animation, then snap round at the
+   end — which reads as a rendering glitch rather than as a curtain. It has to match the
+   `rounded-[1.5rem]` on the panel in HomeHero.tsx; change one and the other follows.
+
+   The easing leaves most of the travel early and a long settle at the end, which is how drawn
+   cloth actually behaves — it is pulled, and then its own weight takes it the last of the way. */
+@keyframes nq-curtain-open {
   0% {
     opacity: 0;
-    transform: perspective(1600px) rotateY(-64deg) scaleX(0.24);
+    /* inset(top right bottom left) — a RIGHT inset of 100% leaves nothing showing, and shrinking
+       it to zero grows the visible panel out of its left edge and away to the right. Insetting
+       from the left instead would sweep the other way; this is the one that travels right.
+
+       It does not flip with the language, because neither does anything else in this section:
+       the panel is pinned to the physical left in both, so a curtain that reversed would be the
+       only mirrored thing on the screen. */
+    clip-path: inset(0 100% 0 0 round 1.5rem);
   }
-  55% {
+  40% {
     opacity: 1;
-    transform: perspective(1600px) rotateY(7deg) scaleX(1.035) skewY(-0.7deg);
-  }
-  78% {
-    transform: perspective(1600px) rotateY(-2.5deg) scaleX(0.994) skewY(0.28deg);
   }
   100% {
     opacity: 1;
-    transform: perspective(1600px) rotateY(0deg) scaleX(1) skewY(0deg);
+    clip-path: inset(0 0 0 0 round 1.5rem);
   }
 }
 
-.nq-sail {
-  /* The mast is the panel's leading edge, and the panel is pinned to the physical left in both
-     languages (see HomeHero's `mr-auto`), so this side does not flip with the text direction. */
-  transform-origin: left center;
-  animation: nq-sail-open 1.05s cubic-bezier(0.2, 0.72, 0.24, 1) backwards;
+.nq-curtain {
+  animation: nq-curtain-open 1.05s cubic-bezier(0.16, 0.84, 0.28, 1) backwards;
 }
 
-/* A sail filling is decorative: it says nothing the panel does not already say by being there.
-   Under a reduced-motion preference the panel is simply present, at rest, with nothing to sit
-   through — and `backwards` fill means dropping the animation drops the furled from-state with
-   it, leaving the panel visible rather than stuck rolled up. */
+/* Curtains parting is decorative: it says nothing the panel does not already say by being there.
+   Under a reduced-motion preference the panel is simply present, uncovered, with nothing to sit
+   through — and `backwards` fill means dropping the animation drops the closed from-state with
+   it, leaving the panel visible rather than stuck clipped to nothing. */
 @media (prefers-reduced-motion: reduce) {
-  .nq-sail {
+  .nq-curtain {
     animation: none;
   }
 }

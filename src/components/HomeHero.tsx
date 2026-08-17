@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { HeroWaves } from './HeroWaves';
 
@@ -56,9 +56,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   onRequestProject,
 }) => {
   const isAr = language === 'ar';
-  // The CTA arrow points "away, forward" — up and outward — so it follows the reading direction the
-  // way every other directional glyph on the site does.
-  const CtaArrow = isAr ? ArrowUpLeft : ArrowUpRight;
 
   return (
     <section
@@ -88,7 +85,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
              wrong here: the wireframe places it on the left, and the composition is a picture
              rather than a reading order. The tile field has to be given the wider side, and which
              side that is does not change with the language. */
-          className="nq-sail w-full mr-auto lg:w-[43%] lg:max-w-[34rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col"
+          /* `rounded-[1.5rem]` is repeated inside the curtain keyframes in index.css, which clip
+             to the same radius so the corners do not square off mid-animation. The two have to
+             agree. */
+          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col"
           /* A shadow, because the panel is a flat fill sitting on a busy field and without one the
              two planes fight for the same depth. Warm and near-black rather than neutral grey: a
              grey shadow on sand greys the sand under it, which is the tell that a shadow was
@@ -98,9 +98,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             boxShadow: '0 26px 64px -24px rgba(48, 32, 20, 0.5)',
           }}
         >
-          {/* The card, centred in whatever height the panel has left above the buttons — the
-              wireframe puts it high and the buttons on the floor, which is what this does at every
-              screen height without a single fixed offset. */}
+          {/* One centred group — name, line, buttons — rather than the name floating high and the
+              buttons pinned to the panel's floor. Grouped, the buttons read as the next thing to do
+              after the sentence they follow; split, they read as panel furniture that happens to be
+              in the same box, and the gap between them grows with every extra pixel of panel. */}
           <div className="flex-1 grid place-items-center py-8 sm:py-10">
             <div
               /* No frame around the name, and no animation of its own — it sits still and the
@@ -134,8 +135,25 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           </div>
 
           {/* The two ways in, at two levels of commitment: the solid one starts a project, the
-              lighter one goes to the work. */}
-          <div className="flex flex-wrap items-center gap-3">
+              lighter one goes to the work.
+
+              A SIBLING of the text block rather than a child of it, and that is what actually
+              lowers them. Inside the group, the whole thing is centred as one object, so every
+              pixel of margin added under the text pushed the buttons down and lifted the text by
+              the same amount — the gap grew and the pair stayed put. Out here the text centres in
+              whatever height is left above, the buttons sit on the panel's floor, and that floor is
+              as low as they go without leaving the panel.
+
+              `flex-row-reverse` in English, and it is there to STOP the mirroring rather than to
+              add any. A normal flex row starts at the inline start, which is the right in Arabic
+              and the left in English, so the same markup put the primary button on opposite sides
+              in the two languages — the one thing in this section that flipped, in a composition
+              where the panel itself is pinned physically left either way. Reversing the row in
+              English lands both buttons in the same physical place, and the arrow below points the
+              same way for the same reason. */}
+          <div
+            className={`flex ${isAr ? '' : 'flex-row-reverse'} flex-wrap items-center justify-center gap-3`}
+          >
             <button
               type="button"
               onClick={onRequestProject}
@@ -148,7 +166,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 style={{ background: INK, color: '#FFFFFF' }}
                 aria-hidden="true"
               >
-                <CtaArrow className="w-4 h-4" strokeWidth={2.6} />
+                {/* One glyph for both languages. The badge sits at the same physical end of the
+                    button in either (see the row above), so an arrow that flipped with the language
+                    would be pointing back into the label half the time. */}
+                <ArrowUpLeft className="w-4 h-4" strokeWidth={2.6} />
               </span>
             </button>
 
