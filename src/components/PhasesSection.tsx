@@ -22,9 +22,9 @@ import { INK, PAPER, PERIWINKLE, SAND, SAND_DEEP } from '../lib/homePalette';
  * each card owns a number, a mark and one line. The numeral is the join between them, the rail is
  * load-bearing, and the section's entire word count is four names and four short lines.
  *
- * For a screen reader the two halves are stitched back together with `aria-labelledby`: each card
- * is labelled by the rail button that names it, so the list still reads "العقد, نتفق على النطاق…"
- * in order rather than as four unlabelled numbers.
+ * For a screen reader the two halves are stitched back together by a visually hidden heading on
+ * each card, so the list still reads "العقد, نتفق على النطاق…" in order rather than as four
+ * unlabelled lines. Nothing is hidden from anyone; the name is only shown once.
  *
  * ## #8295CF is the state, not the bar
  *
@@ -230,7 +230,6 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
               >
                 <button
                   type="button"
-                  id={`phase-name-${phase.key}`}
                   aria-pressed={isActive}
                   onClick={() => {
                     setHeld(true);
@@ -239,11 +238,15 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                   /* Stacked on phones and inline from `sm` up. The drawing's `1 │ العقد` needs
                      roughly 150px to sit on one line without the label crowding the number, and
                      four of those do not fit across a 360px screen — so below `sm` the rule drops
-                     out and the number rides above the label instead of being squeezed beside it. */
-                  className="relative z-10 w-full flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2.5 px-1 sm:px-3 py-2.5 sm:py-3 rounded-xl cursor-pointer transition-colors duration-300"
+                     out and the number rides above the label instead of being squeezed beside it.
+
+                     The vertical padding is set from the 44px touch minimum backwards rather than
+                     from how the bar looks: the stacked form clears it at `py-3` and the inline
+                     one, whose content is a single 14px line, needs `py-4` to get there. */
+                  className="relative z-10 w-full flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2.5 px-1 sm:px-3 py-3 sm:py-4 rounded-xl cursor-pointer transition-colors duration-300"
                   style={{ color: isActive ? INK : 'rgba(213, 189, 172, 0.72)' }}
                 >
-                  <span className="text-[0.6rem] sm:text-xs font-black tabular-nums leading-none">
+                  <span className="text-[0.68rem] sm:text-xs font-black tabular-nums leading-none">
                     {i + 1}
                   </span>
                   <span
@@ -251,7 +254,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                     className="hidden sm:block w-px h-3.5 shrink-0"
                     style={{ background: 'currentColor', opacity: 0.4 }}
                   />
-                  <span className="text-[0.7rem] sm:text-[0.82rem] font-extrabold whitespace-nowrap leading-none">
+                  <span className="text-[0.74rem] sm:text-[0.82rem] font-extrabold whitespace-nowrap leading-none">
                     {isAr ? phase.ar.name : phase.en.name}
                   </span>
                 </button>
@@ -289,7 +292,6 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
               return (
                 <li
                   key={phase.key}
-                  aria-labelledby={`phase-name-${phase.key}`}
                   className="nq-ph-rise flex items-stretch gap-4 sm:gap-6"
                   /* Staggered off the index rather than a wrapper, so the four cards arrive in
                      reading order no matter which column they landed in. */
@@ -322,6 +324,14 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                   </span>
 
                   <div className="min-w-0 pt-0.5">
+                    {/* The name, for anyone who is not looking at the rail. On screen the rail
+                        carries it and repeating it here would be the section saying "العقد" twice
+                        within 200px; in the accessibility tree the two halves are separated by
+                        four buttons, so without this the list reads as four unlabelled lines.
+                        A hidden heading rather than `aria-labelledby` on the <li>: naming a plain
+                        list item is not reliably announced, and this also gives the four phases a
+                        real h3 level under the section's h2. */}
+                    <h3 className="sr-only">{isAr ? phase.ar.name : phase.en.name}</h3>
                     <span
                       className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl transition-colors duration-500"
                       style={{ background: isActive ? PERIWINKLE : SAND, color: INK }}
