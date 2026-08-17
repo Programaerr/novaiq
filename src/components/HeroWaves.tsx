@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { PAPER, SAND } from '../lib/homePalette';
 
 /**
  * The hero's field: a grid of CUBES standing on a tilted plane, with a swell running through it.
@@ -53,9 +54,20 @@ import * as THREE from 'three';
 const T_TROUGH = '#CDB49C';
 const T_CREST = '#F3E8DC';
 const T_FOAM = '#8295CF';
-/** The section's own ground, which the troughs sink back into. Kept in step with SAND in
-    HomeHero.tsx — if that changes, this follows, or the field stops meeting its background. */
-const T_SAND = '#D5BDAC';
+
+/**
+ * How much of the canvas, measured from the bottom, the field spends breaking up.
+ *
+ * This is the edge between the hero and the section under it, and it is a real one: rather than
+ * laying a shape over the field to cover where it stops, the cubes themselves get shorter, narrower
+ * and paler as they approach the bottom, each one crossing its own threshold, until there is
+ * nothing left to end. What you see is a field running out, not a field being cropped.
+ *
+ * Exported because the DOM has to agree with it. The ground under the canvas ramps from sand to
+ * paper across exactly this band (see HomeHero.tsx), so the blocks thin out over ground that is
+ * already turning into the next section. One value, both halves; they cannot drift.
+ */
+export const FIELD_FADE = 0.16;
 
 /** Key direction, in the field's own space. Up and across, so the tops are the lit faces and the
     two visible sides split into half light and shadow. */
@@ -106,15 +118,28 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
       uTrough: { value: new THREE.Color(T_TROUGH) },
       uCrest: { value: new THREE.Color(T_CREST) },
       uFoam: { value: new THREE.Color(T_FOAM) },
-      uSand: { value: new THREE.Color(T_SAND) },
+      uSand: { value: new THREE.Color(SAND) },
+      uPaper: { value: new THREE.Color(PAPER) },
+      uFade: { value: FIELD_FADE },
       uLight: { value: LIGHT.clone() },
     },
     vertexShader: /* glsl */ `
       uniform float uTime;
       uniform float uCell;
+      uniform float uFade;
 
       varying float vW;
+      varying float vK;
       varying vec3 vN;
+
+      // One stable pseudo-random value per cell. Stable is the whole requirement: the threshold a
+      // cube dissolves at has to be a property of that cube, not of the frame, or the bottom of the
+      // field boils instead of settling.
+      float hash21(vec2 p) {
+        p = fract(p * vec2(123.34, 456.21));
+        p += dot(p, p + 45.32);
+        return fract(p.x * p.y);
+      }
 
       // Three sines crossing at angles that share no common period, which is the whole trick to
       // water: two waves make a visibly repeating interference pattern, three do not repeat inside
@@ -130,10 +155,26 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
       void main() {
         // The instance matrix carries nothing but this cube's cell centre, so the wave can be
         // sampled per cube without any attribute of its own.
-        vec2 centre = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xy;
+        vec4 centre4 = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+        vec2 centre = centre4.xy;
         float w = swell(centre) * 0.5 + 0.5;
 
         vW = w;
+
+        // Where this cube sits DOWN THE SCREEN, taken through the same projection everything else
+        // goes through. The field is a flat grid that is then tilted as a whole, so no axis of the
+        // grid runs along the bottom of the frame; asking the projection is the only way to get a
+        // measure of "how close to the bottom edge" that survives the tilt, a resize, and a change
+        // of aspect. -1.0 is the bottom of the canvas.
+        float ndcY = (projectionMatrix * modelViewMatrix * centre4).y;
+        float t = smoothstep(-1.0, -1.0 + 2.0 * uFade, ndcY);
+
+        // Each cube gets its own point in the band to give out at, so the field frays. Without the
+        // per-cell offset every cube in a row would shrink in lockstep and the dissolve would be a
+        // horizontal line again — a soft one, but still a line, and a soft line across a field of
+        // hard-edged blocks is the one thing that would look like a mistake.
+        float k = clamp((t - hash21(centre * 7.3) * 0.62) / 0.38, 0.0, 1.0);
+        vK = k;
         // Axis-aligned box normals survive a non-uniform axis-aligned scale unchanged in direction,
         // so the geometry's own normal is the right one to light with — no normal matrix needed,
         // and lighting in object space keeps the light fixed to the field rather than to the screen.
@@ -149,12 +190,17 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
         // being visible as a surface and the field flattens into a texture of pillars — which is
         // exactly what 1.7 cells looked like. Keeping the tallest cube shorter than its own
         // footprint means every row can still be seen over.
-        float d = mix(0.08, 0.86, w) * uCell;
+        // The dissolve rides on the height the swell already asked for, so a cube on its way out
+        // keeps the shape of the wave it belongs to instead of being flattened by a separate rule.
+        float d = mix(0.08, 0.86, w) * uCell * k;
         vec3 p = position;
         // Under two thirds of the cell, so a third of the ground shows between neighbours. At 0.8
         // the side faces of a tilted grid close every gap and the field fuses into one corrugated
         // sheet — the cubes stop being countable, which is the only thing making them cubes.
-        p.xy *= uCell * 0.62;
+        // Narrowing as well as shortening, which is the difference between blocks lying down and
+        // blocks receding. Height alone leaves a full-width tiled floor at the bottom of the frame;
+        // pulling the footprint in too opens the ground between them as they go.
+        p.xy *= uCell * 0.62 * mix(0.42, 1.0, k);
         // Grown from the base rather than about the centre, so the tops rise and the field keeps a
         // floor. Scaling about the centre sinks the trough cubes through the plane they stand on.
         p.z = (p.z + 0.5) * d;
@@ -169,12 +215,20 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
       uniform vec3 uCrest;
       uniform vec3 uFoam;
       uniform vec3 uSand;
+      uniform vec3 uPaper;
       uniform vec3 uLight;
 
       varying float vW;
+      varying float vK;
       varying vec3 vN;
 
       void main() {
+        // Spent cubes leave rather than lie flat. A cube driven to zero height is still a quad on
+        // the base plane, and a field of those is a tiled floor across the bottom of the frame —
+        // the exact hard edge this is here to avoid. Dropping the fragment costs nothing and keeps
+        // the material opaque, so the depth buffer goes on doing its job for the cubes that remain.
+        if (vK < 0.02) discard;
+
         vec3 c = mix(uTrough, uCrest, smoothstep(0.04, 0.94, vW));
         // The panel's blue, on the crests only. It is what ties the field to the thing sitting on
         // it — without it the two halves of the section read as two unrelated pictures.
@@ -194,6 +248,13 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
         // low cubes are still full-strength colour and the field looks like a bar chart; with it
         // the swell fades into the sand at its edges the way spent water does.
         c = mix(uSand, c, mix(0.35, 1.0, vW));
+
+        // And the last of the colour goes with the last of the height. The ground beneath is
+        // already ramping to the next section's paper across this same band, so a cube that kept
+        // full sand until the moment it vanished would read as a chip of debris on a clean page.
+        // Held near full for most of the band and given up late, so the field stays itself until
+        // it is genuinely going.
+        c = mix(uPaper, c, mix(0.12, 1.0, smoothstep(0.0, 0.7, vK)));
 
         gl_FragColor = vec4(c, 1.0);
       }
