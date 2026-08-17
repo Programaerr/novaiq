@@ -1,7 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { MAX_DPR } from '../lib/renderBudget';
 
 /**
  * The hero's field: a grid of small square tiles with a swell running through it.
@@ -41,13 +40,34 @@ const T_TROUGH = '#C6A98F';
 const T_CREST = '#EADCCC';
 const T_FOAM = '#8295CF';
 
+/**
+ * The pixel-ratio ceiling this canvas renders at.
+ *
+ * A phone reports a devicePixelRatio of 2 or 3. Rendering at 2x means four times the fragments and
+ * at 3x nine times, on the device with the least GPU to spend and the only one that gets hot in
+ * someone's hand — and it is the least visible, because the scene is flat tiles with no fine detail
+ * for the extra pixels to resolve. So a coarse pointer (a touch screen) is capped at 1, and a mouse
+ * — which means a desktop, with the headroom and a screen you sit close enough to see aliasing on —
+ * keeps 1.5.
+ *
+ * This was a shared module while the site had three canvases on it. It has one, so the constant
+ * lives with its only consumer; if a second scene ever appears it belongs back in lib/ rather than
+ * copied into a second file.
+ *
+ * Evaluated once at module load rather than per render: matchMedia is a layout-adjacent read and
+ * the answer cannot change without a new device. Guarded for the build, where window does not exist
+ * and the value is never used anyway.
+ */
+const MAX_DPR: number =
+  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 1 : 1.5;
+
 /** Pixels per world unit. Fixes the mapping between the screen and the scene, which is what lets
     the grid be specified in pixels below. */
 const ZOOM = 100;
 
 /** Tile pitch in CSS pixels. Smaller on a coarse pointer: a phone holds the screen closer, and the
     same pitch that reads as a texture at arm's length reads as a chequerboard at 30cm. */
-const CELL_PX = MAX_DPR > 1 ? 34 : 26;
+const CELL_PX = MAX_DPR > 1 ? 46 : 34;
 
 function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
@@ -92,7 +112,13 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
         // The tile GROWS with the swell rather than moving with it. Size is what survives being
         // one tile among a thousand: a few pixels of travel is invisible at this scale, where the
         // same amount of scale reads across the whole field at once.
-        float s = mix(0.34, 0.92, w);
+        //
+        // The RANGE is what decides whether this is a wave or a wallpaper. A narrow one leaves
+        // every tile roughly the same size and the eye reads a repeating pattern with something
+        // twitching in it; taking the troughs down to a fifth of the cell and the crests to filling
+        // it means the swell is a change of density, which is what surf actually looks like from a
+        // distance.
+        float s = mix(0.2, 0.98, w);
         vec3 p = vec3(position.xy * uCell * s, 0.0);
 
         vec4 world = instanceMatrix * vec4(p, 1.0);

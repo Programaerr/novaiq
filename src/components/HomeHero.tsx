@@ -38,10 +38,8 @@ import { HeroWaves } from './HeroWaves';
 const SAND = '#D5BDAC';
 /** The panel. */
 const PERIWINKLE = '#8295CF';
-/** The card inside the panel — the same blue lifted, so the name reads as set INTO the panel. */
-const CARD = '#B9C5E6';
-/** One ink for everything on the light surfaces. Near-black rather than black: pure black on a
-    mid-tone reads as a hole punched in it. */
+/** One ink for everything on the light surfaces, the panel included. Near-black rather than black:
+    pure black on a mid-tone reads as a hole punched in it. */
 const INK = '#101322';
 
 interface HomeHeroProps {
@@ -85,19 +83,38 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           runtime rather than guessed per breakpoint. */}
       <div className="relative z-10 flex-1 nq-container pt-[calc(var(--nav-bottom,74px)+1.25rem)] pb-6 sm:pb-10 flex items-center">
         <div
-          className="w-full lg:w-[46%] lg:max-w-[34rem] rounded-[1.5rem] p-5 sm:p-7 flex flex-col lg:min-h-[62vh]"
-          style={{ background: PERIWINKLE }}
+          /* `mr-auto` is PHYSICAL, and deliberately so. The page is RTL, so a logical `me-auto`
+             would put this panel on the right — which is normally the correct instinct and is
+             wrong here: the wireframe places it on the left, and the composition is a picture
+             rather than a reading order. The tile field has to be given the wider side, and which
+             side that is does not change with the language. */
+          className="w-full mr-auto lg:w-[43%] lg:max-w-[34rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col"
+          /* A shadow, because the panel is a flat fill sitting on a busy field and without one the
+             two planes fight for the same depth. Warm and near-black rather than neutral grey: a
+             grey shadow on sand greys the sand under it, which is the tell that a shadow was
+             picked from a palette instead of from the surface it falls on. */
+          style={{
+            background: PERIWINKLE,
+            boxShadow: '0 26px 64px -24px rgba(48, 32, 20, 0.5)',
+          }}
         >
           {/* The card, centred in whatever height the panel has left above the buttons — the
               wireframe puts it high and the buttons on the floor, which is what this does at every
               screen height without a single fixed offset. */}
           <div className="flex-1 grid place-items-center py-8 sm:py-10">
             <div
-              /* The book. `transform-style` and the origin live in the class; the animation is
-                 declared in index.css so a reduced-motion preference can switch it off in the one
-                 place the rest of the site's motion is switched off from. */
-              className={`nq-book ${isAr ? 'nq-book--rtl' : ''} w-full max-w-[22rem] rounded-2xl px-6 py-9 sm:py-11 text-center`}
-              style={{ background: CARD }}
+              /* No frame around the name — it sits directly on the panel. The lighter inset card
+                 this started with drew a box around the one thing on the screen that does not need
+                 one: a wordmark is already a shape, and putting it in a second rectangle inside a
+                 rectangle reads as a placeholder rather than as a brand.
+                 The ink stays near-black rather than white for a measured reason: white on
+                 #8295CF is 2.97:1, under the 4.5:1 a body-sized line needs, where this ink is
+                 6.4:1 on the same blue.
+
+                 The book animation stays on this element, and the origin with it. It is declared
+                 in index.css so a reduced-motion preference switches it off in the one place the
+                 rest of the site's motion is switched off from. */
+              className={`nq-book ${isAr ? 'nq-book--rtl' : ''} w-full max-w-[22rem] text-center`}
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] font-black tracking-[0.06em] leading-none"
