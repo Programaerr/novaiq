@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Blocks, FileSignature, PencilRuler, Rocket } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { INK, PAPER, PAPER_CLEAR, PERIWINKLE, SAND, SAND_DEEP } from '../lib/homePalette';
+import { INK, PAPER, PERIWINKLE, SAND, SAND_DEEP } from '../lib/homePalette';
 
 /**
  * The phases section: the four steps of a project, as a rail and four cards.
@@ -160,39 +160,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
       style={{ background: PAPER }}
       className="relative py-20 sm:py-28 lg:py-32"
     >
-      {/* ── The slanted top edge ─────────────────────────────────────────────────────────────
-          The section's own ground, reaching up over the hero's last band on a diagonal: level with
-          the section's top at the right, a full wedge above it at the left. The hero adds exactly
-          that much height below its panel, so what this cuts across is more tile field rather than
-          empty ground.
-
-          The angle is not written down anywhere. `to bottom left` guarantees the colour stops run
-          PARALLEL TO THE OTHER DIAGONAL of this box — corner to corner — so the slant is whatever
-          this element's own width and height make it, at every screen size, with no angle to keep
-          in step with a breakpoint and no arithmetic that can drift.
-
-          The soft stops are the point: a hard cut between sand and paper is a hard cut whichever
-          way it is angled. Two stops 20% apart put a band of half-paper along the line, so the two
-          grounds dissolve into each other rather than butting up.
-
-          The 15% overhangs and the 1.3 are what keep that band from being sliced off at the ends.
-          A corner-to-corner gradient reaches its corners with nothing left above or below, so the
-          feather has no room exactly where the line meets the screen edges. Running the box wider
-          than the screen and taller than the wedge moves both of those corners off-screen; across
-          the part anyone sees, the drop is still one wedge. */}
-      <span
-        aria-hidden="true"
-        className="absolute pointer-events-none"
-        style={{
-          left: '-15%',
-          right: '-15%',
-          top: 'calc(-1.15 * var(--nq-wedge))',
-          height: 'calc(1.3 * var(--nq-wedge))',
-          background: `linear-gradient(to bottom left, ${PAPER_CLEAR} 42%, ${PAPER} 62%)`,
-        }}
-      />
-
-      <div className="relative nq-container">
+      <div className="nq-container">
         {/* The rail names the four steps, so a visible heading would be a fifth thing saying what
             the section already says. It still needs a name in the accessibility tree. */}
         <h2 className="sr-only">{isAr ? 'مراحل العمل' : 'How we work'}</h2>

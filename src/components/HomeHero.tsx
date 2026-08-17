@@ -60,10 +60,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
          address bar cannot make this taller than the screen it is meant to match. */
       style={{
         background: SAND,
-        /* A full screen, PLUS the band the section below cuts its slant through. The tile field
-           is `inset-0`, so growing the section is what keeps cubes rendering down there — a slant
-           cut across a hero that stopped at the fold would just be a slanted piece of nothing. */
-        minHeight: 'calc(100svh + var(--nq-wedge))',
+        minHeight: '100svh',
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
       className="relative flex flex-col overflow-hidden"
@@ -181,14 +178,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           </div>
         </div>
       </div>
-
-      {/* The overlap band, and it is a SPACER rather than padding on the section for a reason: the
-          container above it is `flex-1`, so it takes whatever height is left over. Padding would
-          have been added to that leftover and re-centred the panel a wedge lower on the screen —
-          the panel would drift down as the slant got steeper. A `shrink-0` sibling takes its
-          height out of the flex distribution first, which leaves the container at exactly 100svh
-          and the panel sitting where it already sat. */}
-      <div aria-hidden="true" className="shrink-0" style={{ height: 'var(--nq-wedge)' }} />
     </section>
   );
 };
