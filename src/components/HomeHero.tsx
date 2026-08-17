@@ -88,7 +88,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
              wrong here: the wireframe places it on the left, and the composition is a picture
              rather than a reading order. The tile field has to be given the wider side, and which
              side that is does not change with the language. */
-          className="w-full mr-auto lg:w-[43%] lg:max-w-[34rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col"
+          className="nq-sail w-full mr-auto lg:w-[43%] lg:max-w-[34rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col"
           /* A shadow, because the panel is a flat fill sitting on a busy field and without one the
              two planes fight for the same depth. Warm and near-black rather than neutral grey: a
              grey shadow on sand greys the sand under it, which is the tell that a shadow was
@@ -103,18 +103,18 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               screen height without a single fixed offset. */}
           <div className="flex-1 grid place-items-center py-8 sm:py-10">
             <div
-              /* No frame around the name — it sits directly on the panel. The lighter inset card
-                 this started with drew a box around the one thing on the screen that does not need
-                 one: a wordmark is already a shape, and putting it in a second rectangle inside a
-                 rectangle reads as a placeholder rather than as a brand.
-                 The ink stays near-black rather than white for a measured reason: white on
-                 #8295CF is 2.97:1, under the 4.5:1 a body-sized line needs, where this ink is
-                 6.4:1 on the same blue.
+              /* No frame around the name, and no animation of its own — it sits still and the
+                 PANEL is what moves, which is the difference between a sail with something written
+                 on it and a sail with a separate flapping label stapled to it.
 
-                 The book animation stays on this element, and the origin with it. It is declared
-                 in index.css so a reduced-motion preference switches it off in the one place the
-                 rest of the site's motion is switched off from. */
-              className={`nq-book ${isAr ? 'nq-book--rtl' : ''} w-full max-w-[22rem] text-center`}
+                 The lighter inset card this started with drew a box around the one thing on the
+                 screen that does not need one: a wordmark is already a shape, and putting it in a
+                 second rectangle inside a rectangle reads as a placeholder rather than as a brand.
+
+                 The ink stays near-black rather than white for a measured reason: white on #8295CF
+                 is 2.97:1, under the 4.5:1 a body-sized line needs, where this ink is 6.4:1 on the
+                 same blue. */
+              className="w-full max-w-[22rem] text-center"
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] font-black tracking-[0.06em] leading-none"
