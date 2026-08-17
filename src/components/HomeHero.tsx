@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
 import { HeroWaves } from './HeroWaves';
 
 /**
@@ -32,15 +33,8 @@ import { HeroWaves } from './HeroWaves';
  * a colour that could not be read.
  */
 
-/* ── The wireframe's palette ────────────────────────────────────────────────────────────── */
-
-/** The ground the whole section is painted on. */
-const SAND = '#D5BDAC';
-/** The panel. */
-const PERIWINKLE = '#8295CF';
-/** One ink for everything on the light surfaces, the panel included. Near-black rather than black:
-    pure black on a mid-tone reads as a hole punched in it. */
-const INK = '#101322';
+/* The wireframe's palette, now shared with every section below this one — see lib/homePalette.ts
+   for why it lives in one file rather than being retyped per component. */
 
 interface HomeHeroProps {
   language?: Language;
