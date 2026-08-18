@@ -16,6 +16,8 @@ import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
 import { PERIWINKLE } from '../lib/homePalette';
+import { hueFor, washFor } from '../lib/templateHues';
+import { GlowLight, TemplateGlow } from './TemplateGlow';
 import { PageLoader } from './PageLoader';
 import { TemplateFilterPanel } from './TemplateFilterPanel';
 
@@ -26,51 +28,50 @@ const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
 );
 
-// Perspective coverflow geometry. Cards stand in a rack under a single camera: the middle one
-// square to the viewer at full size, each one beside it stepped sideways, set slightly back,
-// and turned so its OUTER edge swings toward the eye. That last part is the whole design —
-// turn them the other way and the rack folds shut away from you, which is the ordinary
-// album-cover carousel this deliberately is not.
+// Focus-row geometry. Cards stand in a straight line, square to the viewer: the middle one at
+// full size, each one beside it stepped out, scaled down, and dropped so the whole row shares a
+// baseline. No turn, no recession, no perspective — that was the coverflow rack this replaced,
+// and every one of those three is what made the outer cards read as edge-on slivers rather than
+// as pictures you could still see.
 //
-// Given as an explicit ladder by distance-from-centre rather than as a formula, because the
-// reference's own angles are not a formula: it opens ~44° for the first step and only ~68°
-// for the second, where a cylinder (a constant angle per step) would demand 88° and stand
-// the outer card edge-on. Only three positions are ever visible, so a table of three states
-// exactly what is drawn, and index 3 is the parked position for cards cycling out of range.
+// Given as a ladder by distance-from-centre rather than as a formula, for the same reason the
+// rack was: the steps are not uniform. The first neighbour has to clear the centre card with a
+// visible gap; the second only has to clear the first; the third is off-frame entirely and is
+// purely the parking position for cards cycling out of range.
 //
-// The numbers were solved against the card's own size and the perspective below, and solved
-// PER EDGE — which is the part that is easy to get wrong. A perspective divide happens at each
-// vertex, not once per element, so a turned card's near half is magnified while its far half
-// shrinks, and its projected width is materially wider than "card width × cos(angle) × the
-// card's own depth scale" predicts. Estimating it that way here first gave 227px for a row
-// that actually renders 273px, which is a third of the intended foreshortening simply missing.
-//
-// With a 330×480 card at 1400px perspective, the ladder below projects to:
-//     centre  330 wide, 480 tall
-//     step 1  227 wide, 478 tall, centred 310px out  → a ~32px gap beside the centre card
-//     step 2  158 wide, 436 tall, centred 469px out  → just touching its neighbour
-// which is the reference's read: a square, dominant middle card, its neighbours clearly turned
-// and barely touching it, the outermost a narrow slice. Total reach ~1095px, inside the track.
-//
-// Every Z is negative, deliberately. It is what keeps the whole rack behind the screen plane,
-// so no card ever projects LARGER than the centre one — with a shallower recession the turned
-// cards swing their near edge in front of the camera plane and come out taller than the card
-// they are supposed to be deferring to.
-const COVERFLOW_X = [0, 330, 560, 760];
-const COVERFLOW_Z = [0, -140, -300, -430];
-const COVERFLOW_ROT_DEG = [0, 55, 75, 82];
-// One card's travel, in the rack's own units — the first step, which is the only spacing a
-// drag can be measured against (the ladder is deliberately not uniform). At z=0 the projection
-// is 1:1, so a pointer moving this far moves the centre card exactly as far.
-const COVERFLOW_STEP_PX = COVERFLOW_X[1];
-const FLAT_STEP_PX_MOBILE = 156;
-const FLAT_STEP_PX_DESKTOP = 230;
+// The X values are solved against the card's own width so that no two cards ever touch. With a
+// 330px card:
+//     centre   330 wide, half-width 165
+//     step 1   284 wide at 0.86, centred 320 out → inner edge 178, a 13px gap
+//     step 2   247 wide at 0.75, centred 600 out → inner edge 476, a 14px gap
+// Total reach is 724px either side, which is deliberately WIDER than the track. The outermost
+// cards are meant to run off both edges — that crop is what says the row continues past the
+// frame, and it is why nothing here is scaled to fit: there is nothing to fit.
+const FOCUS_X_DESKTOP = [0, 320, 600, 820];
+const FOCUS_X_MOBILE = [0, 196, 352, 470];
+const FOCUS_SCALE = [1, 0.86, 0.75, 0.7];
+// Depth used to do most of the ranking — the side cards were turned and set back, so they read
+// as further away on their own. On a flat row there is no depth left to do it, so opacity has to
+// carry the whole job and drops harder than the rack's 0.7/0.4 did.
+const FOCUS_OPACITY = [1, 0.84, 0.52, 0];
 
-// Full width the rack occupies at scale 1, outer edge to outer edge: the projected centre of
-// the outermost card plus its own projected half-width, doubled. When the track is narrower
-// than this the whole rack is scaled down to fit rather than being clipped, which is what
-// left "half a card missing" on anything under a wide desktop.
-const FAN_NATURAL_WIDTH = 1110;
+// The card's own height, in one place, because the vertical ladder is derived from it below
+// rather than typed out as four more magic numbers.
+const CARD_H_DESKTOP = 480;
+const CARD_H_MOBILE = 400;
+
+// The drop each card takes ON TOP of landing on the shared baseline.
+//
+// Scaling about the centre pulls a shorter card's bottom edge UP by half the height it lost, so
+// a row of scaled cards hangs in mid-air at four different heights. Adding that half back is
+// what stands them all on one line — and that is the whole read of this layout: objects sitting
+// in the same pool of light rather than a row of shrinking rectangles. This is the few extra
+// pixels past it, which is the reference's own rag, and the only thing left saying "further
+// back" once the turn and the recession are gone.
+const FOCUS_EXTRA_DROP = [0, 10, 18, 22];
+
+// one card's travel is the first step of the ladder, which is the only spacing a drag can be
+// measured against, since the ladder is deliberately not uniform.
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
@@ -159,28 +160,22 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // cheaper and the honest answer for a coverflow — the viewer pans along a shelf rather than
   // spinning it, so there is no angle to publish.
   //
-  // Divided by the render scale, not published raw. The strip sits *inside* the shrink-to-fit
-  // layer, so whatever this writes is multiplied by that scale before it reaches the screen —
-  // publish the pointer's travel unchanged and the row moves at ~87% of the finger, and worse,
-  // drifts: at each commit the cards step by a full (scaled) card while the rebased residual
-  // only unwinds that same distance scaled a second time, so the strip visibly jumps by the
-  // difference. Pre-dividing makes one px here land as one px on screen, which is the only
-  // form in which the residual and the card step describe the same distance.
+  // Published raw, one pixel here for one pixel on screen. There used to be a division by a
+  // shrink-to-fit scale here, because the rack sat inside a layer that shrank the whole fan to
+  // fit narrow tracks; the row this replaced it with is meant to run off both edges instead, so
+  // there is no scale between this value and the screen for it to be converted through.
   const setDragOffset = (px: number) => {
     const el = trackRef.current;
     if (!el) return;
-    el.style.setProperty('--drag-x', `${px / fanScaleRef.current}px`);
+    el.style.setProperty('--drag-x', `${px}px`);
   };
 
-  // Drives the flat strip's per-card translateX step — narrower on phones so the smaller card
-  // doesn't overlap its neighbours (a fixed desktop-sized offset would).
+  // The breakpoint picks the ladder's spacing and the card's size — nothing else. There is one
+  // geometry now, the same flat row on a phone and on a television, where there used to be two
+  // (a perspective rack on desktop and a 2D strip on phones) that had to be kept describing the
+  // same carousel. A phone simply gets a narrower step, because a 390px screen cannot hold a
+  // 330px card and two 13px gaps and still show its neighbours.
   const [isMobile, setIsMobile] = useState(false);
-  // Only the breakpoint decides the geometry now — the device-tier hook that used to also
-  // force the flat strip onto weak desktops is gone. The cost it was avoiding turned out to be
-  // dominated by two other things (a permanently-promoted layer instead of one rebuilt
-  // mid-drag, and a wide invisible shadow), both fixed below, and gating on the tier meant a
-  // late downgrade swapped the whole carousel's geometry out from under a visitor mid-session.
-  // Phones still take the flat strip, where the reason is layout rather than horsepower.
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
     setIsMobile(mq.matches);
@@ -188,34 +183,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
-  const flatGeometry = isMobile;
-  const flatStepPx = isMobile ? FLAT_STEP_PX_MOBILE : FLAT_STEP_PX_DESKTOP;
-  const stepPx = flatGeometry ? flatStepPx : COVERFLOW_STEP_PX;
+  const focusX = isMobile ? FOCUS_X_MOBILE : FOCUS_X_DESKTOP;
+  const cardH = isMobile ? CARD_H_MOBILE : CARD_H_DESKTOP;
+  const stepPx = focusX[1];
 
-  // How much the fan has to shrink to fit the track it is actually in. Measured from the
-  // element rather than inferred from a breakpoint: the track is `w-full` under a max-width,
-  // so the same viewport gives it a different width depending on the page's own padding, and
-  // guessing that is exactly how the outer cards ended up clipped. Never scales above 1 —
-  // a wide desktop shows the fan at its designed size, narrower ones shrink it to fit.
-  const [trackWidth, setTrackWidth] = useState(0);
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    setTrackWidth(el.clientWidth);
-    const ro = new ResizeObserver(([entry]) => setTrackWidth(entry.contentRect.width));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  // The 3D rack only, and deliberately so. The flat strip is *meant* to run past both edges —
-  // its step is far narrower than its card, so the neighbours are half-tucked behind the
-  // middle one by design, and fitting that whole row into a phone's track would shrink it to
-  // under half size to solve a problem it does not have.
-  const fanScale = flatGeometry || !trackWidth ? 1 : Math.min(1, trackWidth / FAN_NATURAL_WIDTH);
-  // setDragOffset runs from a pointermove closure that outlives this render, so it reads the
-  // scale from a ref rather than capturing the value — otherwise a resize mid-gesture would
-  // leave the drag converting against a stale scale.
-  const fanScaleRef = useRef(1);
-  fanScaleRef.current = fanScale;
+  /** Where a card at this distance from the centre sits, vertically. See FOCUS_EXTRA_DROP. */
+  const dropFor = (d: number) => (cardH * (1 - FOCUS_SCALE[d])) / 2 + FOCUS_EXTRA_DROP[d];
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -367,9 +340,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // snap keeps the two thresholds honest.
   useEffect(() => {
     if (!isDragging) return;
-    // Scaled with the row: the threshold has to be the distance a card visibly travels on
-    // screen, which shrinks when the row is shrunk to fit a narrower track.
-    const step = stepPx * fanScale;
+    // The distance a card visibly travels on screen, which is now simply the ladder's first
+    // step — nothing scales the row between here and the display.
+    const step = stepPx;
     const n = filteredTemplates.length;
     let frame = 0;
     // `travel` is the pointer's full signed displacement since the gesture started, NEVER
@@ -460,7 +433,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       window.removeEventListener('pointerup', onUp);
       window.removeEventListener('pointercancel', onUp);
     };
-  }, [isDragging, stepPx, fanScale, filteredTemplates.length]);
+  }, [isDragging, stepPx, filteredTemplates.length]);
 
   // The other half of the pact above: publishes whatever offset the gesture is currently at,
   // after every render and synchronously before the browser paints. That timing is the whole
@@ -512,6 +485,41 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     }, 8000);
     return () => window.clearInterval(id);
   }, [isDragging, activeIndex, filteredTemplates.length]);
+
+  // One pool of light per visible card, from the same ladder that places the cards — so the
+  // light cannot drift out of agreement with what it is supposed to be coming from. Five at
+  // most: the centre and two either side, which is everything the row ever shows.
+  //
+  // Wrapping with the modulo rather than clamping, exactly as the cards do, so the pools keep
+  // the same circular order the strip does when it wraps past either end of the catalogue.
+  const glowLights: GlowLight[] = useMemo(() => {
+    const n = filteredTemplates.length;
+    if (!n) return [];
+    const out: GlowLight[] = [];
+    for (let offset = -2; offset <= 2; offset++) {
+      const template = filteredTemplates[(((activeIndex + offset) % n) + n) % n];
+      if (!template) continue;
+      const d = Math.abs(offset);
+      out.push({
+        x: Math.sign(offset) * focusX[d],
+        // Low on the card rather than under it. A pool centred below the card would read as a
+        // shadow cast by something above it; centred across its lower third, the card looks lit
+        // from within and the light spills out from behind its own edges.
+        y: cardH * 0.3,
+        radius: (isMobile ? 260 : 400) * FOCUS_SCALE[d],
+        // The focused card is not simply brighter, it is the only one that is bright. Two pools
+        // at similar strength read as two centres of attention, and the whole point of the
+        // arrangement is that there is one.
+        amp: d === 0 ? 1 : d === 1 ? 0.34 : 0.12,
+        color: hueFor(template.category),
+      });
+    }
+    return out;
+  }, [filteredTemplates, activeIndex, focusX, cardH, isMobile]);
+
+  // Points the way the page reads. In Arabic "onward" is leftward, and an arrow that ignores
+  // that is an arrow pointing back out of the card it is inviting you into.
+  const Forward = currentLang === 'ar' ? ChevronLeft : ChevronRight;
 
   return (
     <section
@@ -621,7 +629,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             clicked. */}
         {/* The two arrows that used to flank the track live in the pager below it now — see
             the note there. Nothing else was in this row, so it is just the track. */}
-        <div className="flex items-center justify-center mt-8 sm:mt-10">
+        {/* ── The row ────────────────────────────────────────────────────────────────────
+            Two layers, and they cannot be one element: the light has to SPILL past the bottom of
+            the cards onto the ground under them, and the track has to CLIP its own row so the
+            outermost cards run off both edges. Overflow cannot be visible and hidden at once. */}
+        <div className="relative mt-8 sm:mt-10">
+          {/* Reaches past the row at top and bottom, because a pool that stopped exactly where
+              the cards do would be a rectangle of light with a straight edge — which is the one
+              thing light does not have. */}
+          <div className="absolute inset-x-0 -top-8 -bottom-16 sm:-bottom-24 overflow-hidden pointer-events-none">
+            <TemplateGlow lights={glowLights} ground={PERIWINKLE} />
+          </div>
+
+          <div className="relative flex items-center justify-center">
           <div
             ref={trackRef}
             onPointerDown={handleTrackPointerDown}
@@ -636,29 +656,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 suppressClickRef.current = false;
               }
             }}
-            style={{
-              // The camera. Every card's translateZ and rotateY below is meaningless without
-              // it — with no perspective the rack projects orthographically and simply looks
-              // like a row of squashed rectangles. Scoped to the capable-desktop branch only;
-              // phones and low-end machines take the pure-2D strip and never pay for it.
-              ...(flatGeometry ? {} : { perspective: '1400px', perspectiveOrigin: '50% 50%' }),
-            }}
-            // The whole rack sits behind the screen plane (every Z in the ladder is negative),
-            // so the centre card at its full 480px is the tallest thing drawn and nothing has
-            // to be left over for a card projecting larger than itself.
-            className="relative w-full max-w-7xl h-[440px] sm:h-[500px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
-          >
-          {/* Shrink-to-fit layer. Every card is positioned against the rack's natural size, and
-              this one transform brings the whole shape down to whatever width the track really
-              has — so the outermost card is never clipped, at any viewport, without a single
-              per-card measurement. preserve-3d so the rack below survives this wrapper rather
-              than being flattened into a picture of itself. */}
-          <div
-            className="absolute inset-0"
-            style={{
-              transformStyle: flatGeometry ? undefined : 'preserve-3d',
-              ...(fanScale === 1 ? {} : { transform: `scale(${fanScale})`, transformOrigin: '50% 50%' }),
-            }}
+            // Tall enough for the lowest card the ladder can put on screen: a step-2 card is
+            // 360px tall and dropped 78px, so its bottom edge lands 258px below the middle. No
+            // perspective and no camera — the row is flat now, and a perspective on the track
+            // would only cost a stacking context for nothing to use.
+            className="relative w-full max-w-7xl h-[460px] sm:h-[540px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
           {/* Drag layer — one translate carrying the whole rack past a fixed camera. The cards
               keep their own angles through the gesture and the rack slides bodily, which is
@@ -670,7 +672,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           <div
             className="absolute inset-0"
             style={{
-              transformStyle: flatGeometry ? undefined : 'preserve-3d',
               transform: 'translateX(var(--drag-x, 0px))',
               transition: isDragging ? 'none' : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
             }}
@@ -699,28 +700,16 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             const clampedOffset = isVisible ? offset : Math.sign(offset) * 3;
             // No --drag-x term in either branch: the drag translates the whole strip on the
             // layer above, so a card's place within the rack never changes mid-gesture.
-            let transform: string;
-            if (flatGeometry) {
-              // Pure 2D on phones AND on low-end desktops. A 2D translateX cannot z-recede,
-              // blink, or drop frames; the capable-desktop rack is handled below.
-              transform = `translate(-50%, -50%) translateX(${clampedOffset * flatStepPx}px)`;
-            } else {
-              // The rack. Sign is split out from magnitude because the ladder is indexed by
-              // distance, while every term has to mirror about the middle: step out to the
-              // side, sit back from the camera, and turn.
-              //
-              // The rotation is NEGATED against the side the card is on, and that single minus
-              // is the whole look. CSS rotateY(+θ) swings the card's +X side away into the
-              // screen — so a card on the right rotated positively folds its outer edge away
-              // and the rack closes like a book. Negated, the outer edge comes toward the eye
-              // and the rack opens outward at the viewer, which is what the reference shows:
-              // the outer edge of each side card is the *taller* one, because it is nearer.
-              const dir = Math.sign(clampedOffset);
-              const d = Math.min(Math.abs(clampedOffset), 3);
-              transform =
-                `translate(-50%, -50%) translateX(${dir * COVERFLOW_X[d]}px) ` +
-                `translateZ(${COVERFLOW_Z[d]}px) rotateY(${-dir * COVERFLOW_ROT_DEG[d]}deg)`;
-            }
+            // Sign split out from magnitude, because the ladder is indexed by distance while
+            // every term has to mirror about the middle: step out to the side, then drop onto
+            // the shared baseline. Two translations and nothing else — the scale that goes with
+            // them lives one level in, so it can keep its own transition while this one is
+            // switched off mid-drag (see the note there).
+            const dir = Math.sign(clampedOffset);
+            const d = Math.min(Math.abs(clampedOffset), 3);
+            const transform =
+              `translate(-50%, -50%) translateX(${dir * focusX[d]}px) translateY(${dropFor(d)}px)`;
+            const wash = washFor(template.category);
 
             return (
               <div
@@ -749,13 +738,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // whole and leave the card appearing to teleport. Holding a texture that is
                   // never looked at is cheap; building one during a gesture is not.
                   willChange: isMoving ? 'transform, opacity' : undefined,
-                  // Depth already does most of the ranking in the rack — the side cards are
-                  // turned and set back, so they read as further away without help. Opacity
-                  // only has to finish the job, hence 0.7/0.4 rather than the harder 0.55/0.28
-                  // fade this carried under the old flat geometry, where nothing but opacity
-                  // separated the cards: the reference's own side cards are dimmer than its
-                  // centre one but still fully legible pictures, not ghosts.
-                  opacity: isActive ? 1 : cappedDistance === 1 ? 0.7 : cappedDistance === 2 ? 0.4 : 0,
+                  // On a flat row there is no recession left to rank the cards, so scale and
+                  // opacity carry the whole job between them — which is why this drops harder
+                  // than the rack's 0.7/0.4 did. Still legible pictures rather than ghosts: the
+                  // reference's own side cards are readable, they are simply not the subject.
+                  opacity: FOCUS_OPACITY[cappedDistance],
                   zIndex: 10 - cappedDistance,
                   // 0.9s for the glide, matched to the scale transition on the wrapper below —
                   // slow enough to read as a deliberate motion instead of the instant-feeling
@@ -803,15 +790,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     eases into it. */}
                 <div
                   style={{
-                    // Only the flat strip needs a scale ladder. In the rack the perspective
-                    // already sizes each card — the side ones are set back from the camera and
-                    // project smaller on their own — so scaling them again would double the
-                    // recession and shrink them well past what the reference shows, where a
-                    // neighbour stands within a few percent of the centre card's height and
-                    // only its *width* collapses, from the turn.
-                    transform: flatGeometry
-                      ? `scale(${isActive ? 1 : cappedDistance === 1 ? 0.82 : 0.68})`
-                      : 'none',
+                    // The whole of the size difference, where the rack got most of it free
+                    // from the perspective divide. Scaled about the centre, which is what the
+                    // vertical ladder above is written to compensate for.
+                    transform: `scale(${FOCUS_SCALE[cappedDistance]})`,
                     // Same 0.9s and same curve as the positional transform above — see the
                     // note there on why the two must agree. Also on its own layer, like the
                     // card holding it: it animates its own scale for 0.9s on every commit,
@@ -829,7 +811,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     tech stack aren't gone — they're one tap away in the full preview this card
                     opens, so nothing is actually lost. */}
                 <div
-                  style={{ pointerEvents: isActive ? 'auto' : 'none' }}
                   onClick={() => {
                     if (onOpenStandalonePreview) {
                       onOpenStandalonePreview(template);
@@ -856,13 +837,27 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   // re-baked, which is on every scale change — i.e. several cards at once, on
                   // every step of a drag. That is the single most expensive thing this card
                   // was asking for, in exchange for invisible output.
-                  className="relative h-full rounded-[28px] bg-white/5 border border-white/10 hover:border-white/30 transition-[border-color] duration-300 cursor-pointer group p-2 sm:p-2.5"
+                  style={{
+                    pointerEvents: isActive ? 'auto' : 'none',
+                    // The one shadow on the card, and it is cast in the ink the wash is pulled
+                    // toward rather than in black — a neutral shadow under a coloured card on a
+                    // blue ground is the tell that it came from a palette instead of from the
+                    // surface it falls on. Only the focused card gets the deep one: a row where
+                    // every card is equally lifted is a row with no focus, which is the whole
+                    // arrangement. Both branches are the same property at the same blur, so the
+                    // change between them animates instead of swapping.
+                    boxShadow: isActive
+                      ? '0 32px 64px -28px rgba(8, 10, 26, 0.62)'
+                      : '0 18px 44px -26px rgba(8, 10, 26, 0.45)',
+                    transition: 'box-shadow 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
+                  }}
+                  className="relative h-full rounded-[26px] overflow-hidden cursor-pointer group"
                 >
                   {/* The photo sits inset inside the frame's own padding — a bezel margin all
                       round, like a phone case holding its screen — rather than bleeding to the
                       card's own edges. */}
                   <div
-                    className="relative w-full h-full rounded-[20px] overflow-hidden"
+                    className="relative w-full h-full overflow-hidden"
                     // Safari drops border-radius + overflow-hidden clipping on an element
                     // sitting under a 3D-transformed ancestor (this card's own rotateY /
                     // translateZ / the track's perspective) — it never shows up in Chrome
@@ -893,64 +888,96 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       draggable={false}
                       className="tpl-cover-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/40" />
+                    {/* The wash — the card's own colour, poured up the photograph.
+                        Three things at once, which is why it is one gradient and not three
+                        layers: solid at the foot, where the title and the button have to be
+                        read off it; most of the way to solid across the middle, so the picture
+                        emerges rather than starting; and a light tint of the pure hue at the
+                        top, which is what makes the whole card read as ONE colour instead of a
+                        photo with a coloured caption stuck under it.
+
+                        Ending at the hue and not at transparent is the part that matters. Fade
+                        a coloured scrim to nothing and the top of the card is a plain photo, and
+                        ten plain photos in a row are exactly the catalogue this is replacing. */}
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background:
+                          `linear-gradient(to top, ${wash} 0%, ${wash} 26%, ${wash}CC 48%, ${hueFor(template.category)}59 100%)`,
+                      }}
+                    />
 
                     {/* Category badge — flat translucent, same on every card. See the note on
                         the bezel above for why nothing here keys off isActive or blurs. */}
-                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 max-w-[75%] truncate px-2.5 py-1 sm:px-3 rounded-full bg-black/70 border border-white/10 text-white text-[10px] sm:text-[11px] font-bold">
+                    <div className="absolute top-3 start-3 sm:top-4 sm:start-4 max-w-[52%] truncate px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white text-[10px] sm:text-[11px] font-bold">
                       {displayCategory}
                     </div>
 
-                    {/* Bottom panel — name, one-line pitch and the single action this card
-                        needs. Dark and translucent rather than frosted: the photo still reads
-                        through it, but without a backdrop-filter that would have to be built
-                        per card. */}
-                    <div className="absolute inset-x-2.5 bottom-2.5 sm:inset-x-4 sm:bottom-4 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-zinc-950/80 border border-white/15 shadow-xl">
+                    {/* The foot — name, the two numbers worth knowing, and the one action.
+                        No plate under it any more: it is written straight onto the wash, which
+                        is already opaque down here for exactly that purpose. A dark card
+                        floating inside a dark card was the old carousel's way of guaranteeing
+                        contrast over an unknown photograph; the wash guarantees it by being the
+                        surface, which is both one fewer box and the reference's own read.
+
+                        The subtitle is gone from the card. Three lines of prose under the title
+                        is what made every card in the old row look the same from a distance,
+                        and it is one tap away in the preview this card opens — the same
+                        argument the price and the feature list were already settled on. */}
+                    <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
                       <div className="flex items-center gap-1.5">
-                        <h3 className="text-white font-bold text-sm sm:text-lg line-clamp-1">{displayTitle}</h3>
-                        <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+                        <h3 className="text-white font-black text-base sm:text-2xl leading-tight line-clamp-1">
+                          {displayTitle}
+                        </h3>
+                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white shrink-0" />
                       </div>
-                      <p className="text-zinc-300 text-[10px] sm:text-xs leading-snug sm:leading-relaxed line-clamp-2 mt-0.5 sm:mt-1">
-                        {displaySubtitle}
+
+                      {/* One line, two facts, a dot between them — the reference's own meta
+                          line. white/85 rather than a grey: a fixed grey has to be re-checked
+                          against eleven different washes, where white at a fixed alpha lands at
+                          the same ratio on every one of them because they are all near-black. */}
+                      <p className="mt-1 text-[11px] sm:text-[13px] font-bold text-white/85 whitespace-nowrap overflow-hidden text-ellipsis">
+                        <span className="inline-flex items-center gap-1 align-middle">
+                          <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                          {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
+                        </span>
+                        <span className="mx-1.5 opacity-60">•</span>
+                        <span className="font-mono">
+                          {formatPrice(template.basePriceIQD, currentLang, currency)}
+                        </span>
                       </p>
 
-                      {/* Meta above, action below — stacked at every width, not just on phones.
-                          Weeks, price and button sharing one row left each too little space to
-                          hold together, so "3 أسابيع" and the price's currency suffix each
-                          broke onto their own line mid-phrase. Desktop is no better off than
-                          mobile here despite its wider card: measured against the panel's own
-                          inner width, that row needs ~270px and only has ~246px. Stacking
-                          gives each its full width; whitespace-nowrap then guarantees neither
-                          value can split again regardless of how long a price gets. */}
-                      <div className="flex flex-col gap-2 mt-2 sm:mt-3">
-                        <div className="flex items-center gap-2.5 sm:gap-3 text-[9px] sm:text-[11px] text-zinc-300 font-semibold">
-                          <span className="flex items-center gap-1 whitespace-nowrap">
-                            <Clock className="w-3 h-3 text-zinc-400 shrink-0" />
-                            {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
-                          </span>
-                          <span className="font-mono font-bold text-white whitespace-nowrap">
-                            {formatPrice(template.basePriceIQD, currentLang, currency)}
-                          </span>
-                        </div>
+                      {/* The action, spanning the card's full width with the arrow pushed to the
+                          far end — the reference's "Explore Now" bar. It is deliberately NOT the
+                          page's white .filter-pill-btn any more: eleven cards each washed a
+                          different colour, every one of them wearing the same white pill, and
+                          the colour stops being the card's and becomes a background the button
+                          is sitting on. A translucent white over the card's own wash tints
+                          itself, so the button belongs to the card it is in.
 
-                        {/* Wears the toolbar's Filter pill outright (.filter-pill-btn +
-                            .filter-pill-beam): same bevelled white surface, same inversion to
-                            black on hover, same undulating beam every other primary action on
-                            this page carries. Stops the click from bubbling to the card's own
-                            onClick above it, since the two now sit nested. */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSelectTemplateForContract(template);
-                            cosmicAudio.playWarp();
-                          }}
-                          className="filter-pill-btn relative shrink-0 w-full px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
-                        >
-                          <span className="filter-pill-beam" aria-hidden="true" />
-                          <FileSignature className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-current shrink-0" />
-                          <span>{getTranslation('selectForContract', currentLang)}</span>
-                        </button>
-                      </div>
+                          A logical ms-auto on the arrow, not a physical ml-auto: it has to sit
+                          at the end of the line in both languages, and in Arabic that is the
+                          left-hand end. */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectTemplateForContract(template);
+                          cosmicAudio.playWarp();
+                        }}
+                        // Out of the tab order unless this is the card in focus. The wrapper
+                        // above already sets pointer-events: none on the others, which stops a
+                        // mouse but does nothing at all for a keyboard — tabbing through the
+                        // row would otherwise walk into four buttons that cannot be seen and
+                        // one that is half off the screen.
+                        tabIndex={isActive ? 0 : -1}
+                        aria-hidden={isActive ? undefined : true}
+                        className="mt-3 sm:mt-4 w-full min-h-11 px-4 rounded-full flex items-center gap-2 text-[11px] sm:text-[13px] font-bold text-white cursor-pointer whitespace-nowrap bg-white/[0.16] hover:bg-white/[0.28] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                        style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.22)' }}
+                      >
+                        <FileSignature className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                        <span className="truncate">{getTranslation('selectForContract', currentLang)}</span>
+                        <Forward className="w-4 h-4 sm:w-[18px] sm:h-[18px] shrink-0 ms-auto" />
+                      </button>
                     </div>
                   </div>
                 </div>
