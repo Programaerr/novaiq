@@ -37,6 +37,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   // session while adding nothing to a page whose job is legibility, so the panel takes them
   // out of rendering and keeps the flat black the page already sits on.
   useDocumentFlag('flat');
+  // The whole panel sits on the home palette (paper ground, ink text) — see
+  // `html[data-account]` in index.css.
+  useDocumentFlag('account');
 
   useEffect(() => {
     const unsub = subscribeToContracts(setContracts);

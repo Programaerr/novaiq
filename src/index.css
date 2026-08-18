@@ -142,6 +142,28 @@
 }
 
 @layer base {
+  /* The account pages (control panel + customer profile, marked by useDocumentFlag) sit on
+     the home palette instead of the site's black: a PAPER ground and INK text. This is the
+     same exception the home page itself makes, and the same reason the palette is one module
+     (homePalette.ts) — the ground, the text and the vignette swap together, in one rule,
+     rather than each dashboard carrying its own idea of what "light" means.
+     `color-scheme: light` is load-bearing here: it flips the native scrollbar, form controls
+     and autofill wash to the light rendering, exactly as the global `color-scheme: dark`
+     flips them the other way on the rest of the site. */
+  html[data-account] {
+    --nq-ground: #D5BDAC;
+    background-color: #D5BDAC;
+    color-scheme: light;
+  }
+
+  html[data-account] body {
+    color: #101322;
+  }
+
+  html[data-account] body::before {
+    background-color: #D5BDAC;
+  }
+
   html {
     /* No `scroll-behavior: smooth` here, deliberately. It only ever affects PROGRAMMATIC scrolls
        — the wheel is smoothed by Lenis (useScrollBehavior) — and having both meant two smoothing

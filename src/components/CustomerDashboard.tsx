@@ -108,6 +108,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
   // figures is here to read, and the drifting background is composited under that the whole
   // time for no benefit. See `html[data-flat]` in index.css.
   useDocumentFlag('flat');
+  // Switches the whole page to the home palette (paper ground, ink text) — see
+  // `html[data-account]` in index.css. The customer profile is a light page now, not a dark
+  // one with light cards pasted on it.
+  useDocumentFlag('account');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
