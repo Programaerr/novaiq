@@ -116,23 +116,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         />
       )}
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-ink/15">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-md">
+          <div className="w-10 h-10 rounded-2xl bg-white/80 border border-ink/15 flex items-center justify-center text-ink shadow-md">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white">
+            <h1 className="text-xl sm:text-2xl font-bold text-ink">
               {isAr ? 'لوحة تحكم NOVAIQ' : 'NOVAIQ Control Panel'}
             </h1>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-ink/55">
               {isAr ? 'كل شيء عن أعمالك في مكان واحد' : 'Everything about your business, in one place'}
             </p>
           </div>
         </div>
         <button
           onClick={() => setShowLogoutConfirm(true)}
-          className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+          className="px-4 py-2 rounded-xl bg-white/80 hover:bg-sand-light border border-ink/15 text-ink/75 hover:text-ink text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
         >
           <LogOut className="w-4 h-4" />
           <span>{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
@@ -144,7 +144,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           is the business doing" was only visible on the one screen nobody works on — you left it
           the moment you went to edit a contract or a price. Kept here they are simply always true
           and always in view, and Overview is free to be analysis rather than a scoreboard. */}
-      <div className="mb-6 rounded-2xl bg-zinc-950 border border-zinc-800 grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-zinc-800 rtl:divide-x-reverse overflow-hidden">
+      <div className="mb-6 rounded-2xl bg-paper border border-ink/15 grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-ink/15 rtl:divide-x-reverse overflow-hidden">
         <KpiCell
           label={isAr ? 'العقود' : 'Contracts'}
           value={String(stats.count)}
@@ -172,7 +172,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         <nav className="hidden lg:flex lg:flex-col lg:w-56 xl:w-64 shrink-0 gap-5 sticky lg:top-28 self-start">
           {groups.map((g) => (
             <div key={g.heading} className="space-y-1.5">
-              <span className="px-2 text-[10px] uppercase tracking-wider font-bold text-zinc-600 block">{g.heading}</span>
+              <span className="px-2 text-[10px] uppercase tracking-wider font-bold text-ink/40 block">{g.heading}</span>
               {g.items.map((t) => (
                 <TabButton key={t.id} tabItem={t} active={tab === t.id} onClick={() => setTab(t.id)} full />
               ))}
@@ -193,7 +193,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         <div className="flex-1 min-w-0 space-y-6">
           {/* Names the screen you are on. With the nav grouped and the mobile row scrolling, the
               active pill is not always visible — the heading is. */}
-          <h2 className="text-sm font-bold text-zinc-400 border-b border-zinc-900 pb-2">{activeLabel}</h2>
+          <h2 className="text-sm font-bold text-ink/55 border-b border-ink/10 pb-2">{activeLabel}</h2>
           {tab === 'overview' && (
             <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} currency={currency} />
           )}

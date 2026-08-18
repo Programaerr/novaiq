@@ -89,19 +89,19 @@ export function ContractsTab({
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className={`absolute ${isAr ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 text-white/40`} />
+          <Search className={`absolute ${isAr ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50`} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={isAr ? 'ابحث بالاسم، رقم العقد، أو الهاتف...' : 'Search by name, contract #, or phone...'}
-            className={`w-full ${isAr ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 rounded-xl bg-black border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs`}
+            className={`w-full ${isAr ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 rounded-xl bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs`}
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-          className="px-4 py-2.5 rounded-xl bg-black border border-white/10 text-white text-xs font-bold cursor-pointer"
+          className="px-4 py-2.5 rounded-xl bg-paper border border-ink/10 text-ink text-xs font-bold cursor-pointer"
         >
           <option value="all">{isAr ? 'كل الحالات' : 'All Statuses'}</option>
           {STATUS_FLOW.map((s) => (
@@ -113,7 +113,7 @@ export function ContractsTab({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="py-16 text-center text-white/40 text-xs border border-dashed border-white/10 rounded-2xl">
+        <div className="py-16 text-center text-ink/50 text-xs border border-dashed border-ink/10 rounded-2xl">
           {isAr ? 'لا توجد عقود مطابقة' : 'No matching contracts'}
         </div>
       ) : (
@@ -157,7 +157,7 @@ const CompanySignaturePad = forwardRef<
 
   return (
     <div className="space-y-2">
-      <div className="relative rounded-2xl overflow-hidden border-2 border-dashed border-white/15 bg-white/[0.04]">
+      <div className="relative rounded-2xl overflow-hidden border-2 border-dashed border-ink/15 bg-white/70">
         <canvas
           ref={canvasRef}
           width={500}
@@ -172,7 +172,7 @@ const CompanySignaturePad = forwardRef<
           className="w-full h-28 cursor-crosshair touch-none"
         />
         {!hasSignature && (
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-white/40 text-xs font-semibold">
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-ink/50 text-xs font-semibold">
             {isAr ? '[ ارسم توقيع الاعتماد هنا ]' : '[ Draw the sign-off here ]'}
           </div>
         )}
@@ -180,7 +180,7 @@ const CompanySignaturePad = forwardRef<
       <button
         type="button"
         onClick={clear}
-        className="flex items-center gap-1 text-[11px] text-white/50 hover:text-white cursor-pointer"
+        className="flex items-center gap-1 text-[11px] text-ink/60 hover:text-ink cursor-pointer"
       >
         <RotateCcw className="w-3.5 h-3.5" />
         <span>{isAr ? 'مسح التوقيع' : 'Clear Signature'}</span>
@@ -346,64 +346,64 @@ function ContractRow({
   };
 
   return (
-    <div className="rounded-2xl bg-black border border-white/10 overflow-hidden">
+    <div className="rounded-2xl bg-paper border border-ink/10 overflow-hidden">
       {expanded && <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} />}
 
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-3 p-4 text-left cursor-pointer hover:bg-white/[0.06]/50 transition-colors"
+        className="w-full flex items-center justify-between gap-3 p-4 text-left cursor-pointer hover:bg-sand-light/80 transition-colors"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <Pencil className="w-4 h-4 text-white/40 shrink-0" />
+          <Pencil className="w-4 h-4 text-ink/50 shrink-0" />
           <div className="min-w-0">
-            <div className="text-xs sm:text-sm font-bold text-white truncate">{contract.companyName}</div>
-            <div className="text-[10px] text-white/40 font-mono truncate">
+            <div className="text-xs sm:text-sm font-bold text-ink truncate">{contract.companyName}</div>
+            <div className="text-[10px] text-ink/50 font-mono truncate">
               {contract.contractNumber} · {translateText(contract.templateTitle, language)}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs font-mono text-white/70 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
+          <span className="text-xs font-mono text-ink/75 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
           <span
             className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
               (contract.paymentStatus || 'unpaid') === 'paid'
                 ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
                 : (contract.paymentStatus || 'unpaid') === 'partial'
                 ? 'bg-amber-950/60 border-amber-800 text-amber-300'
-                : 'bg-white/[0.04] border-white/15 text-white/50'
+                : 'bg-white/70 border-ink/15 text-ink/60'
             }`}
           >
             {translateText(paymentStatusArabic(contract.paymentStatus), language)}
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/15 text-[10px] font-bold text-white/90">
+          <span className="px-2 py-0.5 rounded-full bg-white/70 border border-ink/15 text-[10px] font-bold text-ink/90">
             {translateText(statusArabic(contract.status), language)}
           </span>
         </div>
       </button>
 
       {expanded && (
-        <div className="p-4 pt-0 space-y-4 border-t border-white/10 animate-fade-in">
+        <div className="p-4 pt-0 space-y-4 border-t border-ink/10 animate-fade-in">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-4">
-            <div className="text-white/50">{isAr ? 'الممثل:' : 'Representative:'} <span className="text-white">{contract.repName}</span></div>
-            <div className="text-white/50">{isAr ? 'الهاتف:' : 'Phone:'} <span className="text-white font-mono" dir="ltr">{contract.phone}</span></div>
-            <div className="text-white/50">{isAr ? 'البريد:' : 'Email:'} <span className="text-white font-mono" dir="ltr">{contract.email}</span></div>
-            <div className="text-white/50">{isAr ? 'المدينة:' : 'City:'} <span className="text-white">{translateText(contract.city, language)}</span></div>
+            <div className="text-ink/60">{isAr ? 'الممثل:' : 'Representative:'} <span className="text-ink">{contract.repName}</span></div>
+            <div className="text-ink/60">{isAr ? 'الهاتف:' : 'Phone:'} <span className="text-ink font-mono" dir="ltr">{contract.phone}</span></div>
+            <div className="text-ink/60">{isAr ? 'البريد:' : 'Email:'} <span className="text-ink font-mono" dir="ltr">{contract.email}</span></div>
+            <div className="text-ink/60">{isAr ? 'المدينة:' : 'City:'} <span className="text-ink">{translateText(contract.city, language)}</span></div>
           </div>
 
           {contract.customFeaturesText && (
-            <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
-              <span className="text-white/50 block mb-1">{isAr ? 'طلب العميل الأصلي:' : "Client's Original Request:"}</span>
-              <p className="text-white/90">{contract.customFeaturesText}</p>
+            <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
+              <span className="text-ink/60 block mb-1">{isAr ? 'طلب العميل الأصلي:' : "Client's Original Request:"}</span>
+              <p className="text-ink/90">{contract.customFeaturesText}</p>
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-semibold text-white/50 mb-1.5">{isAr ? 'حالة العقد' : 'Contract Status'}</label>
+              <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">{isAr ? 'حالة العقد' : 'Contract Status'}</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ContractData['status'])}
-                className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-bold cursor-pointer"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs font-bold cursor-pointer"
               >
                 {STATUS_FLOW.map((s) => (
                   <option key={s} value={s}>
@@ -413,13 +413,13 @@ function ContractRow({
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
+              <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
                 {isAr ? 'السعر النهائي المتفق عليه (د.ع)' : 'Final Agreed Price (IQD)'}
               </label>
               <PriceInput
                 value={totalPrice}
                 onChange={setTotalPrice}
-                className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono"
+                className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs font-mono"
               />
             </div>
           </div>
@@ -433,11 +433,11 @@ function ContractRow({
               stand, what did it cost us, and what was actually paid and when. The old layout put a
               cost input in the middle of a row of read-only figures, so an editable field and two
               derived ones looked identical and nothing said which numbers you could change. */}
-          <div className="rounded-xl bg-white/[0.04] border border-white/10 overflow-hidden">
-            <div className="px-3.5 py-2.5 border-b border-white/10 flex items-center justify-between gap-2 flex-wrap bg-black/40">
-              <span className="text-[11px] font-bold text-white/70">
+          <div className="rounded-xl bg-white/70 border border-ink/10 overflow-hidden">
+            <div className="px-3.5 py-2.5 border-b border-ink/10 flex items-center justify-between gap-2 flex-wrap bg-sand-deep/40">
+              <span className="text-[11px] font-bold text-ink/75">
                 {isAr ? 'التتبع المالي' : 'Financial Tracking'}
-                <span className="text-white/35 font-normal"> — {isAr ? 'داخلي، لا يظهر للعميل' : 'internal, never shown to the client'}</span>
+                <span className="text-ink/45 font-normal"> — {isAr ? 'داخلي، لا يظهر للعميل' : 'internal, never shown to the client'}</span>
               </span>
               <span
                 className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
@@ -445,7 +445,7 @@ function ContractRow({
                     ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
                     : paymentStatus === 'partial'
                     ? 'bg-amber-950/60 border-amber-800 text-amber-300'
-                    : 'bg-black border-white/15 text-white/50'
+                    : 'bg-paper border-ink/15 text-ink/60'
                 }`}
               >
                 {translateText(paymentStatusArabic(paymentStatus), language)}
@@ -453,20 +453,20 @@ function ContractRow({
             </div>
 
             {/* Band 1 — position. Derived, read-only, led by the bar. */}
-            <div className="p-3.5 space-y-3 border-b border-white/10">
+            <div className="p-3.5 space-y-3 border-b border-ink/10">
               <CollectionBar collected={paidAmountIQD} total={Number(totalPrice) || 0} isAr={isAr} />
               <div className="grid grid-cols-3 gap-2 text-[11px]">
                 <div className="min-w-0">
-                  <span className="text-white/40 block mb-0.5">{isAr ? 'قيمة العقد' : 'Contract value'}</span>
-                  <strong className="text-white font-mono wrap-break-word">{formatPrice(Number(totalPrice) || 0, language, currency)}</strong>
+                  <span className="text-ink/50 block mb-0.5">{isAr ? 'قيمة العقد' : 'Contract value'}</span>
+                  <strong className="text-ink font-mono wrap-break-word">{formatPrice(Number(totalPrice) || 0, language, currency)}</strong>
                 </div>
                 <div className="min-w-0">
-                  <span className="text-white/40 block mb-0.5">{isAr ? 'المحصّل' : 'Collected'}</span>
+                  <span className="text-ink/50 block mb-0.5">{isAr ? 'المحصّل' : 'Collected'}</span>
                   <strong className="text-emerald-400 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
                 </div>
                 <div className="min-w-0">
-                  <span className="text-white/40 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
-                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-white/40'}`}>
+                  <span className="text-ink/50 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
+                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-ink/50'}`}>
                     {formatPrice(Math.max(remainingIQD, 0), language, currency)}
                   </strong>
                 </div>
@@ -474,28 +474,28 @@ function ContractRow({
             </div>
 
             {/* Band 2 — the two things you type, and the one figure they produce. */}
-            <div className="p-3.5 grid grid-cols-2 sm:grid-cols-3 gap-3 items-end border-b border-white/10 bg-black/20">
+            <div className="p-3.5 grid grid-cols-2 sm:grid-cols-3 gap-3 items-end border-b border-ink/10 bg-sand-deep/30">
               <div className="min-w-0">
-                <label className="block text-[11px] text-white/40 mb-1">{isAr ? 'التكلفة علينا' : 'Our cost'}</label>
+                <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'التكلفة علينا' : 'Our cost'}</label>
                 <PriceInput
                   value={cost}
                   onChange={setCost}
-                  className="w-full px-2.5 py-2 rounded-lg bg-black border border-white/10 text-white text-xs font-mono"
+                  className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs font-mono"
                 />
               </div>
               <div className="min-w-0">
-                <label className="block text-[11px] text-white/40 mb-1">{isAr ? 'عدد الدفعات المتفق عليها' : 'Agreed installments'}</label>
+                <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'عدد الدفعات المتفق عليها' : 'Agreed installments'}</label>
                 <input
                   type="number"
                   min={0}
                   value={installmentsPlanned}
                   onChange={(e) => setInstallmentsPlanned(e.target.value)}
                   placeholder={isAr ? 'اختياري' : 'optional'}
-                  className="w-full px-2.5 py-2 rounded-lg bg-black border border-white/10 text-white text-xs font-mono"
+                  className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs font-mono"
                 />
               </div>
               <div className="min-w-0 col-span-2 sm:col-span-1">
-                <span className="block text-[11px] text-white/40 mb-1">{isAr ? 'الربح المحقق' : 'Realized profit'}</span>
+                <span className="block text-[11px] text-ink/50 mb-1">{isAr ? 'الربح المحقق' : 'Realized profit'}</span>
                 <strong className={`block text-base font-mono font-extrabold wrap-break-word ${rowProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                   {formatPrice(rowProfit, language, currency)}
                 </strong>
@@ -505,10 +505,10 @@ function ContractRow({
             {/* Band 3 — the ledger every figure above is derived from. */}
             <div className="p-3.5 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-bold text-white/50">
+                <span className="text-[11px] font-bold text-ink/60">
                   {isAr ? 'سجل الدفعات' : 'Payment ledger'}
                   {installmentsPlannedNum > 0 && (
-                    <span className="text-white/35 font-normal font-mono">
+                    <span className="text-ink/45 font-normal font-mono">
                       {' '}— {payments.length}/{installmentsPlannedNum}
                     </span>
                   )}
@@ -516,7 +516,7 @@ function ContractRow({
                 <button
                   type="button"
                   onClick={addPayment}
-                  className="flex items-center gap-1 text-[11px] font-bold text-white bg-white/[0.08] hover:bg-white/[0.08] border border-white/15 px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors"
+                  className="flex items-center gap-1 text-[11px] font-bold text-ink bg-white/90 hover:bg-sand-light border border-ink/15 px-2.5 py-1.5 rounded-lg cursor-pointer transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   {isAr ? 'إضافة دفعة' : 'Add payment'}
@@ -524,30 +524,30 @@ function ContractRow({
               </div>
 
               {payments.length === 0 ? (
-                <p className="text-[11px] text-white/35 py-2 text-center rounded-lg border border-dashed border-white/10">
+                <p className="text-[11px] text-ink/45 py-2 text-center rounded-lg border border-dashed border-ink/10">
                   {isAr ? 'لم تُسجَّل أي دفعة بعد' : 'No payments logged yet'}
                 </p>
               ) : (
                 <div className="space-y-2">
                   {payments.map((p) => (
-                    <div key={p.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 rounded-lg bg-black border border-white/10">
+                    <div key={p.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 rounded-lg bg-paper border border-ink/10">
                       <input
                         type="date"
                         value={p.date}
                         onChange={(e) => updatePayment(p.id, { date: e.target.value })}
-                        className="px-2 py-1.5 rounded-md bg-white/[0.04] border border-white/10 text-white text-[11px] font-mono w-36 shrink-0"
+                        className="px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono w-36 shrink-0"
                       />
                       <PriceInput
                         value={String(p.amountIQD)}
                         onChange={(v) => updatePayment(p.id, { amountIQD: Number(v) || 0 })}
-                        className="px-2 py-1.5 rounded-md bg-white/[0.04] border border-white/10 text-white text-[11px] font-mono w-32 shrink-0"
+                        className="px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono w-32 shrink-0"
                       />
                       <input
                         type="text"
                         value={p.note || ''}
                         onChange={(e) => updatePayment(p.id, { note: e.target.value })}
                         placeholder={isAr ? 'ملاحظة (اختياري)' : 'Note (optional)'}
-                        className="flex-1 min-w-24 px-2 py-1.5 rounded-md bg-white/[0.04] border border-white/10 text-white text-[11px]"
+                        className="flex-1 min-w-24 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px]"
                       />
                       <button
                         type="button"
@@ -565,7 +565,7 @@ function ContractRow({
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
+            <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
               {isAr ? 'الشروط المتفق عليها بعد المراجعة (تظهر على العقد المطبوع)' : 'Agreed Terms After Review (shown on the printed contract)'}
             </label>
             <textarea
@@ -573,12 +573,12 @@ function ContractRow({
               value={adminNotes}
               onChange={(e) => setAdminNotes(e.target.value)}
               placeholder={isAr ? 'مثال: تم الاتفاق على تخفيض السعر مقابل الدفع الكامل مسبقاً...' : 'e.g. Agreed on a reduced price in exchange for full upfront payment...'}
-              className="w-full p-3 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs"
+              className="w-full p-3 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
+            <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
               {isAr ? 'توقيع واعتماد NOVAIQ (يظهر على العقد المطبوع بجانب توقيع العميل)' : "NOVAIQ's Sign-off (shown on the printed contract next to the client's signature)"}
             </label>
             <CompanySignaturePad
@@ -601,7 +601,7 @@ function ContractRow({
             <button
               onClick={handleDownload}
               disabled={isDownloading}
-              className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/10 disabled:opacity-60 text-white border border-white/15 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-4 py-2.5 rounded-xl bg-white/70 hover:bg-sand-light disabled:opacity-60 text-ink border border-ink/15 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
             >
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               <span>{isAr ? 'تنزيل PDF' : 'Download PDF'}</span>

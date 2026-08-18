@@ -70,7 +70,7 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
   return (
     <div className="space-y-6">
       <div className="max-w-lg space-y-4">
-        <p className="text-xs text-white/50">
+        <p className="text-xs text-ink/60">
           {isAr
             ? 'أضف بريد شريكك هنا ليصبح مسؤولاً (أدمن) بنفس صلاحياتك الكاملة. عليه بعدها إنشاء حساب عادي بنفس البريد من زر "اشتراك" — بمجرد تسجيل دخوله، سيدخل تلقائياً إلى لوحة التحكم هذه بدلاً من صفحة العقود الخاصة بالزبائن.'
             : "Add your partner's email here to make them a full admin. They then just sign up normally with this same email via the \"Sign Up\" button — once logged in, they'll automatically land in this control panel instead of the customer contracts view."}
@@ -84,7 +84,7 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="partner@email.com"
             dir="ltr"
-            className="flex-1 px-4 py-2.5 rounded-xl bg-black border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs font-mono"
+            className="flex-1 px-4 py-2.5 rounded-xl bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs font-mono"
           />
           <button
             type="submit"
@@ -109,13 +109,13 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
         )}
       </div>
 
-      <div className="space-y-3 pt-2 border-t border-white/10">
+      <div className="space-y-3 pt-2 border-t border-ink/10">
         <div className="flex items-center justify-between pt-3">
-          <h4 className="text-xs font-bold text-white">{isAr ? 'أعضاء الفريق الحاليون' : 'Current Team Members'}</h4>
+          <h4 className="text-xs font-bold text-ink">{isAr ? 'أعضاء الفريق الحاليون' : 'Current Team Members'}</h4>
           <button
             onClick={load}
             disabled={isLoading}
-            className="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 disabled:opacity-60"
+            className="px-3 py-1.5 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/75 hover:text-ink text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 disabled:opacity-60"
           >
             {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <RotateCcw className="w-3 h-3" />}
             <span>{isAr ? 'تحديث' : 'Refresh'}</span>
@@ -129,31 +129,31 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
         )}
 
         {isLoading && !members ? (
-          <div className="py-10 text-center text-white/50 text-xs">
-            <Loader2 className="w-5 h-5 text-white mx-auto mb-2 animate-spin" />
+          <div className="py-10 text-center text-ink/60 text-xs">
+            <Loader2 className="w-5 h-5 text-ink mx-auto mb-2 animate-spin" />
           </div>
         ) : members && members.length > 0 ? (
           <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2.5">
             {members.map((m) => (
-              <div key={m.email} className="p-3.5 rounded-2xl bg-black border border-white/10 flex items-center gap-3">
+              <div key={m.email} className="p-3.5 rounded-2xl bg-paper border border-ink/10 flex items-center gap-3">
                 {m.photoURL ? (
                   <img src={m.photoURL} alt="" referrerPolicy="no-referrer" className="w-10 h-10 rounded-full object-cover shrink-0" />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center shrink-0">
-                    <Users className="w-4 h-4 text-white/50" />
+                  <div className="w-10 h-10 rounded-full bg-white/70 border border-ink/10 flex items-center justify-center shrink-0">
+                    <Users className="w-4 h-4 text-ink/60" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white truncate">{m.displayName || m.email}</span>
+                    <span className="text-xs font-bold text-ink truncate">{m.displayName || m.email}</span>
                     {!m.hasAccount && (
                       <span className="px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-900/60 text-amber-300 text-[10px] font-bold shrink-0">
                         {isAr ? 'بانتظار التسجيل' : 'Pending sign-up'}
                       </span>
                     )}
                   </div>
-                  <div className="text-[10px] text-white/40 font-mono truncate" dir="ltr">{m.email}</div>
-                  <div className="text-[10px] text-white/35 mt-0.5">
+                  <div className="text-[10px] text-ink/50 font-mono truncate" dir="ltr">{m.email}</div>
+                  <div className="text-[10px] text-ink/45 mt-0.5">
                     {isAr ? 'أُضيف:' : 'Added:'} {formatDate(m.addedAt)}
                   </div>
                 </div>
@@ -162,7 +162,7 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
           </div>
         ) : (
           !loadError && (
-            <div className="py-10 text-center text-white/40 text-xs border border-dashed border-white/10 rounded-2xl">
+            <div className="py-10 text-center text-ink/50 text-xs border border-dashed border-ink/10 rounded-2xl">
               {isAr ? 'لا يوجد أعضاء فريق بعد' : 'No team members yet'}
             </div>
           )

@@ -22,7 +22,7 @@ export function PricingTab({ isAr, language, currency }: { isAr: boolean; langua
       <div className="max-w-xs">
         <StatTile icon={Layers} label={isAr ? 'إجمالي القوالب' : 'Total Templates'} value={String(templates.length)} accent="text-amber-400" />
       </div>
-      <p className="text-xs text-white/50">
+      <p className="text-xs text-ink/60">
         {isAr
           ? 'أي تعديل هنا ينعكس فوراً على معرض القوالب وحاسبة العقد للزوار — بدون الحاجة لأي تحديث برمجي.'
           : 'Any change here reflects immediately on the public template gallery and contract builder — no code deploy needed.'}
@@ -92,49 +92,49 @@ function PricingRow({
   };
 
   return (
-    <div className="rounded-2xl bg-black border border-white/10 overflow-hidden">
+    <div className="rounded-2xl bg-paper border border-ink/10 overflow-hidden">
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-3 p-4 text-left cursor-pointer hover:bg-white/[0.06]/50 transition-colors"
+        className="w-full flex items-center gap-3 p-4 text-left cursor-pointer hover:bg-sand-light/80 transition-colors"
       >
         {template.previewImage && !imageBroken ? (
           <img
             src={template.previewImage}
             alt=""
             onError={() => setImageBroken(true)}
-            className="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0"
+            className="w-12 h-12 rounded-xl object-cover border border-ink/10 shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shrink-0">
-            <Layers className="w-4 h-4 text-white/40" />
+          <div className="w-12 h-12 rounded-xl bg-white/70 border border-ink/10 flex items-center justify-center shrink-0">
+            <Layers className="w-4 h-4 text-ink/50" />
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="text-xs sm:text-sm font-bold text-white truncate">{translateText(template.title, language)}</div>
-          <div className="text-[10px] text-white/40 truncate">{translateText(template.categoryLabel, language)}</div>
+          <div className="text-xs sm:text-sm font-bold text-ink truncate">{translateText(template.title, language)}</div>
+          <div className="text-[10px] text-ink/50 truncate">{translateText(template.categoryLabel, language)}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs font-mono text-white/70">{formatPrice(template.basePriceIQD, language, currency)}</span>
+          <span className="text-xs font-mono text-ink/75">{formatPrice(template.basePriceIQD, language, currency)}</span>
         </div>
       </button>
 
       {expanded && (
-        <div className="p-4 pt-0 space-y-3 border-t border-white/10 animate-fade-in">
+        <div className="p-4 pt-0 space-y-3 border-t border-ink/10 animate-fade-in">
           <div className="pt-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
             <div className="space-y-3">
               <div>
-                <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
+                <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
                   {isAr ? 'اسم القالب' : 'Template Name'}
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
+                <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
                   {isAr ? 'رابط صورة القالب' : 'Template Image URL'}
                 </label>
                 <input
@@ -146,11 +146,11 @@ function PricingRow({
                     setImageBroken(false);
                   }}
                   placeholder="https://..."
-                  className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs font-mono"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
+                <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
                   {isAr ? 'رابط الموقع الفعلي (اختياري)' : 'Live Site URL (optional)'}
                 </label>
                 <input
@@ -159,9 +159,9 @@ function PricingRow({
                   value={demoUrl}
                   onChange={(e) => setDemoUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs font-mono"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs font-mono"
                 />
-                <p className="mt-1 text-[10px] text-white/40">
+                <p className="mt-1 text-[10px] text-ink/50">
                   {isAr
                     ? 'إذا تركته فارغاً، لن يظهر زر "زيارة الموقع" في بطاقة القالب.'
                     : 'Leave empty to hide the "Visit Site" button on the template card.'}
@@ -173,23 +173,23 @@ function PricingRow({
                 src={previewImage}
                 alt=""
                 onError={() => setImageBroken(true)}
-                className="w-full sm:w-28 h-28 rounded-xl object-cover border border-white/10"
+                className="w-full sm:w-28 h-28 rounded-xl object-cover border border-ink/10"
               />
             ) : (
-              <div className="w-full sm:w-28 h-28 rounded-xl bg-white/[0.04] border border-dashed border-white/10 flex items-center justify-center text-white/35 text-[10px] text-center px-2">
+              <div className="w-full sm:w-28 h-28 rounded-xl bg-white/70 border border-dashed border-ink/10 flex items-center justify-center text-ink/45 text-[10px] text-center px-2">
                 {isAr ? 'رابط غير صالح' : 'Invalid URL'}
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
+            <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
               {isAr ? 'السعر الأساسي للقالب (د.ع)' : 'Template Base Price (IQD)'}
             </label>
             <PriceInput
               value={basePriceIQD}
               onChange={setBasePriceIQD}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs font-mono"
             />
           </div>
 

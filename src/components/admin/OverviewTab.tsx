@@ -30,8 +30,8 @@ export function OverviewTab({
           most competition for attention. What is left is the pair that genuinely belongs to
           analysis rather than to the running scoreboard: what the work cost, and what the profit
           becomes if every outstanding balance is eventually collected. */}
-      <div className="p-5 rounded-2xl bg-black border border-white/10 space-y-3">
-        <h3 className="text-sm font-bold text-white">{isAr ? 'التكلفة والربح المتوقع' : 'Cost & Projected Profit'}</h3>
+      <div className="p-5 rounded-2xl bg-paper border border-ink/10 space-y-3">
+        <h3 className="text-sm font-bold text-ink">{isAr ? 'التكلفة والربح المتوقع' : 'Cost & Projected Profit'}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <StatTile
             icon={TrendingDown}
@@ -51,8 +51,8 @@ export function OverviewTab({
       <CurrencyConverterCard isAr={isAr} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="p-5 rounded-2xl bg-black border border-white/10 space-y-3">
-          <h3 className="text-sm font-bold text-white">{isAr ? 'حالة العقود' : 'Contracts by Status'}</h3>
+        <div className="p-5 rounded-2xl bg-paper border border-ink/10 space-y-3">
+          <h3 className="text-sm font-bold text-ink">{isAr ? 'حالة العقود' : 'Contracts by Status'}</h3>
           <div className="space-y-2.5">
             {STATUS_FLOW.map((status) => (
               <BarRow key={status} isAr={isAr} label={translateText(statusArabic(status), language)} count={stats.byStatus[status] || 0} total={stats.count} />
@@ -60,8 +60,8 @@ export function OverviewTab({
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-black border border-white/10 space-y-3">
-          <h3 className="text-sm font-bold text-white">{isAr ? 'حالة الدفع' : 'Payment Status'}</h3>
+        <div className="p-5 rounded-2xl bg-paper border border-ink/10 space-y-3">
+          <h3 className="text-sm font-bold text-ink">{isAr ? 'حالة الدفع' : 'Payment Status'}</h3>
           <div className="space-y-2.5">
             {PAYMENT_STATUS_FLOW.map((ps) => (
               <BarRow key={ps} isAr={isAr} label={translateText(paymentStatusArabic(ps), language)} count={stats.byPaymentStatus[ps] || 0} total={stats.count} />
@@ -70,10 +70,10 @@ export function OverviewTab({
         </div>
       </div>
 
-      <div className="p-5 rounded-2xl bg-black border border-white/10 space-y-3">
-        <h3 className="text-sm font-bold text-white">{isAr ? 'القوالب الأكثر طلباً' : 'Most Requested Templates'}</h3>
+      <div className="p-5 rounded-2xl bg-paper border border-ink/10 space-y-3">
+        <h3 className="text-sm font-bold text-ink">{isAr ? 'القوالب الأكثر طلباً' : 'Most Requested Templates'}</h3>
         {stats.topTemplates.length === 0 ? (
-          <p className="text-xs text-white/40">{isAr ? 'لا توجد بيانات بعد' : 'No data yet'}</p>
+          <p className="text-xs text-ink/50">{isAr ? 'لا توجد بيانات بعد' : 'No data yet'}</p>
         ) : (
           <div className="space-y-2.5">
             {stats.topTemplates.map(([title, count]) => (
@@ -83,19 +83,19 @@ export function OverviewTab({
         )}
       </div>
 
-      <div className="p-5 rounded-2xl bg-black border border-white/10 space-y-3">
-        <h3 className="text-sm font-bold text-white">{isAr ? 'أحدث العقود' : 'Recent Contracts'}</h3>
+      <div className="p-5 rounded-2xl bg-paper border border-ink/10 space-y-3">
+        <h3 className="text-sm font-bold text-ink">{isAr ? 'أحدث العقود' : 'Recent Contracts'}</h3>
         {recent.length === 0 ? (
-          <p className="text-xs text-white/40">{isAr ? 'لا توجد عقود بعد' : 'No contracts yet'}</p>
+          <p className="text-xs text-ink/50">{isAr ? 'لا توجد عقود بعد' : 'No contracts yet'}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
             {recent.map((c) => (
-              <div key={c.id || c.contractNumber} className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
+              <div key={c.id || c.contractNumber} className="flex items-center justify-between p-2.5 rounded-xl bg-white/70 border border-ink/10 text-xs">
                 <div className="min-w-0">
-                  <div className="text-white font-bold truncate">{c.companyName}</div>
-                  <div className="text-white/40 text-[10px] truncate">{translateText(c.templateTitle, language)}</div>
+                  <div className="text-ink font-bold truncate">{c.companyName}</div>
+                  <div className="text-ink/50 text-[10px] truncate">{translateText(c.templateTitle, language)}</div>
                 </div>
-                <span className="text-white/70 font-mono shrink-0">{formatPrice(c.totalPriceIQD || 0, language, currency)}</span>
+                <span className="text-ink/75 font-mono shrink-0">{formatPrice(c.totalPriceIQD || 0, language, currency)}</span>
               </div>
             ))}
           </div>

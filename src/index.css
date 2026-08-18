@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* ── Home palette as theme tokens ─────────────────────────────────────────────────────
+   The homepage carries the only colour on the site: sand grounds, a paper break, a
+   periwinkle accent, one ink. The admin panel and customer profile now share it (they used
+   to sit in the site's black), and they share it by referencing these tokens rather than
+   their own copy of the hexes — the same reason the palette lives in homePalette.ts.
+   --color-* in @theme generates bg-paper / text-ink / border-ink/10 etc. on demand. */
+@theme {
+  --color-sand: #D5BDAC;
+  --color-sand-deep: #C9AE95;
+  --color-sand-light: #E4D3C4;
+  --color-paper: #F6F1E9;
+  --color-periwinkle: #8295CF;
+  --color-ink: #101322;
+}
+
 /* Self-hosted Cairo + Tajawal — replaces the Google Fonts <link> in index.html.
    Loading fonts from the same origin as the page (instead of a fonts.googleapis.com
    stylesheet that itself points at a separate fonts.gstatic.com host) removes the

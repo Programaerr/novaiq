@@ -21,14 +21,14 @@ interface LogoutConfirmDialogProps {
 // site-menu-drawer bug in TemplateInteractiveSandbox.tsx.
 export const LogoutConfirmDialog: React.FC<LogoutConfirmDialogProps> = ({ isAr, onConfirm, onCancel }) =>
   createPortal(
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-sm bg-black border border-white/10 rounded-3xl p-6 space-y-5 shadow-2xl">
-        <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white mx-auto">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-paper/70 backdrop-blur-sm">
+      <div className="w-full max-w-sm bg-paper border border-ink/10 rounded-3xl p-6 space-y-5 shadow-2xl">
+        <div className="w-12 h-12 rounded-2xl bg-white/70 border border-ink/10 flex items-center justify-center text-ink mx-auto">
           <LogOut className="w-6 h-6" />
         </div>
         <div className="text-center space-y-1.5">
-          <h3 className="text-base font-bold text-white">{isAr ? 'تسجيل الخروج؟' : 'Sign out?'}</h3>
-          <p className="text-xs text-white/50">
+          <h3 className="text-base font-bold text-ink">{isAr ? 'تسجيل الخروج؟' : 'Sign out?'}</h3>
+          <p className="text-xs text-ink/60">
             {isAr ? 'سيتم تسجيل خروجك من حسابك في NOVAIQ.' : 'You will be signed out of your NOVAIQ account.'}
           </p>
         </div>
