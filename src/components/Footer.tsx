@@ -50,7 +50,7 @@ const SAND_VARS: React.CSSProperties = {
   ['--ft-fg' as string]: '16 19 34',
   ['--ft-bg' as string]: '213 189 172',
   background: SAND,
-  ['--ft-a40' as string]: '0.62',
+  ['--ft-a40' as string]: '0.7',
   ['--ft-a50' as string]: '0.75',
   ['--ft-a55' as string]: '0.78',
   ['--ft-a60' as string]: '0.82',
