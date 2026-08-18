@@ -507,7 +507,7 @@ export default function App() {
 
             <LazyOnView
               rootMargin="800px 0px"
-              placeholder={<div className="h-[40vh] bg-[var(--nq-ground)]" aria-hidden="true" />}
+              placeholder={<div className="h-[40vh] bg-paper" aria-hidden="true" />}
             >
               <Suspense fallback={<PageLoader />}>
                 <PhasesSection language={language} />
@@ -516,7 +516,7 @@ export default function App() {
 
             <LazyOnView
               rootMargin="800px 0px"
-              placeholder={<div className="h-[40vh] bg-[var(--nq-ground)]" aria-hidden="true" />}
+              placeholder={<div className="h-[40vh] bg-periwinkle" aria-hidden="true" />}
             >
               <Suspense fallback={<PageLoader />}>
                 <ContactSection language={language} />

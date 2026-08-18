@@ -136,9 +136,17 @@ export const ResponsivePreview: React.FC<{
               }}
             />
             {isLoading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#05070c] text-zinc-500">
-                <span className="w-7 h-7 rounded-full border-2 border-zinc-700 border-t-white animate-spin" />
-                <span className="text-[11px] font-mono">جارٍ تحميل الموقع…</span>
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center gap-3"
+                style={{ background: 'rgba(246, 241, 233, 0.92)' }}
+              >
+                <span
+                  className="w-7 h-7 rounded-full animate-spin"
+                  style={{ border: '2px solid rgba(130, 149, 207, 0.35)', borderTopColor: '#8295CF' }}
+                />
+                <span className="text-[11px] font-mono" style={{ color: '#101322', opacity: 0.6 }}>
+                  جارٍ تحميل الموقع…
+                </span>
               </div>
             )}
           </div>
