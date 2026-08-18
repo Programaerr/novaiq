@@ -180,9 +180,6 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
 
   const hold = useCallback(() => setHeld(true), []);
 
-  /* Column-major placement puts 1 and 2 in the first column, 3 and 4 in the second — so the live
-     ROW is the index's parity, and that is what the mark on the centre rule tracks. */
-  const activeRow = active % 2;
 
   return (
     <section
@@ -288,23 +285,18 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
             reads as the bar being too short for the section it heads, which is the sort of thing
             that looks like nothing in particular and is felt as untidiness. */}
         <div className="relative mx-auto max-w-[56rem] mt-14 sm:mt-20">
-          {/* The rule between the columns, with a short mark that follows the live row. Only from
-              `sm` up, because below that the cells are one column and a rule down the middle of
-              them would be crossing out the content. */}
+          {/* The rule between the columns. Only from `sm` up, because below that the cells are
+              one column and a rule down the middle of them would be crossing out the content.
+
+              A plain hairline: it had a short blue mark on it that slid to whichever row was
+              live, and the state it was reporting is already carried by the pill on the rail,
+              the numeral and the rule inside the card — a fourth thing saying the same thing
+              was one moving part too many for a divider. */}
           <span
             aria-hidden="true"
-            className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2 overflow-hidden"
+            className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2"
             style={{ background: SAND_DEEP }}
-          >
-            <span
-              className="absolute inset-x-0 h-[38%] rounded-full"
-              style={{
-                background: PERIWINKLE,
-                top: activeRow === 0 ? '6%' : '56%',
-                transition: 'top 0.55s cubic-bezier(0.22, 1, 0.36, 1)',
-              }}
-            />
-          </span>
+          />
 
           <ol className="grid gap-y-12 sm:gap-y-16 sm:grid-cols-2 sm:grid-rows-2 sm:grid-flow-col sm:gap-x-14 lg:gap-x-20">
             {PHASES.map((phase, i) => {
