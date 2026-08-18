@@ -32,7 +32,7 @@ const MAX_LIGHTS = 5;
 
 /** How much flatter than round a pool is. Light landing on a floor seen at a shallow angle
     spreads sideways, and a circular bloom under a card reads as a sticker rather than as light. */
-const POOL_SQUASH = 0.58;
+const POOL_SQUASH = 0.5;
 
 function makeGlowMaterial(ground: string): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
@@ -81,11 +81,17 @@ function makeGlowMaterial(ground: string): THREE.ShaderMaterial {
         for (int i = 0; i < ${MAX_LIGHTS}; i++) {
           vec2 d = p - uPos[i].xy;
           d.y /= ${POOL_SQUASH.toFixed(3)};
-          // Squared falloff on a linear ramp rather than a true inverse square: a physical falloff
-          // never actually reaches zero, so every pool would still be tinting the far edge of the
-          // canvas and the whole ground would drift off the section colour it is supposed to match.
+          // A ramp that reaches zero at the radius, rather than a true inverse square: a physical
+          // falloff never actually reaches zero, so every pool would still be tinting the far edge
+          // of the canvas and the ground would drift off the section colour it has to match.
+          //
+          // Squared and not cubed, and the difference is the whole visible effect. Almost all of
+          // this light lands BEHIND a card — the only part anyone sees is the fringe, out where r
+          // is small, and that is exactly where an extra power throws the energy away: at 150px
+          // outside a 420px pool, r is 0.64, which is 41% of full strength squared and 26% cubed.
+          // Cubed the bloom was there in the buffer and invisible on the page.
           float r = clamp(1.0 - length(d) / max(uPos[i].z, 1.0), 0.0, 1.0);
-          lit += uColor[i] * (r * r * r) * uAmp[i];
+          lit += uColor[i] * (r * r) * uAmp[i];
         }
 
         // The canvas has edges and the section it sits in does not. Everything above is added to a
