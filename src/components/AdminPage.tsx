@@ -6,7 +6,8 @@ import { subscribeToAuthState, isAdminEmail } from '../lib/auth';
 import { LoginPage } from './LoginPage';
 import { AdminDashboard } from './AdminDashboard';
 import { CustomerDashboard } from './CustomerDashboard';
-import { RefreshCw } from 'lucide-react';
+import { useDocumentFlag } from '../lib/useDocumentFlag';
+import { PageLoader } from './PageLoader';
 
 interface AdminPageProps {
   language: Language;
@@ -22,6 +23,14 @@ interface AdminPageProps {
 export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD', onContinueAsGuest }) => {
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
+
+  // Declare the light page ground HERE, on the entry component, not on the dashboards it
+  // renders. Otherwise the loader below — which shows while auth and the admin check are still
+  // running — would sit on the site's black ground, a black panel with a spinner in it. The
+  // account pages paint their own ground, so the ground must already be light before the first
+  // pixel of the first dashboard (or of the loader) is drawn.
+  useDocumentFlag('flat');
+  useDocumentFlag('account');
 
   useEffect(() => subscribeToAuthState(setUser), []);
 
@@ -40,17 +49,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
   }, [user]);
 
   if (user === undefined || (user && isAdmin === undefined)) {
-    return (
-      <div className="py-24 text-center flex flex-col items-center gap-3">
-        <span
-          className="w-7 h-7 rounded-full animate-spin"
-          style={{ border: '2px solid rgba(130, 149, 207, 0.35)', borderTopColor: '#8295CF' }}
-        />
-        <span className="text-xs font-mono" style={{ color: '#101322', opacity: 0.6 }}>
-          {language === 'ar' ? 'جارٍ التحقق...' : 'Checking...'}
-        </span>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!user) {
