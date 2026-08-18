@@ -41,8 +41,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
 
   if (user === undefined || (user && isAdmin === undefined)) {
     return (
-      <div className="py-24 text-center text-zinc-400 text-xs">
-        <RefreshCw className="w-6 h-6 text-white mx-auto mb-2 animate-spin" />
+      <div className="py-24 text-center flex flex-col items-center gap-3">
+        <span
+          className="w-7 h-7 rounded-full animate-spin"
+          style={{ border: '2px solid rgba(130, 149, 207, 0.35)', borderTopColor: '#8295CF' }}
+        />
+        <span className="text-xs font-mono" style={{ color: '#101322', opacity: 0.6 }}>
+          {language === 'ar' ? 'جارٍ التحقق...' : 'Checking...'}
+        </span>
       </div>
     );
   }
