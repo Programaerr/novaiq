@@ -27,6 +27,11 @@ const STATUS_LABEL_AR: Record<ContractData['status'], string> = {
   completed: 'مكتمل ومسلم',
 };
 
+// The visible order of a contract's stages, used by the progress rail below. `draft` is
+// excluded on purpose: a draft is not a stage on the customer's journey, it is a state
+// only the admin ever sees. Every other status has exactly one step in this rail.
+const STATUS_STEPS: ContractData['status'][] = ['submitted', 'under_review', 'in_development', 'completed'];
+
 function formatDate(iso: string | undefined, isAr: boolean): string {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB', {
@@ -36,10 +41,63 @@ function formatDate(iso: string | undefined, isAr: boolean): string {
   });
 }
 
+// The four stages a contract passes through, as a rail. The step the contract has reached is
+// filled; everything before it is filled too (you have passed it), everything after is dimmed.
+function StatusRail({ status, isAr }: { status: ContractData['status']; isAr: boolean }) {
+  const currentIndex = STATUS_STEPS.indexOf(status);
+  // A `completed` contract fills the whole rail. Anything before `submitted` (a draft) fills
+  // nothing, which is correct: a draft has not entered the process.
+  const reached = currentIndex >= 0 ? currentIndex : -1;
+  const labels: Record<ContractData['status'], { ar: string; en: string }> = {
+    draft: { ar: 'مسودة', en: 'Draft' },
+    submitted: { ar: 'قُدِّم', en: 'Submitted' },
+    under_review: { ar: 'قيد المراجعة', en: 'Under review' },
+    in_development: { ar: 'قيد التطوير', en: 'In development' },
+    completed: { ar: 'مكتمل', en: 'Completed' },
+  };
+  return (
+    <div className="pt-4">
+      <div className="flex items-center">
+        {STATUS_STEPS.map((step, i) => {
+          const filled = reached >= i;
+          return (
+            <React.Fragment key={step}>
+              {i > 0 && (
+                <div
+                  className={`h-0.5 flex-1 rounded-full transition-colors ${
+                    filled ? 'bg-white' : 'bg-white/15'
+                  }`}
+                  aria-hidden="true"
+                />
+              )}
+              <div className="flex flex-col items-center gap-1 shrink-0">
+                <span
+                  className={`w-3 h-3 rounded-full border transition-all ${
+                    filled ? 'bg-white border-white' : 'bg-transparent border-white/30'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span
+                  className={`text-[9px] sm:text-[10px] font-bold whitespace-nowrap ${
+                    filled ? 'text-white' : 'text-white/40'
+                  }`}
+                >
+                  {isAr ? labels[step].ar : labels[step].en}
+                </span>
+              </div>
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // What a logged-in customer sees at ?page=orders — only contracts matching their own
-// account email, each showing exactly when it was created, last updated, and (once
-// reached) completed. Admins never see this: AdminPage routes them to AdminDashboard
-// instead, before this component is ever rendered.
+// account. Ownership is decided by `uid` first (the account Firestore security rules key on),
+// then falls back to the email the contract carries, so a contract still shows even when the
+// email typed in the form differs from the Google account's. Admins never see this:
+// AdminPage routes them to AdminDashboard instead, before this component is ever rendered.
 export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, currency = 'IQD', user }) => {
   const isAr = language === 'ar';
   const [contracts, setContracts] = useState<ContractData[]>([]);
@@ -53,11 +111,16 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
 
   useEffect(() => {
     const unsub = subscribeToContracts((all) => {
-      const mine = all.filter((c) => (c.email || '').trim().toLowerCase() === (user.email || '').trim().toLowerCase());
+      const mine = all.filter((c) => {
+        if (user.uid && c.uid && c.uid === user.uid) return true;
+        const cEmail = (c.email || c.clientEmail || '').trim().toLowerCase();
+        const accountEmail = (user.email || '').trim().toLowerCase();
+        return !!cEmail && cEmail === accountEmail;
+      });
       setContracts(mine);
     });
     return unsub;
-  }, [user.email]);
+  }, [user.email, user.uid]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-2 pb-12 space-y-6">
@@ -200,14 +263,10 @@ function CustomerContractRow({
             </div>
           </div>
 
-          {contract.companySignatureDataUrl && (
-            <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-900/40 text-xs flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-emerald-300 font-bold">
-                {isAr ? 'وقّعت NOVAIQ واعتمدت هذا العقد' : 'NOVAIQ has signed off on and approved this contract'}
-              </span>
-            </div>
-          )}
+          {/* The four stages at a glance — where this contract sits in the process right now,
+              kept above every detail so the answer to "what's the status" never requires
+              reading the badge in the header. */}
+          <StatusRail status={contract.status} isAr={isAr} />
 
           {contract.adminNotes && (
             <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-900/40 text-xs">
@@ -215,6 +274,56 @@ function CustomerContractRow({
               <p className="text-white/90">{contract.adminNotes}</p>
             </div>
           )}
+
+          {/* Signatures — the customer's own on the right (as drawn when the contract was
+              created), NOVAIQ's on the left (added by the admin on approval). Showing the
+              customer their own signature confirms it was actually stored; showing NOVAIQ's
+              confirms the countersign landed. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {contract.signatureDataUrl ? (
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
+                <span className="text-[11px] font-bold text-white/50 block mb-2">
+                  {isAr ? 'توقيعك' : 'Your Signature'}
+                </span>
+                <img
+                  src={contract.signatureDataUrl}
+                  alt={isAr ? 'توقيعك' : 'Your signature'}
+                  className="h-16 object-contain bg-white rounded-lg"
+                  style={{ filter: 'invert(1)' }}
+                />
+              </div>
+            ) : (
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
+                <span className="text-[11px] font-bold text-white/50 block">
+                  {isAr ? 'توقيعك' : 'Your Signature'}
+                </span>
+                <p className="mt-2 text-white/40">{isAr ? 'لا يوجد توقيع مخزن لهذا العقد.' : 'No signature stored for this contract.'}</p>
+              </div>
+            )}
+
+            {contract.companySignatureDataUrl ? (
+              <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-900/40 text-xs">
+                <span className="text-[11px] font-bold text-emerald-300 block mb-2">
+                  {isAr ? 'توقيع NOVAIQ' : 'NOVAIQ Signature'}
+                </span>
+                <img
+                  src={contract.companySignatureDataUrl}
+                  alt={isAr ? 'توقيع NOVAIQ' : 'NOVAIQ signature'}
+                  className="h-16 object-contain bg-white rounded-lg"
+                  style={{ filter: 'invert(1)' }}
+                />
+              </div>
+            ) : (
+              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
+                <span className="text-[11px] font-bold text-white/50 block">
+                  {isAr ? 'توقيع NOVAIQ' : 'NOVAIQ Signature'}
+                </span>
+                <p className="mt-2 text-white/40">
+                  {isAr ? 'بانتظار مراجعة الفريق وتوقيعه.' : 'Awaiting the team’s review and sign-off.'}
+                </p>
+              </div>
+            )}
+          </div>
 
           {(paidAmountIQD > 0 || (contract.payments && contract.payments.length > 0)) && (
             <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 space-y-2.5">
