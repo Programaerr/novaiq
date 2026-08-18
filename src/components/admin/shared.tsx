@@ -19,12 +19,12 @@ export function StatTile({ icon: Icon, label, value, accent }: { icon: React.Com
   // responsive size plus wrapping instead of truncating means a big number is always fully
   // readable (on up to two lines if it has to), never cut off.
   return (
-    <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-between gap-3">
+    <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between gap-3">
       <div className="space-y-1 min-w-0 flex-1">
-        <span className="text-[11px] text-zinc-400 block font-medium truncate">{label}</span>
+        <span className="text-[11px] text-white/50 block font-medium truncate">{label}</span>
         <div className={`text-base sm:text-lg lg:text-xl font-extrabold font-mono leading-tight wrap-break-word ${accent || 'text-white'}`}>{value}</div>
       </div>
-      <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shrink-0">
+      <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white shrink-0">
         <Icon className="w-5 h-5" />
       </div>
     </div>
@@ -48,8 +48,8 @@ export function TabButton({
       onClick={onClick}
       className={`${full ? 'w-full' : ''} px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all border ${
         active
-          ? 'bg-zinc-800 border-white text-white'
-          : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white'
+          ? 'bg-white/[0.08] border-white text-white'
+          : 'bg-black border-white/10 text-white/50 hover:text-white'
       }`}
     >
       <Icon className="w-4 h-4 shrink-0" />
@@ -68,11 +68,11 @@ export function TabButton({
 export function KpiCell({ label, value, accent, hint }: { label: string; value: string; accent?: string; hint?: string }) {
   return (
     <div className="min-w-0 px-4 py-3">
-      <span className="text-[10px] uppercase tracking-wide text-zinc-500 block font-semibold truncate">{label}</span>
+      <span className="text-[10px] uppercase tracking-wide text-white/40 block font-semibold truncate">{label}</span>
       <div className={`text-sm sm:text-base font-extrabold font-mono leading-tight wrap-break-word mt-0.5 ${accent || 'text-white'}`}>
         {value}
       </div>
-      {hint && <span className="text-[10px] text-zinc-500 block mt-0.5 truncate">{hint}</span>}
+      {hint && <span className="text-[10px] text-white/40 block mt-0.5 truncate">{hint}</span>}
     </div>
   );
 }
@@ -90,10 +90,10 @@ export function CollectionBar({ collected, total, isAr }: { collected: number; t
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-[10px] font-semibold">
-        <span className="text-zinc-500">{isAr ? 'نسبة التحصيل' : 'Collected'}</span>
-        <span className={`font-mono ${done ? 'text-emerald-400' : pct > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>{pct}%</span>
+        <span className="text-white/40">{isAr ? 'نسبة التحصيل' : 'Collected'}</span>
+        <span className={`font-mono ${done ? 'text-emerald-400' : pct > 0 ? 'text-amber-400' : 'text-white/40'}`}>{pct}%</span>
       </div>
-      <div className="h-2 rounded-full bg-black border border-zinc-800 overflow-hidden">
+      <div className="h-2 rounded-full bg-black border border-white/10 overflow-hidden">
         <div
           className={`h-full rounded-full transition-[width] duration-500 ${done ? 'bg-emerald-500' : 'bg-amber-500'}`}
           style={{ width: `${pct}%`, [isAr ? 'marginLeft' : 'marginRight']: 'auto' }}
@@ -108,10 +108,10 @@ export function BarRow({ label, count, total, isAr }: { label: string; count: nu
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-[11px]">
-        <span className="text-zinc-300 truncate">{label}</span>
-        <span className="text-zinc-400 font-mono shrink-0">{count} ({pct}%)</span>
+        <span className="text-white/70 truncate">{label}</span>
+        <span className="text-white/50 font-mono shrink-0">{count} ({pct}%)</span>
       </div>
-      <div className="h-1.5 rounded-full bg-zinc-900 overflow-hidden">
+      <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
         <div className={`h-full bg-white/70 rounded-full`} style={{ width: `${pct}%`, [isAr ? 'marginLeft' : 'marginRight']: 'auto' }} />
       </div>
     </div>

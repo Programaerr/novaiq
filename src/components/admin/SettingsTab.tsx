@@ -57,21 +57,21 @@ export function SettingsTab({ isAr }: { isAr: boolean }) {
     <div className="space-y-4 max-w-2xl">
       <div className="space-y-1">
         <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <Settings className="w-4 h-4 text-zinc-400" />
+          <Settings className="w-4 h-4 text-white/50" />
           <span>{isAr ? 'روابط التواصل الاجتماعي وواتساب' : 'Social Media & WhatsApp Links'}</span>
         </h3>
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-white/50">
           {isAr
             ? 'تظهر هذه الروابط أسفل الموقع للزوار — اترك أي حقل فارغاً لإخفاء أيقونته من الفوتر.'
             : "These links appear at the bottom of the site for visitors — leave a field empty to hide its icon from the footer."}
         </p>
       </div>
 
-      <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
+      <div className="p-4 rounded-2xl bg-black border border-white/10 space-y-3">
         {SOCIAL_FIELDS.map(({ id, icon: Icon, labelAr, labelEn, placeholder }) => (
           <label key={id} className="block space-y-1.5">
-            <span className="text-[11px] font-bold text-zinc-300 flex items-center gap-1.5">
-              <Icon className="w-3.5 h-3.5 text-zinc-500" />
+            <span className="text-[11px] font-bold text-white/70 flex items-center gap-1.5">
+              <Icon className="w-3.5 h-3.5 text-white/40" />
               <span>{isAr ? labelAr : labelEn}</span>
             </span>
             <input
@@ -80,14 +80,14 @@ export function SettingsTab({ isAr }: { isAr: boolean }) {
               onChange={(e) => setLinks((prev) => ({ ...prev, [id]: e.target.value }))}
               placeholder={placeholder}
               dir="ltr"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono placeholder:text-zinc-700"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs font-mono placeholder:text-white/30"
             />
           </label>
         ))}
 
         <label className="block space-y-1.5">
-          <span className="text-[11px] font-bold text-zinc-300 flex items-center gap-1.5">
-            <MessageCircle className="w-3.5 h-3.5 text-zinc-500" />
+          <span className="text-[11px] font-bold text-white/70 flex items-center gap-1.5">
+            <MessageCircle className="w-3.5 h-3.5 text-white/40" />
             <span>{isAr ? 'رقم واتساب (مع رمز البلد)' : 'WhatsApp number (with country code)'}</span>
           </span>
           <input
@@ -96,14 +96,14 @@ export function SettingsTab({ isAr }: { isAr: boolean }) {
             onChange={(e) => setLinks((prev) => ({ ...prev, whatsapp: e.target.value }))}
             placeholder="9647701234567"
             dir="ltr"
-            className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono placeholder:text-zinc-700"
+            className="w-full px-3.5 py-2.5 rounded-xl bg-black border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs font-mono placeholder:text-white/30"
           />
         </label>
 
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full py-2.5 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 text-black text-xs font-extrabold flex items-center justify-center gap-2 cursor-pointer transition-all border border-white"
+          className="w-full py-2.5 rounded-xl bg-white hover:bg-white disabled:opacity-60 text-black text-xs font-extrabold flex items-center justify-center gap-2 cursor-pointer transition-all border border-white"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />

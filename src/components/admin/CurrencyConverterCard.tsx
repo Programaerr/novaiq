@@ -39,16 +39,16 @@ export function CurrencyConverterCard({ isAr }: { isAr: boolean }) {
       : '—';
 
   return (
-    <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
+    <div className="p-5 rounded-2xl bg-black border border-white/10 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <ArrowLeftRight className="w-4 h-4 text-zinc-400" />
+          <ArrowLeftRight className="w-4 h-4 text-white/50" />
           {isAr ? 'محول العملات (سعر السوق المباشر)' : 'Currency Converter (Live Market Rate)'}
         </h3>
         <button
           onClick={refresh}
           disabled={loading || useCustomRate}
-          className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white disabled:opacity-50 cursor-pointer transition-colors"
+          className="p-2 rounded-lg bg-white/[0.04] border border-white/10 text-white/50 hover:text-white disabled:opacity-50 cursor-pointer transition-colors"
           title={isAr ? 'تحديث السعر' : 'Refresh rate'}
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -63,38 +63,38 @@ export function CurrencyConverterCard({ isAr }: { isAr: boolean }) {
 
       <div className="flex items-center gap-2">
         <div className="flex-1">
-          <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">{fromLabel}</label>
+          <label className="block text-[11px] font-semibold text-white/40 mb-1.5">{fromLabel}</label>
           <PriceInput
             value={amount}
             onChange={setAmount}
             placeholder="0"
-            className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-sm font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono"
           />
         </div>
         <button
           onClick={() => setDirection((d) => (d === 'iqd_to_usd' ? 'usd_to_iqd' : 'iqd_to_usd'))}
           title={isAr ? 'عكس الاتجاه' : 'Swap direction'}
-          className="mt-5 shrink-0 p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white cursor-pointer transition-colors"
+          className="mt-5 shrink-0 p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white/50 hover:text-white cursor-pointer transition-colors"
         >
           <ArrowLeftRight className="w-4 h-4" />
         </button>
         <div className="flex-1">
-          <label className="block text-[11px] font-semibold text-zinc-500 mb-1.5">{toLabel}</label>
-          <div className="w-full px-3 py-2.5 rounded-xl bg-black border border-zinc-800 text-emerald-400 text-sm font-mono font-bold truncate" dir="ltr">
+          <label className="block text-[11px] font-semibold text-white/40 mb-1.5">{toLabel}</label>
+          <div className="w-full px-3 py-2.5 rounded-xl bg-black border border-white/10 text-emerald-400 text-sm font-mono font-bold truncate" dir="ltr">
             {resultText}
           </div>
         </div>
       </div>
 
-      <div className="pt-1 border-t border-zinc-900 space-y-2">
-        <label className="flex items-center gap-2 text-[11px] font-semibold text-zinc-400 cursor-pointer select-none">
+      <div className="pt-1 border-t border-white/5 space-y-2">
+        <label className="flex items-center gap-2 text-[11px] font-semibold text-white/50 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={useCustomRate}
             onChange={(e) => setUseCustomRate(e.target.checked)}
             className="w-3.5 h-3.5 accent-white cursor-pointer"
           />
-          <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-500" />
+          <SlidersHorizontal className="w-3.5 h-3.5 text-white/40" />
           {isAr ? 'استخدام سعر صرف مخصص بدل السعر المباشر' : 'Use a custom rate instead of the live rate'}
         </label>
         {useCustomRate && (
@@ -102,12 +102,12 @@ export function CurrencyConverterCard({ isAr }: { isAr: boolean }) {
             value={customRate}
             onChange={setCustomRate}
             placeholder={isAr ? 'مثال: 1450' : 'e.g. 1450'}
-            className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-sm font-mono"
+            className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm font-mono"
           />
         )}
       </div>
 
-      <p className="text-[11px] text-zinc-500">
+      <p className="text-[11px] text-white/40">
         {useCustomRate
           ? customRate
             ? isAr
@@ -127,7 +127,7 @@ export function CurrencyConverterCard({ isAr }: { isAr: boolean }) {
           : ''}
       </p>
       {!useCustomRate && updatedAt && (
-        <p className="text-[10px] text-zinc-600" dir="ltr">
+        <p className="text-[10px] text-white/35" dir="ltr">
           {isAr ? `آخر تحديث للسعر: ${updatedAt}` : `Rate last updated: ${updatedAt}`}
         </p>
       )}

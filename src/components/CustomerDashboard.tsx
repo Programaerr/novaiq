@@ -68,16 +68,16 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
           onConfirm={() => logoutAccount()}
         />
       )}
-      <div className="flex items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shadow-md">
+          <div className="w-10 h-10 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white shadow-md">
             <FileCheck className="w-5 h-5" />
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-white">
               {isAr ? 'عقودي المحفوظة' : 'My Saved Contracts'}
             </h1>
-            <p className="text-xs text-zinc-400 font-mono" dir="ltr">{user.email}</p>
+            <p className="text-xs text-white/50 font-mono" dir="ltr">{user.email}</p>
           </div>
         </div>
         <button
@@ -91,13 +91,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
       </div>
 
       {contracts.length === 0 ? (
-        <div className="py-16 text-center text-zinc-500 text-xs border border-dashed border-zinc-800 rounded-2xl space-y-2">
+        <div className="py-16 text-center text-white/40 text-xs border border-dashed border-white/10 rounded-2xl space-y-2">
           <p>
             {isAr
               ? 'لا توجد عقود مرتبطة بهذا البريد الإلكتروني بعد.'
               : 'No contracts linked to this email yet.'}
           </p>
-          <p className="text-zinc-600">
+          <p className="text-white/35">
             {isAr
               ? 'عند إنشاء عقد جديد بنفس البريد الإلكتروني، سيظهر هنا تلقائياً.'
               : 'Create a new contract with this same email and it will appear here automatically.'}
@@ -160,23 +160,23 @@ function CustomerContractRow({
   };
 
   return (
-    <div className="rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden">
+    <div className="rounded-2xl bg-black border border-white/10 overflow-hidden">
       {expanded && <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} />}
 
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-3 p-4 text-left cursor-pointer hover:bg-zinc-900/50 transition-colors"
+        className="w-full flex items-center justify-between gap-3 p-4 text-left cursor-pointer hover:bg-white/[0.06]/50 transition-colors"
       >
         <div className="min-w-0">
           <div className="text-xs sm:text-sm font-bold text-white truncate">{translateText(contract.templateTitle, language)}</div>
-          <div className="text-[10px] text-zinc-500 font-mono truncate">{contract.contractNumber}</div>
+          <div className="text-[10px] text-white/40 font-mono truncate">{contract.contractNumber}</div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs font-mono text-zinc-300 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
+          <span className="text-xs font-mono text-white/70 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
           <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
             contract.status === 'completed'
               ? 'bg-emerald-500/15 text-emerald-400 border-emerald-800'
-              : 'bg-zinc-900 border-zinc-700 text-zinc-200'
+              : 'bg-white/[0.04] border-white/15 text-white/90'
           }`}>
             {translateText(STATUS_LABEL_AR[contract.status], language)}
           </span>
@@ -184,17 +184,17 @@ function CustomerContractRow({
       </button>
 
       {expanded && (
-        <div className="p-4 pt-0 space-y-4 border-t border-zinc-800 animate-fade-in">
+        <div className="p-4 pt-0 space-y-4 border-t border-white/10 animate-fade-in">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-4">
-            <div className="flex items-center gap-1.5 text-zinc-400">
+            <div className="flex items-center gap-1.5 text-white/50">
               <Clock className="w-3.5 h-3.5 shrink-0" />
               <span>{isAr ? 'أُنشئ:' : 'Created:'} <span className="text-white">{formatDate(contract.createdAt, isAr)}</span></span>
             </div>
-            <div className="flex items-center gap-1.5 text-zinc-400">
+            <div className="flex items-center gap-1.5 text-white/50">
               <Clock className="w-3.5 h-3.5 shrink-0" />
               <span>{isAr ? 'آخر تحديث:' : 'Last Updated:'} <span className="text-white">{formatDate(contract.updatedAt, isAr)}</span></span>
             </div>
-            <div className="flex items-center gap-1.5 text-zinc-400">
+            <div className="flex items-center gap-1.5 text-white/50">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
               <span>{isAr ? 'اكتمل:' : 'Completed:'} <span className="text-white">{contract.completedAt ? formatDate(contract.completedAt, isAr) : (isAr ? 'لم يكتمل بعد' : 'Not yet')}</span></span>
             </div>
@@ -212,42 +212,42 @@ function CustomerContractRow({
           {contract.adminNotes && (
             <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-900/40 text-xs">
               <span className="text-amber-400 font-bold block mb-1">{isAr ? 'الشروط المتفق عليها بعد المراجعة:' : 'Agreed Terms After Review:'}</span>
-              <p className="text-zinc-200">{contract.adminNotes}</p>
+              <p className="text-white/90">{contract.adminNotes}</p>
             </div>
           )}
 
           {(paidAmountIQD > 0 || (contract.payments && contract.payments.length > 0)) && (
-            <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2.5">
+            <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 space-y-2.5">
               <span className="text-[11px] font-bold text-white flex items-center gap-1.5">
-                <Wallet className="w-3.5 h-3.5 text-zinc-400" />
+                <Wallet className="w-3.5 h-3.5 text-white/50" />
                 {isAr ? 'سجل المدفوعات' : 'Payment History'}
               </span>
               <div className="grid grid-cols-2 gap-3 text-[11px]">
                 <div>
-                  <span className="text-zinc-500 block mb-0.5">{isAr ? 'المدفوع' : 'Paid'}</span>
+                  <span className="text-white/40 block mb-0.5">{isAr ? 'المدفوع' : 'Paid'}</span>
                   <strong className="text-emerald-400 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
                 </div>
                 <div>
-                  <span className="text-zinc-500 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
-                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-zinc-400'}`}>
+                  <span className="text-white/40 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
+                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-white/50'}`}>
                     {formatPrice(remainingIQD, language, currency)}
                   </strong>
                 </div>
               </div>
               {installmentsPlanned > 0 && (
-                <p className="text-[11px] text-zinc-400">
+                <p className="text-[11px] text-white/50">
                   {isAr
                     ? `${(contract.payments || []).length} من ${installmentsPlanned} دفعة`
                     : `${(contract.payments || []).length} of ${installmentsPlanned} installments`}
                 </p>
               )}
               {contract.payments && contract.payments.length > 0 && (
-                <div className="space-y-1.5 pt-1 border-t border-zinc-800">
+                <div className="space-y-1.5 pt-1 border-t border-white/10">
                   {contract.payments.map((p) => (
                     <div key={p.id} className="flex items-center justify-between gap-2 text-[11px]">
-                      <span className="text-zinc-500 font-mono shrink-0" dir="ltr">{p.date}</span>
-                      {p.note && <span className="text-zinc-400 truncate flex-1 text-center">{p.note}</span>}
-                      <strong className="text-zinc-200 font-mono shrink-0">{formatPrice(p.amountIQD, language, currency)}</strong>
+                      <span className="text-white/40 font-mono shrink-0" dir="ltr">{p.date}</span>
+                      {p.note && <span className="text-white/50 truncate flex-1 text-center">{p.note}</span>}
+                      <strong className="text-white/90 font-mono shrink-0">{formatPrice(p.amountIQD, language, currency)}</strong>
                     </div>
                   ))}
                 </div>

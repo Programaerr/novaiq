@@ -22,7 +22,7 @@ export function PricingTab({ isAr, language, currency }: { isAr: boolean; langua
       <div className="max-w-xs">
         <StatTile icon={Layers} label={isAr ? 'إجمالي القوالب' : 'Total Templates'} value={String(templates.length)} accent="text-amber-400" />
       </div>
-      <p className="text-xs text-zinc-400">
+      <p className="text-xs text-white/50">
         {isAr
           ? 'أي تعديل هنا ينعكس فوراً على معرض القوالب وحاسبة العقد للزوار — بدون الحاجة لأي تحديث برمجي.'
           : 'Any change here reflects immediately on the public template gallery and contract builder — no code deploy needed.'}
@@ -92,49 +92,49 @@ function PricingRow({
   };
 
   return (
-    <div className="rounded-2xl bg-zinc-950 border border-zinc-800 overflow-hidden">
+    <div className="rounded-2xl bg-black border border-white/10 overflow-hidden">
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-3 p-4 text-left cursor-pointer hover:bg-zinc-900/50 transition-colors"
+        className="w-full flex items-center gap-3 p-4 text-left cursor-pointer hover:bg-white/[0.06]/50 transition-colors"
       >
         {template.previewImage && !imageBroken ? (
           <img
             src={template.previewImage}
             alt=""
             onError={() => setImageBroken(true)}
-            className="w-12 h-12 rounded-xl object-cover border border-zinc-800 shrink-0"
+            className="w-12 h-12 rounded-xl object-cover border border-white/10 shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
-            <Layers className="w-4 h-4 text-zinc-500" />
+          <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shrink-0">
+            <Layers className="w-4 h-4 text-white/40" />
           </div>
         )}
         <div className="min-w-0 flex-1">
           <div className="text-xs sm:text-sm font-bold text-white truncate">{translateText(template.title, language)}</div>
-          <div className="text-[10px] text-zinc-500 truncate">{translateText(template.categoryLabel, language)}</div>
+          <div className="text-[10px] text-white/40 truncate">{translateText(template.categoryLabel, language)}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs font-mono text-zinc-300">{formatPrice(template.basePriceIQD, language, currency)}</span>
+          <span className="text-xs font-mono text-white/70">{formatPrice(template.basePriceIQD, language, currency)}</span>
         </div>
       </button>
 
       {expanded && (
-        <div className="p-4 pt-0 space-y-3 border-t border-zinc-800 animate-fade-in">
+        <div className="p-4 pt-0 space-y-3 border-t border-white/10 animate-fade-in">
           <div className="pt-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
             <div className="space-y-3">
               <div>
-                <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+                <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
                   {isAr ? 'اسم القالب' : 'Template Name'}
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+                <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
                   {isAr ? 'رابط صورة القالب' : 'Template Image URL'}
                 </label>
                 <input
@@ -146,11 +146,11 @@ function PricingRow({
                     setImageBroken(false);
                   }}
                   placeholder="https://..."
-                  className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+                <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
                   {isAr ? 'رابط الموقع الفعلي (اختياري)' : 'Live Site URL (optional)'}
                 </label>
                 <input
@@ -159,9 +159,9 @@ function PricingRow({
                   value={demoUrl}
                   onChange={(e) => setDemoUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white text-xs font-mono"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-white/60 focus:outline-none text-white text-xs font-mono"
                 />
-                <p className="mt-1 text-[10px] text-zinc-500">
+                <p className="mt-1 text-[10px] text-white/40">
                   {isAr
                     ? 'إذا تركته فارغاً، لن يظهر زر "زيارة الموقع" في بطاقة القالب.'
                     : 'Leave empty to hide the "Visit Site" button on the template card.'}
@@ -173,23 +173,23 @@ function PricingRow({
                 src={previewImage}
                 alt=""
                 onError={() => setImageBroken(true)}
-                className="w-full sm:w-28 h-28 rounded-xl object-cover border border-zinc-800"
+                className="w-full sm:w-28 h-28 rounded-xl object-cover border border-white/10"
               />
             ) : (
-              <div className="w-full sm:w-28 h-28 rounded-xl bg-zinc-900 border border-dashed border-zinc-800 flex items-center justify-center text-zinc-600 text-[10px] text-center px-2">
+              <div className="w-full sm:w-28 h-28 rounded-xl bg-white/[0.04] border border-dashed border-white/10 flex items-center justify-center text-white/35 text-[10px] text-center px-2">
                 {isAr ? 'رابط غير صالح' : 'Invalid URL'}
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-zinc-400 mb-1.5">
+            <label className="block text-[11px] font-semibold text-white/50 mb-1.5">
               {isAr ? 'السعر الأساسي للقالب (د.ع)' : 'Template Base Price (IQD)'}
             </label>
             <PriceInput
               value={basePriceIQD}
               onChange={setBasePriceIQD}
-              className="w-full px-3 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-mono"
+              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-mono"
             />
           </div>
 
@@ -197,7 +197,7 @@ function PricingRow({
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 disabled:opacity-60 text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all border border-white"
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-white disabled:opacity-60 text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all border border-white"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               <span>{justSaved ? (isAr ? 'تم الحفظ ✓' : 'Saved ✓') : isAr ? 'حفظ التغييرات' : 'Save Changes'}</span>
