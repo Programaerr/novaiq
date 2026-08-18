@@ -25,13 +25,13 @@ export const NovaiqLogo: React.FC<NovaiqLogoProps> = ({
     // content does; NAME → MARK → WORD must read the same physically in Arabic or English.
     <div
       dir="ltr"
-      className={`navbar-logo-lockup inline-flex items-center gap-2.5 select-none ${
+      className={`navbar-logo-lockup inline-flex items-center gap-2.5 ${
         revealed ? 'is-revealed' : ''
       } ${className}`}
     >
       {showText && (
         <span
-          className={`font-black tracking-widest text-white text-xl sm:text-2xl font-mono ${
+          className={`font-black tracking-widest text-white text-xl sm:text-2xl font-['Cairo'] ${
             animated ? 'navbar-logo-name' : ''
           }`}
         >

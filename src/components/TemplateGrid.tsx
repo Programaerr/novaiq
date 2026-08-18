@@ -1079,10 +1079,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           {/* Brand name — the mark's boxy icon is gone; only the wordmark sits in the light,
               scaled to fill the empty stretch between the carousel and the footer. It is the
               thing the cone above it lands on, so it takes the lamp's glow rather than casting
-              its own: bright enough to read as the object the light is hitting. */}
+              its own: bright enough to read as the object the light is hitting. Set in the
+              site's own typeface (Cairo) and left selectable, so the name reads and copies as
+              text rather than as a picture. */}
           <div dir="ltr" className="relative z-10 flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14 opacity-70">
             <span
-              className="font-black tracking-widest text-white font-mono text-4xl sm:text-6xl lg:text-7xl select-none"
+              className="font-black tracking-widest text-white font-['Cairo'] text-4xl sm:text-6xl lg:text-7xl"
               style={{ textShadow: '0 0 34px rgba(255,255,255,0.45), 0 0 90px rgba(255,255,255,0.22)' }}
             >
               NOVAIQ
