@@ -564,6 +564,7 @@ export default function App() {
               <ContractBuilderGate
                 language={language}
                 currency={currency}
+                user={currentUser}
                 selectedTemplate={selectedTemplateForContract}
                 onContractGenerated={handleContractGenerated}
                 initialCustomFeaturesText={initialCustomFeaturesText}
@@ -577,7 +578,12 @@ export default function App() {
         {activePage === 'orders' && (
           <div className="page-in">
             <Suspense fallback={null}>
-              <AdminPage language={language} currency={currency} onContinueAsGuest={leaveSignIn} />
+              <AdminPage
+                language={language}
+                currency={currency}
+                user={currentUser}
+                onContinueAsGuest={leaveSignIn}
+              />
             </Suspense>
           </div>
         )}
