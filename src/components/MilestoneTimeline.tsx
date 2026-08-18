@@ -10,12 +10,15 @@ import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { INK, PAPER, PERIWINKLE } from '../lib/homePalette';
 import { BAND_FADE, PERIWINKLE_TONES, TileField } from './TileField';
+import { ProjectCtaButton } from './ProjectCtaButton';
 
 interface MilestoneTimelineProps {
   language?: Language;
+  /** Opens the contract builder — lands on the section's own CTA inside it. */
+  onCreateContract?: () => void;
 }
 
-export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language = 'ar' }) => {
+export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language = 'ar', onCreateContract }) => {
   const isAr = language === 'ar';
   const { ref: sectionRef, seen } = useSeen<HTMLElement>();
 
@@ -71,7 +74,14 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       ref={sectionRef}
       id="timeline-section"
       data-seen={seen ? 'true' : 'false'}
-      style={{ background: PERIWINKLE }}
+      style={{
+        background: PERIWINKLE,
+        /* Pull the whole section up behind the floating navbar, exactly as the hero does — so
+           the cube band at the top runs under the navbar instead of starting below it as a
+           black strip. The navbar is fixed and floats above the page; without this the band's
+           cubes would look cut off at the top of the section. */
+        marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
+      }}
       className="relative overflow-hidden pt-[calc(var(--nq-band)+3.5rem)] pb-20 sm:pb-28 lg:pb-32"
     >
       {/* ── The edge ────────────────────────────────────────────────────────────────────────────
@@ -188,6 +198,16 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                 );
               })}
             </ol>
+          </div>
+
+          {/* ── The CTA, inside the section ───────────────────────────────────────────────────
+              Sits on the section's own blue ground so the whole block is one surface — no black
+              strip breaking the section from the footer that follows it. */}
+          <div
+            className="nq-rise mt-12 sm:mt-16 flex justify-center"
+            style={{ ['--nq-rise-delay' as string]: '300ms' }}
+          >
+            <ProjectCtaButton language={language} onCreateContract={onCreateContract} />
           </div>
         </div>
       </div>

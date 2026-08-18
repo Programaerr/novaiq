@@ -568,10 +568,7 @@ export default function App() {
 
         {activePage === 'timeline' && (
           <div className="page-in">
-            <MilestoneTimeline language={language} />
-            <div className="py-10 sm:py-14">
-              <ProjectCtaButton language={language} onCreateContract={startProject} />
-            </div>
+            <MilestoneTimeline language={language} onCreateContract={startProject} />
           </div>
         )}
 
