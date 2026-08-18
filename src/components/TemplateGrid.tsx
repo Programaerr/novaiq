@@ -17,7 +17,6 @@ import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
 import { PERIWINKLE } from '../lib/homePalette';
 import { PageLoader } from './PageLoader';
-import { NovaiqLogo } from './NovaiqLogo';
 import { TemplateFilterPanel } from './TemplateFilterPanel';
 
 // The interactive sandbox is the single largest component in the app (per-template demo logic
@@ -515,7 +514,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   }, [isDragging, activeIndex, filteredTemplates.length]);
 
   return (
-    <section id="templates-section" className="py-4 sm:py-6 relative" style={{ background: PERIWINKLE }}>
+    <section
+      id="templates-section"
+      style={{
+        background: PERIWINKLE,
+        /* Pull the whole section up behind the floating navbar, exactly as the hero and the
+           timeline do — so the blue reaches the top of the viewport instead of leaving the
+           body's black visible between the navbar and the section. The navbar is fixed and
+           floats above the page; without this the section would look like a blue panel sitting
+           on a black page rather than a full-bleed surface the navbar sits on. */
+        marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
+      }}
+      className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
+    >
       <div className="nq-container">
         
         {/* Filter & Search bar — first thing on the page now, with the price notice below it.
@@ -1065,13 +1076,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             </div>
           </div>
 
-          {/* Brand mark — sized to actually fill the empty stretch between the carousel and
-              the footer, not just sit as a small centered icon within it. Brighter than the 22%
-              it used to be: it is standing in the light now, and a mark the beams fall on that
-              stays as faint as one in the dark reads as a texture the light is passing through
-              rather than an object the light is hitting. */}
-          <div className="relative z-10 flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14 opacity-60">
-            <NovaiqLogo size={60} showText={true} className="scale-150 sm:scale-[2.25] lg:scale-[3]" />
+          {/* Brand name — the mark's boxy icon is gone; only the wordmark sits in the light,
+              scaled to fill the empty stretch between the carousel and the footer. It is the
+              thing the cone above it lands on, so it takes the lamp's glow rather than casting
+              its own: bright enough to read as the object the light is hitting. */}
+          <div dir="ltr" className="relative z-10 flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14 opacity-70">
+            <span
+              className="font-black tracking-widest text-white font-mono text-4xl sm:text-6xl lg:text-7xl select-none"
+              style={{ textShadow: '0 0 34px rgba(255,255,255,0.45), 0 0 90px rgba(255,255,255,0.22)' }}
+            >
+              NOVAIQ
+            </span>
           </div>
         </div>
 
