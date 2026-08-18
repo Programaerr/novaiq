@@ -356,12 +356,14 @@ function CustomerContractRow({
                 <span className="text-[11px] font-bold text-white/50 block mb-2">
                   {isAr ? 'توقيعك' : 'Your Signature'}
                 </span>
-                <img
-                  src={contract.signatureDataUrl}
-                  alt={isAr ? 'توقيعك' : 'Your signature'}
-                  className="h-16 object-contain bg-white rounded-lg"
-                  style={{ filter: 'invert(1)' }}
-                />
+                <div className="bg-white rounded-lg h-16 flex items-center px-2">
+                  <img
+                    src={contract.signatureDataUrl}
+                    alt={isAr ? 'توقيعك' : 'Your signature'}
+                    className="max-h-full max-w-full object-contain"
+                    style={{ filter: 'invert(1)' }}
+                  />
+                </div>
               </div>
             ) : (
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
@@ -377,12 +379,14 @@ function CustomerContractRow({
                 <span className="text-[11px] font-bold text-emerald-300 block mb-2">
                   {isAr ? 'توقيع NOVAIQ' : 'NOVAIQ Signature'}
                 </span>
-                <img
-                  src={contract.companySignatureDataUrl}
-                  alt={isAr ? 'توقيع NOVAIQ' : 'NOVAIQ signature'}
-                  className="h-16 object-contain bg-white rounded-lg"
-                  style={{ filter: 'invert(1)' }}
-                />
+                <div className="bg-white rounded-lg h-16 flex items-center px-2">
+                  <img
+                    src={contract.companySignatureDataUrl}
+                    alt={isAr ? 'توقيع NOVAIQ' : 'NOVAIQ signature'}
+                    className="max-h-full max-w-full object-contain"
+                    style={{ filter: 'invert(1)' }}
+                  />
+                </div>
               </div>
             ) : (
               <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
