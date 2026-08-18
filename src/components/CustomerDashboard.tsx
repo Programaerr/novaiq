@@ -4,7 +4,7 @@ import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
-import { subscribeToContracts } from '../lib/firebase';
+import { subscribeToMyContracts } from '../lib/firebase';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
@@ -110,16 +110,11 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
-    const unsub = subscribeToContracts((all) => {
-      const mine = all.filter((c) => {
-        if (user.uid && c.uid && c.uid === user.uid) return true;
-        const cEmail = (c.email || c.clientEmail || '').trim().toLowerCase();
-        const accountEmail = (user.email || '').trim().toLowerCase();
-        return !!cEmail && cEmail === accountEmail;
-      });
-      setContracts(mine);
-    });
-    return unsub;
+    // Live subscription scoped to this account's own documents (uid first, email fallback).
+    // Because it queries `where(uid == …)` — the exact shape Firestore rules allow a customer
+    // to run — every admin save (status, NOVAIQ's signature, agreed notes) lands here in
+    // real time, without a refresh, exactly as it appears in the admin panel.
+    return subscribeToMyContracts(user.uid, user.email || undefined, setContracts);
   }, [user.email, user.uid]);
 
   return (

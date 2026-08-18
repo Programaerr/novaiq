@@ -8,7 +8,9 @@ import {
   doc,
   setDoc,
   deleteDoc,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  where
 } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
@@ -314,6 +316,91 @@ export function subscribeToContracts(callback: (contracts: ContractData[]) => vo
     return () => {
       window.removeEventListener('novaq_contracts_updated', handleLocalUpdate);
     };
+  }
+}
+
+// Real-time listener for a single customer's own contracts.
+//
+// This is a SEPARATE subscription from subscribeToContracts (which reads every contract) for a
+// reason the admin and customer views share nothing on: the Firestore rules only let a customer
+// read documents they own (`ownsContract()` — see firestore.rules), and a collection query with
+// no filter is rejected by those rules even when the client would only ever display their own.
+// A `where('uid', '==', uid)` query is exactly the shape the rules accept, so the customer sees
+// real-time updates (status, NOVAIQ's signature, admin notes) the moment the admin saves them —
+// the same live subscription the admin dashboard uses, scoped to their own documents.
+export function subscribeToMyContracts(
+  uid: string | undefined,
+  email: string | undefined,
+  callback: (contracts: ContractData[]) => void
+) {
+  const accountEmail = (email || '').trim().toLowerCase();
+
+  const owns = (c: ContractData) => {
+    if (uid && c.uid && c.uid === uid) return true;
+    const cEmail = (c.email || c.clientEmail || '').trim().toLowerCase();
+    return !!accountEmail && !!cEmail && cEmail === accountEmail;
+  };
+
+  const notify = (contracts: ContractData[]) => {
+    const deletedSet = getDeletedIdentifiers();
+    const clean = contracts.filter((c) => {
+      const cId = (c.id || '').trim();
+      const cNum = (c.contractNumber || '').trim();
+      const notDeleted = (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
+      return notDeleted && owns(c);
+    });
+    callback(clean);
+  };
+
+  try {
+    const contractsRef = collection(db, CONTRACTS_COLLECTION);
+    const q = uid ? query(contractsRef, where('uid', '==', uid)) : contractsRef;
+
+    // Local storage carry-over: contracts saved while the cloud sync failed live here, and a
+    // customer should still see the contract they just created even if it has not reached
+    // Firestore yet. Merged under the snapshot, deduplicated by contractNumber.
+    const getLocalData = (): ContractData[] => {
+      try {
+        const deletedSet = getDeletedIdentifiers();
+        return (JSON.parse(localStorage.getItem('novaq_contracts') || '[]') as ContractData[]).filter((c) => {
+          const cId = (c.id || '').trim();
+          const cNum = (c.contractNumber || '').trim();
+          return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
+        });
+      } catch {
+        return [];
+      }
+    };
+
+    const handleLocalUpdate = () => {
+      notify(getLocalData());
+    };
+    window.addEventListener('novaq_contracts_updated', handleLocalUpdate);
+
+    const unsubscribeSnapshot = onSnapshot(
+      q,
+      (snapshot) => {
+        const contracts: ContractData[] = [];
+        snapshot.forEach((docSnap) => {
+          contracts.push({ ...docSnap.data(), id: docSnap.id } as ContractData);
+        });
+        contracts.sort((a, b) => (b.createdAt ? new Date(b.createdAt).getTime() : 0) - (a.createdAt ? new Date(a.createdAt).getTime() : 0));
+        const cloudNumbers = new Set(contracts.map((c) => (c.contractNumber || '').trim()));
+        const pendingLocal = getLocalData().filter((c) => !cloudNumbers.has((c.contractNumber || '').trim()));
+        notify([...contracts, ...pendingLocal]);
+      },
+      (_err) => {
+        console.warn('Customer contract snapshot notice (falling back to local data):', _err?.message || 'Offline/Rate limit');
+        notify(getLocalData());
+      }
+    );
+
+    return () => {
+      window.removeEventListener('novaq_contracts_updated', handleLocalUpdate);
+      unsubscribeSnapshot();
+    };
+  } catch (_error) {
+    return () => undefined;
   }
 }
 
