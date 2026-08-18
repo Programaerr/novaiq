@@ -16,8 +16,15 @@
 
      1700 rather than the 1536 `2xl` breakpoint because 1536-1700 is where ordinary laptops sit and
      the standard measure is right there. This step is for displays that are wide because they are
-     ultrawide, not because they are large. */
-  --breakpoint-uw: 1700px;
+     ultrawide, not because they are large.
+
+     In rem, and that part is not style. Tailwind sorts the breakpoint variants by value so that a
+     wider one always wins over a narrower one, and it compares them as raw values against defaults
+     written in rem. Declared as `1700px` this one does not compare, the sort falls back to the
+     order it was defined in, and `uw:` lands BEFORE `sm:` — so `sm:text-[2.1rem] uw:text-[2.6rem]`
+     renders at 2.1rem on a 3440px screen. It fails silently and only where both variants are set on
+     the same property, which is exactly where it is hardest to see. 106.25rem is 1700px. */
+  --breakpoint-uw: 106.25rem;
 
   --color-sand: #D5BDAC;
   --color-sand-deep: #C9AE95;
