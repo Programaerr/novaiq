@@ -1214,6 +1214,20 @@
   animation: nq-ph-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) var(--nq-ph-delay, 0ms) forwards;
 }
 
+/* The detail block below the cards gets its own latch rather than sharing the section's.
+   `[data-seen]` sits on the <section>, and the detail block starts a full screen below where that
+   attribute flips — so on the section's own latch the four rows would play their entrance while
+   still off the bottom of the screen, and by the time anyone scrolled to them they would already
+   be sitting still. A second attribute on the block itself is what makes "when it first appears"
+   mean the block rather than its section. */
+.nq-ph-detail {
+  opacity: 0;
+}
+
+[data-detail-seen='true'] .nq-ph-detail {
+  animation: nq-ph-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) var(--nq-ph-delay, 0ms) forwards;
+}
+
 /* Under a reduced-motion preference the content is simply there. The from-states have to be
    cleared explicitly and not just the animations: they are on the classes, so dropping the
    animation alone would leave the rail clipped to nothing and the cards at zero opacity —
@@ -1225,7 +1239,8 @@
     animation: none;
   }
 
-  .nq-ph-rise {
+  .nq-ph-rise,
+  .nq-ph-detail {
     opacity: 1;
     transform: none;
     animation: none;
