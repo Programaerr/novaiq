@@ -604,13 +604,10 @@ export default function App() {
       {activePage !== 'orders' && (
         <LazyOnView rootMargin="800px 0px" placeholder={<div className="h-[60vh] bg-[var(--nq-ground)]" aria-hidden="true" />}>
           <Suspense fallback={<PageLoader />}>
-            {/* Sand on the home page, whose palette ends in it, and the site black everywhere
-                else. See the `tone` prop for why this is a choice made here rather than inside
-                the component. */}
             <Footer
               language={language}
               onNavigate={navigateTo}
-              tone={activePage === "home" ? "paper" : "ink"}
+              tone="paper"
             />
           </Suspense>
         </LazyOnView>

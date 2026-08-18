@@ -189,7 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* ── Half 1 (physical left): the brand logo on its own, in a self-contained glass
             bar. The account/login entry lives in the navigation half (Half 2) — see below. */}
-        <div className="navbar-glass flex items-center gap-3 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
+        <div className="navbar-glass flex items-center gap-3 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:static lg:translate-x-0 lg:translate-y-0">
           <a
             href="/"
             onClick={(e) => handleNavClick('home', e)}
@@ -207,7 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* ── Half 2 (physical right): NAVIGATION — its own glass bar, completely separate from
             the login cluster. Page links render inline from `lg` up; the hamburger menu button
             is mobile-only and hidden from `lg` up. */}
-        <div className="navbar-glass flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
+        <div className="navbar-glass flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10 ms-auto lg:ms-0">
           <nav className="hidden lg:flex items-center gap-0.5" aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}>
             {navItems.map((item) => {
               const isActive = activePage === item.id;
