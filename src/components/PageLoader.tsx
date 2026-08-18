@@ -1,23 +1,27 @@
 import React from 'react';
-import { PERIWINKLE, PAPER, INK } from '../lib/homePalette';
+import { INK, PAPER, PERIWINKLE } from '../lib/homePalette';
 
-// Minimal, theme-matching fallback shown for the brief instant a lazy-loaded
-// route chunk is being fetched — kept intentionally lightweight (no motion/framer
-// dependency, no image) so it never becomes its own performance cost.
+/**
+ * The one loader the whole app uses.
+ *
+ * Full-screen and opaque: while real work is happening (a lazy chunk downloading, auth still
+ * resolving) there is exactly one thing on screen — a paper field, a periwinkle ring, the name.
+ * Nothing else is mounted that could peek through and read as a half-loaded page.
+ */
 export const PageLoader: React.FC = () => (
-  <div className="flex items-center justify-center py-24 bg-paper">
-    <div className="flex flex-col items-center gap-4">
+  <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{ background: PAPER }}>
+    <div className="flex flex-col items-center gap-5">
       <div
-        className="w-10 h-10 rounded-full animate-spin"
+        className="w-12 h-12 rounded-full animate-spin"
         style={{
           border: `2px solid ${PERIWINKLE}33`,
           borderTopColor: PERIWINKLE,
-          boxShadow: `0 0 18px ${PERIWINKLE}40`,
+          boxShadow: `0 0 24px ${PERIWINKLE}55`,
         }}
       />
       <span
-        className="font-black tracking-[0.3em] font-mono text-sm select-none"
-        style={{ color: INK, opacity: 0.7 }}
+        className="font-black tracking-[0.3em] font-mono text-base select-none"
+        style={{ color: INK, opacity: 0.75 }}
       >
         NOVAIQ
       </span>

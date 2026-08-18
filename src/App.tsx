@@ -9,7 +9,9 @@ import { AboutSection } from './components/AboutSection';
 import { CookieConsent } from './components/CookieConsent';
 import { ToastHost } from './components/ToastHost';
 import { PageLoader } from './components/PageLoader';
+import { SmartPageLoader } from './components/SmartPageLoader';
 import { ContractPreparingLoader } from './components/ContractPreparingLoader';
+import { trackLoad } from './lib/loadTracker';
 import { useLiveTemplates } from './lib/pricingOverrides';
 
 import { Template, ContractData, CUSTOM_PROJECT_TEMPLATE_ID } from './types';
@@ -26,17 +28,17 @@ import { showToast } from './lib/toast';
 // own chunks keeps the initial home-page bundle small — the biggest single lever for
 // smooth performance on weak/low-end devices, since less JS means less to download,
 // parse, and execute before the page becomes interactive.
-const TemplateGrid = lazy(() => import('./components/TemplateGrid').then((m) => ({ default: m.TemplateGrid })));
-const ContractBuilderGate = lazy(() => import('./components/ContractBuilderGate').then((m) => ({ default: m.ContractBuilderGate })));
-const ContractPDFPreview = lazy(() => import('./components/ContractPDFPreview').then((m) => ({ default: m.ContractPDFPreview })));
-const PolicyPage = lazy(() => import('./components/PolicyPage').then((m) => ({ default: m.PolicyPage })));
-const TemplateInteractiveSandbox = lazy(() => import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox })));
-const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ default: m.AdminPage })));
-const LoginPage = lazy(() => import('./components/LoginPage').then((m) => ({ default: m.LoginPage })));
-const HomeHero = lazy(() => import('./components/HomeHero').then((m) => ({ default: m.HomeHero })));
-const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
-const ContactSection = lazy(() => import('./components/ContactSection').then((m) => ({ default: m.ContactSection })));
-const Footer = lazy(() => import('./components/Footer').then((m) => ({ default: m.Footer })));
+const TemplateGrid = lazy(() => trackLoad(import('./components/TemplateGrid').then((m) => ({ default: m.TemplateGrid }))));
+const ContractBuilderGate = lazy(() => trackLoad(import('./components/ContractBuilderGate').then((m) => ({ default: m.ContractBuilderGate }))));
+const ContractPDFPreview = lazy(() => trackLoad(import('./components/ContractPDFPreview').then((m) => ({ default: m.ContractPDFPreview }))));
+const PolicyPage = lazy(() => trackLoad(import('./components/PolicyPage').then((m) => ({ default: m.PolicyPage }))));
+const TemplateInteractiveSandbox = lazy(() => trackLoad(import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))));
+const AdminPage = lazy(() => trackLoad(import('./components/AdminPage').then((m) => ({ default: m.AdminPage }))));
+const LoginPage = lazy(() => trackLoad(import('./components/LoginPage').then((m) => ({ default: m.LoginPage }))));
+const HomeHero = lazy(() => trackLoad(import('./components/HomeHero').then((m) => ({ default: m.HomeHero }))));
+const PhasesSection = lazy(() => trackLoad(import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection }))));
+const ContactSection = lazy(() => trackLoad(import('./components/ContactSection').then((m) => ({ default: m.ContactSection }))));
+const Footer = lazy(() => trackLoad(import('./components/Footer').then((m) => ({ default: m.Footer }))));
 
 // A visitor who chose "أكمل كضيف" at the sign-in screen.
 //
@@ -419,6 +421,9 @@ export default function App() {
   // anything worth signing in for. The wall that genuinely matters is further in — creating a
   // contract — and that one is enforced where it belongs, by ContractBuilderGate, which asks a
   // guest to sign in at the point it actually needs an account to attach the contract to.
+  // The `undefined` branch is the one that matters and is easy to get wrong. Firebase resolves
+  // auth asynchronously — this is genuinely loading (not an error, not a decision), so it is the
+  // one place the loader is shown for real work rather than for a chunk already in memory.
   if (currentUser === undefined) {
     return <PageLoader />;
   }
@@ -426,32 +431,38 @@ export default function App() {
   // from the navbar. Same screen, and both offer the way back out to browsing.
   if (currentUser === null && (!isGuest || activePage === 'login')) {
     return (
-      <Suspense fallback={<PageLoader />}>
-        <LoginPage language={language} onContinueAsGuest={continueAsGuest} />
-      </Suspense>
+      <>
+        <Suspense fallback={null}>
+          <LoginPage language={language} onContinueAsGuest={continueAsGuest} />
+        </Suspense>
+        <SmartPageLoader />
+      </>
     );
   }
 
   if (standalonePreviewTemplate) {
     return (
-      <div className="min-h-screen text-white relative">
-        <Suspense fallback={<PageLoader />}>
-          <TemplateInteractiveSandbox
-            template={standalonePreviewTemplate}
-            language={language}
-            currency={currency}
-            onClose={() => {
-              setStandalonePreviewTemplate(null);
-              window.history.replaceState({}, '', window.location.pathname);
-            }}
-            onSelectForContract={(template, customNotes, primaryColorHex) => {
-              setStandalonePreviewTemplate(null);
-              window.history.replaceState({}, '', window.location.pathname);
-              handleSelectTemplateForContract(template, customNotes, primaryColorHex);
-            }}
-          />
-        </Suspense>
-      </div>
+      <>
+        <div className="min-h-screen text-white relative">
+          <Suspense fallback={null}>
+            <TemplateInteractiveSandbox
+              template={standalonePreviewTemplate}
+              language={language}
+              currency={currency}
+              onClose={() => {
+                setStandalonePreviewTemplate(null);
+                window.history.replaceState({}, '', window.location.pathname);
+              }}
+              onSelectForContract={(template, customNotes, primaryColorHex) => {
+                setStandalonePreviewTemplate(null);
+                window.history.replaceState({}, '', window.location.pathname);
+                handleSelectTemplateForContract(template, customNotes, primaryColorHex);
+              }}
+            />
+          </Suspense>
+        </div>
+        <SmartPageLoader />
+      </>
     );
   }
 
@@ -497,7 +508,7 @@ export default function App() {
                 Sections below the fold load lazily (LazyOnView + React.lazy): the browser
                 downloads and parses each section's code only when it approaches the viewport,
                 so a visitor pays for the part they actually see, not the whole page at once. */}
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={null}>
               <HomeHero
                 language={language}
                 onStart={() => navigateTo('templates')}
@@ -509,7 +520,7 @@ export default function App() {
               rootMargin="800px 0px"
               placeholder={<div className="h-[40vh] bg-paper" aria-hidden="true" />}
             >
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <PhasesSection language={language} />
               </Suspense>
             </LazyOnView>
@@ -518,7 +529,7 @@ export default function App() {
               rootMargin="800px 0px"
               placeholder={<div className="h-[40vh] bg-periwinkle" aria-hidden="true" />}
             >
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={null}>
                 <ContactSection language={language} />
               </Suspense>
             </LazyOnView>
