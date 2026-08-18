@@ -2,31 +2,43 @@ import React from 'react';
 import { Blocks, FileSignature, PencilRuler, Rocket } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { INK, PAPER, PERIWINKLE } from '../lib/homePalette';
-import { BAND_FADE, PERIWINKLE_TONES, TileField } from './TileField';
+import { INK, PAPER, PERIWINKLE, SAND_DEEP } from '../lib/homePalette';
 
 /**
- * The phases section: the four steps of a project, in the same model as the contact section.
+ * The phases section: the four steps of a project, as a rail and four cards.
  *
- * ## The same edge as the contact section
+ * ## Four cells, laid out column-major
  *
- * The section's ground is #8295CF and the one above it is paper, so the top carries the same
- * strip of tile field the hero and contact sections use — cubes absent at the top where the
- * ground is still paper, assembling as the ground turns, settling into flat blue before the
- * heading. It is the same gesture the contact section makes on its way in.
+ * 1 and 2 share a column, 3 and 4 share the next, with a rule down the middle — which is what the
+ * wireframe shows and is NOT what a plain `grid-cols-2` does, since that fills across and would
+ * put 1 beside 2. Hence `grid-flow-col` with two rows spelled out.
  *
- * ## No more cards
+ * Each cell carries the whole step: numeral, rule, name, mark, and the terms for that step in the
+ * company's own words. Nothing in the section is said twice.
  *
- * The four steps used to sit in a numbered two-column grid of cells, each with its own numeral,
- * rule and blue mark. That card look is gone. The steps now live inside one frosted glass panel
- * over the blue ground: semi-transparent and blurred, so the field reads through it without the
- * copy fighting it — text stays sharp while the background around it stays visible.
+ * ## The bar used to be here
  *
- * ## The wording is untouched
+ * A dark bar across the top held `1 │ العقد` through `4 │ التسليم` and was the only place the
+ * names appeared. It is gone, and the names came down into the cells with it — which is why a
+ * card header reads numeral, rule, name, mark: it is the bar's own format, one step per card.
  *
- * The Arabic copy is the company's own words from the Canva board (spelling corrected, nothing
- * else changed), and the English a translation of the same commitments. Only the container
- * changed; the four commitments are exactly as they were.
+ * Everything that existed to drive that bar went with it: the live step, the timer that advanced
+ * it, the dimmed numerals and the blue that filled the rule and the tile of whichever step was
+ * lit. There is nothing left to be live, so nothing pretends to be.
+ *
+ * ## The blue is on every mark now
+ *
+ * #8295CF was the state while the bar could set one. Without it the four cells are equals, so all
+ * four marks carry it. The glyph on them is near-black rather than white for a measured reason:
+ * white on #8295CF is 2.97:1, under the 4.5:1 it would need, where this ink is 6.4:1.
+ *
+ * ## Reading order follows the language
+ *
+ * The numeral sits at the RIGHT in Arabic and at the LEFT in English, because this is a sequence
+ * being read rather than a picture being composed — unlike the hero's panel, which is pinned
+ * physically left in both. Nothing here is mirrored by hand; the cells are a grid and take their
+ * direction from the document, which is also what puts the name on the mark's right in Arabic and
+ * on its left in English.
  */
 
 interface Phase {
@@ -107,106 +119,124 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
   const isAr = language === 'ar';
   const { ref: sectionRef, seen } = useSeen<HTMLElement>();
 
+
   return (
     <section
       ref={sectionRef}
       id="phases"
       data-seen={seen ? 'true' : 'false'}
       /* Its own ground and its own vertical rhythm — see HOME_SECTIONS.md. The change of ground
-         from the hero's sand is what separates the two sections. The top padding clears the tile
-         strip above it, which is absolutely positioned and so takes up no height of its own. */
-      style={{ background: PERIWINKLE }}
-      className="relative overflow-hidden pt-[calc(var(--nq-band)+3.5rem)] pb-20 sm:pb-28 lg:pb-32"
+         from the hero's sand is what separates the two sections; the padding is what stops the
+         rail from landing on the seam. */
+      style={{ background: PAPER }}
+      className="relative py-20 sm:py-28 lg:py-32"
     >
-      {/* ── The edge ────────────────────────────────────────────────────────────────────────────
-          The same band the contact section carries: the ground's change of colour and the field
-          of cubes crossing it. The gradient reaches full blue well before the strip ends, so the
-          cubes have solid ground to settle onto rather than vanishing the moment the colour
-          lands. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0"
-        style={{
-          height: 'var(--nq-band)',
-          background: 'linear-gradient(to bottom, ' + PAPER + ' 6%, ' + PERIWINKLE + ' 74%)',
-        }}
-      >
-        <TileField tones={PERIWINKLE_TONES} fade={BAND_FADE} />
-      </div>
+      <div className="nq-container">
+        {/* The section's own name, standing where the dark bar used to. Aligned to the reading
+            start — right in Arabic, left in English — and held to the same 56rem measure as the
+            cells below, so it starts on the edge of cell 1 rather than floating over the middle
+            of them. Nothing mirrors this by hand; the box takes its direction from the document. */}
+        <h2
+          className="mx-auto max-w-[56rem] text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
+          style={{ color: INK }}
+        >
+          {isAr ? 'مراحل العمل' : 'How we work'}
+        </h2>
 
-      <div className="relative nq-container">
-        <div className="mx-auto max-w-[56rem]">
-          <h2
-            className="nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
-            style={{ color: INK, ['--nq-rise-delay' as string]: '80ms' }}
-          >
-            {isAr ? 'مراحل العمل' : 'How we work'}
-          </h2>
+        {/* ── The four cells ──────────────────────────────────────────────────────────────────
+            `grid-flow-col` with two rows is what puts 1 above 2 and 3 above 4, as drawn. A plain
+            two-column grid fills across instead and would put 1 beside 2. */}
+        {/* Held to 56rem rather than the full container: at 1700px+ the container opens to
+            100rem, and two columns spread across 1600px stop being a pair and become two pages
+            the eye has to travel between. */}
+        <div className="relative mx-auto max-w-[56rem] mt-14 sm:mt-20">
+          {/* The rule between the columns. Only from `sm` up, because below that the cells are
+              one column and a rule down the middle of them would be crossing out the content.
 
-          {/* ── The steps, in one frosted panel ────────────────────────────────────────────────
-              Semi-transparent over the blue, with a heavy blur: the copy stays sharp while the
-              background keeps showing through, instead of hiding it behind an opaque card. The
-              panel IS the container — no per-step cards inside it. */}
-          <div
-            className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/25 backdrop-blur-2xl"
-            style={{
-              background: 'rgba(246, 241, 233, 0.16)',
-              boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(16,19,34,0.18)',
-              ['--nq-rise-delay' as string]: '180ms',
-            }}
-          >
-            <ol className="grid gap-10 sm:gap-9">
-              {PHASES.map((phase, i) => {
-                const { Icon } = phase;
-                return (
-                  <li key={phase.key} className="flex items-start gap-4 sm:gap-5">
-                    {/* The step number, quiet and small — sequence without the card's numeral. */}
-                    <span
-                      className="pt-1 text-[1.35rem] sm:text-[1.5rem] font-black leading-none tabular-nums shrink-0"
-                      style={{ color: INK, opacity: 0.5 }}
-                      aria-hidden="true"
-                    >
-                      {i + 1}
-                    </span>
+              A plain hairline: it had a short blue mark on it that slid to whichever row was
+              live, and with the rail gone there is no live row for it to point at. */}
+          <span
+            aria-hidden="true"
+            className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2"
+            style={{ background: SAND_DEEP }}
+          />
 
-                    <span
-                      aria-hidden="true"
-                      className="w-px self-stretch shrink-0"
-                      style={{ background: INK, opacity: 0.18 }}
-                    />
+          <ol className="grid gap-y-12 sm:gap-y-16 sm:grid-cols-2 sm:grid-rows-2 sm:grid-flow-col sm:gap-x-14 lg:gap-x-20">
+            {PHASES.map((phase, i) => {
+              const { Icon } = phase;
+              return (
+                <li
+                  key={phase.key}
+                  className="nq-rise flex items-stretch gap-4 sm:gap-6"
+                  /* Staggered off the index rather than a wrapper, so the four cards arrive in
+                     reading order no matter which column they landed in. */
+                  style={{ ['--nq-rise-delay' as string]: `${140 + i * 110}ms` }}
+                >
+                  <span
+                    className="text-[2.4rem] sm:text-[3rem] font-black leading-[0.85] tabular-nums"
+                    style={{ color: INK }}
+                    aria-hidden="true"
+                  >
+                    {i + 1}
+                  </span>
 
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3 sm:gap-4">
-                        <h3
-                          className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
-                          style={{ color: INK }}
-                        >
-                          {isAr ? phase.ar.name : phase.en.name}
-                        </h3>
-                        {/* The mark in ink, on the blue — near-black rather than white on purpose:
-                            white on #8295CF is 2.97:1, under the 4.5:1 it would need, where this
-                            ink is 6.4:1. */}
-                        <span
-                          className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0"
-                          style={{ background: PERIWINKLE, color: INK }}
-                          aria-hidden="true"
-                        >
-                          <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.9} />
-                        </span>
-                      </div>
+                  {/* The `│` from the drawing. A plain hairline now: it used to fill with the
+                      accent while its phase was live, and with the rail gone there is no live
+                      phase for it to report. */}
+                  <span
+                    aria-hidden="true"
+                    className="w-px shrink-0 self-stretch"
+                    style={{ background: SAND_DEEP }}
+                  />
 
-                      <p
-                        className="mt-4 max-w-[62ch] text-[0.92rem] sm:text-[1.02rem] font-bold leading-[1.9]"
-                        style={{ color: INK, opacity: 0.82 }}
+                  <div className="min-w-0 pt-0.5">
+                    {/* The name and its mark, on one line. This is where the rail's
+                        `1 │ العقد` ended up once the bar was taken out: the numeral and the rule
+                        are already to the right of this row, so the name lands beside the icon and
+                        the card header reads as the rail step it replaces.
+
+                        The heading is REAL text now rather than the screen-reader-only copy it was
+                        while the rail carried the visible name — one h3 per phase, under the
+                        section's h2, and nothing said twice.
+
+                        Blue on all four marks. The tile used to be blue only on the live phase,
+                        and there is no live phase without the rail to set one. Near-black on the
+                        blue rather than white: white on #8295CF is 2.97:1, under the 4.5:1 it
+                        would need. */}
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <h3
+                        className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
+                        style={{ color: INK }}
                       >
-                        {isAr ? phase.ar.body : phase.en.body}
-                      </p>
+                        {isAr ? phase.ar.name : phase.en.name}
+                      </h3>
+                      <span
+                        className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0"
+                        style={{ background: PERIWINKLE, color: INK }}
+                        aria-hidden="true"
+                      >
+                        <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.9} />
+                      </span>
                     </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
+                    {/* Capped in CHARACTERS rather than pixels: at 1700px+ the container opens to 100rem,
+                        and a paragraph free to run the full half of that is unreadable however well it is
+                        written. In a two-column cell the column is usually the narrower of the two, and
+                        the cap is what holds the line at a readable measure on the widest screens.
+
+                        The generous line height is for the Arabic — stacked diacritics and descenders need
+                        room that Latin body copy does not, and these are paragraphs now rather than the one
+                        line the cards started with. */}
+                    <p
+                      className="mt-5 sm:mt-6 max-w-[58ch] text-[0.92rem] sm:text-[1.02rem] font-bold leading-[1.9]"
+                      style={{ color: INK, opacity: 0.78 }}
+                    >
+                      {isAr ? phase.ar.body : phase.en.body}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </div>
     </section>
