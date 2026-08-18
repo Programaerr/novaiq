@@ -12,6 +12,7 @@ import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { showToast } from '../lib/toast';
 import { sumPayments } from '../lib/payments';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
+import { contractTerms } from '../data/contractTerms';
 
 interface CustomerDashboardProps {
   language: Language;
