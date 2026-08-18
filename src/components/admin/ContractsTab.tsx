@@ -375,7 +375,7 @@ function ContractRow({
           >
             {translateText(paymentStatusArabic(contract.paymentStatus), language)}
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-white/70 border border-ink/15 text-[10px] font-bold text-ink/90">
+          <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${STAGE_COLORS[contract.status].badge}`}>
             {translateText(statusArabic(contract.status), language)}
           </span>
         </div>
