@@ -36,9 +36,14 @@ const TemplateInteractiveSandbox = lazy(() => trackLoad(import('./components/Tem
 const AdminPage = lazy(() => trackLoad(import('./components/AdminPage').then((m) => ({ default: m.AdminPage }))));
 const LoginPage = lazy(() => trackLoad(import('./components/LoginPage').then((m) => ({ default: m.LoginPage }))));
 const HomeHero = lazy(() => trackLoad(import('./components/HomeHero').then((m) => ({ default: m.HomeHero }))));
-const PhasesSection = lazy(() => trackLoad(import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection }))));
-const ContactSection = lazy(() => trackLoad(import('./components/ContactSection').then((m) => ({ default: m.ContactSection }))));
-const Footer = lazy(() => trackLoad(import('./components/Footer').then((m) => ({ default: m.Footer }))));
+// The sections below the fold and the footer load on scroll (LazyOnView), so they are deliberately
+// NOT tracked: when one of them downloads while the visitor is already reading, a full-screen
+// loader popping up would be exactly the "annoying" flash we are removing. Their placeholders are
+// solid blocks in the incoming section's colour, so a chunk that finishes mid-scroll simply
+// replaces a block of the same colour — nothing flashes at all.
+const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
+const ContactSection = lazy(() => import('./components/ContactSection').then((m) => ({ default: m.ContactSection })));
+const Footer = lazy(() => import('./components/Footer').then((m) => ({ default: m.Footer })));
 
 // A visitor who chose "أكمل كضيف" at the sign-in screen.
 //
@@ -538,7 +543,7 @@ export default function App() {
 
         {activePage === 'templates' && (
           <div className="page-in">
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={null}>
               <TemplateGrid
                 language={language}
                 currency={currency}
@@ -555,7 +560,7 @@ export default function App() {
 
         {activePage === 'custom-request' && (
           <div className="page-in max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={null}>
               <ContractBuilderGate
                 language={language}
                 currency={currency}
@@ -571,7 +576,7 @@ export default function App() {
 
         {activePage === 'orders' && (
           <div className="page-in">
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={null}>
               <AdminPage language={language} currency={currency} onContinueAsGuest={leaveSignIn} />
             </Suspense>
           </div>
@@ -591,7 +596,7 @@ export default function App() {
 
         {activePage === 'privacy' && (
           <div className="page-in">
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={null}>
               <PolicyPage type="privacy" language={language} />
             </Suspense>
           </div>
@@ -599,7 +604,7 @@ export default function App() {
 
         {activePage === 'terms' && (
           <div className="page-in">
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={null}>
               <PolicyPage type="terms" language={language} />
             </Suspense>
           </div>
@@ -610,8 +615,8 @@ export default function App() {
       {/* Footer — mounted only when scrolled near, like the sections above. Not shown on the
         control panel (orders), where it is not wanted. */}
       {activePage !== 'orders' && (
-        <LazyOnView rootMargin="800px 0px" placeholder={<div className="h-[60vh] bg-[var(--nq-ground)]" aria-hidden="true" />}>
-          <Suspense fallback={<PageLoader />}>
+        <LazyOnView rootMargin="800px 0px" placeholder={<div className="h-[60vh] bg-paper" aria-hidden="true" />}>
+          <Suspense fallback={null}>
             <Footer
               language={language}
               onNavigate={navigateTo}
@@ -632,7 +637,7 @@ export default function App() {
 
       {/* Contract PDF Generated Preview Modal */}
       {activeContractForPreview && (
-        <Suspense fallback={<ContractPreparingLoader language={language} />}>
+        <Suspense fallback={null}>
           <ContractPDFPreview
             contract={activeContractForPreview}
             language={language}
@@ -651,6 +656,10 @@ export default function App() {
           />
         </Suspense>
       )}
+
+      {/* The one loader for the whole app — full-screen, and rendered only while a lazy chunk is
+          actually downloading. See SmartPageLoader. */}
+      <SmartPageLoader />
     </div>
   );
 }
