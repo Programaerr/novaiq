@@ -87,7 +87,10 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           /* `rounded-[1.5rem]` is repeated inside the curtain keyframes in index.css, which clip
              to the same radius so the corners do not square off mid-animation. The two have to
              agree. */
-          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col"
+          /* The cap steps up on an ultrawide with the container it sits in. 34rem in a 100rem
+             column is a 544px slab beside 1000px of field: not a panel on a background any more,
+             a bookmark. 42rem holds the same share of the column the 34rem cap holds of 80rem. */
+          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] uw:max-w-[42rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col"
           /* A shadow, because the panel is a flat fill sitting on a busy field and without one the
              two planes fight for the same depth. Warm and near-black rather than neutral grey: a
              grey shadow on sand greys the sand under it, which is the tell that a shadow was
@@ -114,16 +117,16 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                  The ink stays near-black rather than white for a measured reason: white on #8295CF
                  is 2.97:1, under the 4.5:1 a body-sized line needs, where this ink is 6.4:1 on the
                  same blue. */
-              className="w-full max-w-[22rem] text-center"
+              className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
             >
               <span
-                className="block text-[2.1rem] sm:text-[2.6rem] font-black tracking-[0.06em] leading-none"
+                className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
                 style={{ color: INK }}
               >
                 NOVAIQ
               </span>
               <p
-                className="mt-3 text-[0.8rem] sm:text-sm font-bold leading-relaxed"
+                className="mt-3 text-[0.8rem] sm:text-sm uw:text-base font-bold leading-relaxed"
                 style={{ color: INK, opacity: 0.72 }}
               >
                 {isAr

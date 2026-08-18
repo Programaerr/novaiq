@@ -137,7 +137,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
             cells below, so it starts on the edge of cell 1 rather than floating over the middle
             of them. Nothing mirrors this by hand; the box takes its direction from the document. */}
         <h2
-          className="mx-auto max-w-[56rem] text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
+          className="mx-auto max-w-[56rem] uw:max-w-[72rem] text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
           style={{ color: INK }}
         >
           {isAr ? 'مراحل العمل' : 'How we work'}
@@ -146,10 +146,14 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
         {/* ── The four cells ──────────────────────────────────────────────────────────────────
             `grid-flow-col` with two rows is what puts 1 above 2 and 3 above 4, as drawn. A plain
             two-column grid fills across instead and would put 1 beside 2. */}
-        {/* Held to 56rem rather than the full container: at 1700px+ the container opens to
-            100rem, and two columns spread across 1600px stop being a pair and become two pages
-            the eye has to travel between. */}
-        <div className="relative mx-auto max-w-[56rem] mt-14 sm:mt-20">
+        {/* Narrower than the container, and stepped rather than tracking it. At 1700px+ the
+            container opens to 100rem, and two columns spread across the full 1600px stop being a
+            pair and become two pages the eye has to travel between — but staying at 56rem there is
+            the opposite failure, and the one an ultrawide actually shows: an 896px island adrift in
+            3440px of paper, with each card's text down to a 330px measure, cramped copy surrounded
+            by empty ground. 72rem is the middle: the pair still reads as a pair, and the measure
+            goes back to something a line of Arabic wants to be. */}
+        <div className="relative mx-auto max-w-[56rem] uw:max-w-[72rem] mt-14 sm:mt-20">
           {/* The rule between the columns. Only from `sm` up, because below that the cells are
               one column and a rule down the middle of them would be crossing out the content.
 
@@ -173,7 +177,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                   style={{ ['--nq-rise-delay' as string]: `${140 + i * 110}ms` }}
                 >
                   <span
-                    className="text-[2.4rem] sm:text-[3rem] font-black leading-[0.85] tabular-nums"
+                    className="text-[2.4rem] sm:text-[3rem] uw:text-[3.6rem] font-black leading-[0.85] tabular-nums"
                     style={{ color: INK }}
                     aria-hidden="true"
                   >
@@ -205,17 +209,17 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                         would need. */}
                     <div className="flex items-center gap-3 sm:gap-4">
                       <h3
-                        className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
+                        className="text-[1.05rem] sm:text-[1.2rem] uw:text-[1.35rem] font-black leading-none"
                         style={{ color: INK }}
                       >
                         {isAr ? phase.ar.name : phase.en.name}
                       </h3>
                       <span
-                        className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0"
+                        className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 uw:w-[4.5rem] uw:h-[4.5rem] rounded-2xl shrink-0"
                         style={{ background: PERIWINKLE, color: INK }}
                         aria-hidden="true"
                       >
-                        <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.9} />
+                        <Icon className="w-6 h-6 sm:w-7 sm:h-7 uw:w-8 uw:h-8" strokeWidth={1.9} />
                       </span>
                     </div>
                     {/* Capped in CHARACTERS rather than pixels: at 1700px+ the container opens to 100rem,
@@ -227,7 +231,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                         room that Latin body copy does not, and these are paragraphs now rather than the one
                         line the cards started with. */}
                     <p
-                      className="mt-5 sm:mt-6 max-w-[58ch] text-[0.92rem] sm:text-[1.02rem] font-bold leading-[1.9]"
+                      className="mt-5 sm:mt-6 max-w-[58ch] text-[0.92rem] sm:text-[1.02rem] uw:text-[1.1rem] font-bold leading-[1.9]"
                       style={{ color: INK, opacity: 0.78 }}
                     >
                       {isAr ? phase.ar.body : phase.en.body}

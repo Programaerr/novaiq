@@ -202,9 +202,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
       </div>
 
       <div className="relative nq-container">
-        <div className="mx-auto max-w-[56rem]">
+        {/* Steps with the phases section above it and for the same reason — see the note there.
+            One island of the same width twice running is what makes the two read as one page. */}
+        <div className="mx-auto max-w-[56rem] uw:max-w-[72rem]">
           <h2
-            className="nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
+            className="nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
             style={{ color: INK, ['--nq-rise-delay' as string]: '80ms' }}
           >
             {isAr ? 'تواصل معنا' : 'Contact us'}
@@ -324,7 +326,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
 
             <div className="nq-rise" style={{ ['--nq-rise-delay' as string]: '520ms' }}>
               <h3
-                className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
+                className="text-[1.05rem] sm:text-[1.2rem] uw:text-[1.35rem] font-black leading-none"
                 style={{ color: INK }}
               >
                 {isAr ? 'تواصل مباشر' : 'Get in touch'}

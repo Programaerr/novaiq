@@ -7,6 +7,18 @@
    their own copy of the hexes — the same reason the palette lives in homePalette.ts.
    --color-* in @theme generates bg-paper / text-ink / border-ink/10 etc. on demand. */
 @theme {
+  /* The ultrawide step, as a breakpoint rather than ten copies of `min-[1700px]:`.
+
+     Same 1700px the --nq-container media query below uses, and deliberately the same number: the
+     column opening to 100rem and the type and artwork inside it growing to match are one decision,
+     and two thresholds a hundred pixels apart would show as a band of widths where the column had
+     grown and nothing in it had.
+
+     1700 rather than the 1536 `2xl` breakpoint because 1536-1700 is where ordinary laptops sit and
+     the standard measure is right there. This step is for displays that are wide because they are
+     ultrawide, not because they are large. */
+  --breakpoint-uw: 1700px;
+
   --color-sand: #D5BDAC;
   --color-sand-deep: #C9AE95;
   --color-sand-light: #E4D3C4;

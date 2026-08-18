@@ -181,9 +181,34 @@ const MAX_DPR: number =
     the grid be specified in pixels below. */
 const ZOOM = 100;
 
-/** Tile pitch in CSS pixels. Smaller on a coarse pointer: a phone holds the screen closer, and the
-    same pitch that reads as a texture at arm's length reads as a chequerboard at 30cm. */
-const CELL_PX = MAX_DPR > 1 ? 46 : 34;
+/**
+ * Tile pitch in CSS pixels, floor and ceiling. Smaller on a coarse pointer: a phone holds the
+ * screen closer, and the same pitch that reads as a texture at arm's length reads as a
+ * chequerboard at 30cm.
+ */
+const CELL_MIN = MAX_DPR > 1 ? 46 : 34;
+const CELL_MAX = MAX_DPR > 1 ? 78 : 62;
+
+/** Cubes across the screen, which is the thing that actually has to stay constant. */
+const CELL_COLS = 44;
+
+/**
+ * The pitch for a given screen width.
+ *
+ * A pitch fixed in CSS pixels is a pitch fixed in inches, and that is the wrong invariant for this
+ * field. It is not a texture with a grain size, it is a COMPOSITION: a screen's worth of blocks
+ * with a swell running through it, and what makes it read is how many blocks that is. Held at 46px
+ * a 1440 screen gets 33 across and an ultrawide gets 78 — same picture, but at more than double the
+ * count the blocks stop being blocks and the field turns into woven cloth behind the panel.
+ *
+ * So the count is what is held and the pitch follows, between a floor and a ceiling. The floor is
+ * the old fixed value, which means nothing at or below 1500px moves by a pixel — the ramp only
+ * starts where the screen is wider than the composition was ever drawn for. Rounded to whole
+ * pixels so a drag-resize crosses a handful of values rather than rebuilding the material on
+ * every frame of the drag.
+ */
+const cellFor = (width: number): number =>
+  Math.round(Math.min(CELL_MAX, Math.max(CELL_MIN, width / CELL_COLS)));
 
 function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
@@ -367,13 +392,14 @@ const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> 
   const size = useThree((s) => s.size);
   const invalidate = useThree((s) => s.invalidate);
 
-  const cell = CELL_PX / ZOOM;
+  const cellPx = cellFor(size.width);
+  const cell = cellPx / ZOOM;
   /* Margin rows and columns, and the tilt is what they pay for. Tipping the grid shortens its
      projected height by cos(TILT_X) and its width by cos(TILT_Y), so a field sized exactly to the
      screen pulls its own edges inside the frame and leaves bare sand along two sides. Six either
      way covers that, the cube height standing proud at the top, and a resize mid-drag. */
-  const cols = Math.ceil(size.width / CELL_PX / Math.cos(TILT_Y)) + 10;
-  const rows = Math.ceil(size.height / CELL_PX / Math.cos(TILT_X)) + 10;
+  const cols = Math.ceil(size.width / cellPx / Math.cos(TILT_Y)) + 10;
+  const rows = Math.ceil(size.height / cellPx / Math.cos(TILT_X)) + 10;
   const count = cols * rows;
 
   const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
