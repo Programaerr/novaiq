@@ -1146,37 +1146,18 @@
 }
 
 /* ── The phases section's entrance (PhasesSection.tsx) ─────────────────────────────────────────
-   Two pieces, both held closed until `data-seen="true"` is written on the section by its
+   The four cards, held down until `data-seen="true"` is written on the section by its
    IntersectionObserver. This section starts below the fold, so an animation that ran on mount
    would be over before anyone scrolled to it; gating on the observer is what makes "first time it
    appears" mean what it says.
 
-   The rail sweeps rather than fades, because it is the same gesture the hero's panel makes one
-   screen above — drawn open from the edge the language starts at. The two sections then share a
-   vocabulary of one move instead of each having a different idea about how things arrive.
+   There was a second piece here — a clip-path sweep that drew the dark rail open from the edge
+   the language starts at. The rail is gone, and the sweep went with it.
 
-   The from-state lives on the class, not in the keyframes, so the element is already clipped/lowered
+   The from-state lives on the class, not in the keyframes, so the element is already lowered
    before the animation is attached. `forwards` holds the end state afterwards rather than `both`:
    `both` would leave the transform applied for good, and a permanent compositing layer under Arabic
    body text is what softens it. */
-@keyframes nq-ph-sweep-r {
-  from {
-    clip-path: inset(0 0 0 100%);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-@keyframes nq-ph-sweep-l {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
 @keyframes nq-ph-rise {
   from {
     opacity: 0;
@@ -1188,26 +1169,8 @@
   }
 }
 
-/* An inset of 100% on the side the reading starts at, so the bar is drawn out of that edge:
-   right in Arabic, left in English. */
-.nq-ph-sweep-r {
-  clip-path: inset(0 0 0 100%);
-}
-
-.nq-ph-sweep-l {
-  clip-path: inset(0 100% 0 0);
-}
-
 .nq-ph-rise {
   opacity: 0;
-}
-
-[data-seen='true'] .nq-ph-sweep-r {
-  animation: nq-ph-sweep-r 0.95s cubic-bezier(0.16, 0.84, 0.28, 1) forwards;
-}
-
-[data-seen='true'] .nq-ph-sweep-l {
-  animation: nq-ph-sweep-l 0.95s cubic-bezier(0.16, 0.84, 0.28, 1) forwards;
 }
 
 [data-seen='true'] .nq-ph-rise {
@@ -1216,15 +1179,9 @@
 
 /* Under a reduced-motion preference the content is simply there. The from-states have to be
    cleared explicitly and not just the animations: they are on the classes, so dropping the
-   animation alone would leave the rail clipped to nothing and the cards at zero opacity —
-   permanently, and for exactly the people least able to work around it. */
+   animation alone would leave the cards at zero opacity — permanently, and for exactly the
+   people least able to work around it. */
 @media (prefers-reduced-motion: reduce) {
-  .nq-ph-sweep-r,
-  .nq-ph-sweep-l {
-    clip-path: none;
-    animation: none;
-  }
-
   .nq-ph-rise {
     opacity: 1;
     transform: none;

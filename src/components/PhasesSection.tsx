@@ -1,46 +1,43 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Blocks, FileSignature, PencilRuler, Rocket } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { INK, PAPER, PERIWINKLE, SAND, SAND_DEEP } from '../lib/homePalette';
+import { INK, PAPER, PERIWINKLE, SAND_DEEP } from '../lib/homePalette';
 
 /**
  * The phases section: the four steps of a project, as a rail and four cards.
  *
- * ## Built from the wireframe
+ * ## Four cells, laid out column-major
  *
- * The drawing is specific and this follows it: a bar across the top carrying `1 │ العقد` through
- * `4 │ التسليم`, and below it four cells in two stacked columns with a rule down the middle. The
- * cells are laid out COLUMN-major — 1 and 2 share a column, 3 and 4 share the next — which is what
- * the drawing shows and is not what a plain `grid-cols-2` does, so the grid is explicitly
- * `grid-flow-col` with two rows.
+ * 1 and 2 share a column, 3 and 4 share the next, with a rule down the middle — which is what the
+ * wireframe shows and is NOT what a plain `grid-cols-2` does, since that fills across and would
+ * put 1 beside 2. Hence `grid-flow-col` with two rows spelled out.
  *
- * ## The rail and the cards do not repeat each other
+ * Each cell carries the whole step: numeral, rule, name, mark, and the terms for that step in the
+ * company's own words. Nothing in the section is said twice.
  *
- * This is the one decision that does the most work here. The obvious build gives every card a
- * heading, and then the section says "العقد" twice within 200px of itself — the rail becomes
- * decoration, because deleting it would cost nothing. Instead the rail owns the four NAMES and
- * each card owns a number, a mark and the terms for that step. The numeral is the join between
- * them, the rail is load-bearing, and no word in the section appears twice.
+ * ## The bar used to be here
  *
- * For a screen reader the two halves are stitched back together by a visually hidden heading on
- * each card, so the list still reads "العقد, يتم الاتفاق من خلال العقد…" in order rather than as
- * four unlabelled paragraphs. Nothing is hidden from anyone; the name is only shown once.
+ * A dark bar across the top held `1 │ العقد` through `4 │ التسليم` and was the only place the
+ * names appeared. It is gone, and the names came down into the cells with it — which is why a
+ * card header reads numeral, rule, name, mark: it is the bar's own format, one step per card.
  *
- * ## #8295CF is the state, not the bar
+ * Everything that existed to drive that bar went with it: the live step, the timer that advanced
+ * it, the dimmed numerals and the blue that filled the rule and the tile of whichever step was
+ * lit. There is nothing left to be live, so nothing pretends to be.
  *
- * The wireframe draws the bar black and annotates it #8295CF. Both cannot be the fill, so the bar
- * is drawn as drawn and the blue is what MOVES across it — the indicator behind the live step, the
- * rule that fills on the live card, the mark on its tile. That reading keeps the drawing's black
- * bar and puts the annotated colour on the only thing in the section that changes, and it is also
- * the only reading that is legible: white on #8295CF measures 2.97:1, under the 4.5:1 a label
- * needs, where the ink on it is 6.4:1.
+ * ## The blue is on every mark now
+ *
+ * #8295CF was the state while the bar could set one. Without it the four cells are equals, so all
+ * four marks carry it. The glyph on them is near-black rather than white for a measured reason:
+ * white on #8295CF is 2.97:1, under the 4.5:1 it would need, where this ink is 6.4:1.
  *
  * ## Reading order follows the language
  *
- * Step 1 sits at the RIGHT in Arabic and at the LEFT in English, because this is a sequence being
- * read rather than a picture being composed — unlike the hero's panel, which is pinned physically
- * left in both. Nothing here is mirrored by hand: the rail is a grid and the cards are a grid, and
- * both take their direction from the document.
+ * The numeral sits at the RIGHT in Arabic and at the LEFT in English, because this is a sequence
+ * being read rather than a picture being composed — unlike the hero's panel, which is pinned
+ * physically left in both. Nothing here is mirrored by hand; the cells are a grid and take their
+ * direction from the document, which is also what puts the name on the mark's right in Arabic and
+ * on its left in English.
  */
 
 interface Phase {
@@ -113,9 +110,6 @@ const PHASES: Phase[] = [
   },
 ];
 
-/** How long a step stays lit before the rail moves on, until someone touches it. */
-const DWELL_MS = 3400;
-
 /**
  * True once the element has been on screen, and true forever after.
  *
@@ -165,21 +159,6 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
   const isAr = language === 'ar';
   const { ref: sectionRef, seen } = useSeen<HTMLElement>();
 
-  const [active, setActive] = useState(0);
-  /* Set the first time anyone points at, clicks or tabs into the rail, and never cleared. The
-     auto-advance exists to show that the rail is live at all; once someone has taken hold of it,
-     moving it under them is the thing carousels are hated for. */
-  const [held, setHeld] = useState(false);
-
-  useEffect(() => {
-    if (!seen || held) return;
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setInterval(() => setActive((a) => (a + 1) % PHASES.length), DWELL_MS);
-    return () => window.clearInterval(id);
-  }, [seen, held]);
-
-  const hold = useCallback(() => setHeld(true), []);
-
 
   return (
     <section
@@ -193,105 +172,29 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
       className="relative py-20 sm:py-28 lg:py-32"
     >
       <div className="nq-container">
-        {/* The rail names the four steps, so a visible heading would be a fifth thing saying what
-            the section already says. It still needs a name in the accessibility tree. */}
-        <h2 className="sr-only">{isAr ? 'مراحل العمل' : 'How we work'}</h2>
-
-        {/* ── The rail ────────────────────────────────────────────────────────────────────────
-            Held to a measure of its own rather than the full container: at 1700px+ the container
-            opens to 100rem, and a four-item bar stretched across 1600px stops reading as a bar
-            and starts reading as a table. */}
-        <ol
-          className={`nq-ph-sweep-${isAr ? 'r' : 'l'} relative grid grid-cols-4 mx-auto max-w-[56rem] p-1.5 rounded-2xl`}
-          style={{ background: INK }}
-          onPointerEnter={hold}
-          onFocusCapture={hold}
+        {/* The section's own name, standing where the dark bar used to. Aligned to the reading
+            start — right in Arabic, left in English — and held to the same 56rem measure as the
+            cells below, so it starts on the edge of cell 1 rather than floating over the middle
+            of them. Nothing mirrors this by hand; the box takes its direction from the document. */}
+        <h2
+          className="mx-auto max-w-[56rem] text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
+          style={{ color: INK }}
         >
-          {/* The indicator, behind the labels. Kept out of the accessibility tree: it says exactly
-              what `aria-pressed` on the live button already says.
-
-              Its position is DERIVED, not measured. The first build of this measured the live
-              step's `offsetLeft` and slid the pill to it, which is correct until the language
-              changes: flipping the document to LTR moves every step without changing the rail's
-              size, so no ResizeObserver fires, and the pill stays on the segment the RTL layout
-              put it under. The live label — near-black, because it is meant to be read on blue —
-              was then near-black on the near-black bar, so switching to English made step 4
-              disappear.
-
-              Four `1fr` columns are exactly a quarter each by construction, so a quarter-width
-              block offset by whole multiples of itself lands on the segment by arithmetic, with
-              nothing to fall out of date. `inset-inline-start` puts it at the reading start — the
-              right in Arabic — and the sign flip is what sends it the same way the numbers go. */}
-          <span
-            aria-hidden="true"
-            className="absolute top-1.5 bottom-1.5 rounded-xl"
-            /* The 0.375rem/0.75rem are the rail's own `p-1.5`, and they are here because an
-               absolutely positioned child measures against its ancestor's PADDING box while the
-               grid columns divide up the CONTENT box. A plain `w-1/4` is a quarter of the wrong
-               box and drifts 3px further off at every step. */
-            style={{
-              background: PERIWINKLE,
-              insetInlineStart: '0.375rem',
-              width: 'calc((100% - 0.75rem) / 4)',
-              transform: `translateX(${(isAr ? -100 : 100) * active}%)`,
-              transition: 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1)',
-            }}
-          />
-
-          {PHASES.map((phase, i) => {
-            const isActive = i === active;
-            return (
-              <li key={phase.key} className="min-w-0">
-                <button
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => {
-                    setHeld(true);
-                    setActive(i);
-                  }}
-                  /* Stacked on phones and inline from `sm` up. The drawing's `1 │ العقد` needs
-                     roughly 150px to sit on one line without the label crowding the number, and
-                     four of those do not fit across a 360px screen — so below `sm` the rule drops
-                     out and the number rides above the label instead of being squeezed beside it.
-
-                     The vertical padding is set from the 44px touch minimum backwards rather than
-                     from how the bar looks: the stacked form clears it at `py-3` and the inline
-                     one, whose content is a single 14px line, needs `py-4` to get there. */
-                  className="relative z-10 w-full flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2.5 px-1 sm:px-3 py-3 sm:py-4 rounded-xl cursor-pointer transition-colors duration-300"
-                  style={{ color: isActive ? INK : 'rgba(213, 189, 172, 0.72)' }}
-                >
-                  <span className="text-[0.68rem] sm:text-xs font-black tabular-nums leading-none">
-                    {i + 1}
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="hidden sm:block w-px h-3.5 shrink-0"
-                    style={{ background: 'currentColor', opacity: 0.4 }}
-                  />
-                  <span className="text-[0.74rem] sm:text-[0.82rem] font-extrabold whitespace-nowrap leading-none">
-                    {isAr ? phase.ar.name : phase.en.name}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
+          {isAr ? 'مراحل العمل' : 'How we work'}
+        </h2>
 
         {/* ── The four cells ──────────────────────────────────────────────────────────────────
             `grid-flow-col` with two rows is what puts 1 above 2 and 3 above 4, as drawn. A plain
             two-column grid fills across instead and would put 1 beside 2. */}
-        {/* The same 56rem measure as the rail, so the first cell's numeral starts on the bar's
-            edge and the centre rule falls on the seam between steps 2 and 3. A wider grid here
-            reads as the bar being too short for the section it heads, which is the sort of thing
-            that looks like nothing in particular and is felt as untidiness. */}
+        {/* Held to 56rem rather than the full container: at 1700px+ the container opens to
+            100rem, and two columns spread across 1600px stop being a pair and become two pages
+            the eye has to travel between. */}
         <div className="relative mx-auto max-w-[56rem] mt-14 sm:mt-20">
           {/* The rule between the columns. Only from `sm` up, because below that the cells are
               one column and a rule down the middle of them would be crossing out the content.
 
               A plain hairline: it had a short blue mark on it that slid to whichever row was
-              live, and the state it was reporting is already carried by the pill on the rail,
-              the numeral and the rule inside the card — a fourth thing saying the same thing
-              was one moving part too many for a divider. */}
+              live, and with the rail gone there is no live row for it to point at. */}
           <span
             aria-hidden="true"
             className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2"
@@ -300,7 +203,6 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
 
           <ol className="grid gap-y-12 sm:gap-y-16 sm:grid-cols-2 sm:grid-rows-2 sm:grid-flow-col sm:gap-x-14 lg:gap-x-20">
             {PHASES.map((phase, i) => {
-              const isActive = i === active;
               const { Icon } = phase;
               return (
                 <li
@@ -311,47 +213,51 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                   style={{ ['--nq-ph-delay' as string]: `${140 + i * 110}ms` }}
                 >
                   <span
-                    className="text-[2.4rem] sm:text-[3rem] font-black leading-[0.85] tabular-nums transition-opacity duration-500"
-                    style={{ color: INK, opacity: isActive ? 1 : 0.5 }}
+                    className="text-[2.4rem] sm:text-[3rem] font-black leading-[0.85] tabular-nums"
+                    style={{ color: INK }}
                     aria-hidden="true"
                   >
                     {i + 1}
                   </span>
 
-                  {/* The `│` from the drawing, doing a second job: it fills with the accent while
-                      its phase is live, which is the quietest way to tie a card to the rail
-                      without moving or resizing anything. */}
+                  {/* The `│` from the drawing. A plain hairline now: it used to fill with the
+                      accent while its phase was live, and with the rail gone there is no live
+                      phase for it to report. */}
                   <span
                     aria-hidden="true"
-                    className="relative w-px shrink-0 self-stretch overflow-hidden"
+                    className="w-px shrink-0 self-stretch"
                     style={{ background: SAND_DEEP }}
-                  >
-                    <span
-                      className="absolute inset-x-0 top-0"
-                      style={{
-                        background: PERIWINKLE,
-                        height: isActive ? '100%' : '0%',
-                        transition: 'height 0.6s cubic-bezier(0.22, 1, 0.36, 1)',
-                      }}
-                    />
-                  </span>
+                  />
 
                   <div className="min-w-0 pt-0.5">
-                    {/* The name, for anyone who is not looking at the rail. On screen the rail
-                        carries it and repeating it here would be the section saying "العقد" twice
-                        within 200px; in the accessibility tree the two halves are separated by
-                        four buttons, so without this the list reads as four unlabelled lines.
-                        A hidden heading rather than `aria-labelledby` on the <li>: naming a plain
-                        list item is not reliably announced, and this also gives the four phases a
-                        real h3 level under the section's h2. */}
-                    <h3 className="sr-only">{isAr ? phase.ar.name : phase.en.name}</h3>
-                    <span
-                      className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl transition-colors duration-500"
-                      style={{ background: isActive ? PERIWINKLE : SAND, color: INK }}
-                      aria-hidden="true"
-                    >
-                      <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.9} />
-                    </span>
+                    {/* The name and its mark, on one line. This is where the rail's
+                        `1 │ العقد` ended up once the bar was taken out: the numeral and the rule
+                        are already to the right of this row, so the name lands beside the icon and
+                        the card header reads as the rail step it replaces.
+
+                        The heading is REAL text now rather than the screen-reader-only copy it was
+                        while the rail carried the visible name — one h3 per phase, under the
+                        section's h2, and nothing said twice.
+
+                        Blue on all four marks. The tile used to be blue only on the live phase,
+                        and there is no live phase without the rail to set one. Near-black on the
+                        blue rather than white: white on #8295CF is 2.97:1, under the 4.5:1 it
+                        would need. */}
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <h3
+                        className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
+                        style={{ color: INK }}
+                      >
+                        {isAr ? phase.ar.name : phase.en.name}
+                      </h3>
+                      <span
+                        className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0"
+                        style={{ background: PERIWINKLE, color: INK }}
+                        aria-hidden="true"
+                      >
+                        <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.9} />
+                      </span>
+                    </div>
                     {/* Capped in CHARACTERS rather than pixels: at 1700px+ the container opens to 100rem,
                         and a paragraph free to run the full half of that is unreadable however well it is
                         written. In a two-column cell the column is usually the narrower of the two, and
