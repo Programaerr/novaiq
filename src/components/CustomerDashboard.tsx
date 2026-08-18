@@ -96,10 +96,6 @@ return (
       </div>
     </div>
   );
-        })}
-      </div>
-    </div>
-  );
 }
 
 // What a logged-in customer sees at ?page=orders — only contracts matching their own
