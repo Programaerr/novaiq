@@ -610,7 +610,7 @@ export default function App() {
             <Footer
               language={language}
               onNavigate={navigateTo}
-              tone={activePage === "home" ? "sand" : "ink"}
+              tone={activePage === "home" ? "paper" : "ink"}
             />
           </Suspense>
         </LazyOnView>

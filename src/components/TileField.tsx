@@ -102,19 +102,22 @@ export const PERIWINKLE_TONES: FieldTones = {
 };
 
 /**
- * The footer band's: the page's sand coming up out of the contact section's blue.
+ * The footer band's: the page's paper coming up out of the contact section's blue.
  *
- * The same ramp as the hero's, because it is the same sand — what differs is only what it is
- * arriving from and settling into, which is the whole reason those two are separate fields on
- * FieldTones rather than one.
+ * The only ramp here that does not straddle its ground. Paper is a step off white, so a crest
+ * "lighter than the ground" would be white — the tops of the swell would go out at exactly the
+ * moment they catch the most light, and the field would read as a grid of holes rather than a
+ * relief. Both ends sit BELOW paper instead, in the sand the rest of the page is made of, so the
+ * cubes read as warm blocks standing on paper and the swell still runs dark to light across them.
+ * The same two colours the phases section above already draws on paper with.
  */
-export const SAND_BAND_TONES: FieldTones = {
-  trough: '#C2A68C',
-  crest: '#F1E4D6',
+export const PAPER_BAND_TONES: FieldTones = {
+  trough: '#BFA184',
+  crest: '#E9DACA',
   foam: PERIWINKLE,
-  ground: SAND,
-  // Down into the footer's own sand, up into the blue of the section above.
-  intoLo: SAND,
+  ground: PAPER,
+  // Down into the footer's own paper, up into the blue of the section above.
+  intoLo: PAPER,
   intoHi: PERIWINKLE,
 };
 

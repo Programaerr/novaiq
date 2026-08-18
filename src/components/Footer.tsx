@@ -1,9 +1,9 @@
 import React from 'react';
 import { ArrowUpLeft, ArrowUpRight, Github, Instagram, Mail, MapPin, MessageCircle, Send } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { PERIWINKLE, SAND } from '../lib/homePalette';
+import { PAPER, PERIWINKLE } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
-import { BAND_FADE, SAND_BAND_TONES, TileField } from './TileField';
+import { BAND_FADE, PAPER_BAND_TONES, TileField } from './TileField';
 
 interface FooterProps {
   language?: Language;
@@ -12,15 +12,16 @@ interface FooterProps {
    * Which ground the footer is standing on.
    *
    * `ink` is the site's own: no background of its own, letting the black page through, with
-   * everything on it drawn in white at some opacity. `sand` is the home page's, which ends in
-   * #D5BDAC.
+   * everything on it drawn in white at some opacity. `paper` is the home page's — #F6F1E9, the
+   * same ground the phases section stands on, so the page opens and closes on the same colour with
+   * the blue of the contact section held between them.
    *
    * A prop rather than a change to the component, because this footer is on every page but one
-   * and only the home page has the palette that makes sand the right ground. A sand footer under
+   * and only the home page has the palette that makes paper the right ground. A paper footer under
    * the black template gallery is not a footer that matches its page; it is a footer that stopped
    * matching six of them.
    */
-  tone?: 'ink' | 'sand';
+  tone?: 'ink' | 'paper';
 }
 
 /**
@@ -32,9 +33,9 @@ interface FooterProps {
  *
  * The five alphas are the footer's hierarchy: headings quiet, links a step up, icons a step down.
  * They are per-tone because the same alpha does not mean the same thing on the two grounds. White
- * at 50% on black measures about 9:1; near-black at 50% on #D5BDAC measures 3.0:1, and its links
- * at 60% measure 3.9:1 — both under the 4.5:1 a body-sized line needs. Compressed toward opaque on
- * sand, the same hierarchy reads and every level passes.
+ * at 50% on black measures about 9:1; near-black at 50% on paper measures 3.4:1 — under the 4.5:1
+ * a body-sized line needs. Pushed toward opaque, the same hierarchy reads and every level passes,
+ * with 0.62 as the floor: it measures 4.9:1 and one step quieter is 4.0:1, which does not.
  */
 const INK_VARS: React.CSSProperties = {
   ['--ft-fg' as string]: '255 255 255',
@@ -46,15 +47,15 @@ const INK_VARS: React.CSSProperties = {
   ['--ft-a70' as string]: '0.7',
 };
 
-const SAND_VARS: React.CSSProperties = {
+const PAPER_VARS: React.CSSProperties = {
   ['--ft-fg' as string]: '16 19 34',
-  ['--ft-bg' as string]: '213 189 172',
-  background: SAND,
-  ['--ft-a40' as string]: '0.7',
-  ['--ft-a50' as string]: '0.75',
-  ['--ft-a55' as string]: '0.78',
-  ['--ft-a60' as string]: '0.82',
-  ['--ft-a70' as string]: '0.86',
+  ['--ft-bg' as string]: '246 241 233',
+  background: PAPER,
+  ['--ft-a40' as string]: '0.62',
+  ['--ft-a50' as string]: '0.68',
+  ['--ft-a55' as string]: '0.72',
+  ['--ft-a60' as string]: '0.78',
+  ['--ft-a70' as string]: '0.84',
 };
 
 interface FooterColumnProps {
@@ -97,7 +98,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({ label, onClick, href }) => (
  * ## Two grounds, one set of colours
  *
  * It was built for the site's strict #000000 / #ffffff system and now has to stand on the home
- * page's sand as well. Rather than a second copy of every class, every colour in here is one of
+ * page's paper as well. Rather than a second copy of every class, every colour in here is one of
  * two custom properties at some opacity — `--ft-fg` for everything drawn and `--ft-bg` for the
  * ground it is drawn on — and the `tone` prop is the only place either is written. A third
  * ground would be two lines.
@@ -105,7 +106,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({ label, onClick, href }) => (
 export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, tone = 'ink' }) => {
   const isAr = language === 'ar';
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
-  const isSand = tone === 'sand';
+  const isPaper = tone === 'paper';
 
   const go = (page: string) => () => onNavigate?.(page);
 
@@ -115,20 +116,20 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
          some opacity, so the whole footer re-tones from here rather than from thirty class names.
          Space-separated channels rather than a hex, because that is the form rgb(var(--x) / a)
          needs — a hex inside a custom property cannot take an alpha. */
-      style={isSand ? SAND_VARS : INK_VARS}
-      /* On sand there is no top margin and no hairline: the band below does the whole job of
+      style={isPaper ? PAPER_VARS : INK_VARS}
+      /* On paper there is no top margin and no hairline: the band below does the whole job of
          arriving out of the section above, and a rule drawn across it is exactly the straight
          line the band exists to avoid. On the black pages the footer keeps the gap and the rule
          it has always had. */
       className={`relative overflow-hidden ${
-        isSand ? '' : 'mt-24 sm:mt-40 border-t border-[rgb(var(--ft-fg)/0.15)]'
+        isPaper ? '' : 'mt-24 sm:mt-40 border-t border-[rgb(var(--ft-fg)/0.15)]'
       }`}
     >
       {/* ── The edge, on the home page only ──────────────────────────────────────────────────
-          A strip carrying the ground's change of colour and a field of sand cubes crossing it:
-          absent at the top where the ground is still the contact section's blue, assembling as it
-          turns, settled into flat sand before the first link. The same move the hero makes on its
-          way out and the contact section on its way in — three edges on this page, one gesture. */}
+          A strip carrying the ground's change of colour and a field of cubes crossing it: absent
+          at the top where the ground is still the contact section's blue, assembling as it turns,
+          settled into flat paper before the first link. The same move the hero makes on its way out
+          and the contact section on its way in — three edges on this page, one gesture. */}
       {/* Faint ruled grid in the footer's field. */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -140,22 +141,22 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
         }}
       />
 
-      {isSand && (
+      {isPaper && (
         <div
           aria-hidden="true"
           className="absolute inset-x-0 top-0"
           style={{
             height: 'var(--nq-band)',
-            background: `linear-gradient(to bottom, ${PERIWINKLE} 6%, ${SAND} 74%)`,
+            background: `linear-gradient(to bottom, ${PERIWINKLE} 6%, ${PAPER} 74%)`,
           }}
         >
-          <TileField tones={SAND_BAND_TONES} fade={BAND_FADE} />
+          <TileField tones={PAPER_BAND_TONES} fade={BAND_FADE} />
         </div>
       )}
 
       <div
         className={`relative nq-container pb-16 sm:pb-20 ${
-          isSand ? 'pt-[calc(var(--nq-band)+2.5rem)]' : 'pt-16 sm:pt-20'
+          isPaper ? 'pt-[calc(var(--nq-band)+2.5rem)]' : 'pt-16 sm:pt-20'
         }`}
       >
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
@@ -169,7 +170,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
               {/* The mark is white artwork on transparency, which is nothing at all on sand.
                   brightness(0) takes any colour to black and leaves the alpha alone, so the same
                   single asset reads on both grounds without a second file or a chip behind it. */}
-              <NovaiqLogo size={34} showText={false} className={isSand ? "brightness-0" : ""} />
+              <NovaiqLogo size={34} showText={false} className={isPaper ? "brightness-0" : ""} />
             </a>
             <p className="mt-5 max-w-sm text-xs sm:text-sm text-[rgb(var(--ft-fg)/var(--ft-a55))] leading-relaxed">
               {isAr
