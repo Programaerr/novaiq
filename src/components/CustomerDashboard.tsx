@@ -322,6 +322,23 @@ function CustomerContractRow({
             )}
           </div>
 
+          {/* The clauses the customer is actually bound by — the same numbered list printed in
+              the PDF and shown above the pad at signing. Showing them here, verbatim, means
+              the customer can re-read exactly what they agreed to without hunting through a
+              downloaded file, and it can never disagree with the printed copy. */}
+          <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
+            <span className="text-[11px] font-bold text-white/50 block mb-3">
+              {isAr ? `بنود العقد (${contractTerms(language, contract.deliveryTimelineWeeks || 0).length})` : `Contract Clauses (${contractTerms(language, contract.deliveryTimelineWeeks || 0).length})`}
+            </span>
+            <ol className="space-y-2.5 list-decimal list-inside">
+              {contractTerms(language, contract.deliveryTimelineWeeks || 0).map((term, i) => (
+                <li key={i} className="text-white/85 leading-relaxed">
+                  {term}
+                </li>
+              ))}
+            </ol>
+          </div>
+
           {contract.adminNotes && (
             <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-900/40 text-xs">
               <span className="text-amber-400 font-bold block mb-1">{isAr ? 'الشروط المتفق عليها بعد المراجعة:' : 'Agreed Terms After Review:'}</span>
