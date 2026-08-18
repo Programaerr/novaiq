@@ -154,13 +154,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         <KpiCell
           label={isAr ? 'المحصّل' : 'Collected'}
           value={formatPrice(stats.totalCollectedIQD, language, currency)}
-          accent="text-emerald-400"
+          accent="text-emerald-700"
           hint={isAr ? `${formatPrice(stats.totalOutstandingIQD, language, currency)} متبقٍّ` : `${formatPrice(stats.totalOutstandingIQD, language, currency)} outstanding`}
         />
         <KpiCell
           label={isAr ? 'الربح المحقق' : 'Realized profit'}
           value={formatPrice(stats.netProfitIQD, language, currency)}
-          accent={stats.netProfitIQD >= 0 ? 'text-emerald-400' : 'text-red-400'}
+          accent={stats.netProfitIQD >= 0 ? 'text-emerald-700' : 'text-red-600'}
         />
       </div>
 

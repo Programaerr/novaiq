@@ -66,7 +66,7 @@ export function ContractsTab({
           icon={DollarSign}
           label={isAr ? 'إجمالي القيمة' : 'Total Value'}
           value={formatPrice(stats.totalIQD, language, currency)}
-          accent="text-emerald-400"
+          accent="text-emerald-700"
         />
         <StatTile
           icon={TrendingUp}
@@ -77,13 +77,13 @@ export function ContractsTab({
           icon={TrendingDown}
           label={isAr ? 'إجمالي التكلفة' : 'Total Cost'}
           value={formatPrice(stats.totalCostIQD, language, currency)}
-          accent="text-red-400"
+          accent="text-red-600"
         />
         <StatTile
           icon={TrendingUp}
           label={isAr ? 'صافي الربح (محقق)' : 'Net Profit (Realized)'}
           value={formatPrice(stats.netProfitIQD, language, currency)}
-          accent={stats.netProfitIQD >= 0 ? 'text-emerald-400' : 'text-red-400'}
+          accent={stats.netProfitIQD >= 0 ? 'text-emerald-700' : 'text-red-600'}
         />
       </div>
 
@@ -367,9 +367,9 @@ function ContractRow({
           <span
             className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
               (contract.paymentStatus || 'unpaid') === 'paid'
-                ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
+                ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
                 : (contract.paymentStatus || 'unpaid') === 'partial'
-                ? 'bg-amber-950/60 border-amber-800 text-amber-300'
+                ? 'bg-amber-950/60 border-amber-300 text-amber-700'
                 : 'bg-white/70 border-ink/15 text-ink/60'
             }`}
           >
@@ -442,9 +442,9 @@ function ContractRow({
               <span
                 className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
                   paymentStatus === 'paid'
-                    ? 'bg-emerald-950/60 border-emerald-800 text-emerald-300'
+                    ? 'bg-emerald-100 border-emerald-300 text-emerald-700'
                     : paymentStatus === 'partial'
-                    ? 'bg-amber-950/60 border-amber-800 text-amber-300'
+                    ? 'bg-amber-950/60 border-amber-300 text-amber-700'
                     : 'bg-paper border-ink/15 text-ink/60'
                 }`}
               >
@@ -462,11 +462,11 @@ function ContractRow({
                 </div>
                 <div className="min-w-0">
                   <span className="text-ink/50 block mb-0.5">{isAr ? 'المحصّل' : 'Collected'}</span>
-                  <strong className="text-emerald-400 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
+                  <strong className="text-emerald-700 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
                 </div>
                 <div className="min-w-0">
                   <span className="text-ink/50 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
-                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-ink/50'}`}>
+                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-700' : 'text-ink/50'}`}>
                     {formatPrice(Math.max(remainingIQD, 0), language, currency)}
                   </strong>
                 </div>
@@ -496,7 +496,7 @@ function ContractRow({
               </div>
               <div className="min-w-0 col-span-2 sm:col-span-1">
                 <span className="block text-[11px] text-ink/50 mb-1">{isAr ? 'الربح المحقق' : 'Realized profit'}</span>
-                <strong className={`block text-base font-mono font-extrabold wrap-break-word ${rowProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                <strong className={`block text-base font-mono font-extrabold wrap-break-word ${rowProfit >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
                   {formatPrice(rowProfit, language, currency)}
                 </strong>
               </div>
@@ -553,7 +553,7 @@ function ContractRow({
                         type="button"
                         onClick={() => removePayment(p.id)}
                         title={isAr ? 'حذف الدفعة' : 'Remove payment'}
-                        className="p-1.5 rounded-md bg-red-950/60 hover:bg-red-900 border border-red-900 text-red-300 cursor-pointer transition-colors shrink-0"
+                        className="p-1.5 rounded-md bg-red-100 hover:bg-red-900 border border-red-300 text-red-700 cursor-pointer transition-colors shrink-0"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -593,7 +593,7 @@ function ContractRow({
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="px-4 py-2.5 rounded-xl bg-red-950/60 hover:bg-red-900 disabled:opacity-60 text-red-200 border border-red-800 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-4 py-2.5 rounded-xl bg-red-100 hover:bg-red-900 disabled:opacity-60 text-red-700 border border-red-300 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
             >
               <Trash2 className="w-4 h-4" />
               <span>{isAr ? 'حذف' : 'Delete'}</span>

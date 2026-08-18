@@ -128,7 +128,7 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
       </div>
 
       {error && (
-        <div className="p-3 rounded-xl bg-red-950/40 border border-red-900/60 text-red-300 text-xs">
+        <div className="p-3 rounded-xl bg-red-950/40 border border-red-300/60 text-red-700 text-xs">
           {error}
         </div>
       )}
@@ -147,7 +147,7 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
             <div
               key={u.uid}
               className={`p-3.5 rounded-2xl bg-paper border flex items-center justify-between gap-3 ${
-                u.disabled ? 'border-red-900/50' : 'border-ink/10'
+                u.disabled ? 'border-red-300/50' : 'border-ink/10'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -162,7 +162,7 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-ink truncate">{u.displayName || u.email}</span>
                     {u.disabled && (
-                      <span className="px-1.5 py-0.5 rounded bg-red-950/40 border border-red-900/60 text-red-300 text-[10px] font-bold shrink-0">
+                      <span className="px-1.5 py-0.5 rounded bg-red-950/40 border border-red-300/60 text-red-700 text-[10px] font-bold shrink-0">
                         {isAr ? 'معطّل' : 'Disabled'}
                       </span>
                     )}
@@ -192,7 +192,7 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
                   onClick={() => handleDelete(u)}
                   disabled={busyUid === u.uid}
                   title={isAr ? 'حذف نهائي' : 'Delete permanently'}
-                  className="p-2 rounded-lg bg-red-950/30 hover:bg-red-950/50 border border-red-900/50 text-red-300 hover:text-red-200 cursor-pointer disabled:opacity-50 transition-colors"
+                  className="p-2 rounded-lg bg-red-950/30 hover:bg-red-950/50 border border-red-300/50 text-red-700 hover:text-red-700 cursor-pointer disabled:opacity-50 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

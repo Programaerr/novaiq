@@ -56,7 +56,7 @@ export function CurrencyConverterCard({ isAr }: { isAr: boolean }) {
       </div>
 
       {error && !useCustomRate ? (
-        <p className="text-xs text-red-400">
+        <p className="text-xs text-red-600">
           {isAr ? 'تعذر جلب سعر الصرف الحالي — تحقق من الاتصال وحاول مجدداً، أو استخدم سعراً يدوياً' : 'Failed to fetch the current rate — check your connection and try again, or use a manual rate'}
         </p>
       ) : null}
@@ -80,7 +80,7 @@ export function CurrencyConverterCard({ isAr }: { isAr: boolean }) {
         </button>
         <div className="flex-1">
           <label className="block text-[11px] font-semibold text-ink/50 mb-1.5">{toLabel}</label>
-          <div className="w-full px-3 py-2.5 rounded-xl bg-paper border border-ink/10 text-emerald-400 text-sm font-mono font-bold truncate" dir="ltr">
+          <div className="w-full px-3 py-2.5 rounded-xl bg-paper border border-ink/10 text-emerald-700 text-sm font-mono font-bold truncate" dir="ltr">
             {resultText}
           </div>
         </div>

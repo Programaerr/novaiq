@@ -234,7 +234,7 @@ function CustomerContractRow({
           <span className="text-xs font-mono text-ink/75 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
           <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
             contract.status === 'completed'
-              ? 'bg-emerald-500/15 text-emerald-400 border-emerald-800'
+              ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
               : 'bg-white/70 border-ink/15 text-ink/90'
           }`}>
             {translateText(STATUS_LABEL_AR[contract.status], language)}
@@ -340,8 +340,8 @@ function CustomerContractRow({
           </div>
 
           {contract.adminNotes && (
-            <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-900/40 text-xs">
-              <span className="text-amber-400 font-bold block mb-1">{isAr ? 'الشروط المتفق عليها بعد المراجعة:' : 'Agreed Terms After Review:'}</span>
+            <div className="p-3 rounded-xl bg-amber-100/80 border border-amber-300/40 text-xs">
+              <span className="text-amber-700 font-bold block mb-1">{isAr ? 'الشروط المتفق عليها بعد المراجعة:' : 'Agreed Terms After Review:'}</span>
               <p className="text-ink/90">{contract.adminNotes}</p>
             </div>
           )}
@@ -375,8 +375,8 @@ function CustomerContractRow({
             )}
 
             {contract.companySignatureDataUrl ? (
-              <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-900/40 text-xs">
-                <span className="text-[11px] font-bold text-emerald-300 block mb-2">
+              <div className="p-3 rounded-xl bg-emerald-100/80 border border-emerald-300/40 text-xs">
+                <span className="text-[11px] font-bold text-emerald-700 block mb-2">
                   {isAr ? 'توقيع NOVAIQ' : 'NOVAIQ Signature'}
                 </span>
                 <div className="bg-white rounded-lg h-16 flex items-center px-2">
@@ -409,11 +409,11 @@ function CustomerContractRow({
               <div className="grid grid-cols-2 gap-3 text-[11px]">
                 <div>
                   <span className="text-ink/50 block mb-0.5">{isAr ? 'المدفوع' : 'Paid'}</span>
-                  <strong className="text-emerald-400 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
+                  <strong className="text-emerald-700 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
                 </div>
                 <div>
                   <span className="text-ink/50 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
-                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-400' : 'text-ink/60'}`}>
+                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-700' : 'text-ink/60'}`}>
                     {formatPrice(remainingIQD, language, currency)}
                   </strong>
                 </div>

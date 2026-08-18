@@ -37,13 +37,13 @@ export function OverviewTab({
             icon={TrendingDown}
             label={isAr ? 'إجمالي التكلفة' : 'Total Cost'}
             value={formatPrice(stats.totalCostIQD, language, currency)}
-            accent="text-red-400"
+            accent="text-red-600"
           />
           <StatTile
             icon={TrendingUp}
             label={isAr ? 'الربح لو تحصّل كل المستحق' : 'Profit if all outstanding is collected'}
             value={formatPrice(stats.projectedProfitIQD, language, currency)}
-            accent={stats.projectedProfitIQD >= 0 ? 'text-emerald-400' : 'text-red-400'}
+            accent={stats.projectedProfitIQD >= 0 ? 'text-emerald-700' : 'text-red-600'}
           />
         </div>
       </div>

@@ -20,7 +20,7 @@ export function PricingTab({ isAr, language, currency }: { isAr: boolean; langua
   return (
     <div className="space-y-3">
       <div className="max-w-xs">
-        <StatTile icon={Layers} label={isAr ? 'إجمالي القوالب' : 'Total Templates'} value={String(templates.length)} accent="text-amber-400" />
+        <StatTile icon={Layers} label={isAr ? 'إجمالي القوالب' : 'Total Templates'} value={String(templates.length)} accent="text-amber-700" />
       </div>
       <p className="text-xs text-ink/60">
         {isAr

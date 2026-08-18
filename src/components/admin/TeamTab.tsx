@@ -100,8 +100,8 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
           <div
             className={`p-3 rounded-xl text-xs border ${
               message.type === 'success'
-                ? 'bg-emerald-950/30 border-emerald-900/60 text-emerald-300'
-                : 'bg-red-950/40 border-red-900/60 text-red-300'
+                ? 'bg-emerald-950/30 border-emerald-300/60 text-emerald-700'
+                : 'bg-red-950/40 border-red-300/60 text-red-700'
             }`}
           >
             {message.text}
@@ -123,7 +123,7 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
         </div>
 
         {loadError && (
-          <div className="p-3 rounded-xl bg-red-950/40 border border-red-900/60 text-red-300 text-xs">
+          <div className="p-3 rounded-xl bg-red-950/40 border border-red-300/60 text-red-700 text-xs">
             {loadError}
           </div>
         )}
@@ -147,7 +147,7 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-ink truncate">{m.displayName || m.email}</span>
                     {!m.hasAccount && (
-                      <span className="px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-900/60 text-amber-300 text-[10px] font-bold shrink-0">
+                      <span className="px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-300/60 text-amber-700 text-[10px] font-bold shrink-0">
                         {isAr ? 'بانتظار التسجيل' : 'Pending sign-up'}
                       </span>
                     )}

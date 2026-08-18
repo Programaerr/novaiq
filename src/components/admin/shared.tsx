@@ -91,7 +91,7 @@ export function CollectionBar({ collected, total, isAr }: { collected: number; t
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-[10px] font-semibold">
         <span className="text-ink/50">{isAr ? 'نسبة التحصيل' : 'Collected'}</span>
-        <span className={`font-mono ${done ? 'text-emerald-400' : pct > 0 ? 'text-amber-400' : 'text-ink/50'}`}>{pct}%</span>
+        <span className={`font-mono ${done ? 'text-emerald-700' : pct > 0 ? 'text-amber-700' : 'text-ink/50'}`}>{pct}%</span>
       </div>
       <div className="h-2 rounded-full bg-paper border border-ink/10 overflow-hidden">
         <div
