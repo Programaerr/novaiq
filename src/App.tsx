@@ -480,7 +480,11 @@ export default function App() {
           overlapping it. */}
       <main
         style={{ paddingTop: 'calc(var(--nav-bottom, 74px) + var(--content-gap))' }}
-        className="flex-1 relative z-10 pb-8"
+        /* No bottom padding on the home page. Everywhere else the page ends on black and this
+           breathes before the footer's own margin; on home the last section is blue and the footer
+           is sand, so the same 32px is the body's black showing through as a stripe between two
+           colours that are meant to meet. */
+        className={`flex-1 relative z-10 ${activePage === 'home' ? '' : 'pb-8'}`}
       >
 
         {activePage === 'home' && (
@@ -600,7 +604,14 @@ export default function App() {
       {activePage !== 'orders' && (
         <LazyOnView rootMargin="800px 0px" placeholder={<div className="h-[60vh] bg-[var(--nq-ground)]" aria-hidden="true" />}>
           <Suspense fallback={<PageLoader />}>
-            <Footer language={language} onNavigate={navigateTo} />
+            {/* Sand on the home page, whose palette ends in it, and the site black everywhere
+                else. See the `tone` prop for why this is a choice made here rather than inside
+                the component. */}
+            <Footer
+              language={language}
+              onNavigate={navigateTo}
+              tone={activePage === "home" ? "sand" : "ink"}
+            />
           </Suspense>
         </LazyOnView>
       )}

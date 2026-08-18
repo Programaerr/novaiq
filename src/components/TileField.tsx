@@ -102,6 +102,23 @@ export const PERIWINKLE_TONES: FieldTones = {
 };
 
 /**
+ * The footer band's: the page's sand coming up out of the contact section's blue.
+ *
+ * The same ramp as the hero's, because it is the same sand — what differs is only what it is
+ * arriving from and settling into, which is the whole reason those two are separate fields on
+ * FieldTones rather than one.
+ */
+export const SAND_BAND_TONES: FieldTones = {
+  trough: '#C2A68C',
+  crest: '#F1E4D6',
+  foam: PERIWINKLE,
+  ground: SAND,
+  // Down into the footer's own sand, up into the blue of the section above.
+  intoLo: SAND,
+  intoHi: PERIWINKLE,
+};
+
+/**
  * How much of the canvas, as a fraction of its height, the field spends breaking up at each edge.
  *
  * This is how a field ENDS, and it is a real edge rather than a shape laid over one: the cubes
