@@ -13,6 +13,7 @@ import { showToast } from '../lib/toast';
 import { sumPayments } from '../lib/payments';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { contractTerms } from '../data/contractTerms';
+import { STAGE_COLORS } from '../lib/statusColors';
 
 interface CustomerDashboardProps {
   language: Language;
@@ -56,31 +57,34 @@ function StatusRail({ status, isAr }: { status: ContractData['status']; isAr: bo
     in_development: { ar: 'قيد التطوير', en: 'In development' },
     completed: { ar: 'مكتمل', en: 'Completed' },
   };
-  return (
+return (
     <div className="pt-4">
       <div className="flex items-center">
         {STATUS_STEPS.map((step, i) => {
           const filled = reached >= i;
+          const color = STAGE_COLORS[step].fill;
           return (
             <React.Fragment key={step}>
               {i > 0 && (
                 <div
-                  className={`h-0.5 flex-1 rounded-full transition-colors ${
-                    filled ? 'bg-white' : 'bg-white/15'
-                  }`}
+                  className="h-0.5 flex-1 rounded-full transition-colors"
+                  style={{ background: filled ? color : 'rgba(16, 19, 34, 0.15)' }}
                   aria-hidden="true"
                 />
               )}
               <div className="flex flex-col items-center gap-1 shrink-0">
                 <span
-                  className={`w-3 h-3 rounded-full border transition-all ${
-                    filled ? 'bg-white border-white' : 'bg-transparent border-white/30'
-                  }`}
+                  className="w-3 h-3 rounded-full border transition-all"
+                  style={
+                    filled
+                      ? { background: color, borderColor: color, boxShadow: `0 0 0 3px ${color}33` }
+                      : { background: 'transparent', borderColor: 'rgba(16, 19, 34, 0.3)' }
+                  }
                   aria-hidden="true"
                 />
                 <span
                   className={`text-[9px] sm:text-[10px] font-bold whitespace-nowrap ${
-                    filled ? 'text-ink' : 'text-ink/50'
+                    filled ? 'text-ink' : 'text-ink/40'
                   }`}
                 >
                   {isAr ? labels[step].ar : labels[step].en}
@@ -88,6 +92,10 @@ function StatusRail({ status, isAr }: { status: ContractData['status']; isAr: bo
               </div>
             </React.Fragment>
           );
+        })}
+      </div>
+    </div>
+  );
         })}
       </div>
     </div>
