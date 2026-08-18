@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { PAPER, SAND } from '../lib/homePalette';
+import { PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
 
 /**
  * The hero's field: a grid of CUBES standing on a tilted plane, with a swell running through it.
@@ -48,26 +48,84 @@ import { PAPER, SAND } from '../lib/homePalette';
 
 /* ── Palette ────────────────────────────────────────────────────────────────────────────── */
 
-/* Tones of the section's own sand, plus the panel's blue on the crests only. The field has to read
-   as texture on the background rather than as a second object competing with the panel, so the
-   whole ramp sits within a few steps of the ground it is painted on. */
-const T_TROUGH = '#CDB49C';
-const T_CREST = '#F3E8DC';
-const T_FOAM = '#8295CF';
+/**
+ * What a field is painted in.
+ *
+ * The ramp has to sit within a few steps of the ground it stands on, or the field stops being
+ * texture on the background and becomes a second object competing with whatever is on top of it.
+ * That is a rule about the RELATIONSHIP between these five values, not about the values, which is
+ * why they travel together as one object rather than as five loose props.
+ */
+export interface FieldTones {
+  /** The low of the swell. A step darker than the ground. */
+  trough: string;
+  /** The high of the swell. A step lighter than the ground. */
+  crest: string;
+  /** An accent, on the crests only, tying the field to the rest of the page. */
+  foam: string;
+  /** The ground the field stands on. Troughs sink back toward it. */
+  ground: string;
+  /**
+   * What the cubes turn into as they break up, at the BOTTOM edge and at the TOP edge.
+   *
+   * Two, because the two edges of a field do not generally meet the same thing: a strip that
+   * arrives out of the paper above it and settles into the blue below it has to pale toward paper
+   * at one end and toward blue at the other. One colour for both leaves pale specks on the dark
+   * end or dark specks on the pale one — which is the tell that the cubes are being faded rather
+   * than actually going.
+   */
+  intoLo: string;
+  intoHi: string;
+}
+
+/** The hero's: the sand of its own section, with the panel's blue on the crests. */
+export const SAND_TONES: FieldTones = {
+  trough: '#CDB49C',
+  crest: '#F3E8DC',
+  foam: PERIWINKLE,
+  ground: SAND,
+  // Down into the paper of the section below. The top never fades, so its colour is only ever the
+  // ground it already stands on.
+  intoLo: PAPER,
+  intoHi: SAND,
+};
+
+/** The contact band's: the panel's blue, with the page's sand on the crests. */
+export const PERIWINKLE_TONES: FieldTones = {
+  trough: '#6E80B8',
+  crest: '#A5B4E0',
+  foam: SAND,
+  ground: PERIWINKLE,
+  // Up out of the paper above and down into the section's own blue below.
+  intoLo: PERIWINKLE,
+  intoHi: PAPER,
+};
 
 /**
- * How much of the canvas, measured from the bottom, the field spends breaking up.
+ * How much of the canvas, as a fraction of its height, the field spends breaking up at each edge.
  *
- * This is the edge between the hero and the section under it, and it is a real one: rather than
- * laying a shape over the field to cover where it stops, the cubes themselves get shorter, narrower
- * and paler as they approach the bottom, each one crossing its own threshold, until there is
- * nothing left to end. What you see is a field running out, not a field being cropped.
+ * This is how a field ENDS, and it is a real edge rather than a shape laid over one: the cubes
+ * themselves get shorter, narrower and paler as they approach the edge, each one crossing its own
+ * threshold, until there is nothing left to stop. What you see is a field running out, not a field
+ * being cropped.
  *
- * Exported because the DOM has to agree with it. The ground under the canvas ramps from sand to
- * paper across exactly this band (see HomeHero.tsx), so the blocks thin out over ground that is
- * already turning into the next section. One value, both halves; they cannot drift.
+ * `lo` is the bottom of the canvas and `hi` the top; zero means that edge does not fade at all.
+ *
+ * The DOM has to agree with whatever is passed here. The ground under the canvas ramps to the next
+ * colour across exactly the same band, so the blocks thin out over ground that is already turning
+ * into what comes next — which is why the two consumers export their bands as constants rather than
+ * writing the number twice.
  */
-export const FIELD_FADE = 0.16;
+export interface FieldFade {
+  lo: number;
+  hi: number;
+}
+
+/** The hero's: full strength at the top of the screen, breaking up into the fold. */
+export const HERO_FADE: FieldFade = { lo: 0.16, hi: 0 };
+
+/** The contact band's: a strip that has to arrive and settle inside its own height, so both. */
+export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.36 };
 
 /** Key direction, in the field's own space. Up and across, so the tops are the lit faces and the
     two visible sides split into half light and shadow. */
@@ -107,7 +165,7 @@ const ZOOM = 100;
     same pitch that reads as a texture at arm's length reads as a chequerboard at 30cm. */
 const CELL_PX = MAX_DPR > 1 ? 46 : 34;
 
-function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
+function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     // Solid now, where the flat version was transparent. Cubes genuinely overlap each other on
     // screen, so the depth buffer is doing real work and there is nothing left to blend.
@@ -115,19 +173,26 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
     uniforms: {
       uTime: { value: 0 },
       uCell: { value: cell },
-      uTrough: { value: new THREE.Color(T_TROUGH) },
-      uCrest: { value: new THREE.Color(T_CREST) },
-      uFoam: { value: new THREE.Color(T_FOAM) },
-      uSand: { value: new THREE.Color(SAND) },
-      uPaper: { value: new THREE.Color(PAPER) },
-      uFade: { value: FIELD_FADE },
+      uTrough: { value: new THREE.Color(tones.trough) },
+      uCrest: { value: new THREE.Color(tones.crest) },
+      uFoam: { value: new THREE.Color(tones.foam) },
+      uSand: { value: new THREE.Color(tones.ground) },
+      uIntoLo: { value: new THREE.Color(tones.intoLo) },
+      uIntoHi: { value: new THREE.Color(tones.intoHi) },
+      // A hair above zero on an edge that is meant not to fade: smoothstep with both edges equal
+      // is undefined at the boundary, and the artefact it produces is a single row of cubes that
+      // flickers between full height and nothing along the top of the screen.
+      uFade: { value: new THREE.Vector2(Math.max(fade.lo, 1e-4), Math.max(fade.hi, 1e-4)) },
       uLight: { value: LIGHT.clone() },
     },
     vertexShader: /* glsl */ `
       uniform float uTime;
       uniform float uCell;
-      uniform float uFade;
+      uniform vec2 uFade;
+      uniform vec3 uIntoLo;
+      uniform vec3 uIntoHi;
 
+      varying vec3 vInto;
       varying float vW;
       varying float vK;
       varying vec3 vN;
@@ -167,7 +232,17 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
         // measure of "how close to the bottom edge" that survives the tilt, a resize, and a change
         // of aspect. -1.0 is the bottom of the canvas.
         float ndcY = (projectionMatrix * modelViewMatrix * centre4).y;
-        float t = smoothstep(-1.0, -1.0 + 2.0 * uFade, ndcY);
+        // One band per edge, multiplied: a cube is at full strength only where it is clear of
+        // BOTH. A strip that has to arrive out of one colour and settle into another inside its
+        // own height needs both; a full-screen field that only ends at the fold sets the other to
+        // nothing and this collapses to the single band it had before.
+        float tLo = smoothstep(-1.0, -1.0 + 2.0 * uFade.x, ndcY);
+        float tHi = smoothstep(1.0, 1.0 - 2.0 * uFade.y, ndcY);
+        float t = tLo * tHi;
+
+        // Whichever band is the limiting one is the edge this cube is leaving by, and so is the
+        // colour it has to pale toward on the way out.
+        vInto = mix(uIntoHi, uIntoLo, step(tLo, tHi));
 
         // Each cube gets its own point in the band to give out at, so the field frays. Without the
         // per-cell offset every cube in a row would shrink in lockstep and the dissolve would be a
@@ -215,9 +290,9 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
       uniform vec3 uCrest;
       uniform vec3 uFoam;
       uniform vec3 uSand;
-      uniform vec3 uPaper;
       uniform vec3 uLight;
 
+      varying vec3 vInto;
       varying float vW;
       varying float vK;
       varying vec3 vN;
@@ -250,11 +325,11 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
         c = mix(uSand, c, mix(0.35, 1.0, vW));
 
         // And the last of the colour goes with the last of the height. The ground beneath is
-        // already ramping to the next section's paper across this same band, so a cube that kept
-        // full sand until the moment it vanished would read as a chip of debris on a clean page.
+        // already ramping to whatever comes next across this same band, so a cube that kept full
+        // colour until the moment it vanished would read as a chip of debris on a clean page.
         // Held near full for most of the band and given up late, so the field stays itself until
         // it is genuinely going.
-        c = mix(uPaper, c, mix(0.12, 1.0, smoothstep(0.0, 0.7, vK)));
+        c = mix(vInto, c, mix(0.12, 1.0, smoothstep(0.0, 0.7, vK)));
 
         gl_FragColor = vec4(c, 1.0);
       }
@@ -264,7 +339,11 @@ function makeFieldMaterial(cell: number): THREE.ShaderMaterial {
 
 /* ── The field ──────────────────────────────────────────────────────────────────────────── */
 
-const Field: React.FC<{ reduced: boolean }> = ({ reduced }) => {
+const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> = ({
+  reduced,
+  tones,
+  fade,
+}) => {
   const size = useThree((s) => s.size);
   const invalidate = useThree((s) => s.invalidate);
 
@@ -278,7 +357,7 @@ const Field: React.FC<{ reduced: boolean }> = ({ reduced }) => {
   const count = cols * rows;
 
   const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
-  const material = useMemo(() => makeFieldMaterial(cell), [cell]);
+  const material = useMemo(() => makeFieldMaterial(cell, tones, fade), [cell, tones, fade]);
   const mesh = useRef<THREE.InstancedMesh>(null);
   const clock = useRef(reduced ? 12 : 0);
 
@@ -335,7 +414,20 @@ const Field: React.FC<{ reduced: boolean }> = ({ reduced }) => {
 
 /* ── The host ───────────────────────────────────────────────────────────────────────────── */
 
-export const HeroWaves: React.FC = () => {
+export interface TileFieldProps {
+  /** What the field is painted in, and what it turns into where it breaks up. */
+  tones?: FieldTones;
+  /** How much of the canvas it spends breaking up at each edge. */
+  fade?: FieldFade;
+}
+
+/**
+ * One field, two configurations: the hero's full screen of sand and the contact section's strip of
+ * blue. Both are the same grid, the same swell and the same shader — what differs is five colours
+ * and two numbers, and keeping them as arguments rather than as a second copy of this file is what
+ * stops the two drifting into two different ideas of what a cube looks like.
+ */
+export const TileField: React.FC<TileFieldProps> = ({ tones = SAND_TONES, fade = HERO_FADE }) => {
   const hostRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const [idle, setIdle] = useState(false);
@@ -398,7 +490,7 @@ export const HeroWaves: React.FC = () => {
             screen terms above — the cells are placed on a flat XY grid, and this turns that whole
             plane toward the viewer afterwards. */}
         <group rotation={[TILT_X, TILT_Y, 0]}>
-          <Field reduced={reduced} />
+          <Field reduced={reduced} tones={tones} fade={fade} />
         </group>
       </Canvas>
     </div>

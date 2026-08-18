@@ -232,6 +232,18 @@
        Mobile keeps the tighter value the current layout was tuned to; sm+ opens it up
        slightly, which is also where the Navbar itself lifts a few px (see Navbar.tsx). */
     --content-gap: 0.75rem;
+
+    /* The strip at the top of the contact section where its blue is assembled out of cubes.
+
+       Two things read it and they have to agree: the strip is exactly this tall and holds the
+       canvas, and the section's own top padding starts below it — the strip is absolutely
+       positioned and so takes up no height of its own, which means nothing else pushes the
+       heading clear of it.
+
+       Proportional with a floor and a ceiling: the cubes need a few rows of pitch to arrive and
+       settle in, which is a fixed number of pixels rather than a fraction of the page, but a
+       fixed value alone reads as a heavy band on a phone and a thin line on a television. */
+    --nq-band: clamp(8rem, 15vw, 15rem);
   }
 
   @media (min-width: 640px) {
@@ -1195,7 +1207,7 @@
    before the animation is attached. `forwards` holds the end state afterwards rather than `both`:
    `both` would leave the transform applied for good, and a permanent compositing layer under Arabic
    body text is what softens it. */
-@keyframes nq-ph-rise {
+@keyframes nq-rise {
   from {
     opacity: 0;
     transform: translateY(1.5rem);
@@ -1206,12 +1218,12 @@
   }
 }
 
-.nq-ph-rise {
+.nq-rise {
   opacity: 0;
 }
 
-[data-seen='true'] .nq-ph-rise {
-  animation: nq-ph-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) var(--nq-ph-delay, 0ms) forwards;
+[data-seen='true'] .nq-rise {
+  animation: nq-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) var(--nq-rise-delay, 0ms) forwards;
 }
 
 /* Under a reduced-motion preference the content is simply there. The from-states have to be
@@ -1219,7 +1231,7 @@
    animation alone would leave the cards at zero opacity — permanently, and for exactly the
    people least able to work around it. */
 @media (prefers-reduced-motion: reduce) {
-  .nq-ph-rise {
+  .nq-rise {
     opacity: 1;
     transform: none;
     animation: none;

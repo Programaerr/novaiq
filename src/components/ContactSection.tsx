@@ -1,0 +1,359 @@
+import React, { useCallback, useId, useState } from 'react';
+import { Phone, Send } from 'lucide-react';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { Language } from '../lib/i18n';
+import { useSeen } from '../lib/useSeen';
+import { db } from '../lib/firebase';
+import { showToast } from '../lib/toast';
+import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
+import { BAND_FADE, PERIWINKLE_TONES, TileField } from './TileField';
+
+/**
+ * The contact section: the panel from the wireframe, with the form on one side and the ways to
+ * reach a person on the other.
+ *
+ * ## The edge above it is made of cubes, not of a shape
+ *
+ * The section's ground is #8295CF and the one above it is paper, and a straight seam between two
+ * flat colours across a full-width page is the most obvious edge on the site. So the top of this
+ * section is a STRIP of the same tile field the hero uses, in blue instead of sand: the cubes are
+ * absent at the top of the strip where the ground is still paper, assemble as the ground turns,
+ * and settle away into flat blue before the heading. The blue arrives as something that was built
+ * rather than as a rectangle that starts.
+ *
+ * It is the hero's gesture in reverse, and deliberately so. The page opens with a field of sand
+ * cubes breaking up downward into the paper and closes with a field of blue ones assembling upward
+ * out of it — the same move, bracketing everything between.
+ *
+ * ## Labels are inside the fields, and they are real labels
+ *
+ * The wireframe puts "YOUR NAME" inside the sand block, which is normally the placeholder-only
+ * pattern that deletes the label the moment someone starts typing. It is drawn at the TOP of the
+ * message box rather than centred in it, which is the other reading: a caption that stays. That is
+ * what these are — a real label, in place, above its input, inside the same block.
+ *
+ * ## Contrast decided the fills
+ *
+ * Every mark on the blue is near-black: white on #8295CF measures 2.97:1, under the 4.5:1 a label
+ * needs, where this ink is 6.4:1. The fields are the page's sand, which puts their text at 10.3:1,
+ * and the send button is ink on paper, so the one control that commits to anything is also the
+ * highest-contrast thing in the section.
+ */
+
+/**
+ * The numbers under "GET IN TOUCH".
+ *
+ * EMPTY ON PURPOSE. The wireframe carries +00 1234 567 678 and +00 1234 456 890, which are Canva's
+ * dummy digits, and publishing invented contact numbers on a real company's site is worse than
+ * publishing none — someone dials them. The column renders the numbers only when this has entries
+ * and says something useful when it does not, so the section is correct with it empty and correct
+ * the moment real numbers are pasted in. One array, nothing else to change.
+ */
+const PHONE_NUMBERS: string[] = [];
+
+interface Field {
+  key: 'name' | 'email' | 'message';
+  ar: string;
+  en: string;
+  type: 'text' | 'email' | 'textarea';
+  autoComplete: string;
+}
+
+const FIELDS: Field[] = [
+  { key: 'name', ar: 'اسمك', en: 'Your name', type: 'text', autoComplete: 'name' },
+  { key: 'email', ar: 'بريدك الإلكتروني', en: 'Your email', type: 'email', autoComplete: 'email' },
+  { key: 'message', ar: 'رسالتك', en: 'Your message', type: 'textarea', autoComplete: 'off' },
+];
+
+type Values = Record<Field['key'], string>;
+type Errors = Partial<Record<Field['key'], string>>;
+
+const EMPTY: Values = { name: '', email: '', message: '' };
+
+/**
+ * Deliberately loose: something before an @, something after it, a dot and more.
+ *
+ * The exhaustive RFC pattern rejects addresses that work, and is the reason people meet "invalid
+ * email" on an address they have used for years. Anything that gets past this is settled by the
+ * only test that settles it, which is whether the reply arrives.
+ */
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validate(values: Values, isAr: boolean): Errors {
+  const errors: Errors = {};
+  if (!values.name.trim()) errors.name = isAr ? 'اكتب اسمك.' : 'Please enter your name.';
+  if (!values.email.trim()) errors.email = isAr ? 'اكتب بريدك.' : 'Please enter your email.';
+  else if (!EMAIL.test(values.email.trim()))
+    errors.email = isAr ? 'البريد مو صحيح.' : 'That email does not look right.';
+  if (!values.message.trim()) errors.message = isAr ? 'اكتب رسالتك.' : 'Please enter a message.';
+  return errors;
+}
+
+interface ContactSectionProps {
+  language?: Language;
+}
+
+export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' }) => {
+  const isAr = language === 'ar';
+  const { ref: sectionRef, seen } = useSeen<HTMLElement>();
+  /* One id per mount, so the label/input/error wiring stays unique if this section is ever
+     rendered twice on a page. */
+  const uid = useId();
+
+  const [values, setValues] = useState<Values>(EMPTY);
+  const [errors, setErrors] = useState<Errors>({});
+  /* Which fields have been left once. Errors appear on blur and on submit, never while someone is
+     still typing their first character — being told you are wrong before you have finished is the
+     single most disliked thing a form does. */
+  const [touched, setTouched] = useState<Partial<Record<Field['key'], boolean>>>({});
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const set = useCallback((key: Field['key'], v: string) => {
+    setValues((prev) => ({ ...prev, [key]: v }));
+    /* Clear the error as the field changes rather than re-validating on every keystroke: a message
+       that is still wrong the instant you start fixing it is worse than no message. */
+    setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
+  }, []);
+
+  const blur = useCallback(
+    (key: Field['key']) => {
+      setTouched((prev) => ({ ...prev, [key]: true }));
+      setErrors((prev) => ({ ...prev, [key]: validate(values, isAr)[key] }));
+    },
+    [values, isAr],
+  );
+
+  const submit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      const found = validate(values, isAr);
+      setTouched({ name: true, email: true, message: true });
+      setErrors(found);
+      if (Object.values(found).some(Boolean)) {
+        /* Focus the first field that failed. Without it the only feedback on a long form is a
+           colour change that may be off screen. */
+        const first = FIELDS.find((f) => found[f.key]);
+        if (first) document.getElementById(uid + '-' + first.key)?.focus();
+        return;
+      }
+
+      setSending(true);
+      try {
+        await addDoc(collection(db, 'contact_messages'), {
+          name: values.name.trim(),
+          email: values.email.trim(),
+          message: values.message.trim(),
+          language,
+          createdAt: serverTimestamp(),
+        });
+        setSent(true);
+        setValues(EMPTY);
+        setTouched({});
+      } catch {
+        /* The message did not go. Say so plainly and keep what they typed — clearing the form on a
+           failed send loses their words as well as their time. */
+        showToast(
+          isAr
+            ? 'ما انرسلت الرسالة. جرب مرة ثانية أو تواصل ويانا مباشرة.'
+            : 'The message did not send. Try again, or reach us directly.',
+          'error',
+        );
+      } finally {
+        setSending(false);
+      }
+    },
+    [values, isAr, language, uid],
+  );
+
+  return (
+    <section
+      ref={sectionRef}
+      id="contact"
+      data-seen={seen ? 'true' : 'false'}
+      /* The section's own ground and its own vertical rhythm — see HOME_SECTIONS.md. The top
+         padding clears the tile strip above it, which is absolutely positioned and so takes up no
+         height of its own. */
+      style={{ background: PERIWINKLE }}
+      className="relative overflow-hidden pt-[calc(var(--nq-band)+3.5rem)] pb-20 sm:pb-28 lg:pb-32"
+    >
+      {/* ── The edge ────────────────────────────────────────────────────────────────────────────
+          A strip across the top holding the ground's change of colour and the field that crosses
+          it. The gradient reaches full blue well before the strip ends, so the cubes have solid
+          ground to settle onto rather than vanishing at the same moment the colour lands. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0"
+        style={{
+          height: 'var(--nq-band)',
+          background: 'linear-gradient(to bottom, ' + PAPER + ' 6%, ' + PERIWINKLE + ' 74%)',
+        }}
+      >
+        <TileField tones={PERIWINKLE_TONES} fade={BAND_FADE} />
+      </div>
+
+      <div className="relative nq-container">
+        <div className="mx-auto max-w-[56rem]">
+          <h2
+            className="nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
+            style={{ color: INK, ['--nq-rise-delay' as string]: '80ms' }}
+          >
+            {isAr ? 'تواصل معنا' : 'Contact us'}
+          </h2>
+
+          {/* The form takes the wider column and the ways to reach a person the narrower one, which
+              is the wireframe's split and also the right one: the form is the thing being done
+              here, and the numbers are the alternative to doing it. */}
+          <div className="mt-10 sm:mt-12 grid gap-10 sm:gap-12 lg:grid-cols-[1.65fr_1fr] lg:gap-x-16">
+            <form noValidate onSubmit={submit} className="grid gap-4 sm:gap-5">
+              {FIELDS.map((field, i) => {
+                const id = uid + '-' + field.key;
+                const error = touched[field.key] ? errors[field.key] : undefined;
+                const isArea = field.type === 'textarea';
+                return (
+                  <div
+                    key={field.key}
+                    className="nq-rise"
+                    style={{ ['--nq-rise-delay' as string]: 160 + i * 90 + 'ms' }}
+                  >
+                    {/* Label and input inside one sand block, as drawn. The block IS the field:
+                        clicking anywhere on it lands in the input, because the label owns the whole
+                        box and the input fills what is left of it. */}
+                    <label
+                      htmlFor={id}
+                      className="block rounded-xl px-4 pt-3 pb-2.5 cursor-text transition-shadow duration-200 focus-within:shadow-[0_0_0_2px_#101322]"
+                      style={{ background: SAND }}
+                    >
+                      <span
+                        className="block text-[0.7rem] sm:text-[0.75rem] font-extrabold tracking-wide"
+                        style={{ color: INK, opacity: 0.75 }}
+                      >
+                        {isAr ? field.ar : field.en}
+                      </span>
+                      {isArea ? (
+                        <textarea
+                          id={id}
+                          name={field.key}
+                          rows={5}
+                          value={values[field.key]}
+                          onChange={(e) => set(field.key, e.target.value)}
+                          onBlur={() => blur(field.key)}
+                          aria-invalid={error ? true : undefined}
+                          aria-describedby={error ? id + '-error' : undefined}
+                          /* No resize handle: the box is already five rows, and a draggable corner
+                             on a coloured panel is the one control here that can be pulled out of
+                             the layout it sits in. */
+                          className="mt-1 block w-full bg-transparent border-0 outline-none resize-none text-[0.95rem] font-bold leading-relaxed"
+                          style={{ color: INK }}
+                        />
+                      ) : (
+                        <input
+                          id={id}
+                          name={field.key}
+                          type={field.type}
+                          autoComplete={field.autoComplete}
+                          value={values[field.key]}
+                          onChange={(e) => set(field.key, e.target.value)}
+                          onBlur={() => blur(field.key)}
+                          aria-invalid={error ? true : undefined}
+                          aria-describedby={error ? id + '-error' : undefined}
+                          /* 40px of input under a 20px label clears the 44px the whole block needs
+                             to be a comfortable touch target. */
+                          className="mt-1 block w-full h-10 bg-transparent border-0 outline-none text-[0.95rem] font-bold"
+                          style={{ color: INK }}
+                        />
+                      )}
+                    </label>
+
+                    {/* The error goes under its own field, not into a summary at the top. `role`
+                        and the live region so it is announced when it appears rather than only
+                        found by someone who goes looking for it. */}
+                    {error && (
+                      <p
+                        id={id + '-error'}
+                        role="alert"
+                        className="mt-1.5 px-1 text-[0.78rem] font-extrabold"
+                        style={{ color: INK }}
+                      >
+                        {error}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+
+              <div
+                className="nq-rise flex flex-wrap items-center gap-4"
+                style={{ ['--nq-rise-delay' as string]: '430ms' }}
+              >
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="min-h-11 ps-6 pe-2 py-2 rounded-full inline-flex items-center gap-3 text-sm font-extrabold transition-opacity duration-200 cursor-pointer disabled:cursor-wait disabled:opacity-70"
+                  style={{ background: INK, color: PAPER }}
+                >
+                  <span>
+                    {sending ? (isAr ? 'جاري الإرسال…' : 'Sending…') : isAr ? 'أرسل' : 'Send'}
+                  </span>
+                  <span
+                    className="w-8 h-8 rounded-full grid place-items-center shrink-0"
+                    style={{ background: PERIWINKLE, color: INK }}
+                    aria-hidden="true"
+                  >
+                    <Send className="w-4 h-4" strokeWidth={2.4} />
+                  </span>
+                </button>
+
+                {/* The confirmation sits beside the button that caused it, and is announced. */}
+                {sent && (
+                  <p role="status" className="text-[0.85rem] font-extrabold" style={{ color: INK }}>
+                    {isAr ? 'وصلت رسالتك. نرد عليك قريباً.' : 'Got it. We will reply shortly.'}
+                  </p>
+                )}
+              </div>
+            </form>
+
+            <div className="nq-rise" style={{ ['--nq-rise-delay' as string]: '520ms' }}>
+              <h3
+                className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
+                style={{ color: INK }}
+              >
+                {isAr ? 'تواصل مباشر' : 'Get in touch'}
+              </h3>
+
+              {PHONE_NUMBERS.length > 0 ? (
+                <ul className="mt-4 grid gap-2">
+                  {PHONE_NUMBERS.map((number) => (
+                    <li key={number}>
+                      {/* A real tel: link, not text. On a phone that is the difference between
+                          reaching someone and copying digits out by hand. `dir="ltr"` because a
+                          number with a leading + reorders into nonsense inside an RTL line. */}
+                      <a
+                        href={'tel:' + number.replace(/[^\d+]/g, '')}
+                        dir="ltr"
+                        className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] font-bold hover:underline"
+                        style={{ color: INK }}
+                      >
+                        <Phone className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
+                        <span>{number}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p
+                  className="mt-4 max-w-[32ch] text-[0.9rem] font-bold leading-[1.9]"
+                  style={{ color: INK, opacity: 0.78 }}
+                >
+                  {isAr
+                    ? 'اكتب لنا بالنموذج ونرجع لك على بريدك.'
+                    : 'Write to us with the form and we will come back to you by email.'}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};

@@ -36,6 +36,7 @@ const AdminPage = lazy(() => import('./components/AdminPage').then((m) => ({ def
 const LoginPage = lazy(() => import('./components/LoginPage').then((m) => ({ default: m.LoginPage })));
 const HomeHero = lazy(() => import('./components/HomeHero').then((m) => ({ default: m.HomeHero })));
 const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
+const ContactSection = lazy(() => import('./components/ContactSection').then((m) => ({ default: m.ContactSection })));
 const Footer = lazy(() => import('./components/Footer').then((m) => ({ default: m.Footer })));
 
 // A visitor who chose "أكمل كضيف" at the sign-in screen.
@@ -506,6 +507,15 @@ export default function App() {
             >
               <Suspense fallback={<PageLoader />}>
                 <PhasesSection language={language} />
+              </Suspense>
+            </LazyOnView>
+
+            <LazyOnView
+              rootMargin="800px 0px"
+              placeholder={<div className="h-[40vh] bg-[var(--nq-ground)]" aria-hidden="true" />}
+            >
+              <Suspense fallback={<PageLoader />}>
+                <ContactSection language={language} />
               </Suspense>
             </LazyOnView>
           </div>

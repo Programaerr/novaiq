@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
-import { FIELD_FADE, HeroWaves } from './HeroWaves';
+import { HERO_FADE, TileField } from './TileField';
 
 /**
  * The home page's container: a sand-coloured screen with a swell of tiles running across it, and a
@@ -61,16 +61,16 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
       style={{
         /* Sand for all but the last band of the screen, then a ramp into the paper of the section
            below. The canvas above this is transparent, so this is the ground the cubes stand on —
-           and they are breaking up across exactly the same band (FIELD_FADE, one value, shared).
+           and they are breaking up across exactly the same band (HERO_FADE.lo, one value, shared).
            The two together are the edge: blocks thinning out over ground that is already becoming
            the next section, so there is no line anywhere for a line to be wrong at. */
-        background: `linear-gradient(to bottom, ${SAND} ${100 - FIELD_FADE * 100}%, ${PAPER} 100%)`,
+        background: `linear-gradient(to bottom, ${SAND} ${100 - HERO_FADE.lo * 100}%, ${PAPER} 100%)`,
         minHeight: '100svh',
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
       className="relative flex flex-col overflow-hidden"
     >
-      <HeroWaves />
+      <TileField />
 
       {/* The panel sits in the container's own column rather than against the screen edge, so it
           lines up with the navbar above it and with every section below — both read --nq-container.

@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Blocks, FileSignature, PencilRuler, Rocket } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { useSeen } from '../lib/useSeen';
 import { INK, PAPER, PERIWINKLE, SAND_DEEP } from '../lib/homePalette';
 
 /**
@@ -110,47 +111,6 @@ const PHASES: Phase[] = [
   },
 ];
 
-/**
- * True once the element has been on screen, and true forever after.
- *
- * Entrance animations are gated on this rather than run on mount, because this section starts
- * below the fold: run on mount and the whole thing has already played by the time anyone scrolls
- * to it. `IntersectionObserver` delivers an initial callback as soon as it observes, so a section
- * that IS in view on load — a short viewport, a deep link — animates immediately and correctly.
- *
- * The one-way latch matters: without it, scrolling back up replays the entrance every time, which
- * is how a page starts feeling like a demo reel.
- */
-function useSeen<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  const [seen, setSeen] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    /* No observer means no way to know — show the content rather than leave it clipped to
-       nothing by the from-state it is waiting on. */
-    if (!el || typeof IntersectionObserver === 'undefined') {
-      setSeen(true);
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setSeen(true);
-          io.disconnect();
-        }
-      },
-      /* A little above the fold, so the rail has finished sweeping by the time it is properly
-         in front of someone rather than starting under their thumb. */
-      { rootMargin: '0px 0px -12% 0px', threshold: 0.01 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  return { ref, seen };
-}
-
 interface PhasesSectionProps {
   language?: Language;
 }
@@ -207,10 +167,10 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
               return (
                 <li
                   key={phase.key}
-                  className="nq-ph-rise flex items-stretch gap-4 sm:gap-6"
+                  className="nq-rise flex items-stretch gap-4 sm:gap-6"
                   /* Staggered off the index rather than a wrapper, so the four cards arrive in
                      reading order no matter which column they landed in. */
-                  style={{ ['--nq-ph-delay' as string]: `${140 + i * 110}ms` }}
+                  style={{ ['--nq-rise-delay' as string]: `${140 + i * 110}ms` }}
                 >
                   <span
                     className="text-[2.4rem] sm:text-[3rem] font-black leading-[0.85] tabular-nums"
