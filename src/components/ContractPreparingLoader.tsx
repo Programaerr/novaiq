@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, RefreshCw } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { INK, PAPER, PERIWINKLE } from '../lib/homePalette';
 
 interface ContractPreparingLoaderProps {
   language?: Language;
@@ -30,17 +31,24 @@ export const ContractPreparingLoader: React.FC<ContractPreparingLoaderProps> = (
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/94">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: `${PAPER}F2` }}>
       <div className="flex flex-col items-center gap-4 text-center px-6 max-w-sm">
         <div className="relative w-14 h-14 flex items-center justify-center">
-          <div className="absolute inset-0 rounded-full border-2 border-zinc-800 border-t-white animate-spin" />
-          <ShieldCheck className="w-6 h-6 text-white" />
+          <div
+            className="absolute inset-0 rounded-full animate-spin"
+            style={{
+              border: `2px solid ${PERIWINKLE}33`,
+              borderTopColor: PERIWINKLE,
+              boxShadow: `0 0 22px ${PERIWINKLE}50`,
+            }}
+          />
+          <ShieldCheck className="w-6 h-6" style={{ color: INK }} />
         </div>
         <div className="space-y-1.5">
-          <p className="text-sm font-bold text-white">
+          <p className="text-sm font-bold" style={{ color: INK }}>
             {isAr ? 'جارِ تجهيز عقدك الإلكتروني...' : 'Preparing your electronic contract...'}
           </p>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs" style={{ color: INK, opacity: 0.6 }}>
             {isSlow
               ? isAr
                 ? 'الاتصال بطيء ويستغرق وقتاً أطول من المعتاد. عقدك محفوظ ولن يضيع — يمكنك إعادة التحميل والوصول إليه من "طلباتي".'
