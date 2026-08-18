@@ -8,9 +8,30 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { INK, PAPER, PERIWINKLE } from '../lib/homePalette';
-import { BAND_FADE, PERIWINKLE_TONES, TileField } from './TileField';
+import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
+import { FieldFade, FieldTones, TileField } from './TileField';
 import { ProjectCtaButton } from './ProjectCtaButton';
+
+/* The whole section is one field now, not a strip across its top. The cubes cover the full
+   background and dissolve at both edges — up into the navbar and down into the footer — so the
+   section reads as a continuous surface rather than a panel sitting on a black page.
+
+   `ground` is the section's own blue, and both `into*` edges fade to that same blue: the field
+   simply runs out at either end instead of landing on a straight line. The `foam` stays the
+   page's sand so the field ties to the panel sitting on it, exactly as the contact band does. */
+const TIMELINE_TONES: FieldTones = {
+  trough: '#6E80B8',
+  crest: '#A5B4E0',
+  foam: SAND,
+  ground: PERIWINKLE,
+  intoLo: PERIWINKLE,
+  intoHi: PERIWINKLE,
+};
+
+/* Dissolve at both edges: a little at the top where the cubes slide under the navbar, more at
+   the bottom where they run into the footer. The middle stays full-strength, which is where the
+   panel sits. */
+const TIMELINE_FADE: FieldFade = { lo: 0.22, hi: 0.1 };
 
 interface MilestoneTimelineProps {
   language?: Language;
@@ -77,28 +98,19 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       style={{
         background: PERIWINKLE,
         /* Pull the whole section up behind the floating navbar, exactly as the hero does — so
-           the cube band at the top runs under the navbar instead of starting below it as a
-           black strip. The navbar is fixed and floats above the page; without this the band's
-           cubes would look cut off at the top of the section. */
+           the cube field at the top runs under the navbar instead of starting below it as a
+           black strip. The navbar is fixed and floats above the page; without this the cubes
+           would look cut off at the top of the section. */
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
-      className="relative overflow-hidden pt-[calc(var(--nq-band)+3.5rem)] pb-20 sm:pb-28 lg:pb-32"
+      className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+3.5rem)] pb-20 sm:pb-28 lg:pb-32"
     >
-      {/* ── The edge ────────────────────────────────────────────────────────────────────────────
-          The same band the contact section carries: the ground's change of colour and the field
-          of cubes crossing it. The gradient reaches full blue well before the strip ends, so the
-          cubes have solid ground to settle onto rather than vanishing the moment the colour
-          lands. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0"
-        style={{
-          height: 'var(--nq-band)',
-          background: 'linear-gradient(to bottom, ' + PAPER + ' 6%, ' + PERIWINKLE + ' 74%)',
-        }}
-      >
-        <TileField tones={PERIWINKLE_TONES} fade={BAND_FADE} />
-      </div>
+      {/* ── The whole background ─────────────────────────────────────────────────────────────────
+          One full-bleed cube field instead of a strip across the top. It covers the entire
+          section and dissolves at both edges: up under the navbar above (TIMELINE_FADE.hi) and
+          down into the footer below (TIMELINE_FADE.lo), so neither end lands on a straight
+          seam. */}
+      <TileField tones={TIMELINE_TONES} fade={TIMELINE_FADE} />
 
       <div className="relative nq-container">
         <div className="mx-auto max-w-[56rem]">
@@ -117,7 +129,11 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
             className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/25 backdrop-blur-2xl"
             style={{
               background: 'rgba(246, 241, 233, 0.16)',
-              boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px rgba(16,19,34,0.18)',
+              /* A clear drop shadow so the panel reads as floating above the cube field rather
+                 than sitting flat on it — the field is busy, and without the shadow the two
+                 planes fight for the same depth. */
+              boxShadow:
+                'inset 0 0 0 1px rgba(255,255,255,0.06), 0 40px 90px -20px rgba(16,19,34,0.55), 0 12px 28px -8px rgba(16,19,34,0.35)',
               ['--nq-rise-delay' as string]: '180ms',
             }}
           >

@@ -514,7 +514,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   }, [isDragging, activeIndex, filteredTemplates.length]);
 
   return (
-    <section id="templates-section" className="py-4 sm:py-6 relative">
+    <section id="templates-section" className="py-4 sm:py-6 relative" style={{ background: PERIWINKLE }}>
       <div className="nq-container">
         
         {/* Filter & Search bar — first thing on the page now, with the price notice below it.
