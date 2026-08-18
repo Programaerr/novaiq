@@ -28,6 +28,7 @@ import { useSignaturePad } from '../../lib/useSignaturePad';
 import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '../../lib/payments';
 import { PriceInput } from '../PriceInput';
 import { STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, CollectionBar, AdminStats } from './shared';
+import { STAGE_COLORS } from '../../lib/statusColors';
 
 export function ContractsTab({
   isAr,
