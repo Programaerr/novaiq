@@ -263,6 +263,64 @@ function CustomerContractRow({
               reading the badge in the header. */}
           <StatusRail status={contract.status} isAr={isAr} />
 
+          {/* The contract itself — everything the customer entered and agreed to, exactly as
+              printed: the price, the payment plan, the delivery window, and the details they
+              typed into the form. Nothing here is admin-only; it is the customer's own order. */}
+          <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs">
+            <span className="text-[11px] font-bold text-white/50 block mb-3">
+              {isAr ? 'تفاصيل العقد' : 'Contract Details'}
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
+              <div>
+                <span className="text-white/40 block">{isAr ? 'إجمالي السعر' : 'Total Price'}</span>
+                <strong className="text-white font-mono text-sm">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</strong>
+              </div>
+              <div>
+                <span className="text-white/40 block">{isAr ? 'خطة الدفع' : 'Payment Plan'}</span>
+                <strong className="text-white/90">
+                  {contract.paymentPlan === '100_upfront'
+                    ? (isAr ? 'دفعة واحدة عند التوقيع' : '100% Upfront')
+                    : contract.paymentPlan === '3_milestones'
+                    ? (isAr ? '3 دفعات مرتبطة بالمراحل' : '3 Milestones')
+                    : (isAr ? '50% عند التوقيع و50% عند التسليم' : '50% / 50%')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-white/40 block">{isAr ? 'مدة التسليم' : 'Delivery'}</span>
+                <strong className="text-white/90">
+                  {isAr ? `${contract.deliveryTimelineWeeks || 0} أسبوع` : `${contract.deliveryTimelineWeeks || 0} weeks`}
+                </strong>
+              </div>
+              <div>
+                <span className="text-white/40 block">{isAr ? 'قالب المشروع' : 'Project Template'}</span>
+                <strong className="text-white/90">{translateText(contract.templateTitle, language)}</strong>
+              </div>
+              <div>
+                <span className="text-white/40 block">{isAr ? 'اسم الشركة' : 'Company Name'}</span>
+                <strong className="text-white/90">{contract.companyName}</strong>
+              </div>
+              <div>
+                <span className="text-white/40 block">{isAr ? 'اسم الممثل' : 'Representative'}</span>
+                <strong className="text-white/90">{contract.repName}</strong>
+              </div>
+              <div>
+                <span className="text-white/40 block">{isAr ? 'الهاتف' : 'Phone'}</span>
+                <strong className="text-white/90 font-mono" dir="ltr">{contract.phone}</strong>
+              </div>
+              <div>
+                <span className="text-white/40 block">{isAr ? 'الموقع' : 'Location'}</span>
+                <strong className="text-white/90">{contract.city}{contract.country ? `، ${contract.country}` : ''}</strong>
+              </div>
+            </div>
+
+            {contract.customFeaturesText && (
+              <div className="mt-3 pt-3 border-t border-white/10">
+                <span className="text-white/40 block mb-1">{isAr ? 'ما طلبته إضافياً:' : 'What you requested:'}</span>
+                <p className="text-white/90 leading-relaxed whitespace-pre-line">{contract.customFeaturesText}</p>
+              </div>
+            )}
+          </div>
+
           {contract.adminNotes && (
             <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-900/40 text-xs">
               <span className="text-amber-400 font-bold block mb-1">{isAr ? 'الشروط المتفق عليها بعد المراجعة:' : 'Agreed Terms After Review:'}</span>
