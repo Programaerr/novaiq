@@ -19,12 +19,12 @@ import { INK, PAPER, PERIWINKLE, SAND, SAND_DEEP } from '../lib/homePalette';
  * This is the one decision that does the most work here. The obvious build gives every card a
  * heading, and then the section says "العقد" twice within 200px of itself — the rail becomes
  * decoration, because deleting it would cost nothing. Instead the rail owns the four NAMES and
- * each card owns a number, a mark and one line. The numeral is the join between them, the rail is
- * load-bearing, and the section's entire word count is four names and four short lines.
+ * each card owns a number, a mark and the terms for that step. The numeral is the join between
+ * them, the rail is load-bearing, and no word in the section appears twice.
  *
  * For a screen reader the two halves are stitched back together by a visually hidden heading on
- * each card, so the list still reads "العقد, نتفق على النطاق…" in order rather than as four
- * unlabelled lines. Nothing is hidden from anyone; the name is only shown once.
+ * each card, so the list still reads "العقد, يتم الاتفاق من خلال العقد…" in order rather than as
+ * four unlabelled paragraphs. Nothing is hidden from anyone; the name is only shown once.
  *
  * ## #8295CF is the state, not the bar
  *
@@ -47,17 +47,15 @@ interface Phase {
   /** Stable id, used to tie a rail button to the card it labels. */
   key: string;
   Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  /** `line` is the card's one-line summary; `body` is the full terms, in the block below it. */
-  ar: { name: string; line: string; body: string };
-  en: { name: string; line: string; body: string };
+  ar: { name: string; body: string };
+  en: { name: string; body: string };
 }
 
 /**
- * The four steps, twice: once as a glance and once in full.
+ * The four steps, in the company's own words.
  *
- * `line` is the summary the cards carry. `body` is the company's own wording from the Canva board,
- * with its spelling corrected and nothing else touched — الرائيسية to الرئيسية, تتم بناء to يتم
- * بناء, واقسام to وأقسام, حقيقة to حقيقية, "الأقسام البقية" to "بقية الأقسام", plus the missing
+ * The Arabic is the copy from the Canva board, with its spelling corrected and nothing else
+ * touched — الرائيسية to الرئيسية, تتم بناء to يتم بناء, واقسام to وأقسام, حقيقة to حقيقية, "الأقسام البقية" to "بقية الأقسام", plus the missing
  * hamzas and full stops. The meaning, the order and the commitments are exactly as written: this is
  * a real company setting out what it will and will not do, and it is not mine to reword.
  *
@@ -70,12 +68,10 @@ const PHASES: Phase[] = [
     Icon: FileSignature,
     ar: {
       name: 'العقد',
-      line: 'نتفق على النطاق والسعر بعقد واحد واضح.',
       body: 'يتم الاتفاق من خلال العقد المبرم بين الشركة وصاحب العمل، ويتم تنفيذ كل ما هو مطلوب من ألوان وأقسام وأنواع خط وتصاميم الصور والشعار وما إلى ذلك. وما خارج العقد يُحسب بسعره الخاص.',
     },
     en: {
       name: 'Contract',
-      line: 'Scope and price, settled in one clear agreement.',
       body: 'The work is fixed by the contract between the company and the client: colours, sections, typefaces, image and logo design, and the rest. Anything outside the contract is quoted at its own price.',
     },
   },
@@ -84,12 +80,10 @@ const PHASES: Phase[] = [
     Icon: PencilRuler,
     ar: {
       name: 'التخطيط',
-      line: 'نرسم البنية والشاشات قبل أول سطر كود.',
       body: 'يتم التخطيط للتصميم مع تناسق الألوان والخطوط والمسافات والأزرار والحركات التفاعلية مع الموقع، قبل كتابة سطر واحد.',
     },
     en: {
       name: 'Planning',
-      line: 'Structure and screens, mapped before the first line of code.',
       body: 'The design is planned out — colour, type, spacing, buttons and how the site moves under the hand — before a single line of code is written.',
     },
   },
@@ -98,12 +92,10 @@ const PHASES: Phase[] = [
     Icon: Blocks,
     ar: {
       name: 'البناء',
-      line: 'نبني على مراحل، وتشوف كل مرحلة أول بأول.',
       body: 'يتم بناء الواجهة الرئيسية (Hero-section) مع بقية الأقسام بالتدريج، مع اختبار عملي ومباشر لكل قسم وزر وحركة لضمان الاستقرار الكامل.',
     },
     en: {
       name: 'Build',
-      line: 'Built in stages, and you see each one as it lands.',
       body: 'The hero section is built first and the rest follow in stages, with every section, button and movement tested live to be sure the whole thing holds.',
     },
   },
@@ -112,12 +104,10 @@ const PHASES: Phase[] = [
     Icon: Rocket,
     ar: {
       name: 'التسليم',
-      line: 'نسلّمه شغّال، ونضل وراك بعد الإطلاق.',
       body: 'يُسلَّم الموقع لصاحب الفكرة أو صاحب العمل لغرض التجربة قبل التسليم، وإن ظهرت ملاحظات حقيقية تتم معالجتها من قبل شركتنا مع احتساب الوقت المبذول لغرض التعديل، لضمان حق الزبون وضمان حق الشركة (NOVAIQ).',
     },
     en: {
       name: 'Delivery',
-      line: 'Shipped live, and we stay with you after launch.',
       body: 'The site is handed to the owner to try before final delivery. Where genuine issues come back we fix them, with the time spent on the changes accounted for — so the client is covered and so is NOVAIQ.',
     },
   },
@@ -174,10 +164,6 @@ interface PhasesSectionProps {
 export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' }) => {
   const isAr = language === 'ar';
   const { ref: sectionRef, seen } = useSeen<HTMLElement>();
-  /* The detail block gets a latch of its own. It sits a full screen below the point where the
-     section's own latch flips, so sharing that one would have it play its entrance off the bottom
-     of the screen and be sitting still by the time anyone reached it. */
-  const { ref: detailRef, seen: detailSeen } = useSeen<HTMLDivElement>();
 
   const [active, setActive] = useState(0);
   /* Set the first time anyone points at, clicks or tabs into the rail, and never cleared. The
@@ -374,100 +360,21 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                     >
                       <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.9} />
                     </span>
-                    {/* Capped in characters rather than pixels: at 1700px+ the container is
-                        100rem, and a line free to run the full half of that is unreadable however
-                        few words it has. */}
+                    {/* Capped in CHARACTERS rather than pixels: at 1700px+ the container opens to 100rem,
+                        and a paragraph free to run the full half of that is unreadable however well it is
+                        written. In a two-column cell the column is usually the narrower of the two, and
+                        the cap is what holds the line at a readable measure on the widest screens.
+
+                        The generous line height is for the Arabic — stacked diacritics and descenders need
+                        room that Latin body copy does not, and these are paragraphs now rather than the one
+                        line the cards started with. */}
                     <p
-                      className="mt-4 sm:mt-5 max-w-[34ch] text-[0.86rem] sm:text-[0.95rem] font-bold leading-relaxed"
-                      style={{ color: INK, opacity: 0.74 }}
+                      className="mt-5 sm:mt-6 max-w-[58ch] text-[0.92rem] sm:text-[1.02rem] font-bold leading-[1.9]"
+                      style={{ color: INK, opacity: 0.78 }}
                     >
-                      {isAr ? phase.ar.line : phase.en.line}
+                      {isAr ? phase.ar.body : phase.en.body}
                     </p>
                   </div>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-
-        {/* ── The same four steps, in full ────────────────────────────────────────────────────
-            From the Canva board: a numeral and a blue mark on one line, the paragraph underneath
-            it running the full measure, four of them stacked down the page.
-
-            The paragraph sits UNDER its mark rather than to one side, and that is the whole reason
-            this does not look like every other process section on the web — the eye reads straight
-            down one column instead of zig-zagging across four rows of the same shape.
-
-            It repeats the four steps the cards above already named, and that is deliberate: the
-            cards are the glance and this is the contract, in the company's own words. The two are
-            kept plainly apart — a rule, a change of scale and a real gap — so the second block
-            reads as detail rather than as the first one said twice. */}
-        <div
-          ref={detailRef}
-          data-detail-seen={detailSeen ? 'true' : 'false'}
-          className="mx-auto max-w-[56rem] mt-20 sm:mt-28 lg:mt-32 pt-14 sm:pt-20"
-          style={{ borderTop: `1px solid ${SAND_DEEP}` }}
-        >
-          {/* The block has a name in the accessibility tree and not on screen. Without it the
-              cards' four headings and these four are eight headings with four names between them,
-              and no way to hear which half you are in. */}
-          <h3 className="sr-only">{isAr ? 'تفاصيل المراحل' : 'The phases in detail'}</h3>
-
-          <ol>
-            {PHASES.map((phase, i) => {
-              const { Icon } = phase;
-              return (
-                <li
-                  key={phase.key}
-                  className="nq-ph-detail pt-10 sm:pt-14 first:pt-0"
-                  style={{
-                    /* Staggered off the index, so the four arrive in reading order. */
-                    ['--nq-ph-delay' as string]: `${120 + i * 110}ms`,
-                    borderTop: i === 0 ? undefined : `1px solid ${SAND_DEEP}`,
-                  }}
-                >
-                  <h4 className="sr-only">{isAr ? phase.ar.name : phase.en.name}</h4>
-
-                  <div className="flex items-center gap-4 sm:gap-6">
-                    <span
-                      className="text-[2.6rem] sm:text-[3.4rem] font-black leading-[0.8] tabular-nums"
-                      style={{ color: INK }}
-                      aria-hidden="true"
-                    >
-                      {i + 1}
-                    </span>
-
-                    {/* The `│` from the rail, brought down here too, so both halves of the section
-                        are built from the same mark. */}
-                    <span
-                      aria-hidden="true"
-                      className="w-px self-stretch shrink-0"
-                      style={{ background: SAND_DEEP }}
-                    />
-
-                    {/* Blue on every one of them, as the board has it — nothing in this block is a
-                        state, so nothing in it should look like one. The mark is near-black on the
-                        blue rather than white: white on #8295CF is 2.97:1, under the 4.5:1 it
-                        would need. */}
-                    <span
-                      className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl shrink-0"
-                      style={{ background: PERIWINKLE, color: INK }}
-                      aria-hidden="true"
-                    >
-                      <Icon className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.9} />
-                    </span>
-                  </div>
-
-                  {/* Capped in CHARACTERS rather than pixels: at 1700px+ the container opens to
-                      100rem, and a paragraph free to run the full measure is unreadable however
-                      well it is written. The generous line height is for the Arabic — stacked
-                      diacritics and descenders need the room that Latin body copy does not. */}
-                  <p
-                    className="mt-5 sm:mt-6 max-w-[58ch] text-[0.92rem] sm:text-[1.02rem] font-bold leading-[1.9]"
-                    style={{ color: INK, opacity: 0.78 }}
-                  >
-                    {isAr ? phase.ar.body : phase.en.body}
-                  </p>
                 </li>
               );
             })}
