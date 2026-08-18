@@ -5,7 +5,6 @@ import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
 import { LazyOnView } from './components/LazyOnView';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
-import { ProjectCtaButton } from './components/ProjectCtaButton';
 import { AboutSection } from './components/AboutSection';
 import { CookieConsent } from './components/CookieConsent';
 import { ToastHost } from './components/ToastHost';
@@ -480,11 +479,12 @@ export default function App() {
           overlapping it. */}
       <main
         style={{ paddingTop: 'calc(var(--nav-bottom, 74px) + var(--content-gap))' }}
-        /* No bottom padding on the home page. Everywhere else the page ends on black and this
-           breathes before the footer's own margin; on home the last section is blue and the footer
-           is sand, so the same 32px is the body's black showing through as a stripe between two
-           colours that are meant to meet. */
-        className={`flex-1 relative z-10 ${activePage === 'home' ? '' : 'pb-8'}`}
+        /* No bottom padding on the home page or the timeline page. Everywhere else the page ends
+           on black and this breathes before the footer's own margin; on home the last section is
+           blue and the footer is sand, and on the timeline page the blue section runs straight
+           into the footer's own periwinkle band — so the same 32px there is the body's black
+           showing through as a stripe between two colours that are meant to meet. */
+        className={`flex-1 relative z-10 ${activePage === 'home' || activePage === 'timeline' ? '' : 'pb-8'}`}
       >
 
         {activePage === 'home' && (
