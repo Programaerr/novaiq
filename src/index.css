@@ -281,6 +281,15 @@
   @media (min-width: 1700px) {
     html {
       --nq-container: 100rem;
+
+      /* And the band deepens with it. What this height really is, is a number of cube rows: the
+         blocks need a few rows of pitch to arrive out of one colour and settle into the next, and
+         fewer than about four reads as a single row of confetti rather than a field ending. The
+         cubes' own pitch scales with the screen (see cellFor in TileField.tsx), so a ceiling fixed
+         at 15rem quietly loses a row for every step the pitch takes — at 3440 it is three rows
+         where 1440 gets nearly five. Same floor as the value it replaces at exactly 1700px, so
+         the two meet rather than jump. */
+      --nq-band: clamp(15rem, 10vw, 22rem);
     }
   }
   body {

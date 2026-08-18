@@ -236,7 +236,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                       style={{ background: SAND }}
                     >
                       <span
-                        className="block text-[0.7rem] sm:text-[0.75rem] font-extrabold tracking-wide"
+                        className="block text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-wide"
                         style={{ color: INK, opacity: 0.75 }}
                       >
                         {isAr ? field.ar : field.en}
@@ -254,7 +254,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                           /* No resize handle: the box is already five rows, and a draggable corner
                              on a coloured panel is the one control here that can be pulled out of
                              the layout it sits in. */
-                          className="mt-1 block w-full bg-transparent border-0 outline-none resize-none text-[0.95rem] font-bold leading-relaxed"
+                          className="mt-1 block w-full bg-transparent border-0 outline-none resize-none text-[0.95rem] uw:text-[1.05rem] font-bold leading-relaxed"
                           style={{ color: INK }}
                         />
                       ) : (
@@ -270,7 +270,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                           aria-describedby={error ? id + '-error' : undefined}
                           /* 40px of input under a 20px label clears the 44px the whole block needs
                              to be a comfortable touch target. */
-                          className="mt-1 block w-full h-10 bg-transparent border-0 outline-none text-[0.95rem] font-bold"
+                          className="mt-1 block w-full h-10 uw:h-12 bg-transparent border-0 outline-none text-[0.95rem] uw:text-[1.05rem] font-bold"
                           style={{ color: INK }}
                         />
                       )}
@@ -300,7 +300,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                 <button
                   type="submit"
                   disabled={sending}
-                  className="min-h-11 ps-6 pe-2 py-2 rounded-full inline-flex items-center gap-3 text-sm font-extrabold transition-opacity duration-200 cursor-pointer disabled:cursor-wait disabled:opacity-70"
+                  className="min-h-11 uw:min-h-13 ps-6 pe-2 py-2 rounded-full inline-flex items-center gap-3 text-sm uw:text-base font-extrabold transition-opacity duration-200 cursor-pointer disabled:cursor-wait disabled:opacity-70"
                   style={{ background: INK, color: PAPER }}
                 >
                   <span>
@@ -337,7 +337,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                   {/* A real mailto:, so this is one tap rather than a string to copy out. */}
                   <a
                     href={'mailto:' + EMAIL_ADDRESS}
-                    className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] font-bold hover:underline"
+                    className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] uw:text-[1.05rem] font-bold hover:underline"
                     style={{ color: INK }}
                   >
                     <Mail className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
@@ -353,7 +353,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                     <a
                       href={"tel:" + number.replace(/[^d+]/g, "")}
                       dir="ltr"
-                      className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] font-bold hover:underline"
+                      className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] uw:text-[1.05rem] font-bold hover:underline"
                       style={{ color: INK }}
                     >
                       <Phone className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
@@ -363,7 +363,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                 ))}
 
                 <li
-                  className="min-h-11 flex items-center gap-2.5 text-[0.95rem] font-bold"
+                  className="min-h-11 flex items-center gap-2.5 text-[0.95rem] uw:text-[1.05rem] font-bold"
                   style={{ color: INK }}
                 >
                   <MapPin className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
