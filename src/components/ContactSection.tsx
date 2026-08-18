@@ -1,5 +1,5 @@
 import React, { useCallback, useId, useState } from 'react';
-import { Phone, Send } from 'lucide-react';
+import { Mail, MapPin, Phone, Send } from 'lucide-react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
@@ -50,6 +50,15 @@ import { BAND_FADE, PERIWINKLE_TONES, TileField } from './TileField';
  * the moment real numbers are pasted in. One array, nothing else to change.
  */
 const PHONE_NUMBERS: string[] = [];
+
+/**
+ * The address the site already publishes, in the footer.
+ *
+ * Taken from there rather than invented, and it is the reason this column says something useful
+ * with no phone numbers configured: there is a real way to reach a person on the page either way.
+ * If it ever changes it has to change in both places — Footer.tsx is the other one.
+ */
+const EMAIL_ADDRESS = 'hello@novaiq.io';
 
 interface Field {
   key: 'name' | 'email' | 'message';
@@ -321,35 +330,44 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                 {isAr ? 'تواصل مباشر' : 'Get in touch'}
               </h3>
 
-              {PHONE_NUMBERS.length > 0 ? (
-                <ul className="mt-4 grid gap-2">
-                  {PHONE_NUMBERS.map((number) => (
-                    <li key={number}>
-                      {/* A real tel: link, not text. On a phone that is the difference between
-                          reaching someone and copying digits out by hand. `dir="ltr"` because a
-                          number with a leading + reorders into nonsense inside an RTL line. */}
-                      <a
-                        href={'tel:' + number.replace(/[^\d+]/g, '')}
-                        dir="ltr"
-                        className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] font-bold hover:underline"
-                        style={{ color: INK }}
-                      >
-                        <Phone className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
-                        <span>{number}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p
-                  className="mt-4 max-w-[32ch] text-[0.9rem] font-bold leading-[1.9]"
-                  style={{ color: INK, opacity: 0.78 }}
+              <ul className="mt-4 grid gap-1">
+                <li>
+                  {/* A real mailto:, so this is one tap rather than a string to copy out. */}
+                  <a
+                    href={'mailto:' + EMAIL_ADDRESS}
+                    className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] font-bold hover:underline"
+                    style={{ color: INK }}
+                  >
+                    <Mail className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
+                    <span dir="ltr">{EMAIL_ADDRESS}</span>
+                  </a>
+                </li>
+
+                {PHONE_NUMBERS.map((number) => (
+                  <li key={number}>
+                    {/* A real tel: link, not text. On a phone that is the difference between
+                        reaching someone and copying digits out by hand. dir="ltr" because a number
+                        with a leading + reorders into nonsense inside an RTL line. */}
+                    <a
+                      href={"tel:" + number.replace(/[^d+]/g, "")}
+                      dir="ltr"
+                      className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] font-bold hover:underline"
+                      style={{ color: INK }}
+                    >
+                      <Phone className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
+                      <span>{number}</span>
+                    </a>
+                  </li>
+                ))}
+
+                <li
+                  className="min-h-11 flex items-center gap-2.5 text-[0.95rem] font-bold"
+                  style={{ color: INK }}
                 >
-                  {isAr
-                    ? 'اكتب لنا بالنموذج ونرجع لك على بريدك.'
-                    : 'Write to us with the form and we will come back to you by email.'}
-                </p>
-              )}
+                  <MapPin className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
+                  <span>{isAr ? "بغداد، العراق" : "Baghdad, Iraq"}</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
