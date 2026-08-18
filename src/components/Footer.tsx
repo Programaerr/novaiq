@@ -129,6 +129,17 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
           absent at the top where the ground is still the contact section's blue, assembling as it
           turns, settled into flat sand before the first link. The same move the hero makes on its
           way out and the contact section on its way in — three edges on this page, one gesture. */}
+      {/* Faint ruled grid in the footer's field. */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgb(var(--ft-fg) / 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgb(var(--ft-fg) / 0.04) 1px, transparent 1px)',
+          backgroundSize: '88px 88px',
+        }}
+      />
+
       {isSand && (
         <div
           aria-hidden="true"
@@ -141,17 +152,6 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
           <TileField tones={SAND_BAND_TONES} fade={BAND_FADE} />
         </div>
       )}
-
-      {/* Faint ruled grid in the footer's field. */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        aria-hidden="true"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, rgb(var(--ft-fg) / 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgb(var(--ft-fg) / 0.04) 1px, transparent 1px)',
-          backgroundSize: '88px 88px',
-        }}
-      />
 
       <div
         className={`relative nq-container pb-16 sm:pb-20 ${
@@ -166,7 +166,10 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
               onClick={(e) => { e.preventDefault(); go('home')(); }}
               className="inline-flex items-center gap-3 cursor-pointer"
             >
-              <NovaiqLogo size={34} showText={false} />
+              {/* The mark is white artwork on transparency, which is nothing at all on sand.
+                  brightness(0) takes any colour to black and leaves the alpha alone, so the same
+                  single asset reads on both grounds without a second file or a chip behind it. */}
+              <NovaiqLogo size={34} showText={false} className={isSand ? "brightness-0" : ""} />
             </a>
             <p className="mt-5 max-w-sm text-xs sm:text-sm text-[rgb(var(--ft-fg)/var(--ft-a55))] leading-relaxed">
               {isAr
