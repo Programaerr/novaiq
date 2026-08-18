@@ -15,6 +15,7 @@ import {
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
+import { PERIWINKLE } from '../lib/homePalette';
 import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
 import { TemplateFilterPanel } from './TemplateFilterPanel';
