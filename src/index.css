@@ -1645,6 +1645,37 @@ html[data-scrolling] .filter-pill-beam::before {
 }
 
 
+/* `animate-fade-in`, which the template demos have been asking for since they were written.
+   Tailwind only ships animation utilities it can see defined, and this one never was — so
+   roughly fifty `animate-fade-in` class names across the sandbox have been resolving to
+   nothing at all. Defined here rather than in @theme so the keyframes sit beside it. */
+@utility animate-fade-in {
+  animation: nq-fade-in 0.24s ease-out both;
+}
+
+@keyframes nq-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A scroll container with no visible bar. Only for surfaces that are already framed as a
+   device — the phone app's screens and the filter rails inside them — where a desktop
+   scrollbar would be drawn across a picture of a phone. Never on the page itself: taking the
+   bar off a real page takes away the only indication of how much of it is left. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
