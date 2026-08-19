@@ -10,14 +10,16 @@ import {
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Info
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
-import { PERIWINKLE } from '../lib/homePalette';
+import { INK, PERIWINKLE } from '../lib/homePalette';
 import { hueFor, washFor } from '../lib/templateHues';
 import { GlowLight, TemplateGlow } from './TemplateGlow';
+import { BookFold } from './BookFold';
 import { PageLoader } from './PageLoader';
 import { TemplateFilterPanel } from './TemplateFilterPanel';
 
@@ -55,20 +57,60 @@ const FOCUS_SCALE = [1, 0.86, 0.75, 0.7];
 // carry the whole job and drops harder than the rack's 0.7/0.4 did.
 const FOCUS_OPACITY = [1, 0.84, 0.52, 0];
 
-// The card's own height, in one place, because the vertical ladder is derived from it below
-// rather than typed out as four more magic numbers.
-const CARD_H_DESKTOP = 480;
-const CARD_H_MOBILE = 400;
-
-// The drop each card takes ON TOP of landing on the shared baseline.
+// The card has two heights now, and it is only ever at one of them or on its way between.
 //
-// Scaling about the centre pulls a shorter card's bottom edge UP by half the height it lost, so
-// a row of scaled cards hangs in mid-air at four different heights. Adding that half back is
-// what stands them all on one line — and that is the whole read of this layout: objects sitting
-// in the same pool of light rather than a row of shrinking rectangles. This is the few extra
-// pixels past it, which is the reference's own rag, and the only thing left saying "further
-// back" once the turn and the recession are gone.
-const FOCUS_EXTRA_DROP = [0, 10, 18, 22];
+// SHUT it is the picture and nothing else — image, name, one action across the bottom of it.
+// OPEN, the body falls down out of the picture's lower edge and the card is a page. Both are
+// written here rather than as classes because the height in between them is arithmetic, not a
+// breakpoint: it is HEADER + BODY x (how far the page has fallen), computed in one calc() off a
+// custom property, so the card's height and the page turning into it are the same number.
+const HEADER_H_DESKTOP = 250;
+const HEADER_H_MOBILE = 210;
+const BODY_H_DESKTOP = 360;
+const BODY_H_MOBILE = 330;
+
+// The track, at both of the card's heights, plus room under it for the chevron and the shadow.
+//
+// It grows with the card rather than standing permanently at its open height. Standing tall was
+// tried first, on the reasoning that a fixed container never shifts what is below it — and what it
+// actually produced was four hundred pixels of empty ground under a shut row, every time, to avoid
+// a shift that only happens when somebody deliberately opens something. An accordion moving what is
+// under it is not layout shift; it is the accordion.
+const TRACK_PAD = 96;
+const TRACK_SHUT_DESKTOP = HEADER_H_DESKTOP + TRACK_PAD;
+const TRACK_SHUT_MOBILE = HEADER_H_MOBILE + TRACK_PAD;
+const TRACK_OPEN_DESKTOP = TRACK_SHUT_DESKTOP + BODY_H_DESKTOP;
+const TRACK_OPEN_MOBILE = TRACK_SHUT_MOBILE + BODY_H_MOBILE;
+
+// How long the page takes to fall. Slower than the 150-300ms a state change normally gets,
+// deliberately: this is not a control changing state, it is an object moving through space, and
+// the eye reads the arc rather than the endpoints. Short enough that it never feels like waiting.
+const FOLD_MS = 720;
+
+// How far the light spills below the row. The canvas starts flush with the row's top edge and runs
+// this much past its bottom, so the pools have floor to fall on — and, more usefully, so the one
+// number that converts a position in the row into a position on the canvas is a constant instead of
+// a measurement. Get this wrong and the light sits somewhere the cards are not.
+const GLOW_BLEED = 96;
+
+// Slack around the folding page, on every side. See BookFold: the page bows toward the viewer and
+// perspective turns that into magnification, so the canvas has to be bigger than the page or the
+// bulge is clipped exactly when it is at its largest.
+const PAGE_MARGIN = 56;
+
+// The drop each card takes below the row's top edge.
+//
+// It used to be a compensation: cards scaled about their centres and this added back the half a
+// card's height that scaling stole, so the row stood on one baseline. That is gone — the cards
+// scale about their TOP edge now (transformOrigin '50% 0'), which lands them on a common top line
+// for free, and a common top line is the one the reference uses and the only one an expanding
+// card can work with. A card that opens has to grow DOWNWARD; hang the row off its feet and every
+// card in it moves every time one is opened.
+//
+// So this is now only the reference's own rag — the few pixels each step sits lower than the one
+// inside it, which is all that is left saying "further back" once the turn and the recession from
+// the old rack are gone.
+const FOCUS_EXTRA_DROP = [0, 14, 24, 30];
 
 // one card's travel is the first step of the ladder, which is the only spacing a drag can be
 // measured against, since the ladder is deliberately not uniform.
@@ -184,11 +226,102 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return () => mq.removeEventListener('change', onChange);
   }, []);
   const focusX = isMobile ? FOCUS_X_MOBILE : FOCUS_X_DESKTOP;
-  const cardH = isMobile ? CARD_H_MOBILE : CARD_H_DESKTOP;
+  const headerH = isMobile ? HEADER_H_MOBILE : HEADER_H_DESKTOP;
+  const bodyH = isMobile ? BODY_H_MOBILE : BODY_H_DESKTOP;
+  const trackShut = isMobile ? TRACK_SHUT_MOBILE : TRACK_SHUT_DESKTOP;
+  const trackOpen = isMobile ? TRACK_OPEN_MOBILE : TRACK_OPEN_DESKTOP;
   const stepPx = focusX[1];
 
   /** Where a card at this distance from the centre sits, vertically. See FOCUS_EXTRA_DROP. */
-  const dropFor = (d: number) => (cardH * (1 - FOCUS_SCALE[d])) / 2 + FOCUS_EXTRA_DROP[d];
+  const dropFor = (d: number) => FOCUS_EXTRA_DROP[d];
+
+  /* ── Opening and shutting ────────────────────────────────────────────────────────────────
+     Only the card in focus can be open, and only one can be open at a time — which between them
+     mean this is a boolean rather than an id. Anything that changes which card is in the middle
+     shuts it: a card that stayed open while the row moved would be a body panel belonging to a
+     template that is no longer under it. */
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => setExpanded(false), [activeIndex]);
+
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const read = () => setReduced(mq.matches);
+    read();
+    mq.addEventListener('change', read);
+    return () => mq.removeEventListener('change', read);
+  }, []);
+
+  /* The fold, and why an rAF loop rather than a CSS transition or the render loop of the canvas
+     that draws the page.
+
+     Not CSS, because two things have to move off ONE number — the card's height and the page
+     falling into it — and the page lives in a WebGL scene that cannot read a CSS transition's
+     interpolated value.
+
+     Not the canvas either, and that is the important half: the card has to open on a machine with
+     no working GL context just as well as on one with. So the number lives here, in ordinary
+     JavaScript, written out to the DOM as two custom properties and handed to the canvas as a ref.
+     Lose the canvas and the card still opens; it simply opens without the paper. */
+  const activeCardRef = useRef<HTMLElement | null>(null);
+  const foldRef = useRef(0);
+  // The canvas's own request-a-frame, handed up once it exists. See BookFold's onReady.
+  const foldInvalidate = useRef<(() => void) | null>(null);
+  const onFoldReady = React.useCallback((fn: () => void) => {
+    foldInvalidate.current = fn;
+  }, []);
+
+  const writeFold = (p: number) => {
+    foldRef.current = p;
+    // The projected fraction, which is the cosine of the angle the page still has to fall through.
+    const projected = String(Math.sin((p * Math.PI) / 2));
+    // The track grows by exactly the same pixels the card does, so the gap under the card never
+    // changes — but under its OWN property name, and that is not tidiness. Custom properties
+    // inherit. Writing --nq-fold on the track handed it to all eleven cards inside it, every one of
+    // which reads --nq-fold for its height, and the whole row opened together: five cards standing
+    // in a line each growing a blank white panel out of its bottom edge.
+    if (trackRef.current) trackRef.current.style.setProperty('--nq-track', projected);
+    const el = activeCardRef.current;
+    if (!el) return;
+    // Two properties, because they are two different questions. --nq-fold is how much of the body
+    // is PROJECTED on screen, which is the cosine of the angle the page still has to fall through
+    // and therefore exactly the card's height; --nq-open is the raw progress, which is what the
+    // content's own fade-in is timed against.
+    el.style.setProperty('--nq-fold', projected);
+    el.style.setProperty('--nq-open', String(p));
+    // And one frame of paper to go with the pixels the DOM just moved.
+    foldInvalidate.current?.();
+  };
+
+  useEffect(() => {
+    const to = expanded ? 1 : 0;
+    const from = foldRef.current;
+    if (from === to) {
+      writeFold(to);
+      return;
+    }
+    if (reduced) {
+      writeFold(to);
+      return;
+    }
+    const t0 = performance.now();
+    let raf = 0;
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / FOLD_MS);
+      // Ease-out on the ANGLE, not on the height, and only gently.
+      //
+      // The height is already an ease-out before anything is applied to it: it is the cosine of the
+      // remaining angle, so a page falling at a CONSTANT rate still arrives slowing down. A cubic on
+      // top of that was measured at 96% of full height by 300ms of a 720ms fall — the card had
+      // effectively finished while the page was still visibly turning. Quadratic leaves the two
+      // reading as one motion.
+      const e = 1 - Math.pow(1 - k, 2);
+      writeFold(from + (to - from) * e);
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [expanded, reduced, activeIndex]);
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -502,10 +635,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       const d = Math.abs(offset);
       out.push({
         x: Math.sign(offset) * focusX[d],
-        // Low on the card rather than under it. A pool centred below the card would read as a
-        // shadow cast by something above it; centred across its lower third, the card looks lit
-        // from within and the light spills out from behind its own edges.
-        y: cardH * 0.3,
+        // Under the picture, not under the card, and measured from the CANVAS centre rather than
+        // the row's. The card's height is no longer a fixed thing — it doubles when it opens — so a
+        // pool tied to it would slide down the page every time anything was expanded. The header is
+        // the part that never moves and the part the colour belongs to, so the light sits low in it
+        // and stays there.
+        y: headerH * 0.86 - (trackOpen + GLOW_BLEED) / 2,
         radius: (isMobile ? 260 : 400) * FOCUS_SCALE[d],
         // The focused card is not simply brighter, it is the only one that is bright. Two pools
         // at similar strength read as two centres of attention, and the whole point of the
@@ -515,7 +650,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       });
     }
     return out;
-  }, [filteredTemplates, activeIndex, focusX, cardH, isMobile]);
+  }, [filteredTemplates, activeIndex, focusX, headerH, trackOpen, isMobile]);
+
+  // A filter or a search that changes the result set shuts whatever was open along with it. The
+  // effect above catches the ordinary case by watching activeIndex, and misses exactly one: a new
+  // set whose first card is also index 0, where the index does not change but the template under
+  // it does. This is that case, and it lives here because filteredTemplates is only defined by now.
+  useEffect(() => setExpanded(false), [filteredTemplates.length, selectedCategory, searchQuery, sortBy]);
 
   // Points the way the page reads. In Arabic "onward" is leftward, and an arrow that ignores
   // that is an arrow pointing back out of the card it is inviting you into.
@@ -637,7 +778,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           {/* Reaches past the row at top and bottom, because a pool that stopped exactly where
               the cards do would be a rectangle of light with a straight edge — which is the one
               thing light does not have. */}
-          <div className="absolute inset-x-0 -top-8 -bottom-16 sm:-bottom-24 overflow-hidden pointer-events-none">
+          <div
+            style={{ height: trackOpen + GLOW_BLEED }}
+            className="absolute inset-x-0 top-0 overflow-hidden pointer-events-none"
+          >
             <TemplateGlow lights={glowLights} ground={PERIWINKLE} />
           </div>
 
@@ -656,12 +800,30 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 suppressClickRef.current = false;
               }
             }}
-            // Tall enough for the lowest card the ladder can put on screen: a step-2 card is
-            // 360px tall and dropped 78px, so its bottom edge lands 258px below the middle. No
-            // perspective and no camera — the row is flat now, and a perspective on the track
-            // would only cost a stacking context for nothing to use.
-            className="relative w-full max-w-7xl h-[460px] sm:h-[540px] overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
+            style={{ height: `calc(${trackShut}px + ${bodyH}px * var(--nq-track, 0))` }}
+            // Sized to hold a card at full stretch plus the chevron under it, and fixed there. No
+            // perspective on this element: the row itself is flat, and the one thing on the page
+            // that does need a camera brings its own (see BookFold).
+            className="relative w-full max-w-7xl overflow-hidden touch-pan-y cursor-grab active:cursor-grabbing select-none"
           >
+            {/* The page, over the cards rather than behind them — it is falling ONTO the body
+                panel, so it has to be in front of it. Inside the track, so it shares the track's
+                pixel grid and can be told where the hinge is in the same numbers the ladder above
+                lays the cards out in, without measuring anything. */}
+            {/* The page's box, laid exactly over the area the body panel will occupy — hinged
+                along the bottom edge of the picture, the width of the card, the height of the
+                panel, plus slack on three sides for the bow. Positioned in DOM terms, so the
+                canvas inside it needs no idea where anything else on the page is. */}
+            <div
+              style={{
+                top: headerH - PAGE_MARGIN,
+                height: bodyH + PAGE_MARGIN * 2,
+                width: (isMobile ? 260 : 330) + PAGE_MARGIN * 2,
+              }}
+              className="absolute left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+            >
+              <BookFold margin={PAGE_MARGIN} progressRef={foldRef} onReady={onFoldReady} />
+            </div>
           {/* Drag layer — one translate carrying the whole rack past a fixed camera. The cards
               keep their own angles through the gesture and the rack slides bodily, which is
               what a coverflow does: the viewer is panning along a shelf, not turning it. It
@@ -707,280 +869,288 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // switched off mid-drag (see the note there).
             const dir = Math.sign(clampedOffset);
             const d = Math.min(Math.abs(clampedOffset), 3);
+            // translateX(-50%) and NOT translate(-50%, -50%). The card hung from `top: 50%` in the
+            // centred layout this grew out of, and the second half of that translate was what put
+            // its middle on the line. It hangs from `top: 0` now, and the leftover -50% was
+            // lifting every card by half its own height — which is invisible while all the cards
+            // are the same height and immediately obvious the moment one of them grows, because
+            // it lifts by half of whatever it has just become.
             const transform =
-              `translate(-50%, -50%) translateX(${dir * focusX[d]}px) translateY(${dropFor(d)}px)`;
+              `translateX(-50%) translateX(${dir * focusX[d]}px) translateY(${dropFor(d)}px)`;
             const wash = washFor(template.category);
+
+            const displayDescription = translateText(template.description, currentLang);
+            const displayLong = translateText(template.longDescription, currentLang);
 
             return (
               <div
                 key={template.id}
-                onClick={() => { if (!isActive) setActiveIndex(index); }}
+                onClick={() => {
+                  if (!isActive) setActiveIndex(index);
+                }}
                 style={{
                   transform,
-                  // Promotes the card to its own compositor layer so its render — masked,
-                  // shadowed, image-filled — is rasterized once and then simply moved.
-                  // Without the hint the browser re-rasterizes every card inside the rotating
-                  // track on each drag frame (the track itself is deliberately NOT promoted:
-                  // its children change opacity constantly, and a promoted parent would
-                  // re-bake the whole fan into one texture per change). Same lesson the
-                  // milestone-card ring learned: promote the moving leaf, not the animated
-                  // parent. Two transitions fight on this element, transform (0.9s) and
-                  // opacity (0.3s), so both properties are named.
-                  //
-                  // Constant for the whole life of the card — deliberately NOT gated on
-                  // anything that changes as cards move, which was tried both ways (on
-                  // isVisible, and on the device tier) and made the drag far worse. Those flags
-                  // flip on the very step commits a drag is made of, and changing will-change
-                  // is what creates and destroys the compositor layer. Destroying one throws
-                  // its texture away; creating one forces the card — image, 28px-rounded mask,
-                  // border — to be rasterized again, synchronously, mid-gesture. Several of
-                  // those in the same frame is a stall long enough to swallow the animation
-                  // whole and leave the card appearing to teleport. Holding a texture that is
-                  // never looked at is cheap; building one during a gesture is not.
                   willChange: isMoving ? 'transform, opacity' : undefined,
-                  // On a flat row there is no recession left to rank the cards, so scale and
-                  // opacity carry the whole job between them — which is why this drops harder
-                  // than the rack's 0.7/0.4 did. Still legible pictures rather than ghosts: the
-                  // reference's own side cards are readable, they are simply not the subject.
                   opacity: FOCUS_OPACITY[cappedDistance],
                   zIndex: 10 - cappedDistance,
-                  // 0.9s for the glide, matched to the scale transition on the wrapper below —
-                  // slow enough to read as a deliberate motion instead of the instant-feeling
-                  // 0.55s this used to run at. Opacity is deliberately much shorter (0.3s) and
-                  // NOT matched to it: sampled frame-by-frame, a 0.55s opacity fade running
-                  // alongside a 0.9s slide put the outgoing and incoming card at similar
-                  // high-ish opacity (both ~0.7–0.85) for a good third of the transition —
-                  // two overlapping cards that are each mostly-but-not-fully visible reads as
-                  // a muddy double exposure, which is worse the longer that window lasts.
-                  // Cutting opacity down to 0.3s means each card reaches its resting opacity
-                  // well before the slide is even half done, so for the back half of the
-                  // glide the incoming card is already fully opaque and simply sliding over
-                  // the outgoing one — a clean overlap instead of a translucent one. Position
-                  // and size still arrive together — see the note on the scale transition
-                  // below for why that part hasn't changed.
-                  //
-                  // The transform half is suspended while dragging so the offset tracks the
-                  // finger/mouse 1:1 rather than chasing it on an easing; opacity keeps its
-                  // transition throughout, since a card that takes the middle mid-drag
-                  // should still brighten smoothly rather than pop.
                   transition: isDragging
                     ? 'opacity 0.3s ease'
                     : 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease',
                   pointerEvents: isVisible ? undefined : 'none',
-                  // Do NOT add `visibility: hidden` (or `content-visibility`) to the
-                  // out-of-range cards. It looks like free performance — they are at zero
-                  // opacity anyway, and it would drop their compositor layers — and it was
-                  // tried here and reverted. Taking an element out of rendering lets the
-                  // browser discard its decoded image, so every card that cycled back into
-                  // range had to decode its preview again, and the autoplay stepping every
-                  // 8s turned that into a card visibly blanking and popping back. It is the
-                  // same failure the note above records from when far cards were unmounted
-                  // outright; keeping them mounted is only half the fix, they have to stay
-                  // *rendered* too. A fully transparent element is already skipped at paint
-                  // time, so what was left to win here was small and this is what it cost.
                 }}
-                className={`absolute top-1/2 left-1/2 w-[260px] sm:w-[330px] h-[400px] sm:h-[480px] ${isActive ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`absolute top-0 left-1/2 w-[260px] sm:w-[330px] ${
+                  isActive ? 'cursor-default' : 'cursor-pointer'
+                }`}
               >
-                {/* Scale lives here, one level in from the positional transform above,
-                    precisely so it can keep its own transition while that one is switched
-                    off mid-drag. The index now commits as the drag crosses each half-step,
-                    so a neighbour becomes the active card *during* the gesture — on a
-                    single element it would jump 0.82 → 1 in one frame at that moment. Split
-                    across two, the position still tracks the finger exactly and the size
-                    eases into it. */}
+                {/* Scale one level in from the position, so it can keep its own transition while
+                    that one is switched off mid-drag. About the TOP edge, which is what puts every
+                    card in the row on one top line and leaves the bottom free to grow. */}
                 <div
                   style={{
-                    // The whole of the size difference, where the rack got most of it free
-                    // from the perspective divide. Scaled about the centre, which is what the
-                    // vertical ladder above is written to compensate for.
                     transform: `scale(${FOCUS_SCALE[cappedDistance]})`,
-                    // Same 0.9s and same curve as the positional transform above — see the
-                    // note there on why the two must agree. Also on its own layer, like the
-                    // card holding it: it animates its own scale for 0.9s on every commit,
-                    // and without the hint that glide would re-rasterize the image inside
-                    // the card's layer texture on every frame of the animation. Constant for
-                    // the same reason as the card above: a will-change that flips mid-drag
-                    // rebuilds the layer instead of reusing it.
+                    transformOrigin: '50% 0',
                     willChange: isMoving ? 'transform' : undefined,
                     transition: 'transform 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
-                  className="h-full"
                 >
-                {/* One full-bleed frame: the photo fills the whole card and everything the card
-                    needs to say floats over it in a single glass strip. Price, features and
-                    tech stack aren't gone — they're one tap away in the full preview this card
-                    opens, so nothing is actually lost. */}
-                <div
-                  onClick={() => {
-                    if (onOpenStandalonePreview) {
-                      onOpenStandalonePreview(template);
-                    } else {
-                      setPreviewTemplate(template);
+                  <article
+                    ref={
+                      isActive
+                        ? (el) => {
+                            activeCardRef.current = el;
+                            // The properties are written by an rAF loop that has no idea a
+                            // different element just became the active card, so they are seeded
+                            // here — otherwise the card that takes the middle inherits nothing and
+                            // renders at its default shut height for one frame regardless of what
+                            // the fold is actually at.
+                            if (el) {
+                              el.style.setProperty(
+                                '--nq-fold',
+                                String(Math.sin((foldRef.current * Math.PI) / 2)),
+                              );
+                              el.style.setProperty('--nq-open', String(foldRef.current));
+                            }
+                          }
+                        : undefined
                     }
-                    cosmicAudio.playPing();
-                  }}
-                  // Surface styling here is deliberately NOT conditional on isActive, and
-                  // carries no backdrop-blur. Both of those were tried and both flicker: a
-                  // background that changes the instant a card becomes active is a hard swap
-                  // mid-motion, and toggling backdrop-filter on/off makes the browser build
-                  // and tear down a compositor layer at that same moment — the card visibly
-                  // blanks and re-appears. Constant styling means the layer is created once
-                  // and simply moves, which is also why the earlier five-simultaneous-blurs
-                  // stutter on real phones doesn't come back. transition-[border-color], not
-                  // transition-colors, for the same family of reason: only the hover border
-                  // is meant to fade, and a broader transition would animate the surface too.
-                  // No shadow-2xl here any more. It is `0 25px 50px -12px rgb(0 0 0/0.25)` —
-                  // a 50px-radius blur of a 25%-opaque *black* shadow, cast onto a near-black
-                  // cosmic background, so what it actually contributes on screen is nothing
-                  // anyone can see. What it cost was real: a blur that wide has to be
-                  // re-rasterized around the full 330x480 card every time the card's layer is
-                  // re-baked, which is on every scale change — i.e. several cards at once, on
-                  // every step of a drag. That is the single most expensive thing this card
-                  // was asking for, in exchange for invisible output.
-                  style={{
-                    pointerEvents: isActive ? 'auto' : 'none',
-                    // The one shadow on the card, and it is cast in the ink the wash is pulled
-                    // toward rather than in black — a neutral shadow under a coloured card on a
-                    // blue ground is the tell that it came from a palette instead of from the
-                    // surface it falls on. Only the focused card gets the deep one: a row where
-                    // every card is equally lifted is a row with no focus, which is the whole
-                    // arrangement. Both branches are the same property at the same blur, so the
-                    // change between them animates instead of swapping.
-                    boxShadow: isActive
-                      ? '0 32px 64px -28px rgba(8, 10, 26, 0.62)'
-                      : '0 18px 44px -26px rgba(8, 10, 26, 0.45)',
-                    transition: 'box-shadow 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
-                  }}
-                  className="relative h-full rounded-[26px] overflow-hidden cursor-pointer group"
-                >
-                  {/* The photo sits inset inside the frame's own padding — a bezel margin all
-                      round, like a phone case holding its screen — rather than bleeding to the
-                      card's own edges. */}
-                  <div
-                    className="relative w-full h-full overflow-hidden"
-                    // Safari drops border-radius + overflow-hidden clipping on an element
-                    // sitting under a 3D-transformed ancestor (this card's own rotateY /
-                    // translateZ / the track's perspective) — it never shows up in Chrome
-                    // devtools or headless screenshots, only on a real iPhone, which is why
-                    // the bottom panel could overflow past this frame there and nowhere else.
-                    // Forcing Safari onto its mask-based clip path instead of the broken
-                    // overflow-hidden path is the standard fix — but the textbook version of
-                    // it, -webkit-radial-gradient(white, black), is an actual gradient: on a
-                    // tall narrow card like this one its default farthest-corner sizing fades
-                    // to black along the side edges well before it reaches the corners, which
-                    // is a real, visible dark band down both sides, not a rendering glitch.
-                    // Both stops white makes it a true no-op gradient — still a mask-image, so
-                    // Safari still takes the fixed code path, but nothing in it actually fades.
-                    style={{ WebkitMaskImage: '-webkit-radial-gradient(white, white)' }}
+                    style={{
+                      // The card's height IS the fold. HEADER is always there; BODY arrives in
+                      // proportion to how much of the page is currently projected onto the screen,
+                      // which is what --nq-fold holds. The page falling and the card growing are
+                      // therefore not two animations that have to be kept in step — they are one
+                      // number read twice.
+                      height: `calc(${headerH}px + ${bodyH}px * var(--nq-fold, 0))`,
+                      pointerEvents: isActive ? 'auto' : 'none',
+                      boxShadow: isActive
+                        ? '0 32px 64px -28px rgba(8, 10, 26, 0.62)'
+                        : '0 18px 44px -26px rgba(8, 10, 26, 0.45)',
+                      transition: 'box-shadow 0.9s cubic-bezier(0.22, 1, 0.36, 1)',
+                    }}
+                    className="relative w-full rounded-[26px] overflow-hidden bg-white"
                   >
-                    <img
-                      src={template.previewImage}
-                      alt={displayTitle}
-                      loading="lazy"
-                      decoding="async"
-                      // An <img> is natively draggable. Press on a card's photo — far and away
-                      // the largest target in the strip, and the obvious place to grab — and
-                      // the browser starts its own drag-and-drop of the image file: it takes
-                      // over the gesture, so the pointermove/pointerup this carousel is
-                      // listening for simply never arrive and the strip sits dead under a
-                      // translucent ghost of the picture. select-none on the track fixed the
-                      // same class of hijack for text selection; this is the image half of it.
-                      draggable={false}
-                      className="tpl-cover-img absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    {/* The wash — the card's own colour, poured up the photograph.
-                        Three things at once, which is why it is one gradient and not three
-                        layers: solid at the foot, where the title and the button have to be
-                        read off it; most of the way to solid across the middle, so the picture
-                        emerges rather than starting; and a light tint of the pure hue at the
-                        top, which is what makes the whole card read as ONE colour instead of a
-                        photo with a coloured caption stuck under it.
-
-                        Ending at the hue and not at transparent is the part that matters. Fade
-                        a coloured scrim to nothing and the top of the card is a plain photo, and
-                        ten plain photos in a row are exactly the catalogue this is replacing. */}
+                    {/* ── The picture, and everything the card says when it is shut ─────────── */}
                     <div
-                      className="absolute inset-0"
-                      style={{
-                        background:
-                          `linear-gradient(to top, ${wash} 0%, ${wash} 26%, ${wash}CC 48%, ${hueFor(template.category)}59 100%)`,
+                      style={{ height: headerH }}
+                      onClick={() => {
+                        if (onOpenStandalonePreview) onOpenStandalonePreview(template);
+                        else setPreviewTemplate(template);
+                        cosmicAudio.playPing();
                       }}
-                    />
+                      className="absolute inset-x-0 top-0 overflow-hidden cursor-pointer group"
+                      // Safari drops border-radius clipping on an element under a transformed
+                      // ancestor. A mask-image forces it onto the path that works; both stops the
+                      // same white so the mask itself does nothing but exist.
+                      // eslint-disable-next-line
+                    >
+                      <img
+                        src={template.previewImage}
+                        alt={displayTitle}
+                        loading="lazy"
+                        decoding="async"
+                        draggable={false}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      {/* The scrim, in the category's own colour. Solid where the name sits and
+                          gone by half way up, so the photograph is a photograph and the colour is
+                          still the thing that says which kind of template this is. */}
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: `linear-gradient(to top, ${wash} 0%, ${wash}E6 30%, ${wash}00 74%)`,
+                        }}
+                      />
 
-                    {/* Category badge — flat translucent, same on every card. See the note on
-                        the bezel above for why nothing here keys off isActive or blurs. */}
-                    <div className="absolute top-3 start-3 sm:top-4 sm:start-4 max-w-[52%] truncate px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white text-[10px] sm:text-[11px] font-bold">
-                      {displayCategory}
-                    </div>
-
-                    {/* The foot — name, the two numbers worth knowing, and the one action.
-                        No plate under it any more: it is written straight onto the wash, which
-                        is already opaque down here for exactly that purpose. A dark card
-                        floating inside a dark card was the old carousel's way of guaranteeing
-                        contrast over an unknown photograph; the wash guarantees it by being the
-                        surface, which is both one fewer box and the reference's own read.
-
-                        The subtitle is gone from the card. Three lines of prose under the title
-                        is what made every card in the old row look the same from a distance,
-                        and it is one tap away in the preview this card opens — the same
-                        argument the price and the feature list were already settled on. */}
-                    <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="text-white font-black text-base sm:text-2xl leading-tight line-clamp-1">
-                          {displayTitle}
-                        </h3>
-                        <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white shrink-0" />
+                      <div className="absolute top-3 start-3 max-w-[52%] truncate px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold">
+                        {displayCategory}
                       </div>
 
-                      {/* One line, two facts, a dot between them — the reference's own meta
-                          line. white/85 rather than a grey: a fixed grey has to be re-checked
-                          against eleven different washes, where white at a fixed alpha lands at
-                          the same ratio on every one of them because they are all near-black. */}
-                      <p className="mt-1 text-[11px] sm:text-[13px] font-bold text-white/85 whitespace-nowrap overflow-hidden text-ellipsis">
-                        <span className="inline-flex items-center gap-1 align-middle">
-                          <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                          {template.deliveryWeeks} {translateText('أسابيع', currentLang)}
-                        </span>
-                        <span className="mx-1.5 opacity-60">•</span>
-                        <span className="font-mono">
-                          {formatPrice(template.basePriceIQD, currentLang, currency)}
-                        </span>
+                      {/* Name on one side, the one action on the other, both on the floor of the
+                          picture — the reference's own bottom bar. */}
+                      <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-4 flex items-end gap-3">
+                        <div className="min-w-0">
+                          <h3 className="text-white font-black text-[0.95rem] sm:text-[1.1rem] leading-tight line-clamp-1">
+                            {displayTitle}
+                          </h3>
+                          <p className="mt-0.5 text-[0.66rem] sm:text-[0.72rem] font-bold text-white/85 line-clamp-1">
+                            {displaySubtitle}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectTemplateForContract(template);
+                            cosmicAudio.playWarp();
+                          }}
+                          tabIndex={isActive ? 0 : -1}
+                          aria-hidden={isActive ? undefined : true}
+                          // Filled in the card's own wash rather than in the page's white pill.
+                          // Eleven cards each washed a different colour, every one wearing the same
+                          // white button, and the colour stops belonging to the card. Contrast is
+                          // known rather than hoped for, too: white on this is measured, where
+                          // white on a translucent black over an unknown photograph is not.
+                          style={{ background: `${wash}F2` }}
+                          className="ms-auto shrink-0 min-h-11 px-4 rounded-full text-white text-[0.7rem] sm:text-[0.78rem] font-bold whitespace-nowrap cursor-pointer transition-[filter] duration-200 hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        >
+                          {getTranslation('selectForContract', currentLang)}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* ── The page, once it has fallen ─────────────────────────────────────────
+                        Held at nothing until the fold is all but finished, then brought up across
+                        the last of it — which is the same window the paper above is fading out
+                        over, so one becomes the other instead of the two overlapping. */}
+                    <div
+                      style={{
+                        top: headerH,
+                        height: bodyH,
+                        color: INK,
+                        opacity: 'clamp(0, calc((var(--nq-open, 0) - 0.86) / 0.14), 1)',
+                      }}
+                      // overflow-hidden as a floor, not as the plan. The heights above are sized
+                      // to the content and the clamps below keep it there, but a translation is a
+                      // string somebody else writes: this is what guarantees a long one is cut off
+                      // rather than spilling out through the bottom of the card.
+                      className="absolute inset-x-0 px-4 sm:px-5 py-4 flex flex-col overflow-hidden"
+                    >
+                      <h4 className="text-[0.95rem] sm:text-[1.05rem] font-black leading-tight line-clamp-1">
+                        {displayTitle}
+                      </h4>
+                      <p className="mt-0.5 text-[0.68rem] sm:text-[0.72rem] font-bold opacity-70">
+                        {displayCategory} · {template.id}
                       </p>
 
-                      {/* The action, spanning the card's full width with the arrow pushed to the
-                          far end — the reference's "Explore Now" bar. It is deliberately NOT the
-                          page's white .filter-pill-btn any more: eleven cards each washed a
-                          different colour, every one of them wearing the same white pill, and
-                          the colour stops being the card's and becomes a background the button
-                          is sitting on. A translucent white over the card's own wash tints
-                          itself, so the button belongs to the card it is in.
+                      <div
+                        className="mt-3 pt-3 flex items-start gap-3 border-t"
+                        style={{ borderColor: 'rgba(16, 19, 34, 0.14)' }}
+                      >
+                        {/* Three equal columns put the price — the only value here that can run
+                            to eleven characters — in the same width as a one-digit week count, and
+                            it came out as "...00,000". A flex row with the price on flex-1 gives
+                            the long one the slack and the two short ones exactly what they need. */}
+                        <dl className="flex-1 min-w-0 flex items-start gap-2.5">
+                          {[
+                            {
+                              v: String(template.deliveryWeeks),
+                              u: currentLang === 'ar' ? 'أسابيع' : 'wks',
+                              k: currentLang === 'ar' ? 'التسليم' : 'Delivery',
+                              grow: false,
+                            },
+                            {
+                              v: formatPrice(template.basePriceIQD, currentLang, currency),
+                              u: '',
+                              k: currentLang === 'ar' ? 'السعر' : 'Price',
+                              grow: true,
+                            },
+                            {
+                              v: String(template.features.length),
+                              u: '',
+                              k: currentLang === 'ar' ? 'ميزة' : 'Features',
+                              grow: false,
+                            },
+                          ].map((s) => (
+                            <div key={s.k} className={s.grow ? 'flex-1 min-w-0' : 'shrink-0'}>
+                              <dd
+                                className={`font-black leading-none truncate ${
+                                  s.grow
+                                    ? 'text-[0.74rem] sm:text-[0.8rem]'
+                                    : 'text-[0.82rem] sm:text-[0.9rem]'
+                                }`}
+                              >
+                                {s.v}
+                                {s.u ? <span className="text-[0.62rem] font-bold"> {s.u}</span> : null}
+                              </dd>
+                              <dt className="mt-1 text-[0.6rem] sm:text-[0.64rem] font-bold opacity-70 truncate">
+                                {s.k}
+                              </dt>
+                            </div>
+                          ))}
+                        </dl>
 
-                          A logical ms-auto on the arrow, not a physical ml-auto: it has to sit
-                          at the end of the line in both languages, and in Arabic that is the
-                          left-hand end. */}
+                        {/* The reference puts a little map of the route here. The equivalent fact
+                            about a template is what it is built out of, so that is what the box
+                            holds — three names, which is as many as it fits and as many as anyone
+                            reads at this size. */}
+                        <div
+                          className="shrink-0 w-[76px] sm:w-[84px] rounded-xl px-2 py-1.5 grid gap-0.5"
+                          style={{ background: 'rgba(16, 19, 34, 0.06)' }}
+                        >
+                          {template.techStack.slice(0, 3).map((tech) => (
+                            <span
+                              key={tech}
+                              dir="ltr"
+                              className="block truncate text-[0.55rem] sm:text-[0.6rem] font-bold opacity-75 text-center"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <p className="mt-3 text-[0.72rem] sm:text-[0.78rem] font-semibold leading-[1.8] opacity-80 line-clamp-3">
+                        {displayDescription}
+                      </p>
+                      <p className="mt-2 text-[0.72rem] sm:text-[0.78rem] font-semibold leading-[1.8] opacity-65 line-clamp-3 sm:line-clamp-4">
+                        {displayLong}
+                      </p>
+                    </div>
+                  </article>
+
+                  {/* The chevron, under the card and outside it, exactly as the reference has it.
+                      Only on the card in focus: the others cannot be opened — clicking one brings
+                      it to the middle instead — and a control that does nothing is worse than no
+                      control at all. */}
+                  {isActive && (
+                    <div className="flex justify-center">
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onSelectTemplateForContract(template);
-                          cosmicAudio.playWarp();
+                          setExpanded((v) => !v);
+                          cosmicAudio.playPing();
                         }}
-                        // Out of the tab order unless this is the card in focus. The wrapper
-                        // above already sets pointer-events: none on the others, which stops a
-                        // mouse but does nothing at all for a keyboard — tabbing through the
-                        // row would otherwise walk into four buttons that cannot be seen and
-                        // one that is half off the screen.
-                        tabIndex={isActive ? 0 : -1}
-                        aria-hidden={isActive ? undefined : true}
-                        className="mt-3 sm:mt-4 w-full min-h-11 px-4 rounded-full flex items-center gap-2 text-[11px] sm:text-[13px] font-bold text-white cursor-pointer whitespace-nowrap bg-white/[0.16] hover:bg-white/[0.28] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                        style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.22)' }}
+                        aria-expanded={expanded}
+                        aria-label={
+                          expanded
+                            ? currentLang === 'ar'
+                              ? 'إغلاق التفاصيل'
+                              : 'Close details'
+                            : currentLang === 'ar'
+                              ? 'عرض التفاصيل'
+                              : 'Show details'
+                        }
+                        className="mt-1 w-11 h-11 grid place-items-center rounded-full text-white/90 hover:text-white cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                       >
-                        <FileSignature className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                        <span className="truncate">{getTranslation('selectForContract', currentLang)}</span>
-                        <Forward className="w-4 h-4 sm:w-[18px] sm:h-[18px] shrink-0 ms-auto" />
+                        <ChevronDown
+                          className={`w-5 h-5 transition-transform duration-500 ${
+                            expanded ? 'rotate-180' : ''
+                          }`}
+                          strokeWidth={2.4}
+                        />
                       </button>
                     </div>
-                  </div>
-                </div>
+                  )}
                 </div>
               </div>
             );
@@ -1013,7 +1183,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             // row leaves them centred with real space underneath. One margin therefore lands
             // the pager tight to the cards on desktop and marooned below them on mobile,
             // which is what it was doing.
-            <div className="flex items-center justify-center gap-1.5 mt-7 sm:mt-6">
+            <div className="relative z-10 flex items-center justify-center gap-1.5 mt-7 sm:mt-6">
               {/* dir="ltr" on the whole pill, in both languages. The page is right-to-left, so
                   this flex row inherited that and laid the numbers out 5 4 3 2 1 while putting
                   the first-written button on the right — correct for Arabic *text*, but these

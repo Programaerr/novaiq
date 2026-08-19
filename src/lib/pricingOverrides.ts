@@ -88,6 +88,32 @@ export async function savePricingOverride(templateId: string, override: PricingO
   await setDoc(doc(db, OVERRIDES_COLLECTION, templateId), override, { merge: true });
 }
 
+/**
+ * An Arabic letter immediately followed by a Latin-1 or punctuation character.
+ *
+ * That never happens in Arabic and always happens in the particular wreckage a UTF-8 string leaves
+ * when it has been read back through a single-byte codepage: every letter comes apart into two
+ * characters, the first of which lands in the Arabic block. It is the exact signature of the
+ * corruption that went through templatesData.ts, and the titles saved into Firestore while the file
+ * was broken carry it too — an admin copying a name out of the catalogue copied the damage with it.
+ */
+const MOJIBAKE = /[؀-ۿ][-˿ -⃿]/;
+
+/**
+ * An override string, unless it is unreadable.
+ *
+ * The static catalogue has been repaired; the overrides sitting on top of it have not, and an
+ * override wins by design. Without this, fixing the file changes nothing anyone can see — the six
+ * templates an admin has ever re-titled keep serving the broken copy forever, because nothing in
+ * the system can tell that a saved value was never the value anyone meant to save.
+ *
+ * Narrow on purpose: it does not sanitise, normalise or transform anything. It answers one
+ * question — is this string the wreckage of an encoding — and falls back to the catalogue when the
+ * answer is yes. Re-saving the title from the admin panel replaces it and this stops applying.
+ */
+const readable = (value: string | undefined, fallback: string): string =>
+  value && !MOJIBAKE.test(value) ? value : fallback;
+
 /** Applies overrides over the static catalogue — the single merge point every consumer should use. */
 export function applyPricingOverrides(
   templates: Template[],
@@ -100,7 +126,7 @@ export function applyPricingOverrides(
     if (!o) return t;
     return {
       ...t,
-      title: o.title ?? t.title,
+      title: readable(o.title, t.title),
       previewImage: o.previewImage ?? t.previewImage,
       demoUrl: o.demoUrl ?? t.demoUrl,
       basePriceIQD: o.basePriceIQD ?? t.basePriceIQD,
