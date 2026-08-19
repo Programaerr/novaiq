@@ -191,7 +191,9 @@ const TILT_Y = -0.3;
  * someone's hand — and it is the least visible, because the scene is flat tiles with no fine detail
  * for the extra pixels to resolve. So a coarse pointer (a touch screen) is capped at 1, and a mouse
  * — which means a desktop, with the headroom and a screen you sit close enough to see aliasing on —
- * keeps 1.5.
+ * keeps 1.25 rather than 1.5. Slightly softer than it used to be: the field is flat tiles, the
+ * extra 0.25 cost a fifth of the fragment budget for detail nobody sits close enough to see, and on
+ * a weak laptop that fifth is the difference between the swell running smooth and the page slowing.
  *
  * This was a shared module while the site had three canvases on it. It has one, so the constant
  * lives with its only consumer; if a second scene ever appears it belongs back in lib/ rather than
@@ -202,7 +204,7 @@ const TILT_Y = -0.3;
  * and the value is never used anyway.
  */
 const MAX_DPR: number =
-  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 1 : 1.5;
+  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 1 : 1.25;
 
 /** Pixels per world unit. Fixes the mapping between the screen and the scene, which is what lets
     the grid be specified in pixels below. */
