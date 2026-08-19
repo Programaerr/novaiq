@@ -36,7 +36,7 @@ import {
   quoteFor,
   type RentalUnit,
 } from '../../../data/rentalDemoData';
-import { AMENITY_ICON, type RentalCtx } from './rentalContext';
+import { AMENITY_ICON, type IconComponent, type RentalCtx } from './rentalContext';
 import { BuildingModel } from './BuildingModel';
 
 /**
@@ -55,7 +55,7 @@ const ACCENT_TEXT = '#0b0f17';
 
 type Tab = 'explore' | 'building' | 'bookings' | 'account';
 
-const TABS: Array<{ id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+const TABS: Array<{ id: Tab; label: string; icon: IconComponent }> = [
   { id: 'explore', label: 'استكشف', icon: Search },
   { id: 'building', label: 'البناية', icon: Building2 },
   { id: 'bookings', label: 'حجوزاتي', icon: Ticket },
@@ -183,7 +183,7 @@ export const RentalApp: React.FC<{ ctx: RentalCtx }> = ({ ctx }) => {
     </button>
   );
 
-  const Spec: React.FC<{ icon: React.ComponentType<{ className?: string }>; label: string }> = ({
+  const Spec: React.FC<{ icon: IconComponent; label: string }> = ({
     icon: Icon,
     label,
   }) => (
@@ -199,7 +199,7 @@ export const RentalApp: React.FC<{ ctx: RentalCtx }> = ({ ctx }) => {
     <div className="px-4 pb-6 space-y-4">
       <div className="flex items-start justify-between gap-3 pt-1">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold text-slate-400">مساء الخير 👋</p>
+          <p className="text-[11px] font-bold text-slate-400">مساء الخير</p>
           <h1 className="text-[22px] font-black text-white leading-tight">لكيت شقتك؟</h1>
         </div>
         <span

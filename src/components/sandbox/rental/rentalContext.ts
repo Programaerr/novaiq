@@ -37,7 +37,9 @@ export interface RentalCtx {
   units: RentalUnit[];
 }
 
-export const AMENITY_ICON: Record<AmenityKey, React.ComponentType<{ className?: string }>> = {
+export type IconComponent = React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+
+export const AMENITY_ICON: Record<AmenityKey, IconComponent> = {
   wifi: Wifi,
   parking: Car,
   elevator: ArrowUpDown,

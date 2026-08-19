@@ -31,31 +31,40 @@ import { TOWER_FLOORS } from '../../../data/rentalDemoData';
  *  slab, not a cube, and a cube reads as an office tower. */
 const FLOOR_W = 2.3;
 const FLOOR_D = 1.55;
-const FLOOR_H = 0.3;
-/** Gap between slabs. It is what makes the stack read as *floors* rather than as one extrusion. */
-const FLOOR_GAP = 0.09;
+const FLOOR_H = 0.34;
+/** Gap between slabs — a seam, not a shelf. It was three times this to begin with, and at that
+ *  size the stack read as twelve loose slabs balanced on each other rather than as one building
+ *  with floors in it. A facade's floor line is a shadow, and a shadow is thin. */
+const FLOOR_GAP = 0.035;
 const FLOOR_PITCH = FLOOR_H + FLOOR_GAP;
 
-/** Windows per slab: five across the long face, three down the short one. Both visible faces get
+/** Windows per slab: six across the long face, four down the short one. Both visible faces get
  *  them, because the model is seen from a three-quarter angle and a blank return face is the tell
  *  that a "building" is really one decorated rectangle. */
-const WIN_FRONT = 5;
-const WIN_SIDE = 3;
+const WIN_FRONT = 6;
+const WIN_SIDE = 4;
 const WIN_PER_FLOOR = (WIN_FRONT + WIN_SIDE) * 2;
 const WIN_COUNT = WIN_PER_FLOOR * TOWER_FLOORS;
 
-const WIN_W = 0.2;
-const WIN_H = 0.13;
+const WIN_W = 0.22;
+const WIN_H = 0.155;
 const WIN_T = 0.03;
 
 /** How far a floor slides out of the stack when it is picked. Small on purpose: this is a drawer
  *  opening, and a floor that flies out of the building stops looking like part of it. */
 const PICK_OFFSET = 0.34;
 
-const SLAB_COLOR = new THREE.Color('#e8e6e1');
-const SLAB_EDGE = new THREE.Color('#b9b6ae');
-const WIN_DARK = new THREE.Color('#2b3240');
-const GROUND = new THREE.Color('#0e1420');
+/* A building at night, not a scale model in daylight.
+ *
+ * The first pass was a pale concrete tower with coloured windows, and it read as a stack of
+ * cards: a light mass under bright ambient light has no silhouette against a dark page, so all
+ * the eye had left to work with was the twelve horizontal seams. Dark facade, lit windows —
+ * which is also the only version where the actual information (this floor has something free)
+ * is carried by the thing a building carries it with after dark. */
+const SLAB_COLOR = new THREE.Color('#2b3240');
+const SLAB_EDGE = new THREE.Color('#20252f');
+const WIN_DARK = new THREE.Color('#161a22');
+const GROUND = new THREE.Color('#070b12');
 
 const tmpObj = new THREE.Object3D();
 const tmpColor = new THREE.Color();
@@ -87,12 +96,37 @@ const Rig: React.FC = () => {
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera;
     const aspect = size.width / Math.max(size.height, 1);
-    // Below 1:1 the limiting dimension is width, so back off in proportion to how narrow it is.
-    const pull = aspect < 1 ? 1 + (1 - aspect) * 0.85 : 1;
-    const dist = 8.4 * pull;
+
+    // Fit the model's bounding SPHERE, not its box.
+    //
+    // Two earlier versions fitted a box — a hand-tuned distance with a narrow-screen fudge, then
+    // a proper width/height solve — and both still cut the base off. A box fit is only correct
+    // when the camera looks along an axis of it; this camera is above the building and off to
+    // one side, so the box's near-bottom corner projects lower on screen than the box's height
+    // says it should, and it lands under the frame. A sphere has no corners to be surprised by:
+    // if the camera is `r / sin(halfFov)` from its centre it is inside the frustum from every
+    // direction, at every angle the model turns through.
+    const groundR = 1.9;
+    const centre = new THREE.Vector3(0, stackH / 2, 0);
+    const radius = Math.hypot(
+      stackH / 2 + FLOOR_H,
+      Math.max(Math.hypot(FLOOR_W, FLOOR_D) / 2 + PICK_OFFSET, groundR)
+    );
+
+    const vFov = (cam.fov * Math.PI) / 180;
+    const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+    // The binding axis is whichever half-angle is smaller — on a wide box that is the vertical
+    // one, on a phone-shaped one the horizontal.
+    const dist = (radius / Math.sin(Math.min(vFov, hFov) / 2)) * 1.02;
+
     const yaw = Math.PI * 0.24;
-    cam.position.set(Math.sin(yaw) * dist, stackH * 0.62, Math.cos(yaw) * dist);
-    cam.lookAt(0, stackH * 0.46, 0);
+    const pitch = 0.2;
+    cam.position.set(
+      centre.x + Math.sin(yaw) * Math.cos(pitch) * dist,
+      centre.y + Math.sin(pitch) * dist,
+      centre.z + Math.cos(yaw) * Math.cos(pitch) * dist
+    );
+    cam.lookAt(centre);
     cam.updateProjectionMatrix();
   }, [camera, size.width, size.height, stackH]);
 
@@ -256,15 +290,15 @@ const Building: React.FC<SceneProps> = ({
       {/* The ground the building stands on. Flat, dark, and slightly wider than the footprint —
           without it the stack floats and the bottom floor reads as another gap. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]}>
-        <circleGeometry args={[2.6, 48]} />
-        <meshBasicMaterial color={GROUND} transparent opacity={0.85} />
+        <circleGeometry args={[1.9, 48]} />
+        <meshBasicMaterial color={GROUND} transparent opacity={0.9} />
       </mesh>
 
       {/* The core the slabs are threaded onto — a lift shaft, visually, and the thing that keeps
           the stack reading as one building while individual floors slide out of it. */}
       <mesh position={[0, stackH / 2, 0]}>
-        <boxGeometry args={[FLOOR_W * 0.26, stackH + FLOOR_H, FLOOR_D * 0.42]} />
-        <meshStandardMaterial color={SLAB_EDGE} roughness={0.85} metalness={0.05} />
+        <boxGeometry args={[FLOOR_W * 0.3, stackH + FLOOR_H, FLOOR_D * 0.46]} />
+        <meshStandardMaterial color={SLAB_EDGE} roughness={0.9} metalness={0.05} />
       </mesh>
 
       {Array.from({ length: TOWER_FLOORS }, (_, f) => {
@@ -290,7 +324,7 @@ const Building: React.FC<SceneProps> = ({
           >
             <meshStandardMaterial
               color={picked ? accent : free ? SLAB_COLOR : SLAB_EDGE}
-              roughness={0.72}
+              roughness={0.8}
               metalness={0.04}
             />
           </mesh>
@@ -395,9 +429,11 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
         camera={{ fov: 38, near: 0.1, far: 100 }}
       >
         <Rig />
-        <ambientLight intensity={1.05} />
-        <directionalLight position={[4, 7, 5]} intensity={1.15} />
-        <directionalLight position={[-5, 3, -4]} intensity={0.35} />
+        {/* Dim, and that is the design. The windows are emissive and carry the reading; strong
+            key light on a dark facade only washes the contrast back out of them. */}
+        <ambientLight intensity={0.75} />
+        <directionalLight position={[4, 7, 5]} intensity={0.7} />
+        <directionalLight position={[-5, 3, -4]} intensity={0.25} />
         <Building
           accent={accentColor}
           selectedFloor={selectedFloor}

@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import {
-  ArrowLeft,
   Bath,
   Bed,
   Building2,
@@ -208,7 +207,9 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
   );
 
   const floorStrip = (
-    <div className="flex flex-wrap gap-1.5" dir="ltr">
+    // A fixed six-column grid rather than a wrapping row: wrapping put floors 12–3 on the first
+    // line and 2–1 alone on the second, which reads as a broken list instead of a building.
+    <div className="grid grid-cols-6 gap-1.5" dir="ltr">
       {Array.from({ length: TOWER_FLOORS }, (_, i) => TOWER_FLOORS - i).map((f) => {
         const free = vacancy[f - 1];
         const on = floor === f;
@@ -221,7 +222,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
             }}
             title={free ? `الطابق ${f} — فيه وحدات شاغرة` : `الطابق ${f} — مؤجّر بالكامل`}
             style={on ? { background: accentHex, color: '#0b0f17' } : undefined}
-            className={`w-10 h-10 rounded-xl text-xs font-black cursor-pointer transition-colors ${
+            className={`w-full h-10 rounded-xl text-xs font-black cursor-pointer transition-colors ${
               on ? '' : free ? 'bg-white/8 text-white hover:bg-white/15' : 'bg-white/[0.03] text-slate-600'
             }`}
           >

@@ -14,7 +14,7 @@ import {
   Lock,
   TrendingUp,
 } from 'lucide-react';
-import type { AccountRecord, CompanyProfile, SiteAccount } from '../../data/sandboxDemoData';
+import type { AccountRecord, SiteAccount, SiteContact } from '../../data/sandboxDemoData';
 import { cosmicAudio } from '../../lib/audio';
 import type { SandboxTheme } from './context';
 
@@ -40,7 +40,7 @@ interface SiteAccountAreaProps {
   setLoginError: React.Dispatch<React.SetStateAction<string>>;
   /** Whatever this template calls the visitor's own records — "مواعيدي", "حجوزاتي", … */
   recordsLabel: string;
-  siteIdentity: { name: string; badge: string; contact: CompanyProfile['contact'] };
+  siteIdentity: { name: string; badge: string; contact: SiteContact };
   themeStyle: SandboxTheme;
   gridCols: (mobileCols: string, wideCols: string) => string;
   isNarrowViewport: boolean;
