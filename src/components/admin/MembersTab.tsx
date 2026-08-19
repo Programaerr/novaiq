@@ -13,6 +13,11 @@ import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser
 import { showToast } from '../../lib/toast';
 import { StatTile } from './shared';
 
+// Fetched list lives at module level so switching tabs (which remounts this component) renders
+// instantly from the cached data instead of re-fetching and flashing a spinner. The Refresh
+// button and a full page reload always fetch fresh data, so the cache never goes stale for long.
+let membersCache: ManagedUser[] | null = null;
+
 export function MembersTab({ isAr }: { isAr: boolean }) {
   const [users, setUsers] = useState<ManagedUser[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +31,7 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
     try {
       const list = await listRegularSubscribers();
       list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      membersCache = list;
       setUsers(list);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -35,6 +41,11 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
   };
 
   useEffect(() => {
+    if (membersCache) {
+      setUsers(membersCache);
+      setIsLoading(false);
+      return;
+    }
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

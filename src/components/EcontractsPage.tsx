@@ -1,0 +1,74 @@
+import React from 'react';
+import { FileSignature, FileText, Scale, Clock } from 'lucide-react';
+import { Language } from '../lib/i18n';
+import { contractTerms } from '../data/contractTerms';
+
+interface EcontractsPageProps {
+  language: Language;
+}
+
+// Shown in clause 3 (milestone delivery). This page presents the standard NOVAIQ agreement, and
+// the timeline is the one clause that varies per contract — 8 weeks is the custom-project default
+// (see ContractBuilder) used here so the page reads fully; a specific contract states its own.
+const REPRESENTATIVE_TIMELINE_WEEKS = 8;
+
+export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
+  const isAr = language === 'ar';
+  const terms = contractTerms(language, REPRESENTATIVE_TIMELINE_WEEKS);
+
+  return (
+    <section className="py-4 sm:py-6 relative">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-8">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-black border border-zinc-800 flex items-center justify-center text-white shadow-xl">
+            <FileSignature className="w-6 h-6" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+            {isAr ? 'العقود الإلكترونية' : 'E-contracts'}
+          </h2>
+          <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+            {isAr
+              ? 'نص العقد الموحّد لخدمات NOVAIQ — البنود الكاملة التي تُوقَّع إلكترونياً عند إنشاء أي عقد، كما تظهر في وثيقة العقد نفسها.'
+              : "NOVAIQ's standard agreement — the full clauses signed electronically on every contract, exactly as they appear in the contract document itself."}
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {terms.map((clause, idx) => {
+            const [title, ...rest] = clause.split(':');
+            const body = rest.join(':').trim();
+            return (
+              <div
+                key={idx}
+                className="p-5 sm:p-6 rounded-3xl bg-zinc-950 border border-zinc-800 flex items-start gap-4 shadow-xl"
+              >
+                <div className="w-10 h-10 rounded-2xl bg-black border border-zinc-800 flex items-center justify-center text-white shrink-0">
+                  {idx === 0 ? <FileText className="w-5 h-5" /> : <Scale className="w-5 h-5" />}
+                </div>
+                <div className="space-y-1.5 min-w-0">
+                  <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <span className="text-zinc-500 font-mono text-xs shrink-0">
+                      {isAr ? `بند ${idx + 1}` : `Clause ${idx + 1}`}
+                    </span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                    <strong className="text-white">{title}:</strong> {body}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 p-5 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-start gap-4">
+          <Clock className="w-5 h-5 text-zinc-400 shrink-0 mt-0.5" />
+          <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+            {isAr
+              ? `ملاحظة: مدة التسليم في البند 3 أعلاه معروضة بالقيمة الافتراضية (${REPRESENTATIVE_TIMELINE_WEEKS} أسابيع) لتوضيح النص. تُحدَّد المدة الفعلية لكل عقد على حدة عند إنشائه، وتُكتب بوضوح في وثيقة العقد قبل توقيعه.`
+              : `Note: the delivery timeline in clause 3 above is shown at its default (${REPRESENTATIVE_TIMELINE_WEEKS} weeks) to illustrate the text. The actual timeline is set per contract when it is created and is clearly stated in the contract document before signing.`}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};

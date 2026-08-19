@@ -1,5 +1,6 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
+import type { User } from 'firebase/auth';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
 import { Template, ContractData } from '../types';
@@ -16,6 +17,11 @@ interface ContractBuilderGateProps {
   initialPrimaryColor?: string;
   /** Leaves the sign-in screen without signing in — App sends them back to browsing. */
   onContinueAsGuest: () => void;
+  /**
+   * App already knows the auth state, so it passes it down instead of this gate re-subscribing.
+   * When present, no loader flashes on re-entry: the gate renders instantly from known state.
+   */
+  user?: User | null;
 }
 
 // Contract creation now requires an account, so every contract is reliably tied to a real,
@@ -23,7 +29,10 @@ interface ContractBuilderGateProps {
 // Google sign-in screen as "My Account" — once signed in, the account's email pre-fills the
 // contract form (still a normal editable field, just one less thing to type).
 export const ContractBuilderGate: React.FC<ContractBuilderGateProps> = (props) => {
-  const user = useCurrentUser();
+  // App passes the known auth state down so no loader flashes on re-entry. The subscription
+  // still runs (rules of hooks) but its result is ignored whenever a user is passed in.
+  const subscribedUser = useCurrentUser();
+  const user = props.user !== undefined ? props.user : subscribedUser;
 
   if (user === undefined) {
     return (

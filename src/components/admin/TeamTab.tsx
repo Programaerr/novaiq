@@ -9,6 +9,11 @@ import {
 import { addAdminEmail, authErrorMessage } from '../../lib/auth';
 import { listTeamMembers, TeamMember } from '../../lib/adminUsers';
 
+// Fetched roster lives at module level so switching tabs renders instantly from the cached data
+// instead of re-fetching and flashing a spinner. The Refresh button and a full page reload always
+// fetch fresh data, so the cache never goes stale for long.
+let teamCache: TeamMember[] | null = null;
+
 export function TeamTab({ isAr }: { isAr: boolean }) {
   const [email, setEmail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -22,7 +27,9 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
     setIsLoading(true);
     setLoadError('');
     try {
-      setMembers(await listTeamMembers());
+      const list = await listTeamMembers();
+      teamCache = list;
+      setMembers(list);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -31,6 +38,11 @@ export function TeamTab({ isAr }: { isAr: boolean }) {
   };
 
   useEffect(() => {
+    if (teamCache) {
+      setMembers(teamCache);
+      setIsLoading(false);
+      return;
+    }
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

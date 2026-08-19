@@ -32,6 +32,7 @@ const TemplateGrid = lazy(() => trackLoad(import('./components/TemplateGrid').th
 const ContractBuilderGate = lazy(() => trackLoad(import('./components/ContractBuilderGate').then((m) => ({ default: m.ContractBuilderGate }))));
 const ContractPDFPreview = lazy(() => trackLoad(import('./components/ContractPDFPreview').then((m) => ({ default: m.ContractPDFPreview }))));
 const PolicyPage = lazy(() => trackLoad(import('./components/PolicyPage').then((m) => ({ default: m.PolicyPage }))));
+const EcontractsPage = lazy(() => trackLoad(import('./components/EcontractsPage').then((m) => ({ default: m.EcontractsPage }))));
 const TemplateInteractiveSandbox = lazy(() => trackLoad(import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))));
 const AdminPage = lazy(() => trackLoad(import('./components/AdminPage').then((m) => ({ default: m.AdminPage }))));
 const LoginPage = lazy(() => trackLoad(import('./components/LoginPage').then((m) => ({ default: m.LoginPage }))));
@@ -192,6 +193,8 @@ export default function App() {
         setActivePage('privacy');
       } else if (pageParam === 'terms') {
         setActivePage('terms');
+      } else if (pageParam === 'econtracts') {
+        setActivePage('econtracts');
       } else if (pageParam === 'admin') {
         // Same unified account/admin page as 'orders' — kept as an alias since it was
         // shared before customers and admins used the same entry point.
@@ -612,6 +615,14 @@ export default function App() {
           <div className="page-in">
             <Suspense fallback={null}>
               <PolicyPage type="terms" language={language} />
+            </Suspense>
+          </div>
+        )}
+
+        {activePage === 'econtracts' && (
+          <div className="page-in">
+            <Suspense fallback={null}>
+              <EcontractsPage language={language} />
             </Suspense>
           </div>
         )}

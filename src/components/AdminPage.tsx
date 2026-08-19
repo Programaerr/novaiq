@@ -14,14 +14,25 @@ interface AdminPageProps {
   currency?: Currency;
   /** Leaves the sign-in screen without signing in — App sends them back to browsing. */
   onContinueAsGuest: () => void;
+  /**
+   * App already knows the auth state, so it passes it down instead of this page re-subscribing.
+   * When present, no loader flashes on re-entry: the page renders instantly from known state.
+   */
+  user?: User | null;
 }
+
+// The admin allowlist check is a Firestore read that, for a returning customer, resolves to
+// the same answer every time. Cache it per email so revisiting "my account" renders instantly
+// instead of flashing the loader again; the cache is keyed by email, so switching accounts
+// (or signing out/in) naturally gets a fresh check.
+const adminCache = new Map<string, boolean>();
 
 // The single entry point for "my account" — reached from the navbar by everyone, customers
 // and the owner/partner alike. Login/sign-up is identical for both; what happens after
 // depends entirely on the admins allowlist (src/lib/auth.ts), checked here once per
 // session: admins get the full control panel, everyone else gets their own contracts.
-export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD', onContinueAsGuest }) => {
-  const [user, setUser] = useState<User | null | undefined>(undefined);
+export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD', onContinueAsGuest, user: passedUser }) => {
+  const [subscribedUser, setSubscribedUser] = useState<User | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
 
   // Declare the light page ground HERE, on the entry component, not on the dashboards it
@@ -32,27 +43,41 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
   useDocumentFlag('flat');
   useDocumentFlag('account');
 
-  useEffect(() => subscribeToAuthState(setUser), []);
+  // When App passes the known user down, trust it and skip the subscription entirely — that is
+  // the whole point of passing it. Only fall back to subscribing when the prop is absent. The
+  // subscription still runs unconditionally (rules of hooks), but its result is ignored whenever
+  // a user is passed in.
+  const effectiveUser = passedUser !== undefined ? passedUser : subscribedUser;
+
+  useEffect(() => subscribeToAuthState(setSubscribedUser), []);
 
   useEffect(() => {
-    if (!user) {
+    if (!effectiveUser) {
       setIsAdmin(undefined);
       return;
     }
+    const email = effectiveUser.email ?? '';
+    const cached = adminCache.get(email);
+    if (cached !== undefined) {
+      setIsAdmin(cached);
+      return;
+    }
     let cancelled = false;
-    isAdminEmail(user.email).then((result) => {
-      if (!cancelled) setIsAdmin(result);
+    isAdminEmail(email).then((result) => {
+      if (cancelled) return;
+      adminCache.set(email, result);
+      setIsAdmin(result);
     });
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [effectiveUser]);
 
-  if (user === undefined || (user && isAdmin === undefined)) {
+  if (effectiveUser === undefined || (effectiveUser && isAdmin === undefined)) {
     return <PageLoader />;
   }
 
-  if (!user) {
+  if (!effectiveUser) {
     // The guest button is offered here too. It cannot expose anything: this page reads the
     // signed-in account and there is none, so all it can do is send the visitor back to the
     // parts of the site that need no account — which is better than leaving them on a sign-in
@@ -62,5 +87,5 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
 
   return isAdmin
     ? <AdminDashboard language={language} currency={currency} />
-    : <CustomerDashboard language={language} currency={currency} user={user} />;
+    : <CustomerDashboard language={language} currency={currency} user={effectiveUser} />;
 };
