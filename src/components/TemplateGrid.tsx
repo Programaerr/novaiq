@@ -43,12 +43,12 @@ const TemplateInteractiveSandbox = lazy(() =>
 // The line's height when it is shut. The picture is as tall as the line and the text sits beside
 // it, so this is the one number that sets the whole rhythm of the column.
 const ROW_H_DESKTOP = 168;
-const ROW_H_MOBILE = 150;
+const ROW_H_MOBILE = 138;
 
 // How wide the picture is. Fixed, not a fraction: the point of the shape is that the words get
 // every pixel the picture does not need.
 const THUMB_W_DESKTOP = 244;
-const THUMB_W_MOBILE = 116;
+const THUMB_W_MOBILE = 104;
 // Only a fallback, and the canvas's size before the first measurement. The body's real height is
 // whatever its content comes to, measured per line and written back as --nq-body: eleven templates
 // whose descriptions run from two lines to six were all being given the same panel, so the short
@@ -636,10 +636,18 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                           <span className="mx-1.5 opacity-50">·</span>
                           {template.features.length} {currentLang === 'ar' ? 'ميزة' : 'features'}
                         </p>
+                        <p className="sm:hidden mt-1 font-mono font-black text-[0.82rem]">
+                          {formatPrice(template.basePriceIQD, currentLang, currency)}
+                        </p>
                       </div>
 
-                      <div className="shrink-0 flex items-center gap-2 sm:gap-3">
-                        <span className="font-mono font-black text-[0.78rem] sm:text-[1rem] whitespace-nowrap">
+                      {/* The price sits BESIDE the words from sm up and UNDER them on a phone.
+                          Beside them at 390px it was taking ninety pixels out of a column that only
+                          had a hundred and eighty, and every title in the menu came out as two words
+                          and an ellipsis. A price is one short line; the name is the thing being
+                          chosen between, and it gets the width. */}
+                      <div className="shrink-0 hidden sm:flex items-center gap-3">
+                        <span className="font-mono font-black text-[1rem] whitespace-nowrap">
                           {formatPrice(template.basePriceIQD, currentLang, currency)}
                         </span>
 
