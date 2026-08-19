@@ -1,12 +1,9 @@
-import type { Template } from '../../types';
-import type { Language } from '../../lib/i18n';
-import type { Currency } from '../../lib/currency';
-import type { CompanyProfile, SiteAccount, ThemeColor } from '../../data/sandboxDemoData';
+import type { ThemeColor } from '../../data/sandboxDemoData';
 
-// Everything a single template's demo needs from the sandbox shell around it. Each demo lives
-// in its own file under ./templates/ and receives exactly this object plus its own state, so a
-// demo can be read, understood and edited without opening the shell at all — which was the
-// whole problem with the 4,700-line single-component version this replaces.
+// The palette every demo surface is painted from, and nothing else. This file used to also
+// carry `SandboxCtx` — the ~20-member object ten different template demos each took a slice
+// of. There is one demo now, and it has its own context next door in ./rental/rentalContext.ts
+// written for what it actually needs, so the general-purpose one had nothing left to serve.
 
 /** The palette a demo paints itself with, derived from the customer's colour choice. */
 export interface SandboxTheme {
@@ -28,45 +25,6 @@ export interface SandboxTheme {
    *  two have to be the same colour to the byte or a seam appears where the photo stops. A
    *  class name cannot be handed to a gradient stop, so the hex travels instead. */
   cardSurface: string;
-}
-
-export interface SandboxCtx {
-  template: Template;
-  language: Language;
-  currency: Currency;
-  /** Currency suffix shown next to bare numbers inside the demos. */
-  CUR: string;
-  /** Formats an IQD amount in whichever currency the visitor is browsing in. */
-  price: (amountIQD: number) => string;
-  themeStyle: SandboxTheme;
-  /**
-   * Picks between a phone-width and a wide column count. The demos render into a viewport
-   * that is genuinely their own (the real screen, or a 390/834/1280px device iframe), so this
-   * covers only the handful of layout decisions taken in JS rather than in CSS.
-   */
-  gridCols: (mobileCols: string, wideCols: string) => string;
-  isNarrowViewport: boolean;
-  /** Which section of the demo site is open — every demo drives its own nav through this. */
-  activeTab: string;
-  setActiveTab: React.Dispatch<React.SetStateAction<string>>;
-  /** The visitor's in-demo account, once they've "signed in" to the fake site. */
-  account: SiteAccount | null;
-  /** The shared marketing homepage, rendered from the demo's own company identity. */
-  renderCompanyHome: (profile: CompanyProfile) => React.ReactNode;
-  /**
-   * The sticky glass header every demo sits under — one bar shared by all of them rather
-   * than a near-identical copy per template. `logoNameLtr` keeps the SaaS demo's `~/Logo`
-   * terminal prompt reading left-to-right inside the otherwise RTL layout.
-   */
-  renderSiteTopBar: (logoMark: React.ReactNode, logoName: string, logoNameLtr?: boolean) => React.ReactNode;
-  /**
-   * True when the visitor's query in the shared header matches any of the given fields (or
-   * when they haven't typed anything). Every demo filters its own list through this, so one
-   * search box drives doctors, rooms, courses, shipments and the rest alike.
-   */
-  matchesSiteSearch: (...fields: Array<string | number | undefined | null>) => boolean;
-  /** Shown in place of a list the visitor's query filtered down to nothing. */
-  renderNoSearchResults: (what: string) => React.ReactNode;
 }
 
 /**

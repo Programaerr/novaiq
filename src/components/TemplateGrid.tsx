@@ -1,16 +1,7 @@
-import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, lazy, Suspense } from 'react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
-import {
-  Search,
-  CheckCircle2,
-  FileSignature,
-  Clock,
-  Cpu,
-  SlidersHorizontal,
-  ChevronDown,
-  Info
-} from 'lucide-react';
+import { CheckCircle2, FileSignature, Clock, ChevronDown, Info } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
@@ -19,11 +10,11 @@ import { hueFor, washFor } from '../lib/templateHues';
 import { BookFold } from './BookFold';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { PageLoader } from './PageLoader';
-import { TemplateFilterPanel } from './TemplateFilterPanel';
 
-// The interactive sandbox is the single largest component in the app (per-template demo logic
-// for all 10 templates). Loading it only when a customer actually opens a preview keeps it out
-// of the initial "Templates" page bundle entirely, which matters most on weak/low-end devices.
+// The interactive sandbox is the single largest component in the app — a whole website and a
+// whole phone app, plus the 3D building both of them use. Loading it only when a customer
+// actually opens a preview keeps it out of the initial "Templates" page bundle entirely, which
+// matters most on weak/low-end devices.
 const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
 );
@@ -39,6 +30,12 @@ const TemplateInteractiveSandbox = lazy(() =>
 // clipped to one line, on a page whose container is 1216px wide. A menu spends that width the way
 // a list does — the picture stays small and fixed and the WORDS get the rest — so nothing is cut
 // off, and eleven lines scan in the time three rows of cards take to read.
+//
+// The catalogue is ONE line now, and the filter toolbar above it went with the other ten. A
+// Filter pill, a category list, a price slider, a sort menu and a search box, all to narrow a
+// list of one: every control was guaranteed either to do nothing or to empty the page. A search
+// box that can only ever return the row already on screen is not a convenience, it is a thing
+// the visitor has to read and dismiss before reaching the only item there is.
 //
 // The line's height when it is shut. The picture is as tall as the line and the text sits beside
 // it, so this is the one number that sets the whole rhythm of the column.
@@ -92,33 +89,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // Static catalogue merged with any live admin price overrides — same shape and name as
   // the old static import, so every existing reference below still works unchanged.
   const templatesData = useLiveTemplates();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [maxPriceUSD, setMaxPriceUSD] = useState<number>(10000); // Slider range from $300 to $10,000
-  const [sortBy, setSortBy] = useState<string>('default'); // 'default', 'priceLowToHigh', 'priceHighToLow', 'fastest'
-  const [showFilterPanel, setShowFilterPanel] = useState<boolean>(false);
-  const filterBarRef = useRef<HTMLDivElement | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
-
-  // The filter dropdown floats over the page rather than pushing content down, so it needs
-  // its own dismissal — clicking anywhere outside it, or Escape, closes it (same pattern as
-  // the navbar's own drawer).
-  useEffect(() => {
-    if (!showFilterPanel) return;
-    const handlePointerDown = (e: PointerEvent) => {
-      if (filterBarRef.current?.contains(e.target as Node)) return;
-      setShowFilterPanel(false);
-    };
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setShowFilterPanel(false);
-    };
-    window.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('keydown', handleKey);
-    return () => {
-      window.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('keydown', handleKey);
-    };
-  }, [showFilterPanel]);
 
   // One breakpoint, and only because the line is a different size on a phone. There is no column
   // count to track any more — a menu is one column at every width, which is most of why it fits
@@ -189,19 +160,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // layout each time, and running it unconditionally meant every state change on this screen paid
   // for one: opening a card sets two pieces of state, so a click that was supposed to start an
   // animation began by reflowing the whole board twice.
-  // Keyed on the filter inputs rather than on filteredTemplates itself: the list is derived further
-  // down the component and cannot be named up here, and its inputs change at exactly the same
-  // moments it does.
-  useLayoutEffect(measureBodies, [
-    measureBodies,
-    selectedCategory,
-    maxPriceUSD,
-    sortBy,
-    searchQuery,
-    currentLang,
-    currency,
-    isMobile,
-  ]);
+  // What is left to key on, now that there are no filters: the things that change the text
+  // itself (language, currency) and the thing that changes the width it is set in.
+  useLayoutEffect(measureBodies, [measureBodies, currentLang, currency, isMobile]);
 
   // And on resize, because the height of a paragraph depends on the width it is set in.
   useEffect(() => {
@@ -296,79 +257,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     cosmicAudio.playPing();
   };
 
-  const categories = [
-    { id: 'all', label: getTranslation('allCategories', currentLang) },
-    { id: 'corporate', label: translateText('شركات ومؤسسات', currentLang) },
-    { id: 'ecommerce', label: translateText('تجارة إلكترونية', currentLang) },
-    { id: 'cars', label: translateText('معارض سيارات', currentLang) },
-    { id: 'realestate', label: translateText('عقارات وتطوير', currentLang) },
-    { id: 'healthcare', label: translateText('خدمات وطب', currentLang) },
-    { id: 'fintech', label: translateText('فينتك وخدمات مالية', currentLang) },
-    { id: 'restaurant', label: translateText('مطاعم وتوصيل الطلبات', currentLang) },
-    { id: 'education', label: translateText('تعليم ومعاهد تدريب', currentLang) },
-    { id: 'mobile', label: translateText('هواتف وإلكترونيات', currentLang) },
-    { id: 'watches', label: translateText('ساعات يد ومجوهرات', currentLang) },
-  ];
-
-  const sortOptions = [
-    { id: 'default', label: currentLang === 'ar' ? 'الافتراضي' : 'Default' },
-    { id: 'priceLowToHigh', label: currentLang === 'ar' ? 'السعر: من الأقل إلى الأعلى' : 'Price: Low to High' },
-    { id: 'priceHighToLow', label: currentLang === 'ar' ? 'السعر: من الأعلى إلى الأقل' : 'Price: High to Low' },
-    { id: 'fastest', label: currentLang === 'ar' ? 'سرعة الإنجاز (الأسرع)' : 'Fastest Delivery' },
-  ];
-
-  const activeFiltersCount = (selectedCategory !== 'all' ? 1 : 0) + (maxPriceUSD < 10000 ? 1 : 0) + (sortBy !== 'default' ? 1 : 0);
-
-  const resetAllFilters = () => {
-    setSelectedCategory('all');
-    setMaxPriceUSD(10000);
-    setSortBy('default');
-    setSearchQuery('');
-    cosmicAudio.playPing();
-  };
-
-  const filteredTemplates = useMemo(() => {
-    let list = templatesData.filter((t) => {
-      // Category filter
-      const matchesCategory = selectedCategory === 'all' || t.category === selectedCategory;
-      
-      // Price Slider filter
-      const matchesPrice = t.basePriceUSD <= maxPriceUSD;
-
-      // Search filter
-      const titleTranslated = translateText(t.title, currentLang);
-      const subtitleTranslated = translateText(t.subtitle, currentLang);
-      const matchesSearch = 
-        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        titleTranslated.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        subtitleTranslated.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        t.techStack.some(tech => tech.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      return matchesCategory && matchesPrice && matchesSearch;
-    });
-
-    // Sorting
-    if (sortBy === 'priceLowToHigh') {
-      list = [...list].sort((a, b) => a.basePriceUSD - b.basePriceUSD);
-    } else if (sortBy === 'priceHighToLow') {
-      list = [...list].sort((a, b) => b.basePriceUSD - a.basePriceUSD);
-    } else if (sortBy === 'fastest') {
-      list = [...list].sort((a, b) => a.deliveryWeeks - b.deliveryWeeks);
-    }
-
-    return list;
-  }, [selectedCategory, maxPriceUSD, sortBy, searchQuery, currentLang]);
-
-  // A filter, a search or a sort that changes the result set shuts whatever was open: the card
-  // under an open panel may not even be in the list any more.
-  useEffect(() => {
-    setExpandedId(null);
-    setFoldingId(null);
-    foldRef.current = 0;
-  }, [selectedCategory, maxPriceUSD, sortBy, searchQuery]);
-
   // Opening a standalone preview unmounts this whole component (App swaps the tree out), so
   // coming back would otherwise drop the visitor at the top of the board rather than beside the
   // card they were just looking at. Claims the position once, so changing a filter afterwards
@@ -376,11 +264,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   const didRestoreFocus = useRef(false);
   useEffect(() => {
     if (didRestoreFocus.current || !focusTemplateId) return;
-    if (!filteredTemplates.some((x) => x.id === focusTemplateId)) return;
+    if (!templatesData.some((x) => x.id === focusTemplateId)) return;
     didRestoreFocus.current = true;
     const el = document.getElementById('tpl-card-' + focusTemplateId);
     el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }, [focusTemplateId, filteredTemplates]);
+  }, [focusTemplateId, templatesData]);
 
   return (
     <section
@@ -405,91 +293,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
       <div className="relative nq-container">
         
-        {/* Filter & Search bar — first thing on the page now, with the price notice below it.
-            `relative` anchors the dropdown below it — the dropdown itself is `absolute`, so
-            opening it floats a glass panel over the templates instead of pushing them down.
-            The explicit `z-40` is what keeps that panel above the coverflow: the cards below
-            carry their own z-index (up to 10) and, sitting later in the DOM, would otherwise
-            paint straight over a menu whose own stacking order was still `auto`. */}
-        <div ref={filterBarRef} className="sticky top-3 sm:top-3 z-40 mb-4">
-          {/* bg-white/5 + backdrop-blur-xl used to leave this bar almost see-through, forcing
-              the heaviest (24px) blur tier to do all the work of hiding what's scrolling
-              behind it — recomputed every scroll frame, which is exactly the kind of GPU cost
-              CosmicBackground's own glow comment warns about. Navbar's pill and PageBackBar
-              solve the identical "glass bar sitting over scrolling content" problem with a
-              static .glass-bar material: a translucent near-black fill with a catch-light and
-              inner glow, painted once and never invalidated during scroll — same frosted look,
-              zero per-frame recompute. reusing that proven combo here instead of a bespoke
-              one. */}
-          <div className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4">
-            <button
-              onClick={() => {
-                setShowFilterPanel(!showFilterPanel);
-                cosmicAudio.playPing();
-              }}
-              className={`filter-pill-btn relative w-full sm:w-auto px-4 py-2.5 rounded-full text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer ${
-                showFilterPanel || activeFiltersCount > 0 ? 'is-active' : ''
-              }`}
-            >
-              <span className="filter-pill-beam" aria-hidden="true" />
-              <SlidersHorizontal className="w-3.5 h-3.5 text-current shrink-0" />
-              <span className="font-semibold text-current">{currentLang === 'ar' ? 'تصفية' : 'Filter'}</span>
-              {activeFiltersCount > 0 && (
-                <span className="filter-pill-badge w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </button>
-
-            {/* Search Box — carries the same rotating beam as the Filter pill beside it, so
-                the toolbar's two controls answer a pointer the same way. It lights on hover
-                and stays lit while the field has focus (a text field is "active" for as long
-                as someone is typing in it, not just while the cursor rests on it).
-                Everything inside it inverted along with the surface (see .search-cosmic): the
-                body went from a pale soft-UI sheet to a lit near-black one, and dark-on-pale
-                text left where it was would simply have gone invisible. The white beam
-                replaces the --dark variant for the same reason in reverse. */}
-            <div className="search-cosmic relative w-full sm:w-72 sm:ms-auto rounded-full">
-              <span className="nq-btn-beam" aria-hidden="true" />
-              <Search className="w-4 h-4 text-zinc-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={getTranslation('searchPlaceholder', currentLang)}
-                // placeholder-zinc-400, not the zinc-500 this used to carry: against the new
-                // near-black body zinc-500 measures 4.0:1, under the 4.5:1 floor — the same
-                // trap the back bar's title fell into. zinc-400 measures 7.4:1.
-                className="w-full pr-11 pl-4 py-2 rounded-full bg-transparent border-none focus:outline-none text-zinc-100 text-xs sm:text-sm font-semibold placeholder-zinc-400"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs font-bold cursor-pointer"
-                >
-                  {currentLang === 'ar' ? 'مسح' : 'Clear'}
-                </button>
-              )}
-            </div>
-          </div>
-
-          <TemplateFilterPanel
-            open={showFilterPanel}
-            currentLang={currentLang}
-            currency={currency}
-            categories={categories}
-            sortOptions={sortOptions}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            maxPriceUSD={maxPriceUSD}
-            setMaxPriceUSD={setMaxPriceUSD}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            activeFiltersCount={activeFiltersCount}
-            resetAllFilters={resetAllFilters}
-          />
-        </div>
-
         {/* ── The menu ───────────────────────────────────────────────────────────────────
             One column at every width. The picture is a fixed thumbnail and the words take the
             rest, which is the whole reason the shape works on a 390px phone and a 1216px column
@@ -523,7 +326,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
               and the eye has to travel the whole way to connect the two. 62rem is the same order of
               measure the rest of the site sets its reading columns to. */}
           <div className="mx-auto max-w-[62rem] flex flex-col gap-3 sm:gap-3.5">
-            {filteredTemplates.map((template) => {
+            {templatesData.map((template) => {
               const displayTitle = translateText(template.title, currentLang);
               const displaySubtitle = translateText(template.subtitle, currentLang);
               const displayCategory = translateText(template.categoryLabel, currentLang);
@@ -753,22 +556,18 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           </div>
         </div>
 
-        {/* ── The closing stage: the price caveat, lit, with the brand mark under the light ──
-            The caveat used to sit above the carousel, under the filter bar. That put a paragraph
-            of small print between someone and the thing they came to look at, and it was read
-            before there was a single price on screen for it to qualify. Here it is the last word
-            on the prices they have just been through, which is when it means something.
+        {/* ── The closing note ────────────────────────────────────────────────────────────
+            The price caveat, then the brand mark under it.
 
-            The lighting is CSS gradients inside `.tpl-lightstage` — see index.css. No blur filter
-            and nothing animated: it rasterizes once and costs nothing after that. */}
-        <div className="tpl-lightstage mt-20 sm:mt-28">
-          <span className="tpl-lightstage__spill" aria-hidden="true" />
-          <span className="tpl-lightstage__pool" aria-hidden="true" />
-
-          {/* The lamp. White on white type, because this is the thing the light is coming out
-              of — a dark pill at the apex of two bright beams reads as a hole punched in them. */}
+            This was a lit stage: the pill was a lamp with a three-layer white halo, a cone of
+            light fell out of its underside, a pool caught it, and the wordmark glowed as the
+            thing the light landed on. All of it is gone. Every layer was white haze at low
+            alpha over a solid ground, and low-alpha white over a solid colour does not read as
+            light — it reads as the edge of a shape that has been smudged. Two solid objects on
+            a clean surface say the same thing without the fog. */}
+        <div className="mt-20 sm:mt-28">
           <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
-            <div className="tpl-lamp inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[11px] font-semibold text-black">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[11px] font-semibold text-black">
               <Info className="w-3.5 h-3.5 text-black/60 shrink-0" />
               <span>
                 {currentLang === 'ar'
@@ -778,35 +577,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             </div>
           </div>
 
-          {/* Brand name — the mark's boxy icon is gone; only the wordmark sits in the light,
-              scaled to fill the empty stretch between the carousel and the footer. It is the
-              thing the cone above it lands on, so it takes the lamp's glow rather than casting
-              its own: bright enough to read as the object the light is hitting. Set in the
+          {/* Brand name — the wordmark alone, scaled to fill the stretch between the menu and
+              the footer. Flat white, no text-shadow: the glow it used to carry was two soft
+              white rings that only fattened the letterforms and greyed their edges. Set in the
               site's own typeface (Cairo) and left selectable, so the name reads and copies as
               text rather than as a picture. */}
-          <div dir="ltr" className="relative z-10 flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14 opacity-70">
-            <span
-              className="font-black tracking-widest text-white font-['Cairo'] text-4xl sm:text-6xl lg:text-7xl"
-              style={{ textShadow: '0 0 34px rgba(255,255,255,0.45), 0 0 90px rgba(255,255,255,0.22)' }}
-            >
+          <div dir="ltr" className="relative z-10 flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14">
+            <span className="font-black tracking-widest text-white/85 font-['Cairo'] text-4xl sm:text-6xl lg:text-7xl">
               NOVAIQ
             </span>
           </div>
         </div>
-
-        {filteredTemplates.length === 0 && (
-          <div className="text-center py-16 bg-zinc-950 rounded-3xl border border-zinc-800">
-            <Cpu className="w-12 h-12 text-zinc-400 mx-auto mb-3 animate-pulse" />
-            <h3 className="text-lg font-bold text-white mb-1">{currentLang === 'ar' ? 'لم نجد قوالب تطابق البحث والفلاتر' : 'No templates match your filters'}</h3>
-            <p className="text-zinc-400 text-sm mb-4">{currentLang === 'ar' ? 'جرب تغيير خيارات السعر أو الأقسام' : 'Try adjusting your budget range or category selection'}</p>
-            <button
-              onClick={resetAllFilters}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-bold cursor-pointer white-btn-glow"
-            >
-              {currentLang === 'ar' ? 'إعادة ضبط كافة الفلاتر' : 'Reset All Filters'}
-            </button>
-          </div>
-        )}
 
       </div>
 
