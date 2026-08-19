@@ -209,7 +209,19 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   // layout each time, and running it unconditionally meant every state change on this screen paid
   // for one: opening a card sets two pieces of state, so a click that was supposed to start an
   // animation began by reflowing the whole board twice.
-  useLayoutEffect(measureBodies, [measureBodies, filteredTemplates, currentLang, currency, cols]);
+  // Keyed on the filter inputs rather than on filteredTemplates itself: the list is derived further
+  // down the component and cannot be named up here, and its inputs change at exactly the same
+  // moments it does.
+  useLayoutEffect(measureBodies, [
+    measureBodies,
+    selectedCategory,
+    maxPriceUSD,
+    sortBy,
+    searchQuery,
+    currentLang,
+    currency,
+    cols,
+  ]);
 
   // And on resize, because the height of a paragraph depends on the width it is set in.
   useEffect(() => {
