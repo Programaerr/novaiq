@@ -30,34 +30,20 @@ const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
 );
 
-// Focus-row geometry. Cards stand in a straight line, square to the viewer: the middle one at
-// full size, each one beside it stepped out, scaled down, and dropped so the whole row shares a
-// baseline. No turn, no recession, no perspective — that was the coverflow rack this replaced,
-// and every one of those three is what made the outer cards read as edge-on slivers rather than
-// as pictures you could still see.
+// ── The board ──────────────────────────────────────────────────────────────────────────────
 //
-// Given as a ladder by distance-from-centre rather than as a formula, for the same reason the
-// rack was: the steps are not uniform. The first neighbour has to clear the centre card with a
-// visible gap; the second only has to clear the first; the third is off-frame entirely and is
-// purely the parking position for cards cycling out of range.
+// Every template is on screen at once, in a grid whose squares are offset against each other like
+// a chessboard: a square is dropped by half a step when its column and its row have different
+// parities, exactly the rule that makes a board's dark squares dark.
 //
-// The X values are solved against the card's own width so that no two cards ever touch. With a
-// 330px card:
-//     centre   330 wide, half-width 165
-//     step 1   284 wide at 0.86, centred 320 out → inner edge 178, a 13px gap
-//     step 2   247 wide at 0.75, centred 600 out → inner edge 476, a 14px gap
-// Total reach is 724px either side, which is deliberately WIDER than the track. The outermost
-// cards are meant to run off both edges — that crop is what says the row continues past the
-// frame, and it is why nothing here is scaled to fit: there is nothing to fit.
-const FOCUS_X_DESKTOP = [0, 320, 600, 820];
-const FOCUS_X_MOBILE = [0, 196, 352, 470];
-const FOCUS_SCALE = [1, 0.86, 0.75, 0.7];
-// Depth used to do most of the ranking — the side cards were turned and set back, so they read
-// as further away on their own. On a flat row there is no depth left to do it, so opacity has to
-// carry the whole job and drops harder than the rack's 0.7/0.4 did.
-const FOCUS_OPACITY = [1, 0.84, 0.52, 0];
+// It replaced a focus carousel — a row of five with the middle one at full size and its neighbours
+// turned and dimmed. That row could only ever show one template properly and hid the other ten
+// behind a drag; a board shows all eleven at their real size and the visitor picks. The drag, the
+// pager and the auto-advance went with it, because all three existed only to move a window that
+// no longer exists.
+const STAGGER = 88;
 
-// The card has two heights now, and it is only ever at one of them or on its way between.
+// The card's two heights.
 //
 // SHUT it is the picture and nothing else — image, name, one action across the bottom of it.
 // OPEN, the body falls down out of the picture's lower edge and the card is a page. Both are
@@ -69,51 +55,20 @@ const HEADER_H_MOBILE = 210;
 const BODY_H_DESKTOP = 360;
 const BODY_H_MOBILE = 330;
 
-// The track, at both of the card's heights, plus room under it for the chevron and the shadow.
-//
-// It grows with the card rather than standing permanently at its open height. Standing tall was
-// tried first, on the reasoning that a fixed container never shifts what is below it — and what it
-// actually produced was four hundred pixels of empty ground under a shut row, every time, to avoid
-// a shift that only happens when somebody deliberately opens something. An accordion moving what is
-// under it is not layout shift; it is the accordion.
-const TRACK_PAD = 96;
-const TRACK_SHUT_DESKTOP = HEADER_H_DESKTOP + TRACK_PAD;
-const TRACK_SHUT_MOBILE = HEADER_H_MOBILE + TRACK_PAD;
-const TRACK_OPEN_DESKTOP = TRACK_SHUT_DESKTOP + BODY_H_DESKTOP;
-const TRACK_OPEN_MOBILE = TRACK_SHUT_MOBILE + BODY_H_MOBILE;
-
 // How long the page takes to fall. Slower than the 150-300ms a state change normally gets,
 // deliberately: this is not a control changing state, it is an object moving through space, and
 // the eye reads the arc rather than the endpoints. Short enough that it never feels like waiting.
 const FOLD_MS = 720;
 
-// How far the light spills below the row. The canvas starts flush with the row's top edge and runs
-// this much past its bottom, so the pools have floor to fall on — and, more usefully, so the one
-// number that converts a position in the row into a position on the canvas is a constant instead of
-// a measurement. Get this wrong and the light sits somewhere the cards are not.
-const GLOW_BLEED = 96;
+// The same travel, for a card that is shutting because a DIFFERENT one was opened. It gets a plain
+// CSS height transition rather than the paper: the paper belongs to the card that was clicked, and
+// two pages turning in opposite corners of the board at once is not a book, it is a poltergeist.
+const SHUT_MS = 620;
 
 // Slack around the folding page, on every side. See BookFold: the page bows toward the viewer and
 // perspective turns that into magnification, so the canvas has to be bigger than the page or the
 // bulge is clipped exactly when it is at its largest.
 const PAGE_MARGIN = 56;
-
-// The drop each card takes below the row's top edge.
-//
-// It used to be a compensation: cards scaled about their centres and this added back the half a
-// card's height that scaling stole, so the row stood on one baseline. That is gone — the cards
-// scale about their TOP edge now (transformOrigin '50% 0'), which lands them on a common top line
-// for free, and a common top line is the one the reference uses and the only one an expanding
-// card can work with. A card that opens has to grow DOWNWARD; hang the row off its feet and every
-// card in it moves every time one is opened.
-//
-// So this is now only the reference's own rag — the few pixels each step sits lower than the one
-// inside it, which is all that is left saying "further back" once the turn and the recession from
-// the old rack are gone.
-const FOCUS_EXTRA_DROP = [0, 14, 24, 30];
-
-// one card's travel is the first step of the ladder, which is the only spacing a drag can be
-// measured against, since the ladder is deliberately not uniform.
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template) => void;
@@ -163,85 +118,49 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     };
   }, [showFilterPanel]);
 
-  // Coverflow focus index — clicking any off-center card brings it to the middle instead
-  // of firing its buttons immediately (see pointerEvents toggle below); a fresh filter/
-  // search/sort always snaps back to the first result rather than an index that may no
-  // longer exist.
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  // True while the rack is actually moving — a drag, or the glide that follows an index
-  // change — and false once it has settled. It exists only to decide when the cards are worth
-  // promoting to their own compositor layers.
-  //
-  // They used to be promoted permanently. That is correct for smoothness and wrong for memory:
-  // `will-change` holds a texture allocated for as long as it is set, so ten cards plus ten
-  // scale wrappers at 330x480 pinned roughly 13MB of GPU memory for a rack that spends almost
-  // all of its life perfectly still. Gating it on something that changes DURING a gesture was
-  // tried and was worse than either — layers were built and destroyed on every step commit,
-  // and building one forces the card, image and all, to be rasterized synchronously mid-drag.
-  // Motion is the right boundary: it flips twice per interaction, never inside one, so the
-  // layers exist for exactly as long as they earn their keep and the memory is returned after.
-  const [isMoving, setIsMoving] = useState(false);
-  const dragRef = useRef<{ startX: number; startY: number } | null>(null);
-  // Set when a pointerup ends a gesture that actually travelled (a drag, not a tap). The
-  // browser then synthesizes a `click` on whatever card the pointer released over — which is
-  // frequently the card that just became active after the drag's own commit, and that click
-  // fires the card's "open preview" handler and yanks the whole grid away before the rotation
-  // has visibly settled. The track's onClickCapture below swallows exactly that one click.
-  const suppressClickRef = useRef(false);
-  // The live drag offset is published as a CSS variable on the track and read by every
-  // card's own transform, rather than held in React state. State would re-render all ten
-  // card subtrees on every pointermove — the exact per-frame main-thread work that shows
-  // up as stutter on a weak device. One custom property write on one element instead, and
-  // the cards' transforms update straight from it.
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const dragOffsetRef = useRef(0);
-  // Publishes the gesture offset to the track as one CSS variable, read by the strip's own
-  // transform. One variable and one transform now, where the cylinder needed a second angular
-  // one: the whole rack now translates past a fixed camera as one rigid strip, which is both
-  // cheaper and the honest answer for a coverflow — the viewer pans along a shelf rather than
-  // spinning it, so there is no angle to publish.
-  //
-  // Published raw, one pixel here for one pixel on screen. There used to be a division by a
-  // shrink-to-fit scale here, because the rack sat inside a layer that shrank the whole fan to
-  // fit narrow tracks; the row this replaced it with is meant to run off both edges instead, so
-  // there is no scale between this value and the screen for it to be converted through.
-  const setDragOffset = (px: number) => {
-    const el = trackRef.current;
-    if (!el) return;
-    el.style.setProperty('--drag-x', `${px}px`);
-  };
-
-  // The breakpoint picks the ladder's spacing and the card's size — nothing else. There is one
-  // geometry now, the same flat row on a phone and on a television, where there used to be two
-  // (a perspective rack on desktop and a 2D strip on phones) that had to be kept describing the
-  // same carousel. A phone simply gets a narrower step, because a 390px screen cannot hold a
-  // 330px card and two 13px gaps and still show its neighbours.
-  const [isMobile, setIsMobile] = useState(false);
+  /* ── The board's shape ─────────────────────────────────────────────────────────────────
+     One column on a phone, two from 640, three from 1024. Read here rather than left to CSS
+     because the chessboard offset needs to know which column a card is in, and a grid does not
+     tell its children that. */
+  const [cols, setCols] = useState(1);
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 639px)');
-    setIsMobile(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
+    const two = window.matchMedia('(min-width: 640px)');
+    const three = window.matchMedia('(min-width: 1024px)');
+    const read = () => setCols(three.matches ? 3 : two.matches ? 2 : 1);
+    read();
+    two.addEventListener('change', read);
+    three.addEventListener('change', read);
+    return () => {
+      two.removeEventListener('change', read);
+      three.removeEventListener('change', read);
+    };
   }, []);
-  const focusX = isMobile ? FOCUS_X_MOBILE : FOCUS_X_DESKTOP;
+
+  const isMobile = cols === 1;
   const headerH = isMobile ? HEADER_H_MOBILE : HEADER_H_DESKTOP;
   const bodyH = isMobile ? BODY_H_MOBILE : BODY_H_DESKTOP;
-  const trackShut = isMobile ? TRACK_SHUT_MOBILE : TRACK_SHUT_DESKTOP;
-  const trackOpen = isMobile ? TRACK_OPEN_MOBILE : TRACK_OPEN_DESKTOP;
-  const stepPx = focusX[1];
 
-  /** Where a card at this distance from the centre sits, vertically. See FOCUS_EXTRA_DROP. */
-  const dropFor = (d: number) => FOCUS_EXTRA_DROP[d];
+  /**
+   * The chessboard drop for the square at this index.
+   *
+   * Column parity alone gives a zigzag — every other COLUMN sits low, and the same three shapes
+   * repeat down the page. Adding the row is what makes it a board: a square is dropped when its
+   * column and its row disagree, so each row is the inverse of the one above it and the low squares
+   * interlock with the high ones instead of stacking into stripes.
+   *
+   * Zero at one column, where there is nothing to interlock with and the offset would only be a gap
+   * at the top of every other card.
+   */
+  const offsetFor = (index: number) =>
+    cols > 1 && (((index % cols) + Math.floor(index / cols)) % 2 === 1) ? STAGGER : 0;
 
-  /* ── Opening and shutting ────────────────────────────────────────────────────────────────
-     Only the card in focus can be open, and only one can be open at a time — which between them
-     mean this is a boolean rather than an id. Anything that changes which card is in the middle
-     shuts it: a card that stayed open while the row moved would be a body panel belonging to a
-     template that is no longer under it. */
-  const [expanded, setExpanded] = useState(false);
-  useEffect(() => setExpanded(false), [activeIndex]);
+  /* ── Opening ───────────────────────────────────────────────────────────────────────────
+     One card open at a time. `expandedId` is which one; `foldingId` is which one the paper is
+     currently turning for, and they are not the same question — opening B while A is open leaves
+     A shutting and B opening in the same moment, and only one of them is the card that was
+     clicked. The clicked one gets the page; the other just shuts. */
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [foldingId, setFoldingId] = useState<string | null>(null);
 
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -251,6 +170,36 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     mq.addEventListener('change', read);
     return () => mq.removeEventListener('change', read);
   }, []);
+
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const foldingCardRef = useRef<HTMLElement | null>(null);
+  const foldRef = useRef(0);
+  // The canvas's own request-a-frame, handed up once it exists. See BookFold's onReady.
+  const foldInvalidate = useRef<(() => void) | null>(null);
+  const onFoldReady = React.useCallback((fn: () => void) => {
+    foldInvalidate.current = fn;
+  }, []);
+
+  /* Where on the board the page is drawn: the folding card's body, in the grid's own pixels.
+     Measured once when a fold begins rather than followed every frame, and that is safe for a
+     reason worth writing down — the card grows DOWNWARD, so its own top edge does not move, and
+     only the rows BELOW it are pushed. The one thing the page needs to know therefore holds still
+     for the whole animation. */
+  const [foldBox, setFoldBox] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  const writeFold = (p: number) => {
+    foldRef.current = p;
+    const el = foldingCardRef.current;
+    if (el) {
+      // The projected fraction: the cosine of the angle the page still has to fall through, which
+      // is exactly the card's height. --nq-open is the raw progress, which the content's own
+      // fade-in is timed against.
+      el.style.setProperty('--nq-fold', String(Math.sin((p * Math.PI) / 2)));
+      el.style.setProperty('--nq-open', String(p));
+    }
+    // And one frame of paper to go with the pixels the DOM just moved.
+    foldInvalidate.current?.();
+  };
 
   /* The fold, and why an rAF loop rather than a CSS transition or the render loop of the canvas
      that draws the page.
@@ -263,44 +212,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
      no working GL context just as well as on one with. So the number lives here, in ordinary
      JavaScript, written out to the DOM as two custom properties and handed to the canvas as a ref.
      Lose the canvas and the card still opens; it simply opens without the paper. */
-  const activeCardRef = useRef<HTMLElement | null>(null);
-  const foldRef = useRef(0);
-  // The canvas's own request-a-frame, handed up once it exists. See BookFold's onReady.
-  const foldInvalidate = useRef<(() => void) | null>(null);
-  const onFoldReady = React.useCallback((fn: () => void) => {
-    foldInvalidate.current = fn;
-  }, []);
-
-  const writeFold = (p: number) => {
-    foldRef.current = p;
-    // The projected fraction, which is the cosine of the angle the page still has to fall through.
-    const projected = String(Math.sin((p * Math.PI) / 2));
-    // The track grows by exactly the same pixels the card does, so the gap under the card never
-    // changes — but under its OWN property name, and that is not tidiness. Custom properties
-    // inherit. Writing --nq-fold on the track handed it to all eleven cards inside it, every one of
-    // which reads --nq-fold for its height, and the whole row opened together: five cards standing
-    // in a line each growing a blank white panel out of its bottom edge.
-    if (trackRef.current) trackRef.current.style.setProperty('--nq-track', projected);
-    const el = activeCardRef.current;
-    if (!el) return;
-    // Two properties, because they are two different questions. --nq-fold is how much of the body
-    // is PROJECTED on screen, which is the cosine of the angle the page still has to fall through
-    // and therefore exactly the card's height; --nq-open is the raw progress, which is what the
-    // content's own fade-in is timed against.
-    el.style.setProperty('--nq-fold', projected);
-    el.style.setProperty('--nq-open', String(p));
-    // And one frame of paper to go with the pixels the DOM just moved.
-    foldInvalidate.current?.();
-  };
-
-  useEffect(() => {
-    const to = expanded ? 1 : 0;
+  useLayoutEffect(() => {
+    if (!foldingId) return;
+    const to = expandedId === foldingId ? 1 : 0;
     const from = foldRef.current;
-    if (from === to) {
-      writeFold(to);
-      return;
+
+    // The page's box, taken now, before a pixel has moved.
+    const card = foldingCardRef.current;
+    const grid = gridRef.current;
+    if (card && grid) {
+      const c = card.getBoundingClientRect();
+      const g = grid.getBoundingClientRect();
+      setFoldBox({ top: c.top - g.top + headerH, left: c.left - g.left, width: c.width });
     }
-    if (reduced) {
+
+    if (from === to || reduced) {
       writeFold(to);
       return;
     }
@@ -321,7 +247,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [expanded, reduced, activeIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [foldingId, expandedId, reduced, headerH]);
+
+  const toggle = (id: string) => {
+    setFoldingId(id);
+    // The clicked card is the one the paper turns for, so the progress it starts from is the
+    // progress THAT card is at — which is 0 unless it is the one already open.
+    foldRef.current = expandedId === id ? 1 : 0;
+    setExpandedId((cur) => (cur === id ? null : id));
+    cosmicAudio.playPing();
+  };
 
   const categories = [
     { id: 'all', label: getTranslation('allCategories', currentLang) },
@@ -388,275 +324,26 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     return list;
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery, currentLang]);
 
-  // Compares against the last values it actually saw rather than just firing whenever the
-  // effect runs. Under StrictMode an effect is invoked twice on mount, and a run-counting
-  // guard would burn its one shot on the throwaway first pass — leaving the second pass free
-  // to reset an index the restore below had just set.
-  const lastFilters = useRef({ selectedCategory, maxPriceUSD, sortBy, searchQuery });
+  // A filter, a search or a sort that changes the result set shuts whatever was open: the card
+  // under an open panel may not even be in the list any more.
   useEffect(() => {
-    const prev = lastFilters.current;
-    if (
-      prev.selectedCategory === selectedCategory &&
-      prev.maxPriceUSD === maxPriceUSD &&
-      prev.sortBy === sortBy &&
-      prev.searchQuery === searchQuery
-    ) return;
-    lastFilters.current = { selectedCategory, maxPriceUSD, sortBy, searchQuery };
-    setActiveIndex(0);
+    setExpandedId(null);
+    setFoldingId(null);
+    foldRef.current = 0;
   }, [selectedCategory, maxPriceUSD, sortBy, searchQuery]);
 
   // Opening a standalone preview unmounts this whole component (App swaps the tree out), so
-  // returning would otherwise drop the visitor on the first card rather than the one they
-  // were just looking at. Only claims the position once, so changing a filter afterwards
-  // still snaps to the first result instead of yanking them back here.
+  // coming back would otherwise drop the visitor at the top of the board rather than beside the
+  // card they were just looking at. Claims the position once, so changing a filter afterwards
+  // does not yank them back here.
   const didRestoreFocus = useRef(false);
   useEffect(() => {
     if (didRestoreFocus.current || !focusTemplateId) return;
-    const idx = filteredTemplates.findIndex((t) => t.id === focusTemplateId);
-    if (idx === -1) return;
+    if (!filteredTemplates.some((x) => x.id === focusTemplateId)) return;
     didRestoreFocus.current = true;
-    setActiveIndex(idx);
+    const el = document.getElementById('tpl-card-' + focusTemplateId);
+    el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }, [focusTemplateId, filteredTemplates]);
-
-  // Wraps rather than clamping — arrows/swipes loop continuously past either end, same
-  // as the auto-advance, instead of stopping dead at the first/last card.
-  const goToOffset = (delta: number) => {
-    const n = filteredTemplates.length;
-    setActiveIndex((i) => (n === 0 ? 0 : (i + delta + n) % n));
-  };
-
-  // Deliberately does NOT call setPointerCapture: capturing on the track would retarget
-  // every subsequent pointerup here too, including a plain tap on the active card's own
-  // "Full Site" / "Select for Contract" buttons — the browser then can't match that
-  // pointerup's target back to the button's mousedown target, so it never synthesizes a
-  // click and the button silently stops working. A plain start-X plus a pointerup that
-  // lands somewhere reasonable is enough for swipe detection without that trade-off.
-  const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    dragRef.current = { startX: e.clientX, startY: e.clientY };
-    // A fresh gesture is a fresh intent: clear any un-consumed suppression so a genuine tap
-    // (released without moving) is never swallowed by a stale flag from the previous drag.
-    suppressClickRef.current = false;
-    setIsDragging(true);
-    setDragOffset(0);
-  };
-
-  // Move/up are tracked on `window`, not as onPointerMove/onPointerUp props on the track
-  // element — a real swipe routinely carries the pointer outside the track's own bounds
-  // (fast or diagonal drags near its edge do this constantly), and an element-scoped
-  // listener simply stops receiving events the instant that happens. An earlier version of
-  // this used onPointerLeave to close the gesture in that case, but pointerleave fires the
-  // moment the pointer exits the bounds — including mid-drag, while the button/finger is
-  // still down — which was ending swipes prematurely instead of only on an actual release.
-  //
-  // Global listeners fix that at the root: onPointerDown stays on the track (that is still
-  // the right place to detect "a drag started here"), but once isDragging flips on, this
-  // effect owns move/up for the rest of the gesture regardless of where the pointer travels
-  // or lets go — the same reason a text selection or a native <input type="range"> keeps
-  // tracking past its own edges. Still no setPointerCapture (see handleTrackPointerDown's
-  // history above): these are separate, non-capturing listeners, so a tap that starts and
-  // ends on a button's own bounds is never touched by this at all.
-  //
-  // The index moves *during* the drag, not on release. The pointer's signed travel decides
-  // which card owns the middle, and the strip hands over the moment the appropriate card has
-  // been pulled a good chunk of the way toward center (see the snap fraction used inside).
-  // Committing the index mid-gesture is what makes the centered card genuinely the selected
-  // one — letting go anywhere keeps whatever is in the middle, instead of the whole strip
-  // springing back to where the drag began — and the residual offset then just glides home
-  // on release. The travel stays anchored to the original pointerdown so the commit
-  // direction always follows the finger; see the note inside on why that anchor matters.
-  //
-  // Card counts are computed symmetrically: the bare Math.round() this used to be was
-  // asymmetric (Math.round(-0.5) === -0), so dragging *left* silently needed ~75% of a step
-  // while dragging right switched at 50% — one direction always lagged where the eye saw the
-  // second card already sitting. Magnitude-then-sign makes both directions switch at the
-  // same completion fraction, and sharing the helper between the live drag and the release
-  // snap keeps the two thresholds honest.
-  useEffect(() => {
-    if (!isDragging) return;
-    // The distance a card visibly travels on screen, which is now simply the ladder's first
-    // step — nothing scales the row between here and the display.
-    const step = stepPx;
-    const n = filteredTemplates.length;
-    let frame = 0;
-    // `travel` is the pointer's full signed displacement since the gesture started, NEVER
-    // rebased. `committed` is how many whole cards the strip has handed over so far (signed,
-    // so it grows in the direction the pointer is actually travelling). The visible offset
-    // is always `travel - committed * step`.
-    //
-    // The old model advanced `drag.startX` by a full step at every commit, which silently
-    // INVERTED the residual: continue dragging the same direction and the very next
-    // pointermove read a reversed, now-positive offset, crossed the commit threshold again,
-    // and walked the commit BACKWARD — a just-activated card flipping back out mid-gesture.
-    // That is the "second card popped up but the rotation never completes" failure: the
-    // strip commits, then un-commits one pointer event later, and with no further movement
-    // the release settles onto the original card. Anchoring everything to monotonic travel
-    // makes the commit direction follow the finger, never the residual's sign.
-    let travel = 0;
-    let committed = 0;
-    let offset = 0;
-
-    const stepsFor = (px: number, snap: number) =>
-      n > 1 ? Math.sign(px) * Math.floor(Math.abs(px) / step + snap) : 0;
-
-    const apply = () => {
-      frame = 0;
-      const drag = dragRef.current;
-      if (!drag) return;
-      // The whole-card target is the travel-based count; the diff vs `committed` is what to
-      // add now. Because `stepsFor` is monotonic in travel, forward drags only ever add
-      // commits (and a genuine reverse drag subtracts) — never a flip in mid-direction.
-      const target = stepsFor(travel, 0.6);
-      const steps = target - committed;
-      if (steps !== 0) {
-        committed = target;
-        offset = travel - committed * step;
-        dragOffsetRef.current = offset;
-        // Deliberately does NOT publish --drag-x here. Changing the index is a React state
-        // update that lands on a later frame, while a style write lands immediately — so
-        // pushing the rebased residual now would draw every card against positions still
-        // computed from the *old* index, a full card's step out of place, until React caught
-        // up. That one-frame mismatch is exactly the previous card flashing into view before
-        // the new one takes the middle. The layout effect below publishes it in the same
-        // commit as the index instead, so the two are always painted together.
-        setActiveIndex((i) => (((i - steps) % n) + n) % n);
-        return;
-      }
-      offset = travel - committed * step;
-      dragOffsetRef.current = offset;
-      setDragOffset(offset);
-    };
-
-    const onMove = (e: PointerEvent) => {
-      const drag = dragRef.current;
-      if (!drag) return;
-      travel = e.clientX - drag.startX;
-      if (!frame) frame = requestAnimationFrame(apply);
-    };
-
-    const onUp = (e: PointerEvent) => {
-      // A pointer that moved more than a few pixels is a drag, not a tap — and a drag whose
-      // release lands on a card synthesizes a click there (see suppressClickRef above), which
-      // would fire that card's own buttons and tear the grid away mid-settle. The capture
-      // handler on the track eats exactly one such post-drag click.
-      const drag = dragRef.current;
-      suppressClickRef.current =
-        drag !== null && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 6;
-      dragRef.current = null;
-      setIsDragging(false);
-      // Catch a short pull that revealed the neighbour without committing, and complete any
-      // commit the drag itself was one unit short of. Same monotonic formula as apply, so a
-      // release can never reverse a commit that already happened — it can only round the
-      // gesture up to the card it was actually aiming at (or leave it, for a sub-20% nudge).
-      const target = stepsFor(travel, 0.8);
-      const steps = target - committed;
-      if (steps !== 0) {
-        committed = target;
-        offset = travel - committed * step;
-        dragOffsetRef.current = offset;
-        setActiveIndex((i) => (((i - steps) % n) + n) % n);
-      }
-    };
-
-    window.addEventListener('pointermove', onMove, { passive: true });
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('pointercancel', onUp);
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
-    };
-  }, [isDragging, stepPx, filteredTemplates.length]);
-
-  // The other half of the pact above: publishes whatever offset the gesture is currently at,
-  // after every render and synchronously before the browser paints. That timing is the whole
-  // point — a committed index and the residual that belongs with it reach the screen in one
-  // frame, so the strip never draws itself in a position neither of them describes.
-  useLayoutEffect(() => {
-    if (!isDragging) return;
-    setDragOffset(dragOffsetRef.current);
-  });
-
-  // Raises `isMoving` for the whole of any motion and lowers it once everything has come to
-  // rest. Dragging holds it up directly; an index change (a tap, an arrow, the autoplay) holds
-  // it for the length of the 0.9s glide that follows, with a margin so the layers outlive the
-  // transition rather than being dropped in its last frame. Re-running on every index change
-  // restarts the timer, so a fast sequence of taps stays one continuous promoted stretch
-  // instead of thrashing layers between them.
-  useEffect(() => {
-    setIsMoving(true);
-    if (isDragging) return;
-    const id = window.setTimeout(() => setIsMoving(false), 1100);
-    return () => window.clearTimeout(id);
-  }, [activeIndex, isDragging]);
-
-  // Settling the residual offset home, once the drag is over. Deliberately not done inside
-  // onUp: that runs while the cards still carry the drag's own transition rules (isDragging
-  // is only flipped in the same call, and React has not re-rendered yet), so zeroing it
-  // there would snap rather than glide. A frame later the re-render has restored the
-  // transform transition, and the same write animates instead.
-  useEffect(() => {
-    if (isDragging) return;
-    if (!trackRef.current) return;
-    const id = requestAnimationFrame(() => {
-      dragOffsetRef.current = 0;
-      setDragOffset(0);
-    });
-    return () => cancelAnimationFrame(id);
-  }, [isDragging]);
-
-  // Auto-advance one card every 8s (see the 0.9s transition below) — loops
-  // back to the first card after the last one. Paused while the visitor is dragging, and
-  // skipped entirely under reduced-motion. Depending on `activeIndex` restarts the 8s clock
-  // after any manual click/arrow/swipe, so autoplay never fights the visitor's own input.
-  useEffect(() => {
-    if (isDragging) return;
-    if (filteredTemplates.length <= 1) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const id = window.setInterval(() => {
-      setActiveIndex((i) => (i + 1) % filteredTemplates.length);
-    }, 8000);
-    return () => window.clearInterval(id);
-  }, [isDragging, activeIndex, filteredTemplates.length]);
-
-  // One pool of light per visible card, from the same ladder that places the cards — so the
-  // light cannot drift out of agreement with what it is supposed to be coming from. Five at
-  // most: the centre and two either side, which is everything the row ever shows.
-  //
-  // Wrapping with the modulo rather than clamping, exactly as the cards do, so the pools keep
-  // the same circular order the strip does when it wraps past either end of the catalogue.
-  const glowLights: GlowLight[] = useMemo(() => {
-    const n = filteredTemplates.length;
-    if (!n) return [];
-    const out: GlowLight[] = [];
-    for (let offset = -2; offset <= 2; offset++) {
-      const template = filteredTemplates[(((activeIndex + offset) % n) + n) % n];
-      if (!template) continue;
-      const d = Math.abs(offset);
-      out.push({
-        x: Math.sign(offset) * focusX[d],
-        // Under the picture, not under the card, and measured from the CANVAS centre rather than
-        // the row's. The card's height is no longer a fixed thing — it doubles when it opens — so a
-        // pool tied to it would slide down the page every time anything was expanded. The header is
-        // the part that never moves and the part the colour belongs to, so the light sits low in it
-        // and stays there.
-        y: headerH * 0.86 - (trackOpen + GLOW_BLEED) / 2,
-        radius: (isMobile ? 260 : 400) * FOCUS_SCALE[d],
-        // The focused card is not simply brighter, it is the only one that is bright. Two pools
-        // at similar strength read as two centres of attention, and the whole point of the
-        // arrangement is that there is one.
-        amp: d === 0 ? 1 : d === 1 ? 0.34 : 0.12,
-        color: hueFor(template.category),
-      });
-    }
-    return out;
-  }, [filteredTemplates, activeIndex, focusX, headerH, trackOpen, isMobile]);
-
-  // A filter or a search that changes the result set shuts whatever was open along with it. The
-  // effect above catches the ordinary case by watching activeIndex, and misses exactly one: a new
-  // set whose first card is also index 0, where the index does not change but the template under
-  // it does. This is that case, and it lives here because filteredTemplates is only defined by now.
-  useEffect(() => setExpanded(false), [filteredTemplates.length, selectedCategory, searchQuery, sortBy]);
 
   // Points the way the page reads. In Arabic "onward" is leftward, and an arrow that ignores
   // that is an arrow pointing back out of the card it is inviting you into.
