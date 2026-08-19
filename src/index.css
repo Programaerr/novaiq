@@ -577,51 +577,6 @@
    The box-shadows then supply the limb: a 1px inset white line along the top (the lit edge), a
    hairline ring around the whole shape so it stays legible against the sky behind it, and a
    wide soft drop shadow that lifts it off the stars. */
-/* The search field borrows the button system's beam (see .nq-btn-beam) so the toolbar's
-   two controls respond identically. It takes the white beam, not the --dark one it used to:
-   that variant exists solely to keep the beam visible on a *pale* body, and against this
-   near-black surface a black beam traces nothing at all. */
-.search-cosmic:hover .nq-btn-beam,
-.search-cosmic:focus-within .nq-btn-beam {
-  opacity: 1;
-}
-
-.search-cosmic:hover .nq-btn-beam::before,
-.search-cosmic:focus-within .nq-btn-beam::before {
-  animation: nq-beam-spin 2s ease-in-out infinite;
-}
-
-.search-cosmic {
-  background:
-    radial-gradient(140% 120% at 50% -30%, rgba(255, 255, 255, 0.13), transparent 55%),
-    linear-gradient(180deg, #1a1b20 0%, #0b0c0f 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.03),
-    0 0 0 1px rgba(255, 255, 255, 0.09),
-    0 10px 28px rgba(0, 0, 0, 0.6);
-  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
-}
-
-/* Focus lights it from within: the top limb brightens, the hairline ring firms up into a
-   visible edge, and a soft halo pushes out into the page. Deliberately brightness rather than
-   a colour shift or a browser outline — the field is dark on a dark page, so luminance is the
-   only channel that can carry focus without introducing a hue. :focus-within, not :focus,
-   because the inner <input> is what actually takes focus while this wrapper is what's styled;
-   the input's own outline stays suppressed, so this rule IS the focus indicator and has to be
-   unmistakable, not decorative. */
-.search-cosmic:focus-within {
-  background:
-    radial-gradient(140% 120% at 50% -30%, rgba(255, 255, 255, 0.2), transparent 58%),
-    linear-gradient(180deg, #202127 0%, #0d0e12 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 0 26px rgba(255, 255, 255, 0.06),
-    0 0 0 1px rgba(255, 255, 255, 0.3),
-    0 10px 30px rgba(0, 0, 0, 0.65),
-    0 0 26px rgba(255, 255, 255, 0.1);
-}
-
 /* Neumorphic product card — soft UI as a full card: one sheet of pale material with the
    panels and the button pressed *out* of it rather than drawn on top. The illusion is entirely
    the paired shadows — a dark one down-right and a light one up-left, as if a single light sat
@@ -733,17 +688,6 @@
 @keyframes filter-pill-mist-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-.filter-pill-badge {
-  background: #111111;
-  color: #FFFFFF;
-  transition: background 250ms ease, color 250ms ease;
-}
-
-.filter-pill-btn:hover .filter-pill-badge {
-  background: #FFFFFF;
-  color: #111111;
 }
 
 /* No cast shadow on any button, resting or hovered — only inset bevels.
@@ -1812,88 +1756,6 @@ html[data-scrolling] .filter-pill-beam::before {
   .nq-container {
     padding-inline: 2rem;
   }
-}
-
-/* ── The closing stage under the template carousel (TemplateGrid.tsx) ──────────────────────
-   The price caveat is the lamp; the light falls DOWNWARD out of it onto the brand mark.
-
-   Two things this went through before getting here, both worth keeping written down:
-
-   1. It was two straight-edged wedges cut with `clip-path`. That is what a beam looks like in a
-      diagram, not in a room — real light has no edge, it runs out. Gradients only now.
-   2. Then it glowed in every direction at once, which is a lamp with no shade: light climbing the
-      sides of the pill and spreading across the full width of the section reads as a smudge
-      behind the text rather than as a beam coming out of it.
-
-   So everything here is bounded and downward. The pill's own halo is offset down the Y axis with
-   no symmetric ring around it; the cone is anchored at the pill (`at 50% 0%`, so its top half is
-   outside the box and only the opening shows) and is deliberately far narrower than the section,
-   which is what keeps it from ever reaching the sides. The alpha ramp runs through six stops
-   rather than three — a soft gradient is soft because it has nowhere for the eye to catch, and
-   three stops leave two visible shoulders.
-
-   Deliberately no `filter: blur()`. A blurred layer this size is re-rasterized by the GPU whenever
-   anything about it changes, which is real cost on a weak phone for something that never moves.
-   Radial gradients are soft for free — the stage paints once and is never touched again.
-   ───────────────────────────────────────────────────────────────────────────────────────── */
-.tpl-lightstage {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-/* The source. The glow is offset downward and has no `0 0` ring, so light leaves the underside of
-   the pill rather than wrapping around it. */
-.tpl-lamp {
-  position: relative;
-  z-index: 2;
-  box-shadow:
-    0 6px 20px rgba(255, 255, 255, 0.3),
-    0 16px 46px rgba(255, 255, 255, 0.16),
-    0 30px 90px rgba(255, 255, 255, 0.09);
-}
-
-/* The cone. Narrow, centred, and anchored at the pill. */
-.tpl-lightstage__spill {
-  position: absolute;
-  top: 1.9rem;
-  left: 50%;
-  width: min(76%, 620px);
-  height: 74%;
-  transform: translateX(-50%);
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    50% 100% at 50% 0%,
-    rgba(255, 255, 255, 0.26) 0%,
-    rgba(255, 255, 255, 0.175) 16%,
-    rgba(255, 255, 255, 0.105) 34%,
-    rgba(255, 255, 255, 0.055) 52%,
-    rgba(255, 255, 255, 0.022) 70%,
-    rgba(255, 255, 255, 0.006) 86%,
-    rgba(255, 255, 255, 0) 100%
-  );
-}
-
-/* Where the cone lands. Narrower than the section for the same reason the cone is — a pool that
-   runs to both edges is not a pool, it is a background. */
-.tpl-lightstage__pool {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(72%, 700px);
-  top: 46%;
-  bottom: -2%;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    58% 100% at 50% 46%,
-    rgba(255, 255, 255, 0.17) 0%,
-    rgba(255, 255, 255, 0.1) 30%,
-    rgba(255, 255, 255, 0.045) 54%,
-    rgba(255, 255, 255, 0.014) 76%,
-    rgba(255, 255, 255, 0) 100%
-  );
 }
 
 /* ── Mobile motion system ────────────────────────────────────────────── */
