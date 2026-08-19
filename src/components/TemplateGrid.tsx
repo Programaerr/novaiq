@@ -49,6 +49,11 @@ const STAGGER = 88;
 // custom property, so the card's height and the page turning into it are the same number.
 const HEADER_H_DESKTOP = 250;
 const HEADER_H_MOBILE = 210;
+// Only a fallback now, and a ceiling for the page's own canvas. The body's real height is whatever
+// its content comes to, measured per card and written back as --nq-body: eleven templates whose
+// descriptions run from two lines to six were all being given the same 360px panel, so the short
+// ones ended in a hand's width of empty white and the long ones were clamped when they did not have
+// to be. A card that is a page should be as tall as its page.
 const BODY_H_DESKTOP = 360;
 const BODY_H_MOBILE = 330;
 
@@ -182,7 +187,35 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
      reason worth writing down — the card grows DOWNWARD, so its own top edge does not move, and
      only the rows BELOW it are pushed. The one thing the page needs to know therefore holds still
      for the whole animation. */
-  const [foldBox, setFoldBox] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [foldBox, setFoldBox] = useState<
+    { top: number; left: number; width: number; height: number } | null
+  >(null);
+
+  /* Each card's body, measured and written back to the card as --nq-body.
+     Read from the DOM rather than kept in state: it is one number per card that only ever feeds a
+     CSS property, and routing eleven of them through React would re-render the whole board every
+     time a font finished loading. The body is absolutely positioned, so measuring it costs nothing
+     in layout and its natural height is available whether the card is open or shut. */
+  const measureBodies = React.useCallback(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    for (const art of Array.from(grid.querySelectorAll('article'))) {
+      const body = art.querySelector<HTMLElement>('[data-body]');
+      if (body) (art as HTMLElement).style.setProperty('--nq-body', Math.ceil(body.scrollHeight) + 'px');
+    }
+  }, []);
+
+  // After every render, because the text changes with the language, the filter and the currency.
+  useLayoutEffect(measureBodies);
+
+  // And on resize, because the height of a paragraph depends on the width it is set in.
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const ro = new ResizeObserver(measureBodies);
+    ro.observe(grid);
+    return () => ro.disconnect();
+  }, [measureBodies]);
 
   const writeFold = (p: number) => {
     foldRef.current = p;
@@ -226,7 +259,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     if (card && grid) {
       const c = card.getBoundingClientRect();
       const g = grid.getBoundingClientRect();
-      setFoldBox({ top: c.top - g.top + headerH, left: c.left - g.left, width: c.width });
+      const body = card.querySelector<HTMLElement>('[data-body]');
+      setFoldBox({
+        top: c.top - g.top + headerH,
+        left: c.left - g.left,
+        width: c.width,
+        height: body ? Math.ceil(body.scrollHeight) : bodyH,
+      });
     }
 
     if (from === to || reduced) {
@@ -251,7 +290,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [foldingId, expandedId, reduced, headerH]);
+  }, [foldingId, expandedId, reduced, headerH, bodyH]);
 
   const toggle = (id: string) => {
     setFoldingId(id);
@@ -464,7 +503,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 top: foldBox.top - PAGE_MARGIN,
                 left: foldBox.left - PAGE_MARGIN,
                 width: foldBox.width + PAGE_MARGIN * 2,
-                height: bodyH + PAGE_MARGIN * 2,
+                height: foldBox.height + PAGE_MARGIN * 2,
               }}
               className="absolute z-20 pointer-events-none"
             >
@@ -493,7 +532,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       // which is what --nq-fold holds. The page falling and the card growing are
                       // therefore not two animations that have to be kept in step — they are one
                       // number read twice.
-                      height: `calc(${headerH}px + ${bodyH}px * var(--nq-fold, 0))`,
+                      height: `calc(${headerH}px + var(--nq-body, ${bodyH}px) * var(--nq-fold, 0))`,
                       // Two ways in, and a card is only ever on one of them. The card the paper is
                       // turning for is driven frame by frame from the loop above, so it must NOT
                       // also carry a height transition — the transition would chase each written
@@ -593,13 +632,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         else writes, and this is what guarantees a long one is cut off rather than
                         spilling out through the bottom of the card. */}
                     <div
+                      data-body
                       style={{
                         top: headerH,
-                        height: bodyH,
                         color: INK,
                         opacity: 'clamp(0, calc((var(--nq-open, 0) - 0.86) / 0.14), 1)',
                       }}
-                      className="absolute inset-x-0 px-4 sm:px-5 py-4 flex flex-col overflow-hidden"
+                      className="absolute inset-x-0 px-4 sm:px-5 py-4 flex flex-col"
                     >
                       <h4 className="text-[0.95rem] sm:text-[1.05rem] font-black leading-tight line-clamp-1">
                         {displayTitle}
