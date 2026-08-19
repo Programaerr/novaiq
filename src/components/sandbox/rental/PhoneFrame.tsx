@@ -71,7 +71,13 @@ export const PhoneFrame: React.FC<{
               background: 'linear-gradient(160deg, #3b3f4a 0%, #14171d 38%, #0a0c11 70%, #2a2e37 100%)',
               boxShadow: '0 40px 80px -40px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.07) inset',
             }}
-            className="absolute top-0 rtl:right-0 ltr:left-0"
+            // `left-0`, never `rtl:right-0`. `transform-origin: top left` shrinks the box toward
+            // its physical left edge, so the left edge is the only one that stays put — anchoring
+            // the RIGHT edge in RTL pinned the box's *unscaled* right edge to the container and
+            // left the drawn phone floating (1 - scale) x 412px to the left of the space reserved
+            // for it. The visible symptom was the phone sitting off-centre with its two side
+            // buttons stranded fifty pixels away from its own edges, in mid-air.
+            className="absolute top-0 left-0"
           >
             <div
               style={{

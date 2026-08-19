@@ -756,7 +756,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
                   <span className="text-[11px] font-bold text-slate-300">
                     {term === 'monthly' ? 'عدد الأشهر' : 'عدد الليالي'}
                   </span>
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2" dir="ltr">
                     <button
                       onClick={() => setDuration((d) => Math.max(1, d - 1))}
                       aria-label="أقل"
@@ -775,7 +775,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
                   </span>
                 </div>
 
-                <label className="flex items-center justify-between rounded-xl bg-slate-950 border border-slate-800 px-3 h-12">
+                <label className="flex items-center justify-between rounded-xl bg-slate-950 border border-slate-800 px-3 h-12 focus-within:ring-2 focus-within:ring-white/30">
                   <span className="flex items-center gap-2 text-[11px] font-bold text-slate-300">
                     <CalendarDays className="w-4 h-4 shrink-0" />
                     تاريخ البداية

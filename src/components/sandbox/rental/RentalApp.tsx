@@ -210,7 +210,7 @@ export const RentalApp: React.FC<{ ctx: RentalCtx }> = ({ ctx }) => {
         </span>
       </div>
 
-      <label className="flex items-center gap-2.5 rounded-2xl bg-white/[0.06] border border-white/10 px-3.5 h-12">
+      <label className="flex items-center gap-2.5 rounded-2xl bg-white/[0.06] border border-white/10 px-3.5 h-12 focus-within:ring-2 focus-within:ring-white/30">
         <Search className="w-4 h-4 shrink-0 text-slate-400" />
         <input
           value={query}
@@ -727,7 +727,7 @@ export const RentalApp: React.FC<{ ctx: RentalCtx }> = ({ ctx }) => {
               <span className="text-[12px] font-bold text-slate-300">
                 {term === 'monthly' ? 'عدد الأشهر' : 'عدد الليالي'}
               </span>
-              <span className="flex items-center gap-3">
+              <span className="flex items-center gap-3" dir="ltr">
                 <button
                   onClick={() => setDuration((d) => Math.max(1, d - 1))}
                   aria-label="أقل"
@@ -746,7 +746,7 @@ export const RentalApp: React.FC<{ ctx: RentalCtx }> = ({ ctx }) => {
               </span>
             </div>
 
-            <label className="flex items-center justify-between rounded-2xl bg-white/[0.05] px-4 h-14">
+            <label className="flex items-center justify-between rounded-2xl bg-white/[0.05] px-4 h-14 focus-within:ring-2 focus-within:ring-white/30">
               <span className="text-[12px] font-bold text-slate-300">تاريخ البداية</span>
               <input
                 type="date"
