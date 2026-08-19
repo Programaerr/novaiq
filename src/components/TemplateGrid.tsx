@@ -17,6 +17,7 @@ import { formatPrice, Currency } from '../lib/currency';
 import { INK, PERIWINKLE } from '../lib/homePalette';
 import { hueFor, washFor } from '../lib/templateHues';
 import { BookFold } from './BookFold';
+import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { PageLoader } from './PageLoader';
 import { TemplateFilterPanel } from './TemplateFilterPanel';
 
@@ -395,7 +396,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       }}
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
     >
-      <div className="nq-container">
+      {/* ── The whole background ─────────────────────────────────────────────────────────────
+          The same surface the timeline page stands on, from the same two constants: one full-bleed
+          cube field covering the section and dissolving at both edges — up under the navbar above
+          and down into whatever follows — so neither end lands on a straight seam. It was a flat
+          fill here, which made this page a panel of blue beside a page that was a surface. */}
+      <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
+
+      <div className="relative nq-container">
         
         {/* Filter & Search bar — first thing on the page now, with the price notice below it.
             `relative` anchors the dropdown below it — the dropdown itself is `absolute`, so
@@ -482,16 +490,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           />
         </div>
 
-        {/* ── The board ──────────────────────────────────────────────────────────────────
-            Every template at once, offset like a chessboard. `items-start` matters: a grid row
-            stretches its children to the tallest one by default, so without it opening one card
-            would stretch its whole row to match and the shut cards beside it would grow a blank
-            white panel each. */}
+        {/* ── The menu ───────────────────────────────────────────────────────────────────
+            One column at every width. The picture is a fixed thumbnail and the words take the
+            rest, which is the whole reason the shape works on a 390px phone and a 1216px column
+            without a second layout for either. */}
         <div ref={gridRef} className="relative mt-8 sm:mt-10">
-          {/* The page's box, laid exactly over the body panel of whichever card is folding.
+          {/* The page's box, laid exactly over the panel of whichever line is folding.
 
               Mounted from the first render, not on the first fold. Gating it on foldBox looked like
-              free economy — a board nobody opens pays for no GL context — and it moved the cost of
+              free economy — a menu nobody opens pays for no GL context — and it moved the cost of
               creating that context to the worst possible moment: the first click. Measured as a
               41.7ms frame at the start of the first fold, against a median of 8.3ms. Built during
               the page's own load it is invisible; built mid-animation it is a visible hitch on the
@@ -511,63 +518,85 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             <BookFold margin={PAGE_MARGIN} progressRef={foldRef} onReady={onFoldReady} />
           </div>
 
-          <div className="grid items-start gap-x-6 gap-y-8 sm:gap-x-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredTemplates.map((template, index) => {
+          {/* Held well inside the container. A menu line stretched across the full 1216px puts the
+              name at one end and the price at the other with half a screen of white between them,
+              and the eye has to travel the whole way to connect the two. 62rem is the same order of
+              measure the rest of the site sets its reading columns to. */}
+          <div className="mx-auto max-w-[62rem] flex flex-col gap-3 sm:gap-3.5">
+            {filteredTemplates.map((template) => {
               const displayTitle = translateText(template.title, currentLang);
               const displaySubtitle = translateText(template.subtitle, currentLang);
               const displayCategory = translateText(template.categoryLabel, currentLang);
               const displayDescription = translateText(template.description, currentLang);
               const displayLong = translateText(template.longDescription, currentLang);
+              const hue = hueFor(template.category);
               const wash = washFor(template.category);
               const isOpen = expandedId === template.id;
               const isFolding = foldingId === template.id;
 
+              const selectLabel = getTranslation('selectForContract', currentLang);
+              const select = (e: React.MouseEvent) => {
+                e.stopPropagation();
+                onSelectTemplateForContract(template);
+                cosmicAudio.playWarp();
+              };
+
               return (
-                <div key={template.id} style={{ marginTop: offsetFor(index) }}>
-                  <article
-                    id={'tpl-card-' + template.id}
-                    style={{
-                      // The card's height IS the fold. HEADER is always there; BODY arrives in
-                      // proportion to how much of the page is currently projected onto the screen,
-                      // which is what --nq-fold holds. The page falling and the card growing are
-                      // therefore not two animations that have to be kept in step — they are one
-                      // number read twice.
-                      height: `calc(${headerH}px + var(--nq-body, ${bodyH}px) * var(--nq-fold, 0))`,
-                      // Two ways in, and a card is only ever on one of them. The card the paper is
-                      // turning for is driven frame by frame from the loop above, so it must NOT
-                      // also carry a height transition — the transition would chase each written
-                      // value and lag a whole animation behind. Every other card is told where it
-                      // belongs and eases there itself, which is how a card that is shutting
-                      // because a different one was opened gets its motion.
-                      ...(isFolding
-                        ? null
-                        : {
-                            ['--nq-fold' as string]: isOpen ? 1 : 0,
-                            ['--nq-open' as string]: isOpen ? 1 : 0,
-                          }),
-                      transition: isFolding
-                        ? 'box-shadow 0.4s ease'
-                        : `height ${SHUT_MS}ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease`,
-                      // Cast in the ink the wash is pulled toward rather than in black — a neutral
-                      // shadow under a coloured card on a blue ground is the tell that it came from
-                      // a palette instead of from the surface it falls on. The open card is lifted
-                      // further, which is the only thing on the board saying which one is open once
-                      // you have scrolled its body past the fold.
-                      boxShadow: isOpen
-                        ? '0 32px 64px -28px rgba(8, 10, 26, 0.62)'
-                        : '0 16px 40px -24px rgba(8, 10, 26, 0.45)',
-                    }}
-                    className="relative w-full rounded-[26px] overflow-hidden bg-white"
-                  >
-                    {/* ── The picture, and everything the card says when it is shut ─────────── */}
+                <article
+                  key={template.id}
+                  id={'tpl-card-' + template.id}
+                  style={{
+                    // The line's height IS the fold. The row is always there; the panel arrives in
+                    // proportion to how much of the page is currently projected onto the screen,
+                    // which is what --nq-fold holds. The page falling and the line growing are
+                    // therefore not two animations that have to be kept in step — they are one
+                    // number read twice.
+                    height: `calc(${rowH}px + var(--nq-body, ${bodyH}px) * var(--nq-fold, 0))`,
+                    // The category's colour, as a rule down the far edge. A menu is a column of
+                    // near-identical lines and the eye needs something to sort them by that is not
+                    // the words; a 4px bar does it without asking the picture to carry a wash heavy
+                    // enough to be read at thumbnail size.
+                    //
+                    // On the END edge, opposite the picture. The start edge is where the photograph
+                    // already is, and a coloured rule pressed against a photograph is a rule that
+                    // looks like a printing error. Logical, so it is the left-hand edge in Arabic
+                    // and the right in English without a second rule being written.
+                    borderInlineEndWidth: 4,
+                    borderInlineEndColor: hue,
+                    // Two ways in, and a line is only ever on one of them. The line the paper is
+                    // turning for is driven frame by frame from the loop above, so it must NOT also
+                    // carry a height transition — the transition would chase each written value and
+                    // lag a whole animation behind. Every other line is told where it belongs and
+                    // eases there itself, which is how a line that is shutting because a different
+                    // one was opened gets its motion.
+                    ...(isFolding
+                      ? null
+                      : {
+                          ['--nq-fold' as string]: isOpen ? 1 : 0,
+                          ['--nq-open' as string]: isOpen ? 1 : 0,
+                        }),
+                    transition: isFolding
+                      ? 'box-shadow 0.4s ease'
+                      : `height ${SHUT_MS}ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease`,
+                    // Cast in the ink the wash is pulled toward rather than in black — a neutral
+                    // shadow under a coloured card on a blue ground is the tell that it came from a
+                    // palette instead of from the surface it falls on.
+                    boxShadow: isOpen
+                      ? '0 26px 52px -26px rgba(8, 10, 26, 0.55)'
+                      : '0 10px 26px -18px rgba(8, 10, 26, 0.4)',
+                  }}
+                  className="relative w-full rounded-2xl overflow-hidden bg-white"
+                >
+                  {/* ── The line ─────────────────────────────────────────────────────────────── */}
+                  <div style={{ height: rowH }} className="absolute inset-x-0 top-0 flex items-stretch">
                     <div
-                      style={{ height: headerH }}
+                      style={{ width: thumbW }}
                       onClick={() => {
                         if (onOpenStandalonePreview) onOpenStandalonePreview(template);
                         else setPreviewTemplate(template);
                         cosmicAudio.playPing();
                       }}
-                      className="absolute inset-x-0 top-0 overflow-hidden cursor-pointer group"
+                      className="relative shrink-0 overflow-hidden cursor-pointer group"
                     >
                       <img
                         src={template.previewImage}
@@ -577,177 +606,140 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                         draggable={false}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
-                      {/* The wash — the card's own colour, poured up the photograph. Solid where
-                          the name sits and gone by three quarters of the way up, so the picture is
-                          a picture and the colour is still what says which kind of template it is. */}
+                      {/* A touch of the category's colour over the foot of the picture. Light,
+                          because at this size the picture has no room to spare — the bar down the
+                          edge is doing the identifying now, and this only ties the two together. */}
                       <div
                         className="absolute inset-0"
-                        style={{
-                          background: `linear-gradient(to top, ${wash} 0%, ${wash}E6 30%, ${wash}00 74%)`,
-                        }}
+                        style={{ background: `linear-gradient(to top, ${wash}A6 0%, ${wash}00 58%)` }}
                       />
+                    </div>
 
-                      <div className="absolute top-3 start-3 max-w-[52%] truncate px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold">
-                        {displayCategory}
+                    <div
+                      className="flex-1 min-w-0 ps-3.5 pe-2 sm:ps-5 sm:pe-3 py-3 flex items-center gap-2 sm:gap-4"
+                      style={{ color: INK }}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-black text-[0.92rem] sm:text-[1.15rem] leading-tight line-clamp-1">
+                          {displayTitle}
+                        </h3>
+                        <p className="mt-0.5 text-[0.72rem] sm:text-[0.82rem] font-bold opacity-70 line-clamp-1">
+                          {displaySubtitle}
+                        </p>
+                        {/* The line's own facts, in one run with dots between them — a menu's
+                            second line. The category is in here rather than on a badge over the
+                            picture: at 116px wide a badge covers the picture it is labelling. */}
+                        <p className="mt-1.5 text-[0.64rem] sm:text-[0.72rem] font-bold opacity-60 line-clamp-1">
+                          {displayCategory}
+                          <span className="mx-1.5 opacity-50">·</span>
+                          {template.deliveryWeeks} {currentLang === 'ar' ? 'أسابيع' : 'wks'}
+                          <span className="mx-1.5 opacity-50">·</span>
+                          {template.features.length} {currentLang === 'ar' ? 'ميزة' : 'features'}
+                        </p>
                       </div>
 
-                      {/* Name on one side, the one action on the other, both on the floor of the
-                          picture — the reference's own bottom bar. */}
-                      <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-4 flex items-end gap-3">
-                        <div className="min-w-0">
-                          <h3 className="text-white font-black text-[0.95rem] sm:text-[1.1rem] leading-tight line-clamp-1">
-                            {displayTitle}
-                          </h3>
-                          <p className="mt-0.5 text-[0.66rem] sm:text-[0.72rem] font-bold text-white/85 line-clamp-1">
-                            {displaySubtitle}
-                          </p>
-                        </div>
+                      <div className="shrink-0 flex items-center gap-2 sm:gap-3">
+                        <span className="font-mono font-black text-[0.78rem] sm:text-[1rem] whitespace-nowrap">
+                          {formatPrice(template.basePriceIQD, currentLang, currency)}
+                        </span>
+
+                        {/* On the line from sm up, and inside the panel below it on a phone. A
+                            390px line cannot hold a thumbnail, three lines of words, a price, a
+                            labelled button and a chevron without the words losing to the furniture,
+                            and the words are the thing being chosen between. */}
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSelectTemplateForContract(template);
-                            cosmicAudio.playWarp();
-                          }}
-                          // Filled in the card's own wash rather than in the page's white pill.
-                          // Eleven cards each washed a different colour, every one wearing the same
-                          // white button, and the colour stops belonging to the card. Contrast is
-                          // known rather than hoped for, too: white on this is measured, where
-                          // white on a translucent black over an unknown photograph is not.
+                          onClick={select}
                           style={{ background: `${wash}F2` }}
-                          className="ms-auto shrink-0 min-h-11 px-4 rounded-full text-white text-[0.7rem] sm:text-[0.78rem] font-bold whitespace-nowrap cursor-pointer transition-[filter] duration-200 hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                          className="hidden sm:inline-flex items-center min-h-11 px-4 rounded-full text-white text-[0.78rem] font-bold whitespace-nowrap cursor-pointer transition-[filter] duration-200 hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(16,19,34)]"
                         >
-                          {getTranslation('selectForContract', currentLang)}
+                          {selectLabel}
                         </button>
                       </div>
-                    </div>
 
-                    {/* ── The page, once it has fallen ───────────────────────────────────────
-                        Held at nothing until the fold is all but finished, then brought up across
-                        the last of it — the same window the paper above is fading out over, so one
-                        becomes the other instead of the two overlapping.
-
-                        overflow-hidden as a floor, not as the plan: the heights are sized to the
-                        content and the clamps keep it there, but a translation is a string somebody
-                        else writes, and this is what guarantees a long one is cut off rather than
-                        spilling out through the bottom of the card. */}
-                    <div
-                      data-body
-                      style={{
-                        top: headerH,
-                        color: INK,
-                        opacity: 'clamp(0, calc((var(--nq-open, 0) - 0.86) / 0.14), 1)',
-                      }}
-                      className="absolute inset-x-0 px-4 sm:px-5 py-4 flex flex-col"
-                    >
-                      <h4 className="text-[0.95rem] sm:text-[1.05rem] font-black leading-tight line-clamp-1">
-                        {displayTitle}
-                      </h4>
-                      <p className="mt-0.5 text-[0.68rem] sm:text-[0.72rem] font-bold opacity-70">
-                        {displayCategory} · {template.id}
-                      </p>
-
-                      <div
-                        className="mt-3 pt-3 flex items-start gap-3 border-t"
-                        style={{ borderColor: 'rgba(16, 19, 34, 0.14)' }}
+                      <button
+                        type="button"
+                        onClick={() => toggle(template.id)}
+                        aria-expanded={isOpen}
+                        aria-controls={'tpl-card-' + template.id}
+                        aria-label={
+                          isOpen
+                            ? currentLang === 'ar'
+                              ? 'إغلاق التفاصيل'
+                              : 'Close details'
+                            : currentLang === 'ar'
+                              ? 'عرض التفاصيل'
+                              : 'Show details'
+                        }
+                        className="shrink-0 w-11 h-11 grid place-items-center rounded-full cursor-pointer transition-colors hover:bg-[rgba(16,19,34,0.07)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(16,19,34)]"
                       >
-                        {/* Three equal columns put the price — the only value here that can run to
-                            eleven characters — in the same width as a one-digit week count, and it
-                            came out as "...00,000". A flex row with the price on flex-1 gives the
-                            long one the slack and the two short ones exactly what they need. */}
-                        <dl className="flex-1 min-w-0 flex items-start gap-2.5">
-                          {[
-                            {
-                              v: String(template.deliveryWeeks),
-                              u: currentLang === 'ar' ? 'أسابيع' : 'wks',
-                              k: currentLang === 'ar' ? 'التسليم' : 'Delivery',
-                              grow: false,
-                            },
-                            {
-                              v: formatPrice(template.basePriceIQD, currentLang, currency),
-                              u: '',
-                              k: currentLang === 'ar' ? 'السعر' : 'Price',
-                              grow: true,
-                            },
-                            {
-                              v: String(template.features.length),
-                              u: '',
-                              k: currentLang === 'ar' ? 'ميزة' : 'Features',
-                              grow: false,
-                            },
-                          ].map((s) => (
-                            <div key={s.k} className={s.grow ? 'flex-1 min-w-0' : 'shrink-0'}>
-                              <dd
-                                className={`font-black leading-none truncate ${
-                                  s.grow ? 'text-[0.74rem] sm:text-[0.8rem]' : 'text-[0.82rem] sm:text-[0.9rem]'
-                                }`}
-                              >
-                                {s.v}
-                                {s.u ? <span className="text-[0.62rem] font-bold"> {s.u}</span> : null}
-                              </dd>
-                              <dt className="mt-1 text-[0.6rem] sm:text-[0.64rem] font-bold opacity-70 truncate">
-                                {s.k}
-                              </dt>
-                            </div>
-                          ))}
-                        </dl>
+                        <ChevronDown
+                          className={`w-5 h-5 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`}
+                          strokeWidth={2.4}
+                        />
+                      </button>
+                    </div>
+                  </div>
 
-                        {/* The reference puts a little map of the route here. The equivalent fact
-                            about a template is what it is built out of, so that is what the box
-                            holds — three names, which is as many as it fits and as many as anyone
-                            reads at this size. */}
-                        <div
-                          className="shrink-0 w-[76px] sm:w-[84px] rounded-xl px-2 py-1.5 grid gap-0.5"
-                          style={{ background: 'rgba(16, 19, 34, 0.06)' }}
+                  {/* ── The panel, once the page has fallen ─────────────────────────────────────
+                      Held at nothing until the fold is all but finished, then brought up across the
+                      last of it — the same window the paper above is fading out over, so one becomes
+                      the other instead of the two overlapping. */}
+                  <div
+                    data-body
+                    style={{
+                      top: rowH,
+                      color: INK,
+                      opacity: 'clamp(0, calc((var(--nq-open, 0) - 0.86) / 0.14), 1)',
+                    }}
+                    className="absolute inset-x-0 px-4 sm:px-5 pt-4 pb-5"
+                  >
+                    <div
+                      className="border-t pt-4 grid gap-4 sm:gap-6 sm:grid-cols-[1.7fr_1fr]"
+                      style={{ borderColor: 'rgba(16, 19, 34, 0.14)' }}
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[0.75rem] sm:text-[0.82rem] font-semibold leading-[1.85] opacity-80">
+                          {displayDescription}
+                        </p>
+                        <p className="mt-2.5 text-[0.75rem] sm:text-[0.82rem] font-semibold leading-[1.85] opacity-65">
+                          {displayLong}
+                        </p>
+
+                        {/* The phone's copy of the action. See the note on the line's button. */}
+                        <button
+                          type="button"
+                          onClick={select}
+                          style={{ background: `${wash}F2` }}
+                          className="sm:hidden mt-4 w-full min-h-11 px-4 rounded-full text-white text-[0.8rem] font-bold cursor-pointer transition-[filter] duration-200 hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(16,19,34)]"
                         >
-                          {template.techStack.slice(0, 3).map((tech) => (
-                            <span
-                              key={tech}
-                              dir="ltr"
-                              className="block truncate text-[0.55rem] sm:text-[0.6rem] font-bold opacity-75 text-center"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
+                          {selectLabel}
+                        </button>
                       </div>
 
-                      <p className="mt-3 text-[0.72rem] sm:text-[0.78rem] font-semibold leading-[1.8] opacity-80 line-clamp-3">
-                        {displayDescription}
-                      </p>
-                      <p className="mt-2 text-[0.72rem] sm:text-[0.78rem] font-semibold leading-[1.8] opacity-65 line-clamp-3 sm:line-clamp-4">
-                        {displayLong}
-                      </p>
+                      <div className="min-w-0">
+                        <p className="text-[0.6rem] sm:text-[0.64rem] font-bold tracking-[0.14em] uppercase opacity-55">
+                          {currentLang === 'ar' ? 'مبني بـ' : 'Built with'}
+                        </p>
+                        <ul className="mt-2 flex flex-wrap gap-1.5">
+                          {template.techStack.map((tech) => (
+                            <li
+                              key={tech}
+                              dir="ltr"
+                              className="px-2 py-1 rounded-lg text-[0.6rem] sm:text-[0.66rem] font-bold opacity-80"
+                              style={{ background: 'rgba(16, 19, 34, 0.06)' }}
+                            >
+                              {tech}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="mt-3 text-[0.6rem] sm:text-[0.64rem] font-bold opacity-55" dir="ltr">
+                          {template.id}
+                        </p>
+                      </div>
                     </div>
-                  </article>
-
-                  {/* The chevron, under the card and outside it, exactly as the reference has it.
-                      On every card now — on the board they are all equally reachable, where the
-                      row this replaced could only ever open the one in the middle. */}
-                  <div className="flex justify-center">
-                    <button
-                      type="button"
-                      onClick={() => toggle(template.id)}
-                      aria-expanded={isOpen}
-                      aria-controls={'tpl-card-' + template.id}
-                      aria-label={
-                        isOpen
-                          ? currentLang === 'ar'
-                            ? 'إغلاق التفاصيل'
-                            : 'Close details'
-                          : currentLang === 'ar'
-                            ? 'عرض التفاصيل'
-                            : 'Show details'
-                      }
-                      className="mt-1 w-11 h-11 grid place-items-center rounded-full text-white/90 hover:text-white cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                    >
-                      <ChevronDown
-                        className={`w-5 h-5 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`}
-                        strokeWidth={2.4}
-                      />
-                    </button>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>

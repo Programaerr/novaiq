@@ -9,29 +9,8 @@ import {
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
-import { FieldFade, FieldTones, TileField } from './TileField';
+import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { ProjectCtaButton } from './ProjectCtaButton';
-
-/* The whole section is one field now, not a strip across its top. The cubes cover the full
-   background and dissolve at both edges — up into the navbar and down into the footer — so the
-   section reads as a continuous surface rather than a panel sitting on a black page.
-
-   `ground` is the section's own blue, and both `into*` edges fade to that same blue: the field
-   simply runs out at either end instead of landing on a straight line. The `foam` stays the
-   page's sand so the field ties to the panel sitting on it, exactly as the contact band does. */
-const TIMELINE_TONES: FieldTones = {
-  trough: '#6E80B8',
-  crest: '#A5B4E0',
-  foam: SAND,
-  ground: PERIWINKLE,
-  intoLo: PERIWINKLE,
-  intoHi: PERIWINKLE,
-};
-
-/* Dissolve at both edges: a little at the top where the cubes slide under the navbar, more at
-   the bottom where they run into the footer. The middle stays full-strength, which is where the
-   panel sits. */
-const TIMELINE_FADE: FieldFade = { lo: 0.22, hi: 0.1 };
 
 interface MilestoneTimelineProps {
   language?: Language;
@@ -110,7 +89,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
           section and dissolves at both edges: up under the navbar above (TIMELINE_FADE.hi) and
           down into the footer below (TIMELINE_FADE.lo), so neither end lands on a straight
           seam. */}
-      <TileField tones={TIMELINE_TONES} fade={TIMELINE_FADE} />
+      <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
 
       <div className="relative nq-container">
         <div className="mx-auto max-w-[56rem]">

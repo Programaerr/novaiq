@@ -122,6 +122,28 @@ export const PAPER_BAND_TONES: FieldTones = {
 };
 
 /**
+ * A whole SECTION of blue, rather than a strip across the edge of one.
+ *
+ * Both `into` edges are the ground's own colour, which is what makes this different from the band
+ * sets above: those cross from one section's colour into the next, so each end fades toward
+ * something else. This one has nothing to cross into — it fills its section and simply runs out at
+ * the top and bottom, so neither end lands on a straight seam.
+ *
+ * `foam` stays the page's sand so the field ties to whatever panel is sitting on it.
+ *
+ * Shared by the timeline page and the templates page. It was written twice, once in each, which is
+ * exactly how two sections that are meant to be the same surface drift into two surfaces.
+ */
+export const SECTION_TONES: FieldTones = {
+  trough: '#6E80B8',
+  crest: '#A5B4E0',
+  foam: SAND,
+  ground: PERIWINKLE,
+  intoLo: PERIWINKLE,
+  intoHi: PERIWINKLE,
+};
+
+/**
  * How much of the canvas, as a fraction of its height, the field spends breaking up at each edge.
  *
  * This is how a field ENDS, and it is a real edge rather than a shape laid over one: the cubes
@@ -146,6 +168,11 @@ export const HERO_FADE: FieldFade = { lo: 0.16, hi: 0 };
 
 /** The contact band's: a strip that has to arrive and settle inside its own height, so both. */
 export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.36 };
+
+/** A full section's: a little at the top where the cubes slide under the navbar, more at the bottom
+    where they run into whatever follows. The middle stays full strength, which is where the content
+    sits. */
+export const SECTION_FADE: FieldFade = { lo: 0.22, hi: 0.1 };
 
 /** Key direction, in the field's own space. Up and across, so the tops are the lit faces and the
     two visible sides split into half light and shadow. */
