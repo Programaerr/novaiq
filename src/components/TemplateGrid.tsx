@@ -27,34 +27,33 @@ const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
 );
 
-// ── The board ──────────────────────────────────────────────────────────────────────────────
+// ── The menu ───────────────────────────────────────────────────────────────────────────────
 //
-// Every template is on screen at once, in a grid whose squares are offset against each other like
-// a chessboard: a square is dropped by half a step when its column and its row have different
-// parities, exactly the rule that makes a board's dark squares dark.
+// One template per line, down a single column: a thumbnail, the name, what it costs, and the one
+// action — then the details fold down underneath when the line is opened. A menu.
 //
-// It replaced a focus carousel — a row of five with the middle one at full size and its neighbours
-// turned and dimmed. That row could only ever show one template properly and hid the other ten
-// behind a drag; a board shows all eleven at their real size and the visitor picks. The drag, the
-// pager and the auto-advance went with it, because all three existed only to move a window that
-// no longer exists.
-const STAGGER = 88;
+// It has been three shapes now and each one lost something the next got back. A focus carousel
+// showed one template properly and hid ten behind a drag. A chessboard grid showed all eleven, and
+// paid for it in width: three columns of 387px meant every name was truncated and every subtitle
+// clipped to one line, on a page whose container is 1216px wide. A menu spends that width the way
+// a list does — the picture stays small and fixed and the WORDS get the rest — so nothing is cut
+// off, and eleven lines scan in the time three rows of cards take to read.
+//
+// The line's height when it is shut. The picture is as tall as the line and the text sits beside
+// it, so this is the one number that sets the whole rhythm of the column.
+const ROW_H_DESKTOP = 168;
+const ROW_H_MOBILE = 150;
 
-// The card's two heights.
-//
-// SHUT it is the picture and nothing else — image, name, one action across the bottom of it.
-// OPEN, the body falls down out of the picture's lower edge and the card is a page. Both are
-// written here rather than as classes because the height in between them is arithmetic, not a
-// breakpoint: it is HEADER + BODY x (how far the page has fallen), computed in one calc() off a
-// custom property, so the card's height and the page turning into it are the same number.
-const HEADER_H_DESKTOP = 250;
-const HEADER_H_MOBILE = 210;
-// Only a fallback now, and a ceiling for the page's own canvas. The body's real height is whatever
-// its content comes to, measured per card and written back as --nq-body: eleven templates whose
-// descriptions run from two lines to six were all being given the same 360px panel, so the short
+// How wide the picture is. Fixed, not a fraction: the point of the shape is that the words get
+// every pixel the picture does not need.
+const THUMB_W_DESKTOP = 244;
+const THUMB_W_MOBILE = 116;
+// Only a fallback, and the canvas's size before the first measurement. The body's real height is
+// whatever its content comes to, measured per line and written back as --nq-body: eleven templates
+// whose descriptions run from two lines to six were all being given the same panel, so the short
 // ones ended in a hand's width of empty white and the long ones were clamped when they did not have
-// to be. A card that is a page should be as tall as its page.
-const BODY_H_DESKTOP = 360;
+// to be. A line that opens into a page should be as tall as its page.
+const BODY_H_DESKTOP = 240;
 const BODY_H_MOBILE = 330;
 
 // How long the page takes to fall. Slower than the 150-300ms a state change normally gets,
@@ -120,41 +119,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     };
   }, [showFilterPanel]);
 
-  /* ── The board's shape ─────────────────────────────────────────────────────────────────
-     One column on a phone, two from 640, three from 1024. Read here rather than left to CSS
-     because the chessboard offset needs to know which column a card is in, and a grid does not
-     tell its children that. */
-  const [cols, setCols] = useState(1);
+  // One breakpoint, and only because the line is a different size on a phone. There is no column
+  // count to track any more — a menu is one column at every width, which is most of why it fits
+  // a narrow screen without needing a second layout.
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const two = window.matchMedia('(min-width: 640px)');
-    const three = window.matchMedia('(min-width: 1024px)');
-    const read = () => setCols(three.matches ? 3 : two.matches ? 2 : 1);
+    const mq = window.matchMedia('(max-width: 639px)');
+    const read = () => setIsMobile(mq.matches);
     read();
-    two.addEventListener('change', read);
-    three.addEventListener('change', read);
-    return () => {
-      two.removeEventListener('change', read);
-      three.removeEventListener('change', read);
-    };
+    mq.addEventListener('change', read);
+    return () => mq.removeEventListener('change', read);
   }, []);
 
-  const isMobile = cols === 1;
-  const headerH = isMobile ? HEADER_H_MOBILE : HEADER_H_DESKTOP;
+  const rowH = isMobile ? ROW_H_MOBILE : ROW_H_DESKTOP;
+  const thumbW = isMobile ? THUMB_W_MOBILE : THUMB_W_DESKTOP;
   const bodyH = isMobile ? BODY_H_MOBILE : BODY_H_DESKTOP;
-
-  /**
-   * The chessboard drop for the square at this index.
-   *
-   * Column parity alone gives a zigzag — every other COLUMN sits low, and the same three shapes
-   * repeat down the page. Adding the row is what makes it a board: a square is dropped when its
-   * column and its row disagree, so each row is the inverse of the one above it and the low squares
-   * interlock with the high ones instead of stacking into stripes.
-   *
-   * Zero at one column, where there is nothing to interlock with and the offset would only be a gap
-   * at the top of every other card.
-   */
-  const offsetFor = (index: number) =>
-    cols > 1 && (((index % cols) + Math.floor(index / cols)) % 2 === 1) ? STAGGER : 0;
 
   /* ── Opening ───────────────────────────────────────────────────────────────────────────
      One card open at a time. `expandedId` is which one; `foldingId` is which one the paper is
@@ -220,7 +199,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     searchQuery,
     currentLang,
     currency,
-    cols,
+    isMobile,
   ]);
 
   // And on resize, because the height of a paragraph depends on the width it is set in.
@@ -276,7 +255,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       const g = grid.getBoundingClientRect();
       const body = card.querySelector<HTMLElement>('[data-body]');
       setFoldBox({
-        top: c.top - g.top + headerH,
+        top: c.top - g.top + rowH,
         left: c.left - g.left,
         width: c.width,
         height: body ? Math.ceil(body.scrollHeight) : bodyH,
@@ -305,7 +284,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [foldingId, expandedId, reduced, headerH, bodyH]);
+  }, [foldingId, expandedId, reduced, rowH, bodyH]);
 
   const toggle = (id: string) => {
     setFoldingId(id);
