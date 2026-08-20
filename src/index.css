@@ -331,25 +331,20 @@
        background composition; the page still looks dark, which is exactly why it can sit there
        unnoticed. The flat colour belongs on `html` (see --nq-ground), which is also the element
        whose colour fills the overscroll area, so nothing is lost by taking it off here. */
-    color: #f4f4f5;
+    color: #101322;
     overflow-x: hidden;
   }
 
-  /* Charcoal — the page's entire background, and the only one it has.
+  /* Sand — the page's entire background, and the only one it has.
 
      ## Deliberately quiet
 
-     This used to carry the lighting: diagonal shafts from the upper right, a source, a spill. All
-     of it is gone, because the hero grew a light source of its own that is far stronger than any
-     of it — a planet's rim across the top of the first screen — and two light directions on one
-     page cancel each other out. Whatever is brightest has to be the thing you are meant to look
-     at. So the ground is a plain charcoal vignette now, and the hero owns the light.
-
-     Tinted violet now, and the tint is the point rather than a side effect. A page ground hands
-     its hue to every grey above it: the same zinc border that read neutral on charcoal picks up
-     the violet here without a character of it changing, which is what ties the accent to the rest
-     of the interface instead of leaving it stranded on the buttons. It is kept very low in
-     saturation for the same reason — the ground has to carry the hue, not compete with it.
+     One flat fill, the same `--nq-ground` value `html` itself paints, restated on the
+     pseudo-element for the reason explained above rather than for any lighting effect of its own —
+     there is no gradient, no shaft, no vignette left here. That is a composition decision, not a
+     simplification: this is now the palette's lightest large surface, and a page ground drawing
+     attention to itself is a page ground competing with the periwinkle accent that is supposed to
+     be the one thing that stands out.
 
      ## Why this costs nothing
 
@@ -376,21 +371,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    /* Charcoal, and essentially nothing else.
-       The diagonal light shafts that used to be here are gone, and that is a composition decision
-       rather than a simplification: the hero carries a real light source of its own (the mark's
-       lit rim), and a page-wide shaft lighting from the upper right meant two light directions
-       arguing on the same screen. A page can only have one. So the light belongs to the hero, and
-       the ground under everything else goes quiet and lets it be the brightest thing on the page.
-
-       Neutral greys, not the navy this was. The three stops keep the exact LIGHTNESS structure of
-       the blue version they replace — #26262A/#161619/#000000 against #1E2668/#131A48/#05071A — so
-       the page has the same sense of depth and none of the hue. A vignette is the easiest place
-       for a colour cast to survive a repaint unnoticed, because nobody looks straight at it.
-
-       #26262A in the middle down to black at the corner: small enough not to read as a gradient
-       anyone can point at, and just enough that a document this long is never a dead rectangle. */
-    background-color: #000000;
+    background-color: #D5BDAC;
   }
 }
 
@@ -681,17 +662,17 @@
     inset -3px -3px 8px rgba(255, 255, 255, 0.14);
 }
 
-/* Hover inverts the whole pill (white/black -> black/white), so the ambient glow inverts
-   too — a black bloom would disappear against a black pill, a white one reads as the
+/* Hover inverts the whole pill (paper/ink -> ink/paper), so the ambient glow inverts
+   too — an ink bloom would disappear against an ink pill, a paper one reads as the
    surface catching light instead. Declared after .is-active so hover wins when both apply
    (same selector specificity; source order breaks the tie). */
 .filter-pill-btn:hover,
 .filter-pill-btn:focus-visible {
-  background: #0A0A0A;
-  color: #FFFFFF;
+  background: var(--color-ink);
+  color: var(--color-paper);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+    inset 0 1px 0 rgba(246, 241, 233, 0.12),
+    inset 0 -1px 1px rgba(16, 19, 34, 0.4);
   transform: scale(1.03);
 }
 
@@ -703,14 +684,14 @@
    .nq-cta-badge). Published here so a `.filter-pill-btn` can carry that badge without the
    component having to know which button family it is wearing. */
 .filter-pill-btn {
-  --nq-ink: #111111;
-  --nq-surface: #FFFFFF;
+  --nq-ink: var(--color-ink);
+  --nq-surface: var(--color-paper);
 }
 
 .filter-pill-btn:hover,
 .filter-pill-btn:focus-visible {
-  --nq-ink: #FFFFFF;
-  --nq-surface: #0A0A0A;
+  --nq-ink: var(--color-paper);
+  --nq-surface: var(--color-ink);
 }
 
 
@@ -830,14 +811,14 @@
 }
 
 /* The primary button takes the DARK beam, and this is a direct consequence of the palette change
-   rather than a preference: `.nq-btn--solid` used to be violet and is now #E4E4E7, so a white beam
-   was drawing white-on-near-white and the button simply stopped animating on hover.
+   rather than a preference: `.nq-btn--solid` fills with periwinkle, and a periwinkle-on-periwinkle
+   beam would draw with almost no contrast against its own body.
 
    Declared here rather than by adding the modifier class in JSX, because the thing that decides it
    is the surface colour, and the surface colour is decided in this file. A component should not
    have to know which way its own beam has to point. */
 .nq-btn--solid {
-  --beam-ink: #111111;
+  --beam-ink: var(--color-ink);
 }
 
 .nq-btn:hover .nq-btn-beam,
