@@ -334,7 +334,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   };
 
   return (
-    <section id="contract-section" className="py-4 sm:py-6 relative" style={{ background: '#0B1130' }}>
+    <section id="contract-section" className="py-4 sm:py-6 relative">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Title */}
