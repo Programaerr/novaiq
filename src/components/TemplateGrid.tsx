@@ -1,9 +1,9 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { Template } from '../types';
 import { useLiveTemplates } from '../lib/pricingOverrides';
-import { Globe, Smartphone, Eye, ArrowLeft, Info } from 'lucide-react';
+import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { formatPrice, Currency } from '../lib/currency';
+import { Currency } from '../lib/currency';
 import { INK, PERIWINKLE } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { PageLoader } from './PageLoader';
