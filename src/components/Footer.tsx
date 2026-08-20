@@ -106,7 +106,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({ label, onClick, href }) => (
  * ground it is drawn on — and the `tone` prop is the only place either is written. A third
  * ground would be two lines.
  */
-export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, tone = 'ink' }) => {
+export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, onRequestProject, tone = 'ink' }) => {
   const isAr = language === 'ar';
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
   const isPaper = tone === 'paper';

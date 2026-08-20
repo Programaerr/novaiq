@@ -471,7 +471,7 @@ export default function App() {
               onSelectForContract={(template, customNotes, primaryColorHex) => {
                 setStandalonePreviewTemplate(null);
                 window.history.replaceState({}, '', window.location.pathname);
-                handleSelectTemplateForContract(template, customNotes, primaryColorHex);
+                startContract(template, customNotes, primaryColorHex);
               }}
             />
           </Suspense>
@@ -556,7 +556,7 @@ export default function App() {
                 language={language}
                 currency={currency}
                 focusTemplateId={lastPreviewedTemplateId}
-                onSelectTemplateForContract={handleSelectTemplateForContract}
+                onSelectTemplateForContract={startContract}
                 onOpenStandalonePreview={(template) => {
                   setLastPreviewedTemplateId(template.id);
                   setStandalonePreviewTemplate(template);
