@@ -1,5 +1,5 @@
 import React, { useCallback, useId, useState } from 'react';
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
@@ -40,60 +40,38 @@ import { BAND_FADE, PERIWINKLE_TONES, TileField } from './TileField';
  * highest-contrast thing in the section.
  */
 
-/**
- * The numbers under "GET IN TOUCH".
- *
- * EMPTY ON PURPOSE. The wireframe carries +00 1234 567 678 and +00 1234 456 890, which are Canva's
- * dummy digits, and publishing invented contact numbers on a real company's site is worse than
- * publishing none — someone dials them. The column renders the numbers only when this has entries
- * and says something useful when it does not, so the section is correct with it empty and correct
- * the moment real numbers are pasted in. One array, nothing else to change.
- */
-const PHONE_NUMBERS: string[] = [];
-
-/**
- * The address the site already publishes, in the footer.
- *
- * Taken from there rather than invented, and it is the reason this column says something useful
- * with no phone numbers configured: there is a real way to reach a person on the page either way.
- * If it ever changes it has to change in both places — Footer.tsx is the other one.
- */
-const EMAIL_ADDRESS = 'hello@novaiq.io';
-
 interface Field {
-  key: 'name' | 'email' | 'message';
+  key: 'name' | 'phone' | 'message';
   ar: string;
   en: string;
-  type: 'text' | 'email' | 'textarea';
+  type: 'text' | 'tel' | 'textarea';
   autoComplete: string;
 }
 
 const FIELDS: Field[] = [
   { key: 'name', ar: 'اسمك', en: 'Your name', type: 'text', autoComplete: 'name' },
-  { key: 'email', ar: 'بريدك الإلكتروني', en: 'Your email', type: 'email', autoComplete: 'email' },
+  { key: 'phone', ar: 'رقم هاتفك', en: 'Your phone', type: 'tel', autoComplete: 'tel' },
   { key: 'message', ar: 'رسالتك', en: 'Your message', type: 'textarea', autoComplete: 'off' },
 ];
 
 type Values = Record<Field['key'], string>;
 type Errors = Partial<Record<Field['key'], string>>;
 
-const EMPTY: Values = { name: '', email: '', message: '' };
+const EMPTY: Values = { name: '', phone: '', message: '' };
 
 /**
- * Deliberately loose: something before an @, something after it, a dot and more.
- *
- * The exhaustive RFC pattern rejects addresses that work, and is the reason people meet "invalid
- * email" on an address they have used for years. Anything that gets past this is settled by the
- * only test that settles it, which is whether the reply arrives.
+ * Iraqi mobile numbers start with 07 and run to 11 digits; a leading +964 is also accepted.
+ * Looser than the strict contract check on purpose — this is a first-touch message, not a signed
+ * document, so a friendly nudge beats a hard wall.
  */
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PHONE = /^(?:\+964|0)?7\d{9}$/;
 
 function validate(values: Values, isAr: boolean): Errors {
   const errors: Errors = {};
   if (!values.name.trim()) errors.name = isAr ? 'اكتب اسمك.' : 'Please enter your name.';
-  if (!values.email.trim()) errors.email = isAr ? 'اكتب بريدك.' : 'Please enter your email.';
-  else if (!EMAIL.test(values.email.trim()))
-    errors.email = isAr ? 'البريد مو صحيح.' : 'That email does not look right.';
+  if (!values.phone.trim()) errors.phone = isAr ? 'اكتب رقم هاتفك.' : 'Please enter your phone.';
+  else if (!PHONE.test(values.phone.replace(/\s+/g, '')))
+    errors.phone = isAr ? 'الرقم مو صحيح.' : 'That number does not look right.';
   if (!values.message.trim()) errors.message = isAr ? 'اكتب رسالتك.' : 'Please enter a message.';
   return errors;
 }
@@ -147,18 +125,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
         return;
       }
 
-      setSending(true);
-      try {
-        await addDoc(collection(db, 'contact_messages'), {
-          name: values.name.trim(),
-          email: values.email.trim(),
-          message: values.message.trim(),
-          language,
-          createdAt: serverTimestamp(),
-        });
-        setSent(true);
-        setValues(EMPTY);
-        setTouched({});
+      const found = validate(values, isAr);
+      setTouched({ name: true, phone: true, message: true });
       } catch {
         /* The message did not go. Say so plainly and keep what they typed — clearing the form on a
            failed send loses their words as well as their time. */
@@ -208,15 +176,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
           <h2
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
             style={{ color: INK, ['--nq-rise-delay' as string]: '80ms' }}
-          >
-            {isAr ? 'تواصل معنا' : 'Contact us'}
-          </h2>
+            >
+              {isAr ? 'المراسلة والدعم' : 'Messaging & Support'}
+            </h2>
 
-          {/* The form takes the wider column and the ways to reach a person the narrower one, which
-              is the wireframe's split and also the right one: the form is the thing being done
-              here, and the numbers are the alternative to doing it. */}
-          <div className="mt-10 sm:mt-12 grid gap-10 sm:gap-12 lg:grid-cols-[1.65fr_1fr] lg:gap-x-16">
-            <form noValidate onSubmit={submit} className="grid gap-4 sm:gap-5">
+            {/* The form is the whole point of the section now: a single, centred way to reach a
+               person. The direct-contact column (email / address) was removed — phone-first, since
+               that is what Iraq actually uses. */}
+            <div className="mt-10 sm:mt-12 mx-auto max-w-[42rem]">
+              <form noValidate onSubmit={submit} className="grid gap-4 sm:gap-5">
               {FIELDS.map((field, i) => {
                 const id = uid + '-' + field.key;
                 const error = touched[field.key] ? errors[field.key] : undefined;
