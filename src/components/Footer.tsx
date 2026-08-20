@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { PAPER, INK } from '../lib/homePalette';
+import { PAPER, INK, PERIWINKLE } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
@@ -113,7 +113,13 @@ const FooterLink: React.FC<FooterLinkProps> = ({ label, onClick, href }) => (
  * ground it is drawn on — and the `tone` prop is the only place either is written. A third
  * ground would be two lines.
  */
-export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, onRequestProject, tone = 'ink' }) => {
+export const Footer: React.FC<FooterProps> = ({
+  language = 'ar',
+  onNavigate,
+  onRequestProject,
+  tone = 'ink',
+  fromColor,
+}) => {
   const isAr = language === 'ar';
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
   const isPaper = tone === 'paper';
