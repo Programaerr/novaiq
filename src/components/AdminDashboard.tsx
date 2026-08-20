@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Settings } from 'lucide-react';
+import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Settings, ArrowLeftRight } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
@@ -14,6 +14,7 @@ import { PricingTab } from './admin/PricingTab';
 import { TeamTab } from './admin/TeamTab';
 import { MembersTab } from './admin/MembersTab';
 import { SettingsTab } from './admin/SettingsTab';
+import { CurrencyConverterCard } from './admin/CurrencyConverterCard';
 
 // The shell only: it owns the live contract subscription, derives the stats every tab reads,
 // and switches between them. Each tab's own markup and logic lives in ./admin/.
@@ -23,7 +24,7 @@ interface AdminDashboardProps {
   currency?: Currency;
 }
 
-type Tab = 'overview' | 'contracts' | 'pricing' | 'team' | 'members' | 'settings';
+type Tab = 'overview' | 'contracts' | 'pricing' | 'currency' | 'team' | 'members' | 'settings';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, currency = 'IQD' }) => {
   const isAr = language === 'ar';
@@ -90,6 +91,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
         { id: 'contracts', label: isAr ? 'العقود' : 'Contracts', icon: FileCheck },
         { id: 'pricing', label: isAr ? 'الأسعار' : 'Pricing', icon: Tag },
+      ],
+    },
+    {
+      heading: isAr ? 'الأدوات' : 'Tools',
+      items: [
+        { id: 'currency', label: isAr ? 'محول العملات' : 'Currency Converter', icon: ArrowLeftRight },
       ],
     },
     {
@@ -202,6 +209,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           )}
           {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} currency={currency} contracts={contracts} stats={stats} />}
           {tab === 'pricing' && <PricingTab isAr={isAr} language={language} currency={currency} />}
+          {tab === 'currency' && (
+            <div className="max-w-2xl">
+              <CurrencyConverterCard isAr={isAr} />
+            </div>
+          )}
           {tab === 'team' && <TeamTab isAr={isAr} />}
           {tab === 'members' && <MembersTab isAr={isAr} />}
           {tab === 'settings' && <SettingsTab isAr={isAr} />}

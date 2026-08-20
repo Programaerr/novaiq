@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Loader2, FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { useLiveTemplates } from '../lib/pricingOverrides';
 import { NovaiqLogo } from './NovaiqLogo';
+import { PhoneBooking, PhoneChat, PhoneStats, SiteHero, SiteCards, SiteDashboard } from './LoginGalleryArt';
 
 interface LoginPageProps {
   language: Language;
@@ -72,26 +72,25 @@ const COVER_GAP = 'var(--cover-gap)';
  */
 export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGuest }) => {
   const isAr = language === 'ar';
-  const templates = useLiveTemplates();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Dealt round-robin rather than sliced into thirds, so three consecutive covers never end up
-  // stacked in one column — with ten templates a sliced split would put the same category
-  // together and the gallery would read as sorted rather than scattered.
+  // The six pieces of artwork, dealt round-robin into three columns so the two kinds never
+  // stack together — the app screens and the site screens alternate down the gallery instead of
+  // reading as two sorted blocks.
+  const ARTWORK = [PhoneBooking, PhoneChat, PhoneStats, SiteHero, SiteCards, SiteDashboard];
   const columns = useMemo(() => {
-    const buckets: string[][] = COLUMNS.map(() => []);
-    templates.forEach((t, i) => buckets[i % buckets.length].push(t.previewImage));
-    // A column short on covers still has to fill a tall viewport twice over, so it repeats its
-    // own until it has enough. Without this a filtered-down catalogue would leave visible gaps
-    // sliding through the frame.
-    return buckets.map((imgs) => {
-      if (imgs.length === 0) return imgs;
-      const filled = [...imgs];
-      while (filled.length < 4) filled.push(...imgs);
+    const buckets: React.ComponentType<{ className?: string }>[][] = COLUMNS.map(() => []);
+    ARTWORK.forEach((art, i) => buckets[i % buckets.length].push(art));
+    // A column short on pieces still has to fill a tall viewport twice over, so it repeats its
+    // own until it has enough.
+    return buckets.map((arts) => {
+      if (arts.length === 0) return arts;
+      const filled = [...arts];
+      while (filled.length < 4) filled.push(...arts);
       return filled;
     });
-  }, [templates]);
+  }, []);
 
   const handleGoogleSignIn = async () => {
     if (isSubmitting) return;
@@ -271,49 +270,28 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             className="absolute inset-0 flex justify-center lg:justify-end"
             style={{ gap: COVER_GAP, paddingInlineEnd: `calc(${COVER_GAP} * 2)` }}
           >
-            {columns.map((imgs, col) => {
-              if (imgs.length === 0) return null;
+            {columns.map((arts, col) => {
+              if (arts.length === 0) return null;
               const { duration, direction } = COLUMNS[col];
               return (
                 <div key={col} className="overflow-hidden shrink-0" style={{ width: COVER_W }}>
-                  {/* Spacing lives on the pills as margin, NOT as a flex `gap` on this track,
-                      and that is load-bearing rather than stylistic. With `gap`, a track of 2n
-                      items is 2n·item + (2n−1)·gap tall — one gap short of two identical
-                      halves — so travelling exactly -50% lands half a gap away from where the
-                      second copy started and the loop jumps ~8px once per cycle. Folding the
-                      gap into each item makes the track exactly 2n·(item+gap), and -50% is
-                      then precisely one pass. */}
                   <div
                     className="login-marquee__track flex flex-col"
                     style={{
                       animationName: direction === 'up' ? 'login-marquee-up' : 'login-marquee-down',
                       animationDuration: duration,
-                      // Staggered start so the capsule seams across the columns don't line up
-                      // into one horizontal band marching down the page. In px against the
-                      // fixed cover height rather than rem, so it stays a proportion of the
-                      // shape it is offsetting no matter the root font size.
                       marginTop: `calc(${-col} * (${COVER_H} + ${COVER_GAP}) / ${COLUMNS.length})`,
                     }}
                   >
-                    {/* Rendered twice — see the note on the keyframes in index.css. The second
-                        pass is aria-hidden so a screen reader is not read the same gallery
-                        twice over. */}
                     {[0, 1].map((pass) =>
-                      imgs.map((src, i) => (
+                      arts.map((Art, i) => (
                         <div
                           key={`${pass}-${i}`}
                           aria-hidden={pass === 1 ? 'true' : undefined}
                           className="relative shrink-0 rounded-[999px] overflow-hidden bg-zinc-900 border border-white/10"
                           style={{ width: COVER_W, height: COVER_H, marginBottom: COVER_GAP }}
                         >
-                          <img
-                            src={src}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                            draggable={false}
-                            className="absolute inset-0 w-full h-full object-cover"
-                          />
+                          <Art className="absolute inset-0 w-full h-full" />
                         </div>
                       )),
                     )}
