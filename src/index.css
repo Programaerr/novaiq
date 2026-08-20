@@ -211,14 +211,13 @@
 }
 
 @layer base {
-  /* The account pages (control panel + customer profile, marked by useDocumentFlag) sit on
-     the home palette instead of the site's black: a PAPER ground and INK text. This is the
-     same exception the home page itself makes, and the same reason the palette is one module
-     (homePalette.ts) — the ground, the text and the vignette swap together, in one rule,
-     rather than each dashboard carrying its own idea of what "light" means.
-     `color-scheme: light` is load-bearing here: it flips the native scrollbar, form controls
-     and autofill wash to the light rendering, exactly as the global `color-scheme: dark`
-     flips them the other way on the rest of the site. */
+  /* One palette, everywhere — sand grounds, a paper break, a periwinkle accent, one ink. This used
+     to be an EXCEPTION carved out for the account pages only (`html[data-account]`), with the rest
+     of the site still on a black-and-white "cosmic" identity underneath. That split is gone: the
+     home palette is simply what `html` is now, and the account pages' own override was deleted
+     because it had become a duplicate of these same values rather than an exception to them.
+     `color-scheme: light` flips the native scrollbar, form controls and autofill wash to the light
+     rendering — it used to read `dark` here for the opposite reason, when the page itself was. */
   html {
     /* No `scroll-behavior: smooth` here, deliberately. It only ever affects PROGRAMMATIC scrolls
        — the wheel is smoothed by Lenis (useScrollBehavior) — and having both meant two smoothing
@@ -229,37 +228,31 @@
        smooth jump already ask for it explicitly with `behavior: 'smooth'`, so nothing that
        wanted this has lost it. */
     -webkit-tap-highlight-color: transparent;
-    /* Tells the browser this page is dark, which is not the same as painting it dark. It is
-       what makes everything the site does NOT draw itself come out dark too: native scrollbars,
+    /* Tells the browser this page is light, which is not the same as painting it light. It is
+       what makes everything the site does NOT draw itself come out light too: native scrollbars,
        form controls, the autofill wash on inputs, `<select>` popups, and the flash of canvas
-       before first paint. Without it those all render in the light default and sit on a black
-       page as bright rectangles — the most common tell that a dark site was themed rather than
-       designed. It also stops the white flash between navigation and first paint. */
-    color-scheme: dark;
+       before first paint. Without it those render in the dark default and sit on a sand page as
+       black rectangles — a trace of exactly the identity this was rebuilt to remove. It also
+       stops a dark flash between navigation and first paint. */
+    color-scheme: light;
     /* The page's flat base colour, and the one the browser uses for the area past the document
        when a phone rubber-bands past either end. It has to match the backdrop below or a hard
        scroll flashes a different shade across the top or bottom of the page — which is why it
        is a variable read by both `html` and `body` rather than the same literal written twice
        and left to drift. See the note on body::before. */
-    --nq-ground: #000000;
+    --nq-ground: #D5BDAC;
 
-    /* The accent. There is NO HUE ANYWHERE IN THE PAGE any more — the site is black and white, and
-       the only colour left on it is the hero mark itself (HeroLogo3D.tsx), which keeps the blue →
-       violet → white ramp it was tuned to. That is the whole design now: a monochrome page with a
-       single chromatic object on it. One colourful thing on a grey page is an accent; the same
-       colour repeated through the buttons, the panels and the card beams is a theme, and the two
-       cannot both be true.
+    /* The accent, and now the only hue the interface itself ever draws. The old identity was
+       monochrome by design, one deliberate chromatic object against a black-and-white page — this
+       one is built the other way round: sand and paper carry the page, periwinkle is what a button,
+       a link or a focus ring is FOR. There is no black left standing in for either role: the
+       darkest tone in the whole system is `--color-ink`, a near-navy, never a literal #000.
 
-       So this token is no longer a hue, it is an EMPHASIS LEVEL: the brightest surface the page is
-       allowed to draw. It stays a variable for the reason it always was — a value used from one
-       place can be retuned in one edit, while the same colour typed into thirty components is a
-       colour the site is stuck with.
-
-       Not #FFFFFF, deliberately. `.nq-btn--solid` fills with this and BRIGHTENS on hover, which is
-       the one direction that reads as the control coming forward on a dark page. A fill that
-       already sits at pure white has nowhere left to go and the hover has to invert its logic. */
---nq-accent: #ffffff;
-        --nq-accent-soft: #ffffff;
+       `.nq-btn--solid` fills with this and DARKENS on hover now, not brightens — the page itself
+       got light, so a hover that dims a couple of steps toward ink is what reads as the control
+       being pressed into a light surface, where the old brightening-toward-white logic would have
+       washed the fill out toward invisibility instead. */
+    --nq-accent: #8295CF;
     background-color: var(--nq-ground);
 
     /* ── The content container, as a NUMBER rather than a utility class ────────────────────────
