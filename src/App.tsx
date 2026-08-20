@@ -656,8 +656,7 @@ export default function App() {
               language={language}
               onNavigate={navigateTo}
               onRequestProject={startContract}
-              tone="paper"
-              fromColor={FOOTER_FROM[activePage] ?? INK}
+              pageKey={activePage}
             />
           </Suspense>
         </LazyOnView>
