@@ -228,11 +228,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
 
           {/* Contact. */}
           <div className="lg:col-span-4">
-            <FooterColumn heading={isAr ? 'تواصل معنا' : 'Get in touch'}>
-
-            </FooterColumn>
-
-            <div className="mt-7 rounded-2xl bg-[rgb(var(--ft-fg)/0.04)] backdrop-blur-xl p-5"
+            <div className="rounded-2xl bg-[rgb(var(--ft-fg)/0.04)] backdrop-blur-xl p-5"
               style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-fg) / 0.1)' }}
             >
               <p className="text-[0.7rem] uw:text-[0.82rem] font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a60))]">
