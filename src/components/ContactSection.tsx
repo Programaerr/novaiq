@@ -291,54 +291,6 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
                 )}
               </div>
             </form>
-
-            <div className="nq-rise" style={{ ['--nq-rise-delay' as string]: '520ms' }}>
-              <h3
-                className="text-[1.05rem] sm:text-[1.2rem] uw:text-[1.35rem] font-black leading-none"
-                style={{ color: INK }}
-              >
-                {isAr ? 'تواصل مباشر' : 'Get in touch'}
-              </h3>
-
-              <ul className="mt-4 grid gap-1">
-                <li>
-                  {/* A real mailto:, so this is one tap rather than a string to copy out. */}
-                  <a
-                    href={'mailto:' + EMAIL_ADDRESS}
-                    className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] uw:text-[1.05rem] font-bold hover:underline"
-                    style={{ color: INK }}
-                  >
-                    <Mail className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
-                    <span dir="ltr">{EMAIL_ADDRESS}</span>
-                  </a>
-                </li>
-
-                {PHONE_NUMBERS.map((number) => (
-                  <li key={number}>
-                    {/* A real tel: link, not text. On a phone that is the difference between
-                        reaching someone and copying digits out by hand. dir="ltr" because a number
-                        with a leading + reorders into nonsense inside an RTL line. */}
-                    <a
-                      href={"tel:" + number.replace(/[^d+]/g, "")}
-                      dir="ltr"
-                      className="min-h-11 inline-flex items-center gap-2.5 text-[0.95rem] uw:text-[1.05rem] font-bold hover:underline"
-                      style={{ color: INK }}
-                    >
-                      <Phone className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
-                      <span>{number}</span>
-                    </a>
-                  </li>
-                ))}
-
-                <li
-                  className="min-h-11 flex items-center gap-2.5 text-[0.95rem] uw:text-[1.05rem] font-bold"
-                  style={{ color: INK }}
-                >
-                  <MapPin className="w-4 h-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
-                  <span>{isAr ? "بغداد، العراق" : "Baghdad, Iraq"}</span>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>

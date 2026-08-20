@@ -66,14 +66,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
                 <RefreshCw className="w-4 h-4" />
                 إعادة تحميل المنصة
               </button>
-
-              <button
-                onClick={this.handleResetState}
-                className="nq-btn nq-btn--solid w-full py-3 px-6 rounded-xl font-semibold text-xs cursor-pointer"
-              >
-                <span className="nq-btn-beam" aria-hidden="true" />
-                العودة إلى الصفحة الرئيسية
-              </button>
             </div>
           </div>
         </div>
