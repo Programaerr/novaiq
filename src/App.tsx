@@ -489,8 +489,6 @@ export default function App() {
         setActivePage={(page) => navigateTo(page)}
         language={language}
         setLanguage={setLanguage}
-        currency={currency}
-        setCurrency={setCurrency}
       />
 
       {/* Main Content View with Hardware Accelerated Transitions. The Navbar above is
