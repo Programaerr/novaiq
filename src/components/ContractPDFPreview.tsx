@@ -43,7 +43,6 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   const translatedAdminNotes = useAutoTranslate(contract.adminNotes, language);
   const templateTitle = translateText(contract.templateTitle, language);
   const city = translateText(contract.city, language);
-  const country = translateText(contract.country, language);
 
   // This component no longer saves anything. It used to auto-save on mount, which meant the
   // contract was only written once this lazily-loaded chunk (jsPDF + html2canvas, ~900KB)
@@ -90,7 +89,6 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
         translatedAdminNotes={translatedAdminNotes}
         templateTitle={templateTitle}
         city={city}
-        country={country}
       />
 
       <div className="bg-black border border-zinc-800 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl my-auto flex flex-col max-h-[92vh]">
@@ -153,7 +151,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
               <div>{isAr ? 'الممثل المخول:' : 'Authorized Representative:'} <strong className="text-white">{contract.repName}</strong></div>
               <div>{isAr ? 'البريد الإلكتروني:' : 'Email:'} <strong className="text-white font-mono">{contract.email}</strong></div>
               <div>{isAr ? 'الهاتف / الجوال:' : 'Phone / Mobile:'} <strong className="text-white font-mono">{contract.phone}</strong></div>
-              <div>{isAr ? 'المقر والمدينة:' : 'City, Country:'} <strong className="text-white">{city}, {country}</strong></div>
+              <div>{isAr ? 'المدينة:' : 'City:'} <strong className="text-white">{city}</strong></div>
             </div>
           </div>
 

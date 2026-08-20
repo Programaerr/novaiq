@@ -89,7 +89,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [repName, setRepName] = useState(draft?.repName || '');
   const [email] = useState(draft?.email || accountEmail || '');
   const [phone, setPhone] = useState(draft?.phone || '');
-  const [country] = useState('العراق');
   const city = draft?.city || 'بغداد';
   const [fieldErrors, setFieldErrors] = useState<Set<string>>(new Set());
 
@@ -302,7 +301,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       repName,
       email,
       phone,
-      country,
       city,
       templateId: isCustomProject ? CUSTOM_OPTION_VALUE : template.id,
       templateTitle: isCustomProject ? customProjectName.trim() : template.title,
@@ -336,7 +334,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   };
 
   return (
-    <section id="contract-section" className="py-4 sm:py-6 relative">
+    <section id="contract-section" className="py-4 sm:py-6 relative" style={{ background: '#0B1130' }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Title */}
@@ -394,7 +392,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
         </div>
 
         {/* Form Container */}
-        <form onSubmit={handleSubmitContract} className="bg-[#171E42]/95 border border-periwinkle/30 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
+        <form onSubmit={handleSubmitContract} className="bg-[#171E42] border border-periwinkle/30 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
           
           {/* STEP 1: Company Details */}
           {currentStep === 1 && (

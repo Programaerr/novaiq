@@ -120,44 +120,30 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           /* The cap steps up on an ultrawide with the container it sits in. 34rem in a 100rem
              column is a 544px slab beside 1000px of field: not a panel on a background any more,
              a bookmark. 42rem holds the same share of the column the 34rem cap holds of 80rem. */
-          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] uw:max-w-[42rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col relative"
+          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] uw:max-w-[42rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col relative overflow-hidden"
           /* A shadow, because the panel is a flat fill sitting on a busy field and without one the
              two planes fight for the same depth. Tinted navy rather than near-black: a dark shadow
              on sand reads as a black "veil" under the panel, which is the tell that a shadow was
              picked from a palette instead of from the surface it falls on. */
           style={{
-            background: PERIWINKLE,
             boxShadow: '0 26px 64px -24px rgba(16, 19, 34, 0.38)',
           }}
-          onPointerDown={(e) => spawnRef.current(e)}
-          onPointerMove={(e) => { if (e.buttons & 1) spawnRef.current(e); }}
+          onPointerMove={setReveal}
+          onPointerDown={setReveal}
+          onPointerLeave={clearReveal}
+          onPointerUp={clearReveal}
+          onPointerCancel={clearReveal}
         >
-          {/* Press bloom: a soft periwinkle pool that appears where the visitor touches and fades
-              back into the panel. pointer-events-none so it never intercepts a click. */}
-          <canvas
-            ref={curtainCanvasRef}
+          {/* The blue surface and the wordmark live in their own layer that the pointer masks: the
+              spot under the cursor is erased to transparent, revealing the tile field behind the
+              panel. The buttons below are a separate, unmasked layer, so the panel stays clickable. */}
+          <div
+            ref={surfaceRef}
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 w-full h-full"
-            style={{ borderRadius: 'inherit' }}
-          />
-
-          {/* One centred group — name, line, buttons — rather than the name floating high and the
-              buttons pinned to the panel's floor. Grouped, the buttons read as the next thing to do
-              after the sentence they follow; split, they read as panel furniture that happens to be
-              in the same box, and the gap between them grows with every extra pixel of panel. */}
-          <div className="flex-1 grid place-items-center py-8 sm:py-10">
+            className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[1.5rem]"
+            style={{ background: PERIWINKLE }}
+          >
             <div
-              /* No frame around the name, and no animation of its own — it sits still and the
-                 PANEL is what moves, which is the difference between a sail with something written
-                 on it and a sail with a separate flapping label stapled to it.
-
-                 The lighter inset card this started with drew a box around the one thing on the
-                 screen that does not need one: a wordmark is already a shape, and putting it in a
-                 second rectangle inside a rectangle reads as a placeholder rather than as a brand.
-
-                 The ink stays near-black rather than white for a measured reason: white on #8295CF
-                 is 2.97:1, under the 4.5:1 a body-sized line needs, where this ink is 6.4:1 on the
-                 same blue. */
               className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
             >
               <span
@@ -195,7 +181,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               English lands both buttons in the same physical place, and the arrow below points the
               same way for the same reason. */}
           <div
-            className={`flex ${isAr ? '' : 'flex-row-reverse'} flex-wrap items-center justify-center gap-3`}
+            className={`relative z-10 mt-auto flex ${isAr ? '' : 'flex-row-reverse'} flex-wrap items-center justify-center gap-3`}
           >
             <button
               type="button"

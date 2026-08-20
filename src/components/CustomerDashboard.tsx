@@ -314,7 +314,7 @@ function CustomerContractRow({
               </div>
               <div>
                 <span className="text-ink/50 block">{isAr ? 'الموقع' : 'Location'}</span>
-                <strong className="text-ink/90">{contract.city}{contract.country ? `، ${contract.country}` : ''}</strong>
+                <strong className="text-ink/90">{contract.city}</strong>
               </div>
             </div>
 

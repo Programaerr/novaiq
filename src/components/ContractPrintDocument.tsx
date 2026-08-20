@@ -14,7 +14,6 @@ interface ContractPrintDocumentProps {
   translatedAdminNotes?: string;
   templateTitle: string;
   city: string;
-  country: string;
 }
 
 // A print-optimized rendering of the contract, separate from the on-screen preview.
@@ -27,7 +26,7 @@ interface ContractPrintDocumentProps {
 // Letting the browser lay out the text and photographing the result is what makes a genuine
 // Arabic PDF possible at all.
 export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPrintDocumentProps>(
-  ({ contract, language, translatedNotes, translatedAdminNotes, templateTitle, city, country }, ref) => {
+  ({ contract, language, translatedNotes, translatedAdminNotes, templateTitle, city }, ref) => {
     const isAr = language === 'ar';
 
     const t = {
@@ -206,7 +205,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
               <div style={{ flex: 1 }}>
                 <Field label={t.email} value={contract.email} />
                 <Field label={t.phone} value={contract.phone} />
-                <Field label={t.location} value={`${city}, ${country}`} />
+                <Field label={t.location} value={`${city}`} />
               </div>
             </div>
           </div>
@@ -435,7 +434,6 @@ export const ConnectedContractPrintDocument = React.forwardRef<
       translatedAdminNotes={translatedAdminNotes}
       templateTitle={translateText(contract.templateTitle, language)}
       city={translateText(contract.city, language)}
-      country={translateText(contract.country, language)}
     />
   );
 });

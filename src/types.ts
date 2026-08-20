@@ -57,7 +57,6 @@ export interface ContractData {
   repName: string; // Representative Name
   email: string;
   phone: string;
-  country: string;
   city: string;
   
   // Aliases for legacy views
