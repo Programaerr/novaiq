@@ -13,9 +13,12 @@ import {
   LogIn,
   Mail,
   MapPin,
+  Maximize,
+  Monitor,
   Palette,
   Phone,
   Smartphone,
+  Tablet,
   User,
   X,
 } from 'lucide-react';
@@ -718,10 +721,11 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </div>
 
           {/* Width switcher — website only. An app does not have a tablet layout; it has a
-              phone, and the phone is drawn around it. */}
+              phone, and the phone is drawn around it. Desktop/tablet only: on a handset the
+              toolbar is too crowded for it, so the phone gets its own row (see below). */}
           {mode === 'site' && (
             <div
-              className={`flex items-center gap-1 bg-black rounded-xl border border-zinc-800 ${
+              className={`hidden sm:flex items-center gap-1 bg-black rounded-xl border border-zinc-800 ${
                 isNarrowViewport ? 'p-0.5 text-[10px]' : 'p-1 text-xs'
               }`}
             >
@@ -765,6 +769,41 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </button>
         </div>
       </div>
+
+      {/* Phone-only preview-size switch. The toolbar above is crowded on a handset, so the width
+          picker gets its own row, shown ONLY below `sm`. It drives the same `viewport` state the
+          desktop switcher does, so picking "جوال" here loads the 390px live preview in the stage
+          below. Hidden on larger screens to avoid a duplicate control. */}
+      {mode === 'site' && (
+        <div className="sm:hidden flex items-center justify-center gap-1.5 bg-zinc-950 border-b border-zinc-800 px-3 py-2">
+          <span className="text-[10px] font-bold text-zinc-500 ml-1 whitespace-nowrap">حجم المعاينة:</span>
+          {(
+            [
+              { key: 'full', label: 'شاشتك', icon: Maximize, title: 'العرض على شاشتك الحالية' },
+              { key: 'desktop', label: 'كمبيوتر', icon: Monitor, title: 'عرض بعرض 1280 بكسل' },
+              { key: 'tablet', label: 'تابلت', icon: Tablet, title: 'عرض بعرض 834 بكسل' },
+              { key: 'mobile', label: 'جوال', icon: Smartphone, title: 'عرض بعرض 390 بكسل' },
+            ] as const
+          ).map(({ key, label, icon: Icon, title }) => (
+            <button
+              key={key}
+              onClick={() => {
+                setViewport(key);
+                cosmicAudio.playTick();
+              }}
+              title={title}
+              aria-label={title}
+              className={`nq-btn rounded-lg cursor-pointer whitespace-nowrap flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] ${
+                viewport === key ? 'nq-btn--solid font-bold' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              <span className="nq-btn-beam" aria-hidden="true" />
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* The stage. Flat black deliberately: a customer deciding whether they like a product
           should see it on a neutral ground, not floating over a drifting starfield that is
