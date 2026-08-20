@@ -117,6 +117,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, onR
   const isAr = language === 'ar';
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
   const isPaper = tone === 'paper';
+  const footerTone = isPaper ? PAPER : INK;
   const links = useSocialLinks();
 
   const go = (page: string) => () => onNavigate?.(page);
@@ -161,6 +162,25 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, onR
           backgroundSize: '88px 88px',
         }}
       />
+
+      {/* ── The connection belt ───────────────────────────────────────────────────────────────
+          A field of cubes standing on the section above and dissolving into this footer's ground,
+          so every page closes on the same gesture no matter what colour it ends on. The band ramps
+          from `fromColor` (the section directly above) into the footer's own ground; its top is
+          continuous with that section and its bottom settles into flat ground before the links. One
+          belt, owned by the footer, instead of a separate edge hand-built into every page. */}
+      {fromColor && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0"
+          style={{
+            height: 'var(--nq-band)',
+            background: `linear-gradient(to bottom, ${fromColor} 0%, ${footerTone} 100%)`,
+          }}
+        >
+          <TileField tones={connectionTones(fromColor, footerTone, PERIWINKLE)} fade={FOOTER_BAND_FADE} />
+        </div>
+      )}
 
       <div
         className={`relative nq-container pb-16 sm:pb-20 ${
