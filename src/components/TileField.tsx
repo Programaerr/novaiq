@@ -174,6 +174,43 @@ export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.36 };
     sits. */
 export const SECTION_FADE: FieldFade = { lo: 0.22, hi: 0.1 };
 
+/**
+ * A connection band at the meeting of a coloured section and the footer. The cubes stand on
+ * `from` (the section above) and dissolve into `to` (the footer's ground) across the band. Only
+ * the bottom edge fades — the top is continuous with the section, so the field reads as that
+ * section's own surface breaking up rather than a second object dropped on top of it.
+ */
+export const FOOTER_BAND_FADE: FieldFade = { lo: 0.44, hi: 0 };
+
+/** Mix `hex` toward black (amt < 0) or white (amt > 0) by `amt` (0..1). Used to derive a band's
+ *  trough/crest from the section it stands on, so the palette stays in one family without hand
+ *  spelling a ramp for every possible ground. */
+function shadeColor(hex: string, amt: number): string {
+  const h = hex.replace('#', '');
+  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  const target = amt < 0 ? 0 : 255;
+  const p = Math.min(1, Math.max(0, Math.abs(amt)));
+  const mix = (c: number) => Math.round((target - c) * p + c);
+  return `#${[mix(r), mix(g), mix(b)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/** The five paint colours for a connection band joining `from` (the section above) to `to` (the
+ *  footer's ground), with `foam` as the accent on the crests. Trough/crest are `from` a step
+ *  darker/lighter, exactly as the hand-written band sets do. */
+export function connectionTones(from: string, to: string, foam: string): FieldTones {
+  return {
+    trough: shadeColor(from, -0.14),
+    crest: shadeColor(from, 0.14),
+    foam,
+    ground: from,
+    intoLo: to,
+    intoHi: from,
+  };
+}
+
 /** Key direction, in the field's own space. Up and across, so the tops are the lit faces and the
     two visible sides split into half light and shadow. */
 const LIGHT = new THREE.Vector3(-0.42, 0.5, 0.76).normalize();

@@ -1,8 +1,9 @@
 import React from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { PAPER } from '../lib/homePalette';
+import { PAPER, INK } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
+import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 
 interface FooterProps {
@@ -24,6 +25,13 @@ interface FooterProps {
    * matching six of them.
    */
   tone?: 'ink' | 'paper';
+  /**
+   * The colour of the section directly above the footer, so the cube belt can ramp out of it and
+   * into this footer's ground as one continuous surface. Pass the actual ground of the last
+   * section on the page (periwinkle on the home/support pages, the page's black on the rest) and
+   * the belt meets it with no seam and no gap, whatever the colour happens to be.
+   */
+  fromColor?: string;
 }
 
 /**
