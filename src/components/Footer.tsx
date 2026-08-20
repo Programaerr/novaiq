@@ -149,7 +149,7 @@ export const Footer: React.FC<FooterProps> = ({
          arriving out of the section above, and a rule drawn across it is exactly the straight
          line the band exists to avoid. On the black pages the footer keeps the gap and the rule
          it has always had. */
-      className={`relative overflow-hidden ${
+      className={`relative ${
         isPaper ? '' : 'mt-24 sm:mt-40 border-t border-[rgb(var(--ft-fg)/0.15)]'
       }`}
     >
@@ -178,10 +178,11 @@ export const Footer: React.FC<FooterProps> = ({
       {fromColor && (
         <div
           aria-hidden="true"
-          className="absolute inset-x-0 top-0"
+          className="absolute inset-x-0"
           style={{
-            height: 'var(--nq-band)',
-            background: `linear-gradient(to bottom, ${fromColor} 0%, ${footerTone} 100%)`,
+            top: 'calc(var(--nq-band) * -0.5)',
+            height: 'calc(var(--nq-band) * 1.5)',
+            background: `linear-gradient(to bottom, ${fromColor} 0%, ${fromColor} 33%, ${footerTone} 100%)`,
           }}
         >
           <TileField tones={connectionTones(fromColor, footerTone, PERIWINKLE)} fade={FOOTER_BAND_FADE} />
