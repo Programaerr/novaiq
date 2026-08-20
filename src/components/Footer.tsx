@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { PAPER, INK, PERIWINKLE } from '../lib/homePalette';
+import { PAPER, PERIWINKLE } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
+import { useGroundAbove } from '../lib/useGroundAbove';
 
 interface FooterProps {
   language?: Language;
@@ -12,51 +13,31 @@ interface FooterProps {
   /** Opens the contract-request flow (full-screen sign-in while signed out, then the builder). */
   onRequestProject?: () => void;
   /**
-   * Which ground the footer is standing on.
+   * The page currently on screen.
    *
-   * `ink` is the site's own: no background of its own, letting the black page through, with
-   * everything on it drawn in white at some opacity. `paper` is the home page's — #F6F1E9, the
-   * same ground the phases section stands on, so the page opens and closes on the same colour with
-   * the blue of the contact section held between them.
-   *
-   * A prop rather than a change to the component, because this footer is on every page but one
-   * and only the home page has the palette that makes paper the right ground. A paper footer under
-   * the black template gallery is not a footer that matches its page; it is a footer that stopped
-   * matching six of them.
+   * Not used to look anything up — the footer measures the colour above it rather than being told
+   * (see useGroundAbove). This is only the signal that the thing above it has been swapped, since
+   * the footer is mounted once and outlives navigation.
    */
-  tone?: 'ink' | 'paper';
-  /**
-   * The colour of the section directly above the footer, so the cube belt can ramp out of it and
-   * into this footer's ground as one continuous surface. Pass the actual ground of the last
-   * section on the page (periwinkle on the home/support pages, the page's black on the rest) and
-   * the belt meets it with no seam and no gap, whatever the colour happens to be.
-   */
-  fromColor?: string;
+  pageKey: string;
 }
 
 /**
- * The two grounds, as the only place any colour in this file is written.
+ * The footer's ground and everything drawn on it, as the only place a colour is written here.
  *
- * `--ft-fg` is everything drawn and `--ft-bg` the ground under it, as space-separated channels
- * rather than hexes, because that is the form `rgb(var(--x) / a)` needs — a hex inside a custom
- * property cannot take an alpha.
+ * `--ft-fg` is every mark and `--ft-bg` the ground under it, as space-separated channels rather
+ * than hexes, because that is the form `rgb(var(--x) / a)` needs — a hex inside a custom property
+ * cannot take an alpha.
  *
  * The five alphas are the footer's hierarchy: headings quiet, links a step up, icons a step down.
- * They are per-tone because the same alpha does not mean the same thing on the two grounds. White
- * at 50% on black measures about 9:1; near-black at 50% on paper measures 3.4:1 — under the 4.5:1
- * a body-sized line needs. Pushed toward opaque, the same hierarchy reads and every level passes,
- * with 0.62 as the floor: it measures 4.9:1 and one step quieter is 4.0:1, which does not.
+ * They sit high because ink on paper is not white on black: near-black at 50% on paper measures
+ * 3.4:1, under the 4.5:1 a body-sized line needs. Pushed toward opaque, the same hierarchy reads
+ * and every level passes.
+ *
+ * There used to be a second set beside this one for a black-ground footer, chosen by a `tone`
+ * prop. It went with the identity it belonged to: the site has one palette now, so a second ground
+ * is not a variant, it is the old design still shipping. Its `--ft-bg` was `0 0 0`.
  */
-const INK_VARS: React.CSSProperties = {
-  ['--ft-fg' as string]: '255 255 255',
-  ['--ft-bg' as string]: '0 0 0',
-  ['--ft-a40' as string]: '0.52',
-  ['--ft-a50' as string]: '0.64',
-  ['--ft-a55' as string]: '0.72',
-  ['--ft-a60' as string]: '0.8',
-  ['--ft-a70' as string]: '0.9',
-};
-
 const PAPER_VARS: React.CSSProperties = {
   ['--ft-fg' as string]: '16 19 34',
   ['--ft-bg' as string]: '246 241 233',
@@ -105,25 +86,27 @@ const FooterLink: React.FC<FooterLinkProps> = ({ label, onClick, href }) => (
  * socials, then a hairline bottom bar with the copyright and a small "back to top" control.
  * Takes the same `onNavigate` the Navbar uses so the links go to real pages, not dead anchors.
  *
- * ## Two grounds, one set of colours
+ * ## It joins onto whatever is above it, without being told what that is
  *
- * It was built for the site's strict #000000 / #ffffff system and now has to stand on the home
- * page's paper as well. Rather than a second copy of every class, every colour in here is one of
- * two custom properties at some opacity — `--ft-fg` for everything drawn and `--ft-bg` for the
- * ground it is drawn on — and the `tone` prop is the only place either is written. A third
- * ground would be two lines.
+ * The belt below ramps out of the last section on the page and into this footer's ground. The
+ * colour it ramps out of is MEASURED from the rendered page (useGroundAbove) rather than looked up
+ * in a table of page names — so a page added tomorrow, in a colour nobody here has heard of, joins
+ * on correctly with nothing written anywhere. See that hook for why the table had to go.
+ *
+ * Every colour in this file is `--ft-fg` (marks) or `--ft-bg` (ground) at some opacity, written
+ * once in PAPER_VARS, so re-toning the whole footer is one object rather than thirty class names.
  */
 export const Footer: React.FC<FooterProps> = ({
   language = 'ar',
   onNavigate,
   onRequestProject,
-  tone = 'ink',
-  fromColor,
+  pageKey,
 }) => {
   const isAr = language === 'ar';
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
-  const isPaper = tone === 'paper';
-  const footerTone = isPaper ? PAPER : INK;
+  const ref = useRef<HTMLElement>(null);
+  /** The ground the page ends on, read off the page itself. The belt ramps from this into PAPER. */
+  const fromColor = useGroundAbove(ref, pageKey);
   const links = useSocialLinks();
 
   const go = (page: string) => () => onNavigate?.(page);
@@ -140,24 +123,17 @@ export const Footer: React.FC<FooterProps> = ({
 
   return (
     <footer
+      ref={ref}
       /* Two triplets, and everything else follows: every colour in this file is one of them at
          some opacity, so the whole footer re-tones from here rather than from thirty class names.
          Space-separated channels rather than a hex, because that is the form rgb(var(--x) / a)
          needs — a hex inside a custom property cannot take an alpha. */
-      style={isPaper ? PAPER_VARS : INK_VARS}
-      /* On paper there is no top margin and no hairline: the band below does the whole job of
-         arriving out of the section above, and a rule drawn across it is exactly the straight
-         line the band exists to avoid. On the black pages the footer keeps the gap and the rule
-         it has always had. */
-      className={`relative ${
-        isPaper ? '' : 'mt-24 sm:mt-40 border-t border-[rgb(var(--ft-fg)/0.15)]'
-      }`}
+      style={PAPER_VARS}
+      /* No top margin and no hairline rule: the belt below does the whole job of arriving out of
+         the section above, and a rule drawn across it is exactly the straight line the belt exists
+         to avoid. */
+      className="relative"
     >
-      {/* ── The edge, on the home page only ──────────────────────────────────────────────────
-          A strip carrying the ground's change of colour and a field of cubes crossing it: absent
-          at the top where the ground is still the contact section's blue, assembling as it turns,
-          settled into flat paper before the first link. The same move the hero makes on its way out
-          and the contact section on its way in — three edges on this page, one gesture. */}
       {/* Faint ruled grid in the footer's field. */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -175,25 +151,21 @@ export const Footer: React.FC<FooterProps> = ({
           from `fromColor` (the section directly above) into the footer's own ground; its top is
           continuous with that section and its bottom settles into flat ground before the links. One
           belt, owned by the footer, instead of a separate edge hand-built into every page. */}
-      {fromColor && (
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0"
-          style={{
-            top: 'calc(var(--nq-band) * -0.5)',
-            height: 'calc(var(--nq-band) * 1.5)',
-            background: `linear-gradient(to bottom, ${fromColor} 0%, ${fromColor} 33%, ${footerTone} 100%)`,
-          }}
-        >
-          <TileField tones={connectionTones(fromColor, footerTone, PERIWINKLE)} fade={FOOTER_BAND_FADE} />
-        </div>
-      )}
-
       <div
-        className={`relative nq-container pb-16 sm:pb-20 ${
-          isPaper ? 'pt-[calc(var(--nq-band)+2.5rem)]' : 'pt-16 sm:pt-20'
-        }`}
+        aria-hidden="true"
+        className="absolute inset-x-0"
+        style={{
+          top: 'calc(var(--nq-band) * -0.5)',
+          height: 'calc(var(--nq-band) * 1.5)',
+          background: `linear-gradient(to bottom, ${fromColor} 0%, ${fromColor} 33%, ${PAPER} 100%)`,
+        }}
       >
+        <TileField tones={connectionTones(fromColor, PAPER, PERIWINKLE)} fade={FOOTER_BAND_FADE} />
+      </div>
+
+      {/* Top padding clears the belt, which is absolutely positioned and so takes up no height of
+          its own — without it the first link would sit inside the cubes. */}
+      <div className="relative nq-container pb-16 sm:pb-20 pt-[calc(var(--nq-band)+2.5rem)]">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
           {/* Brand + blurb. */}
           <div className="lg:col-span-4">
