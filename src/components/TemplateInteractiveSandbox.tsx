@@ -773,10 +773,13 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       {/* Phone-only preview-size switch. The toolbar above is crowded on a handset, so the width
           picker gets its own row, shown ONLY below `sm`. It drives the same `viewport` state the
           desktop switcher does, so picking "جوال" here loads the 390px live preview in the stage
-          below. Hidden on larger screens to avoid a duplicate control. */}
+          below. Hidden on larger screens to avoid a duplicate control.
+
+          No "حجم المعاينة:" caption in front of the buttons. On the one screen size this row exists
+          for, it spent horizontal room the four buttons needed on a label for controls that already
+          say what they are — every one of them carries its own icon and word. */}
       {mode === 'site' && (
         <div className="sm:hidden flex items-center justify-center gap-1.5 bg-zinc-950 border-b border-zinc-800 px-3 py-2">
-          <span className="text-[10px] font-bold text-zinc-500 ml-1 whitespace-nowrap">حجم المعاينة:</span>
           {(
             [
               { key: 'full', label: 'شاشتك', icon: Maximize, title: 'العرض على شاشتك الحالية' },

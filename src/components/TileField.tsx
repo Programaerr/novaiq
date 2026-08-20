@@ -176,11 +176,22 @@ export const SECTION_FADE: FieldFade = { lo: 0.22, hi: 0.1 };
 
 /**
  * A connection band at the meeting of a coloured section and the footer. The cubes stand on
- * `from` (the section above) and dissolve into `to` (the footer's ground) across the band. Only
- * the bottom edge fades — the top is continuous with the section, so the field reads as that
- * section's own surface breaking up rather than a second object dropped on top of it.
+ * `from` (the section above) and dissolve into `to` (the footer's ground) across the band.
+ *
+ * BOTH edges fade, and the top one is the fix for a cut that was visible on every page. This read
+ * `hi: 0` on the reasoning that the top is continuous with the section above, so it needed no
+ * fade — but "no fade" in this shader means the first row of cubes stands at FULL HEIGHT on the
+ * band's very first pixel. The result was a hard horizontal line across the page: flat colour
+ * above it, a solid wall of cubes below it, starting all at once. The band's own gradient was
+ * continuous; the field on top of it was not, and that was the seam.
+ *
+ * 0.3 against the 0.42 below is deliberate rather than symmetric. The top has to dissolve into a
+ * flat colour, where any residue reads as dirt on a clean surface; the bottom dissolves into the
+ * footer's own ruled grid and links, which hide the tail end. So the top gets a shorter, cleaner
+ * exit and the bottom a longer one, and 0.72 of the band is spent arriving and leaving — the
+ * middle third is where the field is actually at full strength.
  */
-export const FOOTER_BAND_FADE: FieldFade = { lo: 0.44, hi: 0 };
+export const FOOTER_BAND_FADE: FieldFade = { lo: 0.42, hi: 0.3 };
 
 /** Mix `hex` toward black (amt < 0) or white (amt > 0) by `amt` (0..1). Used to derive a band's
  *  trough/crest from the section it stands on, so the palette stays in one family without hand
