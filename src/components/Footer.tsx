@@ -174,10 +174,10 @@ export const Footer: React.FC<FooterProps> = ({
               onClick={(e) => { e.preventDefault(); go('home')(); }}
               className="inline-flex items-center gap-3 cursor-pointer"
             >
-              {/* The mark is white artwork on transparency, which is nothing at all on sand.
-                  brightness(0) takes any colour to black and leaves the alpha alone, so the same
-                  single asset reads on both grounds without a second file or a chip behind it. */}
-              <NovaiqLogo size={34} showText={false} className={isPaper ? "brightness-0" : ""} />
+              {/* The mark is white artwork on transparency, which is nothing at all on paper.
+                  brightness(0) takes any colour to black and leaves the alpha alone, so the one
+                  asset reads here without a second file or a chip behind it. */}
+              <NovaiqLogo size={34} showText={false} className="brightness-0" />
             </a>
             <p               className="mt-5 max-w-sm uw:max-w-md text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a55))] leading-relaxed">
               {isAr

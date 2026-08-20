@@ -18,18 +18,6 @@ import { Template, ContractData, CUSTOM_PROJECT_TEMPLATE_ID } from './types';
 import { Language } from './lib/i18n';
 import { useCurrentUser } from './lib/auth';
 import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
-import { PERIWINKLE, INK } from './lib/homePalette';
-
-/** The ground of the last section on each page, so the footer's cube belt ramps out of it. Pages
- *  whose content ends on the site's black ground use INK; the ones that end on the periwinkle
- *  section use PERIWINKLE. The belt then dissolves that colour into the footer's own paper, so
- *  every page closes on one continuous gesture regardless of its ending colour. */
-const FOOTER_FROM: Record<string, string> = {
-  home: PERIWINKLE,
-  templates: PERIWINKLE,
-  timeline: PERIWINKLE,
-  support: PERIWINKLE,
-};
 import { consumePendingContractSelection } from './lib/pendingContractSelection';
 import { saveContractToFirebase } from './lib/firebase';
 import { clearContractDraft } from './lib/contractDraft';
