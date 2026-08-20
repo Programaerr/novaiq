@@ -53,7 +53,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
               حدث خطأ أثناء تحميل الصفحة
             </h1>
             
-            <p className="text-zinc-400 text-xs sm:text-sm mb-6 leading-relaxed">
+            <p className="text-white/75 text-xs sm:text-sm mb-6 leading-relaxed">
               تم حماية التطبيق تلقائياً ومنع توقفه. يمكنك تحديث الصفحة لإعادة التحميل بكل سهولة.
             </p>
 

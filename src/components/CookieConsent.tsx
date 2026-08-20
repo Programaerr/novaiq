@@ -31,7 +31,7 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ language, onNaviga
           <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-white shrink-0">
             <Cookie className="w-4.5 h-4.5" />
           </div>
-          <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
             {isAr
               ? 'نستخدم ملفات تعريف الارتباط (الكوكيز) لتحسين تجربتك وفهم كيفية استخدام المنصة بشكل مجهول الهوية. يمكنك القبول أو الرفض، ولن يؤثر ذلك على استخدامك الأساسي للموقع.'
               : "We use cookies to improve your experience and understand anonymous platform usage. You can accept or reject — either choice won't affect your core use of the site."}

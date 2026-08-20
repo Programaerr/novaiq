@@ -113,7 +113,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
   ];
 
   return (
-    <div className="min-h-screen text-zinc-100 font-['Cairo'] relative overflow-hidden selection:bg-zinc-100 selection:text-black">
+    <div className="min-h-screen text-white font-['Cairo'] relative overflow-hidden selection:bg-zinc-100 selection:text-black">
       {/* Desktop only, and for once that is a performance decision rather than a layout one:
           below lg the gallery covers the entire viewport, so every star drifting behind it is
           being animated and composited under something opaque. Two full-screen infinite
@@ -175,7 +175,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 <br />
                 {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
               </h1>
-              <p className="mt-3 lg:mt-4 text-[13px] sm:text-sm text-zinc-400 leading-relaxed">
+              <p className="mt-3 lg:mt-4 text-[13px] sm:text-sm text-white/75 leading-relaxed">
                 {isAr
                   ? 'ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.'
                   : 'Continue with Google to follow your contracts and saved templates in one place.'}
@@ -183,9 +183,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
               <div className="mt-5 lg:mt-7 space-y-2.5">
                 {perks.map(({ icon: Icon, text }) => (
-                  <div key={text} className="flex items-center gap-2.5 text-xs text-zinc-300">
+                  <div key={text} className="flex items-center gap-2.5 text-xs text-white/90">
                     <span className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
-                      <Icon className="w-3.5 h-3.5 text-zinc-300" />
+                      <Icon className="w-3.5 h-3.5 text-white/90" />
                     </span>
                     <span>{text}</span>
                   </div>
@@ -224,13 +224,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 type="button"
                 onClick={onContinueAsGuest}
                 disabled={isSubmitting}
-                className="nq-btn mt-3 w-full py-3 rounded-2xl border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white disabled:opacity-60 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                className="nq-btn mt-3 w-full py-3 rounded-2xl border border-zinc-700 hover:border-zinc-500 text-white/90 hover:text-white disabled:opacity-60 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
               >
                 <span className="nq-btn-beam" aria-hidden="true" />
                 <span>{isAr ? 'أكمل كضيف' : 'Continue as guest'}</span>
               </button>
 
-              <p className="mt-2.5 text-center text-[11px] text-zinc-500">
+              <p className="mt-2.5 text-center text-[11px] text-white/60">
                 {isAr
                   ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
                   : 'Browse and try the templates freely — an account is only needed to create a contract.'}
@@ -238,7 +238,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             </div>
           </div>
 
-          <p className="shrink-0 text-center lg:text-start text-[11px] text-zinc-600">
+          <p className="shrink-0 text-center lg:text-start text-[11px] text-white/50">
             {isAr ? '© NOVAIQ — جميع الحقوق محفوظة' : '© NOVAIQ — All rights reserved'}
           </p>
         </div>

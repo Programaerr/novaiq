@@ -213,7 +213,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     isActive
                       ? 'bg-white text-black shadow-lg'
-                      : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                      : 'text-white/90 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   {item.label}
@@ -250,7 +250,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-7 h-7 rounded-full object-cover"
                   />
                 ) : (
-                  <UserCircle2 className="w-7 h-7 text-zinc-300" />
+                  <UserCircle2 className="w-7 h-7 text-white/90" />
                 )}
               </a>
             ) : (
@@ -269,7 +269,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
             title={isAr ? 'تبديل اللغة' : 'Switch language'}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl text-xs font-bold text-white/75 hover:text-white transition-colors cursor-pointer"
           >
             <Globe className="w-4 h-4" />
             <span className="font-mono">{isAr ? 'AR' : 'EN'}</span>
@@ -330,10 +330,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <a
                 href="?page=orders"
                 onClick={(e) => handleNavClick('orders', e)}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white transition-all cursor-pointer"
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] font-medium text-white/90 hover:bg-zinc-900 hover:text-white transition-all cursor-pointer"
               >
                 <span
-                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-zinc-900 border border-zinc-800 text-zinc-300 overflow-hidden"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-zinc-900 border border-zinc-800 text-white/90 overflow-hidden"
                 >
                   {avatarUrl && !avatarBroken ? (
                     <img
@@ -381,12 +381,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] transition-all cursor-pointer ${
                     isActive
                       ? 'bg-white text-black font-bold shadow-lg'
-                      : 'text-zinc-300 font-medium hover:bg-zinc-900 hover:text-white'
+                      : 'text-white/90 font-medium hover:bg-zinc-900 hover:text-white'
                   }`}
                 >
                   <span
                     className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all ${
-                      isActive ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-300'
+                      isActive ? 'bg-black text-white' : 'bg-zinc-900 border border-zinc-800 text-white/90'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />

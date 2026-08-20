@@ -36,7 +36,7 @@ export const ContractBuilderGate: React.FC<ContractBuilderGateProps> = (props) =
 
   if (user === undefined) {
     return (
-      <div className="py-24 text-center text-zinc-400 text-xs">
+      <div className="py-24 text-center text-white/75 text-xs">
         <RefreshCw className="w-6 h-6 text-white mx-auto mb-2 animate-spin" />
       </div>
     );

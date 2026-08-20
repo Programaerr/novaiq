@@ -33,7 +33,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
             {/* No price claim in the introduction. This line used to promise "transparent pricing
                 in Iraqi dinars", which is a commitment the section cannot keep on its own — the
                 figure a customer actually pays is negotiated on the contract, not published here. */}
-            <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+            <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
               {language === 'ar'
                 ? 'تُقدم الشركة حلولاً برمجية متطورة للشركات والمؤسسات بمعايير جودة عالية.'
                 : 'The firm delivers advanced software solutions for companies and institutions, to high quality standards.'}
@@ -67,7 +67,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
               >
                 <CheckCircle2 className="relative z-10 w-4 h-4 text-white mx-auto mb-2" />
                 <h4 className="relative z-10 text-xs font-bold text-white">{item.title}</h4>
-                <p className="relative z-10 text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{item.desc}</p>
+                <p className="relative z-10 text-[11px] text-white/75 mt-0.5 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>

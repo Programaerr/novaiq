@@ -38,7 +38,7 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
             {isAr ? 'العقود الإلكترونية' : 'E-contracts'}
           </h2>
-          <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
+          <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
             {isAr
               ? 'نص العقد الموحّد لخدمات NOVAIQ — البنود الكاملة التي تُوقَّع إلكترونياً عند إنشاء أي عقد، كما تظهر في وثيقة العقد نفسها.'
               : "NOVAIQ's standard agreement — the full clauses signed electronically on every contract, exactly as they appear in the contract document itself."}

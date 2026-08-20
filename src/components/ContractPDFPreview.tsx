@@ -104,7 +104,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
                 <span className="px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-700 text-white text-[10px] font-bold font-mono">
                   {contract.contractNumber}
                 </span>
-                <span className="text-xs text-zinc-300 font-bold">
+                <span className="text-xs text-white/90 font-bold">
                   {isAr ? 'عقد إلكتروني بين الطرفين' : 'E-contract between the parties'}
                 </span>
               </div>
@@ -124,17 +124,17 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
         </div>
 
         {/* On-screen contract preview */}
-        <div data-lenis-prevent className="p-6 sm:p-8 overflow-y-auto space-y-6 text-zinc-200 bg-black">
+        <div data-lenis-prevent className="p-6 sm:p-8 overflow-y-auto space-y-6 text-white bg-black">
 
           {/* Document Header Box */}
           <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <span className="text-2xl font-black text-white tracking-widest font-['Cairo'] block">NOVAIQ</span>
-              <span className="text-xs text-zinc-400">
+              <span className="text-xs text-white/75">
                 {isAr ? 'منصة القوالب البرمجية والعقود الإلكترونية الذكية' : 'Smart Software Templates & Electronic Contracts Platform'}
               </span>
             </div>
-            <div className={`text-xs font-mono text-zinc-400 ${isAr ? 'text-right sm:text-left' : 'text-left sm:text-right'}`}>
+            <div className={`text-xs font-mono text-white/75 ${isAr ? 'text-right sm:text-left' : 'text-left sm:text-right'}`}>
               <div>{isAr ? 'تاريخ الإصدار:' : 'Issue Date:'} {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}</div>
               <div>{isAr ? 'حالة العقد:' : 'Contract Status:'} <span className="text-white font-bold">{isAr ? 'موقّع من الطرفين' : 'Signed by both parties'}</span></div>
             </div>
@@ -163,8 +163,8 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             <div className="space-y-2">
               <div>{isAr ? 'القالب المعتمد:' : 'Approved Template:'} <strong className="text-white text-sm font-bold">{templateTitle}</strong></div>
               {contract.customFeaturesText && (
-                <div className="pt-2 text-zinc-300">
-                  {isAr ? 'ملاحظات الشركة الخاصة:' : "Company's Custom Notes:"} <p className="text-zinc-400 text-[11px] bg-black p-2.5 rounded-lg border border-zinc-800 mt-1">{customNotes}</p>
+                <div className="pt-2 text-white/90">
+                  {isAr ? 'ملاحظات الشركة الخاصة:' : "Company's Custom Notes:"} <p className="text-white/75 text-[11px] bg-black p-2.5 rounded-lg border border-zinc-800 mt-1">{customNotes}</p>
                 </div>
               )}
             </div>
@@ -181,7 +181,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
                 {formatPrice(contract.totalPriceIQD || 0, language, currency)}
               </strong>
             </div>
-            <div className="text-[11px] text-zinc-400">
+            <div className="text-[11px] text-white/75">
               {isAr ? 'خطة التسليم المضمنة:' : 'Included Delivery Plan:'} <strong>{contract.deliveryTimelineWeeks} {isAr ? 'أسابيع' : 'weeks'}</strong> | {isAr ? 'آلية السداد:' : 'Payment Method:'} <strong>{paymentPlanLabel}</strong>
             </div>
           </div>
@@ -189,7 +189,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
           {/* Signature Preview & Stamp */}
           <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className={`text-xs space-y-2 text-center ${isAr ? 'sm:text-right' : 'sm:text-left'}`}>
-              <span className="font-bold text-zinc-300 block">{isAr ? 'توقيع الممثل القانوني:' : 'Legal Representative Signature:'}</span>
+              <span className="font-bold text-white/90 block">{isAr ? 'توقيع الممثل القانوني:' : 'Legal Representative Signature:'}</span>
               {contract.signatureDataUrl ? (
                 <img
                   src={contract.signatureDataUrl}
@@ -197,16 +197,16 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
                   className="h-14 max-w-[200px] object-contain border border-zinc-800 rounded-lg p-1 bg-black"
                 />
               ) : (
-                <div className="text-zinc-500 italic">{isAr ? '[تم التوقيع إلكترونياً]' : '[Signed Electronically]'}</div>
+                <div className="text-white/60 italic">{isAr ? '[تم التوقيع إلكترونياً]' : '[Signed Electronically]'}</div>
               )}
-              <div className="text-[10px] text-zinc-400">{contract.repName}</div>
+              <div className="text-[10px] text-white/75">{contract.repName}</div>
             </div>
 
             {/* NOVAIQ Stamp Seal */}
             <div className="p-3 rounded-2xl border border-zinc-700 bg-zinc-900 text-center space-y-1 w-48">
               <ShieldCheck className="w-5 h-5 text-white mx-auto" />
               <div className="text-xs font-black text-white font-mono">{isAr ? 'ختم NOVAIQ الرسمي' : 'NOVAIQ Official Seal'}</div>
-              <div className="text-[9px] text-zinc-400">VERIFIED CONTRACT</div>
+              <div className="text-[9px] text-white/75">VERIFIED CONTRACT</div>
             </div>
           </div>
 
@@ -214,7 +214,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
 
         {/* Modal Actions Footer */}
         <div className="p-4 sm:p-6 bg-zinc-950 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs text-zinc-400 font-mono hidden sm:block">
+          <div className="text-xs text-white/75 font-mono hidden sm:block">
             {isAr ? 'سيتم طباعة سند العقد الرسمي الموثق' : 'The official verified contract deed will be printed'}
           </div>
 

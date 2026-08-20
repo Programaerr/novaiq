@@ -114,7 +114,7 @@ export const PolicyPage: React.FC<PolicyPageProps> = ({ type, language }) => {
               ? (isAr ? 'سياسة الخصوصية' : 'Privacy Policy')
               : (isAr ? 'شروط الخدمة' : 'Terms of Service')}
           </h2>
-          <p className="text-zinc-300 text-xs sm:text-sm">
+          <p className="text-white/90 text-xs sm:text-sm">
             {isAr
               ? 'آخر تحديث: أغسطس 2026 — منصة NOVAIQ البرمجية'
               : 'Last updated: August 2026 — NOVAIQ Software Platform'}
@@ -133,7 +133,7 @@ export const PolicyPage: React.FC<PolicyPageProps> = ({ type, language }) => {
                   <h3 className="text-sm sm:text-base font-bold text-white">
                     {isAr ? section.title.ar : section.title.en}
                   </h3>
-                  <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-white/75 leading-relaxed">
                     {isAr ? section.body.ar : section.body.en}
                   </p>
                 </div>

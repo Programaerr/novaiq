@@ -117,7 +117,7 @@ export const TemplateLivePage: React.FC = () => {
         <TriangleAlert className="w-10 h-10 text-amber-400" />
         <div className="space-y-1.5">
           <h1 className="text-lg font-bold text-white">{isAr ? 'هذا القالب غير متوفر' : 'This template is unavailable'}</h1>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-white/75">
             {isAr
               ? 'الرابط الذي فتحته لا يشير إلى أي قالب في معرضنا. تصفّح المعرض لاختيار قالب آخر.'
               : "The link you opened doesn't point to any template in our gallery. Browse the gallery to pick another one."}
@@ -150,7 +150,7 @@ export const TemplateLivePage: React.FC = () => {
       {!isEmbedded && (
         <div className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-2xl bg-black/90 backdrop-blur-md border border-zinc-700/80 shadow-2xl">
           <NovaiqLogo size={18} showText={false} />
-          <span className="hidden sm:inline text-[10px] text-zinc-400 px-1">
+          <span className="hidden sm:inline text-[10px] text-white/75 px-1">
             {isAr ? 'معاينة حية لقالب NOVAIQ' : 'NOVAIQ live template preview'}
           </span>
           <button
