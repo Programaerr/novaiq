@@ -13,7 +13,7 @@ interface State {
 
 // A persistent error would otherwise reload forever, so automatic recovery is capped. The
 // counter resets on every clean mount, so a transient failure still gets a fresh set of retries.
-const MAX_AUTO_RELOADS = 2;
+const MAX_AUTO_RELOADS = 5;
 const RELOAD_KEY = 'novaiq:errorReloads';
 
 export class ErrorBoundary extends React.Component<Props, State> {
@@ -55,38 +55,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
     this.setState({ reloadsExhausted: true });
   }
 
-  private handleReload = () => {
-    try {
-      sessionStorage.removeItem(RELOAD_KEY);
-    } catch {
-      /* ignore */
-    }
-    window.location.reload();
-  };
-
   public render() {
     if (this.state.hasError) {
-      // While a reload is in flight there is nothing useful to say — a brief spinner only.
-      if (!this.state.reloadsExhausted) {
-        return (
-          <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 font-['Cairo'] dir-rtl">
-            <RefreshCw className="w-6 h-6 animate-spin text-white/60" />
-          </div>
-        );
-      }
-      // Reloading kept failing: a single quiet control instead of an alarming message.
+      // Recover by reloading, automatically — no message, no button. Only if reloads keep
+      // failing do we fall back to a quiet spinner rather than an alarming panel.
       return (
         <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 font-['Cairo'] dir-rtl">
-          <div className="max-w-md w-full bg-zinc-950 border border-zinc-800 rounded-3xl p-8 text-center shadow-2xl">
-            <button
-              onClick={this.handleReload}
-              className="nq-btn nq-btn--solid w-full py-3.5 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span className="nq-btn-beam" aria-hidden="true" />
-              <RefreshCw className="w-4 h-4" />
-              إعادة تحميل المنصة
-            </button>
-          </div>
+          <RefreshCw className="w-6 h-6 animate-spin text-white/60" />
         </div>
       );
     }
