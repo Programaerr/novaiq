@@ -108,8 +108,19 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
   const isAr = language === 'ar';
   const Arrow = isAr ? ArrowUpLeft : ArrowUpRight;
   const isPaper = tone === 'paper';
+  const links = useSocialLinks();
 
   const go = (page: string) => () => onNavigate?.(page);
+
+  // Rendered only where the admin has actually set a link — a blank field hides its icon
+  // entirely instead of leaving a dead button pointing at "#". WhatsApp's link is built from
+  // the number at render time (see whatsappLink), so the admin never has to paste a wa.me URL.
+  const socials = [
+    { Icon: Instagram, href: links.instagram?.trim(), label: 'Instagram' },
+    { Icon: MessageCircle, href: links.whatsapp?.trim() ? whatsappLink(links.whatsapp) : undefined, label: 'WhatsApp' },
+    { Icon: Facebook, href: links.facebook?.trim(), label: 'Facebook' },
+    { Icon: Music2, href: links.tiktok?.trim(), label: 'TikTok' },
+  ].filter((s) => s.href);
 
   return (
     <footer
@@ -179,24 +190,23 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
                 : 'An Iraqi digital studio designing and building smart systems and applications — from idea and spec to launch, with e-contracts and on-time delivery.'}
             </p>
 
-            <div className="mt-7 flex items-center gap-3">
-              {[
-                { Icon: Instagram, href: '#', label: 'Instagram' },
-                { Icon: Send, href: '#', label: 'Telegram' },
-                { Icon: Github, href: '#', label: 'GitHub' },
-                { Icon: MessageCircle, href: '#', label: 'WhatsApp' },
-              ].map(({ Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="w-10 h-10 uw:w-12 uw:h-12 grid place-items-center rounded-full text-[rgb(var(--ft-fg)/var(--ft-a70))] hover:text-[rgb(var(--ft-fg))] transition-colors bg-[rgb(var(--ft-fg)/0.05)] hover:bg-[rgb(var(--ft-fg)/0.14)] backdrop-blur-md"
-                  style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-fg) / 0.18)' }}
-                >
-                  <Icon className="w-4 h-4" strokeWidth={1.8} />
-                </a>
-              ))}
-            </div>
+            {socials.length > 0 && (
+              <div className="mt-7 flex items-center gap-3">
+                {socials.map(({ Icon, href, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="w-10 h-10 uw:w-12 uw:h-12 grid place-items-center rounded-full text-[rgb(var(--ft-fg)/var(--ft-a70))] hover:text-[rgb(var(--ft-fg))] transition-colors bg-[rgb(var(--ft-fg)/0.05)] hover:bg-[rgb(var(--ft-fg)/0.14)] backdrop-blur-md"
+                    style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-fg) / 0.18)' }}
+                  >
+                    <Icon className="w-4 h-4" strokeWidth={1.8} />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Quick links. */}
@@ -219,19 +229,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
           {/* Contact. */}
           <div className="lg:col-span-4">
             <FooterColumn heading={isAr ? 'تواصل معنا' : 'Get in touch'}>
-              <li>
-                <a
-                  href="mailto:hello@novaiq.io"
-                  className="inline-flex items-center gap-2.5 text-xs sm:text-sm uw:text-base text-[rgb(var(--ft-fg)/var(--ft-a60))] hover:text-[rgb(var(--ft-fg))] transition-colors"
-                >
-                  <Mail className="w-4 h-4 text-[rgb(var(--ft-fg)/var(--ft-a40))]" strokeWidth={1.6} />
-                  <span dir="ltr">hello@novaiq.io</span>
-                </a>
-              </li>
-              <li className="flex items-center gap-2.5 text-xs sm:text-sm uw:text-base text-[rgb(var(--ft-fg)/var(--ft-a60))]">
-                <MapPin className="w-4 h-4 text-[rgb(var(--ft-fg)/var(--ft-a40))]" strokeWidth={1.6} />
-                <span>{isAr ? 'بغداد، العراق' : 'Baghdad, Iraq'}</span>
-              </li>
+
             </FooterColumn>
 
             <div className="mt-7 rounded-2xl bg-[rgb(var(--ft-fg)/0.04)] backdrop-blur-xl p-5"
