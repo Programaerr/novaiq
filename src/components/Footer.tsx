@@ -1,9 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { PAPER, PERIWINKLE } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
-import { BAND_FADE, PAPER_BAND_TONES, TileField } from './TileField';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 
 interface FooterProps {
@@ -154,19 +152,6 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, onR
           backgroundSize: '88px 88px',
         }}
       />
-
-      {isPaper && (
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0"
-          style={{
-            height: 'var(--nq-band)',
-            background: `linear-gradient(to bottom, ${PERIWINKLE} 6%, ${PAPER} 74%)`,
-          }}
-        >
-          <TileField tones={PAPER_BAND_TONES} fade={BAND_FADE} />
-        </div>
-      )}
 
       <div
         className={`relative nq-container pb-16 sm:pb-20 ${
