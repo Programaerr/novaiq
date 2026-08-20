@@ -222,7 +222,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
           <div className="lg:col-span-2">
             <FooterColumn heading={isAr ? 'قانوني' : 'Legal'}>
               <FooterLink label={isAr ? 'العقود الإلكترونية' : 'E-contracts'} onClick={go('econtracts')} />
-              <FooterLink label={isAr ? 'الدعم الفني' : 'Support'} onClick={go('about')} />
+              <FooterLink label={isAr ? 'الدعم الفني' : 'Support'} onClick={go('support')} />
             </FooterColumn>
           </div>
 

@@ -466,23 +466,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-white/85 mb-1.5">
-                    {getTranslation('emailLabel', lang)} *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      clearFieldError('email');
-                    }}
-                    placeholder={getTranslation('emailPlaceholder', lang)}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#101634] border focus:outline-none text-white text-xs font-mono transition-colors ${errorInputClass('email')}`}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
                     {getTranslation('phoneLabel', lang)} *
                   </label>
                   <input

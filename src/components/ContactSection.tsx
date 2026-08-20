@@ -115,7 +115,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
     async (e: React.FormEvent) => {
       e.preventDefault();
       const found = validate(values, isAr);
-      setTouched({ name: true, email: true, message: true });
+      setTouched({ name: true, phone: true, message: true });
       setErrors(found);
       if (Object.values(found).some(Boolean)) {
         /* Focus the first field that failed. Without it the only feedback on a long form is a

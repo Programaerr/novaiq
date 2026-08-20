@@ -195,6 +195,9 @@ export default function App() {
         setActivePage('terms');
       } else if (pageParam === 'econtracts') {
         setActivePage('econtracts');
+      } else if (pageParam === 'support') {
+        // The dedicated messaging-and-support page (ContactSection) — phone-first, no email.
+        setActivePage('support');
       } else if (pageParam === 'admin') {
         // Same unified account/admin page as 'orders' — kept as an alias since it was
         // shared before customers and admins used the same entry point.
@@ -532,15 +535,6 @@ export default function App() {
                 <PhasesSection language={language} />
               </Suspense>
             </LazyOnView>
-
-            <LazyOnView
-              rootMargin="800px 0px"
-              placeholder={<div className="h-[40vh] bg-periwinkle" aria-hidden="true" />}
-            >
-              <Suspense fallback={null}>
-                <ContactSection language={language} />
-              </Suspense>
-            </LazyOnView>
           </div>
         )}
 
@@ -623,6 +617,14 @@ export default function App() {
           <div className="page-in">
             <Suspense fallback={null}>
               <EcontractsPage language={language} />
+            </Suspense>
+          </div>
+        )}
+
+        {activePage === 'support' && (
+          <div className="page-in">
+            <Suspense fallback={null}>
+              <ContactSection language={language} />
             </Suspense>
           </div>
         )}
