@@ -125,8 +125,18 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
         return;
       }
 
-      const found = validate(values, isAr);
-      setTouched({ name: true, phone: true, message: true });
+      setSending(true);
+      try {
+        await addDoc(collection(db, 'contact_messages'), {
+          name: values.name.trim(),
+          phone: values.phone.trim(),
+          message: values.message.trim(),
+          language,
+          createdAt: serverTimestamp(),
+        });
+        setSent(true);
+        setValues(EMPTY);
+        setTouched({});
       } catch {
         /* The message did not go. Say so plainly and keep what they typed — clearing the form on a
            failed send loses their words as well as their time. */

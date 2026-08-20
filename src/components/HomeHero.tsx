@@ -164,16 +164,27 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           /* The cap steps up on an ultrawide with the container it sits in. 34rem in a 100rem
              column is a 544px slab beside 1000px of field: not a panel on a background any more,
              a bookmark. 42rem holds the same share of the column the 34rem cap holds of 80rem. */
-          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] uw:max-w-[42rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col"
+          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] uw:max-w-[42rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col relative"
           /* A shadow, because the panel is a flat fill sitting on a busy field and without one the
-             two planes fight for the same depth. Warm and near-black rather than neutral grey: a
-             grey shadow on sand greys the sand under it, which is the tell that a shadow was
+             two planes fight for the same depth. Tinted navy rather than near-black: a dark shadow
+             on sand reads as a black "veil" under the panel, which is the tell that a shadow was
              picked from a palette instead of from the surface it falls on. */
           style={{
             background: PERIWINKLE,
-            boxShadow: '0 26px 64px -24px rgba(48, 32, 20, 0.5)',
+            boxShadow: '0 26px 64px -24px rgba(16, 19, 34, 0.38)',
           }}
+          onPointerDown={(e) => spawnRef.current(e)}
+          onPointerMove={(e) => { if (e.buttons & 1) spawnRef.current(e); }}
         >
+          {/* Press bloom: a soft periwinkle pool that appears where the visitor touches and fades
+              back into the panel. pointer-events-none so it never intercepts a click. */}
+          <canvas
+            ref={curtainCanvasRef}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 w-full h-full"
+            style={{ borderRadius: 'inherit' }}
+          />
+
           {/* One centred group — name, line, buttons — rather than the name floating high and the
               buttons pinned to the panel's floor. Grouped, the buttons read as the next thing to do
               after the sentence they follow; split, they read as panel furniture that happens to be
