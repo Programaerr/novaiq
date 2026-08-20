@@ -58,8 +58,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
   // the pointer leaves. The mask is mutated directly on the DOM node (no React re-render per move)
   // so it stays smooth; only the surface layer is masked, so the buttons above it stay clickable.
   const surfaceRef = useRef<HTMLDivElement | null>(null);
-  const REVEAL_R = 92;
-  const REVEAL_FEATHER = 30;
+  const REVEAL_R = 46;
+  const REVEAL_FEATHER = 16;
 
   const setReveal = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = surfaceRef.current;
