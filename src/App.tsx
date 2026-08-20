@@ -340,7 +340,16 @@ export default function App() {
    * one on the real sign-in page, and `postLoginPage` below carries them into the builder the
    * moment they have it.
    */
-  const startProject = () => {
+  // Every path into contract creation. A signed-out visitor is asked for an account on the real
+  // full-screen sign-in page (never the floating inline one), and `postLoginPage` carries them
+  // straight into the builder the moment they have one. A template chosen before signing in is
+  // remembered, so they land on exactly the contract they picked.
+  const startContract = (template?: Template, customNotes?: string, primaryColorHex?: string) => {
+    if (template) {
+      setSelectedTemplateForContract(template);
+      setInitialCustomFeaturesText(customNotes || '');
+      setInitialPrimaryColor(primaryColorHex || '');
+    }
     if (!currentUser) {
       postLoginPage.current = 'custom-request';
       navigateTo('login');
@@ -349,12 +358,7 @@ export default function App() {
     navigateTo('custom-request');
   };
 
-  const handleSelectTemplateForContract = (template: Template, customNotes?: string, primaryColorHex?: string) => {
-    setSelectedTemplateForContract(template);
-    setInitialCustomFeaturesText(customNotes || '');
-    setInitialPrimaryColor(primaryColorHex || '');
-    navigateTo('custom-request');
-  };
+  const startProject = () => startContract();
 
   /**
    * Saves the signed contract, then opens the preview.
@@ -440,7 +444,7 @@ export default function App() {
   }
   // Either the visitor has not chosen yet (the gate), or a guest asked for the sign-in screen
   // from the navbar. Same screen, and both offer the way back out to browsing.
-  if (currentUser === null && (!isGuest || activePage === 'login')) {
+  if (currentUser === null && (!isGuest || activePage === 'login' || activePage === 'custom-request')) {
     return (
       <>
         <Suspense fallback={null}>
@@ -564,18 +568,23 @@ export default function App() {
 
         {activePage === 'custom-request' && (
           <div className="page-in max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Suspense fallback={null}>
-              <ContractBuilderGate
-                language={language}
-                currency={currency}
-                user={currentUser}
-                selectedTemplate={selectedTemplateForContract}
-                onContractGenerated={handleContractGenerated}
-                initialCustomFeaturesText={initialCustomFeaturesText}
-                initialPrimaryColor={initialPrimaryColor}
-                onContinueAsGuest={leaveSignIn}
-              />
-            </Suspense>
+            {/* Frosted glass card: the same `nq-card` beam the site's other cards wear, a soft
+                rounded frame and a blurred backdrop, so the contract builder reads as one of the
+                site's panels rather than a bare dark slab. */}
+            <div className="nq-card relative rounded-[1.75rem] overflow-hidden backdrop-blur-2xl ring-1 ring-white/15 p-3 sm:p-5">
+              <Suspense fallback={null}>
+                <ContractBuilderGate
+                  language={language}
+                  currency={currency}
+                  user={currentUser}
+                  selectedTemplate={selectedTemplateForContract}
+                  onContractGenerated={handleContractGenerated}
+                  initialCustomFeaturesText={initialCustomFeaturesText}
+                  initialPrimaryColor={initialPrimaryColor}
+                  onContinueAsGuest={leaveSignIn}
+                />
+              </Suspense>
+            </div>
           </div>
         )}
 
@@ -646,6 +655,7 @@ export default function App() {
             <Footer
               language={language}
               onNavigate={navigateTo}
+              onRequestProject={startContract}
               tone="paper"
             />
           </Suspense>
