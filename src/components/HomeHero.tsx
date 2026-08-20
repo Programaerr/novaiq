@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
@@ -51,77 +51,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 }) => {
   const isAr = language === 'ar';
 
-  // ── Reveal-on-pointer interaction ──────────────────────────────────────────────────────────
-  // Where the pointer sits — the mouse on hover (desktop) or the finger while it is down (phone) —
-  // the blue surface of the panel is erased to transparent, so the layer behind it shows through:
-  // the section under the cursor "disappears" and reveals what is underneath, then returns when
-  // the pointer leaves. The mask is mutated directly on the DOM node (no React re-render per move)
-  // so it stays smooth; only the surface layer is masked, so the buttons above it stay clickable.
-  const surfaceRef = useRef<HTMLDivElement | null>(null);
-  const REVEAL_R = 64;
-  const REVEAL_FEATHER = 24;
-  // The hole eases open as the pointer arrives and heals shut after it leaves, frame by frame, so
-  // the reveal feels alive instead of snapping on and off. `currentR` chases `targetR` (the full
-  // radius while the pointer is present, zero once it leaves); the rAF loop runs only while they
-  // disagree, then parks itself. Works the same for a mouse (hover) and a finger (touch, while down).
-  const currentR = useRef(0);
-  const targetR = useRef(0);
-  const pointer = useRef({ x: 0, y: 0 });
-  const rafId = useRef<number | null>(null);
 
-  const paintReveal = () => {
-    const el = surfaceRef.current;
-    if (!el) return;
-    const r = currentR.current;
-    if (r <= 0.5) {
-      el.style.webkitMaskImage = '';
-      el.style.maskImage = '';
-      return;
-    }
-    const { x, y } = pointer.current;
-    const mask = `radial-gradient(circle ${r}px at ${x}px ${y}px, transparent 0, transparent ${r}px, #000 ${r + REVEAL_FEATHER}px)`;
-    el.style.webkitMaskImage = mask;
-    el.style.maskImage = mask;
-    el.style.webkitMaskRepeat = 'no-repeat';
-    el.style.maskRepeat = 'no-repeat';
-  };
-
-  const tickReveal = () => {
-    const diff = targetR.current - currentR.current;
-    if (Math.abs(diff) < 0.5) {
-      currentR.current = targetR.current;
-      paintReveal();
-      rafId.current = null;
-      return;
-    }
-    currentR.current += diff * 0.18;
-    paintReveal();
-    rafId.current = requestAnimationFrame(tickReveal);
-  };
-
-  const runReveal = () => {
-    if (rafId.current == null) rafId.current = requestAnimationFrame(tickReveal);
-  };
-
-  const setReveal = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = surfaceRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    pointer.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    targetR.current = REVEAL_R;
-    runReveal();
-  };
-
-  const clearReveal = () => {
-    targetR.current = 0;
-    runReveal();
-  };
-
-  useEffect(() => {
-    return () => {
-      if (rafId.current != null) cancelAnimationFrame(rafId.current);
-    };
-  }, []);
 
 
   return (
@@ -171,17 +101,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           style={{
             boxShadow: '0 26px 64px -24px rgba(16, 19, 34, 0.38)',
           }}
-          onPointerMove={setReveal}
-          onPointerDown={setReveal}
-          onPointerLeave={clearReveal}
-          onPointerUp={clearReveal}
-          onPointerCancel={clearReveal}
         >
-          {/* The blue surface and the wordmark live in their own layer that the pointer masks: the
-              spot under the cursor is erased to transparent, revealing the tile field behind the
-              panel. The buttons below are a separate, unmasked layer, so the panel stays clickable. */}
           <div
-            ref={surfaceRef}
             aria-hidden="true"
             className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[1.5rem]"
             style={{ background: PERIWINKLE }}
