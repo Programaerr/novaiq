@@ -908,6 +908,22 @@
   --nq-ink: #000000;
 }
 
+/* Preview sandbox chrome — the demo's own controls (back, palette, share, request) sit on a dark
+   toolbar and must read as neutral pure-white-on-dark, not as the site's periwinkle primary.
+   Scoped to the sandbox root so every other button on the site is untouched. */
+.sandbox-root .nq-btn--solid {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  --beam-ink: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+.sandbox-root .nq-btn--solid:hover,
+.sandbox-root .nq-btn--solid:focus-visible,
+.sandbox-root .nq-btn--solid:active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
 .nq-cta-badge {
   display: inline-flex;
   align-items: center;

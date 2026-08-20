@@ -639,7 +639,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm text-zinc-100 flex flex-col w-full h-[100dvh] overflow-hidden animate-fade-in">
+    <div className="sandbox-root fixed inset-0 z-50 bg-black/30 backdrop-blur-sm text-zinc-100 flex flex-col w-full h-[100dvh] overflow-hidden animate-fade-in">
       {/* Preview toolbar */}
       <div className="py-2.5 px-3 sm:px-6 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between gap-2 shrink-0 z-30">
         <button
