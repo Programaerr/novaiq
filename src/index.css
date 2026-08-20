@@ -32,6 +32,56 @@
   --color-paper: #F6F1E9;
   --color-periwinkle: #8295CF;
   --color-ink: #101322;
+
+  /* Tailwind's OWN black/white/zinc scale, retargeted to this palette.
+     Every `bg-black`, `text-white`, `border-zinc-800` (or any shade of it) anywhere in the app
+     compiles to `var(--color-*)` — Tailwind v4 always emits a var() reference, never an inlined
+     literal, specifically so a theme can be swapped by changing the variable once. That is what
+     makes this the one central fix for the ~430 places across ~35 files that still drew the old
+     black-and-white identity: none of them have to change, because none of them ever hardcoded a
+     colour — they asked the theme for "black" and the theme is what is being redefined.
+     zinc runs paper → sand → ink, the same three tones the account pages already use, so a
+     border at zinc-800 or a muted label at zinc-500 both land inside the one palette rather than
+     introducing a fourth, unrelated grey scale next to sand/paper/periwinkle/ink above.
+     The one place this must NOT reach is the rental demo (Sakan) — a customer's product, not
+     ours — which re-shadows every one of these same variables back to Tailwind's stock values.
+     See `.rental-scope` below and its two mount points in TemplateInteractiveSandbox.tsx. */
+  --color-black: #101322;
+  --color-white: #F6F1E9;
+  --color-zinc-50: #F8F4EE;
+  --color-zinc-100: #EFE6D8;
+  --color-zinc-200: #E4D3C4;
+  --color-zinc-300: #D5BDAC;
+  --color-zinc-400: #C9AE95;
+  --color-zinc-500: #A99884;
+  --color-zinc-600: #7D7568;
+  --color-zinc-700: #58524A;
+  --color-zinc-800: #383A4A;
+  --color-zinc-900: #1D2033;
+  --color-zinc-950: #101322;
+}
+
+/* Restores Tailwind's stock black/white/zinc inside the rental demo (Sakan), which the override
+   above would otherwise recolour along with everything else. Sakan is a customer's product being
+   demonstrated, with its own brand — not NOVAIQ's — so the moment its markup is reached, these
+   variables shadow back to the exact values Tailwind ships (captured from a build with no theme
+   override active, so this is pixel-identical to "untouched"). Nothing inside has to know this
+   scope exists; every `bg-black`/`zinc-*` class inside it simply resolves differently than the
+   same class one element up the tree. */
+.rental-scope {
+  --color-black: #000;
+  --color-white: #fff;
+  --color-zinc-50: #fafafa;
+  --color-zinc-100: oklch(96.7% .001 286.375);
+  --color-zinc-200: oklch(92% .004 286.32);
+  --color-zinc-300: oklch(87.1% .006 286.286);
+  --color-zinc-400: oklch(70.5% .015 286.067);
+  --color-zinc-500: oklch(55.2% .016 285.938);
+  --color-zinc-600: oklch(44.2% .017 285.786);
+  --color-zinc-700: oklch(37% .013 285.805);
+  --color-zinc-800: oklch(27.4% .006 286.033);
+  --color-zinc-900: oklch(21% .006 285.885);
+  --color-zinc-950: oklch(14.1% .005 285.823);
 }
 
 /* Self-hosted Cairo + Tajawal — replaces the Google Fonts <link> in index.html.
@@ -169,20 +219,6 @@
      `color-scheme: light` is load-bearing here: it flips the native scrollbar, form controls
      and autofill wash to the light rendering, exactly as the global `color-scheme: dark`
      flips them the other way on the rest of the site. */
-  html[data-account] {
-    --nq-ground: #D5BDAC;
-    background-color: #D5BDAC;
-    color-scheme: light;
-  }
-
-  html[data-account] body {
-    color: #101322;
-  }
-
-  html[data-account] body::before {
-    background-color: #D5BDAC;
-  }
-
   html {
     /* No `scroll-behavior: smooth` here, deliberately. It only ever affects PROGRAMMATIC scrolls
        — the wheel is smoothed by Lenis (useScrollBehavior) — and having both meant two smoothing
