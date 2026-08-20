@@ -6,7 +6,6 @@ import {
   Settings,
   Facebook,
   Instagram,
-  Twitter,
   Music2,
   MessageCircle,
   CheckCircle2,
@@ -24,7 +23,6 @@ const SOCIAL_FIELDS: Array<{
 }> = [
   { id: 'facebook', icon: Facebook, labelAr: 'فيسبوك', labelEn: 'Facebook', placeholder: 'https://facebook.com/yourpage' },
   { id: 'instagram', icon: Instagram, labelAr: 'إنستغرام', labelEn: 'Instagram', placeholder: 'https://instagram.com/yourpage' },
-  { id: 'twitter', icon: Twitter, labelAr: 'إكس (تويتر)', labelEn: 'X (Twitter)', placeholder: 'https://x.com/yourpage' },
   { id: 'tiktok', icon: Music2, labelAr: 'تيك توك', labelEn: 'TikTok', placeholder: 'https://tiktok.com/@yourpage' },
 ];
 

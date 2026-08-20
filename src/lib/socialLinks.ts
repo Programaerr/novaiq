@@ -30,7 +30,6 @@ function writeCachedLinks(links: SocialLinks) {
 export interface SocialLinks {
   facebook?: string;
   instagram?: string;
-  twitter?: string;
   tiktok?: string;
   /** A phone number (any format) — the wa.me link is built from it at render time, not
    *  stored, so the admin never has to know or paste the exact wa.me URL format. */

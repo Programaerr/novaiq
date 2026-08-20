@@ -1,9 +1,10 @@
 import React from 'react';
-import { ArrowUpLeft, ArrowUpRight, Github, Instagram, Mail, MapPin, MessageCircle, Send } from 'lucide-react';
+import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { PAPER, PERIWINKLE } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
 import { BAND_FADE, PAPER_BAND_TONES, TileField } from './TileField';
+import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 
 interface FooterProps {
   language?: Language;
