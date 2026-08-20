@@ -9,6 +9,8 @@ import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 interface FooterProps {
   language?: Language;
   onNavigate?: (page: string) => void;
+  /** Opens the contract-request flow (full-screen sign-in while signed out, then the builder). */
+  onRequestProject?: () => void;
   /**
    * Which ground the footer is standing on.
    *
@@ -41,22 +43,22 @@ interface FooterProps {
 const INK_VARS: React.CSSProperties = {
   ['--ft-fg' as string]: '255 255 255',
   ['--ft-bg' as string]: '0 0 0',
-  ['--ft-a40' as string]: '0.4',
-  ['--ft-a50' as string]: '0.5',
-  ['--ft-a55' as string]: '0.55',
-  ['--ft-a60' as string]: '0.6',
-  ['--ft-a70' as string]: '0.7',
+  ['--ft-a40' as string]: '0.52',
+  ['--ft-a50' as string]: '0.64',
+  ['--ft-a55' as string]: '0.72',
+  ['--ft-a60' as string]: '0.8',
+  ['--ft-a70' as string]: '0.9',
 };
 
 const PAPER_VARS: React.CSSProperties = {
   ['--ft-fg' as string]: '16 19 34',
   ['--ft-bg' as string]: '246 241 233',
   background: PAPER,
-  ['--ft-a40' as string]: '0.62',
-  ['--ft-a50' as string]: '0.68',
-  ['--ft-a55' as string]: '0.72',
-  ['--ft-a60' as string]: '0.78',
-  ['--ft-a70' as string]: '0.84',
+  ['--ft-a40' as string]: '0.72',
+  ['--ft-a50' as string]: '0.8',
+  ['--ft-a55' as string]: '0.86',
+  ['--ft-a60' as string]: '0.9',
+  ['--ft-a70' as string]: '0.94',
 };
 
 interface FooterColumnProps {
@@ -66,7 +68,7 @@ interface FooterColumnProps {
 
 const FooterColumn: React.FC<FooterColumnProps> = ({ heading, children }) => (
   <div>
-    <h3 className="text-[0.7rem] sm:text-xs uw:text-sm font-bold tracking-[0.28em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))]">
+      <h3 className="text-sm sm:text-base uw:text-lg font-bold tracking-[0.28em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))]">
       {heading}
     </h3>
     <ul className="mt-5 space-y-3">{children}</ul>
@@ -84,7 +86,7 @@ const FooterLink: React.FC<FooterLinkProps> = ({ label, onClick, href }) => (
     <a
       href={href ?? '#'}
       onClick={onClick ? (e) => { e.preventDefault(); onClick(); } : undefined}
-      className="inline-flex items-center gap-2 text-xs sm:text-sm uw:text-base text-[rgb(var(--ft-fg)/var(--ft-a60))] hover:text-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
+      className="inline-flex items-center gap-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a60))] hover:text-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
     >
       {label}
     </a>
@@ -184,7 +186,7 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
                   single asset reads on both grounds without a second file or a chip behind it. */}
               <NovaiqLogo size={34} showText={false} className={isPaper ? "brightness-0" : ""} />
             </a>
-            <p className="mt-5 max-w-sm uw:max-w-md text-xs sm:text-sm uw:text-base text-[rgb(var(--ft-fg)/var(--ft-a55))] leading-relaxed">
+            <p               className="mt-5 max-w-sm uw:max-w-md text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a55))] leading-relaxed">
               {isAr
                 ? 'استوديو رقمي عراقي يصمم ويطور أنظمة وتطبيقات ذكية — من الفكرة والمواصفات حتى الإطلاق، بعقود إلكترونية وتسليم في الموعد.'
                 : 'An Iraqi digital studio designing and building smart systems and applications — from idea and spec to launch, with e-contracts and on-time delivery.'}
@@ -231,18 +233,18 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
             <div className="rounded-2xl bg-[rgb(var(--ft-fg)/0.04)] backdrop-blur-xl p-5"
               style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-fg) / 0.1)' }}
             >
-              <p className="text-[0.7rem] uw:text-[0.82rem] font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a60))]">
+              <p                 className="text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a60))]">
                 {isAr ? 'ابدأ مشروعك اليوم' : 'Start a project today'}
               </p>
-              <p className="mt-2 text-xs uw:text-sm text-[rgb(var(--ft-fg)/var(--ft-a50))] leading-relaxed">
+              <p                 className="mt-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a50))] leading-relaxed">
                 {isAr
                   ? 'أخبرنا عن فكرتك وسنرجع إليك بمواصفات أولية خلال 48 ساعة.'
                   : 'Tell us about your idea and we will come back with a first spec within 48 hours.'}
               </p>
               <button
                 type="button"
-                onClick={() => go('custom-request')()}
-                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 uw:px-6 uw:py-3 rounded-full bg-[rgb(var(--ft-fg))] text-[rgb(var(--ft-bg))] text-[0.65rem] uw:text-[0.76rem] font-bold tracking-[0.16em] uppercase hover:bg-transparent hover:text-[rgb(var(--ft-fg))] hover:ring-1 hover:ring-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
+                onClick={onRequestProject ?? (() => go('custom-request')())}
+                className="mt-4 inline-flex items-center gap-2 px-5 py-3 uw:px-6 uw:py-3.5 rounded-full bg-[rgb(var(--ft-fg))] text-[rgb(var(--ft-bg))] text-sm sm:text-base uw:text-lg font-bold tracking-[0.12em] uppercase hover:bg-transparent hover:text-[rgb(var(--ft-fg))] hover:ring-1 hover:ring-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
               >
                 {isAr ? 'اطلب مشروعك' : 'Request a project'}
                 <Arrow className="w-3.5 h-3.5" strokeWidth={2.6} />
@@ -253,13 +255,13 @@ export const Footer: React.FC<FooterProps> = ({ language = 'ar', onNavigate, ton
 
         {/* Bottom bar. */}
         <div className="mt-14 pt-6 border-t border-[rgb(var(--ft-fg)/0.15)] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[0.65rem] uw:text-[0.76rem] tracking-[0.14em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a40))]">
+          <p             className="text-xs sm:text-sm uw:text-base tracking-[0.14em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a40))]">
             © {new Date().getFullYear()} NOVAIQ — {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved'}
           </p>
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 text-[0.65rem] uw:text-[0.76rem] font-bold tracking-[0.18em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))] hover:text-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm uw:text-base font-bold tracking-[0.18em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))] hover:text-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
           >
             {isAr ? 'العودة للأعلى' : 'Back to top'}
             <Arrow className="w-3.5 h-3.5 -rotate-90" strokeWidth={2.6} />
