@@ -87,7 +87,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [companyName, setCompanyName] = useState(draft?.companyName || '');
   const [crNumber, setCrNumber] = useState(draft?.crNumber || '');
   const [repName, setRepName] = useState(draft?.repName || '');
-  const [email, setEmail] = useState(draft?.email || accountEmail || '');
+  const [email] = useState(draft?.email || accountEmail || '');
   const [phone, setPhone] = useState(draft?.phone || '');
   const [country] = useState('العراق');
   const [city, setCity] = useState(draft?.city || 'بغداد');
@@ -232,7 +232,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     const missing = new Set<string>();
     if (!companyName) missing.add('companyName');
     if (!repName) missing.add('repName');
-    if (!email) missing.add('email');
     if (!phone) missing.add('phone');
 
     if (missing.size > 0) {
@@ -945,7 +944,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     const missing = new Set<string>();
                     if (!companyName) missing.add('companyName');
                     if (!repName) missing.add('repName');
-                    if (!email) missing.add('email');
                     if (!phone) missing.add('phone');
                     if (missing.size > 0) {
                       setFieldErrors(missing);

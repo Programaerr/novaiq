@@ -535,6 +535,15 @@ export default function App() {
                 <PhasesSection language={language} />
               </Suspense>
             </LazyOnView>
+
+            <LazyOnView
+              rootMargin="800px 0px"
+              placeholder={<div className="h-[40vh] bg-periwinkle" aria-hidden="true" />}
+            >
+              <Suspense fallback={null}>
+                <ContactSection language={language} />
+              </Suspense>
+            </LazyOnView>
           </div>
         )}
 
