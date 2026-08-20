@@ -90,7 +90,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [email] = useState(draft?.email || accountEmail || '');
   const [phone, setPhone] = useState(draft?.phone || '');
   const [country] = useState('العراق');
-  const [city, setCity] = useState(draft?.city || 'بغداد');
+  const city = draft?.city || 'بغداد';
   const [fieldErrors, setFieldErrors] = useState<Set<string>>(new Set());
 
   const errorInputClass = (field: string) =>
@@ -500,18 +500,6 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
-                    {getTranslation('cityLabel', lang)}
-                  </label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder={isAr ? 'بغداد - الكرادة' : 'Baghdad'}
-                    className="w-full px-4 py-3 rounded-xl bg-[#101634] border border-periwinkle/25 focus:border-periwinkle focus:outline-none text-white text-xs"
-                  />
-                </div>
               </div>
             </div>
           )}
