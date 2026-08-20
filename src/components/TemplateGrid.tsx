@@ -4,7 +4,7 @@ import { useLiveTemplates } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
-import { INK, PERIWINKLE } from '../lib/homePalette';
+import { PERIWINKLE } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { PageLoader } from './PageLoader';
 
@@ -106,13 +106,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
         <div className="mt-6 sm:mt-8 text-center max-w-3xl mx-auto">
           <h2
             className="text-[1.7rem] sm:text-[2.4rem] uw:text-[3rem] font-black leading-none tracking-tight"
-            style={{ color: INK }}
+            style={{ color: '#FFFFFF' }}
           >
             {currentLang === 'ar' ? 'ماذا تريد أن تبني؟' : 'What do you want to build?'}
           </h2>
           <p
             className="mt-4 text-[0.95rem] sm:text-base uw:text-lg font-bold leading-relaxed"
-            style={{ color: INK, opacity: 0.72 }}
+            style={{ color: '#FFFFFF' }}
           >
             {currentLang === 'ar'
               ? 'بطاقتان — اختر موقعاً أو تطبيقاً، ونكمل معك العقد فوراً.'
@@ -143,13 +143,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 <div className="relative flex items-center gap-3">
                   <span
                     className="w-14 h-14 rounded-2xl grid place-items-center shrink-0"
-                    style={{ background: PERIWINKLE, color: INK }}
+                    style={{ background: PERIWINKLE, color: '#FFFFFF' }}
                   >
                     <Icon className="w-7 h-7" strokeWidth={2.2} />
                   </span>
                   <span
                     className="text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-[0.14em] uppercase"
-                    style={{ color: INK, opacity: 0.55 }}
+                    style={{ color: '#000000' }}
                   >
                     {currentLang === 'ar' ? choice.tagAr : choice.tagEn}
                   </span>
@@ -157,32 +157,32 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
                 <h3
                   className="relative mt-6 text-[1.6rem] sm:text-[2rem] uw:text-[2.4rem] font-black leading-tight"
-                  style={{ color: INK }}
+                  style={{ color: '#000000' }}
                 >
                   {currentLang === 'ar' ? choice.titleAr : choice.titleEn}
                 </h3>
 
                 <p
-                  className="relative mt-3 text-[0.92rem] sm:text-base uw:text-lg font-bold leading-relaxed"
-                  style={{ color: INK, opacity: 0.7 }}
+                    className="relative mt-3 text-[0.92rem] sm:text-base uw:text-lg font-bold leading-relaxed"
+                    style={{ color: '#000000' }}
                 >
                   {currentLang === 'ar' ? choice.descAr : choice.descEn}
                 </p>
 
-                {/* The price sits at the foot of the card, beside the action — the same split the
-                    old menu used, kept here so the eye lands on the name first and the cost second. */}
+                {/* No price on the card: the customer chooses by reading the offer and opening the
+                    live preview, then continues straight into the contract. */}
                 <div className="relative mt-auto pt-8 flex flex-wrap items-center gap-3">
                   <button
                     type="button"
                     disabled={disabled}
                     onClick={() => template && onSelectTemplateForContract(template, choice.note)}
                     className="min-h-12 ps-6 pe-2 py-2 rounded-full inline-flex items-center gap-2.5 text-sm uw:text-base font-extrabold cursor-pointer transition-[filter] duration-200 hover:brightness-110 disabled:opacity-60 disabled:cursor-wait"
-                    style={{ background: INK, color: '#FFFFFF' }}
+                    style={{ background: '#000000', color: '#FFFFFF' }}
                   >
                     <span>{currentLang === 'ar' ? choice.titleAr : choice.titleEn}</span>
                     <span
                       className="w-9 h-9 rounded-full grid place-items-center shrink-0"
-                      style={{ background: PERIWINKLE, color: INK }}
+                      style={{ background: '#FFFFFF', color: '#000000' }}
                       aria-hidden="true"
                     >
                       <ArrowLeft className="w-4 h-4 rotate-180" strokeWidth={2.6} />
@@ -194,43 +194,22 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       type="button"
                       onClick={() => onOpenStandalonePreview(template)}
                       className="min-h-12 px-5 rounded-full inline-flex items-center gap-2 text-sm uw:text-base font-bold cursor-pointer transition-colors hover:bg-black/5"
-                      style={{ background: 'rgba(16, 19, 34, 0.06)', color: INK }}
+                      style={{ background: 'rgba(0, 0, 0, 0.06)', color: '#000000' }}
                     >
                       <Eye className="w-4 h-4" strokeWidth={2.2} />
                       {currentLang === 'ar' ? 'معاينة حية' : 'Live preview'}
                     </button>
                   )}
                 </div>
-
-                {template && (
-                  <p
-                    className="relative mt-5 font-mono font-black text-[1.05rem] uw:text-[1.2rem]"
-                    style={{ color: INK }}
-                  >
-                    {formatPrice(template.basePriceIQD, currentLang, currency)}
-                  </p>
-                )}
               </article>
             );
           })}
         </div>
 
-        {/* ── The closing note ────────────────────────────────────────────────────────────
-            The price caveat, then the brand mark under it. */}
+        {/* ── The brand mark under the cards ─────────────────────────────────────────────── */}
         <div className="mt-20 sm:mt-28">
-          <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[11px] font-semibold text-black">
-              <Info className="w-3.5 h-3.5 text-black/60 shrink-0" />
-              <span>
-                {currentLang === 'ar'
-                  ? 'السعر المعروض للقالب (التصميم) فقط، ويختلف عند طلب موقع متكامل وجاهز للعمل الفعلي'
-                  : 'The price shown is for the template design only — pricing differs for a fully complete, ready-to-launch website'}
-              </span>
-            </div>
-          </div>
-
           <div dir="ltr" className="relative z-10 flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14">
-            <span className="font-black tracking-widest text-white/85 font-['Cairo'] text-4xl sm:text-6xl lg:text-7xl">
+            <span className="font-black tracking-widest text-white font-['Cairo'] text-4xl sm:text-6xl lg:text-7xl">
               NOVAIQ
             </span>
           </div>
