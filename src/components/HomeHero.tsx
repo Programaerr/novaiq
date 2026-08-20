@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
@@ -51,78 +51,34 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
 }) => {
   const isAr = language === 'ar';
 
-  // ── Press interaction on the curtain ──────────────────────────────────────────────────────
-  // A touch or mouse press leaves a soft periwinkle bloom at the point of contact that fades back
-  // into the panel over ~0.9s — the spot "disappears" into the surface and then gradually returns.
-  // Drawn on a pointer-events-none canvas so it never steals a click from the buttons inside.
-  const curtainCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const ripplesRef = useRef<{ x: number; y: number; start: number }[]>([]);
-  const rafRef = useRef<number | null>(null);
-  const lastSpawnRef = useRef(0);
-  const spawnRef = useRef<(e: React.PointerEvent<HTMLDivElement>) => void>(() => {});
-  const PRESS_MS = 900;
+  // ── Reveal-on-pointer interaction ──────────────────────────────────────────────────────────
+  // Where the pointer sits — the mouse on hover (desktop) or the finger while it is down (phone) —
+  // the blue surface of the panel is erased to transparent, so the layer behind it shows through:
+  // the section under the cursor "disappears" and reveals what is underneath, then returns when
+  // the pointer leaves. The mask is mutated directly on the DOM node (no React re-render per move)
+  // so it stays smooth; only the surface layer is masked, so the buttons above it stay clickable.
+  const surfaceRef = useRef<HTMLDivElement | null>(null);
+  const REVEAL_R = 92;
+  const REVEAL_FEATHER = 30;
 
-  useEffect(() => {
-    const canvas = curtainCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.max(1, Math.round(rect.width * dpr));
-      canvas.height = Math.max(1, Math.round(rect.height * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-
-    const tick = () => {
-      const c = curtainCanvasRef.current;
-      const context = c?.getContext('2d');
-      if (!c || !context) { rafRef.current = null; return; }
-      const rect = c.getBoundingClientRect();
-      context.clearRect(0, 0, rect.width, rect.height);
-      const now = performance.now();
-      const ripples = ripplesRef.current;
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const r = ripples[i];
-        const age = (now - r.start) / PRESS_MS;
-        if (age >= 1) { ripples.splice(i, 1); continue; }
-        const ease = 1 - Math.pow(1 - age, 3);
-        const radius = 8 + ease * 150;
-        const alpha = (1 - age) * 0.9;
-        const g = context.createRadialGradient(r.x, r.y, 0, r.x, r.y, radius);
-        g.addColorStop(0, `rgba(130,149,207,${alpha})`);
-        g.addColorStop(1, 'rgba(130,149,207,0)');
-        context.fillStyle = g;
-        context.beginPath();
-        context.arc(r.x, r.y, radius, 0, Math.PI * 2);
-        context.fill();
-      }
-      rafRef.current = ripples.length > 0 ? requestAnimationFrame(tick) : null;
-    };
-
-    const ensureLoop = () => { if (rafRef.current == null) rafRef.current = requestAnimationFrame(tick); };
-    const spawn = (e: React.PointerEvent<HTMLDivElement>) => {
-      const c = curtainCanvasRef.current;
-      if (!c) return;
-      const rect = c.getBoundingClientRect();
-      const now = performance.now();
-      if (now - lastSpawnRef.current < 55) return;
-      lastSpawnRef.current = now;
-      ripplesRef.current.push({ x: e.clientX - rect.left, y: e.clientY - rect.top, start: now });
-      ensureLoop();
-    };
-    spawnRef.current = spawn;
-
-    return () => {
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-      ro.disconnect();
-    };
-  }, []);
+  const setReveal = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = surfaceRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const mask = `radial-gradient(circle ${REVEAL_R}px at ${x}px ${y}px, transparent 0, transparent ${REVEAL_R}px, #000 ${REVEAL_R + REVEAL_FEATHER}px)`;
+    el.style.webkitMaskImage = mask;
+    el.style.maskImage = mask;
+    el.style.webkitMaskRepeat = 'no-repeat';
+    el.style.maskRepeat = 'no-repeat';
+  };
+  const clearReveal = () => {
+    const el = surfaceRef.current;
+    if (!el) return;
+    el.style.webkitMaskImage = '';
+    el.style.maskImage = '';
+  };
 
 
   return (
