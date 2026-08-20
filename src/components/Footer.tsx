@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { PAPER } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 
