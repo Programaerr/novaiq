@@ -6,7 +6,7 @@ import { useSeen } from '../lib/useSeen';
 import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
 import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
-import { BAND_FADE, PERIWINKLE_TONES, TileField } from './TileField';
+import { BAND_FADE, PAPER_BAND_TONES, PERIWINKLE_TONES, TileField } from './TileField';
 
 /**
  * The contact section: the panel from the wireframe, with the form on one side and the ways to
@@ -177,6 +177,20 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
         }}
       >
         <TileField tones={PERIWINKLE_TONES} fade={BAND_FADE} />
+      </div>
+
+      {/* The mirror of the strip above: blue cubes assembling upward out of the paper the footer
+          brings, ramping this section's blue down into the footer's paper so the two meet as one
+          surface rather than as a hard seam. Uses PAPER_BAND_TONES, made for exactly this edge. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0"
+        style={{
+          height: 'var(--nq-band)',
+          background: 'linear-gradient(to bottom, ' + PERIWINKLE + ' 28%, ' + PAPER + ' 100%)',
+        }}
+      >
+        <TileField tones={PAPER_BAND_TONES} fade={BAND_FADE} />
       </div>
 
       <div className="relative nq-container">
