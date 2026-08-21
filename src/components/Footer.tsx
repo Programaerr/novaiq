@@ -150,13 +150,25 @@ export const Footer: React.FC<FooterProps> = ({
           so every page closes on the same gesture no matter what colour it ends on. The band ramps
           from `fromColor` (the section directly above) into the footer's own ground; its top is
           continuous with that section and its bottom settles into flat ground before the links. One
-          belt, owned by the footer, instead of a separate edge hand-built into every page. */}
+          belt, owned by the footer, instead of a separate edge hand-built into every page.
+
+          It used to start half a band ABOVE the footer, overhanging the section so the cubes read
+          as standing on it. That worked while every page ended in flat colour. It stopped working
+          the moment a section above grew a cube field of its own: this canvas is opaque, so the
+          overhang painted over the last ~120px of that field — and it painted its own field there
+          at the strength its top fade says, which is nearly nothing. The section's cubes were at
+          half height on one side of the line and gone on the other, sliced clean across the page.
+
+          Starting at the footer's own top edge removes the overlap entirely, and with it the whole
+          class of bug: the section's field runs to its own bottom edge and fades to nothing there,
+          this one starts from nothing at exactly that pixel, and the two meet at the one value they
+          are guaranteed to agree on — zero. */}
       <div
         aria-hidden="true"
         className="absolute inset-x-0"
         style={{
-          top: 'calc(var(--nq-band) * -0.5)',
-          height: 'calc(var(--nq-band) * 1.5)',
+          top: 0,
+          height: 'var(--nq-band)',
           background: `linear-gradient(to bottom, ${fromColor} 0%, ${fromColor} 33%, ${PAPER} 100%)`,
         }}
       >
