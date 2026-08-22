@@ -167,7 +167,7 @@ export interface FieldFade {
 export const HERO_FADE: FieldFade = { lo: 0.16, hi: 0 };
 
 /** The contact band's: a strip that has to arrive and settle inside its own height, so both. */
-export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.36 };
+export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.05 };
 
 /** A full section's: a little at the top where the cubes slide under the navbar, more at the bottom
     where they run into whatever follows. The middle stays full strength, which is where the content
