@@ -73,7 +73,7 @@ interface TemplateInteractiveSandboxProps {
   currency?: Currency;
 }
 
-type DemoMode = 'site' | 'app';
+export type DemoMode = 'site' | 'app';
 
 const BOOKINGS_KEY = 'novaiq_sandbox_rental_bookings';
 
@@ -83,6 +83,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   onSelectForContract,
   chromeless = false,
   initialThemeColor,
+  initialMode,
   language = 'ar',
   currency = 'IQD',
 }) => {
