@@ -166,8 +166,11 @@ export interface FieldFade {
 /** The hero's: full strength at the top of the screen, breaking up into the fold. */
 export const HERO_FADE: FieldFade = { lo: 0.16, hi: 0 };
 
-/** The contact band's: a strip that has to arrive and settle inside its own height, so both. */
-export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.36 };
+/** The contact band's: arrives out of the paper section above and settles into the blue below.
+ *  `hi` is kept small on purpose — the band is short, and a tall arrival zone read as the flat
+ *  empty "void" the user reported at the top: cubes now begin within a few pixels of the edge so
+ *  the strip connects from the very top instead of opening on a blank band. */
+export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.05 };
 
 /** A full section's: a little at the top where the cubes slide under the navbar, more at the bottom
     where they run into whatever follows. The middle stays full strength, which is where the content

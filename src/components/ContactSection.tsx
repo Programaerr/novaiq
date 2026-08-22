@@ -194,11 +194,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
           className="absolute inset-x-0 top-0"
           style={{
             height: 'var(--nq-band)',
-            /* Solid periwinkle from the very top: the belt reads as one continuous periwinkle field
-               from the moment it begins, instead of opening on a paper band that looks like a gap
-               before the cubes arrive. The section above (PhasesSection) is paper, so the seam is a
-               single clean colour step rather than a detached strip. */
-            background: PERIWINKLE,
+            /* The top opens on PAPER so it is continuous with the section above (PhasesSection),
+               which is also paper — the two read as one surface at the seam rather than as a strip
+               dropped on top of a different colour. The cubes arrive out of that paper (their top
+               fades toward paper) over the first sliver of the band, then settle into the blue, so
+               the belt connects from the very top instead of opening on a blank band. */
+            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + PERIWINKLE + ' 30%)',
           }}
         >
           <TileField tones={PERIWINKLE_TONES} fade={BAND_FADE} />
