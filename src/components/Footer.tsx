@@ -47,6 +47,10 @@ const PAPER_VARS: React.CSSProperties = {
   ['--ft-a55' as string]: '0.86',
   ['--ft-a60' as string]: '0.9',
   ['--ft-a70' as string]: '0.94',
+  // Brand accent (periwinkle) and the ink that sits on it — used for markers, the CTA and
+  // social hovers so the footer reads in the site's own colour instead of flat monochrome.
+  ['--ft-accent' as string]: '130 149 207',
+  ['--ft-accent-ink' as string]: '16 19 34',
 };
 
 interface FooterColumnProps {
@@ -56,7 +60,8 @@ interface FooterColumnProps {
 
 const FooterColumn: React.FC<FooterColumnProps> = ({ heading, children }) => (
   <div>
-      <h3 className="text-sm sm:text-base uw:text-lg font-bold tracking-[0.28em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))]">
+    <h3 className="flex items-center gap-2.5 text-sm sm:text-base uw:text-lg font-bold tracking-[0.28em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))]">
+      <span className="h-1.5 w-6 rounded-full bg-[rgb(var(--ft-accent))]" aria-hidden="true" />
       {heading}
     </h3>
     <ul className="mt-5 space-y-3">{children}</ul>
@@ -206,7 +211,7 @@ export const Footer: React.FC<FooterProps> = ({
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="w-10 h-10 uw:w-12 uw:h-12 grid place-items-center rounded-full text-[rgb(var(--ft-fg)/var(--ft-a70))] hover:text-[rgb(var(--ft-fg))] transition-colors bg-[rgb(var(--ft-fg)/0.05)] hover:bg-[rgb(var(--ft-fg)/0.14)] backdrop-blur-md"
+                    className="w-10 h-10 uw:w-12 uw:h-12 grid place-items-center rounded-full text-[rgb(var(--ft-fg)/var(--ft-a70))] hover:text-[rgb(var(--ft-accent-ink))] transition-colors bg-[rgb(var(--ft-fg)/0.05)] hover:bg-[rgb(var(--ft-accent)/0.92)] backdrop-blur-md"
                     style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-fg) / 0.18)' }}
                   >
                     <Icon className="w-4 h-4" strokeWidth={1.8} />
@@ -235,26 +240,26 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Contact. */}
           <div className="lg:col-span-4">
-            <div className="rounded-2xl bg-[rgb(var(--ft-fg)/0.04)] backdrop-blur-xl p-5"
-              style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-fg) / 0.1)' }}
-            >
-              <p                 className="text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a60))]">
-                {isAr ? 'ابدأ مشروعك اليوم' : 'Start a project today'}
-              </p>
-              <p                 className="mt-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a50))] leading-relaxed">
-                {isAr
-                  ? 'أخبرنا عن فكرتك وسنرجع إليك بمواصفات أولية خلال 48 ساعة.'
-                  : 'Tell us about your idea and we will come back with a first spec within 48 hours.'}
-              </p>
-              <button
-                type="button"
-                onClick={onRequestProject ?? (() => go('custom-request')())}
-                className="mt-4 inline-flex items-center gap-2 px-5 py-3 uw:px-6 uw:py-3.5 rounded-full bg-[rgb(var(--ft-fg))] text-[rgb(var(--ft-bg))] text-sm sm:text-base uw:text-lg font-bold tracking-[0.12em] uppercase hover:bg-transparent hover:text-[rgb(var(--ft-fg))] hover:ring-1 hover:ring-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
+              <div className="rounded-2xl bg-[rgb(var(--ft-accent)/0.1)] backdrop-blur-xl p-5"
+                style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-accent) / 0.3)' }}
               >
-                {isAr ? 'اطلب مشروعك' : 'Request a project'}
-                <Arrow className="w-3.5 h-3.5" strokeWidth={2.6} />
-              </button>
-            </div>
+                <p                 className="text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a60))]">
+                  {isAr ? 'ابدأ مشروعك اليوم' : 'Start a project today'}
+                </p>
+                <p                 className="mt-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a50))] leading-relaxed">
+                  {isAr
+                    ? 'أخبرنا عن فكرتك وسنرجع إليك بمواصفات أولية خلال 48 ساعة.'
+                    : 'Tell us about your idea and we will come back with a first spec within 48 hours.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={onRequestProject ?? (() => go('custom-request')())}
+                  className="mt-4 inline-flex items-center gap-2 px-5 py-3 uw:px-6 uw:py-3.5 rounded-full bg-[rgb(var(--ft-accent))] text-[rgb(var(--ft-accent-ink))] text-sm sm:text-base uw:text-lg font-bold tracking-[0.12em] uppercase hover:bg-[rgb(var(--ft-accent)/0.85)] transition-colors cursor-pointer"
+                >
+                  {isAr ? 'اطلب مشروعك' : 'Request a project'}
+                  <Arrow className="w-3.5 h-3.5" strokeWidth={2.6} />
+                </button>
+              </div>
           </div>
         </div>
 
