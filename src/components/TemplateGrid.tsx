@@ -7,6 +7,7 @@ import { Currency } from '../lib/currency';
 import { PERIWINKLE } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { PageLoader } from './PageLoader';
+import type { DemoMode } from './TemplateInteractiveSandbox';
 
 // The interactive sandbox is the single largest component in the app — a whole website and a
 // whole phone app, plus the 3D building both of them use. Loading it only when a customer
@@ -18,7 +19,7 @@ const TemplateInteractiveSandbox = lazy(() =>
 
 interface TemplateGridProps {
   onSelectTemplateForContract: (template: Template, customNotes?: string) => void;
-  onOpenStandalonePreview?: (template: Template) => void;
+  onOpenStandalonePreview?: (template: Template, mode?: DemoMode) => void;
   language?: Language;
   currency?: Currency;
   focusTemplateId?: string | null;
