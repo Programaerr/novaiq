@@ -66,11 +66,14 @@ interface TemplateInteractiveSandboxProps {
   chromeless?: boolean;
   /** Starting palette, so a frame opens on the colour the customer already picked outside it. */
   initialThemeColor?: ThemeColor;
+  /** Starting view — a website card opens on `site`, a phone-app card on `app`, so the preview
+   *  lands on the product the customer actually picked instead of always defaulting to the site. */
+  initialMode?: DemoMode;
   language?: Language;
   currency?: Currency;
 }
 
-type DemoMode = 'site' | 'app';
+export type DemoMode = 'site' | 'app';
 
 const BOOKINGS_KEY = 'novaiq_sandbox_rental_bookings';
 
@@ -80,6 +83,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   onSelectForContract,
   chromeless = false,
   initialThemeColor,
+  initialMode,
   language = 'ar',
   currency = 'IQD',
 }) => {
@@ -132,6 +136,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
   const [viewport, setViewport] = useState<ViewportChoice>('full');
   const [mode, setMode] = useState<DemoMode>(() => {
+    if (initialMode === 'site' || initialMode === 'app') return initialMode;
     try {
       return new URLSearchParams(window.location.search).get('mode') === 'app' ? 'app' : 'site';
     } catch {

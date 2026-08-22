@@ -115,6 +115,10 @@ export default function App() {
   const [activePage, setActivePage] = useState<string>('home');
   const [selectedTemplateForContract, setSelectedTemplateForContract] = useState<Template | null>(null);
   const [standalonePreviewTemplate, setStandalonePreviewTemplate] = useState<Template | null>(null);
+  /* Which half of the demo the preview opens on: a website card lands on `site`, a phone-app card
+     on `app` (the phone frame), so the live preview shows the product the customer actually picked
+     instead of always defaulting to the site. */
+  const [standalonePreviewMode, setStandalonePreviewMode] = useState<'site' | 'app'>('site');
   // Opening a standalone preview swaps the whole tree below (see the early return further
   // down), so TemplateGrid unmounts and its carousel position dies with it. Remembering which
   // template was opened — and outliving the preview itself — is what lets the grid come back
@@ -464,6 +468,7 @@ export default function App() {
               template={standalonePreviewTemplate}
               language={language}
               currency={currency}
+              initialMode={standalonePreviewMode}
               onClose={() => {
                 setStandalonePreviewTemplate(null);
                 window.history.replaceState({}, '', window.location.pathname);
@@ -557,8 +562,9 @@ export default function App() {
                 currency={currency}
                 focusTemplateId={lastPreviewedTemplateId}
                 onSelectTemplateForContract={startContract}
-                onOpenStandalonePreview={(template) => {
+                onOpenStandalonePreview={(template, mode = 'site') => {
                   setLastPreviewedTemplateId(template.id);
+                  setStandalonePreviewMode(mode);
                   setStandalonePreviewTemplate(template);
                 }}
               />
