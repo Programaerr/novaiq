@@ -193,7 +193,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   {onOpenStandalonePreview && template && (
                     <button
                       type="button"
-                      onClick={() => onOpenStandalonePreview(template)}
+                      onClick={() => onOpenStandalonePreview(template, choice.id === 'app' ? 'app' : 'site')}
                       className="min-h-12 px-5 rounded-full inline-flex items-center gap-2 text-sm uw:text-base font-bold cursor-pointer transition-colors hover:bg-black/5"
                       style={{ background: 'rgba(0, 0, 0, 0.06)', color: '#000000' }}
                     >
