@@ -27,8 +27,8 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
 
   return (
     <section className="py-4 sm:py-6 relative">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
           <div
             className="w-14 h-14 mx-auto mb-4 rounded-2xl border flex items-center justify-center text-white shadow-xl"
             style={{ background: ACCENT_SOFT, borderColor: 'rgba(255,255,255,0.14)' }}
@@ -45,7 +45,7 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {terms.map((clause, idx) => {
             const [title, ...rest] = clause.split(':');
             const body = rest.join(':').trim();
