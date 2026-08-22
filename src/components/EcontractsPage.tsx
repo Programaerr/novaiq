@@ -39,8 +39,8 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
           </h2>
           <p className="text-xs sm:text-sm leading-relaxed bg-[#F6F1E9] text-[#101322] rounded-2xl p-4 sm:p-5">
             {isAr
-              ? 'نص العقد الموحّد لخدمات NOVAIQ — البنود الكاملة التي تُوقَّع إلكترونياً عند إنشاء أي عقد، كما تظهر في وثيقة العقد نفسها.'
-              : "NOVAIQ's standard agreement — the full clauses signed electronically on every contract, exactly as they appear in the contract document itself."}
+              ? 'عقد تقديم خدمات تصميم وتطوير برمجي — البنود القياسية التي تُوقَّع إلكترونياً عند إنشاء أي عقد، كما تظهر في وثيقة العقد نفسها.'
+              : 'Software design & development services agreement — the standard clauses signed electronically on every contract, exactly as they appear in the contract document itself.'}
           </p>
         </div>
 
@@ -82,8 +82,8 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
           <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#101322' }} />
           <p className="text-xs sm:text-sm leading-relaxed text-[#101322]">
             {isAr
-              ? `ملاحظة: مدة التسليم في البند 3 أعلاه معروضة بالقيمة الافتراضية (${REPRESENTATIVE_TIMELINE_WEEKS} أسابيع) لتوضيح النص. تُحدَّد المدة الفعلية لكل عقد على حدة عند إنشائه، وتُكتب بوضوح في وثيقة العقد قبل توقيعه.`
-              : `Note: the delivery timeline in clause 3 above is shown at its default (${REPRESENTATIVE_TIMELINE_WEEKS} weeks) to illustrate the text. The actual timeline is set per contract when it is created and is clearly stated in the contract document before signing.`}
+              ? 'ملاحظة: هذا العرض للبنود القياسية للعقد. تُحدَّد بيانات كل عقد (الأطراف، المدة، القيمة، نطاق العمل) عند إنشائه وتُكتب في وثيقة العقد قبل التوقيع.'
+              : 'Note: this shows the contract’s standard clauses. Each contract’s details (parties, duration, value, scope) are set when it is created and stated in the contract document before signing.'}
           </p>
         </div>
       </div>
