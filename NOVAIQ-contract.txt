@@ -1,0 +1,87 @@
+============================================================
+            العقد الموحّد لخدمات NOVAIQ
+============================================================
+
+نص العقد الموحّد لخدمات NOVAIQ — البنود الكاملة التي تُوقَّع إلكترونياً عند إنشاء أي عقد، كما تظهر في وثيقة العقد نفسها.
+
+بند 1 — نطاق العمل: يقتصر التنفيذ على القالب والمتطلبات المذكورة في البند (2) من هذه الوثيقة. أي طلب خارج هذا النطاق يُعد تغييراً في النطاق ويُسعَّر ويُوثَّق في ملحق مستقل موقَّع من الطرفين قبل تنفيذه.
+
+بند 2 — التعديلات والمراجعات: يشمل العقد جولتَي تعديل على التصميم والواجهات دون رسوم إضافية قبل الاعتماد النهائي. ما يزيد عن ذلك، أو أي تعديل يُطلب بعد الاعتماد، يُقدَّر ويُتفق على أجره مسبقاً.
+
+بند 3 — التسليم المرحلي: يُقسَّم التطوير إلى مراحل موزّعة على مدة 8 أسابيع تبدأ من تاريخ سداد الدفعة الأولى واستلام كامل مواد العميل، مع تقارير تقدّم دورية عند إنجاز كل مرحلة.
+
+بند 4 — التزامات العميل: يلتزم العميل بتزويد الشركة بالمحتوى المطلوب (نصوص، صور، شعارات، بيانات، صلاحيات الوصول) وبإبداء موافقته على كل مرحلة خلال سبعة (7) أيام عمل من طلبها. ويُوقف احتساب مدة التنفيذ عن أي فترة تأخير ناشئة عن الطرف العميل دون أن يُعد ذلك إخلالاً من الشركة.
+
+بند 5 — الملكية الفكرية: تنتقل ملكية الكود المصدري الخاص بالمشروع وكامل حقوق استخدامه إلى الشركة العميلة فور سداد كامل قيمة العقد. ولا يشمل هذا الانتقال أدوات NOVAIQ ومكتباتها العامة وأطر العمل مفتوحة المصدر أو المرخَّصة من أطراف ثالثة، والتي تبقى خاضعة لتراخيصها الأصلية.
+
+بند 6 — التسليم النهائي: يشمل التسليم الكود المصدري ونسخة تشغيلية عاملة وبيانات الدخول الإدارية والتوثيق التشغيلي الأساسي، وذلك بعد سداد كامل قيمة العقد.
+
+بند 7 — ضمان الأخطاء البرمجية: تلتزم الشركة بمعالجة أي خلل برمجي يظهر ضمن نطاق العمل المتفق عليه مجاناً لمدة ثلاثين (30) يوماً من تاريخ التسليم النهائي. ولا يشمل الضمان الميزات الجديدة، ولا الأعطال الناتجة عن تعديل الكود من طرف آخر، أو عن خدمات استضافة أو أنظمة خارجة عن سيطرة الشركة.
+
+بند 8 — الدعم والصيانة: خدمات الدعم الفني والصيانة التشغيلية بعد انتهاء مدة الضمان غير مشمولة بقيمة هذا العقد، وتُنظَّم باتفاق مستقل بين الطرفين.
+
+بند 9 — السداد والتأخر: تُستحق الدفعات وفق الآلية المحددة في البند (3). ويحق للشركة تعليق العمل مؤقتاً إذا تأخر سداد أي دفعة مستحقة أكثر من أربعة عشر (14) يوماً، مع استئنافه فور السداد ودون أن يُعد التعليق إخلالاً بالعقد.
+
+بند 10 — تكاليف الأطراف الثالثة: رسوم الاستضافة واسم النطاق وشهادات الأمان وتراخيص الخدمات الخارجية وبوابات الدفع ورسوم متاجر التطبيقات غير مشمولة بقيمة العقد ما لم يُنص على خلاف ذلك صراحةً، وتكون على حساب العميل.
+
+بند 11 — السرية: يلتزم الطرفان بالحفاظ على سرية كل ما يطّلعان عليه من معلومات ووثائق وبيانات بحكم هذا العقد، وبعدم إفشائها لأي طرف ثالث دون موافقة كتابية، ويستمر هذا الالتزام سارياً بعد انتهاء العقد أو إنهائه.
+
+بند 12 — مسؤولية المحتوى: يقر العميل بأنه يملك أو مخوَّل قانوناً باستخدام كل ما يزوّد به الشركة من محتوى وعلامات تجارية وبيانات، ويتحمل وحده المسؤولية القانونية الناشئة عن أي مخالفة في ذلك.
+
+بند 13 — حق العرض: يحق لـ NOVAIQ عرض المشروع ضمن معرض أعمالها لأغراض التعريف بخدماتها، دون كشف أي بيانات سرية أو بيانات عملاء، ما لم يعترض العميل على ذلك كتابةً.
+
+بند 14 — حدود المسؤولية: لا تتجاوز مسؤولية الشركة التعاقدية في جميع الأحوال قيمة العقد المسدَّدة فعلياً، ولا تمتد إلى الأضرار غير المباشرة أو الأرباح الفائتة أو فقدان البيانات الناتج عن أسباب خارجة عن نطاق العمل المتفق عليه.
+
+بند 15 — القوة القاهرة: يُعلَّق التزام أي من الطرفين عند وقوع ظرف قاهر خارج عن إرادته يحول دون التنفيذ، على أن يُخطر الطرف الآخر خلال مدة معقولة، وتُمدَّد المدد التعاقدية بما يعادل فترة التعليق.
+
+بند 16 — الإنهاء: يجوز إنهاء هذا العقد باتفاق الطرفين كتابةً، أو من أي طرف عند إخلال جوهري لم يُعالَج خلال أربعة عشر (14) يوماً من الإخطار. وفي جميع حالات الإنهاء تُسدَّد قيمة ما أُنجز فعلياً حتى تاريخه، وتُسلَّم مخرجات المراحل المسدَّدة.
+
+بند 17 — القانون الحاكم وتسوية النزاعات: يخضع هذا العقد للقوانين النافذة في جمهورية العراق. ويسعى الطرفان لتسوية أي نزاع ودياً خلال ثلاثين (30) يوماً، وإلا فيكون الاختصاص للمحاكم المختصة في جمهورية العراق.
+
+بند 18 — طبيعة الوثيقة: هذه الوثيقة اتفاق خاص بين الطرفين المذكورين فيها وحدهما، تُوثّق ما اتفقا عليه ويُقرّان بمضمونها بتوقيعهما الإلكتروني. وهي ليست صادرة عن أي جهة حكومية ولا مصدَّقة أو موثَّقة من أي دائرة رسمية ولا يُقصد بها ذلك. وتمثل كامل ما اتفق عليه الطرفان، ولا يعتد بأي تفاهم سابق يخالفها إلا بملحق مكتوب موقَّع منهما.
+
+ملاحظة: مدة التسليم في البند 3 أعلاه معروضة بالقيمة الافتراضية (8 أسابيع) لتوضيح النص. تُحدَّد المدة الفعلية لكل عقد على حدة عند إنشائه، وتُكتب بوضوح في وثيقة العقد قبل توقيعه.
+
+============================================================
+                       ENGLISH
+============================================================
+
+NOVAIQ's standard agreement — the full clauses signed electronically on every contract, exactly as they appear in the contract document itself.
+
+Clause 1 — Scope of Work: Delivery is limited to the template and the requirements listed in Section (2) of this document. Any request beyond that scope constitutes a change of scope and must be priced and documented in a separate annex signed by both parties before it is carried out.
+
+Clause 2 — Revisions: The contract includes two rounds of design and interface revisions at no additional charge prior to final approval. Anything beyond that, or any change requested after approval, is estimated and its fee agreed in advance.
+
+Clause 3 — Milestone Delivery: Development is divided into phases across a 8-week timeline beginning on the date the first payment is settled and all client materials are received, with progress reports at the completion of each phase.
+
+Clause 4 — Client Obligations: The client shall provide the required content (text, images, logos, data, access credentials) and give approval at each phase within seven (7) business days of request. The delivery timeline is suspended for any period of delay caused by the client, and such suspension is not a breach by the company.
+
+Clause 5 — Intellectual Property: Ownership of the project's source code and full rights of use transfer to the client company upon complete payment of the contract value. This transfer excludes NOVAIQ's own tooling and general libraries, and open-source or third-party licensed frameworks, which remain subject to their original licences.
+
+Clause 6 — Final Handover: Delivery comprises the source code, a working deployable build, administrative access credentials and essential operational documentation, provided after the full contract value has been settled.
+
+Clause 7 — Defect Warranty: The company shall remedy, free of charge, any software defect arising within the agreed scope of work for thirty (30) days from the date of final delivery. The warranty does not cover new features, faults caused by code modified by another party, or failures of hosting services or systems outside the company's control.
+
+Clause 8 — Support & Maintenance: Technical support and operational maintenance after the warranty period are not included in the value of this contract and are governed by a separate agreement between the parties.
+
+Clause 9 — Payment & Late Settlement: Payments fall due per the structure set out in Section (3). The company may temporarily suspend work if any due payment is more than fourteen (14) days late, resuming immediately upon settlement; such suspension is not a breach of contract.
+
+Clause 10 — Third-Party Costs: Hosting fees, domain names, security certificates, external service licences, payment gateways and app-store fees are not included in the contract value unless expressly stated otherwise, and are borne by the client.
+
+Clause 11 — Confidentiality: Each party shall keep confidential all information, documents and data obtained by virtue of this contract and shall not disclose it to any third party without written consent. This obligation survives the expiry or termination of the contract.
+
+Clause 12 — Content Responsibility: The client warrants that it owns, or is legally authorised to use, all content, trademarks and data it supplies to the company, and bears sole legal responsibility for any infringement arising from it.
+
+Clause 13 — Portfolio Rights: NOVAIQ may present the project within its portfolio for the purpose of describing its services, without disclosing any confidential or customer data, unless the client objects in writing.
+
+Clause 14 — Limitation of Liability: The company's contractual liability shall in no case exceed the contract value actually paid, and does not extend to indirect damages, lost profits, or data loss arising from causes outside the agreed scope of work.
+
+Clause 15 — Force Majeure: Either party's obligations are suspended upon a force majeure event beyond its control that prevents performance, provided the other party is notified within a reasonable period; contractual periods are extended by the duration of the suspension.
+
+Clause 16 — Termination: This contract may be terminated by written agreement of both parties, or by either party upon a material breach not remedied within fourteen (14) days of notice. In all cases of termination, the value of work actually completed to that date is payable, and the deliverables of paid phases are handed over.
+
+Clause 17 — Governing Law & Disputes: This contract is governed by the laws in force in the Republic of Iraq. The parties shall seek to settle any dispute amicably within thirty (30) days, failing which jurisdiction lies with the competent courts of the Republic of Iraq.
+
+Clause 18 — Nature of the Document: This is a private agreement between the two parties named in it and no one else. It records what they agreed and is acknowledged by their electronic signatures. It is not issued by any government body, nor certified or notarised by any official authority, and is not intended to be. It represents the entirety of what the parties agreed, and no prior understanding to the contrary shall be relied upon except by a written annex signed by both.
+
+Note: the delivery timeline in clause 3 above is shown at its default (8 weeks) to illustrate the text. The actual timeline is set per contract when it is created and is clearly stated in the contract document before signing.

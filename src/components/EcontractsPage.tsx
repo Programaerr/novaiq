@@ -14,7 +14,6 @@ interface EcontractsPageProps {
 const ACCENT = '#8295CF';
 const ACCENT_SOFT = 'rgba(130, 149, 207, 0.14)';
 const SECONDARY = '#D5BDAC';
-const SECONDARY_SOFT = 'rgba(213, 189, 172, 0.12)';
 
 // Shown in clause 3 (milestone delivery). This page presents the standard NOVAIQ agreement, and
 // the timeline is the one clause that varies per contract — 8 weeks is the custom-project default
@@ -38,7 +37,7 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
             {isAr ? 'العقود الإلكترونية' : 'E-contracts'}
           </h2>
-          <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
+          <p className="text-xs sm:text-sm leading-relaxed bg-[#F6F1E9] text-[#101322] rounded-2xl p-4 sm:p-5">
             {isAr
               ? 'نص العقد الموحّد لخدمات NOVAIQ — البنود الكاملة التي تُوقَّع إلكترونياً عند إنشاء أي عقد، كما تظهر في وثيقة العقد نفسها.'
               : "NOVAIQ's standard agreement — the full clauses signed electronically on every contract, exactly as they appear in the contract document itself."}
@@ -77,11 +76,11 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
         </div>
 
         <div
-          className="mt-8 p-5 rounded-3xl bg-zinc-900 border flex items-start gap-4"
-          style={{ borderColor: 'rgba(213, 189, 172, 0.25)', background: SECONDARY_SOFT }}
+          className="mt-8 p-5 rounded-3xl bg-[#F6F1E9] border flex items-start gap-4"
+          style={{ borderColor: 'rgba(16, 19, 34, 0.15)' }}
         >
-          <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: SECONDARY }} />
-          <p className="text-xs sm:text-sm leading-relaxed text-white/90">
+          <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#101322' }} />
+          <p className="text-xs sm:text-sm leading-relaxed text-[#101322]">
             {isAr
               ? `ملاحظة: مدة التسليم في البند 3 أعلاه معروضة بالقيمة الافتراضية (${REPRESENTATIVE_TIMELINE_WEEKS} أسابيع) لتوضيح النص. تُحدَّد المدة الفعلية لكل عقد على حدة عند إنشائه، وتُكتب بوضوح في وثيقة العقد قبل توقيعه.`
               : `Note: the delivery timeline in clause 3 above is shown at its default (${REPRESENTATIVE_TIMELINE_WEEKS} weeks) to illustrate the text. The actual timeline is set per contract when it is created and is clearly stated in the contract document before signing.`}
