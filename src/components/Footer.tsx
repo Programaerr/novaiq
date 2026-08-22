@@ -264,14 +264,14 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom bar. */}
-        <div className="mt-14 pt-6 border-t border-[rgb(var(--ft-fg)/0.15)] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-14 pt-6 border-t border-[rgb(var(--ft-accent)/0.25)] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p             className="text-xs sm:text-sm uw:text-base tracking-[0.14em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a40))]">
             © {new Date().getFullYear()} NOVAIQ — {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved'}
           </p>
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm uw:text-base font-bold tracking-[0.18em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))] hover:text-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm uw:text-base font-bold tracking-[0.18em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))] hover:text-[rgb(var(--ft-accent))] transition-colors cursor-pointer"
           >
             {isAr ? 'العودة للأعلى' : 'Back to top'}
             <Arrow className="w-3.5 h-3.5 -rotate-90" strokeWidth={2.6} />
