@@ -113,7 +113,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
   ];
 
   return (
-    <div className="min-h-screen text-white font-['Cairo'] relative overflow-hidden selection:bg-zinc-100 selection:text-black">
+    <div className="nq-login min-h-screen text-white font-['Cairo'] relative overflow-hidden selection:bg-zinc-100 selection:text-black">
       {/* Desktop only, and for once that is a performance decision rather than a layout one:
           below lg the gallery covers the entire viewport, so every star drifting behind it is
           being animated and composited under something opaque. Two full-screen infinite

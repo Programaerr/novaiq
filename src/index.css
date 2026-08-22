@@ -923,6 +923,29 @@
   background: rgba(255, 255, 255, 0.14);
   color: #ffffff;
 }
+/* Inactive toggle buttons in the sandbox toolbar are muted grey by default; lift them to
+   white-on-dark too so the whole chrome reads neutral, not half-themed. */
+.sandbox-root .text-zinc-400,
+.sandbox-root .text-zinc-500,
+.sandbox-root .text-zinc-600 {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Full-screen login gate — its primary action must not read as the site's periwinkle primary
+   bolted onto the cosmic backdrop; neutral white-on-dark keeps it in the same family as the
+   sandbox chrome and stays legible on the dark surface. */
+.nq-login .nq-btn--solid {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  --beam-ink: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+.nq-login .nq-btn--solid:hover,
+.nq-login .nq-btn--solid:focus-visible,
+.nq-login .nq-btn--solid:active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
 
 .nq-cta-badge {
   display: inline-flex;
