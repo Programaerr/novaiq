@@ -35,7 +35,7 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
             <FileSignature className="w-6 h-6" style={{ color: ACCENT }} />
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
-            {isAr ? 'العقود الإلكترونية' : 'E-contracts'}
+            {isAr ? 'العقد الإلكتروني' : 'E-contract'}
           </h2>
           <p className="text-xs sm:text-sm leading-relaxed bg-[#F6F1E9] text-[#101322] rounded-2xl p-4 sm:p-5">
             {isAr

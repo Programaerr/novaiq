@@ -31,7 +31,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
     const t = {
       docTitle: isAr ? 'وثيقة عقد تطوير برمجي' : 'SOFTWARE DEVELOPMENT AGREEMENT',
-      tagline: isAr ? 'منصة القوالب البرمجية والعقود الإلكترونية' : 'Software Templates & Electronic Contracts Platform',
+      tagline: isAr ? 'منصة القوالب البرمجية والعقد الإلكتروني' : 'Software Templates & Electronic Contract Platform',
       ref: isAr ? 'رقم العقد' : 'Reference',
       date: isAr ? 'تاريخ الإصدار' : 'Issue Date',
       status: isAr ? 'الحالة' : 'Status',

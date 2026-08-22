@@ -198,8 +198,8 @@ export const Footer: React.FC<FooterProps> = ({
             </a>
             <p               className="mt-5 max-w-sm uw:max-w-md text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a55))] leading-relaxed">
               {isAr
-                ? 'استوديو رقمي عراقي يصمم ويطور أنظمة وتطبيقات ذكية — من الفكرة والمواصفات حتى الإطلاق، بعقود إلكترونية وتسليم في الموعد.'
-                : 'An Iraqi digital studio designing and building smart systems and applications — from idea and spec to launch, with e-contracts and on-time delivery.'}
+                ? 'استوديو رقمي عراقي يصمم ويطور أنظمة وتطبيقات ذكية — من الفكرة والمواصفات حتى الإطلاق، وبالعقد الإلكتروني وتسليم في الموعد.'
+                : 'An Iraqi digital studio designing and building smart systems and applications — from idea and spec to launch, with an e-contract and on-time delivery.'}
             </p>
 
             {socials.length > 0 && (
@@ -233,7 +233,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Legal. */}
           <div className="lg:col-span-2">
             <FooterColumn heading={isAr ? 'قانوني' : 'Legal'}>
-              <FooterLink label={isAr ? 'العقود الإلكترونية' : 'E-contracts'} onClick={go('econtracts')} />
+              <FooterLink label={isAr ? 'العقد الإلكتروني' : 'E-contract'} onClick={go('econtracts')} />
               <FooterLink label={isAr ? 'الدعم الفني' : 'Support'} onClick={go('support')} />
             </FooterColumn>
           </div>

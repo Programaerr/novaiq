@@ -131,7 +131,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             <div>
               <span className="text-2xl font-black text-white tracking-widest font-['Cairo'] block">NOVAIQ</span>
               <span className="text-xs text-white/75">
-                {isAr ? 'منصة القوالب البرمجية والعقود الإلكترونية الذكية' : 'Smart Software Templates & Electronic Contracts Platform'}
+                {isAr ? 'منصة القوالب البرمجية والعقد الإلكتروني الذكي' : 'Smart Software Templates & Electronic Contract Platform'}
               </span>
             </div>
             <div className={`text-xs font-mono text-white/75 ${isAr ? 'text-right sm:text-left' : 'text-left sm:text-right'}`}>

@@ -135,8 +135,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ language = 'ar', onStart, on
 
           <m.p {...fade(0.25)} className="mt-6 max-w-xl text-sm sm:text-base text-white/80 leading-relaxed">
             {isAr
-              ? 'نصمم ونطوّر في NOVAIQ أنظمة وتطبيقات ذكية من الفكرة والمواصفات حتى الإطلاق — بعقود إلكترونية، وتصميم يجعل علامتك لا تُنسى.'
-              : 'At NOVAIQ we design and build smart systems and applications — from idea and spec to launch, with e-contracts and a brand that is never forgotten.'}
+              ? 'نصمم ونطوّر في NOVAIQ أنظمة وتطبيقات ذكية من الفكرة والمواصفات حتى الإطلاق — وبالعقد الإلكتروني، وتصميم يجعل علامتك لا تُنسى.'
+              : 'At NOVAIQ we design and build smart systems and applications — from idea and spec to launch, with an e-contract and a brand that is never forgotten.'}
           </m.p>
 
           <m.div {...fade(0.35)} className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
