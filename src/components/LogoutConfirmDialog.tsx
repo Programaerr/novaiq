@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { LogOut } from 'lucide-react';
+import { NqButton } from './ui/NqButton';
 
 interface LogoutConfirmDialogProps {
   isAr: boolean;
@@ -33,20 +34,30 @@ export const LogoutConfirmDialog: React.FC<LogoutConfirmDialogProps> = ({ isAr, 
           </p>
         </div>
         <div className="flex gap-3">
-          <button
+          {/* Same fix as the cookie bar: cancel and sign-out were the same button, in a dialog
+              whose only job is to make you choose between them. */}
+          <NqButton
+            tone="chrome"
+            variant="quiet"
+            size="sm"
+            radius="xl"
+            block
             onClick={onCancel}
-            className="nq-btn nq-btn--solid flex-1 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
+            className="flex-1"
           >
-            <span className="nq-btn-beam" aria-hidden="true" />
             {isAr ? 'إلغاء' : 'Cancel'}
-          </button>
-          <button
+          </NqButton>
+          <NqButton
+            tone="chrome"
+            variant="solid"
+            size="sm"
+            radius="xl"
+            block
             onClick={onConfirm}
-            className="nq-btn nq-btn--solid flex-1 py-2.5 rounded-xl text-xs font-extrabold cursor-pointer"
+            className="flex-1"
           >
-            <span className="nq-btn-beam" aria-hidden="true" />
             {isAr ? 'تسجيل الخروج' : 'Sign Out'}
-          </button>
+          </NqButton>
         </div>
       </div>
     </div>,

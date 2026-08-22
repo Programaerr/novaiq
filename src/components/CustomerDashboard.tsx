@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, FileCheck, Download, Loader2, Clock, CheckCircle2, Wallet } from 'lucide-react';
+import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -14,6 +14,7 @@ import { sumPayments } from '../lib/payments';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { contractTerms } from '../data/contractTerms';
 import { STAGE_COLORS } from '../lib/statusColors';
+import { NqButton } from './ui/NqButton';
 
 interface CustomerDashboardProps {
   language: Language;
@@ -147,14 +148,22 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
             <p className="text-xs text-ink/60 font-mono" dir="ltr">{user.email}</p>
           </div>
         </div>
-        <button
+        {/* `sand`, which is the ground this dashboard is painted on — it was carrying the dark
+            chrome's `.nq-btn` on a light page. Signing out is not the primary action here, so it
+            is the quiet weight; the label hides on a narrow screen and `aria-label` keeps the
+            name at every width. */}
+        <NqButton
+          tone="sand"
+          variant="quiet"
+          size="sm"
+          radius="xl"
           onClick={() => setShowLogoutConfirm(true)}
-          className="nq-btn nq-btn--solid px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shrink-0"
+          aria-label={isAr ? 'تسجيل الخروج' : 'Sign Out'}
+          className="shrink-0"
+          icon={<LogOut className="w-4 h-4" />}
         >
-          <span className="nq-btn-beam" aria-hidden="true" />
-          <LogOut className="w-4 h-4" />
           <span className="hidden sm:inline">{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
-        </button>
+        </NqButton>
       </div>
 
       {contracts.length === 0 ? (
@@ -231,7 +240,9 @@ function CustomerContractRow({
       {expanded && <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} />}
 
       <button
+        type="button"
         onClick={onToggle}
+        aria-expanded={expanded}
         className="w-full flex items-center justify-between gap-3 p-4 text-left cursor-pointer hover:bg-sand-light/80 transition-colors"
       >
         <div className="min-w-0">
@@ -444,15 +455,17 @@ function CustomerContractRow({
           )}
 
           <div className="flex justify-end pt-1">
-            <button
+            <NqButton
+              tone="sand"
+              variant="solid"
+              size="sm"
+              radius="xl"
+              loading={isDownloading}
               onClick={handleDownload}
-              disabled={isDownloading}
-              className="nq-btn nq-btn--solid px-5 py-2.5 rounded-xl disabled:opacity-60 text-xs font-extrabold flex items-center gap-2 cursor-pointer"
+              icon={<Download className="w-4 h-4" />}
             >
-              <span className="nq-btn-beam" aria-hidden="true" />
-              {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              <span>{isAr ? 'تنزيل العقد PDF' : 'Download Contract PDF'}</span>
-            </button>
+              {isAr ? 'تنزيل العقد PDF' : 'Download Contract PDF'}
+            </NqButton>
           </div>
         </div>
       )}

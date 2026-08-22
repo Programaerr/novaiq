@@ -2,39 +2,42 @@ import React from 'react';
 import { Rocket, ArrowLeft } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language } from '../lib/i18n';
+import { NqButton } from './ui/NqButton';
 
 interface ProjectCtaButtonProps {
   onCreateContract: () => void;
   language?: Language;
 }
 
-// Its own component rather than markup inlined at each call site: it renders twice —
-// once bridging the timeline and about sections on the home page, once standing alone
-// at the foot of the dedicated timeline page — and both need the exact same button.
+// Its own component rather than markup inlined at the call site. It used to render twice — once
+// bridging the timeline and about sections on the home page, once at the foot of the dedicated
+// timeline page — and only the second survives the home page's rebuild. Kept as a component
+// because the label and the two glyphs are a decision about the offer, not about layout.
 export const ProjectCtaButton: React.FC<ProjectCtaButtonProps> = ({ onCreateContract, language = 'ar' }) => {
   return (
     <div className="flex justify-center">
-      <button
+      {/* `periwinkle`, which is the ground MilestoneTimeline actually paints — so the cubes this
+          lifts carry SAND on their crests, the same accent the section's own field around it is
+          already carrying. It was `.filter-pill-btn`, the templates page's white pill with a
+          conic beam rolling round its outline, borrowed wholesale for a section it had nothing
+          to do with. */}
+      <NqButton
+        tone="periwinkle"
+        variant="solid"
+        size="lg"
         onClick={() => {
           onCreateContract();
           cosmicAudio.playWarp();
         }}
-        // The templates page's filter pill, motion and all — the same white body that flips to
-        // black, the same 1.03 swell on hover and 0.98 press, and the same 2px conic beam
-        // rolling round the outline. `relative` is not decoration: .filter-pill-btn brings
-        // `isolation: isolate` but not a position, and the beam is `position: absolute;
-        // inset: -2px`, so without it the ring would hang off the nearest positioned ancestor
-        // instead of this button. (.nq-btn, which this replaces, supplied the position itself.)
-        className="filter-pill-btn relative px-4 py-2.5 text-xs gap-2 sm:px-8 sm:py-4 sm:text-sm sm:gap-3 rounded-full font-extrabold uppercase tracking-[0.1em] inline-flex items-center cursor-pointer"
+        className="uppercase tracking-[0.1em]"
+        icon={<Rocket className="w-4 h-4 sm:w-5 sm:h-5" />}
+        /* Just the action. "…and sign the contract now" named a second step the button does not
+           take you to — the contract is at the end of the builder, not behind this press — and a
+           label that promises two things when it does one is a label people stop believing. */
+        trailing={<ArrowLeft className={`w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />}
       >
-        <span className="filter-pill-beam" aria-hidden="true" />
-        <Rocket className="w-4 h-4 sm:w-5 sm:h-5" />
-        {/* Just the action. "…and sign the contract now" named a second step the button does not
-            take you to — the contract is at the end of the builder, not behind this press — and a
-            label that promises two things when it does one is a label people stop believing. */}
-        <span>{language === 'ar' ? 'ابدأ تنفيذ مشروعك' : 'Start Your Project'}</span>
-        <ArrowLeft className={`w-4 h-4 sm:w-5 sm:h-5 ${language === 'en' ? 'rotate-180' : ''}`} />
-      </button>
+        {language === 'ar' ? 'ابدأ تنفيذ مشروعك' : 'Start Your Project'}
+      </NqButton>
     </div>
   );
 };

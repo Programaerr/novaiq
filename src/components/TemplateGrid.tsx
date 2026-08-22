@@ -6,6 +6,7 @@ import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
 import { PERIWINKLE } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
+import { NqButton } from './ui/NqButton';
 import { PageLoader } from './PageLoader';
 
 // The interactive sandbox is the single largest component in the app — a whole website and a
@@ -172,33 +173,33 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 {/* No price on the card: the customer chooses by reading the offer and opening the
                     live preview, then continues straight into the contract. */}
                 <div className="relative mt-auto pt-8 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    disabled={disabled}
+                  {/* `paper`, because that is the ground these cards sit on. The black pill and
+                      its white badge are the pair this page already used; what is new is that the
+                      cubes it lifts are black too, and the periwinkle on their crests is the same
+                      accent the band at the foot of this page carries. */}
+                  <NqButton
+                    tone="paper"
+                    variant="solid"
+                    size="md"
+                    loading={disabled}
                     onClick={() => template && onSelectTemplateForContract(template, choice.note)}
-                    className="min-h-12 ps-6 pe-2 py-2 rounded-full inline-flex items-center gap-2.5 text-sm uw:text-base font-extrabold cursor-pointer transition-[filter] duration-200 hover:brightness-110 disabled:opacity-60 disabled:cursor-wait"
-                    style={{ background: '#000000', color: '#FFFFFF' }}
+                    className="uw:text-base"
+                    badge={<ArrowLeft className="w-4 h-4 rotate-180" strokeWidth={2.6} />}
                   >
-                    <span>{currentLang === 'ar' ? choice.titleAr : choice.titleEn}</span>
-                    <span
-                      className="w-9 h-9 rounded-full grid place-items-center shrink-0"
-                      style={{ background: '#FFFFFF', color: '#000000' }}
-                      aria-hidden="true"
-                    >
-                      <ArrowLeft className="w-4 h-4 rotate-180" strokeWidth={2.6} />
-                    </span>
-                  </button>
+                    {currentLang === 'ar' ? choice.titleAr : choice.titleEn}
+                  </NqButton>
 
                   {onOpenStandalonePreview && template && (
-                    <button
-                      type="button"
+                    <NqButton
+                      tone="paper"
+                      variant="quiet"
+                      size="md"
                       onClick={() => onOpenStandalonePreview(template)}
-                      className="min-h-12 px-5 rounded-full inline-flex items-center gap-2 text-sm uw:text-base font-bold cursor-pointer transition-colors hover:bg-black/5"
-                      style={{ background: 'rgba(0, 0, 0, 0.06)', color: '#000000' }}
+                      className="uw:text-base"
+                      icon={<Eye className="w-4 h-4" strokeWidth={2.2} />}
                     >
-                      <Eye className="w-4 h-4" strokeWidth={2.2} />
                       {currentLang === 'ar' ? 'معاينة حية' : 'Live preview'}
-                    </button>
+                    </NqButton>
                   )}
                 </div>
               </article>

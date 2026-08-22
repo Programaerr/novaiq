@@ -393,7 +393,7 @@
 }
 
 /* Shimmer on a solid border — light catching the outline, not a beam driving round it.
-   The ring is the same mask pair `.filter-pill-beam` uses: the full box minus the content box
+   The ring is the same mask pair the beam wrapper uses: the full box minus the content box
    leaves only the 1px edge strip, so the gradient survives on the outline and nowhere else.
    inset:-1px puts it *on* the border rather than one pixel inside it, which is a bright line
    beside a dark one and reads as a second frame.
@@ -458,114 +458,6 @@
 .white-btn-glow {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 0, 0, 0.9);
   transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Filter pill button — premium white CTA pill: flat #FFFFFF surface (not translucent —
-   this one sits low-contrast against a dark toolbar so the definition has to come entirely
-   from the shadow, not a border). Depth comes from two stacked outer shadows (a tight drop
-   shadow + a wide heavily-blurred low-opacity ambient glow) plus a pair of 1px inset
-   highlight/shade lines standing in for a glossy top bevel. Icon/text/badge use currentColor
-   so a single `color` change on hover flips them along with the background — one property to
-   invert instead of three. */
-.filter-pill-btn {
-  /* isolate: gives this button its own stacking context so the mist layer's z-index:-1
-     below only tucks behind the button's own opaque surface, not behind the whole toolbar
-     bar (which has no stacking context of its own and would otherwise swallow it). */
-  isolation: isolate;
-  background: #FFFFFF;
-  color: #111111;
-  /* No omnidirectional bloom in this stack — only the directional drop below it. A
-     `0 0 36px rgba(0,0,0,…)` term spreads black evenly in every direction, which is invisible
-     on a black page and a grey smudge on any page that is not black. The moment the background
-     became charcoal it showed up as a dark haze ringing every button. A drop shadow implies a
-     light source and a surface; a black glow implies neither. */
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
-  transition: background 250ms ease, color 250ms ease, box-shadow 250ms ease, transform 250ms ease;
-}
-
-/* Hover border beam — a solid 2px ring on the pill's own outline, not a blurred cloud
-   around it. Two elements, because one can't do both jobs: this wrapper stays still and
-   owns the ring shape (the mask pair — full box minus content box — erases everything but
-   the 2px padding strip), while the rotating gradient lives on its ::before. Rotating the
-   masked element itself swings the whole rounded-rect out of alignment with the pill on
-   every frame but 0deg, which is what made the beam fly off the corners. */
-.filter-pill-beam {
-  position: absolute;
-  /* On the outline, not around it. At -2px the ring floated two pixels clear of the button and
-     inherited a border-radius meant for a shape 4px narrower, so its curve ran slightly wide of
-     the corners it was tracing. At 0 the ring and the button share one box and one radius, and
-     the beam sits exactly on the edge. Kept in step with .nq-btn-beam — these two are the same
-     effect on two families of buttons, and a difference of a pixel between them is visible when
-     they sit on the same page. */
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  overflow: hidden;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 250ms ease;
-}
-
-/* Square (aspect-ratio 1 at 200% of the pill's width) so no matter the rotation angle it
-   still covers every edge — a pill-shaped gradient would leave the short sides bare as it
-   turned. Rotation is `transform: rotate()` rather than an animated custom property:
-   Lightning CSS strips the `@property` those need and silently kills the declaration. */
-.filter-pill-beam::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 200%;
-  aspect-ratio: 1;
-  /* Centring uses the standalone `translate` property, not a translate() inside transform —
-     the spin keyframe owns `transform`, and would overwrite the centring if they shared it. */
-  translate: -50% -50%;
-  /* --beam-ink, not a literal. THE BEAM MUST CONTRAST WITH THE SURFACE IT IS HOVERING OVER, and
-     that surface is not the same on every button: a white beam is right on every dark body and
-     completely invisible on a pale one. This was written out four times as two hardcoded
-     gradients — white here, white on .nq-btn-beam, and a black copy of each for the pale
-     surfaces — and the fourth was added only after the primary CTA went pale and its animation
-     silently stopped existing. One token, inherited from the button, is the whole fix: a button
-     that knows it is pale says so once and both beam families follow. */
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    var(--beam-ink, #FFFFFF) 10%,
-    transparent 25%,
-    transparent 50%,
-    var(--beam-ink, #FFFFFF) 60%,
-    transparent 75%,
-    transparent
-  );
-}
-
-/* ease-in-out (not linear) on a full turn is what makes it undulate — the beam surges
-   through the middle of each rotation and eases at the ends, reading as a wave rolling
-   around the pill rather than a motor spinning at constant speed.
-
-   `:focus-visible` alongside `:hover` throughout: this is the site's primary control surface and
-   it was reachable by keyboard with no feedback at all — the pill did not invert, did not swell,
-   and did not light its ring. A pointer user got three signals and a keyboard user got none. */
-.filter-pill-btn:hover .filter-pill-beam,
-.filter-pill-btn:focus-visible .filter-pill-beam {
-  opacity: 1;
-}
-
-.filter-pill-btn:hover .filter-pill-beam::before,
-.filter-pill-btn:focus-visible .filter-pill-beam::before {
-  animation: filter-pill-mist-spin 2s ease-in-out infinite;
-}
-
-.filter-pill-btn.is-active {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.05);
 }
 
 /* Deep-space search field. This toolbar sits on a starfield, and this control used to be the
@@ -662,43 +554,6 @@
     inset -3px -3px 8px rgba(255, 255, 255, 0.14);
 }
 
-/* Hover inverts the whole pill (paper/ink -> ink/paper), so the ambient glow inverts
-   too — an ink bloom would disappear against an ink pill, a paper one reads as the
-   surface catching light instead. Declared after .is-active so hover wins when both apply
-   (same selector specificity; source order breaks the tie). */
-.filter-pill-btn:hover,
-.filter-pill-btn:focus-visible {
-  background: var(--color-ink);
-  color: var(--color-paper);
-  box-shadow:
-    inset 0 1px 0 rgba(246, 241, 233, 0.12),
-    inset 0 -1px 1px rgba(16, 19, 34, 0.4);
-  transform: scale(1.03);
-}
-
-.filter-pill-btn:active {
-  transform: scale(0.98);
-}
-
-/* The disc on the primary CTA reads these two, inverted against the button's own body (see
-   .nq-cta-badge). Published here so a `.filter-pill-btn` can carry that badge without the
-   component having to know which button family it is wearing. */
-.filter-pill-btn {
-  --nq-ink: var(--color-ink);
-  --nq-surface: var(--color-paper);
-}
-
-.filter-pill-btn:hover,
-.filter-pill-btn:focus-visible {
-  --nq-ink: var(--color-paper);
-  --nq-surface: var(--color-ink);
-}
-
-
-@keyframes filter-pill-mist-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
 
 /* No cast shadow on any button, resting or hovered — only inset bevels.
    A drop shadow is a claim that the control is floating above the page, and it is paid for in
@@ -727,9 +582,10 @@
    static border halo, and a pointer-tracked CTA spotlight), all now deleted — they
    were the reason no two buttons on the site responded the same way.
 
-   .filter-pill-btn stays its own rule on purpose — it belongs to the templates page,
-   which is outside this refactor — but the surface values here mirror it exactly, so
-   the reference button and the rest of the site read as one family. */
+   What is left of this rule: the sandbox toolbar, which is a dense strip of tool chips
+   rather than a set of page buttons. Everything else on the site is NqButton / NqLink now —
+   see src/components/ui/nqSurface.tsx. `.filter-pill-btn`, the templates page's white pill
+   with a conic beam, was the third of the three systems and is gone entirely. */
 .nq-btn {
   position: relative;
   /* Own stacking context, so a beam or an underglow with a negative z-index tucks
@@ -768,7 +624,7 @@
    the button on every frame but 0deg, which reads as the beam flying off the corners. */
 .nq-btn-beam {
   position: absolute;
-  /* 0, matching .filter-pill-beam exactly — see the note there. */
+  /* 0 — the beam sits exactly on the pill's outline rather than outside it. */
   inset: 0;
   border-radius: inherit;
   padding: 2px;
@@ -796,7 +652,7 @@
   /* Centring uses the standalone `translate` property, not a translate() inside transform —
      the spin keyframe owns `transform` and would otherwise overwrite the centring. */
   translate: -50% -50%;
-  /* One gradient, coloured by --beam-ink — see the note on .filter-pill-beam::before for why the
+  /* One gradient, coloured by --beam-ink rather than a literal: the beam has to contrast with
      colour is a token rather than a literal. */
   background: conic-gradient(
     from 0deg,
@@ -1332,8 +1188,7 @@ html[data-idle] :is(
    pseudo-elements, and one invalid selector takes the whole rule down with it — so folding
    these into the list above would have silently stopped pausing anything at all. */
 html[data-idle] .solid-shimmer::after,
-html[data-idle] .nq-btn-beam::before,
-html[data-idle] .filter-pill-beam::before {
+html[data-idle] .nq-btn-beam::before {
   animation-play-state: paused;
 }
 
@@ -1349,8 +1204,7 @@ html[data-idle] .filter-pill-beam::before {
    compositor transforms that run off the main thread — pausing them would visibly stall the
    page's atmosphere every time someone scrolled, and buy nothing, because they are not what
    the scroll is competing with. */
-html[data-scrolling] .nq-btn-beam::before,
-html[data-scrolling] .filter-pill-beam::before {
+html[data-scrolling] .nq-btn-beam::before {
   animation-play-state: paused;
 }
 

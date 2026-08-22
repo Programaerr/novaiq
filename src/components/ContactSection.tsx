@@ -7,6 +7,7 @@ import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
 import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
 import { BAND_FADE, PERIWINKLE_TONES, TileField } from './TileField';
+import { NqButton } from './ui/NqButton';
 
 /**
  * The contact section: the panel from the wireframe, with the form on one side and the ways to
@@ -297,23 +298,20 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                 className="nq-rise flex flex-wrap items-center gap-4"
                 style={{ ['--nq-rise-delay' as string]: '430ms' }}
               >
-                <button
+                {/* The one place on the site where `type` genuinely has to be spelled out —
+                    NqButton defaults to `button`, and a submit that forgot to say so is a form
+                    that does nothing. */}
+                <NqButton
                   type="submit"
-                  disabled={sending}
-                  className="min-h-11 uw:min-h-13 ps-6 pe-2 py-2 rounded-full inline-flex items-center gap-3 text-sm uw:text-base font-extrabold transition-opacity duration-200 cursor-pointer disabled:cursor-wait disabled:opacity-70"
-                  style={{ background: INK, color: PAPER }}
+                  tone="periwinkle"
+                  variant="solid"
+                  size="md"
+                  loading={sending}
+                  className="uw:text-base"
+                  badge={<Send className="w-4 h-4" strokeWidth={2.4} />}
                 >
-                  <span>
-                    {sending ? (isAr ? 'جاري الإرسال…' : 'Sending…') : isAr ? 'أرسل' : 'Send'}
-                  </span>
-                  <span
-                    className="w-8 h-8 rounded-full grid place-items-center shrink-0"
-                    style={{ background: PERIWINKLE, color: INK }}
-                    aria-hidden="true"
-                  >
-                    <Send className="w-4 h-4" strokeWidth={2.4} />
-                  </span>
-                </button>
+                  {sending ? (isAr ? 'جاري الإرسال…' : 'Sending…') : isAr ? 'أرسل' : 'Send'}
+                </NqButton>
 
                 {/* The confirmation sits beside the button that caused it, and is announced. */}
                 {sent && (

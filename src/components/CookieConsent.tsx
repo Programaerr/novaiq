@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Cookie, ShieldCheck } from 'lucide-react';
+import { NqButton } from './ui/NqButton';
 import { Language } from '../lib/i18n';
 import { getConsentStatus, setConsentStatus } from '../lib/consent';
 
@@ -47,23 +48,30 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ language, onNaviga
         </div>
 
         <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
-          <button
-            type="button"
+          {/* Two weights, where before both were `.nq-btn--solid` and identical. A pair of
+              buttons that look the same makes the reader stop and read, and the one thing a
+              cookie bar must not do is make you stop and read it. Accept is the solid one. */}
+          <NqButton
+            tone="chrome"
+            variant="quiet"
+            size="sm"
+            radius="xl"
             onClick={() => handleChoice(false)}
-            className="nq-btn nq-btn--solid flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
+            className="flex-1 sm:flex-initial"
           >
-            <span className="nq-btn-beam" aria-hidden="true" />
             {isAr ? 'رفض' : 'Reject'}
-          </button>
-          <button
-            type="button"
+          </NqButton>
+          <NqButton
+            tone="chrome"
+            variant="solid"
+            size="sm"
+            radius="xl"
             onClick={() => handleChoice(true)}
-            className="nq-btn nq-btn--solid flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+            className="flex-1 sm:flex-initial"
+            icon={<ShieldCheck className="w-3.5 h-3.5" />}
           >
-            <span className="nq-btn-beam" aria-hidden="true" />
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>{isAr ? 'موافقة' : 'Accept'}</span>
-          </button>
+            {isAr ? 'موافقة' : 'Accept'}
+          </NqButton>
         </div>
       </div>
     </div>

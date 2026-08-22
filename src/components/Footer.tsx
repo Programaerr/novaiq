@@ -1,9 +1,10 @@
 import React, { useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { PAPER, PERIWINKLE } from '../lib/homePalette';
+import { PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
+import { NqButton } from './ui/NqButton';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 import { useGroundAbove } from '../lib/useGroundAbove';
 
@@ -64,7 +65,10 @@ const FooterColumn: React.FC<FooterColumnProps> = ({ heading, children }) => (
       <span className="h-1.5 w-6 rounded-full bg-[rgb(var(--ft-accent))]" aria-hidden="true" />
       {heading}
     </h3>
-    <ul className="mt-5 space-y-3">{children}</ul>
+    {/* `space-y-1` rather than `space-y-3`, because the gap moved INSIDE the links — see
+        FooterLink. The column's overall pitch is unchanged; what changed is that the space
+        between two links is now part of one of them and can be pressed. */}
+    <ul className="mt-4 space-y-1">{children}</ul>
   </div>
 );
 
@@ -79,7 +83,10 @@ const FooterLink: React.FC<FooterLinkProps> = ({ label, onClick, href }) => (
     <a
       href={href ?? '#'}
       onClick={onClick ? (e) => { e.preventDefault(); onClick(); } : undefined}
-      className="inline-flex items-center gap-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a60))] hover:text-[rgb(var(--ft-fg))] transition-colors cursor-pointer"
+      /* `min-h-11`: these were the height of their own text, 24px, in a stack of five — the
+         hardest thing on the page to hit with a thumb and the only navigation in the footer. The
+         padding is what makes the target, so the gap between them came out of the list. */
+      className="inline-flex items-center min-h-11 py-1.5 gap-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a60))] hover:text-[rgb(var(--ft-fg))] transition-colors cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--ft-accent))]"
     >
       {label}
     </a>
@@ -174,10 +181,17 @@ export const Footer: React.FC<FooterProps> = ({
         style={{
           top: 0,
           height: 'var(--nq-band)',
-          background: `linear-gradient(to bottom, ${fromColor} 0%, ${fromColor} 33%, ${PAPER} 100%)`,
+          // Seen only for the frame before the canvas over it paints, but it has to make the same
+          // journey — section colour, through sand, into paper — or that first frame flashes a
+          // different band than the one that replaces it.
+          background: `linear-gradient(to bottom, ${fromColor} 0%, ${SAND} 52%, ${PAPER} 100%)`,
         }}
       >
-        <TileField tones={connectionTones(fromColor, PAPER, PERIWINKLE)} fade={FOOTER_BAND_FADE} />
+        {/* Sand is the body of the band, not either of its ends. It arrives out of whatever
+            colour the page ended on and still settles into the footer's paper — sand is simply
+            what the cubes in between are made of, which is the one place on a blue page the
+            site's original ground still shows. */}
+        <TileField tones={connectionTones(fromColor, PAPER, PERIWINKLE, SAND)} fade={FOOTER_BAND_FADE} />
       </div>
 
       {/* Top padding clears the belt, which is absolutely positioned and so takes up no height of
@@ -251,14 +265,16 @@ export const Footer: React.FC<FooterProps> = ({
                     ? 'أخبرنا عن فكرتك وسنرجع إليك بمواصفات أولية خلال 48 ساعة.'
                     : 'Tell us about your idea and we will come back with a first spec within 48 hours.'}
                 </p>
-                <button
-                  type="button"
+                <NqButton
+                  tone="footer"
+                  variant="solid"
+                  size="md"
                   onClick={onRequestProject ?? (() => go('custom-request')())}
-                  className="mt-4 inline-flex items-center gap-2 px-5 py-3 uw:px-6 uw:py-3.5 rounded-full bg-[rgb(var(--ft-accent))] text-[rgb(var(--ft-accent-ink))] text-sm sm:text-base uw:text-lg font-bold tracking-[0.12em] uppercase hover:bg-[rgb(var(--ft-accent)/0.85)] transition-colors cursor-pointer"
+                  className="mt-4 tracking-[0.12em] uppercase sm:text-base uw:text-lg"
+                  trailing={<Arrow className="w-3.5 h-3.5" strokeWidth={2.6} />}
                 >
                   {isAr ? 'اطلب مشروعك' : 'Request a project'}
-                  <Arrow className="w-3.5 h-3.5" strokeWidth={2.6} />
-                </button>
+                </NqButton>
               </div>
           </div>
         </div>
@@ -268,14 +284,18 @@ export const Footer: React.FC<FooterProps> = ({
           <p             className="text-xs sm:text-sm uw:text-base tracking-[0.14em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a40))]">
             © {new Date().getFullYear()} NOVAIQ — {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved'}
           </p>
-          <button
-            type="button"
+          {/* A ghost rather than a bare text button, and the reason is the 44px floor: this was
+              the height of its own 12px type, which is a target you have to aim at. */}
+          <NqButton
+            tone="footer"
+            variant="ghost"
+            size="sm"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm uw:text-base font-bold tracking-[0.18em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))] hover:text-[rgb(var(--ft-accent))] transition-colors cursor-pointer"
+            className="-me-4 tracking-[0.18em] uppercase sm:text-sm uw:text-base"
+            trailing={<Arrow className="w-3.5 h-3.5 -rotate-90" strokeWidth={2.6} />}
           >
             {isAr ? 'العودة للأعلى' : 'Back to top'}
-            <Arrow className="w-3.5 h-3.5 -rotate-90" strokeWidth={2.6} />
-          </button>
+          </NqButton>
         </div>
       </div>
     </footer>

@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Loader2, FileCheck, Clock, Download } from 'lucide-react';
+import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { NovaiqLogo } from './NovaiqLogo';
 import { PhoneBooking, PhoneChat, PhoneStats, SiteHero, SiteCards, SiteDashboard } from './LoginGalleryArt';
+import { NqButton } from './ui/NqButton';
 
 interface LoginPageProps {
   language: Language;
@@ -201,16 +202,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               {/* One button, because there is only one path: Firebase creates the account on a
                   first-time Google sign-in, so "log in" and "sign up" are the same click here
                   and offering both would be two doors into one room. */}
-              <button
-                type="button"
+              <NqButton
+                tone="chrome"
+                variant="solid"
+                size="lg"
+                radius="xl"
+                block
+                loading={isSubmitting}
                 onClick={handleGoogleSignIn}
-                disabled={isSubmitting}
-                className="nq-btn nq-btn--solid mt-6 lg:mt-7 w-full py-3.5 rounded-2xl disabled:opacity-60 text-sm font-extrabold flex items-center justify-center gap-3 cursor-pointer"
+                className="mt-6 lg:mt-7"
+                icon={<GoogleIcon />}
               >
-                <span className="nq-btn-beam" aria-hidden="true" />
-                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <GoogleIcon />}
-                <span>{isAr ? 'المتابعة عبر Google' : 'Continue with Google'}</span>
-              </button>
+                {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
+              </NqButton>
 
               {/* Browsing the catalogue, opening a demo and reading the timeline need no
                   account, and requiring one to look around turns a visitor away before they
@@ -220,15 +224,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
                   The line underneath says where the wall actually is, so choosing this does not
                   feel like it might cost them something later on. */}
-              <button
-                type="button"
-                onClick={onContinueAsGuest}
+              <NqButton
+                tone="chrome"
+                variant="quiet"
+                size="md"
+                radius="xl"
+                block
                 disabled={isSubmitting}
-                className="nq-btn mt-3 w-full py-3 rounded-2xl border border-zinc-700 hover:border-zinc-500 text-white/90 hover:text-white disabled:opacity-60 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                onClick={onContinueAsGuest}
+                className="mt-3"
               >
-                <span className="nq-btn-beam" aria-hidden="true" />
-                <span>{isAr ? 'أكمل كضيف' : 'Continue as guest'}</span>
-              </button>
+                {isAr ? 'أكمل كضيف' : 'Continue as guest'}
+              </NqButton>
 
               <p className="mt-2.5 text-center text-[11px] text-white/60">
                 {isAr

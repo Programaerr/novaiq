@@ -543,7 +543,7 @@ export default function App() {
               placeholder={<div className="h-[40vh] bg-periwinkle" aria-hidden="true" />}
             >
               <Suspense fallback={null}>
-              <ContactSection language={language} isPageTop />
+                <ContactSection language={language} />
               </Suspense>
             </LazyOnView>
           </div>
@@ -640,7 +640,7 @@ export default function App() {
         {activePage === 'support' && (
           <div className="page-in">
             <Suspense fallback={null}>
-              <ContactSection language={language} />
+              <ContactSection language={language} isPageTop />
             </Suspense>
           </div>
         )}

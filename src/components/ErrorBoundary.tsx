@@ -1,5 +1,6 @@
 import React, { ErrorInfo, ReactNode } from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
+import { NqButton } from './ui/NqButton';
 
 interface Props {
   children: ReactNode;
@@ -58,14 +59,22 @@ export class ErrorBoundary extends React.Component<Props, State> {
             </p>
 
             <div className="flex flex-col gap-3">
-              <button
+              {/* The cube field is off here on purpose. This screen exists because something
+                  already went wrong, and the fewer moving parts between the reader and the one
+                  button that fixes it, the better — a WebGL context is also the last thing worth
+                  asking for from a page that has just crashed. */}
+              <NqButton
+                tone="chrome"
+                variant="solid"
+                size="lg"
+                radius="xl"
+                block
+                tiles={false}
                 onClick={this.handleReload}
-                className="nq-btn nq-btn--solid w-full py-3.5 px-6 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+                icon={<RefreshCw className="w-4 h-4" />}
               >
-                <span className="nq-btn-beam" aria-hidden="true" />
-                <RefreshCw className="w-4 h-4" />
                 إعادة تحميل المنصة
-              </button>
+              </NqButton>
             </div>
           </div>
         </div>

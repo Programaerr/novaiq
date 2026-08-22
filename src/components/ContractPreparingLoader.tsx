@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ShieldCheck, RefreshCw } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { INK, PAPER, PERIWINKLE } from '../lib/homePalette';
+import { NqButton } from './ui/NqButton';
 
 interface ContractPreparingLoaderProps {
   language?: Language;
@@ -60,15 +61,16 @@ export const ContractPreparingLoader: React.FC<ContractPreparingLoaderProps> = (
         </div>
 
         {isSlow && (
-          <button
-            type="button"
+          <NqButton
+            tone="chrome"
+            variant="solid"
+            size="sm"
+            radius="xl"
             onClick={() => window.location.reload()}
-            className="nq-btn nq-btn--solid px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
+            icon={<RefreshCw className="w-3.5 h-3.5" />}
           >
-            <span className="nq-btn-beam" aria-hidden="true" />
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>{isAr ? 'إعادة التحميل' : 'Reload'}</span>
-          </button>
+            {isAr ? 'إعادة التحميل' : 'Reload'}
+          </NqButton>
         )}
       </div>
     </div>

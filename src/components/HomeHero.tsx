@@ -3,6 +3,7 @@ import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
+import { NqButton } from './ui/NqButton';
 
 /**
  * The home page's container: a sand-coloured screen with a swell of tiles running across it, and a
@@ -147,33 +148,33 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div
             className={`relative z-10 mt-auto flex ${isAr ? '' : 'flex-row-reverse'} flex-wrap items-center justify-center gap-3`}
           >
-            <button
-              type="button"
+            {/* Both pills are NqButton on the `glass` tone — translucent white over the panel,
+                which is the pairing that tone exists for. The cube field each one lifts on hover
+                is built from what its own fill resolves to over that blue, so the solid one raises
+                near-white blocks and the quiet one raises pale periwinkle ones. */}
+            <NqButton
+              tone="glass"
+              variant="solid"
+              size="sm"
               onClick={onRequestProject}
-              className="min-h-11 ps-5 pe-1.5 py-1.5 rounded-full inline-flex items-center gap-2.5 text-xs sm:text-sm font-extrabold transition-colors duration-200 cursor-pointer hover:bg-white"
-              style={{ background: 'rgba(255,255,255,0.92)', color: INK }}
+              className="sm:text-sm"
+              /* One glyph for both languages. The badge sits at the same physical end of the
+                 button in either (see the row above), so an arrow that flipped with the language
+                 would be pointing back into the label half the time. */
+              badge={<ArrowUpLeft className="w-4 h-4" strokeWidth={2.6} />}
             >
-              <span>{isAr ? 'ابدأ مشروعك' : 'Start your project'}</span>
-              <span
-                className="w-8 h-8 rounded-full grid place-items-center shrink-0"
-                style={{ background: INK, color: '#FFFFFF' }}
-                aria-hidden="true"
-              >
-                {/* One glyph for both languages. The badge sits at the same physical end of the
-                    button in either (see the row above), so an arrow that flipped with the language
-                    would be pointing back into the label half the time. */}
-                <ArrowUpLeft className="w-4 h-4" strokeWidth={2.6} />
-              </span>
-            </button>
+              {isAr ? 'ابدأ مشروعك' : 'Start your project'}
+            </NqButton>
 
-            <button
-              type="button"
+            <NqButton
+              tone="glass"
+              variant="quiet"
+              size="sm"
               onClick={onStart}
-              className="min-h-11 px-6 py-3 rounded-full inline-flex items-center text-xs sm:text-sm font-bold transition-colors duration-200 cursor-pointer hover:bg-white/75"
-              style={{ background: 'rgba(255,255,255,0.55)', color: INK }}
+              className="sm:text-sm"
             >
               {isAr ? 'شاهد أعمالنا' : 'See our work'}
-            </button>
+            </NqButton>
           </div>
         </div>
       </div>

@@ -208,15 +208,27 @@ function shadeColor(hex: string, amt: number): string {
   return `#${[mix(r), mix(g), mix(b)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
-/** The five paint colours for a connection band joining `from` (the section above) to `to` (the
- *  footer's ground), with `foam` as the accent on the crests. Trough/crest are `from` a step
- *  darker/lighter, exactly as the hand-written band sets do. */
-export function connectionTones(from: string, to: string, foam: string): FieldTones {
+/**
+ * The five paint colours for a connection band joining `from` (the section above) to `to` (the
+ * footer's ground), with `foam` as the accent on the crests.
+ *
+ * `body` is what the field itself is MADE of — its ground, and the trough/crest a step either side
+ * of it. It defaults to `from`, which makes the band a continuation of the section above; passing
+ * something else makes the band a colour in its own right, arriving out of `from` at the top and
+ * settling into `to` at the bottom. Only the middle changes: both ends still resolve to exactly the
+ * colours either side of them, which is what keeps the joins invisible whatever the body is.
+ */
+export function connectionTones(
+  from: string,
+  to: string,
+  foam: string,
+  body: string = from,
+): FieldTones {
   return {
-    trough: shadeColor(from, -0.14),
-    crest: shadeColor(from, 0.14),
+    trough: shadeColor(body, -0.14),
+    crest: shadeColor(body, 0.14),
     foam,
-    ground: from,
+    ground: body,
     intoLo: to,
     intoHi: from,
   };

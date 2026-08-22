@@ -19,6 +19,7 @@ import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
 import { showToast } from '../lib/toast';
+import { NqButton } from './ui/NqButton';
 import { loadContractDraft, saveContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
 import { contractTerms } from '../data/contractTerms';
@@ -911,20 +912,26 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           {/* Form Navigation Buttons */}
           <div className="pt-4 border-t border-periwinkle/25 flex items-center justify-between">
             {currentStep > 1 ? (
-              <button
-                type="button"
+              /* Back is the quiet one. All three buttons in this bar were the same solid fill,
+                 so a three-step form gave no clue which way it wanted you to go. */
+              <NqButton
+                tone="chrome"
+                variant="quiet"
+                size="sm"
+                radius="xl"
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="nq-btn nq-btn--solid px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
+                icon={<ArrowRight className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />}
               >
-                <span className="nq-btn-beam" aria-hidden="true" />
-                <ArrowRight className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />
-                <span>{isAr ? 'الخطوة السابقة' : 'Previous Step'}</span>
-              </button>
+                {isAr ? 'الخطوة السابقة' : 'Previous Step'}
+              </NqButton>
             ) : <div />}
 
             {currentStep < 3 ? (
-              <button
-                type="button"
+              <NqButton
+                tone="chrome"
+                variant="solid"
+                size="sm"
+                radius="xl"
                 onClick={() => {
                   if (currentStep === 1) {
                     const missing = new Set<string>();
@@ -965,20 +972,22 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   setCurrentStep(currentStep + 1);
                   cosmicAudio.playPing();
                 }}
-                className="nq-btn nq-btn--solid px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer"
+                trailing={<ArrowLeft className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />}
               >
-                <span className="nq-btn-beam" aria-hidden="true" />
-                <span>{isAr ? 'الخطوة التالية' : 'Next Step'}</span>
-                <ArrowLeft className={`w-4 h-4 ${!isAr ? 'rotate-180' : ''}`} />
-              </button>
+                {isAr ? 'الخطوة التالية' : 'Next Step'}
+              </NqButton>
             ) : (
               // Disabled until the contract is genuinely signable, rather than letting it be
               // pressed and answered with an error. handleSubmit still re-checks every one of
               // these conditions: this button is the honest signal, not the enforcement — a
               // disabled attribute is trivially removed in devtools and says nothing about
               // what the form does with the data.
-              <button
+              <NqButton
                 type="submit"
+                tone="chrome"
+                variant="solid"
+                size="md"
+                radius="xl"
                 disabled={!canSubmit}
                 title={
                   canSubmit
@@ -987,12 +996,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       ? 'أكمل التوقيع والموافقة ورقم الهاتف أولاً'
                       : 'Complete the signature, approval and phone number first'
                 }
-                className="nq-btn nq-btn--solid px-8 py-3 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-45"
+                className="sm:text-sm"
+                icon={<FileCheck className="w-4 h-4" />}
               >
-                <span className="nq-btn-beam" aria-hidden="true" />
-                <FileCheck className="w-4 h-4" />
-                <span>{getTranslation('generateContractBtn', lang)}</span>
-              </button>
+                {getTranslation('generateContractBtn', lang)}
+              </NqButton>
             )}
           </div>
 

@@ -10,9 +10,9 @@ import {
   Download,
   ShieldCheck,
   X,
-  Loader2,
   CheckCircle2
 } from 'lucide-react';
+import { NqButton } from './ui/NqButton';
 
 interface ContractPDFPreviewProps {
   contract: ContractData;
@@ -114,13 +114,19 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             </div>
           </div>
 
-          <button
+          {/* Icon-only, so it needs a name in words — it had none, which made the only way out
+              of this dialog an unlabelled button to a screen reader. */}
+          <NqButton
+            tone="chrome"
+            variant="quiet"
+            size="sm"
+            radius="xl"
             onClick={onClose}
-            className="nq-btn nq-btn--solid p-2 rounded-xl cursor-pointer"
+            aria-label={isAr ? 'إغلاق' : 'Close'}
+            className="w-11 px-0"
           >
-            <span className="nq-btn-beam" aria-hidden="true" />
-            <X className="w-5 h-5" />
-          </button>
+            <X className="w-5 h-5" aria-hidden="true" />
+          </NqButton>
         </div>
 
         {/* On-screen contract preview */}
@@ -219,33 +225,35 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
-            <button
+            {/* Downloading is the action; "Download Complete" only dismisses. They were two
+                identical solid buttons, which asked the reader to work out which one was the
+                point of the screen. */}
+            <NqButton
+              tone="chrome"
+              variant="solid"
+              size="lg"
+              radius="xl"
+              loading={isGeneratingPdf}
               onClick={handleDownloadPDF}
-              disabled={isGeneratingPdf}
-              className="nq-btn nq-btn--solid w-full sm:w-auto px-8 py-3 rounded-xl disabled:opacity-60 disabled:cursor-wait text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto"
+              icon={<Download className="w-5 h-5" />}
             >
-              <span className="nq-btn-beam" aria-hidden="true" />
-              {isGeneratingPdf ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>{isAr ? 'جارِ التجهيز...' : 'Preparing...'}</span>
-                </>
-              ) : (
-                <>
-                  <Download className="w-5 h-5" />
-                  <span>{isAr ? 'تنزيل العقد PDF' : 'Download Contract PDF'}</span>
-                </>
-              )}
-            </button>
+              {isGeneratingPdf
+                ? isAr ? 'جارِ التجهيز...' : 'Preparing...'
+                : isAr ? 'تنزيل العقد PDF' : 'Download Contract PDF'}
+            </NqButton>
 
-            <button
+            <NqButton
+              tone="chrome"
+              variant="quiet"
+              size="lg"
+              radius="xl"
               onClick={onFinish}
-              className="nq-btn nq-btn--solid w-full sm:w-auto px-8 py-3 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto"
+              icon={<CheckCircle2 className="w-5 h-5" />}
             >
-              <span className="nq-btn-beam" aria-hidden="true" />
-              <CheckCircle2 className="w-5 h-5" />
-              <span>{isAr ? 'تم التنزيل' : 'Download Complete'}</span>
-            </button>
+              {isAr ? 'تم التنزيل' : 'Download Complete'}
+            </NqButton>
           </div>
         </div>
 

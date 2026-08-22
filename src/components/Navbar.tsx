@@ -9,6 +9,8 @@ import {
   UserCircle2
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { NqButton } from './ui/NqButton';
+import { NqLink } from './ui/NqLink';
 import { useFloatingBarBottom } from '../lib/useFloatingBarBottom';
 import { NovaiqLogo } from './NovaiqLogo';
 
@@ -254,33 +256,49 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </a>
             ) : (
-              <a
+              /* An NqLink, not an NqButton: this changes the URL, so it has to be an anchor —
+                 middle-click, ⌘-click and "copy link address" all depend on it. */
+              <NqLink
                 href="?page=login"
                 onClick={goToLogin}
-                className="filter-pill-btn relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer"
+                tone="chrome"
+                variant="solid"
+                size="sm"
+                className="whitespace-nowrap"
+                icon={<LogIn className="w-4 h-4 shrink-0" />}
               >
-                <span className="filter-pill-beam" aria-hidden="true" />
-                <LogIn className="w-4 h-4 text-current shrink-0" />
-                <span className="hidden sm:inline text-current">{isAr ? 'تسجيل دخول' : 'Login'}</span>
-              </a>
+                {isAr ? 'تسجيل دخول' : 'Login'}
+              </NqLink>
             )}
           </div>
 
-          <button
+          {/* A ghost on the chrome. It was 32px tall before — a target you have to aim at, and
+              the one control in the bar that a thumb reaches for most. `sm` puts it at 44. */}
+          <NqButton
+            tone="chrome"
+            variant="ghost"
+            size="sm"
             onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
             title={isAr ? 'تبديل اللغة' : 'Switch language'}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl text-xs font-bold text-white/75 hover:text-white transition-colors cursor-pointer"
+            aria-label={isAr ? 'تبديل اللغة' : 'Switch language'}
+            className="px-3"
+            icon={<Globe className="w-4 h-4" />}
           >
-            <Globe className="w-4 h-4" />
             <span className="font-mono">{isAr ? 'AR' : 'EN'}</span>
-          </button>
+          </NqButton>
 
           <button
             ref={menuButtonRef}
+            type="button"
             onClick={() => setMenuDrawerOpen(!menuDrawerOpen)}
             aria-label={isAr ? (menuDrawerOpen ? 'إغلاق القائمة' : 'فتح القائمة') : (menuDrawerOpen ? 'Close menu' : 'Open menu')}
             aria-expanded={menuDrawerOpen}
-            className={`lg:hidden group flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 text-white`}
+            /* 44 square at every width. It was 40 on phones — which is where it is the ONLY way
+               into the navigation, so it was under the floor exactly where it mattered most. Kept
+               as hand-written markup rather than an NqButton: AnimatedMenuIcon draws its own two
+               bars off this element's `group`, and a cube field behind a morphing icon is two
+               animations fighting for the same 44 pixels. */
+            className={`lg:hidden group flex items-center justify-center w-11 h-11 rounded-xl transition-transform duration-300 active:duration-100 cursor-pointer active:scale-90 active:opacity-70 text-white outline-none focus-visible:ring-2 focus-visible:ring-white`}
           >
             <AnimatedMenuIcon open={menuDrawerOpen} />
           </button>

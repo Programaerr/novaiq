@@ -8,6 +8,7 @@ import type { Template } from '../types';
 import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
 import type { ThemeColor } from './TemplateInteractiveSandbox';
+import { NqButton } from './ui/NqButton';
 
 const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
@@ -123,12 +124,9 @@ export const TemplateLivePage: React.FC = () => {
               : "The link you opened doesn't point to any template in our gallery. Browse the gallery to pick another one."}
           </p>
         </div>
-        <button
-          onClick={goHome}
-          className="px-5 py-2.5 rounded-xl bg-white text-black text-xs font-bold cursor-pointer"
-        >
+        <NqButton tone="chrome" variant="solid" size="sm" radius="xl" onClick={goHome}>
           {isAr ? 'العودة إلى NOVAIQ' : 'Back to NOVAIQ'}
-        </button>
+        </NqButton>
       </div>
     );
   }
@@ -153,22 +151,36 @@ export const TemplateLivePage: React.FC = () => {
           <span className="hidden sm:inline text-[10px] text-white/75 px-1">
             {isAr ? 'معاينة حية لقالب NOVAIQ' : 'NOVAIQ live template preview'}
           </span>
-          <button
+          {/* Both were 32px tall and one of them was icon-only below `sm` with no accessible
+              name at all — a floating bar over someone else's page is exactly where a control has
+              to be reachable and announced. `aria-label` carries the name at every width; the
+              label itself still hides on a narrow screen. */}
+          <NqButton
+            tone="chrome"
+            variant="quiet"
+            size="sm"
+            radius="xl"
             onClick={goHome}
+            aria-label={isAr ? 'العودة' : 'Back'}
             title={isAr ? 'العودة' : 'Back'}
-            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors"
+            className="px-3"
+            icon={<ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />}
           >
-            <ArrowLeft className="w-3.5 h-3.5 ltr:rotate-180" />
             <span className="hidden sm:inline">{isAr ? 'العودة' : 'Back'}</span>
-          </button>
-          <button
+          </NqButton>
+          <NqButton
+            tone="chrome"
+            variant="solid"
+            size="sm"
+            radius="xl"
             onClick={() => goToContract()}
+            aria-label={isAr ? 'اطلب هذا القالب' : 'Order this template'}
             title={isAr ? 'اطلب هذا القالب' : 'Order this template'}
-            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white hover:bg-zinc-200 text-black text-[11px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors"
+            className="px-3"
+            icon={<FileSignature className="w-3.5 h-3.5" />}
           >
-            <FileSignature className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{isAr ? 'اطلب هذا القالب' : 'Order this template'}</span>
-          </button>
+          </NqButton>
         </div>
       )}
     </div>
