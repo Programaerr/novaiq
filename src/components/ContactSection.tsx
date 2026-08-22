@@ -78,9 +78,15 @@ function validate(values: Values, isAr: boolean): Errors {
 
 interface ContactSectionProps {
   language?: Language;
+  /** When true this section is the top of a standalone page (the Support page), so its top edge is
+   *  the top of the viewport rather than a seam below another section. The cube strip that normally
+   *  crosses the colour change from a paper section above is omitted, and the ground is pulled up
+   *  under the floating navbar (cancelling <main>'s top padding) so the page reads as connected from
+   *  the very top instead of leaving a disconnected strip. */
+  isPageTop?: boolean;
 }
 
-export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' }) => {
+export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar', isPageTop = false }) => {
   const isAr = language === 'ar';
   const { ref: sectionRef, seen } = useSeen<HTMLElement>();
   /* One id per mount, so the label/input/error wiring stays unique if this section is ever
@@ -158,26 +164,42 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar' 
       ref={sectionRef}
       id="contact"
       data-seen={seen ? 'true' : 'false'}
-      /* The section's own ground and its own vertical rhythm — see HOME_SECTIONS.md. The top
-         padding clears the tile strip above it, which is absolutely positioned and so takes up no
-         height of its own. */
-      style={{ background: PERIWINKLE }}
-      className="relative overflow-hidden pt-[calc(var(--nq-band)+3.5rem)] pb-20 sm:pb-28 lg:pb-32"
+      /* The section's own ground and its own vertical rhythm — see HOME_SECTIONS.md.
+         On a standalone page (isPageTop) there is no paper section above, so the cube strip that
+         would cross a colour change is omitted and the ground is pulled up under the floating
+         navbar (cancelling <main>'s top padding) so the page connects from the very top instead of
+         leaving a disconnected strip. Otherwise the top padding clears the absolutely-positioned
+         tile strip above it, which takes up no height of its own. */
+      style={{
+        background: PERIWINKLE,
+        ...(isPageTop
+          ? { marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))' }
+          : {}),
+      }}
+      className={
+        'relative overflow-hidden pb-20 sm:pb-28 lg:pb-32 ' +
+        (isPageTop
+          ? 'pt-[calc(var(--nav-bottom,74px)+3.5rem)]'
+          : 'pt-[calc(var(--nq-band)+3.5rem)]')
+      }
     >
       {/* ── The edge ────────────────────────────────────────────────────────────────────────────
           A strip across the top holding the ground's change of colour and the field that crosses
           it. The gradient reaches full blue well before the strip ends, so the cubes have solid
-          ground to settle onto rather than vanishing at the same moment the colour lands. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0"
-        style={{
-          height: 'var(--nq-band)',
-          background: 'linear-gradient(to bottom, ' + PAPER + ' 6%, ' + PERIWINKLE + ' 74%)',
-        }}
-      >
-        <TileField tones={PERIWINKLE_TONES} fade={BAND_FADE} />
-      </div>
+          ground to settle onto rather than vanishing at the same moment the colour is reached.
+          Omitted on a standalone page, where there is no paper section above to transition from. */}
+      {!isPageTop && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0"
+          style={{
+            height: 'var(--nq-band)',
+            background: 'linear-gradient(to bottom, ' + PAPER + ' 6%, ' + PERIWINKLE + ' 74%)',
+          }}
+        >
+          <TileField tones={PERIWINKLE_TONES} fade={BAND_FADE} />
+        </div>
+      )}
 
       <div className="relative nq-container">
         {/* Steps with the phases section above it and for the same reason — see the note there.
