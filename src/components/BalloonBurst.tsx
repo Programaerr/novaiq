@@ -144,21 +144,27 @@ const Balloon: React.FC<{ state: BalloonState; clock: React.RefObject<number> }>
   const geometry = useMemo(balloonGeometry, []);
   const material = useMemo(() => balloonMaterial(state.skin), [state.skin]);
 
-  /** The string: a two-point line under the knot. Kept 1px — a tube would be a millimetre of
-      rubber modelled in 3D for something the eye reads as a line. */
-  const stringGeo = useMemo(() => {
+  /** The string: a two-point line under the knot, built as an object and dropped in with
+      `primitive`. Not the `<line>` intrinsic — that name collides with SVG's `line` in the JSX
+      typings and resolves to the wrong element. Kept 1px: a tube would be a millimetre of rubber
+      modelled in 3D for something the eye reads as a line anyway. */
+  const string = useMemo(() => {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0.02, -0.34, 0], 3));
-    return g;
+    const m = new THREE.LineBasicMaterial({
+      color: new THREE.Color(INK), transparent: true, opacity: 0.35,
+    });
+    return new THREE.Line(g, m);
   }, []);
-  const stringMat = useMemo(
-    () => new THREE.LineBasicMaterial({ color: new THREE.Color(INK), transparent: true, opacity: 0.35 }),
-    [],
-  );
 
   useEffect(
-    () => () => { geometry.dispose(); material.dispose(); stringGeo.dispose(); stringMat.dispose(); },
-    [geometry, material, stringGeo, stringMat],
+    () => () => {
+      geometry.dispose();
+      material.dispose();
+      string.geometry.dispose();
+      (string.material as THREE.Material).dispose();
+    },
+    [geometry, material, string],
   );
 
   useFrame(() => {
@@ -200,8 +206,7 @@ const Balloon: React.FC<{ state: BalloonState; clock: React.RefObject<number> }>
   return (
     <group ref={group} scale={0}>
       <mesh geometry={geometry} material={material} />
-      {/* eslint-disable-next-line react/no-unknown-property */}
-      <line geometry={stringGeo} material={stringMat} />
+      <primitive object={string} />
     </group>
   );
 };
@@ -221,22 +226,44 @@ const BIT_LIFE = 2.4;
 
 const Confetti: React.FC<{ bits: Bit[]; clock: React.RefObject<number> }> = ({ bits, clock }) => {
   const mesh = useRef<THREE.InstancedMesh>(null);
-  const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
+
+  /* Geometry, colours and fades in one place. Both extras are InstancedBufferAttributes declared
+     by hand in the shader: `instanceColor` would work, but only via three's own
+     USE_INSTANCING_COLOR define, and a ShaderMaterial that silently loses its colours when that
+     machinery changes is not worth the two lines it saves. */
+  const { geometry, fade } = useMemo(() => {
+    const g = new THREE.BoxGeometry(1, 1, 1);
+    const colors = new Float32Array(CONFETTI_COUNT * 3);
+    const c = new THREE.Color();
+    for (let i = 0; i < CONFETTI_COUNT; i++) {
+      c.set(CONFETTI[i % CONFETTI.length]);
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+    }
+    const fadeArr = new Float32Array(CONFETTI_COUNT);
+    const fadeAttr = new THREE.InstancedBufferAttribute(fadeArr, 1);
+    fadeAttr.setUsage(THREE.DynamicDrawUsage);
+    g.setAttribute('aColor', new THREE.InstancedBufferAttribute(colors, 3));
+    g.setAttribute('aFade', fadeAttr);
+    return { geometry: g, fade: fadeAttr };
+  }, []);
 
   /** Lit exactly like the cube fields: three flat values, one per visible face, off the same key
-      direction. Vertex colours carry the palette so all 138 pieces are one draw call. */
+      direction. One draw call for every piece in the air. */
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
         transparent: true,
         uniforms: { uLight: { value: LIGHT.clone() } },
         vertexShader: /* glsl */ `
+          attribute vec3  aColor;
           attribute float aFade;
-          varying vec3 vC;
-          varying vec3 vN;
+          varying vec3  vC;
+          varying vec3  vN;
           varying float vFade;
           void main() {
-            vC = instanceColor;
+            vC = aColor;
             vN = normal;
             vFade = aFade;
             gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.0);
@@ -245,11 +272,11 @@ const Confetti: React.FC<{ bits: Bit[]; clock: React.RefObject<number> }> = ({ b
         fragmentShader: /* glsl */ `
           precision mediump float;
           uniform vec3 uLight;
-          varying vec3 vC;
-          varying vec3 vN;
+          varying vec3  vC;
+          varying vec3  vN;
           varying float vFade;
           void main() {
-            if (vFade <= 0.001) discard;
+            if (vFade <= 0.004) discard;
             float lam = max(dot(normalize(vN), uLight), 0.0);
             gl_FragColor = vec4(vC * (0.74 + 0.38 * lam), vFade);
           }
@@ -258,38 +285,26 @@ const Confetti: React.FC<{ bits: Bit[]; clock: React.RefObject<number> }> = ({ b
     [],
   );
 
-  const fade = useMemo(() => new Float32Array(CONFETTI_COUNT), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useEffect(() => () => { geometry.dispose(); material.dispose(); }, [geometry, material]);
-
-  // Colours are fixed at birth, so they are written once rather than every frame.
-  useEffect(() => {
-    const m = mesh.current;
-    if (!m) return;
-    const c = new THREE.Color();
-    for (let i = 0; i < CONFETTI_COUNT; i++) {
-      c.set(CONFETTI[i % CONFETTI.length]);
-      m.setColorAt(i, c);
-    }
-    if (m.instanceColor) m.instanceColor.needsUpdate = true;
-  }, []);
 
   useFrame(() => {
     const m = mesh.current;
     if (!m) return;
     const t = clock.current;
+    const f = fade.array as Float32Array;
 
     for (let i = 0; i < bits.length; i++) {
       const b = bits[i];
       const age = t - b.born;
       if (age < 0 || age > BIT_LIFE) {
-        fade[i] = 0;
-        // Parked at the origin at zero scale rather than left where it died — an instance is
-        // always drawn, and `discard` in the shader is what actually removes it, but a zero
-        // matrix keeps it out of the depth pass too.
+        f[i] = 0;
+        // Collapsed to nothing rather than left where it died: `discard` removes the pixels, and
+        // a zero scale keeps the instance out of the depth pass as well.
         dummy.position.set(0, 0, 0);
         dummy.scale.setScalar(0);
+        dummy.rotation.set(0, 0, 0);
         dummy.updateMatrix();
         m.setMatrixAt(i, dummy.matrix);
         continue;
@@ -301,25 +316,25 @@ const Confetti: React.FC<{ bits: Bit[]; clock: React.RefObject<number> }> = ({ b
         b.vz * age,
       );
       dummy.rotation.set(b.spin.x * age, b.spin.y * age, b.spin.z * age);
-      // Held at size for most of the life, then given up quickly — a piece that shrinks the
-      // whole way reads as receding rather than as going out.
+      // Held at full for most of the life and given up late — a piece that shrinks the whole way
+      // reads as receding rather than as going out.
       const k = age / BIT_LIFE;
-      fade[i] = k < 0.72 ? 1 : 1 - (k - 0.72) / 0.28;
+      f[i] = k < 0.72 ? 1 : 1 - (k - 0.72) / 0.28;
       dummy.scale.setScalar(b.size * (0.35 + 0.65 * Math.min(1, age * 9)));
       dummy.updateMatrix();
       m.setMatrixAt(i, dummy.matrix);
     }
 
     m.instanceMatrix.needsUpdate = true;
-    const attr = m.geometry.getAttribute('aFade') as THREE.InstancedBufferAttribute | undefined;
-    if (attr) attr.needsUpdate = true;
+    fade.needsUpdate = true;
   });
 
   return (
-    <instancedMesh ref={mesh} args={[geometry, material, CONFETTI_COUNT]} frustumCulled={false}>
-      {/* eslint-disable-next-line react/no-unknown-property */}
-      <instancedBufferAttribute attach="geometry-attributes-aFade" args={[fade, 1]} />
-    </instancedMesh>
+    <instancedMesh
+      ref={mesh}
+      args={[geometry, material, CONFETTI_COUNT]}
+      frustumCulled={false}
+    />
   );
 };
 
