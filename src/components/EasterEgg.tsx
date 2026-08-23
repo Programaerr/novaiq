@@ -65,7 +65,7 @@ export const EasterEgg: React.FC = () => {
       <div
         aria-hidden="true"
         dir="ltr"
-        className="fixed inset-x-0 top-[38%] z-[90] flex justify-center px-6 pointer-events-none"
+        className="fixed inset-x-0 top-[30%] z-[90] flex justify-center px-6 pointer-events-none"
       >
         <span
           className="font-['Cairo'] font-black tracking-[0.18em] text-center leading-none text-[clamp(1.35rem,5vw,3.25rem)]"

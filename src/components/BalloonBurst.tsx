@@ -359,20 +359,22 @@ const Scene: React.FC<{ origin: { x: number; y: number } }> = ({ origin }) => {
     const popY = h * 0.16;
 
     const balloons: BalloonState[] = SKINS.map((skin, i) => {
-      const spread = (i - 1) * 0.42;
+      // 0.85 units apart, and it has to be about that: a balloon is 0.85 wide at the waist, so
+      // anything under a full width has the three of them overlapping into one two-tone blob.
+      const spread = (i - 1) * 0.85;
       const y0 = cy - 0.25;
       const popAt = POP_AT[i];
       return {
         skin,
         x0: cx + spread,
         y0,
-        xEnd: targetX + spread * 0.75,
+        xEnd: targetX + spread * 0.62,
         // Solved rather than chosen: each balloon has a different pop time and they all have to
         // arrive at the same height, so the speed follows from the distance and the time.
         rise: (popY - y0) / Math.max(0.35, popAt - 0.1),
         swayAmp: 0.1 + i * 0.035,
         swayPhase: i * 2.1,
-        scale: 1.0 - i * 0.08,
+        scale: 1.22 - i * 0.1,
         popAt,
       };
     });
@@ -400,7 +402,7 @@ const Scene: React.FC<{ origin: { x: number; y: number } }> = ({ origin }) => {
             (Math.random() - 0.5) * 9,
             (Math.random() - 0.5) * 9,
           ),
-          size: 0.05 + Math.random() * 0.055,
+          size: 0.055 + Math.random() * 0.06,
           born: b.popAt,
         });
       }
@@ -466,7 +468,10 @@ export const BalloonBurst: React.FC<BalloonBurstProps> = ({ origin, onDone }) =>
 
       <div
         dir="ltr"
-        className="absolute inset-x-0 top-[38%] flex justify-center px-6"
+        /* 30%, not centre. It has to read as coming OUT of the burst, which happens in the top
+           third — and on the home page 38% landed the message directly on the hero's own NOVAIQ
+           wordmark, which is two of the same word stacked. */
+        className="absolute inset-x-0 top-[30%] flex justify-center px-6"
         style={{
           opacity: revealed && !leaving ? 1 : 0,
           transform: `scale(${revealed && !leaving ? 1 : 0.94})`,
