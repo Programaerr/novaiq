@@ -348,16 +348,18 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           </p>
         </div>
 
-        {/* Step Progress Bar */}
-        {/* Three steps, not four. Pricing/terms and the signature used to be separate screens,
-            which meant the customer agreed to a figure on one page and signed on another with
-            the figure no longer in front of them. They are one step: read the price, read the
+        {/* Phase stepper — the three phases of building a contract. Each is clickable so a
+            customer can jump back to a phase they want to revisit; the active one is filled
+            periwinkle, a finished one turns sand with a check, and the next is dim until reached.
+            Three phases, not four: pricing/terms and the signature used to be separate screens,
+            which meant the customer agreed to a figure on one page and signed on another with the
+            figure no longer in front of them. They are one phase: read the price, read the
             clauses, sign, send. */}
-        <div className="grid grid-cols-3 gap-2 mb-5">
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mb-6">
           {[
-            { step: 1, title: isAr ? 'بيانات الشركة' : 'Company Details', icon: Building2 },
-            { step: 2, title: isAr ? 'مواصفات القالب' : 'Template Specs', icon: Layers },
-            { step: 3, title: isAr ? 'المراجعة والتوقيع' : 'Review & Sign', icon: FileSignature },
+            { step: 1, title: isAr ? 'بيانات الشركة' : 'Company Details', icon: Building2, phase: isAr ? 'المرحلة الأولى' : 'Phase one' },
+            { step: 2, title: isAr ? 'مواصفات القالب' : 'Template Specs', icon: Layers, phase: isAr ? 'المرحلة الثانية' : 'Phase two' },
+            { step: 3, title: isAr ? 'المراجعة والتوقيع' : 'Review & Sign', icon: FileSignature, phase: isAr ? 'المرحلة الثالثة' : 'Phase three' },
           ].map((s) => {
             const Icon = s.icon;
             const isCompleted = currentStep > s.step;
@@ -370,22 +372,23 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   setCurrentStep(s.step);
                   cosmicAudio.playPing();
                 }}
-                className={`p-3 rounded-2xl border text-[11px] sm:text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  isCurrent
-                    ? 'bg-periwinkle border-white text-white shadow-lg'
-                    : isCompleted
-                    ? 'bg-sand/25 border-sand text-sand-light'
-                    : 'bg-[#0D1330] border-periwinkle/20 text-white/50'
+                aria-current={isCurrent ? 'step' : undefined}
+                className={`text-start p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-2.5 cursor-pointer ${
+        isCurrent
+          ? 'bg-periwinkle border-periwinkle text-white shadow-lg shadow-periwinkle/25'
+          : isCompleted
+          ? 'bg-[#101322] border-white/70 text-white shadow-lg shadow-black/50'
+          : 'bg-[#101634] border-periwinkle/20 text-white/50 hover:border-periwinkle/40'
                 }`}
               >
-                <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
-                  isCurrent ? 'bg-white text-periwinkle font-bold' : 'bg-white/10 text-sand-light'
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                  isCurrent ? 'bg-white text-periwinkle' : isCompleted ? 'bg-white text-[#101322]' : 'bg-white/10 text-white/60'
                 }`}>
-                  <Icon className="w-4 h-4" />
+                  {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
-                <div className="truncate text-start">
-                  <span className="text-[10px] text-white/50 block font-mono">{isAr ? `الخطوة ${s.step}` : `Step ${s.step}`}</span>
-                  <span className="truncate">{s.title}</span>
+                <div className="min-w-0">
+                  <span className="block text-[10px] font-mono opacity-70">{s.phase}</span>
+                  <span className="block text-[11px] sm:text-xs font-bold truncate">{s.title}</span>
                 </div>
               </button>
             );
@@ -508,10 +511,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             <div className="space-y-6 animate-fade-in">
               <div className="border-b border-periwinkle/25 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-white" />
+                  <Layers className="w-5 h-5 text-periwinkle" />
                   <span>{getTranslation('stepTechSpecs', lang)}</span>
                 </h3>
+                <p className="text-white/55 text-[11px] sm:text-xs mt-1.5 max-w-2xl">
+                  {isAr
+                    ? 'اختر القالب وصف ما تريد تنفيذه — وتابع مواصفات مشروعك تتحدّث مباشرة في البطاقة أعلاه.'
+                    : 'Pick a template and describe what to build — your spec updates live in the card above.'}
+                </p>
               </div>
+
 
               <div className="p-4 rounded-2xl bg-[#101634] border border-periwinkle/25 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -562,79 +571,29 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </select>
               </div>
 
-              {isCustomProject ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-white/85 mb-1.5">
-                      {isAr ? 'اسم مشروعك المخصص' : 'Name your custom project'} *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={customProjectName}
-                      onChange={(e) => {
-                        setCustomProjectName(e.target.value);
-                        clearFieldError('customProjectName');
-                      }}
-                      placeholder={isAr ? 'مثال: منصة حجوزات صالات أفراح' : 'e.g. Event Hall Booking Platform'}
-                      className={`w-full px-4 py-3 rounded-xl bg-[#101634] border focus:outline-none text-white text-xs transition-colors ${errorInputClass('customProjectName')}`}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-white/85 mb-1.5">
-                      {isAr ? 'صف مشروعك بالتفصيل الكامل' : 'Describe your project in full detail'} *
-                    </label>
-                    <p className="text-[11px] text-white/60 mb-2">
-                      {isAr
-                        ? 'اكتب كل ما يخطر ببالك: الصفحات والأقسام المطلوبة، الميزات، الجمهور المستهدف، أمثلة مواقع تعجبك، وأي تفاصيل تساعدنا نفهم رؤيتك تماماً قبل تسعير المشروع.'
-                        : 'Write everything that comes to mind: the pages/sections you need, features, target audience, sites you like as references, and any detail that helps us fully understand your vision before pricing the project.'}
-                    </p>
-                    <textarea
-                      required
-                      rows={8}
-                      value={customFeaturesText}
-                      onChange={(e) => {
-                        setCustomFeaturesText(e.target.value);
-                        clearFieldError('customDescription');
-                      }}
-                      placeholder={isAr ? 'اكتب وصفك التفصيلي هنا...' : 'Write your detailed description here...'}
-                      className={`w-full p-3.5 rounded-xl bg-[#101634] border focus:outline-none text-white text-xs leading-relaxed transition-colors ${errorInputClass('customDescription')}`}
-                    />
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-sand/10 border border-sand/40 text-[11px] text-sand-light">
-                    {isAr
-                      ? 'لا يوجد سعر مسبق لمشروع مخصص — سيراجع فريقنا وصفك ويرسل لك عرض سعر ومدة تنفيذ مناسبة بعد تقديم الطلب.'
-                      : 'A custom project has no upfront price — our team will review your description and send back a quote and timeline after you submit.'}
-                  </div>
-                </div>
-              ) : (
-                /* The one place the customer says what they actually want. This used to be a
-                   checkbox reading "didn't find it in the list above?" that revealed a textarea —
-                   but the list it pointed at is gone, and this is no longer an afterthought:
-                   with no add-on menu, the template plus this description IS the scope of work.
-                   So it is always open, and it is labelled as the requirement it now carries. */
-                <div className="p-4 sm:p-5 rounded-2xl bg-[#101634]/60 border-2 border-dashed border-periwinkle/40 space-y-2.5">
-                  <label className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white">
-                    <PenLine className="w-4 h-4 shrink-0" />
-                    <span>{isAr ? 'وصف القالب والمطلوب تنفيذه' : 'Template description & what you need built'}</span>
+              {isCustomProject && (
+                <div>
+                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                    {isAr ? 'اسم مشروعك المخصص' : 'Name your custom project'} *
                   </label>
-                  {/* No helper paragraph under the label: one line of instruction is enough, and
-                      what it would have said belongs in the placeholder, where it is read at the
-                      moment of typing rather than skipped above the box. */}
-                  <textarea
-                    rows={4}
-                    value={customFeaturesText}
-                    onChange={(e) => setCustomFeaturesText(e.target.value)}
-                    placeholder={getTranslation('customFeaturesPlaceholder', lang)}
-                    className="w-full p-3.5 rounded-xl bg-[#101634] border border-periwinkle/25 focus:border-periwinkle focus:outline-none text-white text-xs"
+                  <input
+                    type="text"
+                    required
+                    value={customProjectName}
+                    onChange={(e) => {
+                      setCustomProjectName(e.target.value);
+                      clearFieldError('customProjectName');
+                    }}
+                    placeholder={isAr ? 'مثال: منصة حجوزات صالات أفراح' : 'e.g. Event Hall Booking Platform'}
+                    className={`w-full px-4 py-3 rounded-xl bg-[#101634] border focus:outline-none text-white text-xs transition-colors ${errorInputClass('customProjectName')}`}
                   />
                 </div>
               )}
 
-              {/* Color Scheme Picker */}
-              <div>
+
+              {/* Appearance — the whole "what it looks like" group in one labelled card. */}
+              <div className="text-white font-bold text-sm mt-1">{isAr ? 'تخصيص المظهر' : 'Appearance'}</div>
+              <div className="p-4 rounded-2xl bg-[#101634] border border-periwinkle/25">
                 <label className="block text-xs font-semibold text-white/85 mb-2">
                   {getTranslation('colorSchemeLabel', lang)}
                 </label>
@@ -692,7 +651,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-[#101634] border border-periwinkle/25">
                 {/* Theme Preference */}
                 <div>
                   <label className="block text-xs font-semibold text-white/85 mb-1.5">
@@ -748,14 +707,103 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         }`}
                       >
                         {opt.label}
-                      </button>
+                       </button>
                     ))}
                   </div>
                 </div>
               </div>
 
+              {/* Description — after the appearance/customization block so the custom flow reads
+                  name → customization → description (per request). Template flow has no name,
+                  so it is simply customization → description. */}
+              {isCustomProject ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                      {isAr ? 'صف مشروعك بالتفصيل الكامل' : 'Describe your project in full detail'} *
+                    </label>
+                    <p className="text-[11px] text-white/60 mb-2">
+                      {isAr
+                        ? 'اكتب كل ما يخطر ببالك: الصفحات والأقسام المطلوبة، الميزات، الجمهور المستهدف، أمثلة مواقع تعجبك، وأي تفاصيل تساعدنا نفهم رؤيتك تماماً قبل تسعير المشروع.'
+                        : 'Write everything that comes to mind: the pages/sections you need, features, target audience, sites you like as references, and any detail that helps us fully understand your vision before pricing the project.'}
+                    </p>
+                    <textarea
+                      required
+                      rows={8}
+                      value={customFeaturesText}
+                      onChange={(e) => {
+                        setCustomFeaturesText(e.target.value);
+                        clearFieldError('customDescription');
+                      }}
+                      placeholder={isAr ? 'اكتب وصفك التفصيلية هنا...' : 'Write your detailed description here...'}
+                      className={`w-full p-3.5 rounded-xl bg-[#101634] border focus:outline-none text-white text-xs leading-relaxed transition-colors ${errorInputClass('customDescription')}`}
+                    />
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-sand/10 border border-sand/40 text-[11px] text-sand-light">
+                    {isAr
+                      ? 'لا يوجد سعر مسبق لمشروع مخصص — سيراجع فريقنا وصفك ويرسل لك عرض سعر ومدة تنفيذ مناسبة بعد تقديم الطلب.'
+                      : 'A custom project has no upfront price — our team will review your description and send back a quote and timeline after you submit.'}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#101634]/60 border-2 border-dashed border-periwinkle/40 space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white">
+                    <PenLine className="w-4 h-4 shrink-0" />
+                    <span>{isAr ? 'وصف القالب والمطلوب تنفيذه' : 'Template description & what you need built'}</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={customFeaturesText}
+                    onChange={(e) => setCustomFeaturesText(e.target.value)}
+                    placeholder={getTranslation('customFeaturesPlaceholder', lang)}
+                    className="w-full p-3.5 rounded-xl bg-[#101634] border border-periwinkle/25 focus:border-periwinkle focus:outline-none text-white text-xs"
+                  />
+                </div>
+              )}
+
+              {/* ── Live project spec outline ── placed LAST (per request): the customer fills the
+                  inputs first, then reads the assembled summary at the bottom. Reads the same state
+                  the contract is assembled from, so it can never disagree with what is sent. */}
+              <div className="p-4 rounded-2xl bg-periwinkle/10 border border-periwinkle/40 space-y-3">
+                <div className="flex items-center gap-2 text-white font-bold text-sm">
+                  <FileCheck className="w-4 h-4 text-periwinkle" />
+                  {isAr ? 'مخطط مواصفات المشروع' : 'Project Spec Outline'}
+                </div>
+                <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2.5 text-xs">
+                  <div className="flex flex-col min-w-0">
+                    <dt className="text-white/55">{isAr ? 'نوع المشروع' : 'Project'}</dt>
+                    <dd className="font-bold text-white truncate">{isCustomProject ? (customProjectName.trim() || (isAr ? 'مشروع مخصص' : 'Custom')) : template.title}</dd>
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <dt className="text-white/55">{isAr ? 'اللون الرئيسي' : 'Color'}</dt>
+                    <dd className="font-bold text-white flex items-center gap-1.5">
+                      <span className="w-3.5 h-3.5 rounded-md border border-white/30 shrink-0" style={{ backgroundColor: primaryColor }} />
+                      <span className="font-mono truncate">{primaryColor.toUpperCase()}</span>
+                    </dd>
+                  </div>
+                  <div className="flex flex-col">
+                    <dt className="text-white/55">{isAr ? 'الوضع' : 'Mode'}</dt>
+                    <dd className="font-bold text-white">{themePreference === 'dark' ? (isAr ? 'داكن' : 'Dark') : themePreference === 'light' ? (isAr ? 'فاتح' : 'Light') : (isAr ? 'ثنائي' : 'Both')}</dd>
+                  </div>
+                  <div className="flex flex-col">
+                    <dt className="text-white/55">{isAr ? 'اللغات' : 'Languages'}</dt>
+                    <dd className="font-bold text-white">{languageSupport === 'ar' ? (isAr ? 'عربي' : 'Arabic') : languageSupport === 'en' ? (isAr ? 'إنجليزي' : 'English') : (isAr ? 'ثنائي' : 'Both')}</dd>
+                  </div>
+                  <div className="flex flex-col">
+                    <dt className="text-white/55">{isAr ? 'مدة التنفيذ' : 'Delivery'}</dt>
+                    <dd className="font-bold text-white">{deliveryTimelineWeeks} {isAr ? 'أسبوع' : 'wks'}</dd>
+                  </div>
+                  <div className="flex flex-col">
+                    <dt className="text-white/55">{isAr ? 'السعر' : 'Price'}</dt>
+                    <dd className="font-bold text-white">{isCustomProject ? (isAr ? 'لاحقاً' : 'Later') : formatPrice(totalPriceIQD, lang, currency)}</dd>
+                  </div>
+                </dl>
+              </div>
+
             </div>
           )}
+
 
           {/* STEP 3: terms, signature, then the figure — the whole close, on one screen.
               Price last, immediately above the button that commits to it: the customer reads the
