@@ -3,8 +3,7 @@ import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
-import { CodeRain } from './CodeRain';
-import { TileField, SECTION_TONES, SECTION_FADE } from './TileField';
+import { TileField, SAND_TONES, SECTION_TONES, SECTION_FADE, FieldFade } from './TileField';
 import { NqButton } from './ui/NqButton';
 
 interface LoginPageProps {
@@ -39,14 +38,16 @@ function GoogleIcon() {
 /**
  * The lightest ink that still clears 4.5:1 on the glass panel below, in its WORST state.
  *
- * Measured rather than picked, and re-measured twice — once when the panel stopped being
- * opaque, and again when the page behind it went from an ink sky to sand.
+ * Measured rather than picked, and re-measured every time the thing behind the card changed:
+ * solid sand, then an ink sky, then falling code, and now the site's cube field again.
  *
  * The panel is translucent, so the surface under this text is whatever the backdrop is, mixed
- * toward sand. Over the sand page it now settles at sand itself and this reads 7.57:1; where a
- * dark glyph of the rain passes behind it the surface drops to about #9E8D85 and the same value
- * reads 4.76:1. The floor is the one that matters, and 0.85 is set against it — 0.7, which
- * was correct on solid sand, is 3.62:1 there and fails.
+ * toward sand. Read off the rendered page rather than off the palette, that surface now spans
+ * #D0B6A4 to #D4BCAA: full ink on it is 9.58:1 to 10.17:1, and this value 7.20:1 to 7.55:1.
+ * Comfortable, and deliberately left where the dark backdrops put it rather than wound back to
+ * the 0.7 that solid sand allowed — 0.7 measures 4.94:1 at the floor here, which clears the bar
+ * by four hundredths and is not a margin worth defending the next time something moves behind
+ * this card.
  *
  * Worth writing down because the reflex on a light-looking panel is to reach for /60 or /50 the
  * way the old dark version of this screen used `text-white/60`. On glass that reflex is a full
@@ -58,31 +59,55 @@ const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
 /**
  * The words half, as frosted glass rather than a solid sand panel.
  *
- * 0.72 and not lower, and the number is a contrast floor rather than a look. A translucent sand
- * surface does not stay sand — it mixes toward whatever is behind it, in proportion to how
- * much it lets through, and what is behind it is a sand page with dark code falling across it.
- * Most of the time that means the panel IS sand and full ink on it is 10.28:1. The number has to
- * be set for the other case: a dark glyph directly behind. At 0.6 that surface lands near
- * #867975 and full-strength INK measures 4.41:1, already under what body text needs before a
- * single muted line is drawn. At 0.72 it settles near #9E8D85 and INK measures 5.80:1, which
- * leaves room for the muted tier above to exist at all.
+ * 0.72, and with the cube field back behind the card this is a LOOK rather than the contrast
+ * floor it used to be. A translucent sand surface does not stay sand — it mixes toward whatever
+ * is behind it, in proportion to how much it lets through — and while the backdrop was an ink
+ * sky, and later dark code, that mixing was what set the number: at 0.6 the surface fell to
+ * #867975 and full-strength INK on it measured 4.41:1, under what body text needs before a
+ * single muted line is drawn.
  *
- * Lower this and INK_MUTED has to be re-derived with it — they are not independent, and the
- * pair was already re-derived once when the ground behind the card changed from ink to sand.
+ * Over the field there is no such floor, and the reason is `backdrop-blur-xl` below rather than
+ * the field being light. The rendered backdrop still spans #AA856B to #DAC1A9 — better than two
+ * to one in luminance, because a cube's shaded faces go well past the trough tone the palette
+ * declares. The backdrop filter averages all of that before this panel composites over it, so the
+ * surface itself only ever moves between #D0B6A4 and #D4BCAA: a six percent spread, 9.58:1 at its
+ * worst. Drop the `backdrop-blur-xl` and the floor comes back — a single dark cube face directly
+ * under the copy would put the surface at #C9AD9A.
+ *
+ * It stays at 0.72 anyway, for the look: the panel has to read as a pane laid OVER the field
+ * rather than as a hole cut in it, and this is where the cubes stay visible through the glass
+ * without competing with the copy. Keeping the margin also means the pair below survives the next
+ * backdrop — INK_MUTED is derived against this number, and the two have been re-derived three
+ * times now.
  */
 const SAND_GLASS = 'rgba(213, 189, 172, 0.72)';
 
 /**
- * How far out of focus the rain behind the card is.
+ * The backdrop field does not fade at either end.
  *
- * Tuned against the smallest thing in it rather than by eye, and that thing is now a 19px glyph
- * rather than a 3px star — so this is far lighter than the sky it replaced. At the 4px the
- * starfield wanted, a brace and a semicolon are the same smudge and the whole point of putting
- * code back there is lost; 2.5px was still enough to turn the columns into dotted lines. 1.8px
- * takes the edge off the characters and leaves them readable AS characters, which is the only
- * reason to have chosen characters.
+ * Every other field on the site fades because it has to arrive out of one section and leave into
+ * the next. This one has no neighbours — it is the whole screen, behind everything — so a fade
+ * could only put a pale strip along the top and bottom of the page. The hard slice a zero fade
+ * leaves at each edge is the failure mode described at length in TileField; here it is invisible,
+ * because the layer is blurred and hangs 6% off every side of the viewport before it is clipped.
+ *
+ * Module scope, not inline. `fade` is a dependency of the material's useMemo, so a fresh object
+ * literal on every render would rebuild the shader on every render.
  */
-const BACKDROP_BLUR = '1.8px';
+const BACKDROP_FADE: FieldFade = { lo: 0, hi: 0 };
+
+/**
+ * How far out of focus the field behind the card is.
+ *
+ * Tuned against the smallest thing in it rather than by eye, and a cube is a big thing: the field
+ * runs a 46px pitch, and blur spreads a feature's brightness over an area, so it destroys small
+ * features long before large ones. 22px erased this layer outright — the cubes averaged out into
+ * flat sand and the page looked like the backdrop had failed to load. 8px is enough that they
+ * read as a texture rather than as a second thing to look at, and not so far that they stop being
+ * cubes. It is deliberately heavier than the 1.8px the falling code wanted, for the same reason
+ * in reverse: a 19px glyph has to survive blur AS a glyph, a cube only has to survive as a shape.
+ */
+const BACKDROP_BLUR = '8px';
 
 /**
  * Standalone sign-in page: one card, split down the middle. The company's words on sand, and the
@@ -131,26 +156,33 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
          and inherited its ground from the body; a screen that gets its background from somewhere
          else is a screen that goes black the day that somewhere else changes.
 
-         SAND, which is the ground every other page of this site stands on. It used to be INK, and
-         that was defensible while the backdrop was a night sky — but a sign-in screen is the
-         first thing a visitor sees, and one that is dark when the rest of the site is warm reads
-         as a different product's login bolted on. The rain went dark-on-light to follow it. */
+         SAND, which is the ground every other page of this site stands on, and the ground the
+         field on top of it is standing on too — so the one frame before WebGL has anything on
+         screen is already the right colour rather than a flash of something else. It used to be
+         INK, which was defensible while the backdrop was a night sky, but a sign-in screen is the
+         first thing a visitor sees and one that is dark when the rest of the site is warm reads
+         as a different product's login bolted on. */
       style={{ background: SAND, color: INK }}
     >
-      {/* The ground the card sits on: source code falling down the screen, out of focus.
+      {/* The ground the card sits on: the site's own cube field, out of focus.
 
-          Blur is the whole point of it. Sharp code behind a card that itself contains a moving
-          field is two things asking to be READ; softened, it becomes atmosphere, and the card
-          reads as forward simply by being the only crisp thing on the screen. That depth cue is
-          doing the work a drop shadow would otherwise have to do.
+          The site's OWN, and that is the point of it rather than a shortcut. Anything bespoke back
+          here — a night sky, falling code — is a scene this page owns and no other page has, and
+          a sign-in screen that looks like nowhere else on the site is the one screen that can
+          least afford to.
+
+          Blur is the rest of it. A second field at full sharpness behind a card containing a
+          THIRD field is three things asking to be looked at; blurred, it becomes a texture, and
+          the card reads as forward simply by being the only crisp thing on the screen. That depth
+          cue is doing the work a drop shadow would otherwise have to do.
 
           `-inset-[6%]` and not `inset-0`: `filter: blur()` samples what is outside the element as
           transparent, so a layer blurred at its own edges fades out along all four sides and the
-          page shows a dark halo around the rain. Oversizing it past the clip on the parent puts
+          page shows a pale halo around the field. Oversizing it past the clip on the parent puts
           those soft edges off screen. */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute -inset-[6%]" style={{ filter: `blur(${BACKDROP_BLUR})` }}>
-          <CodeRain />
+          <TileField tones={SAND_TONES} fade={BACKDROP_FADE} />
         </div>
       </div>
 
