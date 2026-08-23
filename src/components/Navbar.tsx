@@ -273,11 +273,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* A ghost on the chrome. It was 32px tall before — a target you have to aim at, and
-              the one control in the bar that a thumb reaches for most. `sm` puts it at 44. */}
+              the one control in the bar that a thumb reaches for most. `sm` puts it at 44.
+
+              No cube field on this one. It is the smallest button on the site and it sits in the
+              navbar, which is on screen the whole time — so its field is the one most likely to be
+              grazed by a pointer on its way somewhere else, and at this width there is barely room
+              for the cluster to read as anything. */}
           <NqButton
             tone="chrome"
             variant="ghost"
             size="sm"
+            tiles={false}
             onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
             title={isAr ? 'تبديل اللغة' : 'Switch language'}
             aria-label={isAr ? 'تبديل اللغة' : 'Switch language'}
