@@ -141,8 +141,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
         {/* ── Words ─────────────────────────────────────────────────────────────────────── */}
         <div
           dir={isAr ? 'rtl' : 'ltr'}
-          className="flex flex-col px-6 py-10 sm:px-10 sm:py-12 lg:px-14"
-          style={{ background: SAND }}
+          className="flex flex-col px-6 py-10 sm:px-10 sm:py-12 lg:px-14 backdrop-blur-md"
+          style={{
+            background: 'rgba(213, 189, 172, 0.6)',
+            border: '1px solid rgba(246, 241, 233, 0.35)',
+          }}
         >
           {/* flex-1 + centred, so the block sits in the middle of whatever height the card
               resolved to and the copyright line stays on the floor rather than being dragged up
