@@ -137,15 +137,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
       <div
         dir="ltr"
         className="relative w-full max-w-[64rem] grid grid-cols-1 lg:grid-cols-2 rounded-[0.5rem] overflow-hidden"
+        style={{ background: SAND }}
       >
         {/* ── Words ─────────────────────────────────────────────────────────────────────── */}
+        {/* Padding is deliberately ASYMMETRIC at lg: 56px on the left, 112px on the right. The
+            right is the side the coastline bites into, and the deepest headland reaches about
+            80px past the seam — so the extra 56px is not taste, it is clearance. Symmetric, the
+            last few characters of the longest line sat under the cube field.
+            More top padding on the phone for the same reason, where the coast runs along the
+            bottom of the band instead and erodes down into the first heading. */}
         <div
           dir={isAr ? 'rtl' : 'ltr'}
-          className="flex flex-col px-6 py-10 sm:px-10 sm:py-12 lg:px-14 backdrop-blur-md"
-          style={{
-            background: 'rgba(213, 189, 172, 0.6)',
-            border: '1px solid rgba(246, 241, 233, 0.35)',
-          }}
+          className="flex flex-col px-6 py-10 sm:px-10 sm:py-12 lg:px-14"
+          style={{ background: SAND }}
         >
           {/* flex-1 + centred, so the block sits in the middle of whatever height the card
               resolved to and the copyright line stays on the floor rather than being dragged up
@@ -261,9 +265,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
         <div
           aria-hidden="true"
           className="relative order-first lg:order-none h-40 lg:h-auto lg:min-h-[34rem]"
-          style={{ background: PERIWINKLE }}
         >
-          <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
+          {/* `.nq-coast` is the whole seam: it carries the blue, hangs past this cell over the
+              words, and is clipped to a stepped coastline. Both the overhang and the clip live in
+              index.css because they change at the breakpoint — a horizontal coast along the
+              bottom of the phone band, a vertical one down the side of the desktop half. */}
+          <div className="nq-coast">
+            <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
+          </div>
         </div>
       </div>
     </div>
