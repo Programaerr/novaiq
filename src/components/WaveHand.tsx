@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { PERIWINKLE, SAND } from '../lib/homePalette';
-import { buttonTones } from '../lib/tone';
+import { PERIWINKLE, SAND_DEEP, SAND_LIGHT } from '../lib/homePalette';
 
 /**
  * Shake the mouse left and right and a hand comes up beside the cursor and waves back.
@@ -21,32 +20,45 @@ import { buttonTones } from '../lib/tone';
 /** Pixels per world unit, matching TileField and ButtonTiles. */
 const ZOOM = 100;
 
-/** Matched to the cube fields, so the hand sits at the same angle as everything else. */
-const TILT_X = 0.34;
-const TILT_Y = -0.22;
+/**
+ * Much shallower than the cube fields' 0.42 / -0.3, and it has to be.
+ *
+ * The fields are a surface seen from above, where a steep tilt is what opens the tops of the
+ * cubes and makes the swell readable. This is a SHAPE, and the shape is the whole message — at
+ * the fields' angle the silhouette skews far enough that the fingers stop lining up and the
+ * thing reads as a pile of blocks. Just enough tilt to keep three faces on every cube.
+ */
+const TILT_X = 0.16;
+const TILT_Y = -0.1;
 
 /** The key direction, shared with every other cube on the site. */
 const LIGHT = new THREE.Vector3(-0.42, 0.5, 0.76).normalize();
 
-/** Cube pitch, CSS px. Five across and eight up, so the hand is 90 x 144. */
-const CELL = 18;
+/** Cube pitch, CSS px. Six across and eight up, so the hand is 132 x 176. */
+const CELL = 22;
 
 /**
  * The hand, on a grid, wrist at the bottom.
  *
- * Read it as a picture: three fingers up the middle, a thumb out to the left and a pinky out to
- * the right at knuckle height, a square palm, and one cube of wrist to rotate around. The cubes
- * are drawn with a gap between them, so a solid run still reads as separate fingers — spacing
- * them out in the map as well leaves a comb rather than a hand.
+ * Read it as a picture: three fingers with a clear column of nothing between them, a thumb out
+ * to the left two rows down, a palm, and one cube of wrist to rotate around.
+ *
+ * The gaps in the finger rows are not decoration. The first version ran the fingers together as
+ * a solid block on the theory that the render already draws each cube with space around it —
+ * and it does, but a 3x2 block of cubes reads as a block of cubes, not as fingers. An empty
+ * COLUMN is what separates them. Three fingers rather than four for the same reason: four needs
+ * eight columns to keep its gaps, and at that width the hand stops being a hand and becomes a
+ * wall.
  */
 const HAND = [
-  '.###.',
-  '.###.',
-  '#####',
-  '#####',
-  '#####',
-  '.###.',
-  '..#..',
+  '.#.#.#',
+  '.#.#.#',
+  '.#####',
+  '######',
+  '#####.',
+  '.####.',
+  '.###..',
+  '..#...',
 ];
 
 /** Where the wrist is in grid coordinates — the point the wave rotates about. */
@@ -66,7 +78,15 @@ export const WAVE_MS = 2600;
 /* ── The hand ───────────────────────────────────────────────────────────────────────────── */
 
 function handMaterial(): THREE.ShaderMaterial {
-  const tones = buttonTones(SAND, PERIWINKLE);
+  /* The site's own three-step sand ramp rather than `buttonTones`, which is tuned to sit quietly
+     inside a button and comes out too narrow here — the hand has to be an OBJECT on top of the
+     page, and over the sand ground a narrow ramp is a smudge. SAND_DEEP to SAND_LIGHT is the
+     same pair the hero's field already uses for its trough and crest. */
+  const tones = {
+    trough: SAND_DEEP,
+    crest: SAND_LIGHT,
+    foam: PERIWINKLE,
+  };
   return new THREE.ShaderMaterial({
     transparent: true,
     uniforms: {
@@ -158,7 +178,7 @@ const Hand: React.FC<{ origin: { x: number; y: number } }> = ({ origin }) => {
   const place = useMemo(() => {
     const w = size.width / ZOOM;
     const h = size.height / ZOOM;
-    const handW = 5 * cell;
+    const handW = 6 * cell;
     const handH = HAND.length * cell;
     const x = origin.x / ZOOM - w / 2 + 0.34;
     const y = h / 2 - origin.y / ZOOM + 0.1;
@@ -189,7 +209,7 @@ const Hand: React.FC<{ origin: { x: number; y: number } }> = ({ origin }) => {
        the last, which reads as a glitch rather than a greeting. */
     const wt = Math.max(0, t - 0.18);
     const env = Math.sin(Math.min(1, wt / (life - 0.6)) * Math.PI);
-    g.rotation.z = Math.sin(wt * Math.PI * 2 * 1.15) * 0.42 * env;
+    g.rotation.z = Math.sin(wt * Math.PI * 2 * 1.15) * 0.34 * env;
 
     g.position.set(place.x, place.y + outK * 0.22, 0);
     g.scale.setScalar(grow * overshoot * (1 - outK * 0.25));
