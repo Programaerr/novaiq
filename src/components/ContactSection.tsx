@@ -197,10 +197,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
             height: 'var(--nq-band)',
             /* The top opens on PAPER so it is continuous with the section above (PhasesSection),
                which is also paper — the two read as one surface at the seam rather than as a strip
-               dropped on top of a different colour. The cubes arrive out of that paper (their top
-               fades toward paper) over the first sliver of the band, then settle into the blue, so
-               the belt connects from the very top instead of opening on a blank band. */
-            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + PERIWINKLE + ' 30%)',
+               dropped on top of a different colour.
+
+               34%, and it is set against BAND_FADE.hi (0.22) rather than chosen on its own. The
+               cubes fray in across the top 22% of the band; this ramp keeps that stretch mostly
+               paper, so what you see there is the paper section growing cubes rather than an empty
+               strip of half-blue. Blue lands at 34%, just after the field reaches full height. Move
+               either number without the other and you get back one of the two faults the note on
+               BAND_FADE describes. */
+            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + PERIWINKLE + ' 40%)',
           }}
         >
           <TileField tones={PERIWINKLE_TONES} fade={BAND_FADE} />

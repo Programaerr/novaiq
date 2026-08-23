@@ -208,15 +208,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
           })}
         </div>
 
-        {/* ── The brand mark under the cards ─────────────────────────────────────────────── */}
-        <div className="mt-20 sm:mt-28">
-          <div dir="ltr" className="relative z-10 flex justify-center mt-16 sm:mt-24 mb-8 sm:mb-14">
-            <span className="font-black tracking-widest text-white font-['Cairo'] text-4xl sm:text-6xl lg:text-7xl">
-              NOVAIQ
-            </span>
-          </div>
-        </div>
-
       </div>
 
       {/* Interactive Live Sandbox Preview Modal */}

@@ -166,11 +166,26 @@ export interface FieldFade {
 /** The hero's: full strength at the top of the screen, breaking up into the fold. */
 export const HERO_FADE: FieldFade = { lo: 0.16, hi: 0 };
 
-/** The contact band's: arrives out of the paper section above and settles into the blue below.
- *  `hi` is kept small on purpose — the band is short, and a tall arrival zone read as the flat
- *  empty "void" the user reported at the top: cubes now begin within a few pixels of the edge so
- *  the strip connects from the very top instead of opening on a blank band. */
-export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.05 };
+/**
+ * The contact band's: arrives out of the paper section above and settles into the blue below.
+ *
+ * `hi` has been wrong in both directions, and the two failures look nothing alike.
+ *
+ * At 0.36 the top third of the band held almost no cubes, over a ground that was still a pale
+ * paper-to-blue ramp — a dead strip between the paper section and the field, which is the "void"
+ * that got reported. The answer to that was to drop `hi` to 0.05, and that produced the opposite
+ * fault: "no fade" in this shader does not mean the field starts at the top, it means the first
+ * row of cubes stands at FULL HEIGHT on the band's first pixel and is sliced flat by the canvas
+ * edge. A straight horizontal cut across a field of hard-edged blocks — the same failure the note
+ * on FOOTER_BAND_FADE below describes, arriving a second time on the other band.
+ *
+ * Neither number was the real lever. The fade only reads as a void when the ground UNDER it has
+ * already left paper: cubes fraying in over paper look like the section above sprouting them,
+ * and the same cubes over a half-blue ramp look like a gap. So 0.22 here is paired with a
+ * gradient in ContactSection that holds paper through most of it — see the note there. The two
+ * numbers are one decision and cannot be tuned apart.
+ */
+export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.28 };
 
 /** A full section's: a little at the top where the cubes slide under the navbar, more at the bottom
     where they run into whatever follows. The middle stays full strength, which is where the content
