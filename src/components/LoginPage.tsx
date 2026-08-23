@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { NovaiqLogo } from './NovaiqLogo';
-import { PhoneBooking, PhoneChat, PhoneStats, SiteHero, SiteCards, SiteDashboard } from './LoginGalleryArt';
+import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
+import { TileField, SAND_TONES, SECTION_TONES, SECTION_FADE, FieldFade } from './TileField';
 import { NqButton } from './ui/NqButton';
 
 interface LoginPageProps {
@@ -35,63 +35,53 @@ function GoogleIcon() {
   );
 }
 
-// Each column drifts at its own speed and against its neighbours. Same-speed columns read as
-// one sliding sheet cut into strips; different speeds read as depth, which is the point of
-// having three of them rather than one. The numbers are minutes-long on purpose — this is
-// meant to be noticed only if you watch for it, and a gallery that visibly races beside a
-// sign-in form competes with the thing the page is actually for.
-const COLUMNS = [
-  { duration: '48s', direction: 'up' as const },
-  { duration: '62s', direction: 'down' as const },
-  { duration: '54s', direction: 'up' as const },
-];
-
-// The covers are a fixed size per breakpoint, never a fluid one. Sized by the column (`flex-1`)
-// the same cover became a different shape at every window width — near-circular on a wide
-// screen, squat on a narrow one — and resizing visibly re-proportioned the gallery mid-drift.
-// Pinning means the shape is the shape: a tall capsule of roughly 1:2.6, the arch the reference
-// is built from, held at all three sizes (96×250, 120×315, 160×420).
-//
-// The values themselves live in index.css as custom properties on `.login-gallery`, because the
-// phone tier needs a smaller capsule and a media query is the only place that can say so without
-// this component measuring the window itself. Everything here reads them through var(), so the
-// marquee maths and the markup stay in step with whatever the breakpoint resolved to.
-const COVER_W = 'var(--cover-w)';
-const COVER_H = 'var(--cover-h)';
-const COVER_GAP = 'var(--cover-gap)';
+/**
+ * The lightest ink that still clears 4.5:1 on SAND.
+ *
+ * Measured rather than picked: INK over #D5BDAC comes out at 5.14:1 at 70% and 4.46:1 at 65%, so
+ * 0.7 is the floor and there is no room below it. Worth writing down, because the reflex on a
+ * light page is to reach for /60 or /50 the way the old dark version of this screen used
+ * `text-white/60` — which was fine on near-black and is a failing pair here.
+ */
+const INK_MUTED = 'rgba(16, 19, 34, 0.7)';
 
 /**
- * Standalone sign-in page: brand and form on one side, a slow gallery of the company's own
- * template covers on the other.
+ * The backdrop field does not fade at either end.
  *
- * Self-contained by design — it renders its own background and its own header rather than
- * mounting inside the site's shared chrome. App gives it the whole viewport (see the early
- * return there), so there is no navbar to sit under, no page padding to clear, and nothing
- * about it that has to be kept in step with the home page's layout as that layout changes.
- * The only things it takes from the rest of the app are the pieces that genuinely are shared:
- * the auth call, the template catalogue, the logo and the cosmic backdrop.
+ * Every other field on the site fades because it has to arrive out of one section and leave into
+ * the next. This one has no neighbours — it is the whole screen, behind everything — so a fade
+ * could only put a pale strip along the top and bottom of the page. The hard slice a zero fade
+ * leaves at each edge is the failure mode described at length in TileField; here it is invisible,
+ * because the layer is blurred and hangs 6% off every side of the viewport before it is clipped.
+ *
+ * Module scope, not inline. `fade` is a dependency of the material's useMemo, so a fresh object
+ * literal on every render would rebuild the shader on every render.
+ */
+const BACKDROP_FADE: FieldFade = { lo: 0, hi: 0 };
+
+/** How far out of focus the field behind the card is. Enough that the cubes read as a texture
+    rather than as a second thing to look at, and not so far that they stop being cubes. */
+const BACKDROP_BLUR = '8px';
+
+/**
+ * Standalone sign-in page: one card, split down the middle. The company's words on sand, and the
+ * site's own cube field in the panel blue beside them.
+ *
+ * Self-contained by design — it renders its own ground rather than mounting inside the site's
+ * shared chrome. App gives it the whole viewport (see the early return there), so there is no
+ * navbar to sit under and no page padding to clear. The only things it takes from the rest of the
+ * app are the pieces that genuinely are shared: the auth call, the palette, the button system and
+ * the tile field.
+ *
+ * The field is the SAME component the home page's hero and the timeline page run, on the same
+ * tones and the same fade, not a second cube scene written for this screen. That is the whole
+ * reason it is worth having here: a sign-in page built out of the site's own parts reads as the
+ * site, where a bespoke animation on the way in reads as a different product.
  */
 export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGuest }) => {
   const isAr = language === 'ar';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
-  // The six pieces of artwork, dealt round-robin into three columns so the two kinds never
-  // stack together — the app screens and the site screens alternate down the gallery instead of
-  // reading as two sorted blocks.
-  const ARTWORK = [PhoneBooking, PhoneChat, PhoneStats, SiteHero, SiteCards, SiteDashboard];
-  const columns = useMemo(() => {
-    const buckets: React.ComponentType<{ className?: string }>[][] = COLUMNS.map(() => []);
-    ARTWORK.forEach((art, i) => buckets[i % buckets.length].push(art));
-    // A column short on pieces still has to fill a tall viewport twice over, so it repeats its
-    // own until it has enough.
-    return buckets.map((arts) => {
-      if (arts.length === 0) return arts;
-      const filled = [...arts];
-      while (filled.length < 4) filled.push(...arts);
-      return filled;
-    });
-  }, []);
 
   const handleGoogleSignIn = async () => {
     if (isSubmitting) return;
@@ -114,96 +104,111 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
   ];
 
   return (
-    <div className="nq-login min-h-screen text-white font-['Cairo'] relative overflow-hidden selection:bg-zinc-100 selection:text-black">
-      {/* Desktop only, and for once that is a performance decision rather than a layout one:
-          below lg the gallery covers the entire viewport, so every star drifting behind it is
-          being animated and composited under something opaque. Two full-screen infinite
-          animations running at once, one of them invisible, is precisely the waste this site
-          has spent its time removing. */}
-      <div className="hidden lg:block">
+    <div
+      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] grid place-items-center p-6 sm:p-10 lg:p-14 selection:bg-[#101322] selection:text-[#F6F1E9]"
+      /* Painted here rather than left to the document. The page this replaced was white-on-black
+         and inherited its ground from the body; a screen that gets its background from somewhere
+         else is a screen that goes black the day that somewhere else changes. SAND rather than
+         paper, because it is the colour the field on top of it is standing on — the one frame
+         before WebGL has anything on screen should already be the right colour. */
+      style={{ background: SAND, color: INK }}
+    >
+      {/* The ground the card sits on: the site's own cube field, out of focus.
+
+          Blur is the whole point of it. A second field at full sharpness behind a card containing
+          a THIRD field is three things asking to be looked at; blurred, it becomes a texture, and
+          the card reads as forward simply by being the only crisp thing on the screen. That depth
+          cue is doing the work a drop shadow would otherwise have to do.
+
+          `-inset-[6%]` and not `inset-0`: `filter: blur()` samples what is outside the element as
+          transparent, so a layer blurred at its own edges fades out along all four sides and the
+          page shows a pale halo around the field. Oversizing it past the clip on the parent puts
+          those soft edges off screen. */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute -inset-[6%]" style={{ filter: `blur(${BACKDROP_BLUR})` }}>
+          <TileField tones={SAND_TONES} fade={BACKDROP_FADE} />
         </div>
+      </div>
 
-      {/* lg is where the split appears. Below it the gallery is dropped entirely rather than
-          stacked under the form: it is atmosphere, and a phone that has to scroll past a
-          screenful of drifting covers to reach a sign-in button has been given a worse page,
-          not a richer one.
-
-          Capped and centred rather than filling the viewport. The two halves are 50% each while
-          the things inside them are fixed — a 448px form and three 160px columns of covers — so
-          every extra pixel of window goes entirely into the gap between them. On a 34" screen
-          that is the same composition dragged to opposite ends of the desk. Past a point more
-          width stops being more room and starts being distance.
-          1160 is not picked by eye: the gap between the covers' inner edge and the form is
-          exactly `width − 1064` (560px of covers from the left edge, and the form block sitting
-          504px in from the right), so the cap IS the gap, plus 96. Wider caps open it fast —
-          1280 gives 216px, 1700 gives 636px. Beyond the cap the composition holds its size and
-          the starfield, full-bleed outside this wrapper, takes the rest of the screen. */}
-      <div className="relative z-10 min-h-screen grid grid-cols-1 lg:grid-cols-2 max-w-[1160px] mx-auto">
-
-        {/* ── Form side ─────────────────────────────────────────────────────────────── */}
-        {/* min-h-screen only below lg. On the split layout the grid row already gives this
-            column the full height, and asking for a screen's worth on top of that is how a
-            two-column page ends up scrolling for no reason. */}
-        {/* z-10: below lg the gallery is an absolute layer over this same box, so the form has
-            to be lifted above it to stay clickable as well as visible. */}
-        <div className="relative z-10 flex flex-col min-h-screen lg:min-h-0 p-6 sm:p-10 lg:p-14">
-          {/* Logo only. The Back button that used to sit opposite it is gone along with the
-              page's `onBack` prop: sign-in now gates the whole site, so there is no page behind
-              this one to return to and the button could only ever re-render the screen it was
-              already on. */}
-          <div className="flex items-center shrink-0">
-            <NovaiqLogo size={34} showText={true} />
-          </div>
-
-          {/* flex-1 + justify-center rather than the outer column's justify-between. With
-              `between`, the header, the form and the footer were pushed to three separate
-              corners of a tall phone screen and the form was left floating alone in the middle
-              of ~400px of nothing — three unrelated objects instead of one page. Centring the
-              form inside the leftover space keeps it a single composition at any height. */}
-          <div className="flex-1 flex flex-col justify-center py-8 lg:py-0">
-            {/* A solid panel on phones, nothing on desktop. On the split layout the gallery
-                beside it already frames the form; on a phone the gallery is *behind* it, and
-                this is what the covers pass under.
-                Opaque (98%) rather than the 70% it was: at 70% a drifting gallery showed
-                through the panel itself, so the covers crossed behind the buttons and the text
-                sat on a moving surface. The point of a panel here is that it is a surface —
-                content slides under its edge and is simply not visible past it, and nothing
-                ever overlaps the buttons. The shadow is what sells that: it lifts the panel off
-                the gallery so the two read as two planes rather than one busy one. */}
-            <div className="w-full max-w-md mx-auto lg:mx-0 rounded-3xl border border-zinc-700/80 bg-zinc-950/98 shadow-2xl shadow-black/70 p-6 sm:p-7 lg:border-0 lg:bg-transparent lg:shadow-none lg:p-0 lg:rounded-none">
-              <h1 className="text-2xl sm:text-3xl lg:text-[2.75rem] font-black leading-tight text-white">
+      {/* `dir="ltr"` on the SPLIT only, and it is what pins the halves.
+          The page is RTL in Arabic, so the grid's first column is the right-hand one — the two
+          halves would swap sides with the language and the composition would mirror. It does not
+          mirror in the wireframe and it does not mirror in the hero either, for the same reason
+          (see the note on `mr-auto` in HomeHero): this is a picture, not a reading order. Words
+          left, field right, in both languages.
+          The text inside is handed its own direction back on the column below, so only the
+          COLUMN ORDER is forced physical — nothing about the copy is. */}
+      {/* `relative` so the card is above the backdrop without a z-index — it comes after it in
+          the DOM and both are positioned, which is all the stacking order needs. */}
+      <div
+        dir="ltr"
+        className="relative w-full max-w-[64rem] grid grid-cols-1 lg:grid-cols-2 rounded-[0.5rem] overflow-hidden"
+      >
+        {/* ── Words ─────────────────────────────────────────────────────────────────────── */}
+        <div
+          dir={isAr ? 'rtl' : 'ltr'}
+          className="flex flex-col px-6 py-10 sm:px-10 sm:py-12 lg:px-14"
+          style={{ background: SAND }}
+        >
+          {/* flex-1 + centred, so the block sits in the middle of whatever height the card
+              resolved to and the copyright line stays on the floor rather than being dragged up
+              under the buttons. */}
+          <div className="flex-1 flex flex-col justify-center">
+            <div className="w-full max-w-[25rem] mx-auto">
+              <h1 className="text-[1.75rem] sm:text-3xl lg:text-[2.1rem] font-black leading-tight">
                 {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
                 <br />
                 {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
               </h1>
-              <p className="mt-3 lg:mt-4 text-[13px] sm:text-sm text-white/75 leading-relaxed">
+
+              <p className="mt-3 lg:mt-4 text-[13px] sm:text-sm leading-relaxed" style={{ color: INK_MUTED }}>
                 {isAr
                   ? 'ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.'
                   : 'Continue with Google to follow your contracts and saved templates in one place.'}
               </p>
 
-              <div className="mt-5 lg:mt-7 space-y-2.5">
+              {/* Three, and three is the cap rather than the count that happened to fit: a list of
+                  reasons long enough to need scanning is competing with the button underneath it.
+                  The icons lost the filled chip they used to sit in — a 28px dark square each was
+                  three more objects on a surface that now has a whole blue half beside it to carry
+                  the visual weight. */}
+              <ul className="mt-5 lg:mt-7 space-y-2.5">
                 {perks.map(({ icon: Icon, text }) => (
-                  <div key={text} className="flex items-center gap-2.5 text-xs text-white/90">
-                    <span className="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
-                      <Icon className="w-3.5 h-3.5 text-white/90" />
-                    </span>
+                  <li key={text} className="flex items-center gap-2.5 text-xs sm:text-[13px]">
+                    <Icon className="w-4 h-4 shrink-0" aria-hidden="true" style={{ color: PERIWINKLE }} />
                     <span>{text}</span>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
+              {/* `role="alert"` so a sign-in failure is announced rather than only drawn. A message
+                  that appears silently under a button somebody just pressed is a message a screen
+                  reader user never receives. */}
               {error && (
-                <div className="mt-5 p-3 rounded-xl bg-red-950/40 border border-red-900/60 text-red-300 text-xs text-center">
+                <div
+                  role="alert"
+                  className="mt-5 p-3 rounded-[0.375rem] text-xs text-center"
+                  style={{
+                    background: 'rgba(127, 29, 29, 0.1)',
+                    color: '#7F1D1D',
+                    boxShadow: 'inset 0 0 0 1px rgba(127, 29, 29, 0.3)',
+                  }}
+                >
                   {error}
                 </div>
               )}
 
               {/* One button, because there is only one path: Firebase creates the account on a
-                  first-time Google sign-in, so "log in" and "sign up" are the same click here
-                  and offering both would be two doors into one room. */}
+                  first-time Google sign-in, so "log in" and "sign up" are the same click here and
+                  offering both would be two doors into one room.
+
+                  `footer` is the tone, on a sand ground, and the borrow is deliberate. The
+                  wireframe paints this button in the panel blue — the same blue as the half beside
+                  it — and `footer` is the site's only pair that puts PERIWINKLE in the fill with
+                  INK on top of it (6.28:1). `chrome` has the same fill but a white focus ring,
+                  which on sand is no ring at all. */}
               <NqButton
-                tone="chrome"
+                tone="footer"
                 variant="solid"
                 size="lg"
                 radius="xl"
@@ -216,17 +221,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
               </NqButton>
 
-              {/* Browsing the catalogue, opening a demo and reading the timeline need no
-                  account, and requiring one to look around turns a visitor away before they
-                  have seen anything worth signing in for. Signing in stays the primary action —
-                  it is the filled button above; this one is deliberately quieter, an outline
-                  rather than a second solid button competing with it.
-
-                  The line underneath says where the wall actually is, so choosing this does not
-                  feel like it might cost them something later on. */}
+              {/* Browsing the catalogue, opening a demo and reading the timeline need no account,
+                  and requiring one to look around turns a visitor away before they have seen
+                  anything worth signing in for. The line underneath says where the wall actually
+                  is, so choosing this does not feel like it might cost them something later on. */}
               <NqButton
-                tone="chrome"
-                variant="quiet"
+                tone="sand"
+                variant="solid"
                 size="md"
                 radius="xl"
                 block
@@ -237,7 +238,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 {isAr ? 'أكمل كضيف' : 'Continue as guest'}
               </NqButton>
 
-              <p className="mt-2.5 text-center text-[11px] text-white/60">
+              <p className="mt-2.5 text-center text-[11px]" style={{ color: INK_MUTED }}>
                 {isAr
                   ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
                   : 'Browse and try the templates freely — an account is only needed to create a contract.'}
@@ -245,102 +246,27 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             </div>
           </div>
 
-          <p className="shrink-0 text-center lg:text-start text-[11px] text-white/50">
+          <p className="shrink-0 mt-10 text-center text-[11px]" style={{ color: INK_MUTED }}>
             {isAr ? '© NOVAIQ — جميع الحقوق محفوظة' : '© NOVAIQ — All rights reserved'}
           </p>
         </div>
 
-        {/* ── Gallery side ──────────────────────────────────────────────────────────── */}
-        {/* Two roles from one element, because the gallery is worth having on a phone but not
-            in the same place.
-            At lg it is the second grid column: a panel beside the form, as designed.
-            Below lg it leaves the grid entirely (`absolute inset-0`) and becomes the backdrop
-            *behind* the form instead of a block stacked above it. Stacking was the thing worth
-            avoiding — a phone that has to scroll past a screenful of drifting covers to reach a
-            sign-in button has been given a worse page, not a richer one — but that was an
-            argument against the position, never against the atmosphere. Behind the form it
-            costs no vertical space at all and the button stays exactly where it was. */}
-        <div className="login-gallery absolute inset-0 lg:relative lg:inset-auto overflow-hidden">
-          {/* justify-end packs the columns against the OUTER screen edge and lets all the
-              leftover width collect on the inner side, next to the form — which is where the
-              seam fade already lives, so the space reads as breathing room around the panel
-              rather than as a gap someone forgot to fill. Centred, the same slack was split in
-              two and the gallery floated with a margin on the screen edge, which is not how
-              the reference sits. Logical `end`, so it stays the outer edge in both languages:
-              the form is the grid's first column, so the gallery's inline-end is the far side
-              of the screen whichever way the page reads.
-              The padding on that end keeps the outermost column just off the screen edge —
-              packed flush against it the gallery read as cropped rather than placed. */}
-          {/* Centred on a phone, where the gallery is the whole backdrop and packing it to one
-              edge would leave the other half plain black behind the form. */}
-          <div
-            className="absolute inset-0 flex justify-center lg:justify-end"
-            style={{ gap: COVER_GAP, paddingInlineEnd: `calc(${COVER_GAP} * 2)` }}
-          >
-            {columns.map((arts, col) => {
-              if (arts.length === 0) return null;
-              const { duration, direction } = COLUMNS[col];
-              return (
-                <div key={col} className="overflow-hidden shrink-0" style={{ width: COVER_W }}>
-                  <div
-                    className="login-marquee__track flex flex-col"
-                    style={{
-                      animationName: direction === 'up' ? 'login-marquee-up' : 'login-marquee-down',
-                      animationDuration: duration,
-                      marginTop: `calc(${-col} * (${COVER_H} + ${COVER_GAP}) / ${COLUMNS.length})`,
-                    }}
-                  >
-                    {[0, 1].map((pass) =>
-                      arts.map((Art, i) => (
-                        <div
-                          key={`${pass}-${i}`}
-                          aria-hidden={pass === 1 ? 'true' : undefined}
-                          className="relative shrink-0 rounded-[999px] overflow-hidden bg-zinc-900 border border-white/10"
-                          style={{ width: COVER_W, height: COVER_H, marginBottom: COVER_GAP }}
-                        >
-                          <Art className="absolute inset-0 w-full h-full" />
-                        </div>
-                      )),
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        {/* ── Field ─────────────────────────────────────────────────────────────────────── */}
+        {/* `order-first` below lg and back in place at lg, so the field is a BAND across the top
+            of the card on a phone and the right-hand half on a desktop. A band rather than a
+            second full screen: the page this replaced dropped its artwork entirely below lg on the
+            reasoning that a phone which has to scroll past a screenful of decoration to reach a
+            sign-in button has been given a worse page. That reasoning was about the SIZE, not
+            about the atmosphere — 10rem of it costs nothing and the button stays above the fold.
 
-          {/* Fades the columns out into the page at top and bottom instead of letting them run
-              into a hard edge, and darkens the side nearest the form so the two never fight for
-              attention. pointer-events-none so it cannot swallow anything. */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                'linear-gradient(to bottom, #000 0%, transparent 18%, transparent 82%, #000 100%)',
-            }}
-          />
-          {/* The seam where the gallery meets the form. `start-0` puts this strip on the right
-              edge in Arabic and the left edge in English, which is the form-facing side in both
-              — but the gradient inside it cannot be a single fixed direction, because "black at
-              the seam, fading away from it" points the opposite way once the columns swap
-              sides. Written the other way round it darkens the middle of the gallery instead of
-              its edge, which is exactly what it was doing. */}
-          <div
-            className="hidden lg:block absolute inset-y-0 start-0 w-40 pointer-events-none"
-            style={{
-              background: `linear-gradient(to ${isAr ? 'right' : 'left'}, transparent, #000)`,
-            }}
-          />
-
-          {/* Phone only, and deliberately light. This was `bg-black/78`, which did keep text
-              legible — by hiding the gallery almost entirely, leaving a dark smear where the
-              covers were meant to be. Legibility is not this layer's job: the sign-in panel
-              below is opaque and carries its own contrast, so all this has to do is settle the
-              covers back a step so they read as a backdrop rather than compete with the panel
-              sitting on them. At 30% the images stay clearly visible and the motion is plain.
-              A flat rgba layer and not a backdrop-filter — blurring a full-screen, permanently
-              animating layer is exactly the per-frame rasterisation this site has been stripped
-              of everywhere else. */}
-          <div className="lg:hidden absolute inset-0 bg-black/30 pointer-events-none" />
+            `min-h` on this column is what gives the whole card its shape at lg: grid rows stretch,
+            so the sand column is as tall as this one whenever the copy is shorter. */}
+        <div
+          aria-hidden="true"
+          className="relative order-first lg:order-none h-40 lg:h-auto lg:min-h-[34rem]"
+          style={{ background: PERIWINKLE }}
+        >
+          <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
         </div>
       </div>
     </div>
