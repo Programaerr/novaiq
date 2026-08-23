@@ -1523,25 +1523,75 @@ html[data-scrolling] .nq-btn-beam::before {
   }
 }
 
-/* Custom Scrollbar */
+/* ─── Scrollbar ────────────────────────────────────────────────────────────────
+   The bar is ink, because the page is light. It used to be white at 14% alpha, which was correct
+   when this site was black — on the sand and paper grounds it replaced, a 14% white thumb is a
+   pale sliver you cannot find, and the track next to it is whatever the browser felt like.
+
+   Two properties, not one, and both are needed: `::-webkit-scrollbar-*` is Chrome, Edge and
+   Safari, `scrollbar-color` is Firefox and the standard. Only the first was ever set here, so
+   every non-Chromium visitor got the OS default grey column beside a sand page.
+
+   Alpha rather than a flat #101322, for the same reason the card surfaces use it: the thumb runs
+   the full height of a page that changes colour down its length — paper, sand, periwinkle, the
+   cube bands between them — so a fixed hex is only right at one scroll position. At 0.72 it reads
+   as black everywhere while still taking the tint of whatever it is currently over.
+
+   The track stays transparent, which is the older note here and still true: any single value
+   picked for it is a stripe at every scroll position but one. */
+:root {
+  --nq-bar: rgb(16 19 34 / 0.72);
+  --nq-bar-hover: rgb(16 19 34 / 0.9);
+}
+
+/* The standard properties — Firefox, and Chrome too, which is the part that surprises.
+   `scrollbar-color` is INHERITED, so setting it on `html` puts every scroller on the page onto
+   the standard path; and once a scroller uses the standard path Chrome ignores the
+   `::-webkit-scrollbar-*` rules below for it entirely. Those are the Safari fallback now, not the
+   main road.
+
+   `scrollbar-width` is NOT inherited, which is the trap: with it on `html` alone, the page got a
+   thin 10px bar and every nested scroller — the drawer, the contract's inner panel, the preview —
+   fell back to the OS default of 15px, WIDER than the 8px they used to get from the webkit rule.
+   So it goes on everything — inside `@layer base`, which is not decoration. Unlayered CSS beats
+   every layer, so as a bare top-level rule this universal selector outranked Tailwind's own
+   `.no-scrollbar` utility and un-hid the bars on the phone-app demo screens that deliberately
+   have none. In the base layer the utility wins again, which is the whole point of the layer. */
+@layer base {
+  html,
+  * {
+    scrollbar-width: thin;
+  }
+
+  html {
+    scrollbar-color: var(--nq-bar) transparent;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
-/* Transparent track, not a colour. The track runs the full height of a page whose ground is a
-   gradient, so any single value picked for it is only correct at one scroll position and reads
-   as a stripe everywhere else — which is what the old flat `#000000` did against the navy.
-   Letting the page show through means it is right at every position by construction. */
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  /* White alpha rather than a zinc hex, for the same reason the card surfaces are: it takes
-     the ground's tint instead of sitting on it as a grey bar. */
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--nq-bar);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--nq-bar-hover);
+}
+
+/* The handful of surfaces that are still dark, where an ink thumb would be an invisible bar on a
+   black panel: the PDF preview overlay and the template sandbox. Custom properties inherit, so one
+   class on the container flips the thumb for every scroller inside it — the pseudo-elements read
+   `--nq-bar` from their own originating element. */
+.nq-scroll-dark,
+.sandbox-root {
+  --nq-bar: rgb(246 241 233 / 0.30);
+  --nq-bar-hover: rgb(246 241 233 / 0.55);
+  scrollbar-color: var(--nq-bar) transparent;
 }
 
 

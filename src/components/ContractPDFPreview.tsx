@@ -77,8 +77,10 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
     }
   })();
 
+  // `nq-scroll-dark` because this overlay and the document inside it are the two black surfaces
+  // left on the site, and the page's ink scrollbar is invisible on black.
   return (
-    <div data-lenis-prevent className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/94 overflow-y-auto">
+    <div data-lenis-prevent className="nq-scroll-dark fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/94 overflow-y-auto">
       {/* Off-screen print-ready document — this, not the dark preview below, is what the
           PDF captures, so the downloaded file is a clean white formal contract. */}
       <ContractPrintDocument
