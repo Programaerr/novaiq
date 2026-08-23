@@ -3,7 +3,8 @@ import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
-import { TileField, SAND_TONES, SECTION_TONES, SECTION_FADE, FieldFade } from './TileField';
+import { StarField } from './StarField';
+import { TileField, SECTION_TONES, SECTION_FADE } from './TileField';
 import { NqButton } from './ui/NqButton';
 
 interface LoginPageProps {
@@ -46,22 +47,15 @@ function GoogleIcon() {
 const INK_MUTED = 'rgba(16, 19, 34, 0.7)';
 
 /**
- * The backdrop field does not fade at either end.
+ * How far out of focus the sky behind the card is.
  *
- * Every other field on the site fades because it has to arrive out of one section and leave into
- * the next. This one has no neighbours — it is the whole screen, behind everything — so a fade
- * could only put a pale strip along the top and bottom of the page. The hard slice a zero fade
- * leaves at each edge is the failure mode described at length in TileField; here it is invisible,
- * because the layer is blurred and hangs 6% off every side of the viewport before it is clipped.
- *
- * Module scope, not inline. `fade` is a dependency of the material's useMemo, so a fresh object
- * literal on every render would rebuild the shader on every render.
+ * Tuned against the smallest thing in it rather than by eye. The stars bottom out at 2.6px, so
+ * every pixel of blur here is a large fraction of a star — at 8px they stopped being stars and
+ * became a haze, and the first attempt at 22px erased them completely. 4px softens the planets'
+ * edges and leaves the stars as points of light with a glow, which is what a star out of focus
+ * actually looks like.
  */
-const BACKDROP_FADE: FieldFade = { lo: 0, hi: 0 };
-
-/** How far out of focus the field behind the card is. Enough that the cubes read as a texture
-    rather than as a second thing to look at, and not so far that they stop being cubes. */
-const BACKDROP_BLUR = '8px';
+const BACKDROP_BLUR = '4px';
 
 /**
  * Standalone sign-in page: one card, split down the middle. The company's words on sand, and the
@@ -108,25 +102,25 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
       className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] grid place-items-center p-6 sm:p-10 lg:p-14 selection:bg-[#101322] selection:text-[#F6F1E9]"
       /* Painted here rather than left to the document. The page this replaced was white-on-black
          and inherited its ground from the body; a screen that gets its background from somewhere
-         else is a screen that goes black the day that somewhere else changes. SAND rather than
-         paper, because it is the colour the field on top of it is standing on — the one frame
-         before WebGL has anything on screen should already be the right colour. */
-      style={{ background: SAND, color: INK }}
+         else is a screen that goes black the day that somewhere else changes. INK, because it is
+         the sky's own ground — the one frame before WebGL has anything on screen is then already
+         the right colour instead of a flash of something else. */
+      style={{ background: INK, color: INK }}
     >
-      {/* The ground the card sits on: the site's own cube field, out of focus.
+      {/* The ground the card sits on: a night sky in the site's own palette, out of focus.
 
-          Blur is the whole point of it. A second field at full sharpness behind a card containing
-          a THIRD field is three things asking to be looked at; blurred, it becomes a texture, and
-          the card reads as forward simply by being the only crisp thing on the screen. That depth
-          cue is doing the work a drop shadow would otherwise have to do.
+          Blur is the whole point of it. A sharp sky behind a card that itself contains a moving
+          field is two things asking to be looked at; blurred, it becomes atmosphere, and the card
+          reads as forward simply by being the only crisp thing on the screen. That depth cue is
+          doing the work a drop shadow would otherwise have to do.
 
           `-inset-[6%]` and not `inset-0`: `filter: blur()` samples what is outside the element as
           transparent, so a layer blurred at its own edges fades out along all four sides and the
-          page shows a pale halo around the field. Oversizing it past the clip on the parent puts
+          page shows a dark halo around the sky. Oversizing it past the clip on the parent puts
           those soft edges off screen. */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute -inset-[6%]" style={{ filter: `blur(${BACKDROP_BLUR})` }}>
-          <TileField tones={SAND_TONES} fade={BACKDROP_FADE} />
+          <StarField />
         </div>
       </div>
 
