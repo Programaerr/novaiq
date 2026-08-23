@@ -8,7 +8,6 @@ import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { AboutSection } from './components/AboutSection';
 import { CookieConsent } from './components/CookieConsent';
 import { ToastHost } from './components/ToastHost';
-import { EasterEgg } from './components/EasterEgg';
 import { PageLoader } from './components/PageLoader';
 import { SmartPageLoader } from './components/SmartPageLoader';
 import { ContractPreparingLoader } from './components/ContractPreparingLoader';
@@ -674,13 +673,6 @@ export default function App() {
 
       {/* Global toast notifications — validation warnings, save confirmations, errors */}
       <ToastHost />
-
-      {/* Shake the mouse left and right and a hand made of the site's own cubes comes up beside
-          the cursor and waves. Mounted here rather than per page so the gesture works anywhere;
-          it costs one pointermove listener until somebody finds it, and the scene itself is a
-          lazy chunk that is never fetched otherwise. It suppresses itself over the template
-          sandbox and the account panels — see useShakeGesture. */}
-      <EasterEgg />
 
       {/* Shown while the contract is being written, before the preview exists at all. */}
       {isSavingContract && <ContractPreparingLoader language={language} />}
