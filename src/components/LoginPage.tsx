@@ -3,7 +3,7 @@ import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { INK, PERIWINKLE } from '../lib/homePalette';
-import { StarField } from './StarField';
+import { CodeRain } from './CodeRain';
 import { TileField, SECTION_TONES, SECTION_FADE } from './TileField';
 import { NqButton } from './ui/NqButton';
 
@@ -68,15 +68,16 @@ const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
 const SAND_GLASS = 'rgba(213, 189, 172, 0.72)';
 
 /**
- * How far out of focus the sky behind the card is.
+ * How far out of focus the rain behind the card is.
  *
- * Tuned against the smallest thing in it rather than by eye. The stars bottom out at 2.6px, so
- * every pixel of blur here is a large fraction of a star — at 8px they stopped being stars and
- * became a haze, and the first attempt at 22px erased them completely. 4px softens the planets'
- * edges and leaves the stars as points of light with a glow, which is what a star out of focus
- * actually looks like.
+ * Tuned against the smallest thing in it rather than by eye, and that thing is now a 19px glyph
+ * rather than a 3px star — so this is far lighter than the sky it replaced. At the 4px the
+ * starfield wanted, a brace and a semicolon are the same smudge and the whole point of putting
+ * code back there is lost; 2.5px was still enough to turn the columns into dotted lines. 1.8px
+ * takes the edge off the characters and leaves them readable AS characters, which is the only
+ * reason to have chosen characters.
  */
-const BACKDROP_BLUR = '4px';
+const BACKDROP_BLUR = '1.8px';
 
 /**
  * Standalone sign-in page: one card, split down the middle. The company's words on sand, and the
@@ -128,20 +129,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
          the right colour instead of a flash of something else. */
       style={{ background: INK, color: INK }}
     >
-      {/* The ground the card sits on: a night sky in the site's own palette, out of focus.
+      {/* The ground the card sits on: source code falling down the screen, out of focus.
 
-          Blur is the whole point of it. A sharp sky behind a card that itself contains a moving
-          field is two things asking to be looked at; blurred, it becomes atmosphere, and the card
+          Blur is the whole point of it. Sharp code behind a card that itself contains a moving
+          field is two things asking to be READ; softened, it becomes atmosphere, and the card
           reads as forward simply by being the only crisp thing on the screen. That depth cue is
           doing the work a drop shadow would otherwise have to do.
 
           `-inset-[6%]` and not `inset-0`: `filter: blur()` samples what is outside the element as
           transparent, so a layer blurred at its own edges fades out along all four sides and the
-          page shows a dark halo around the sky. Oversizing it past the clip on the parent puts
+          page shows a dark halo around the rain. Oversizing it past the clip on the parent puts
           those soft edges off screen. */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute -inset-[6%]" style={{ filter: `blur(${BACKDROP_BLUR})` }}>
-          <StarField />
+          <CodeRain />
         </div>
       </div>
 
