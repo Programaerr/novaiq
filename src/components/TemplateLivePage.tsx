@@ -5,7 +5,6 @@ import { Language } from '../lib/i18n';
 import { readStoredCurrency } from '../lib/currency';
 import { writePendingContractSelection } from '../lib/pendingContractSelection';
 import type { Template } from '../types';
-import { PageLoader } from './PageLoader';
 import { NovaiqLogo } from './NovaiqLogo';
 import type { ThemeColor } from './TemplateInteractiveSandbox';
 import { NqButton } from './ui/NqButton';
@@ -133,7 +132,11 @@ export const TemplateLivePage: React.FC = () => {
 
   return (
     <div className="min-h-[100dvh] bg-[#05070c]">
-      <Suspense fallback={<PageLoader />}>
+      {/* `null` rather than a loader, and on this page especially. PageLoader paints PAPER — a
+          near-white full-screen field — while this document's ground is #05070c, so using it
+          here flashed the customer a white screen before a dark template. The wrapper above
+          already paints the right ground: nothing, then content, on one continuous colour. */}
+      <Suspense fallback={null}>
         <TemplateInteractiveSandbox
           chromeless
           template={template}

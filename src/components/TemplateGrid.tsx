@@ -7,15 +7,23 @@ import { Currency } from '../lib/currency';
 import { PERIWINKLE } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
-import { PageLoader } from './PageLoader';
+import { trackLoad } from '../lib/loadTracker';
 import type { DemoMode } from './TemplateInteractiveSandbox';
 
 // The interactive sandbox is the single largest component in the app — a whole website and a
 // whole phone app, plus the 3D building both of them use. Loading it only when a customer
 // actually opens a preview keeps it out of the initial "Templates" page bundle entirely, which
 // matters most on weak/low-end devices.
+//
+// `trackLoad` so this reports into the app's one loading counter like every other lazy chunk.
+// It used to be untracked AND to mount its own <PageLoader/> as the Suspense fallback, which
+// broke the rule loadTracker exists to enforce: one counter, one loader. The visible cost was
+// that opening a preview blanked the entire templates page — PageLoader is `fixed inset-0` and
+// opaque — so a modal opening over a grid instead wiped the grid, flashed a full-screen spinner,
+// and then drew the modal. Tracked, the same download is reported by the single SmartPageLoader
+// in App, and a cached chunk (every open after the first) shows nothing at all.
 const TemplateInteractiveSandbox = lazy(() =>
-  import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
+  trackLoad(import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox })))
 );
 
 interface TemplateGridProps {
@@ -210,9 +218,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
       </div>
 
-      {/* Interactive Live Sandbox Preview Modal */}
+      {/* Interactive Live Sandbox Preview Modal.
+          The Suspense fallback is `null`, like every other boundary in the app: the grid behind
+          stays on screen while the chunk arrives instead of being replaced by a spinner. */}
       {previewTemplate && (
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={null}>
           <TemplateInteractiveSandbox
             template={previewTemplate}
             language={language}

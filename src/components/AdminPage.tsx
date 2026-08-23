@@ -51,6 +51,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
 
   useEffect(() => subscribeToAuthState(setSubscribedUser), []);
 
+  // A cached answer is applied DURING render, not in the effect below.
+  //
+  // The effect already consulted adminCache, but an effect runs after the first paint — so a
+  // second visit to this page, where the answer is already known and no network call will be
+  // made, still rendered one frame of `isAdmin === undefined` and flashed the full-screen
+  // loader before settling. A loader for work that is not happening.
+  //
+  // Reading the cache here collapses that: when the answer is known the very first render has
+  // it, the guard below is false, and nothing loads. The effect still owns the uncached path.
+  const cachedIsAdmin = effectiveUser ? adminCache.get(effectiveUser.email ?? '') : undefined;
+  const resolvedIsAdmin = isAdmin ?? cachedIsAdmin;
+
   useEffect(() => {
     if (!effectiveUser) {
       setIsAdmin(undefined);
@@ -73,7 +85,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
     };
   }, [effectiveUser]);
 
-  if (effectiveUser === undefined || (effectiveUser && isAdmin === undefined)) {
+  if (effectiveUser === undefined || (effectiveUser && resolvedIsAdmin === undefined)) {
     return <PageLoader />;
   }
 
@@ -85,7 +97,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
     return <LoginPage language={language} onContinueAsGuest={onContinueAsGuest} />;
   }
 
-  return isAdmin
+  // `resolvedIsAdmin`, not `isAdmin` — and this is the half that makes skipping the loader safe.
+  // On the cached first render state is still `undefined`, which is falsy, so branching on the
+  // raw state here would hand an admin the customer dashboard for a frame before correcting
+  // itself. Both the guard above and this branch have to read the same resolved value or the
+  // flash that was removed comes back as a wrong-dashboard flash instead.
+  return resolvedIsAdmin
     ? <AdminDashboard language={language} currency={currency} />
     : <CustomerDashboard language={language} currency={currency} user={effectiveUser} />;
 };
