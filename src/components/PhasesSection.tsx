@@ -52,13 +52,26 @@ interface Phase {
 /**
  * The four steps, in the company's own words.
  *
- * The Arabic is the copy from the Canva board, with its spelling corrected and nothing else
- * touched — الرائيسية to الرئيسية, تتم بناء to يتم بناء, واقسام to وأقسام, حقيقة to حقيقية, "الأقسام البقية" to "بقية الأقسام", plus the missing
- * hamzas and full stops. The meaning, the order and the commitments are exactly as written: this is
- * a real company setting out what it will and will not do, and it is not mine to reword.
+ * The Arabic began as the copy from the Canva board, with its spelling corrected — الرائيسية to
+ * الرئيسية, تتم بناء to يتم بناء, واقسام to وأقسام, "الأقسام البقية" to "بقية الأقسام", plus the missing hamzas and full stops.
  *
  * The English is a translation of the same commitments rather than a shorter marketing version of
- * them, for the same reason.
+ * them.
+ *
+ * ## These four must agree with the contract the client signs
+ *
+ * This section states what the company will do; contractTerms states what it is bound to do. When
+ * the two disagree, the page is advertising terms the agreement does not give — so the clauses win
+ * and the copy is corrected to them, which is why this is no longer verbatim board copy.
+ *
+ * Step 4 is where that bit. It read "تتم معالجتها ... مع احتساب الوقت المبذول" — every revision
+ * billed — while clause 2 grants two FREE revision rounds and clause 6 fixes defects free for 30
+ * days. A client who read the page would have been quoted for something their own contract gives
+ * them. It now carries the clauses it is bound by: the two free rounds (clause 2), the 7-day
+ * window after which a phase is deemed approved (clause 3), and handover of code and admin access
+ * only once payment completes (clause 1).
+ *
+ * Nothing here may promise faster, cheaper, or more than the clauses do. Check both when editing.
  */
 const PHASES: Phase[] = [
   {
@@ -102,11 +115,11 @@ const PHASES: Phase[] = [
     Icon: Rocket,
     ar: {
       name: 'التسليم',
-      body: 'يُسلَّم الموقع لصاحب الفكرة أو صاحب العمل لغرض التجربة قبل التسليم، وإن ظهرت ملاحظات حقيقية تتم معالجتها من قبل شركتنا مع احتساب الوقت المبذول لغرض التعديل، لضمان حق الزبون وضمان حق الشركة (NOVAIQ).',
+      body: 'يُسلَّم الموقع لصاحب العمل لتجربته قبل التسليم النهائي، وله جولتا تعديل مجانيتان ضمن النطاق المتفق عليه، وما خرج عنه يُسعَّر على حدة. وإن لم تصلنا ملاحظات خلال 7 أيام تُعتبر المرحلة معتمدة، ويُسلَّم الكود وصلاحيات الإدارة بعد اكتمال السداد.',
     },
     en: {
       name: 'Delivery',
-      body: 'The site is handed to the owner to try before final delivery. Where genuine issues come back we fix them, with the time spent on the changes accounted for — so the client is covered and so is NOVAIQ.',
+      body: 'The site is handed to the owner to try before final delivery, with two free revision rounds inside the agreed scope; anything beyond it is quoted separately. If no comments reach us within 7 days the phase is taken as approved, and the code and admin access are handed over once payment is complete.',
     },
   },
 ];

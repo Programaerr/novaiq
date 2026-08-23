@@ -22,49 +22,58 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
   const isAr = language === 'ar';
   const { ref: sectionRef, seen } = useSeen<HTMLElement>();
 
+  /**
+   * The four phases, in order. Deliberately WITHOUT a week grid.
+   *
+   * They used to be labelled "الأسبوع 1 - 2" … "الأسبوع 7 - 8", which fixed every project at
+   * exactly eight weeks on a public page. The agreement does not work that way: the duration is
+   * agreed per contract and stated in Section One (see contractTerms), and it genuinely differs —
+   * a template delivers in 5 weeks (templatesData) while a custom build defaults to 8. So the grid
+   * was quoting a delivery date to people whose own contract says something else. The phases are
+   * the part that is actually the same for everyone; the timing belongs to the signed contract.
+   *
+   * Every task below is a commitment the contract also makes, in the same terms it makes it —
+   * nothing here may promise something the clauses qualify.
+   */
   const milestones = [
     {
-      weeks: isAr ? 'الأسبوع 1 - 2' : 'Weeks 1 - 2',
-      phaseTitle: isAr ? 'المرحلة الأولى: التحليل والاعتماد' : 'Phase 1: Analysis & Official Approval',
+      phaseTitle: isAr ? 'المرحلة الأولى: التحليل والاعتماد' : 'Phase 1: Analysis & Approval',
       icon: Calendar,
       status: isAr ? 'مرحلة الاعتماد' : 'Approval Phase',
       tasks: [
-        isAr ? 'توقيع واعتماد العقد' : 'Sign & approve official electronic contract and export PDF',
-        isAr ? 'تحديد الهوية البصرية' : 'Define visual identity, colors, and required system languages',
-        isAr ? 'الخوادم والنطاق الخاص بالشركة' : 'Configure domain, cloud infrastructure, and server architecture',
+        isAr ? 'توقيع الاتفاق إلكترونياً وتحديد النطاق في القسم الأول' : 'Sign the agreement electronically and set the scope in Section One',
+        isAr ? 'تحديد الهوية البصرية ولغات النظام' : 'Define visual identity, colors, and required system languages',
+        isAr ? 'تجهيز النطاق والخوادم الخاصة بالمشروع' : 'Configure the project’s domain, cloud infrastructure, and servers',
       ]
     },
     {
-      weeks: isAr ? 'الأسبوع 3 - 4' : 'Weeks 3 - 4',
       phaseTitle: isAr ? 'المرحلة الثانية: بناء التصميم' : 'Phase 2: Interactive Design & UI/UX',
       icon: Code2,
       status: isAr ? 'التطوير البصري' : 'Visual Development',
       tasks: [
         isAr ? 'تطوير واجهات المستخدم' : 'Develop responsive user interfaces with top UX/UI standards',
         isAr ? 'دمج تأثيرات الحركة والسلاسة' : 'Integrate motion effects and smooth interactivity',
-        isAr ? 'ضمان الاستجابة التامة' : 'Ensure full responsiveness on desktop, tablet, and mobile',
+        isAr ? 'جولتا تعديل مجانيتان ضمن النطاق المتفق عليه' : 'Two free revision rounds within the agreed scope',
       ]
     },
     {
-      weeks: isAr ? 'الأسبوع 5 - 6' : 'Weeks 5 - 6',
       phaseTitle: isAr ? 'المرحلة الثالثة: الربط البرمجي' : 'Phase 3: Core Engineering & Backend Integration',
       icon: Cpu,
       status: isAr ? 'البرمجة والخوادم' : 'Engineering & Cloud',
       tasks: [
-        isAr ? 'ربط بوابات الدفع الإلكتروني' : 'Integrate payment gateways (ZainCash, Card, Visa, Apple Pay)',
+        isAr ? 'بناء المنطق البرمجي ولوحة الإدارة' : 'Build the core application logic and the admin panel',
         isAr ? 'تجهيز نظام المحادثة والدعم' : 'Develop integrated customer support & communication modules',
-        isAr ? 'ربط البيانات السحابية' : 'Connect & secure live cloud databases (Firebase / Cloud Store)',
+        isAr ? 'ربط قواعد البيانات السحابية وتأمينها' : 'Connect & secure live cloud databases (Firebase / Cloud Store)',
       ]
     },
     {
-      weeks: isAr ? 'الأسبوع 7 - 8' : 'Weeks 7 - 8',
       phaseTitle: isAr ? 'المرحلة الرابعة: الاختبار النهائي' : 'Phase 4: Final Testing & Live Launch',
       icon: ShieldCheck,
       status: isAr ? 'الإطلاق المكتمل' : 'Live Launch',
       tasks: [
         isAr ? 'اختبارات الأمان والسرعة' : 'Run load tests, security audits, and performance tuning',
-        isAr ? 'تسليم الكود المصدري ولوحات التحكم بالكامل لممثل الشركة' : 'Deliver full source code and admin panels to company owner',
-        isAr ? 'إمكانية تفعيل خطة صيانة مخصصة حسب الاتفاق' : 'Final delivery and optional maintenance plan per agreement',
+        isAr ? 'تسليم الكود المصدري وصلاحيات الإدارة للعميل بعد اكتمال السداد' : 'Hand the source code and admin access to the client once payment is complete',
+        isAr ? 'ضمان إصلاح الأخطاء 30 يوماً، وأي صيانة لاحقة باتفاق مستقل' : 'A 30-day defect warranty, with any later maintenance under a separate agreement',
       ]
     }
   ];
@@ -97,8 +106,19 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
             style={{ color: INK, ['--nq-rise-delay' as string]: '80ms' }}
           >
-            {isAr ? 'جدول المراحل الزمنية لتنفيذ مشروعك' : 'Project Sprints & Delivery Timeline'}
+            {isAr ? 'مراحل تنفيذ مشروعك' : 'Project Phases & Delivery'}
           </h2>
+
+          {/* The one thing the phase list can no longer say for itself: the duration is real, it
+              is simply per-contract rather than the same eight weeks for everyone. */}
+          <p
+            className="nq-rise mt-4 max-w-[42rem] text-sm sm:text-base font-bold leading-relaxed"
+            style={{ color: INK, opacity: 0.66, ['--nq-rise-delay' as string]: '130ms' }}
+          >
+            {isAr
+              ? 'أربع مراحل ثابتة لكل مشروع، ومدّة التنفيذ تُحدَّد في القسم الأول من اتفاقك حسب حجم العمل.'
+              : 'Four phases in every project; the delivery duration is set in Section One of your agreement, sized to the work.'}
+          </p>
 
           {/* ── The four phases, in one frosted panel ───────────────────────────────────────────
               Semi-transparent over the blue, with a heavy blur: the copy stays sharp while the
@@ -178,15 +198,13 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                         ))}
                       </ul>
 
+                      {/* The phase's place in the sequence. This used to carry a week range as
+                          well; see the note on `milestones` for why the timing is not stated
+                          here but in the contract that actually sets it. */}
                       <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(16,19,34,0.15)' }}>
                         <div className="text-xl font-black tracking-tight" style={{ color: INK }}>
-                          {ms.weeks}
+                          {isAr ? `المرحلة ${index + 1} من 4` : `Phase ${index + 1} of 4`}
                         </div>
-                        <p className="mt-0.5 text-[11px] font-bold" style={{ color: INK, opacity: 0.6 }}>
-                          {isAr
-                            ? `المرحلة ${index + 1} من 4 · 2 أسابيع`
-                            : `Phase ${index + 1} of 4 · 2 Weeks`}
-                        </p>
                       </div>
                     </div>
                   </li>
