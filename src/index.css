@@ -787,22 +787,6 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* Full-screen login gate — its primary action must not read as the site's periwinkle primary
-   bolted onto the cosmic backdrop; neutral white-on-dark keeps it in the same family as the
-   sandbox chrome and stays legible on the dark surface. */
-.nq-login .nq-btn--solid {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  --beam-ink: rgba(255, 255, 255, 0.85);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-}
-.nq-login .nq-btn--solid:hover,
-.nq-login .nq-btn--solid:focus-visible,
-.nq-login .nq-btn--solid:active {
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-}
-
 .nq-cta-badge {
   display: inline-flex;
   align-items: center;
@@ -858,75 +842,6 @@
 
 /* Drifts left and down, so it uncovers its top and right edges. */
 
-
-/* ── Login page's template gallery ────────────────────────────────────────────────────────
-   Columns of template covers that creep past the sign-in panel and never stop. The loop is
-   seamless because the column's contents are rendered TWICE in the markup and the track
-   travels exactly -50% — at the end of a cycle the second copy sits precisely where the first
-   one started, so the jump back to 0% is invisible. That is the whole trick, and it is why the
-   duplicate in LoginPage.tsx is deliberate rather than a mistake to be tidied away.
-
-   `linear`, because anything eased would visibly slow down and surge once per cycle, which
-   turns a drifting backdrop into a pulsing one. And translate3d rather than `top`/`margin`:
-   this runs for as long as the page is open, so it has to stay on the compositor and never
-   touch layout. The paired keyframes exist only so alternating columns can travel in opposite
-   directions — running one animation in `reverse` would also reverse its easing, which for a
-   linear curve is identical, but the explicit pair keeps the direction readable at the call
-   site rather than hidden in an animation-direction. */
-@keyframes login-marquee-up {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(0, -50%, 0); }
-}
-
-@keyframes login-marquee-down {
-  from { transform: translate3d(0, -50%, 0); }
-  to { transform: translate3d(0, 0, 0); }
-}
-
-
-/* Cover geometry for the sign-in gallery, as custom properties so one media query sets it for
-   the marquee maths and the markup at once (LoginPage.tsx reads all three through var()).
-   The ratio is held at ~1:2.6 across all three tiers — that capsule IS the shape the design is
-   built from, and a phone tier that merely shrank the width would turn it into a different
-   object. The phone size is chosen so three columns plus their gaps land near 312px: wide
-   enough to fill a 390px screen edge to edge, narrow enough not to crop a whole column away. */
-.login-gallery {
-  --cover-w: 96px;
-  --cover-h: 250px;
-  --cover-gap: 12px;
-}
-
-@media (min-width: 640px) {
-  .login-gallery {
-    --cover-w: 120px;
-    --cover-h: 315px;
-    --cover-gap: 16px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .login-gallery {
-    --cover-w: 160px;
-    --cover-h: 420px;
-    --cover-gap: 20px;
-  }
-}
-
-.login-marquee__track {
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  will-change: transform;
-}
-
-/* Someone who has asked the OS for less motion should not be given an animation that never
-   stops — this is the single most persistent one on the site. The columns still render in
-   full, they simply hold still. */
-@media (prefers-reduced-motion: reduce) {
-  .login-marquee__track {
-    animation: none !important;
-    transform: none !important;
-  }
-}
 
 /* Both axes travel exactly one tile (380px, matching background-size), so the layer at the end
    of a cycle is pixel-identical to the start and the loop is invisible. The y value used to be
@@ -1175,8 +1090,7 @@ html[data-idle] :is(
   .product-card-wave,
   .milestone-card,
   .navbar-logo-dots span,
-  .navbar-logo-cursor,
-  .login-marquee__track
+  .navbar-logo-cursor
   /* Anything NEW and infinite declared in CSS still has to be added here — this rule pauses CSS
      animations specifically; a rAF loop is already suspended by the browser under the exact
      condition that sets `data-idle` (the tab being hidden), so it needs no entry of its own. */
