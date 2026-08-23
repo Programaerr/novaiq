@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { INK, PERIWINKLE } from '../lib/homePalette';
+import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
 import { CodeRain } from './CodeRain';
 import { TileField, SECTION_TONES, SECTION_FADE } from './TileField';
 import { NqButton } from './ui/NqButton';
@@ -37,33 +37,38 @@ function GoogleIcon() {
 }
 
 /**
- * The lightest ink that still clears 4.5:1 on the glass panel below.
+ * The lightest ink that still clears 4.5:1 on the glass panel below, in its WORST state.
  *
- * Measured rather than picked, and re-measured when the panel stopped being opaque. Against
- * SOLID sand (#D5BDAC) this sat at 0.7 and came out 5.14:1, with 0.65 already failing at 4.46:1.
- * The panel is translucent now, so the surface under this text is sand mixed toward the dark sky
- * behind it — around #9E8D85 — and the old 0.7 falls to 3.64:1 there. 0.85 restores it to 4.75:1.
+ * Measured rather than picked, and re-measured twice — once when the panel stopped being
+ * opaque, and again when the page behind it went from an ink sky to sand.
+ *
+ * The panel is translucent, so the surface under this text is whatever the backdrop is, mixed
+ * toward sand. Over the sand page it now settles at sand itself and this reads 7.57:1; where a
+ * dark glyph of the rain passes behind it the surface drops to about #9E8D85 and the same value
+ * reads 4.76:1. The floor is the one that matters, and 0.85 is set against it — 0.7, which
+ * was correct on solid sand, is 3.62:1 there and fails.
  *
  * Worth writing down because the reflex on a light-looking panel is to reach for /60 or /50 the
  * way the old dark version of this screen used `text-white/60`. On glass that reflex is a full
- * step worse than it looks, because the surface itself is darker than the swatch it came from.
+ * step worse than it looks, because the surface goes darker than the swatch it came from every
+ * time something dark passes behind it.
  */
 const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
 
 /**
  * The words half, as frosted glass rather than a solid sand panel.
  *
- * 0.72 and not lower, and the number is a contrast floor rather than a look. The sky behind this
- * card is INK, so a translucent sand surface does not stay sand — it mixes toward the dark ground
- * underneath in proportion to how much it lets through. At 0.6 the surface lands near #867975 and
- * full-strength INK on it measures 4.41:1, already under the 4.5:1 body text needs before a
- * single muted line is drawn. At 0.72 it settles near #9E8D85 and INK measures 5.82:1, which
+ * 0.72 and not lower, and the number is a contrast floor rather than a look. A translucent sand
+ * surface does not stay sand — it mixes toward whatever is behind it, in proportion to how
+ * much it lets through, and what is behind it is a sand page with dark code falling across it.
+ * Most of the time that means the panel IS sand and full ink on it is 10.28:1. The number has to
+ * be set for the other case: a dark glyph directly behind. At 0.6 that surface lands near
+ * #867975 and full-strength INK measures 4.41:1, already under what body text needs before a
+ * single muted line is drawn. At 0.72 it settles near #9E8D85 and INK measures 5.80:1, which
  * leaves room for the muted tier above to exist at all.
  *
- * That muted tier is why INK_MUTED moved from 0.7 to 0.85 in the same change: 0.7 was measured
- * against SOLID sand, where it was 5.14:1. Over this glass the same value falls to 3.64:1. At
- * 0.85 it is 4.75:1 and passes. Lower the panel opacity and both numbers have to be re-derived —
- * they are not independent.
+ * Lower this and INK_MUTED has to be re-derived with it — they are not independent, and the
+ * pair was already re-derived once when the ground behind the card changed from ink to sand.
  */
 const SAND_GLASS = 'rgba(213, 189, 172, 0.72)';
 
@@ -124,10 +129,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
       className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] grid place-items-center p-6 sm:p-10 lg:p-14 selection:bg-[#101322] selection:text-[#F6F1E9]"
       /* Painted here rather than left to the document. The page this replaced was white-on-black
          and inherited its ground from the body; a screen that gets its background from somewhere
-         else is a screen that goes black the day that somewhere else changes. INK, because it is
-         the sky's own ground — the one frame before WebGL has anything on screen is then already
-         the right colour instead of a flash of something else. */
-      style={{ background: INK, color: INK }}
+         else is a screen that goes black the day that somewhere else changes.
+
+         SAND, which is the ground every other page of this site stands on. It used to be INK, and
+         that was defensible while the backdrop was a night sky — but a sign-in screen is the
+         first thing a visitor sees, and one that is dark when the rest of the site is warm reads
+         as a different product's login bolted on. The rain went dark-on-light to follow it. */
+      style={{ background: SAND, color: INK }}
     >
       {/* The ground the card sits on: source code falling down the screen, out of focus.
 

@@ -1,7 +1,8 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { PAPER, PERIWINKLE, SAND_LIGHT } from '../lib/homePalette';
+import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
+import { mixColor } from '../lib/tone';
 
 /**
  * Code falling down the screen, behind the sign-in card.
@@ -31,15 +32,16 @@ const MAX_DPR: number =
 /** Pixels per world unit, so the rain can be laid out in screen terms. Same as the tile field. */
 const ZOOM = 100;
 
-/** Glyph box in CSS pixels, and the column pitch as a multiple of it. Monospace rain wants the
-    columns a little wider than the glyph so the characters do not touch side to side. */
+/** Glyph box in CSS pixels, and the column pitch as a multiple of it. Just over 1 keeps the
+    characters from touching side to side while packing the columns as tight as they will go. */
 const GLYPH_PX = 19;
-const COLUMN_PITCH = 1.5;
+const COLUMN_PITCH = 1.12;
 
 /** How many glyphs are in a trail, and how far apart they sit vertically. A trail shorter than
-    about fifteen reads as a falling dot; much longer and the columns merge into a curtain. */
-const TRAIL = 24;
-const ROW_PITCH = 1.18;
+    about fifteen reads as a falling dot; at thirty the columns overlap enough to read as a sheet
+    of code rather than as a scattering of characters, which is the density asked for. */
+const TRAIL = 30;
+const ROW_PITCH = 1.02;
 
 /**
  * The column budget, allocated once and never resized.
@@ -49,7 +51,7 @@ const ROW_PITCH = 1.18;
  * allocates for the widest screen worth supporting and hides the surplus in the vertex shader
  * (one compare, then a vertex thrown outside clip space), so a resize is a single uniform write.
  */
-const MAX_COLUMNS = 96;
+const MAX_COLUMNS = 176;
 const COUNT = MAX_COLUMNS * TRAIL;
 
 /* ── Glyph atlas ────────────────────────────────────────────────────────────────────────── */
@@ -115,9 +117,14 @@ function makeRainMaterial(atlas: THREE.Texture): THREE.ShaderMaterial {
       uGlyph: { value: 0.19 },
       uColPitch: { value: 0.28 },
       uRowPitch: { value: 0.22 },
-      uHead: { value: new THREE.Color(PAPER) },
-      uBody: { value: new THREE.Color(PERIWINKLE) },
-      uWarm: { value: new THREE.Color(SAND_LIGHT) },
+      // Dark on light, because the page under this is sand now. The old set was paper heads on
+      // periwinkle bodies for an ink sky; carried over unchanged, plain PERIWINKLE measures
+      // 1.64:1 on sand and the code would simply not be there. These are the same two hues taken
+      // down until they read: 10.3:1 for the head, 3.7:1 and 3.9:1 for the two body tints, which
+      // is present without competing with the card sitting on top of it.
+      uHead: { value: new THREE.Color(INK) },
+      uBody: { value: new THREE.Color(mixColor(PERIWINKLE, INK, 0.45)) },
+      uWarm: { value: new THREE.Color(mixColor(SAND, INK, 0.6)) },
     },
     vertexShader: `
       attribute vec2 aCell;   // (column, row in the trail; 0 is the head)
@@ -153,7 +160,9 @@ function makeRainMaterial(atlas: THREE.Texture): THREE.ShaderMaterial {
         // Every column falls at its own speed and starts at its own point in the cycle, or the
         // whole sheet descends as one object and the rain reads as a texture being scrolled.
         float speed = 1.1 + hash(vec2(aCell.x, 7.0)) * 3.4;
-        float span = uHalf.y * 2.0 + uRowPitch * float(${TRAIL}) + uRowPitch * 6.0;
+        // A short dead gap after each trail, not a long one. Six rows of nothing left every
+        // column blank for a noticeable stretch of its cycle and thinned the whole sheet out.
+        float span = uHalf.y * 2.0 + uRowPitch * float(${TRAIL}) + uRowPitch * 2.0;
         float phase = hash(vec2(aCell.x, 3.0)) * span;
         float head = uHalf.y + uRowPitch * 3.0 - mod(uTime * speed + phase, span);
 
@@ -201,8 +210,9 @@ function makeRainMaterial(atlas: THREE.Texture): THREE.ShaderMaterial {
         if (a < 0.05) discard;
 
         vec3 c = mix(uBody, uWarm, vWarm);
-        // The head of a trail is near-white, and it is the whole reason the rain reads as falling
-        // rather than as a static column flickering: the eye tracks the bright glyph down.
+        // The head of a trail is the DARKEST glyph on this light ground, and it is the whole
+        // reason the rain reads as falling rather than as a static column flickering: the eye
+        // tracks the strongest character down the column.
         c = mix(c, uHead, vHead);
 
         gl_FragColor = vec4(c, a * vFade);
