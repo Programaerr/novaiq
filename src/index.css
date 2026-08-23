@@ -1034,10 +1034,10 @@
    transformed, so there is no compositing layer to soften the text and nothing left applied
    after the animation ends.
 
-   `round 1.5rem` on the inset is load-bearing. Without it the clip is a hard rectangle and the
+   `round 0.5rem` on the inset is load-bearing. Without it the clip is a hard rectangle and the
    panel's rounded corners square off for the length of the animation, then snap round at the
    end — which reads as a rendering glitch rather than as a curtain. It has to match the
-   `rounded-[1.5rem]` on the panel in HomeHero.tsx; change one and the other follows.
+   `rounded-[0.5rem]` on the panel in HomeHero.tsx; change one and the other follows.
 
    The easing leaves most of the travel early and a long settle at the end, which is how drawn
    cloth actually behaves — it is pulled, and then its own weight takes it the last of the way. */
@@ -1051,14 +1051,14 @@
        It does not flip with the language, because neither does anything else in this section:
        the panel is pinned to the physical left in both, so a curtain that reversed would be the
        only mirrored thing on the screen. */
-    clip-path: inset(0 100% 0 0 round 1.5rem);
+    clip-path: inset(0 100% 0 0 round 0.5rem);
   }
   40% {
     opacity: 1;
   }
   100% {
     opacity: 1;
-    clip-path: inset(0 0 0 0 round 1.5rem);
+    clip-path: inset(0 0 0 0 round 0.5rem);
   }
 }
 

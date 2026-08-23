@@ -88,24 +88,17 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
              wrong here: the wireframe places it on the left, and the composition is a picture
              rather than a reading order. The tile field has to be given the wider side, and which
              side that is does not change with the language. */
-          /* `rounded-[1.5rem]` is repeated inside the curtain keyframes in index.css, which clip
+          /* `rounded-[0.5rem]` is repeated inside the curtain keyframes in index.css, which clip
              to the same radius so the corners do not square off mid-animation. The two have to
              agree. */
           /* The cap steps up on an ultrawide with the container it sits in. 34rem in a 100rem
              column is a 544px slab beside 1000px of field: not a panel on a background any more,
              a bookmark. 42rem holds the same share of the column the 34rem cap holds of 80rem. */
-          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] uw:max-w-[42rem] min-h-[54svh] lg:min-h-[66vh] rounded-[1.5rem] p-5 sm:p-7 flex flex-col relative overflow-hidden"
-          /* A shadow, because the panel is a flat fill sitting on a busy field and without one the
-             two planes fight for the same depth. Tinted navy rather than near-black: a dark shadow
-             on sand reads as a black "veil" under the panel, which is the tell that a shadow was
-             picked from a palette instead of from the surface it falls on. */
-          style={{
-            boxShadow: '0 26px 64px -24px rgba(16, 19, 34, 0.38)',
-          }}
+          className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] uw:max-w-[42rem] min-h-[54svh] lg:min-h-[66vh] rounded-[0.5rem] p-5 sm:p-7 flex flex-col relative overflow-hidden"
         >
           <div
             aria-hidden="true"
-            className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[1.5rem]"
+            className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[0.5rem]"
             style={{ background: PERIWINKLE }}
           >
             <div
