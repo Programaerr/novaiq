@@ -442,25 +442,36 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
           <nav className="p-3 space-y-1.5">
             <span className="block px-2 pb-1 text-[9px] font-bold text-slate-500 tracking-wider">أقسام الموقع</span>
-            {SITE_TABS.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveTab(item.id);
-                  setAuthView('site');
-                  setIsSiteMenuOpen(false);
-                  cosmicAudio.playTick();
-                }}
-                className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
-                  authView === 'site' && activeTab === item.id
-                    ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}`
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span className="truncate">{item.label}</span>
-                {authView === 'site' && activeTab === item.id && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
-              </button>
-            ))}
+            {SITE_TABS.map((item) => {
+              const current = authView === 'site' && activeTab === item.id;
+              return (
+                <React.Fragment key={item.id}>
+                  {/* The owner CTA is an action, not a fifth place to browse. It gets a rule above
+                      it here for the same reason it sits apart in the desktop bar — the drawer is
+                      the only nav a phone gets, and flattening the distinction loses it entirely. */}
+                  {item.cta && <span className="block h-px bg-white/10 !mt-3 !mb-3" aria-hidden="true" />}
+                  <button
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setAuthView('site');
+                      setIsSiteMenuOpen(false);
+                      cosmicAudio.playTick();
+                    }}
+                    aria-current={current ? 'page' : undefined}
+                    className={`w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
+                      current
+                        ? `${themeStyle.primaryBg} ${themeStyle.onPrimary}`
+                        : item.cta
+                          ? `${themeStyle.primaryText} hover:bg-white/5`
+                          : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <span className="truncate">{item.label}</span>
+                    {current && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+                  </button>
+                </React.Fragment>
+              );
+            })}
           </nav>
 
           <div className="p-3 mt-auto space-y-2 border-t border-white/10">
@@ -519,7 +530,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
   const renderSiteFooter = () => (
     <footer className="mt-6 pt-6 border-t border-white/10 space-y-5">
-      <div className={`grid gap-5 ${isNarrowViewport ? 'grid-cols-1' : 'sm:grid-cols-3'}`}>
+      <div className={`grid gap-5 ${isNarrowViewport ? 'grid-cols-1' : 'sm:grid-cols-2 lg:grid-cols-4'}`}>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <span
@@ -554,6 +565,29 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           </ul>
         </div>
 
+        {/* A footer that does not link to the site's own pages is the clearest sign you are
+            looking at a template rather than a site. Driven off SITE_TABS so a destination added
+            to the nav appears down here too, instead of the two drifting apart. */}
+        <div className="space-y-2">
+          <h5 className="text-[11px] font-bold text-white">تصفّح</h5>
+          <ul className="space-y-1.5 text-[10px] text-slate-400">
+            {SITE_TABS.map((t) => (
+              <li key={t.id}>
+                <button
+                  onClick={() => {
+                    setActiveTab(t.id);
+                    setAuthView('site');
+                    cosmicAudio.playTick();
+                  }}
+                  className="hover:text-white cursor-pointer transition-colors"
+                >
+                  {t.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <div className="space-y-2">
           <h5 className="text-[11px] font-bold text-white">حسابك</h5>
           <ul className="space-y-1.5 text-[10px] text-slate-400">
@@ -564,14 +598,18 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             </li>
             <li>
               <button
-                onClick={() => setAuthView('site')}
+                onClick={() => {
+                  setActiveTab('owner');
+                  setAuthView('site');
+                  cosmicAudio.playTick();
+                }}
                 className="hover:text-white cursor-pointer transition-colors"
               >
-                الصفحة الرئيسية
+                سجّل وحدتك
               </button>
             </li>
-            <li><span className="hover:text-white cursor-pointer transition-colors">سياسة الخصوصية</span></li>
-            <li><span className="hover:text-white cursor-pointer transition-colors">الشروط والأحكام</span></li>
+            <li><span className="text-slate-500">سياسة الخصوصية</span></li>
+            <li><span className="text-slate-500">الشروط والأحكام</span></li>
           </ul>
         </div>
       </div>
@@ -603,6 +641,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             setActiveTab={setActiveTab}
             renderTopBar={renderTopBar}
             search={siteSearch}
+            setSearch={setSiteSearch}
           />
         )}
         {renderSiteFooter()}

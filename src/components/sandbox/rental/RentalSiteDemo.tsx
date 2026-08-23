@@ -22,6 +22,7 @@ import {
 import { cosmicAudio } from '../../../lib/audio';
 import {
   AMENITY_LABEL_AR,
+  POPULAR_SEARCHES,
   RENTAL_UNITS,
   ROOM_OPTIONS,
   SAKAN_IDENTITY,
@@ -35,6 +36,12 @@ import { AMENITY_ICON, type RentalCtx } from './rentalContext';
 import { BuildingModel } from './BuildingModel';
 import { PhoneFrame } from './PhoneFrame';
 import { RentalApp } from './RentalApp';
+import {
+  RentalFaqSection,
+  RentalOwnerPage,
+  RentalReviewsSection,
+  RentalTrustSection,
+} from './RentalSiteSections';
 
 /**
  * Sakan, as a website.
@@ -45,11 +52,24 @@ import { RentalApp } from './RentalApp';
  * can afford a thumb.
  */
 
-export const SITE_TABS = [
+/**
+ * The site's destinations, in nav order.
+ *
+ * `cta: true` marks the one that is an *action* rather than a place the visitor is browsing —
+ * it renders as a filled button pinned to the end of the bar instead of another pill. A rental
+ * marketplace has two customers, and the one who supplies the units will not find their page in
+ * a row of tenant links; the pattern for this product type puts "list your property" in the
+ * navbar for exactly that reason.
+ *
+ * The mobile drawer and the current-page label in the shell both read this same array, so a
+ * destination added here appears in all three places without touching any of them.
+ */
+export const SITE_TABS: { id: string; label: string; cta?: boolean }[] = [
   { id: 'home', label: 'الرئيسية' },
   { id: 'units', label: 'الشقق المتاحة' },
   { id: 'building', label: 'استكشف البناية' },
   { id: 'app', label: 'التطبيق' },
+  { id: 'owner', label: 'أضف عقارك', cta: true },
 ];
 
 interface RentalSiteDemoProps {
@@ -59,6 +79,9 @@ interface RentalSiteDemoProps {
   renderTopBar: () => React.ReactNode;
   /** The shared header's search box. One box drives the listing here and nothing else. */
   search: string;
+  /** Writes back into that same box, so the hero field and the header field are one control
+   *  rather than two that can disagree about what is being searched. */
+  setSearch: (value: string) => void;
 }
 
 export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
@@ -67,6 +90,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
   setActiveTab,
   renderTopBar,
   search,
+  setSearch,
 }) => {
   const { price, accentHex, theme, isNarrow, book } = ctx;
 
@@ -252,16 +276,64 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
             بالشهر أو باليوم — من المتصفح أو من التطبيق، بنفس الحساب.
           </p>
 
+          {/* ── The hero search ──────────────────────────────────────────────────────────────
+              On a marketplace the search box IS the primary call to action — the visitor arrives
+              with a shape in mind ("مفروشة، غرفتين") rather than an intent to browse a catalogue,
+              and burying the field in the header chrome makes them scan a grid to find what one
+              word would have filtered.
+
+              It writes into the same state the header box uses, so the two are one control. The
+              chips below it exist because an empty search field is the biggest drop-off point on
+              a page like this: they turn a blank prompt into a single tap, and they double as a
+              statement of what can be searched at all. */}
+          <form
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setActiveTab('units');
+              cosmicAudio.playPing();
+            }}
+            className="space-y-2.5"
+          >
+            <div className="flex items-stretch gap-2 rounded-2xl bg-slate-900 border border-slate-700 p-1.5 focus-within:border-slate-500 transition-colors">
+              <span className="grid place-items-center ps-2.5 text-slate-500" aria-hidden="true">
+                <Search className="w-4 h-4" />
+              </span>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="ابحث عن شقة أو طابق أو منطقة"
+                placeholder="جرّب: مفروشة، غرفتين، الطابق 8"
+                className="flex-1 min-w-0 bg-transparent text-xs font-bold text-white placeholder:text-slate-500 outline-none"
+              />
+              <button
+                type="submit"
+                className={`shrink-0 min-h-11 px-5 rounded-xl text-xs font-black cursor-pointer transition-[filter] hover:brightness-110 ${theme.primaryBg} ${theme.onPrimary}`}
+              >
+                ابحث
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-bold text-slate-500">الأكثر بحثاً:</span>
+              {POPULAR_SEARCHES.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => {
+                    setSearch(p);
+                    setActiveTab('units');
+                    cosmicAudio.playTick();
+                  }}
+                  className="rounded-lg bg-white/5 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-300 cursor-pointer hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </form>
+
           <div className="flex flex-wrap gap-2.5">
-            <button
-              onClick={() => {
-                setActiveTab('units');
-                cosmicAudio.playPing();
-              }}
-              className={`min-h-11 px-5 rounded-xl text-xs font-black cursor-pointer transition-[filter] hover:brightness-110 ${theme.primaryBg} ${theme.onPrimary}`}
-            >
-              تصفّح الشقق المتاحة
-            </button>
             <button
               onClick={() => {
                 setActiveTab('building');
@@ -327,6 +399,11 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
         </div>
       </section>
 
+      {/* Trust before mechanics. The visitor who has just seen three units and a price is at the
+          exact point where the question turns from "which one" to "is this real" — answering it
+          after the how-it-works strip answers it a section too late. */}
+      <RentalTrustSection ctx={ctx} />
+
       <section className="space-y-4">
         <h3 className="text-lg font-black text-white">كيف يشتغل</h3>
         <div className={`grid gap-3 ${isNarrow ? 'grid-cols-1' : 'sm:grid-cols-3'}`}>
@@ -387,6 +464,30 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
             <RentalApp ctx={ctx} />
           </PhoneFrame>
         )}
+      </section>
+
+      <RentalReviewsSection ctx={ctx} />
+
+      <RentalFaqSection ctx={ctx} />
+
+      {/* The closing CTA, and the one aimed at the *other* customer. A visitor who has read this
+          far and is not renting is very often the person with an empty unit. */}
+      <section className="rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 flex flex-wrap items-center justify-between gap-5">
+        <div className="space-y-1.5 min-w-0">
+          <h3 className="text-lg sm:text-xl font-black text-white leading-snug">عندك شقة تريد تأجّرها؟</h3>
+          <p className="text-[12px] font-semibold text-slate-400 leading-relaxed max-w-md">
+            نعاين ونصوّر وننشر ونتولّى العقد والتحصيل — وأنت تحدد السعر.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            setActiveTab('owner');
+            cosmicAudio.playPing();
+          }}
+          className={`shrink-0 min-h-11 px-6 rounded-xl text-xs font-black cursor-pointer transition-[filter] hover:brightness-110 ${theme.primaryBg} ${theme.onPrimary}`}
+        >
+          سجّل وحدتك
+        </button>
       </section>
     </div>
   );
@@ -626,19 +727,51 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
       {/* Section nav. On the site this is a real bar of links rather than a drawer — a laptop
           has the width for it, and hiding four destinations behind a hamburger on a 1280px
           screen is the single most common thing a "responsive" template gets backwards. */}
-      <nav className="flex flex-wrap gap-1.5 rounded-2xl bg-slate-900/70 border border-slate-800 p-1.5">
-        {SITE_TABS.map((t) => (
+      <nav
+        aria-label="أقسام الموقع"
+        className="flex flex-wrap items-center gap-1.5 rounded-2xl bg-slate-900/70 border border-slate-800 p-1.5"
+      >
+        {SITE_TABS.filter((t) => !t.cta).map((t) => (
           <button
             key={t.id}
             onClick={() => {
               setActiveTab(t.id);
               cosmicAudio.playTick();
             }}
+            /* aria-current rather than aria-selected: these are destinations, not tabs in a
+               tablist, and a screen reader should announce "current page" the way it would on
+               any site nav. */
+            aria-current={tab === t.id ? 'page' : undefined}
             style={tab === t.id ? { background: accentHex, color: '#0b0f17' } : undefined}
             className={`min-h-10 px-4 rounded-xl text-[11px] font-black cursor-pointer transition-colors ${
               tab === t.id ? '' : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
+            {t.label}
+          </button>
+        ))}
+
+        {/* The owner CTA, pushed to the far end and outlined rather than filled: it has to read
+            as a different KIND of thing from the four browsing links beside it, without
+            outshouting the accent-filled active pill next to it. */}
+        {SITE_TABS.filter((t) => t.cta).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => {
+              setActiveTab(t.id);
+              cosmicAudio.playPing();
+            }}
+            aria-current={tab === t.id ? 'page' : undefined}
+            style={
+              tab === t.id
+                ? { background: accentHex, color: '#0b0f17' }
+                : { borderColor: accentHex, color: accentHex }
+            }
+            className={`ms-auto inline-flex items-center gap-1.5 min-h-10 px-4 rounded-xl text-[11px] font-black cursor-pointer transition-colors ${
+              tab === t.id ? '' : 'border bg-transparent hover:bg-white/5'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" aria-hidden="true" />
             {t.label}
           </button>
         ))}
@@ -648,6 +781,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
       {tab === 'units' && units}
       {tab === 'building' && building}
       {tab === 'app' && app}
+      {tab === 'owner' && <RentalOwnerPage ctx={ctx} />}
 
       {detail && quote && (
         <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-6">

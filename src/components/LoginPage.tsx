@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
+import { INK, PERIWINKLE } from '../lib/homePalette';
 import { StarField } from './StarField';
 import { TileField, SECTION_TONES, SECTION_FADE } from './TileField';
 import { NqButton } from './ui/NqButton';
@@ -37,14 +37,35 @@ function GoogleIcon() {
 }
 
 /**
- * The lightest ink that still clears 4.5:1 on SAND.
+ * The lightest ink that still clears 4.5:1 on the glass panel below.
  *
- * Measured rather than picked: INK over #D5BDAC comes out at 5.14:1 at 70% and 4.46:1 at 65%, so
- * 0.7 is the floor and there is no room below it. Worth writing down, because the reflex on a
- * light page is to reach for /60 or /50 the way the old dark version of this screen used
- * `text-white/60` — which was fine on near-black and is a failing pair here.
+ * Measured rather than picked, and re-measured when the panel stopped being opaque. Against
+ * SOLID sand (#D5BDAC) this sat at 0.7 and came out 5.14:1, with 0.65 already failing at 4.46:1.
+ * The panel is translucent now, so the surface under this text is sand mixed toward the dark sky
+ * behind it — around #9E8D85 — and the old 0.7 falls to 3.64:1 there. 0.85 restores it to 4.75:1.
+ *
+ * Worth writing down because the reflex on a light-looking panel is to reach for /60 or /50 the
+ * way the old dark version of this screen used `text-white/60`. On glass that reflex is a full
+ * step worse than it looks, because the surface itself is darker than the swatch it came from.
  */
-const INK_MUTED = 'rgba(16, 19, 34, 0.7)';
+const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
+
+/**
+ * The words half, as frosted glass rather than a solid sand panel.
+ *
+ * 0.72 and not lower, and the number is a contrast floor rather than a look. The sky behind this
+ * card is INK, so a translucent sand surface does not stay sand — it mixes toward the dark ground
+ * underneath in proportion to how much it lets through. At 0.6 the surface lands near #867975 and
+ * full-strength INK on it measures 4.41:1, already under the 4.5:1 body text needs before a
+ * single muted line is drawn. At 0.72 it settles near #9E8D85 and INK measures 5.82:1, which
+ * leaves room for the muted tier above to exist at all.
+ *
+ * That muted tier is why INK_MUTED moved from 0.7 to 0.85 in the same change: 0.7 was measured
+ * against SOLID sand, where it was 5.14:1. Over this glass the same value falls to 3.64:1. At
+ * 0.85 it is 4.75:1 and passes. Lower the panel opacity and both numbers have to be re-derived —
+ * they are not independent.
+ */
+const SAND_GLASS = 'rgba(213, 189, 172, 0.72)';
 
 /**
  * How far out of focus the sky behind the card is.
@@ -134,22 +155,34 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           COLUMN ORDER is forced physical — nothing about the copy is. */}
       {/* `relative` so the card is above the backdrop without a z-index — it comes after it in
           the DOM and both are positioned, which is all the stacking order needs. */}
+      {/* No background of its own. It used to paint solid SAND behind both halves, which was
+          needed while the seam was a stepped coastline: a bay cut into the blue had to show
+          beach rather than a hole through to the page. With a straight seam every pixel of the
+          card belongs to one half or the other, so the card can be transparent — and it has to
+          be, or it would sit opaque behind the glass half and there would be nothing for the
+          blur to sample. */}
       <div
         dir="ltr"
         className="relative w-full max-w-[64rem] grid grid-cols-1 lg:grid-cols-2 rounded-[0.5rem] overflow-hidden"
-        style={{ background: SAND }}
       >
         {/* ── Words ─────────────────────────────────────────────────────────────────────── */}
-        {/* Padding is deliberately ASYMMETRIC at lg: 56px on the left, 112px on the right. The
-            right is the side the coastline bites into, and the deepest headland reaches about
-            80px past the seam — so the extra 56px is not taste, it is clearance. Symmetric, the
-            last few characters of the longest line sat under the cube field.
-            More top padding on the phone for the same reason, where the coast runs along the
-            bottom of the band instead and erodes down into the first heading. */}
+        {/* Padding is SYMMETRIC, and it is allowed to be because the seam beside it is straight.
+            It used to be lopsided — 56px left, 112px right — purely as clearance: the seam was a
+            stepped coastline that hung about 80px of blue over this column, and without the extra
+            padding the deepest step landed on the copy and on the two buttons. The steps are gone
+            (see .nq-coast), the overhang with them, so the copy can sit centred in its own half
+            again instead of being pushed off it. */}
         <div
           dir={isAr ? 'rtl' : 'ltr'}
-          className="flex flex-col px-6 py-10 sm:px-10 sm:py-12 lg:px-14"
-          style={{ background: SAND }}
+          className="flex flex-col px-6 py-10 sm:px-10 sm:py-12 lg:px-14 backdrop-blur-xl"
+          style={{
+            background: SAND_GLASS,
+            /* A hairline of the paper tone along the top and left edges. On glass it reads as
+               the lit edge of a pane rather than a border — without it the panel's boundary
+               against the sky is only a change of blur, which disappears wherever the sky
+               behind it happens to be empty. */
+            boxShadow: 'inset 1px 1px 0 rgba(246, 241, 233, 0.35)',
+          }}
         >
           {/* flex-1 + centred, so the block sits in the middle of whatever height the card
               resolved to and the copyright line stays on the floor rather than being dragged up
@@ -266,10 +299,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           aria-hidden="true"
           className="relative order-first lg:order-none h-40 lg:h-auto lg:min-h-[34rem]"
         >
-          {/* `.nq-coast` is the whole seam: it carries the blue, hangs past this cell over the
-              words, and is clipped to a stepped coastline. Both the overhang and the clip live in
-              index.css because they change at the breakpoint — a horizontal coast along the
-              bottom of the phone band, a vertical one down the side of the desktop half. */}
+          {/* `.nq-coast` is the seam: a plain blue fill at this cell's own bounds. It used to
+              overhang this cell and carry a stepped clip-path, which is why it needed rules per
+              breakpoint; a straight edge is the same edge at every width, so the class is four
+              lines now and there is no breakpoint in it. */}
           <div className="nq-coast">
             <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
           </div>

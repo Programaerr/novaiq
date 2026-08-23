@@ -843,54 +843,24 @@
 /* Drifts left and down, so it uncovers its top and right edges. */
 
 
-/* ── The coastline seam on the sign-in card ───────────────────────────────────────
-   The two halves of the card do not meet on a straight line. The cube half is a layer that hangs
-   OVER the sand half and is clipped to a ragged edge, so the field eats into the words the way a
-   coast eats into a beach — which is the reference this was built from.
+/* ── The seam on the sign-in card ─────────────────────────────────────────────────
+   The blue field and the sand words meet on a straight edge, and that edge is simply the
+   boundary between the two grid cells.
 
-   Two things make it work rather than just look busy.
+   It used to be a stepped "coastline": a clip-path polygon that broke the join into squares
+   and hung the blue 16% (about 80px) over the words column. That shape was doing two jobs and
+   doing both badly — the steps read as a ragged tear rather than a join between two halves of
+   one card, and the overhang meant the field was physically on top of the copy, so the words
+   column had to carry a lopsided padding just to keep its own text and buttons out from under
+   it. Every value on one side had to be re-tuned whenever the other moved.
 
-   The layer overhangs its own grid cell (`inset` below), so the ragged edge has somewhere to go.
-   Clipped inside its own cell there would be nothing on the far side of the tear but the cell
-   boundary, and the water could only ever pull BACK from the seam — all bays, no headlands.
-
-   And the steps are square. Every other version of this shape on the web is a smooth bezier
-   blob; on a panel filled with hard-edged cubes a soft curve reads as a sticker laid over the
-   field. Square steps read as the field itself breaking up, and they are the one edge shape that
-   cannot look faceted, because facets are what it is made of.
-
-   The card paints SAND behind both halves, so a bay shows the beach rather than a hole through
-   to whatever the page is standing on. */
+   A straight seam needs none of that. The halves are already a grid; letting the cell boundary
+   BE the edge is what a split card is, the padding on the words side goes back to symmetric,
+   and there is nothing left that can overlap. */
 .nq-coast {
   position: absolute;
+  inset: 0;
   background: #8295cf;
-  /* Phone: the field is a band across the TOP, so its coast runs horizontally and erodes
-     downward into the words. 13% of the band hangs past the bottom of its own cell. */
-  inset: 0 0 -13% 0;
-  clip-path: polygon(
-    0% 0%, 100% 0%,
-    100% 94%, 93% 94%, 93% 100%, 86% 100%, 86% 90%, 79% 90%, 79% 97%, 72% 97%,
-    72% 89%, 65% 89%, 65% 95%, 58% 95%, 58% 100%, 51% 100%, 51% 92%, 44% 92%,
-    44% 97%, 37% 97%, 37% 89%, 30% 89%, 30% 94%, 23% 94%, 23% 100%, 16% 100%,
-    16% 91%, 9% 91%, 9% 96%, 0% 96%
-  );
-}
-
-@media (min-width: 1024px) {
-  /* Desktop: the field is the right-hand HALF, so the coast runs vertically and erodes leftward.
-     16% of the layer hangs over the sand column — about 80px on a 1024px card, which is why the
-     words on that side carry a wider right padding than left. Change one and the other has to
-     move with it or the deepest headland lands on the copy. */
-  .nq-coast {
-    inset: 0 0 0 -16%;
-    clip-path: polygon(
-      9% 0%, 9% 6%, 16% 6%, 16% 13%, 4% 13%, 4% 19%, 11% 19%, 11% 27%,
-      1% 27%, 1% 34%, 7% 34%, 7% 40%, 15% 40%, 15% 48%, 5% 48%, 5% 55%,
-      12% 55%, 12% 61%, 2% 61%, 2% 69%, 9% 69%, 9% 76%, 16% 76%, 16% 82%,
-      6% 82%, 6% 89%, 11% 89%, 11% 95%, 3% 95%, 3% 100%,
-      100% 100%, 100% 0%
-    );
-  }
 }
 
 

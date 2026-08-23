@@ -227,3 +227,148 @@ export const ROOM_OPTIONS = [
   { value: 3, label: '3 غرف' },
   { value: 4, label: '4 غرف+' },
 ];
+
+/* ─────────────────────────────────────────────────────────────────────────────────────────────
+   The content that turns the demo from a listings grid into a site.
+
+   A rental marketplace is bought on trust before it is bought on price: the visitor's real
+   question is not "how much" but "is this real, and what happens if it goes wrong". Everything
+   below answers that question — the guarantees, other tenants' words, and the objections written
+   out plainly instead of left for a phone call.
+   ───────────────────────────────────────────────────────────────────────────────────────────── */
+
+/** Popular searches under the hero box. Reduces a blank field to one tap — the single biggest
+ *  drop-off point on any search-led marketplace. */
+export const POPULAR_SEARCHES = ['مفروشة', 'غرفتين', 'الطابق 8', 'إطلالة نهر', 'يومي'];
+
+export interface TrustFact {
+  key: string;
+  title: string;
+  body: string;
+}
+
+/** The Trust & Safety block. Each one is a commitment a tenant can hold us to, not a slogan. */
+export const SAKAN_TRUST: TrustFact[] = [
+  {
+    key: 'verified',
+    title: 'كل وحدة مُعاينة',
+    body: 'الصور من الوحدة نفسها، مصوّرة بآخر 30 يوم. لا صور مجمّلة ولا وحدة تختلف عن اللي شفتها.',
+  },
+  {
+    key: 'deposit',
+    title: 'التأمين مسترجع',
+    body: 'مبلغ التأمين يرجع كامل خلال 7 أيام من إخلاء الوحدة، ما لم يكن هناك ضرر موثّق بالصور.',
+  },
+  {
+    key: 'contract',
+    title: 'عقد واضح قبل الدفع',
+    body: 'الإيجار والتأمين والخدمات تظهر بالكامل قبل التوقيع — ما في رسوم تطلع بعدين.',
+  },
+  {
+    key: 'support',
+    title: 'صيانة خلال 24 ساعة',
+    body: 'طلب الصيانة من حسابك، وفريق المجمّع يستجيب خلال 24 ساعة للأعطال الأساسية.',
+  },
+];
+
+export interface SakanReview {
+  name: string;
+  unit: string;
+  stay: string;
+  rating: number;
+  body: string;
+}
+
+/** Tenant reviews. Deliberately specific — a named unit and a length of stay is what separates a
+ *  review a visitor believes from one they scroll past. */
+export const SAKAN_REVIEWS: SakanReview[] = [
+  {
+    name: 'مريم ع.',
+    unit: 'شقة 802',
+    stay: 'ساكنة من 8 أشهر',
+    rating: 5,
+    body: 'أكثر شي عجبني إن الحساب طلع مثل ما مكتوب بالضبط. وقّعت العقد يوم الخميس واستلمت المفتاح يوم السبت.',
+  },
+  {
+    name: 'حسن م.',
+    unit: 'شقة 405',
+    stay: 'ساكن من سنة',
+    rating: 5,
+    body: 'المولدة ما انقطعت ولا مرة بالصيف. طلبت تصليح سخّان مرة وجوا بنفس اليوم.',
+  },
+  {
+    name: 'زينب ك.',
+    unit: 'شقة 1101',
+    stay: 'إقامة يومية — 12 ليلة',
+    rating: 4,
+    body: 'حجزت باليوم لأني كنت بزيارة. الشقة نظيفة والإطلالة على النهر فعلاً مثل الصور.',
+  },
+];
+
+export interface SakanFaq {
+  q: string;
+  a: string;
+}
+
+/** The objections, answered. Every one of these is a question that otherwise becomes a phone call
+ *  — or a visitor who leaves without asking. */
+export const SAKAN_FAQ: SakanFaq[] = [
+  {
+    q: 'شنو المطلوب مني حتى أوقّع العقد؟',
+    a: 'هوية سارية ورقم هاتف فعّال، وأول دفعة حسب المدة اللي تختارها. التوقيع إلكتروني من حسابك، وما يحتاج تراجع المكتب.',
+  },
+  {
+    q: 'أگدر أستأجر باليوم بدل الشهر؟',
+    a: 'نعم. أغلب الوحدات متاحة يومياً وشهرياً، والسعر يختلف بين الاثنين — تشوف الحسبتين قبل ما تختار.',
+  },
+  {
+    q: 'التأمين شكد، ومتى يرجع؟',
+    a: 'التأمين مبيّن على كل وحدة قبل التوقيع، ويرجع كامل خلال 7 أيام من الإخلاء ما لم يكن هناك ضرر موثّق.',
+  },
+  {
+    q: 'أگدر أمدّد العقد بعدين؟',
+    a: 'نعم، من حسابك مباشرة قبل انتهاء المدة بـ 14 يوم، وبنفس السعر إذا الوحدة ما محجوزة بعدك.',
+  },
+  {
+    q: 'هل الشقق مفروشة؟',
+    a: 'قسم منها مفروش بالكامل وقسم فاضي. تگدر تفلتر على "مفروشة فقط" من صفحة الشقق المتاحة.',
+  },
+];
+
+export interface OwnerBenefit {
+  key: string;
+  title: string;
+  body: string;
+}
+
+/** The landlord-facing pitch. A rental marketplace has two customers, and a site that only speaks
+ *  to tenants is missing the half that supplies the inventory. */
+export const SAKAN_OWNER_BENEFITS: OwnerBenefit[] = [
+  {
+    key: 'reach',
+    title: 'وحدتك تُعرض على مستأجرين جاهزين',
+    body: 'الزائر يوصل لوحدتك من البناية ثلاثية الأبعاد ومن البحث — مو من إعلان يضيع بين مئة إعلان.',
+  },
+  {
+    key: 'paperwork',
+    title: 'العقد والتحصيل علينا',
+    body: 'نحن نتولّى العقد الإلكتروني وتحصيل الإيجار والتأمين، وتوصلك دفعتك بموعد ثابت كل شهر.',
+  },
+  {
+    key: 'screening',
+    title: 'مستأجر مُتحقَّق منه',
+    body: 'كل مستأجر يمرّ بتحقّق هوية قبل التوقيع، وتشوف بياناته قبل ما توافق.',
+  },
+  {
+    key: 'control',
+    title: 'السعر يبقى قرارك',
+    body: 'أنت تحدد الإيجار ومدة العقد وشروط الإشغال. نحن ننفّذ، ما نسعّر عنك.',
+  },
+];
+
+/** The three steps of listing, for the owner page. */
+export const OWNER_STEPS = [
+  { n: '01', t: 'أرسل بيانات الوحدة', d: 'الموقع، عدد الغرف، المساحة، والإيجار اللي تريده.' },
+  { n: '02', t: 'نعاين ونصوّر', d: 'فريقنا يزور الوحدة خلال 3 أيام ويصوّرها على حسابنا.' },
+  { n: '03', t: 'تنشر وتستلم', d: 'الوحدة تنزل على المنصة، وأول دفعة توصلك عند توقيع أول مستأجر.' },
+];
