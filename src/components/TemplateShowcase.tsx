@@ -177,6 +177,7 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
           tex.anisotropy = anisotropy;
           tex.minFilter = THREE.LinearMipmapLinearFilter;
           tex.magFilter = THREE.LinearFilter;
+          gl.initTexture(tex);
           texturesRef.current[i] = tex;
           if (i === 0) setFirstReady(true);
           invalidate();
@@ -274,6 +275,8 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
       version: f ? f.version : null,
       cs: f ? f.colorSpace : null,
       texAspect: uniforms.uTexAspect.value.x,
+      frag: (window as any).__frag = undefined,
+      matUniformKeys: Object.keys((window as any).__mat ? (window as any).__mat.uniforms : {}).join(','),
       aspect: uniforms.uAspect.value,
     };
   });
