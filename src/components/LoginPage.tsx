@@ -3,7 +3,7 @@ import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
-import { TileField, SECTION_TONES, SECTION_FADE, FieldFade } from './TileField';
+import { TileField, SECTION_TONES, SECTION_FADE } from './TileField';
 import { NqButton } from './ui/NqButton';
 
 interface LoginPageProps {
@@ -59,35 +59,6 @@ function GoogleIcon() {
 const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
 
 /**
- * The backdrop field does not fade at either end.
- *
- * Every other field on the site fades because it has to arrive out of one section and leave into
- * the next. This one has no neighbours — it is the whole screen, behind everything — so a fade
- * could only put a pale strip along the top and bottom of the page. The hard slice a zero fade
- * leaves at each edge is the failure mode described at length in TileField; here it is invisible,
- * because the layer is blurred and hangs 6% off every side of the viewport before it is clipped.
- *
- * Module scope, not inline. `fade` is a dependency of the material's useMemo, so a fresh object
- * literal on every render would rebuild the shader on every render.
- */
-const BACKDROP_FADE: FieldFade = { lo: 0, hi: 0 };
-
-/**
- * How far out of focus the ground behind the card is.
- *
- * Tuned against the smallest thing in it rather than by eye, and a cube is a big thing: the field
- * runs a 46px pitch, and blur spreads a feature's brightness over an area, so it destroys small
- * features long before large ones. 22px erased this layer outright — the cubes averaged out into
- * flat colour and the page looked like the backdrop had failed to load. 8px is enough that they
- * read as a texture rather than as a second thing to look at, and not so far that they stop being
- * cubes.
- *
- * The sand band on this layer is ~500px of solid colour and does not care about any of that. It
- * survives any blur that leaves the cubes alive, which is what lets one value cover both.
- */
-const BACKDROP_BLUR = '8px';
-
-/**
  * Standalone sign-in page: one card, split down the middle. The company's words on sand, and the
  * site's own cube field in the panel blue beside them.
  *
@@ -97,12 +68,13 @@ const BACKDROP_BLUR = '8px';
  * app are the pieces that genuinely are shared: the auth call, the palette, the button system and
  * the tile field.
  *
- * The ground is the card again, at the size of the screen and out of focus. Same periwinkle
- * field, same sand band, same 4-degree lean — literally the same `.nq-lean` class, not a second
- * shape drawn to look like it. Both bands are centred on the same point, and `skewX` offsets a
- * row by its distance from the transform origin rather than by any share of the element's own
- * height, so the two line up exactly at every y: the band appears to run THROUGH the card and
- * carry on above and below it, blurred. Both fields are the same component the home page's hero
+ * NOTHING behind the card, and that is the decision rather than the absence of one. This page
+ * has been through a blurred cube field, falling code, a rotating panel of stills and a drifting
+ * grid of cards, and every one of them was a second thing on a screen that has one job: a
+ * button. What is left is the page's own SAND and the card on it, which is the same ground every
+ * other page of the site stands on.
+ *
+ * The field still runs ONCE, inside the card, and it is the same component the home page's hero
  * and the timeline page run,
  * on the shared tones, not a second cube scene written for this screen. That is the whole reason
  * it is worth having here: a sign-in page built out of the site's own parts reads as the site,
@@ -148,39 +120,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
          as a different product's login bolted on. */
       style={{ background: SAND, color: INK }}
     >
-      {/* The ground the card sits on: the card again, screen-sized and out of focus.
-
-          Blue at the edges, sand down the middle, leaning the same 4 degrees — the same two
-          layers in the same order, sharing the same `.nq-lean` class rather than a second rule
-          written to resemble it. That sharing is what makes the alignment exact instead of
-          approximate: `skewX` shifts a row by its distance from the transform ORIGIN, and both
-          bands are centred on the same point of the screen, so at any given y they have taken
-          the same step sideways however tall each element happens to be. The band reads as one
-          band passing behind the card.
-
-          Blur is what keeps it a ground rather than a competitor. Sharp, two identical
-          compositions at two scales is a hall of mirrors and the eye has nowhere to settle; at
-          8px the outer one is a colour and a direction, and the card is the only thing on the
-          screen actually in focus. That is also the depth cue — the shadow on the card below
-          reinforces it rather than carrying it alone.
-
-          `-inset-[6%]` and not `inset-0`: `filter: blur()` samples what is outside the element as
-          transparent, so a layer blurred at its own edges fades out along all four sides and the
-          page shows a pale halo around the field. Oversizing it past the clip on the parent puts
-          those soft edges off screen. The inset is symmetric, which matters more than it looks:
-          it leaves the layer's centre on the screen's centre, and that centre is the skew origin
-          the card's band is lining up against. */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute -inset-[6%]" style={{ filter: `blur(${BACKDROP_BLUR})` }}>
-          <div className="nq-coast">
-            <TileField tones={SECTION_TONES} fade={BACKDROP_FADE} />
-          </div>
-          {/* No hairline and no shadow on this one. Both are edge treatments, and there are no
-              edges left to treat once the layer has been through an 8px blur. */}
-          <div className="nq-lean" style={{ background: SAND }} />
-        </div>
-      </div>
-
       {/* The card. Three layers, back to front: the blue, the band, the words.
 
           It used to be a two-column grid, sand beside blue, split down a straight seam. The
@@ -199,11 +138,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           runs the same way in both languages because it is a picture, and the copy inside gets
           its own direction on the block below.
 
-          The shadow is what the backdrop's blur used to do. Against a ground that is now as sharp
-          as the card is, nothing separates the two planes on its own: both are cube fields at the
-          same pitch, and without a shadow the card reads as a recoloured hole in the page rather
-          than as an object on it. Long and soft rather than tight and dark — the page it floats
-          on is warm sand, and a hard shadow on sand reads as dirt. */}
+          The shadow is the only thing that separates the card from the page now that the page
+          is flat sand, and it matters more for that: with nothing behind it, an unshadowed card
+          reads as a recoloured hole cut in the ground rather than as an object laid on it. Long
+          and soft rather than tight and dark — the ground is warm sand, and a hard shadow on sand
+          reads as dirt. */}
       <div
         className="relative w-full max-w-[64rem] rounded-[0.5rem] overflow-hidden"
         style={{ boxShadow: '0 26px 58px -22px rgba(16, 19, 34, 0.5)' }}
