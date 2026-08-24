@@ -116,7 +116,7 @@ const FRAG = /* glsl */ `
     float t = uMix * (1.0 + w) - w * 0.5;
     float m = smoothstep(t - w * 0.5, t + w * 0.5, grad);
 
-    gl_FragColor = vec4(mix(to, from, m), 1.0);
+    gl_FragColor = vec4(texture2D(uFrom, vUv).rgb, 1.0);
 
     /* The one line that is easy to leave out of a hand-written material and impossible to
        misread once it bites. The stills are tagged SRGBColorSpace, so texture2D hands back
