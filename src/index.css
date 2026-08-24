@@ -1051,11 +1051,6 @@
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
-    /* Phone-only: the logo mark sits dead-centre of the connected bar, so the
-       NOVAIQ wordmark beside it is hidden to leave just the mark. */
-    .navbar-connect .navbar-logo-name {
-      display: none;
-    }
   }
 }
 
@@ -1372,21 +1367,29 @@ html[data-scrolling] .nq-btn-beam::before {
       opacity 620ms ease 60ms;
   }
 
+  /* 13 and 10.5, up from 12 and 9.5. Both were sized to survive next to a mark that was
+     taking the width; the mark is no longer taking it. */
   .navbar-logo-name {
-    font-size: 12px;
-    letter-spacing: 0.01em;
+    font-size: 13px;
+    letter-spacing: 0.06em;
   }
 
   .navbar-logo-word {
-    font-size: 9.5px;
+    font-size: 10.5px;
   }
 
-  /* Overrides the inline width/height the size prop writes, which a plain rule can't reach. */
+  /* 34px, which is the size the desktop draws and therefore the size the brand has. It used
+     to shrink to 26 here and then to 17 again while the text was out, on the reasoning that the
+     mark had to give up room for the words. It does not: the three pieces measure about 166px
+     side by side and the space between the centre of the bar and the language button is 235px
+     at 390 and 215px at 360, so the mark can hold its size and the words still fit.
+
+     A logo that is one size on a laptop, a second size on a phone and a third size for two
+     seconds after you touch it is not one logo. Overrides the inline width/height the size prop
+     writes, which a plain rule cannot reach. */
   .navbar-logo-mark-img {
-    width: 26px !important;
-    height: 26px !important;
-    transition: width 950ms cubic-bezier(0.4, 0, 0.2, 1),
-                height 950ms cubic-bezier(0.4, 0, 0.2, 1);
+    width: 34px !important;
+    height: 34px !important;
   }
 
   /* Tapped (see Navbar's touch handler) — the same NAME → mark → WORD arrangement the desktop
@@ -1397,22 +1400,19 @@ html[data-scrolling] .nq-btn-beam::before {
     gap: 2px;
   }
 
+  /* Set a little over each piece's real width so the easing tracks the letters appearing
+     rather than finishing early against a slack ceiling — and never UNDER it, because
+     `overflow: hidden` is what does the collapsing and a ceiling short of the text clips it. */
   .navbar-logo-lockup.is-revealed .navbar-logo-name {
-    max-width: 75px;
+    max-width: 84px;
     opacity: 1;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-word {
-    max-width: 90px;
+    max-width: 100px;
     opacity: 1;
   }
 
-  /* The mark gives up a few pixels while the text is out — it is already the thing you can
-     see, and those pixels are what let the two words read at a legible size. */
-  .navbar-logo-lockup.is-revealed .navbar-logo-mark-img {
-    width: 17px !important;
-    height: 17px !important;
-  }
 }
 
 /* Side by side needs real width, and the gap between the account and language buttons only
@@ -1423,26 +1423,26 @@ html[data-scrolling] .nq-btn-beam::before {
     gap: 2px;
   }
 
+  /* 11 and 9, where this step used to go to 9 and 7. Seven pixels is not a small wordmark, it
+     is a wordmark nobody can read, and it was being reached at 360 — an ordinary phone, not
+     an edge case. The mark keeping its 34px costs this step nothing, because what was actually
+     tight here was three pieces plus the gap to the language button, and the three pieces at
+     these sizes measure about 150px against 215px of room. */
   .navbar-logo-name {
-    font-size: 9px;
-    letter-spacing: 0.04em;
+    font-size: 11px;
+    letter-spacing: 0.05em;
   }
 
   .navbar-logo-word {
-    font-size: 7px;
+    font-size: 9px;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-name {
-    max-width: 60px;
+    max-width: 72px;
   }
 
   .navbar-logo-lockup.is-revealed .navbar-logo-word {
-    max-width: 70px;
-  }
-
-  .navbar-logo-lockup.is-revealed .navbar-logo-mark-img {
-    width: 18px !important;
-    height: 18px !important;
+    max-width: 86px;
   }
 }
 

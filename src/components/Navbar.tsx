@@ -176,16 +176,44 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header dir="ltr" className="fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-[var(--nq-container)] mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
       {/* Transparent spacer on desktop holding the two halves apart — it paints nothing itself,
           and the LOGIN cluster and NAVIGATION group stay two separate glass bars. On phones
-          (.navbar-connect) the spacer becomes one continuous glass bar and the halves defrost into
-          it, so the whole navbar reads as a single connected strip edge to edge. */}
+          (.navbar-connect) the spacer becomes one continuous glass bar and the halves defrost
+          into it, so the navbar reads as a single connected pill.
+
+          Below `lg` that pill hugs its contents and centres: `w-fit mx-auto` with
+          `justify-center`, so the brand and the language/menu controls sit together as one
+          object in the middle of the screen. It used to stretch the full width with the logo
+          pinned to one end and the controls to the other, which put 177px of empty glass
+          between them at 390 — a bar wide enough to look like it was missing its middle.
+          There is nothing to go there: below `lg` the page links are in the drawer, so the
+          only things the header holds are the brand and two buttons.
+
+          From `lg` it goes back to the full width and `justify-between`, because that is the
+          width the inline navigation actually needs. */}
       <div
         ref={barRef}
-        className="navbar-connect flex items-center justify-between gap-3 sm:gap-10 relative"
+        className="navbar-connect flex items-center justify-center lg:justify-between gap-2 sm:gap-4 lg:gap-10 relative w-fit mx-auto lg:w-full lg:mx-0"
       >
 
         {/* ── Half 1 (physical left): the brand logo on its own, in a self-contained glass
-            bar. The account/login entry lives in the navigation half (Half 2) — see below. */}
-        <div className="navbar-glass flex items-center gap-3 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:static lg:translate-x-0 lg:translate-y-0">
+            bar. The account/login entry lives in the navigation half (Half 2) — see below.
+
+            In flow at every width, where it used to be absolutely centred below `lg`. The
+            centring was chosen when the mark was the only thing that showed on a phone, and
+            it is what made the full lockup impossible there: a centred box can only grow
+            HALF its width toward the language button, and that button starts about 40px
+            from the centre. So the ceiling was a lockup of ~80px. NOVAIQ + a 34px mark +
+            "...Design" is 147px.
+
+            That is the whole story behind what this looked like: the arithmetic never
+            worked, so the pieces were taken away one at a time until what was left fitted
+            — the wordmark hidden outright, then the mark shrunk to 17px while the rest
+            was out. Moving the box is what makes the pieces affordable again.
+
+            Left, it has the bar's whole width less the navigation cluster: 240px at 390
+            and 210px at 320, against a lockup that peaks at 147. It is also what the
+            desktop does, which is the point — `lg:static` used to be the exception here
+            and is now simply how it works. */}
+        <div className="navbar-glass flex items-center gap-3 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl">
           <a
             href="/"
             onClick={(e) => handleNavClick('home', e)}
@@ -194,7 +222,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               if (logoRevealTimer.current) window.clearTimeout(logoRevealTimer.current);
               logoRevealTimer.current = window.setTimeout(() => setLogoRevealed(false), 2200);
             }}
-            className="flex items-center justify-center cursor-pointer group"
+            /* `min-h-11` plus a padding/negative-margin pair: the link's hit area becomes
+               46x44 while the mark it wraps stays 34x34 and the pill around it keeps its own
+               width, because the negative margin gives back exactly what the padding took.
+               It was the mark's own 34x34 (and 26x26 before that), which is under the 44px
+               floor on the one control here that has a second job beyond navigating - it is
+               also what reveals the wordmark. */
+            className="flex items-center justify-center cursor-pointer group min-h-11 px-1.5 -mx-1.5"
           >
             <NovaiqLogo size={34} showText={true} animated revealed={logoRevealed} />
           </a>
@@ -203,7 +237,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* ── Half 2 (physical right): NAVIGATION — its own glass bar, completely separate from
             the login cluster. Page links render inline from `lg` up; the hamburger menu button
             is mobile-only and hidden from `lg` up. */}
-        <div className="navbar-glass flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10 ms-auto lg:ms-0">
+        {/* No `ms-auto` any more. It was what pushed this group to the far end of a
+            full-width bar; the bar now hugs its contents below `lg`, and `justify-between`
+            does the same job from `lg` up without a margin fighting it. */}
+        <div className="navbar-glass flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
           <nav className="hidden lg:flex items-center gap-0.5" aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}>
             {navItems.map((item) => {
               const isActive = activePage === item.id;
