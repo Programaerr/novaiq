@@ -921,6 +921,38 @@
   }
 }
 
+/* ═══ Tracked labels, and why Arabic never gets the tracking ════════════════════════
+
+   The wide-spaced uppercase label — "BROWSE", "LEGAL", "BACK TO TOP" — is a Latin device, and
+   it is a device that does not survive translation. It cannot: `letter-spacing` inserts a gap at
+   every glyph boundary, and Arabic is a CONNECTED script whose letters are joined by real strokes
+   that the gap cuts.
+
+   So "تصفح" at 0.28em does not render as a loosely-set word. It renders as ت ص ف ح — four
+   detached letters — because that is literally what is drawn. Every joined pair in the footer
+   came apart the same way: قانوني, ابدأ مشروعك اليوم, اطلب مشروعك, العودة للأعلى. The
+   paragraph directly under those headings reads fine, and the difference between them is this
+   one property.
+
+   It is a legibility bug rather than a taste call, which is why the fix is a rule and not five
+   edits: anything that carries `.nq-label` keeps its tracking in English and loses it in Arabic,
+   and a sixth label added later is covered without anyone having to remember.
+
+   `text-transform` goes with it. On Arabic glyphs uppercase is a no-op, so it only ever reached
+   the Latin inside an Arabic line — a brand name that is already capitalised.
+
+   Unlayered on purpose. Tailwind's `tracking-*` and `uppercase` live in `@layer utilities`, and
+   unlayered CSS beats a layer whatever the specificity says, so this overrides them without
+   `!important`. Same mechanism the reduced-motion block at the foot of this file relies on.
+
+   Arabic keeps the weight, the colour and the accent marker to do the label's job. That is the
+   right substitution rather than a lesser one: emphasis in Arabic typography has always been
+   weight and size, never spacing, because spacing is the one thing the script cannot spare. */
+[dir='rtl'] .nq-label {
+  letter-spacing: normal;
+  text-transform: none;
+}
+
 /* The copy column inside the band: the band, less the travel, less the clearance either side.
    21rem - 38px - 2×21px = 16rem, and 32rem - 41px - 2×36px = 25rem.
 

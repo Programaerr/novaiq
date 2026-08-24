@@ -61,7 +61,7 @@ interface FooterColumnProps {
 
 const FooterColumn: React.FC<FooterColumnProps> = ({ heading, children }) => (
   <div>
-    <h3 className="flex items-center gap-2.5 text-sm sm:text-base uw:text-lg font-bold tracking-[0.28em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))]">
+    <h3 className="nq-label flex items-center gap-2.5 text-sm sm:text-base uw:text-lg font-bold tracking-[0.28em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a50))]">
       <span className="h-1.5 w-6 rounded-full bg-[rgb(var(--ft-accent))]" aria-hidden="true" />
       {heading}
     </h3>
@@ -257,7 +257,7 @@ export const Footer: React.FC<FooterProps> = ({
               <div className="rounded-2xl bg-[rgb(var(--ft-accent)/0.1)] backdrop-blur-xl p-5"
                 style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-accent) / 0.3)' }}
               >
-                <p                 className="text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a60))]">
+                <p className="nq-label text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a60))]">
                   {isAr ? 'ابدأ مشروعك اليوم' : 'Start a project today'}
                 </p>
                 <p                 className="mt-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a50))] leading-relaxed">
@@ -270,7 +270,7 @@ export const Footer: React.FC<FooterProps> = ({
                   variant="solid"
                   size="md"
                   onClick={onRequestProject ?? (() => go('custom-request')())}
-                  className="mt-4 tracking-[0.12em] uppercase sm:text-base uw:text-lg"
+                  className="nq-label mt-4 tracking-[0.12em] uppercase sm:text-base uw:text-lg"
                   trailing={<Arrow className="w-3.5 h-3.5" strokeWidth={2.6} />}
                 >
                   {isAr ? 'اطلب مشروعك' : 'Request a project'}
@@ -281,7 +281,7 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Bottom bar. */}
         <div className="mt-14 pt-6 border-t border-[rgb(var(--ft-accent)/0.25)] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p             className="text-xs sm:text-sm uw:text-base tracking-[0.14em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a40))]">
+          <p className="nq-label text-xs sm:text-sm uw:text-base tracking-[0.14em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a40))]">
             © {new Date().getFullYear()} NOVAIQ — {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved'}
           </p>
           {/* A ghost rather than a bare text button, and the reason is the 44px floor: this was
@@ -291,7 +291,7 @@ export const Footer: React.FC<FooterProps> = ({
             variant="ghost"
             size="sm"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="-me-4 tracking-[0.18em] uppercase sm:text-sm uw:text-base"
+            className="nq-label -me-4 tracking-[0.18em] uppercase sm:text-sm uw:text-base"
             trailing={<Arrow className="w-3.5 h-3.5 -rotate-90" strokeWidth={2.6} />}
           >
             {isAr ? 'العودة للأعلى' : 'Back to top'}
