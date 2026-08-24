@@ -129,6 +129,24 @@ const FRAG = /* glsl */ `
   }
 `;
 
+/**
+ * A 1x1 ink pixel, and it exists so that neither sampler is ever null.
+ *
+ * A `sampler2D` uniform sitting at null is not a neutral starting value: three binds its own
+ * empty texture for the slot, the material compiles with the pair of samplers in that state,
+ * and swapping a real texture in afterwards does not reliably re-bind. The symptom is a panel
+ * frozen on whichever texture happened to be in the unit first, while every non-sampler
+ * uniform around it updates perfectly — which points at the shader and is not the shader.
+ *
+ * Ink rather than transparent so that the one frame before the first still lands matches the
+ * bed behind the canvas instead of flashing.
+ */
+const PLACEHOLDER = (() => {
+  const tex = new THREE.DataTexture(new Uint8Array([16, 19, 34, 255]), 1, 1);
+  tex.needsUpdate = true;
+  return tex;
+})();
+
 interface SlidesProps {
   reduced: boolean;
 }
@@ -137,12 +155,14 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
   const { gl, size, invalidate } = useThree();
   const [firstReady, setFirstReady] = useState(false);
   const texturesRef = useRef<(THREE.Texture | null)[]>(SHOTS.map(() => null));
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+  const boundRef = useRef('');
   const clockRef = useRef(0);
 
   const uniforms = useMemo(
     () => ({
-      uFrom: { value: null as THREE.Texture | null },
-      uTo: { value: null as THREE.Texture | null },
+      uFrom: { value: PLACEHOLDER as THREE.Texture },
+      uTo: { value: PLACEHOLDER as THREE.Texture },
       uMix: { value: 0 },
       uAspect: { value: 1 },
       uTexAspect: { value: new THREE.Vector2(1, 1) },
@@ -225,6 +245,23 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     return img?.width && img?.height ? img.width / img.height : 1;
   };
 
+  /* Binds a pair of stills, and flags the material when the pair actually changes.
+     Writing `uniforms.uFrom.value` is not enough on its own. Three re-uploads a
+     ShaderMaterial's uniform list once per material per frame, and for a sampler that upload
+     assigns a texture UNIT — but the unit assignment is cached, so a slot that already holds a
+     texture can keep serving the old one after the value under it has been replaced. Numbers
+     and vectors do not have this problem, which is why a panel in this state looks alive (it
+     drifts, it wipes) while never changing picture. `uniformsNeedUpdate` forces the pass that
+     re-binds them, and it is set only on a real change so the flag stays meaningful. */
+  const setPair = (from: THREE.Texture | null, to: THREE.Texture | null, key: string) => {
+    uniforms.uFrom.value = from ?? PLACEHOLDER;
+    uniforms.uTo.value = to ?? PLACEHOLDER;
+    uniforms.uTexAspect.value.set(aspectOf(from), aspectOf(to));
+    if (boundRef.current === key) return;
+    boundRef.current = key;
+    if (materialRef.current) materialRef.current.uniformsNeedUpdate = true;
+  };
+
   useFrame((_, delta) => {
     const tex = texturesRef.current;
     if (!tex[0]) return;
@@ -232,11 +269,9 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     uniforms.uAspect.value = size.width / Math.max(1, size.height);
 
     if (reduced) {
-      uniforms.uFrom.value = tex[0];
-      uniforms.uTo.value = tex[0];
       uniforms.uMix.value = 0;
-      uniforms.uTexAspect.value.set(aspectOf(tex[0]), aspectOf(tex[0]));
       uniforms.uZoom.value.set(1, 1);
+      setPair(tex[0], tex[0], '0-0');
       return;
     }
 
@@ -278,9 +313,7 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
       1 + KEN_BURNS * Math.min(1, Math.max(0, p - wipeStart) / span)
     );
 
-    uniforms.uFrom.value = tex[iFrom];
-    uniforms.uTo.value = tex[iTo];
-    uniforms.uTexAspect.value.set(aspectOf(tex[iFrom]), aspectOf(tex[iTo]));
+    setPair(tex[iFrom], tex[iTo], `${iFrom}-${iTo}`);
 
   });
 
@@ -289,7 +322,13 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
   return (
     <mesh frustumCulled={false}>
       <planeGeometry args={[1, 1]} />
-      <shaderMaterial vertexShader={VERT} fragmentShader={FRAG} uniforms={uniforms} depthTest={false} />
+      <shaderMaterial
+        ref={materialRef}
+        vertexShader={VERT}
+        fragmentShader={FRAG}
+        uniforms={uniforms}
+        depthTest={false}
+      />
     </mesh>
   );
 };
