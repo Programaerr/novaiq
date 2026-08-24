@@ -179,19 +179,25 @@ export const Navbar: React.FC<NavbarProps> = ({
           (.navbar-connect) the spacer becomes one continuous glass bar and the halves defrost
           into it, so the navbar reads as a single connected pill.
 
-          Below `lg` that pill hugs its contents and centres: `w-fit mx-auto` with
-          `justify-center`, so the brand and the language/menu controls sit together as one
-          object in the middle of the screen. It used to stretch the full width with the logo
-          pinned to one end and the controls to the other, which put 177px of empty glass
-          between them at 390 — a bar wide enough to look like it was missing its middle.
-          There is nothing to go there: below `lg` the page links are in the drawer, so the
-          only things the header holds are the brand and two buttons.
+          The pill hugs its contents and centres at EVERY width: `w-fit mx-auto` with
+          `justify-center`. It measures 209px on a phone and 867px from `lg` up, always with
+          equal air either side.
 
-          From `lg` it goes back to the full width and `justify-between`, because that is the
-          width the inline navigation actually needs. */}
+          It used to stretch the full container and push the brand to one end and the controls
+          to the other. That is a fine header when something lives in the middle, and nothing
+          does: below `lg` the page links are in the drawer, so the bar held a mark and two
+          buttons across 177px of empty glass at 390; from `lg` the links sit in one group
+          beside the login button, so the middle was empty there too, just wider — 1232px
+          of bar around 867px of content.
+
+          A bar sized to what it holds needs no breakpoint for its width, which is why there is
+          no `lg:` left on any of this. `max-w-[var(--nq-container)]` on the <header> stays as a
+          ceiling rather than a width: at 1024 it leaves 976px for a bar that wants 867, and it
+          never binds above that. Worth knowing if a fifth page link is ever added — the bar
+          grows with it, and 109px is the headroom before 1024 becomes the tight case. */}
       <div
         ref={barRef}
-        className="navbar-connect flex items-center justify-center lg:justify-between gap-2 sm:gap-4 lg:gap-10 relative w-fit mx-auto lg:w-full lg:mx-0"
+        className="navbar-connect flex items-center justify-center gap-2 sm:gap-4 lg:gap-8 relative w-fit mx-auto"
       >
 
         {/* ── Half 1 (physical left): the brand logo on its own, in a self-contained glass
