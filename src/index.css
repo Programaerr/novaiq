@@ -922,16 +922,23 @@
 }
 
 /* The copy column inside the band: the band, less the travel, less the clearance either side.
-   19rem - 38px - 2x13px = 15rem, and 32rem - 41px - 2x36px = 25rem.
+   21rem - 38px - 2×21px = 16rem, and 32rem - 41px - 2×36px = 25rem.
 
-   Both are absolute widths rather than a percentage of the band, and that is what keeps the
+   16rem and not 15, and the extra rem is spent entirely on type. A 240px column could not hold
+   a 15px line without breaking every sentence into three, which is why the copy in it had drifted
+   down to 11, 12 and 13px — three sizes, all of them under the floor, chosen one at a time to
+   make things fit. 256px is what the band can give back without the clearance going under 21px,
+   and it is enough for a 15px lede to set in two lines. The type scale is derived from it, in
+   LoginPage.
+
+   Both widths are absolute rather than a percentage of the band, and that is what keeps the
    clearance honest. A percentage would shrink the margin at the same rate as the band, so the
    phone case — the one with no room to spare — would be the one that lost it.
 
    The block this sits in carries no horizontal padding of its own. Padding there would be a
    second helping of the same clearance, taken out of the copy rather than out of the field. */
 .nq-lean-copy {
-  width: 15rem;
+  width: 16rem;
   max-width: 100%;
   margin-inline: auto;
 }

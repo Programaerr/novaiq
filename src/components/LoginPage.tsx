@@ -59,8 +59,8 @@ function GoogleIcon() {
 const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
 
 /**
- * Standalone sign-in page: one card, split down the middle. The company's words on sand, and the
- * site's own cube field in the panel blue beside them.
+ * Standalone sign-in page: three layers on a full-bleed screen. A field of 3D template cards in
+ * the panel blue, a sand band leaning across it, and the company's words on the band.
  *
  * Self-contained by design — it renders its own ground rather than mounting inside the site's
  * shared chrome. App gives it the whole viewport (see the early return there), so there is no
@@ -68,17 +68,15 @@ const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
  * app are the pieces that genuinely are shared: the auth call, the palette, the button system and
  * the tile field.
  *
- * NOTHING behind the card, and that is the decision rather than the absence of one. This page
- * has been through a blurred cube field, falling code, a rotating panel of stills and a drifting
- * grid of cards, and every one of them was a second thing on a screen that has one job: a
- * button. What is left is the page's own SAND and the card on it, which is the same ground every
- * other page of the site stands on.
+ * The field runs ONCE, behind everything, and it is deliberately out of focus. This page has
+ * been through a blurred cube field, falling code, a rotating panel of stills and a drifting
+ * grid of cards, and every one of them failed the same way: it became a second thing to read on
+ * a screen that has one job, which is a button. Out of focus is what lets a background be
+ * atmosphere instead of content.
  *
- * The field still runs ONCE, inside the card, and it is the same component the home page's hero
- * and the timeline page run,
- * on the shared tones, not a second cube scene written for this screen. That is the whole reason
- * it is worth having here: a sign-in page built out of the site's own parts reads as the site,
- * where a bespoke animation on the way in reads as a different product.
+ * The type is sized from the column rather than from the viewport, and the column is sized from
+ * the lean. See `.nq-lean-copy` in index.css for that derivation and the block below for the
+ * scale that falls out of it.
  */
 export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGuest }) => {
   const isAr = language === 'ar';
@@ -213,17 +211,36 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               cannot be even at both ends, and the even-at-the-middle answer is the one that
               keeps the same total clearance at both. */}
           <div className="nq-lean-copy">
-            {/* Two sizes, and they step with the column rather than with the viewport. At
-                15rem the ceiling is 1.75rem — "حسابك في NOVAIQ" sets at ~238px there, two
-                short of the column, and 2.1rem would wrap a two-word phrase across three
-                lines. At 25rem there is room for the 2.1rem the desktop card always ran. */}
-            <h1 className="text-[1.75rem] lg:text-[2.1rem] font-black leading-tight">
+            {/* ── The type scale ─────────────────────────────────────────────────────────────
+                Four sizes, and every one of them steps with the COLUMN rather than with the
+                viewport, because the column is what the line has to fit inside. 16rem holds
+                28 / 15 / 14 / 13; 25rem holds 34 / 16 / 13 / 13.
+
+                It replaces 28 / 13 / 12 / 11, which was not a scale so much as four separate
+                decisions to shave a pixel off something that would not fit. Three of those
+                four sat at or under the 12px floor, on a script that carries meaning in dot
+                clusters — ث against ت, ش against س, the two dots under ي — features one or two
+                pixels across at that size. Latin degrades into "small" there. Arabic degrades
+                into "ambiguous", which is a different problem and a worse one.
+
+                Nothing here is under 13px now, and the gaps between steps are wide enough to
+                read as deliberate: the old 13/12/11 ladder put three near-identical sizes in
+                one 240px column, which looks like drift rather than hierarchy.
+
+                Line height is 1.6-1.75 throughout, up from 1.25-1.33. Arabic needs more of it
+                than Latin at the same size: the ascenders (ل ك ا) and the marks above them
+                (the shadda in "سجّل") occupy space Latin leaves empty, so a leading that looks
+                airy in English is cramped here. */}
+            {/* At 16rem the ceiling is 1.75rem — "حسابك في NOVAIQ" sets at ~238px in a
+                256px column, and 2.1rem would wrap a two-word phrase across three lines. At
+                25rem there is room for the 2.1rem the desktop layout always ran. */}
+            <h1 className="text-[1.75rem] lg:text-[2.1rem] font-black leading-[1.35]">
               {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
               <br />
               {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
             </h1>
 
-            <p className="mt-3 lg:mt-4 text-[13px] sm:text-sm leading-relaxed" style={{ color: INK_MUTED }}>
+            <p className="mt-3 lg:mt-4 text-[15px] lg:text-base leading-[1.75]" style={{ color: INK_MUTED }}>
               {isAr
                 ? 'ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.'
                 : 'Continue with Google to follow your contracts and saved templates in one place.'}
@@ -234,10 +251,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 The icons lost the filled chip they used to sit in — a 28px dark square each was
                 three more objects on a surface that now has a whole blue half beside it to carry
                 the visual weight. */}
-            <ul className="mt-5 lg:mt-7 space-y-2.5">
+            <ul className="mt-5 lg:mt-7 space-y-3">
               {perks.map(({ icon: Icon, text }) => (
-                <li key={text} className="flex items-center gap-2.5 text-xs sm:text-[13px]">
-                  <Icon className="w-4 h-4 shrink-0" aria-hidden="true" style={{ color: PERIWINKLE }} />
+                <li key={text} className="flex items-center gap-2.5 text-[14px] lg:text-[13px] font-medium leading-[1.6]">
+                  {/* `mt-px` rather than `items-start`: the icon is a 16px square whose artwork
+                      is centred in it, and Arabic sits low in its own line box, so optically
+                      centred and box-centred are one pixel apart here. */}
+                  <Icon className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" style={{ color: PERIWINKLE }} />
                   <span>{text}</span>
                 </li>
               ))}
@@ -249,7 +269,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             {error && (
               <div
                 role="alert"
-                className="mt-5 p-3 rounded-[0.375rem] text-xs text-center"
+                className="mt-5 p-3 rounded-[0.375rem] text-[13px] font-medium leading-[1.6]"
                 style={{
                   background: 'rgba(127, 29, 29, 0.1)',
                   color: '#7F1D1D',
@@ -300,7 +320,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               {isAr ? 'أكمل كضيف' : 'Continue as guest'}
             </NqButton>
 
-            <p className="mt-2.5 text-center text-[11px]" style={{ color: INK_MUTED }}>
+            {/* Aligned to the column's start edge, not centred, and neither is the copyright
+                below it. The block used to run three elements on the start edge and two on the
+                centre, which in a 256px column reads as two competing margins rather than as
+                one column. A single edge down the whole thing is the tidier read, and in RTL
+                that edge is the right-hand one, where the eye starts. */}
+            <p className="mt-3 text-[13px] font-medium leading-[1.6]" style={{ color: INK_MUTED }}>
               {isAr
                 ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
                 : 'Browse and try the templates freely — an account is only needed to create a contract.'}
@@ -310,8 +335,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
         {/* Same column as the copy above it. It sits at the band's narrowest point — the
             bottom, where the lean has taken the band its full travel to the left — so a
-            full-width centred line is the one line that would hang off the edge. */}
-        <p className="nq-lean-copy shrink-0 mt-10 text-center text-[11px]" style={{ color: INK_MUTED }}>
+            full-width line is the one line that would hang off the edge. The column is what
+            keeps it inside; the alignment is the column's, for the reason given above. */}
+        <p className="nq-lean-copy shrink-0 mt-10 text-[13px] font-medium leading-[1.6]" style={{ color: INK_MUTED }}>
           {isAr ? '© NOVAIQ — جميع الحقوق محفوظة' : '© NOVAIQ — All rights reserved'}
         </p>
       </div>
