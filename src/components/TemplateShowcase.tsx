@@ -29,9 +29,9 @@ import mobileApp from '../assets/images/templates/mobile-app.webp';
 const SHOTS: readonly string[] = [dashboard, storefront, editor, landing, mobileApp];
 
 /**
- * Seconds per still, and how long the wipe between two of them takes.
+ * Seconds per still, and how long the crossfade between two of them takes.
  *
- * CYCLE is the number that was asked for: a still changes every five seconds. WIPE is carved
+ * CYCLE is the number that was asked for: a still changes every five seconds. The fade is carved
  * out of it rather than added to it, so the cadence stays five seconds however slow the
  * transition is. 1.1s is slow on purpose — a fast dissolve on a decorative panel reads as a
  * glitch, and this panel sits beside a form somebody is trying to read.
@@ -66,7 +66,7 @@ const FRAG = /* glsl */ `
   uniform float uAspect;      // canvas width / height
   uniform float uTexAspect;   // still width / height
   uniform float uZoom;
-  uniform float uWipe;        // < 0 draws solid; 0..1 reveals along the wipe
+  uniform float uAlpha;       // 1 for the still that is holding, 0..1 for one fading in
   varying vec2 vUv;
 
   /* Cover-fit, anchored to the TOP of the still rather than its centre.
@@ -86,38 +86,14 @@ const FRAG = /* glsl */ `
     );
   }
 
-  float hash(vec2 p) {
-    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-  }
-
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    return mix(
-      mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
-      mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
-      u.y
-    );
-  }
-
   void main() {
-    float a = 1.0;
+    /* A plain crossfade: the incoming still is drawn OVER the outgoing one and its opacity is
+       raised from 0 to 1. The same change the CSS version of this panel made, and kept because
+       it is the quieter of the options — a patterned wipe draws the eye to the transition
+       itself, and the transition is not the thing here worth looking at. */
+    if (uAlpha <= 0.002) discard;
 
-    /* The incoming still is drawn OVER the outgoing one and reveals itself along a soft wipe
-       travelling up the frame. A crossfade would show both at half strength through the middle
-       of it, which on two dense screenshots is mud; a wipe means whichever still owns a pixel
-       owns it completely. The noise term stops the edge being a ruled line — it breaks in the
-       way ink spreads rather than the way a blind drops. */
-    if (uWipe >= 0.0) {
-      float grad = mix(vUv.y, noise(vUv * 3.4), 0.34);
-      float w = 0.34;
-      float t = uWipe * (1.0 + w) - w * 0.5;
-      a = 1.0 - smoothstep(t - w * 0.5, t + w * 0.5, grad);
-      if (a <= 0.002) discard;
-    }
-
-    gl_FragColor = vec4(texture2D(uTex, cover()).rgb, a);
+    gl_FragColor = vec4(texture2D(uTex, cover()).rgb, uAlpha);
 
     /* The one line that is easy to leave out of a hand-written material and impossible to
        misread once it bites. The stills are tagged SRGBColorSpace, so texture2D hands back
@@ -139,7 +115,7 @@ function makeMaterial(tex: THREE.Texture, aspect: number) {
       uAspect: { value: 1 },
       uTexAspect: { value: aspect },
       uZoom: { value: 1 },
-      uWipe: { value: -1 },
+      uAlpha: { value: 1 },
     },
     transparent: true,
     depthTest: false,
@@ -159,12 +135,12 @@ interface SlidesProps {
  * it fails is worth writing down because it looks like a shader bug for a long time: three
  * assigns a texture UNIT to a sampler uniform and caches that assignment, so replacing the
  * value underneath an already-bound sampler can leave the old texture serving the slot. The
- * panel then animates perfectly — it drifts, the wipe runs — while never changing picture, and
+ * panel then animates perfectly — it drifts, it fades — while never changing picture, and
  * every non-sampler uniform in the same material updates correctly the whole time.
  *
  * So no sampler ever changes value here. Each still gets a material of its own with its texture
  * bound once at construction, and the sequence advances by pointing the two meshes at different
- * MATERIALS. Everything that varies per frame — the wipe, the drift, the aspect — is a float,
+ * MATERIALS. Everything that varies per frame — the fade, the drift, the aspect — is a float,
  * which is the class of uniform that was never in question.
  *
  * Two meshes and not five: only ever two stills are on screen, the one leaving and the one
@@ -210,7 +186,7 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
 
           /* Upload it to the GPU now instead of waiting for a draw to trigger it. It also
              removes the frame-time spike the first draw of each still would otherwise carry —
-             a 1000px texture uploading mid-wipe is exactly when a hitch would be seen. */
+             a 1000px texture uploading mid-fade is exactly when a hitch would be seen. */
           gl.initTexture(tex);
 
           const img = tex.image as { width?: number; height?: number } | undefined;
@@ -257,7 +233,7 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
 
     const aspect = size.width / Math.max(1, size.height);
 
-    const show = (mesh: THREE.Mesh, mat: THREE.ShaderMaterial | null, zoom: number, wipe: number) => {
+    const show = (mesh: THREE.Mesh, mat: THREE.ShaderMaterial | null, zoom: number, alpha: number) => {
       if (!mat) {
         mesh.visible = false;
         return;
@@ -266,11 +242,11 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
       mesh.material = mat;
       mat.uniforms.uAspect.value = aspect;
       mat.uniforms.uZoom.value = zoom;
-      mat.uniforms.uWipe.value = wipe;
+      mat.uniforms.uAlpha.value = alpha;
     };
 
     if (reduced) {
-      show(back, mats[0], 1, -1);
+      show(back, mats[0], 1, 1);
       front.visible = false;
       return;
     }
@@ -305,11 +281,11 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     const zoomFrom = 1 + KEN_BURNS * Math.min(1, (p + WIPE) / span);
     const zoomTo = 1 + KEN_BURNS * Math.min(1, Math.max(0, p - wipeStart) / span);
 
-    show(back, mats[iFrom], zoomFrom, -1);
+    show(back, mats[iFrom], zoomFrom, 1);
 
     if (p < wipeStart || !mats[iTo]) {
       // Nothing arriving yet — or the next still has not decoded, in which case the current one
-      // simply holds rather than wiping into an empty frame.
+      // simply holds rather than fading into an empty frame.
       front.visible = false;
       return;
     }
@@ -323,7 +299,7 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     <>
       <mesh ref={backRef} geometry={geometry} frustumCulled={false} renderOrder={0} />
       {/* Drawn after the back quad, which is what makes the wipe read as the new still arriving
-          ON TOP rather than the old one dissolving away underneath. */}
+          ON TOP rather than the old one dissolving away underneath it. */}
       <mesh ref={frontRef} geometry={geometry} frustumCulled={false} renderOrder={1} />
     </>
   );
