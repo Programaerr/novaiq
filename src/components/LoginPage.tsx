@@ -41,9 +41,11 @@ function GoogleIcon() {
  * Measured rather than picked, and re-measured every time the surface under it changed: solid
  * sand, an ink sky, falling code, frosted glass over a cube field, and now solid sand again.
  *
- * The band is opaque, so for the first time in a while the surface IS the swatch: SAND flat,
- * #D5BDAC, whatever the field behind the card happens to be doing. Full ink on it is 10.39:1
- * and this value is 7.62:1.
+ * The band is opaque, so for the first time in a while the surface IS the swatch. Sampled off
+ * the rendered page at nine heights down the band, every one of them reads #D5BDAC exactly — no
+ * spread at all, where the glass version moved across a six percent range and the solid-sand
+ * version before THAT moved with whatever was behind it. Full ink on it measures 10.28:1 and
+ * this value 7.57:1, at every point on the panel.
  *
  * It stays at 0.85 rather than being wound back to the 0.7 an opaque sand panel would allow.
  * 0.7 measures 5.14:1, which is fine today and was 4.94:1 the last time this surface was glass
