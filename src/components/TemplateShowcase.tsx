@@ -368,7 +368,7 @@ export const TemplateShowcase: React.FC = () => {
 
            The clear colour is the mat's periwinkle rather than black, so the frames before the
            first still has decoded show the panel's own colour instead of a hole in the card. */
-        gl={{ antialias: false, alpha: false, powerPreference: 'low-power', preserveDrawingBuffer: true }}
+        gl={{ antialias: false, alpha: false, powerPreference: 'low-power' }}
       >
         <color attach="background" args={[PERIWINKLE]} />
         <Slides reduced={reduced} />
