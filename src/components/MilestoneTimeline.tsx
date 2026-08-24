@@ -166,7 +166,12 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                         </h3>
                         <span
                           className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0"
-                          style={{ background: PERIWINKLE, color: INK }}
+                          /* SAND, not PERIWINKLE. The panel is translucent paper over the blue
+                             cube field, so a periwinkle chip was the field's own colour laid on
+                             top of the field — close enough to read as a hole in the panel rather
+                             than as a tile on it. Sand is the palette's other half and the one
+                             thing on this panel that is warm. INK on it measures 10.28:1. */
+                          style={{ background: SAND, color: INK }}
                           aria-hidden="true"
                         >
                           <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.9} />
