@@ -4,7 +4,6 @@ import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
 import { TileField, SAND_TONES, SECTION_TONES, SECTION_FADE, FieldFade } from './TileField';
-import { TemplateShowcase } from './TemplateShowcase';
 import { NqButton } from './ui/NqButton';
 
 interface LoginPageProps {
@@ -111,19 +110,21 @@ const BACKDROP_FADE: FieldFade = { lo: 0, hi: 0 };
 const BACKDROP_BLUR = '8px';
 
 /**
- * Standalone sign-in page: one card, split down the middle. The company's words on sand, and a
- * rotating panel of the work beside them, on the panel blue.
+ * Standalone sign-in page: one card, split down the middle. The company's words on sand, and the
+ * site's own cube field in the panel blue beside them.
  *
  * Self-contained by design — it renders its own ground rather than mounting inside the site's
  * shared chrome. App gives it the whole viewport (see the early return there), so there is no
  * navbar to sit under and no page padding to clear. The only things it takes from the rest of the
- * app are the pieces that genuinely are shared: the auth call, the palette and the button system.
+ * app are the pieces that genuinely are shared: the auth call, the palette, the button system and
+ * the tile field.
  *
- * Three layers, from back to front. BEHIND the card, the site's own cube field, blurred — the
- * same component the hero and the timeline run, so the page reads as this site rather than as a
- * login bolted on. INSIDE the card's second half, the same field again but sharp, as the ground
- * of the blue half. And resting on that ground, the work: five template stills that change every
- * five seconds. Atmosphere behind, atmosphere under, substance on top.
+ * The field runs TWICE and the two runs do different jobs. Behind the card it is blurred, so it
+ * is atmosphere and nothing else; inside the card's second half it is sharp, and that half is
+ * the site's blue. Both are the same component the home page's hero and the timeline page run,
+ * on the shared tones, not a second cube scene written for this screen. That is the whole reason
+ * it is worth having here: a sign-in page built out of the site's own parts reads as the site,
+ * where a bespoke animation on the way in reads as a different product.
  */
 export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGuest }) => {
   const isAr = language === 'ar';
@@ -327,13 +328,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           </p>
         </div>
 
-        {/* ── The work ──────────────────────────────────────────────────────────────────── */}
-        {/* `order-first` below lg and back in place at lg, so this is a BAND across the top of the
-            card on a phone and the right-hand half on a desktop. A band rather than a second full
-            screen: the page this replaced dropped its artwork entirely below lg on the reasoning
-            that a phone which has to scroll past a screenful of decoration to reach a sign-in
-            button has been given a worse page. That reasoning was about the SIZE, not about the
-            content — 10rem of it costs nothing and the button stays above the fold.
+        {/* ── Field ─────────────────────────────────────────────────────────────────────── */}
+        {/* `order-first` below lg and back in place at lg, so the field is a BAND across the top
+            of the card on a phone and the right-hand half on a desktop. A band rather than a
+            second full screen: the page this replaced dropped its artwork entirely below lg on
+            the reasoning that a phone which has to scroll past a screenful of decoration to reach
+            a sign-in button has been given a worse page. That reasoning was about the SIZE, not
+            about the atmosphere — 10rem of it costs nothing and the button stays above the fold.
 
             `min-h` on this column is what gives the whole card its shape at lg: grid rows stretch,
             so the sand column is as tall as this one whenever the copy is shorter. */}
@@ -344,17 +345,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           {/* `.nq-coast` is the seam: a plain blue fill at this cell's own bounds. It used to
               overhang this cell and carry a stepped clip-path, which is why it needed rules per
               breakpoint; a straight edge is the same edge at every width, so the class is four
-              lines now and there is no breakpoint in it.
-
-              Two layers, and the pair is the composition. The cube field is the ground — the
-              same component the hero and the timeline run, on the section tones, so the blue
-              half is the site's blue and not a flat swatch. The showcase rests on it, inset, as
-              a screen standing on that ground. Either one alone is weaker: the field alone says
-              nothing about the work, and the stills alone turn this half into a dark rectangle
-              with the site's only blue on this screen gone. */}
+              lines now and there is no breakpoint in it. The fill is what shows through the
+              gaps the field leaves, so it is the blue and the field is the texture on it. */}
           <div className="nq-coast">
             <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
-            <TemplateShowcase />
           </div>
         </div>
       </div>
