@@ -50,7 +50,7 @@ const MAX_DPR =
 /**
  * A clip-space quad. `position.xy * 2` on a 1x1 plane covers exactly -1..1, which is the whole
  * canvas at any size — so there is no camera to fit, no plane to resize, and nothing to
- * recompute when the frame changes shape. The mesh sets `frustumCulled={false}` because its
+ * recompute when the frame changes shape. The meshes set `frustumCulled={false}` because their
  * bounding sphere no longer means anything once the matrices are skipped.
  */
 const VERT = /* glsl */ `
@@ -62,12 +62,11 @@ const VERT = /* glsl */ `
 `;
 
 const FRAG = /* glsl */ `
-  uniform sampler2D uFrom;
-  uniform sampler2D uTo;
-  uniform float uMix;
+  uniform sampler2D uTex;
   uniform float uAspect;      // canvas width / height
-  uniform vec2  uTexAspect;   // from, to  (width / height)
-  uniform vec2  uZoom;        // from, to
+  uniform float uTexAspect;   // still width / height
+  uniform float uZoom;
+  uniform float uWipe;        // < 0 draws solid; 0..1 reveals along the wipe
   varying vec2 vUv;
 
   /* Cover-fit, anchored to the TOP of the still rather than its centre.
@@ -76,14 +75,14 @@ const FRAG = /* glsl */ `
      phone's status bar — and the bottom is usually a footer that identifies nothing. On the
      phone band, where the frame is very wide and very short, that difference is the whole
      legibility of the panel. */
-  vec2 cover(vec2 uv, float texAspect, float zoom) {
+  vec2 cover(vec2 uv) {
     float sx = 1.0;
     float sy = 1.0;
-    if (uAspect > texAspect) sy = texAspect / uAspect;
-    else                     sx = uAspect / texAspect;
+    if (uAspect > uTexAspect) sy = uTexAspect / uAspect;
+    else                      sx = uAspect / uTexAspect;
     return vec2(
-      (uv.x - 0.5) * sx / zoom + 0.5,
-      (uv.y - 1.0) * sy / zoom + 1.0
+      (uv.x - 0.5) * sx / uZoom + 0.5,
+      (uv.y - 1.0) * sy / uZoom + 1.0
     );
   }
 
@@ -103,73 +102,86 @@ const FRAG = /* glsl */ `
   }
 
   void main() {
-    vec3 from = texture2D(uFrom, cover(vUv, uTexAspect.x, uZoom.x)).rgb;
-    vec3 to   = texture2D(uTo,   cover(vUv, uTexAspect.y, uZoom.y)).rgb;
+    float a = 1.0;
 
-    /* A soft wipe travelling up the frame rather than a flat crossfade.
-       A crossfade shows both stills at half strength through the middle of it, which on two
-       dense screenshots is mud; a wipe only ever shows one of them at any given pixel, so both
-       stay readable the whole way through. The noise term stops the edge being a ruled line —
-       it breaks into the incoming still the way ink spreads rather than the way a blind drops. */
-    float grad = mix(vUv.y, noise(vUv * 3.4), 0.34);
-    float w = 0.34;
-    float t = uMix * (1.0 + w) - w * 0.5;
-    float m = smoothstep(t - w * 0.5, t + w * 0.5, grad);
+    /* The incoming still is drawn OVER the outgoing one and reveals itself along a soft wipe
+       travelling up the frame. A crossfade would show both at half strength through the middle
+       of it, which on two dense screenshots is mud; a wipe means whichever still owns a pixel
+       owns it completely. The noise term stops the edge being a ruled line — it breaks in the
+       way ink spreads rather than the way a blind drops. */
+    if (uWipe >= 0.0) {
+      float grad = mix(vUv.y, noise(vUv * 3.4), 0.34);
+      float w = 0.34;
+      float t = uWipe * (1.0 + w) - w * 0.5;
+      a = 1.0 - smoothstep(t - w * 0.5, t + w * 0.5, grad);
+      if (a <= 0.002) discard;
+    }
 
-    gl_FragColor = vec4(mix(to, from, m), 1.0);
+    gl_FragColor = vec4(texture2D(uTex, cover()).rgb, a);
 
     /* The one line that is easy to leave out of a hand-written material and impossible to
        misread once it bites. The stills are tagged SRGBColorSpace, so texture2D hands back
        LINEAR values; the renderer's output space is sRGB but it only encodes for its own
        built-in materials, never for a custom one. Without it the whole panel renders as if
        every colour had gone through a gamma the wrong way -- ink #101322 comes out at
-       rgb(1,2,4) and the frame looks like a hole cut in the card. The mix above happens in
-       linear, which is where mixing belongs; this converts once, at the very end. */
+       rgb(1,2,4) and the frame looks like a hole cut in the card. */
     #include <colorspace_fragment>
   }
 `;
 
-/**
- * A 1x1 ink pixel, and it exists so that neither sampler is ever null.
- *
- * A `sampler2D` uniform sitting at null is not a neutral starting value: three binds its own
- * empty texture for the slot, the material compiles with the pair of samplers in that state,
- * and swapping a real texture in afterwards does not reliably re-bind. The symptom is a panel
- * frozen on whichever texture happened to be in the unit first, while every non-sampler
- * uniform around it updates perfectly — which points at the shader and is not the shader.
- *
- * Ink rather than transparent so that the one frame before the first still lands matches the
- * bed behind the canvas instead of flashing.
- */
-const PLACEHOLDER = (() => {
-  const tex = new THREE.DataTexture(new Uint8Array([16, 19, 34, 255]), 1, 1);
-  tex.needsUpdate = true;
-  return tex;
-})();
+/** Builds the one material that belongs to one still. Its sampler is set here and never moves. */
+function makeMaterial(tex: THREE.Texture, aspect: number) {
+  return new THREE.ShaderMaterial({
+    vertexShader: VERT,
+    fragmentShader: FRAG,
+    uniforms: {
+      uTex: { value: tex },
+      uAspect: { value: 1 },
+      uTexAspect: { value: aspect },
+      uZoom: { value: 1 },
+      uWipe: { value: -1 },
+    },
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+  });
+}
 
 interface SlidesProps {
   reduced: boolean;
 }
 
+/**
+ * Two quads and one material per still.
+ *
+ * The obvious shape for this is ONE quad whose shader holds two samplers, swapping which
+ * textures they point at as the sequence advances. That shape does not work here, and the way
+ * it fails is worth writing down because it looks like a shader bug for a long time: three
+ * assigns a texture UNIT to a sampler uniform and caches that assignment, so replacing the
+ * value underneath an already-bound sampler can leave the old texture serving the slot. The
+ * panel then animates perfectly — it drifts, the wipe runs — while never changing picture, and
+ * every non-sampler uniform in the same material updates correctly the whole time.
+ *
+ * So no sampler ever changes value here. Each still gets a material of its own with its texture
+ * bound once at construction, and the sequence advances by pointing the two meshes at different
+ * MATERIALS. Everything that varies per frame — the wipe, the drift, the aspect — is a float,
+ * which is the class of uniform that was never in question.
+ *
+ * Two meshes and not five: only ever two stills are on screen, the one leaving and the one
+ * arriving, so this is two draw calls at the peak and one the rest of the time.
+ */
 const Slides: React.FC<SlidesProps> = ({ reduced }) => {
   const { gl, size, invalidate } = useThree();
-  const [firstReady, setFirstReady] = useState(false);
-  const texturesRef = useRef<(THREE.Texture | null)[]>(SHOTS.map(() => null));
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
-  const boundRef = useRef('');
+  const backRef = useRef<THREE.Mesh>(null);
+  const frontRef = useRef<THREE.Mesh>(null);
+  const materialsRef = useRef<(THREE.ShaderMaterial | null)[]>(SHOTS.map(() => null));
+  const [ready, setReady] = useState(false);
   const clockRef = useRef(0);
 
-  const uniforms = useMemo(
-    () => ({
-      uFrom: { value: PLACEHOLDER as THREE.Texture },
-      uTo: { value: PLACEHOLDER as THREE.Texture },
-      uMix: { value: 0 },
-      uAspect: { value: 1 },
-      uTexAspect: { value: new THREE.Vector2(1, 1) },
-      uZoom: { value: new THREE.Vector2(1, 1) },
-    }),
-    []
-  );
+  /* One geometry for both meshes. It is the same unit quad twice; two of them would be two
+     buffers holding identical numbers. */
+  const geometry = useMemo(() => new THREE.PlaneGeometry(1, 1), []);
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   /* Loaded one after another rather than all at once, and the chaining is the point.
      This is the FIRST page of the site a visitor sees, often on a phone connection. Five
@@ -195,19 +207,17 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
              looks like the images themselves are low quality. */
           tex.colorSpace = THREE.SRGBColorSpace;
           tex.anisotropy = anisotropy;
-          tex.minFilter = THREE.LinearMipmapLinearFilter;
-          tex.magFilter = THREE.LinearFilter;
-          /* Upload it to the GPU NOW instead of waiting for a draw to trigger it.
-             Not an optimisation — without it these samplers stay black. The uniforms start
-             null (there is nothing to show before the first still arrives) and swapping a
-             real texture in afterwards does not, on its own, get the image onto the GPU:
-             `renderer.info.memory.textures` stays at 0 and every sample comes back (0,0,0),
-             which looks exactly like a shader bug and is not one. initTexture is the API for
-             precisely this case, and it also removes the frame-time spike an upload would
-             otherwise cause the first time each still is drawn. */
+
+          /* Upload it to the GPU now instead of waiting for a draw to trigger it. It also
+             removes the frame-time spike the first draw of each still would otherwise carry —
+             a 1000px texture uploading mid-wipe is exactly when a hitch would be seen. */
           gl.initTexture(tex);
-          texturesRef.current[i] = tex;
-          if (i === 0) setFirstReady(true);
+
+          const img = tex.image as { width?: number; height?: number } | undefined;
+          const aspect = img?.width && img?.height ? img.width / img.height : 1;
+          materialsRef.current[i] = makeMaterial(tex, aspect);
+
+          if (i === 0) setReady(true);
           invalidate();
           loadFrom(i + 1);
         },
@@ -221,12 +231,15 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
 
     return () => {
       cancelled = true;
-      /* Three never releases GPU memory on its own. The geometry and material below are JSX,
-         so R3F disposes those; these textures were created by hand and would sit in VRAM for
-         the rest of the session — which on this page means for as long as the tab lives, since
-         the sign-in screen is mounted and unmounted every time somebody signs out. */
-      for (const tex of texturesRef.current) tex?.dispose();
-      texturesRef.current = SHOTS.map(() => null);
+      /* Three never releases GPU memory on its own, and none of this is JSX for R3F to clean
+         up. On this page it matters more than usual: the sign-in screen is mounted and
+         unmounted every time somebody signs out. */
+      for (const mat of materialsRef.current) {
+        if (!mat) continue;
+        (mat.uniforms.uTex.value as THREE.Texture)?.dispose();
+        mat.dispose();
+      }
+      materialsRef.current = SHOTS.map(() => null);
     };
   }, [gl, invalidate]);
 
@@ -236,42 +249,29 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
      waiting for a request that never came. `invalidate` is a no-op while the loop is running. */
   useEffect(() => invalidate());
 
-  /* `Texture.image` is typed `unknown` — it can be an HTMLImageElement, an ImageBitmap, a
-     canvas or raw data, and three does not narrow it. Everything here comes from
-     TextureLoader, so it is always an element with real dimensions; the guard is for the one
-     frame between the texture existing and its image being attached. */
-  const aspectOf = (tex: THREE.Texture | null) => {
-    const img = tex?.image as { width?: number; height?: number } | undefined;
-    return img?.width && img?.height ? img.width / img.height : 1;
-  };
-
-  /* Binds a pair of stills, and flags the material when the pair actually changes.
-     Writing `uniforms.uFrom.value` is not enough on its own. Three re-uploads a
-     ShaderMaterial's uniform list once per material per frame, and for a sampler that upload
-     assigns a texture UNIT — but the unit assignment is cached, so a slot that already holds a
-     texture can keep serving the old one after the value under it has been replaced. Numbers
-     and vectors do not have this problem, which is why a panel in this state looks alive (it
-     drifts, it wipes) while never changing picture. `uniformsNeedUpdate` forces the pass that
-     re-binds them, and it is set only on a real change so the flag stays meaningful. */
-  const setPair = (from: THREE.Texture | null, to: THREE.Texture | null, key: string) => {
-    uniforms.uFrom.value = from ?? PLACEHOLDER;
-    uniforms.uTo.value = to ?? PLACEHOLDER;
-    uniforms.uTexAspect.value.set(aspectOf(from), aspectOf(to));
-    if (boundRef.current === key) return;
-    boundRef.current = key;
-    if (materialRef.current) materialRef.current.uniformsNeedUpdate = true;
-  };
-
   useFrame((_, delta) => {
-    const tex = texturesRef.current;
-    if (!tex[0]) return;
+    const mats = materialsRef.current;
+    const back = backRef.current;
+    const front = frontRef.current;
+    if (!mats[0] || !back || !front) return;
 
-    uniforms.uAspect.value = size.width / Math.max(1, size.height);
+    const aspect = size.width / Math.max(1, size.height);
+
+    const show = (mesh: THREE.Mesh, mat: THREE.ShaderMaterial | null, zoom: number, wipe: number) => {
+      if (!mat) {
+        mesh.visible = false;
+        return;
+      }
+      mesh.visible = true;
+      mesh.material = mat;
+      mat.uniforms.uAspect.value = aspect;
+      mat.uniforms.uZoom.value = zoom;
+      mat.uniforms.uWipe.value = wipe;
+    };
 
     if (reduced) {
-      uniforms.uMix.value = 0;
-      uniforms.uZoom.value.set(1, 1);
-      setPair(tex[0], tex[0], '0-0');
+      show(back, mats[0], 1, -1);
+      front.visible = false;
       return;
     }
 
@@ -295,41 +295,37 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     const wipeStart = CYCLE - WIPE;
 
     const iFrom = cycle % SHOTS.length;
-    const iNext = (cycle + 1) % SHOTS.length;
-    // Falls back to the current still until the next one has decoded, so a slow connection
-    // holds a frame rather than wiping into an empty panel.
-    const iTo = tex[iNext] ? iNext : iFrom;
-
-    const raw = p < wipeStart ? 0 : (p - wipeStart) / WIPE;
-    uniforms.uMix.value = iTo === iFrom ? 0 : raw * raw * (3 - 2 * raw);
+    const iTo = (cycle + 1) % SHOTS.length;
 
     /* Each still drifts in slowly across its whole life — the WIPE it arrives during plus the
        CYCLE it holds for. Measuring the drift against that full span rather than against the
        hold alone is what keeps it continuous: the value a still leaves the wipe with is exactly
        the value it starts its hold with, so there is no jump on the handover. */
     const span = CYCLE + WIPE;
-    uniforms.uZoom.value.set(
-      1 + KEN_BURNS * Math.min(1, (p + WIPE) / span),
-      1 + KEN_BURNS * Math.min(1, Math.max(0, p - wipeStart) / span)
-    );
+    const zoomFrom = 1 + KEN_BURNS * Math.min(1, (p + WIPE) / span);
+    const zoomTo = 1 + KEN_BURNS * Math.min(1, Math.max(0, p - wipeStart) / span);
 
-    setPair(tex[iFrom], tex[iTo], `${iFrom}-${iTo}`);
+    show(back, mats[iFrom], zoomFrom, -1);
 
+    if (p < wipeStart || !mats[iTo]) {
+      // Nothing arriving yet — or the next still has not decoded, in which case the current one
+      // simply holds rather than wiping into an empty frame.
+      front.visible = false;
+      return;
+    }
+    const raw = (p - wipeStart) / WIPE;
+    show(front, mats[iTo], zoomTo, raw * raw * (3 - 2 * raw));
   });
 
-  if (!firstReady) return null;
+  if (!ready) return null;
 
   return (
-    <mesh frustumCulled={false}>
-      <planeGeometry args={[1, 1]} />
-      <shaderMaterial
-        ref={materialRef}
-        vertexShader={VERT}
-        fragmentShader={FRAG}
-        uniforms={uniforms}
-        depthTest={false}
-      />
-    </mesh>
+    <>
+      <mesh ref={backRef} geometry={geometry} frustumCulled={false} renderOrder={0} />
+      {/* Drawn after the back quad, which is what makes the wipe read as the new still arriving
+          ON TOP rather than the old one dissolving away underneath. */}
+      <mesh ref={frontRef} geometry={geometry} frustumCulled={false} renderOrder={1} />
+    </>
   );
 };
 
@@ -340,16 +336,6 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
  * the composition: the field is the ground, the still is a screen resting on it. Full bleed was
  * the other option and it loses the field entirely — the card's second half becomes one dark
  * rectangle, and the only place the site's blue appears on this screen goes with it.
- *
- * Rendered rather than composited, and the shader is doing three things `<img>` cannot:
- *
- *   - Cover-fit anchored to the top of the still, correct at any frame shape. The same frame is
- *     a 456x512 portrait on a desktop and a 342x128 band on a phone; CSS `object-fit` handles
- *     that, but not while also doing the two below.
- *   - A soft noise-broken wipe instead of a crossfade. Two dense screenshots at half opacity
- *     each is mud; a wipe keeps whichever still owns a pixel at full strength.
- *   - A slow continuous drift on each still, which is what stops five static images from
- *     reading as five static images.
  *
  * Three things gate it, all of them the gates the cube fields already use:
  *
