@@ -127,7 +127,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
   return (
     <div
-      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] grid place-items-center p-6 sm:p-10 lg:p-14 selection:bg-[#101322] selection:text-[#F6F1E9]"
+      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] grid place-items-center p-4 sm:p-10 lg:p-14 selection:bg-[#101322] selection:text-[#F6F1E9]"
       /* Painted here rather than left to the document. The page this replaced was white-on-black
          and inherited its ground from the body; a screen that gets its background from somewhere
          else is a screen that goes black the day that somewhere else changes.
@@ -218,23 +218,38 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
         {/* This block is what gives the card its height — the two layers above are absolute and
             contribute none. `min-h` is the floor for the lean: a skew needs height to travel
             across, and a card that shrink-wrapped to a short column would show a tilt of a few
-            pixels instead of a band. */}
+            pixels instead of a band.
+
+            No horizontal padding, deliberately: the clearance between the copy and the band's
+            slanted edges is set once, on `.nq-lean-copy`. Padding here would be a second helping
+            of the same clearance, taken out of the copy rather than out of the field.
+
+            One `min-h`, not one per breakpoint, because the band it governs is one size at every
+            breakpoint too. The travel a skew costs is `height x tan(angle)`, so a card that was
+            taller on a phone would lean further there and eat the clearance the column was
+            measured against. */}
         <div
           dir={isAr ? 'rtl' : 'ltr'}
-          className="relative flex flex-col min-h-[32rem] lg:min-h-[34rem] px-6 py-10 sm:py-12 lg:py-14"
+          className="relative flex flex-col min-h-[34rem] py-10 sm:py-12 lg:py-14"
         >
           {/* flex-1 + centred, so the block sits in the middle of whatever height the card
               resolved to and the copyright line stays on the floor rather than being dragged up
               under the buttons. */}
           <div className="flex-1 flex flex-col justify-center">
-            {/* Narrower than the 25rem it used to be, and the number comes off the lean. The
-                upright box that fits inside a leaning band is the band's width minus
-                `height x tan(angle)`: at lg that is 30rem less about 90px, so 21rem clears the
-                slanted edges at the copy's top and bottom lines with room either side. Centred
-                on the card, which is also the band's centre at half height, so the margin lost
-                at the top-left is the margin gained at the bottom-right. */}
-            <div className="w-full max-w-[18rem] lg:max-w-[21rem] mx-auto">
-              <h1 className="text-[1.75rem] sm:text-3xl lg:text-[2.1rem] font-black leading-tight">
+            {/* Narrower than the 25rem it used to be, and the number is not a taste call — it
+                falls out of the lean. See `.nq-lean-copy`, where it is derived.
+
+                Centred on the card, which is also the band's centre at half height, so the
+                margin lost at the top-left is exactly the margin gained at the bottom-right.
+                That asymmetry is not a bug to tune out: an upright column in a leaning band
+                cannot be even at both ends, and the even-at-the-middle answer is the one that
+                keeps the same total clearance at both. */}
+            <div className="nq-lean-copy">
+              {/* One size, because the column is one width. It used to step up to 2.1rem at lg,
+                  which was right while the column stepped up with it; at 15rem, 2.1rem sets
+                  "حسابك في NOVAIQ" wider than the line it is on and wraps a two-word phrase
+                  across three lines. */}
+              <h1 className="text-[1.75rem] font-black leading-tight">
                 {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
                 <br />
                 {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
@@ -325,7 +340,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             </div>
           </div>
 
-          <p className="shrink-0 mt-10 text-center text-[11px]" style={{ color: INK_MUTED }}>
+          {/* Same column as the copy above it. It sits at the band's narrowest point — the
+              bottom, where the lean has taken the band its full travel to the left — so a
+              full-width centred line is the one line that would hang off the edge. */}
+          <p className="nq-lean-copy shrink-0 mt-10 text-center text-[11px]" style={{ color: INK_MUTED }}>
             {isAr ? '© NOVAIQ — جميع الحقوق محفوظة' : '© NOVAIQ — All rights reserved'}
           </p>
         </div>
