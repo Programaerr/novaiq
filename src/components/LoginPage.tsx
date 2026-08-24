@@ -3,7 +3,7 @@ import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
-import { TileField, SECTION_TONES, SECTION_FADE } from './TileField';
+import { CardField } from './CardField';
 import { NqButton } from './ui/NqButton';
 
 interface LoginPageProps {
@@ -144,11 +144,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           the whole point of it being full bleed; the COPY stays in the middle 34rem, where the
           arithmetic that sized `.nq-lean-copy` still holds. */}
       {/* ── The blue ──────────────────────────────────────────────────────────────────── */}
-      {/* `.nq-coast` is the flat fill and the field is the texture on it; the fill is what
-          shows through the gaps the cubes leave. It covers the whole card now rather than one
-          half of it, so the band has field on both sides of it at every height. */}
+      {/* `.nq-coast` is the flat periwinkle fill; the field on it is the texture, and the fill
+          is what shows through the gaps between the cards — CardField's canvas is transparent, so
+          the blue is declared once, here, in the place the rest of the page reads it from.
+
+          It used to be the site's cube field. The cards say something the cubes could not: what
+          sits behind a sign-in form is the catalogue it gets you into, and a card is the shape a
+          template takes everywhere else on this site. */}
       <div className="nq-coast" aria-hidden="true">
-        <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
+        <CardField />
       </div>
 
       {/* ── The band ──────────────────────────────────────────────────────────────────── */}

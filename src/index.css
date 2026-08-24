@@ -889,10 +889,13 @@
    bottom. At 4 degrees over a 34rem card that travel is ~40px, and it comes off the copy at
    both ends of the scale.
 
-   19rem is set by the NARROWEST device, not by taste. A 360px phone has ~328px of card, and
-   the field has to stay visible down both sides of the band rather than being squeezed to a
-   hairline; 19rem is the widest band that leaves the blue readable there, and 15rem is what
-   is left of it after the travel and the clearance.
+   21rem is set by the copy plus the lean, not by the screen. It used to be 19rem, chosen when
+   the band lived inside a 64rem card with page padding around it and the field either side of
+   it was a real margin. Full bleed there is no margin, the band is measured against the whole
+   phone, and 19rem left the copy 16px off the slanted edge — 21rem takes that to 29px and still
+   leaves a strip of field down both sides. The strip is thin, and that is what sets the size of
+   the cards rather than the other way round: see `unitFor` in CardField, which shrinks them to
+   42% on a phone so several fall inside it.
 
    32rem is set by the card. It is exactly half of the 64rem card, which is what the sand half
    of the two-column layout this replaced measured — so the copy gets its old 25rem column and
@@ -907,7 +910,7 @@
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 19rem;
+  width: 21rem;
   transform: translateX(-50%) skewX(-4deg);
 }
 
