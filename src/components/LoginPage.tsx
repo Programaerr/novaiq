@@ -107,214 +107,209 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
   return (
     <div
-      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] grid place-items-center p-4 sm:p-10 lg:p-14 selection:bg-[#101322] selection:text-[#F6F1E9]"
+      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] flex items-center selection:bg-[#101322] selection:text-[#F6F1E9]"
       /* Painted here rather than left to the document. The page this replaced was white-on-black
          and inherited its ground from the body; a screen that gets its background from somewhere
          else is a screen that goes black the day that somewhere else changes.
 
-         SAND, which is the ground every other page of this site stands on, and the ground the
-         field on top of it is standing on too — so the one frame before WebGL has anything on
-         screen is already the right colour rather than a flash of something else. It used to be
-         INK, which was defensible while the backdrop was a night sky, but a sign-in screen is the
-         first thing a visitor sees and one that is dark when the rest of the site is warm reads
-         as a different product's login bolted on. */
-      style={{ background: SAND, color: INK }}
+         PERIWINKLE, because that is what covers the screen now. `.nq-coast` below paints the same
+         blue as a plain CSS fill, so this is only ever seen in the frame before the stylesheet
+         lands — but a fallback that does not match what covers it is a flash of the wrong colour,
+         and this is the first screen a visitor sees. It was SAND while the blue was a card on a
+         sand page, and INK before that, while the backdrop was a night sky.
+
+         No padding and no `place-items-center` any more. The card they were centring is gone;
+         the layers are the page, and `flex items-center` is here only to hold the copy in the
+         middle of a screen it no longer fills. */
+      style={{ background: PERIWINKLE, color: INK }}
     >
-      {/* The card. Three layers, back to front: the blue, the band, the words.
+      {/* Three layers, back to front: the blue, the band, the words. They used to sit inside a
+          card — a 64rem box with rounded corners and a shadow, floating on a sand page. The box is
+          gone and these are the page.
 
-          It used to be a two-column grid, sand beside blue, split down a straight seam. The
-          split is gone and the blue is now the whole card, with the copy riding a single sand
-          band that leans across it. Same two colours and the same amount of each; what changed
-          is that the boundary between them is one shape instead of a wall, so the card reads as
-          one object rather than as two panels that happen to touch.
+          It went because the page behind it did. A card is an object ON something, and once the
+          ground was flat sand with nothing in it, the composition was a rectangle of design
+          sitting in an empty margin — the margin was not framing anything, it was left over. Full
+          bleed, the blue runs to all four edges and the band runs the height of the screen,
+          which is the same picture without the part that was doing nothing.
 
-          `relative` so it is above the backdrop without a z-index — it comes after it in the DOM
-          and both are positioned, which is all the stacking order needs. `overflow-hidden` is
-          what makes the lean safe: the band is skewed, so its corners travel past the card's
-          own edges, and this is the thing that cuts them off square with the rounding.
+          `overflow-hidden` on the page is what makes the lean safe: the band is skewed, so its
+          corners travel past the screen's own edges and this is what cuts them off.
 
-          No `dir` on the card any more. The old one was forced `ltr` to stop the two grid
-          columns swapping sides with the language — there are no columns to swap now, the lean
-          runs the same way in both languages because it is a picture, and the copy inside gets
-          its own direction on the block below.
+          The page is `flex items-center` and the words block below keeps its own `min-h-[34rem]`
+          rather than stretching. That is deliberate and it is what protects the copy from the
+          taller viewport: a skew costs `height x tan(angle)` of width, so a block that grew to
+          fill a 1200px screen would lean 84px across the copy instead of 38 and take the
+          clearance with it. The BAND spans the screen and leans further on a tall one, which is
+          the whole point of it being full bleed; the COPY stays in the middle 34rem, where the
+          arithmetic that sized `.nq-lean-copy` still holds. */}
+      {/* ── The blue ──────────────────────────────────────────────────────────────────── */}
+      {/* `.nq-coast` is the flat fill and the field is the texture on it; the fill is what
+          shows through the gaps the cubes leave. It covers the whole card now rather than one
+          half of it, so the band has field on both sides of it at every height. */}
+      <div className="nq-coast" aria-hidden="true">
+        <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
+      </div>
 
-          The shadow is the only thing that separates the card from the page now that the page
-          is flat sand, and it matters more for that: with nothing behind it, an unshadowed card
-          reads as a recoloured hole cut in the ground rather than as an object laid on it. Long
-          and soft rather than tight and dark — the ground is warm sand, and a hard shadow on sand
-          reads as dirt. */}
+      {/* ── The band ──────────────────────────────────────────────────────────────────── */}
+      {/* Decorative and empty: it is the surface, and the words are a sibling above it rather
+          than children inside it, because a skewed parent skews its text (see .nq-lean).
+
+          SOLID sand, and this is the one place the redesign overrode the shape it was given.
+          The panel this replaces was frosted glass at 0.72 over a blurred SAND backdrop, which
+          landed on sand because what it was mixing with was already sand. The same 0.72 over
+          the periwinkle field mixes with something darker and much bluer and lands on #BEB2B6
+          — a mauve. It is still legible, 9.1:1, but the card then has no sand in it at all,
+          and a sand band is the whole idea. Opaque is also a compositing pass saved on a
+          full-height element, and the contrast floor stops depending on which cube face
+          happens to be under the copy. */}
       <div
-        className="relative w-full max-w-[64rem] rounded-[0.5rem] overflow-hidden"
-        style={{ boxShadow: '0 26px 58px -22px rgba(16, 19, 34, 0.5)' }}
+        aria-hidden="true"
+        className="nq-lean"
+        style={{
+          background: SAND,
+          /* Two shadows doing two jobs. The inset hairline is the lit edge of a pane, and it
+             is the reason this is a skew rather than a clip path. The outer one is the lift:
+             against a field of cubes that are themselves shaded, a flat panel with no shadow
+             reads as a hole cut in the card rather than as a surface laid on it. */
+          boxShadow:
+            'inset 1px 1px 0 rgba(246, 241, 233, 0.35), 0 26px 52px -30px rgba(16, 19, 34, 0.6)',
+        }}
+      />
+
+      {/* ── The words ─────────────────────────────────────────────────────────────────── */}
+      {/* `min-h` and not `h-full`, and this is the load-bearing line of the whole layout. The
+          two layers above are absolute and stretch to the screen; this one is the only thing in
+          flow, and it deliberately does NOT follow them. It claims 34rem in the middle and the
+          page centres it.
+
+          The reason is the lean. A skew costs `height x tan(angle)` of usable width, measured
+          across whatever the copy actually spans — so a block stretched to a 1200px screen would
+          have the band cross it by 84px instead of 38 and would eat the clearance `.nq-lean-copy`
+          was sized against, on exactly the tall monitors nobody tests. Fixed at 34rem, the copy
+          sees the same lean at every viewport height, and the band is free to run the full screen
+          and lean as far as it likes around it.
+
+          No horizontal padding, deliberately: the clearance between the copy and the band's
+          slanted edges is set once, on `.nq-lean-copy`. Padding here would be a second helping
+          of the same clearance, taken out of the copy rather than out of the field. */}
+      <div
+        dir={isAr ? 'rtl' : 'ltr'}
+        className="relative w-full flex flex-col min-h-[34rem] py-10 sm:py-12 lg:py-14"
       >
-        {/* ── The blue ──────────────────────────────────────────────────────────────────── */}
-        {/* `.nq-coast` is the flat fill and the field is the texture on it; the fill is what
-            shows through the gaps the cubes leave. It covers the whole card now rather than one
-            half of it, so the band has field on both sides of it at every height. */}
-        <div className="nq-coast" aria-hidden="true">
-          <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
-        </div>
+        {/* flex-1 + centred, so the block sits in the middle of its 34rem and the copyright line
+            stays on its floor rather than being dragged up under the buttons. */}
+        <div className="flex-1 flex flex-col justify-center">
+          {/* Narrower than the 25rem it used to be, and the number is not a taste call — it
+              falls out of the lean. See `.nq-lean-copy`, where it is derived.
 
-        {/* ── The band ──────────────────────────────────────────────────────────────────── */}
-        {/* Decorative and empty: it is the surface, and the words are a sibling above it rather
-            than children inside it, because a skewed parent skews its text (see .nq-lean).
+              Centred on the card, which is also the band's centre at half height, so the
+              margin lost at the top-left is exactly the margin gained at the bottom-right.
+              That asymmetry is not a bug to tune out: an upright column in a leaning band
+              cannot be even at both ends, and the even-at-the-middle answer is the one that
+              keeps the same total clearance at both. */}
+          <div className="nq-lean-copy">
+            {/* Two sizes, and they step with the column rather than with the viewport. At
+                15rem the ceiling is 1.75rem — "حسابك في NOVAIQ" sets at ~238px there, two
+                short of the column, and 2.1rem would wrap a two-word phrase across three
+                lines. At 25rem there is room for the 2.1rem the desktop card always ran. */}
+            <h1 className="text-[1.75rem] lg:text-[2.1rem] font-black leading-tight">
+              {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
+              <br />
+              {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
+            </h1>
 
-            SOLID sand, and this is the one place the redesign overrode the shape it was given.
-            The panel this replaces was frosted glass at 0.72 over a blurred SAND backdrop, which
-            landed on sand because what it was mixing with was already sand. The same 0.72 over
-            the periwinkle field mixes with something darker and much bluer and lands on #BEB2B6
-            — a mauve. It is still legible, 9.1:1, but the card then has no sand in it at all,
-            and a sand band is the whole idea. Opaque is also a compositing pass saved on a
-            full-height element, and the contrast floor stops depending on which cube face
-            happens to be under the copy. */}
-        <div
-          aria-hidden="true"
-          className="nq-lean"
-          style={{
-            background: SAND,
-            /* Two shadows doing two jobs. The inset hairline is the lit edge of a pane, and it
-               is the reason this is a skew rather than a clip path. The outer one is the lift:
-               against a field of cubes that are themselves shaded, a flat panel with no shadow
-               reads as a hole cut in the card rather than as a surface laid on it. */
-            boxShadow:
-              'inset 1px 1px 0 rgba(246, 241, 233, 0.35), 0 26px 52px -30px rgba(16, 19, 34, 0.6)',
-          }}
-        />
+            <p className="mt-3 lg:mt-4 text-[13px] sm:text-sm leading-relaxed" style={{ color: INK_MUTED }}>
+              {isAr
+                ? 'ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.'
+                : 'Continue with Google to follow your contracts and saved templates in one place.'}
+            </p>
 
-        {/* ── The words ─────────────────────────────────────────────────────────────────── */}
-        {/* This block is what gives the card its height — the two layers above are absolute and
-            contribute none. `min-h` is the floor for the lean: a skew needs height to travel
-            across, and a card that shrink-wrapped to a short column would show a tilt of a few
-            pixels instead of a band.
+            {/* Three, and three is the cap rather than the count that happened to fit: a list of
+                reasons long enough to need scanning is competing with the button underneath it.
+                The icons lost the filled chip they used to sit in — a 28px dark square each was
+                three more objects on a surface that now has a whole blue half beside it to carry
+                the visual weight. */}
+            <ul className="mt-5 lg:mt-7 space-y-2.5">
+              {perks.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-center gap-2.5 text-xs sm:text-[13px]">
+                  <Icon className="w-4 h-4 shrink-0" aria-hidden="true" style={{ color: PERIWINKLE }} />
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ul>
 
-            No horizontal padding, deliberately: the clearance between the copy and the band's
-            slanted edges is set once, on `.nq-lean-copy`. Padding here would be a second helping
-            of the same clearance, taken out of the copy rather than out of the field.
-
-            One `min-h`, not one per breakpoint, because the band it governs is one size at every
-            breakpoint too. The travel a skew costs is `height x tan(angle)`, so a card that was
-            taller on a phone would lean further there and eat the clearance the column was
-            measured against. */}
-        <div
-          dir={isAr ? 'rtl' : 'ltr'}
-          className="relative flex flex-col min-h-[34rem] py-10 sm:py-12 lg:py-14"
-        >
-          {/* flex-1 + centred, so the block sits in the middle of whatever height the card
-              resolved to and the copyright line stays on the floor rather than being dragged up
-              under the buttons. */}
-          <div className="flex-1 flex flex-col justify-center">
-            {/* Narrower than the 25rem it used to be, and the number is not a taste call — it
-                falls out of the lean. See `.nq-lean-copy`, where it is derived.
-
-                Centred on the card, which is also the band's centre at half height, so the
-                margin lost at the top-left is exactly the margin gained at the bottom-right.
-                That asymmetry is not a bug to tune out: an upright column in a leaning band
-                cannot be even at both ends, and the even-at-the-middle answer is the one that
-                keeps the same total clearance at both. */}
-            <div className="nq-lean-copy">
-              {/* Two sizes, and they step with the column rather than with the viewport. At
-                  15rem the ceiling is 1.75rem — "حسابك في NOVAIQ" sets at ~238px there, two
-                  short of the column, and 2.1rem would wrap a two-word phrase across three
-                  lines. At 25rem there is room for the 2.1rem the desktop card always ran. */}
-              <h1 className="text-[1.75rem] lg:text-[2.1rem] font-black leading-tight">
-                {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
-                <br />
-                {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
-              </h1>
-
-              <p className="mt-3 lg:mt-4 text-[13px] sm:text-sm leading-relaxed" style={{ color: INK_MUTED }}>
-                {isAr
-                  ? 'ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.'
-                  : 'Continue with Google to follow your contracts and saved templates in one place.'}
-              </p>
-
-              {/* Three, and three is the cap rather than the count that happened to fit: a list of
-                  reasons long enough to need scanning is competing with the button underneath it.
-                  The icons lost the filled chip they used to sit in — a 28px dark square each was
-                  three more objects on a surface that now has a whole blue half beside it to carry
-                  the visual weight. */}
-              <ul className="mt-5 lg:mt-7 space-y-2.5">
-                {perks.map(({ icon: Icon, text }) => (
-                  <li key={text} className="flex items-center gap-2.5 text-xs sm:text-[13px]">
-                    <Icon className="w-4 h-4 shrink-0" aria-hidden="true" style={{ color: PERIWINKLE }} />
-                    <span>{text}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* `role="alert"` so a sign-in failure is announced rather than only drawn. A message
-                  that appears silently under a button somebody just pressed is a message a screen
-                  reader user never receives. */}
-              {error && (
-                <div
-                  role="alert"
-                  className="mt-5 p-3 rounded-[0.375rem] text-xs text-center"
-                  style={{
-                    background: 'rgba(127, 29, 29, 0.1)',
-                    color: '#7F1D1D',
-                    boxShadow: 'inset 0 0 0 1px rgba(127, 29, 29, 0.3)',
-                  }}
-                >
-                  {error}
-                </div>
-              )}
-
-              {/* One button, because there is only one path: Firebase creates the account on a
-                  first-time Google sign-in, so "log in" and "sign up" are the same click here and
-                  offering both would be two doors into one room.
-
-                  `footer` is the tone, on a sand ground, and the borrow is deliberate. The
-                  wireframe paints this button in the panel blue — the same blue as the half beside
-                  it — and `footer` is the site's only pair that puts PERIWINKLE in the fill with
-                  INK on top of it (6.28:1). `chrome` has the same fill but a white focus ring,
-                  which on sand is no ring at all. */}
-              <NqButton
-                tone="footer"
-                variant="solid"
-                size="lg"
-                radius="xl"
-                block
-                loading={isSubmitting}
-                onClick={handleGoogleSignIn}
-                className="mt-6 lg:mt-7"
-                icon={<GoogleIcon />}
+            {/* `role="alert"` so a sign-in failure is announced rather than only drawn. A message
+                that appears silently under a button somebody just pressed is a message a screen
+                reader user never receives. */}
+            {error && (
+              <div
+                role="alert"
+                className="mt-5 p-3 rounded-[0.375rem] text-xs text-center"
+                style={{
+                  background: 'rgba(127, 29, 29, 0.1)',
+                  color: '#7F1D1D',
+                  boxShadow: 'inset 0 0 0 1px rgba(127, 29, 29, 0.3)',
+                }}
               >
-                {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
-              </NqButton>
+                {error}
+              </div>
+            )}
 
-              {/* Browsing the catalogue, opening a demo and reading the timeline need no account,
-                  and requiring one to look around turns a visitor away before they have seen
-                  anything worth signing in for. The line underneath says where the wall actually
-                  is, so choosing this does not feel like it might cost them something later on. */}
-              <NqButton
-                tone="sand"
-                variant="solid"
-                size="md"
-                radius="xl"
-                block
-                disabled={isSubmitting}
-                onClick={onContinueAsGuest}
-                className="mt-3"
-              >
-                {isAr ? 'أكمل كضيف' : 'Continue as guest'}
-              </NqButton>
+            {/* One button, because there is only one path: Firebase creates the account on a
+                first-time Google sign-in, so "log in" and "sign up" are the same click here and
+                offering both would be two doors into one room.
 
-              <p className="mt-2.5 text-center text-[11px]" style={{ color: INK_MUTED }}>
-                {isAr
-                  ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
-                  : 'Browse and try the templates freely — an account is only needed to create a contract.'}
-              </p>
-            </div>
+                `footer` is the tone, on a sand ground, and the borrow is deliberate. The
+                wireframe paints this button in the panel blue — the same blue as the half beside
+                it — and `footer` is the site's only pair that puts PERIWINKLE in the fill with
+                INK on top of it (6.28:1). `chrome` has the same fill but a white focus ring,
+                which on sand is no ring at all. */}
+            <NqButton
+              tone="footer"
+              variant="solid"
+              size="lg"
+              radius="xl"
+              block
+              loading={isSubmitting}
+              onClick={handleGoogleSignIn}
+              className="mt-6 lg:mt-7"
+              icon={<GoogleIcon />}
+            >
+              {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
+            </NqButton>
+
+            {/* Browsing the catalogue, opening a demo and reading the timeline need no account,
+                and requiring one to look around turns a visitor away before they have seen
+                anything worth signing in for. The line underneath says where the wall actually
+                is, so choosing this does not feel like it might cost them something later on. */}
+            <NqButton
+              tone="sand"
+              variant="solid"
+              size="md"
+              radius="xl"
+              block
+              disabled={isSubmitting}
+              onClick={onContinueAsGuest}
+              className="mt-3"
+            >
+              {isAr ? 'أكمل كضيف' : 'Continue as guest'}
+            </NqButton>
+
+            <p className="mt-2.5 text-center text-[11px]" style={{ color: INK_MUTED }}>
+              {isAr
+                ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
+                : 'Browse and try the templates freely — an account is only needed to create a contract.'}
+            </p>
           </div>
-
-          {/* Same column as the copy above it. It sits at the band's narrowest point — the
-              bottom, where the lean has taken the band its full travel to the left — so a
-              full-width centred line is the one line that would hang off the edge. */}
-          <p className="nq-lean-copy shrink-0 mt-10 text-center text-[11px]" style={{ color: INK_MUTED }}>
-            {isAr ? '© NOVAIQ — جميع الحقوق محفوظة' : '© NOVAIQ — All rights reserved'}
-          </p>
         </div>
 
+        {/* Same column as the copy above it. It sits at the band's narrowest point — the
+            bottom, where the lean has taken the band its full travel to the left — so a
+            full-width centred line is the one line that would hang off the edge. */}
+        <p className="nq-lean-copy shrink-0 mt-10 text-center text-[11px]" style={{ color: INK_MUTED }}>
+          {isAr ? '© NOVAIQ — جميع الحقوق محفوظة' : '© NOVAIQ — All rights reserved'}
+        </p>
       </div>
     </div>
   );
