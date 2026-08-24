@@ -3,7 +3,7 @@ import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
-import { TileField, SAND_TONES, FieldFade } from './TileField';
+import { TileField, SAND_TONES, SECTION_TONES, SECTION_FADE, FieldFade } from './TileField';
 import { TemplateShowcase } from './TemplateShowcase';
 import { NqButton } from './ui/NqButton';
 
@@ -119,11 +119,11 @@ const BACKDROP_BLUR = '8px';
  * navbar to sit under and no page padding to clear. The only things it takes from the rest of the
  * app are the pieces that genuinely are shared: the auth call, the palette and the button system.
  *
- * Two layers of atmosphere, and they are deliberately different in kind. BEHIND the card is the
- * site's own cube field, blurred — the same component the hero and the timeline run, so the page
- * reads as this site rather than as a login bolted on. INSIDE the card, where the eye actually
- * settles, is the work: five template stills that change every five seconds. Atmosphere in the
- * background and substance in the foreground, rather than the same decoration twice.
+ * Three layers, from back to front. BEHIND the card, the site's own cube field, blurred — the
+ * same component the hero and the timeline run, so the page reads as this site rather than as a
+ * login bolted on. INSIDE the card's second half, the same field again but sharp, as the ground
+ * of the blue half. And resting on that ground, the work: five template stills that change every
+ * five seconds. Atmosphere behind, atmosphere under, substance on top.
  */
 export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGuest }) => {
   const isAr = language === 'ar';
@@ -344,9 +344,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           {/* `.nq-coast` is the seam: a plain blue fill at this cell's own bounds. It used to
               overhang this cell and carry a stepped clip-path, which is why it needed rules per
               breakpoint; a straight edge is the same edge at every width, so the class is four
-              lines now and there is no breakpoint in it. It is also the mat the stills sit on —
-              TemplateShowcase paints no ground of its own, only the inset. */}
+              lines now and there is no breakpoint in it.
+
+              Two layers, and the pair is the composition. The cube field is the ground — the
+              same component the hero and the timeline run, on the section tones, so the blue
+              half is the site's blue and not a flat swatch. The showcase rests on it, inset, as
+              a screen standing on that ground. Either one alone is weaker: the field alone says
+              nothing about the work, and the stills alone turn this half into a dark rectangle
+              with the site's only blue on this screen gone. */}
           <div className="nq-coast">
+            <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
             <TemplateShowcase />
           </div>
         </div>
