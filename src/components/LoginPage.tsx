@@ -247,11 +247,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 cannot be even at both ends, and the even-at-the-middle answer is the one that
                 keeps the same total clearance at both. */}
             <div className="nq-lean-copy">
-              {/* One size, because the column is one width. It used to step up to 2.1rem at lg,
-                  which was right while the column stepped up with it; at 15rem, 2.1rem sets
-                  "حسابك في NOVAIQ" wider than the line it is on and wraps a two-word phrase
-                  across three lines. */}
-              <h1 className="text-[1.75rem] font-black leading-tight">
+              {/* Two sizes, and they step with the column rather than with the viewport. At
+                  15rem the ceiling is 1.75rem — "حسابك في NOVAIQ" sets at ~238px there, two
+                  short of the column, and 2.1rem would wrap a two-word phrase across three
+                  lines. At 25rem there is room for the 2.1rem the desktop card always ran. */}
+              <h1 className="text-[1.75rem] lg:text-[2.1rem] font-black leading-tight">
                 {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
                 <br />
                 {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}

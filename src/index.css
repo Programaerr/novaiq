@@ -877,23 +877,31 @@
    The copy is a SIBLING of this, never a child. Skewing the panel is a composition; skewing
    the panel's text is nine degrees of leaning glyphs, which is a different request.
 
-   ONE width and ONE angle, at every screen size, and there is deliberately not a breakpoint in
-   this rule or in the copy column below it. The band is an OBJECT: something that is 19rem on a
-   laptop and 90% of the card on a phone is two different objects sharing a class name. What
-   changes between a phone and a desktop is only how much field there is around it.
+   ONE angle at every screen size, and TWO widths. The split is deliberate and so is the fact
+   that it falls on the width rather than on the lean: the angle is the band's identity, and a
+   panel that leans 4 degrees on a phone and 9 on a desktop is two different objects sharing a
+   class name. How WIDE it is is a different question, and it has a different answer at each
+   end because the card it sits in is three times the size.
 
-   The two numbers are tied to each other and neither is free. A skew costs the panel
+   The lean is not free, and the cost is what sets both widths. A skew costs the panel
    `height x tan(angle)` of usable width — the upright box that fits inside a leaning one is
    narrower than the band by exactly the distance the band travels from its top edge to its
-   bottom. At 4 degrees over a 34rem card that travel is ~38px, so a 19rem band seats the 15rem
-   column below with ~13px clear of the slanted edge at the copy's first and last line.
+   bottom. At 4 degrees over a 34rem card that travel is ~40px, and it comes off the copy at
+   both ends of the scale.
 
-   Both numbers are set by the NARROWEST device, not the widest. A 360px phone has ~328px of
-   card, and the field has to stay visible down both sides of the band rather than being
-   squeezed to a hairline — which is what 19rem is: the widest band that leaves the blue
-   readable there. The angle follows from it. 9 degrees costs ~92px of travel, which a 30rem
-   band can afford and a 19rem one cannot; 4 is what is left, and it still leans far enough to
-   read as a lean rather than as a panel someone failed to align. */
+   19rem is set by the NARROWEST device, not by taste. A 360px phone has ~328px of card, and
+   the field has to stay visible down both sides of the band rather than being squeezed to a
+   hairline; 19rem is the widest band that leaves the blue readable there, and 15rem is what
+   is left of it after the travel and the clearance.
+
+   32rem is set by the card. It is exactly half of the 64rem card, which is what the sand half
+   of the two-column layout this replaced measured — so the copy gets its old 25rem column and
+   its old 2.1rem title back, and the difference between the old card and this one is the shape
+   of the boundary rather than how much room the words were given.
+
+   The angle stays at 4 for both. 9 degrees costs ~92px of travel, which 32rem could afford and
+   19rem could not, and a lean that changed with the viewport would be the one thing about this
+   panel that is supposed to be constant. */
 .nq-lean {
   position: absolute;
   top: 0;
@@ -903,13 +911,19 @@
   transform: translateX(-50%) skewX(-4deg);
 }
 
-/* The copy column inside the band: the band, less the travel, less the clearance either side.
-   19rem - 38px - 2x13px = 15rem.
+@media (min-width: 1024px) {
+  /* Half the card, ~41px of travel at 4 degrees, ~36px clear of the slanted edge either side. */
+  .nq-lean {
+    width: 32rem;
+  }
+}
 
-   Fixed like the band, and that buys something beyond consistency. The copy wraps identically
-   on every device, so the card is the same height everywhere — and since the travel is
-   `height x tan(angle)`, a card that grew taller on a phone would quietly lean further there
-   and eat the very clearance this width was measured against.
+/* The copy column inside the band: the band, less the travel, less the clearance either side.
+   19rem - 38px - 2x13px = 15rem, and 32rem - 41px - 2x36px = 25rem.
+
+   Both are absolute widths rather than a percentage of the band, and that is what keeps the
+   clearance honest. A percentage would shrink the margin at the same rate as the band, so the
+   phone case — the one with no room to spare — would be the one that lost it.
 
    The block this sits in carries no horizontal padding of its own. Padding there would be a
    second helping of the same clearance, taken out of the copy rather than out of the field. */
@@ -917,6 +931,12 @@
   width: 15rem;
   max-width: 100%;
   margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+  .nq-lean-copy {
+    width: 25rem;
+  }
 }
 
 
