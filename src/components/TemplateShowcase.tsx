@@ -243,8 +243,16 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     /* Advanced by delta rather than read off state.clock, so a pause is a real pause: the
        canvas drops off the render loop, useFrame stops being called, and the sequence picks up
        exactly where it stopped instead of jumping forward by however long the tab spent in the
-       background. */
-    clockRef.current += Math.min(delta, 0.1);
+       background.
+
+       The clamp catches the single enormous delta that arrives on the first frame after a
+       resume, and 0.5 rather than something tight is deliberate: a clamp BELOW the real frame
+       time silently slows the whole sequence down, because every frame then contributes less
+       than the time it actually took. At 0.1 a device rendering at 5fps would advance this
+       clock at a fifth of real speed and the five-second cadence would quietly become
+       twenty-five. Half a second is past any frame rate a person would sit through, so the
+       clamp only ever fires on a resume, which is what it is for. */
+    clockRef.current += Math.min(delta, 0.5);
     const t = clockRef.current;
 
     const cycle = Math.floor(t / CYCLE);
@@ -360,7 +368,6 @@ export const TemplateShowcase: React.FC = () => {
   return (
     <div
       ref={hostRef}
-      data-dbg={`${active ? 1 : 0}${idle ? 1 : 0}${hovered ? 1 : 0}${reduced ? 1 : 0}`}
       /* The inset IS the design. Sized so the still keeps the card's proportions on a desktop
          and still leaves a band of field visible all the way round on a phone, where the whole
          cell is only 10rem tall. */
