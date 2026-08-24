@@ -264,6 +264,18 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     uniforms.uFrom.value = tex[iFrom];
     uniforms.uTo.value = tex[iTo];
     uniforms.uTexAspect.value.set(aspectOf(tex[iFrom]), aspectOf(tex[iTo]));
+
+    const f = uniforms.uFrom.value as any;
+    (window as any).__dbg = {
+      memTex: gl.info.memory.textures,
+      calls: gl.info.render.calls,
+      hasFrom: !!f,
+      img: f && f.image ? (f.image.width + 'x' + f.image.height) : null,
+      version: f ? f.version : null,
+      cs: f ? f.colorSpace : null,
+      texAspect: uniforms.uTexAspect.value.x,
+      aspect: uniforms.uAspect.value,
+    };
   });
 
   if (!firstReady) return null;
