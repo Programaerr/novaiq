@@ -36,51 +36,25 @@ function GoogleIcon() {
 }
 
 /**
- * The lightest ink that still clears 4.5:1 on the glass panel below, in its WORST state.
+ * The lightest ink that still clears 4.5:1 on the band below.
  *
- * Measured rather than picked, and re-measured every time the thing behind the card changed:
- * solid sand, then an ink sky, then falling code, and now the site's cube field again.
+ * Measured rather than picked, and re-measured every time the surface under it changed: solid
+ * sand, an ink sky, falling code, frosted glass over a cube field, and now solid sand again.
  *
- * The panel is translucent, so the surface under this text is whatever the backdrop is, mixed
- * toward sand. Read off the rendered page rather than off the palette, that surface now spans
- * #D0B6A4 to #D4BCAA: full ink on it is 9.58:1 to 10.17:1, and this value 7.20:1 to 7.55:1.
- * Comfortable, and deliberately left where the dark backdrops put it rather than wound back to
- * the 0.7 that solid sand allowed — 0.7 measures 4.94:1 at the floor here, which clears the bar
- * by four hundredths and is not a margin worth defending the next time something moves behind
- * this card.
+ * The band is opaque, so for the first time in a while the surface IS the swatch: SAND flat,
+ * #D5BDAC, whatever the field behind the card happens to be doing. Full ink on it is 10.39:1
+ * and this value is 7.62:1.
  *
- * Worth writing down because the reflex on a light-looking panel is to reach for /60 or /50 the
- * way the old dark version of this screen used `text-white/60`. On glass that reflex is a full
- * step worse than it looks, because the surface goes darker than the swatch it came from every
- * time something dark passes behind it.
+ * It stays at 0.85 rather than being wound back to the 0.7 an opaque sand panel would allow.
+ * 0.7 measures 5.14:1, which is fine today and was 4.94:1 the last time this surface was glass
+ * — four hundredths over the bar, on a surface that has now moved five times. The margin is
+ * cheaper than re-deriving it a sixth time.
+ *
+ * Worth writing down because the reflex on a light panel is to reach for /60 or /50 the way the
+ * old dark version of this screen used `text-white/60`. On sand that reflex is a full step
+ * worse than it looks.
  */
 const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
-
-/**
- * The words half, as frosted glass rather than a solid sand panel.
- *
- * 0.72, and with the cube field back behind the card this is a LOOK rather than the contrast
- * floor it used to be. A translucent sand surface does not stay sand — it mixes toward whatever
- * is behind it, in proportion to how much it lets through — and while the backdrop was an ink
- * sky, and later dark code, that mixing was what set the number: at 0.6 the surface fell to
- * #867975 and full-strength INK on it measured 4.41:1, under what body text needs before a
- * single muted line is drawn.
- *
- * Over the field there is no such floor, and the reason is `backdrop-blur-xl` below rather than
- * the field being light. The rendered backdrop still spans #AA856B to #DAC1A9 — better than two
- * to one in luminance, because a cube's shaded faces go well past the trough tone the palette
- * declares. The backdrop filter averages all of that before this panel composites over it, so the
- * surface itself only ever moves between #D0B6A4 and #D4BCAA: a six percent spread, 9.58:1 at its
- * worst. Drop the `backdrop-blur-xl` and the floor comes back — a single dark cube face directly
- * under the copy would put the surface at #C9AD9A.
- *
- * It stays at 0.72 anyway, for the look: the panel has to read as a pane laid OVER the field
- * rather than as a hole cut in it, and this is where the cubes stay visible through the glass
- * without competing with the copy. Keeping the margin also means the pair below survives the next
- * backdrop — INK_MUTED is derived against this number, and the two have been re-derived three
- * times now.
- */
-const SAND_GLASS = 'rgba(213, 189, 172, 0.72)';
 
 /**
  * The backdrop field does not fade at either end.
@@ -188,50 +162,78 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
         </div>
       </div>
 
-      {/* `dir="ltr"` on the SPLIT only, and it is what pins the halves.
-          The page is RTL in Arabic, so the grid's first column is the right-hand one — the two
-          halves would swap sides with the language and the composition would mirror. It does not
-          mirror in the wireframe and it does not mirror in the hero either, for the same reason
-          (see the note on `mr-auto` in HomeHero): this is a picture, not a reading order. Words
-          left, field right, in both languages.
-          The text inside is handed its own direction back on the column below, so only the
-          COLUMN ORDER is forced physical — nothing about the copy is. */}
-      {/* `relative` so the card is above the backdrop without a z-index — it comes after it in
-          the DOM and both are positioned, which is all the stacking order needs. */}
-      {/* No background of its own. It used to paint solid SAND behind both halves, which was
-          needed while the seam was a stepped coastline: a bay cut into the blue had to show
-          beach rather than a hole through to the page. With a straight seam every pixel of the
-          card belongs to one half or the other, so the card can be transparent — and it has to
-          be, or it would sit opaque behind the glass half and there would be nothing for the
-          blur to sample. */}
-      <div
-        dir="ltr"
-        className="relative w-full max-w-[64rem] grid grid-cols-1 lg:grid-cols-2 rounded-[0.5rem] overflow-hidden"
-      >
-        {/* ── Words ─────────────────────────────────────────────────────────────────────── */}
-        {/* Padding is SYMMETRIC, and it is allowed to be because the seam beside it is straight.
-            It used to be lopsided — 56px left, 112px right — purely as clearance: the seam was a
-            stepped coastline that hung about 80px of blue over this column, and without the extra
-            padding the deepest step landed on the copy and on the two buttons. The steps are gone
-            (see .nq-coast), the overhang with them, so the copy can sit centred in its own half
-            again instead of being pushed off it. */}
+      {/* The card. Three layers, back to front: the blue, the band, the words.
+
+          It used to be a two-column grid, sand beside blue, split down a straight seam. The
+          split is gone and the blue is now the whole card, with the copy riding a single sand
+          band that leans across it. Same two colours and the same amount of each; what changed
+          is that the boundary between them is one shape instead of a wall, so the card reads as
+          one object rather than as two panels that happen to touch.
+
+          `relative` so it is above the backdrop without a z-index — it comes after it in the DOM
+          and both are positioned, which is all the stacking order needs. `overflow-hidden` is
+          what makes the lean safe: the band is skewed, so its corners travel past the card's
+          own edges, and this is the thing that cuts them off square with the rounding.
+
+          No `dir` on the card any more. The old one was forced `ltr` to stop the two grid
+          columns swapping sides with the language — there are no columns to swap now, the lean
+          runs the same way in both languages because it is a picture, and the copy inside gets
+          its own direction on the block below. */}
+      <div className="relative w-full max-w-[64rem] rounded-[0.5rem] overflow-hidden">
+        {/* ── The blue ──────────────────────────────────────────────────────────────────── */}
+        {/* `.nq-coast` is the flat fill and the field is the texture on it; the fill is what
+            shows through the gaps the cubes leave. It covers the whole card now rather than one
+            half of it, which is also what gives the band something to blur. */}
+        <div className="nq-coast" aria-hidden="true">
+          <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
+        </div>
+
+        {/* ── The band ──────────────────────────────────────────────────────────────────── */}
+        {/* Decorative and empty: it is the surface, and the words are a sibling above it rather
+            than children inside it, because a skewed parent skews its text (see .nq-lean).
+
+            SOLID sand, and this is the one place the redesign overrode the shape it was given.
+            The panel this replaces was frosted glass at 0.72 over a blurred SAND backdrop, which
+            landed on sand because what it was mixing with was already sand. The same 0.72 over
+            the periwinkle field mixes with something darker and much bluer and lands on #BEB2B6
+            — a mauve. It is still legible, 9.1:1, but the card then has no sand in it at all,
+            and a sand band is the whole idea. Opaque is also a compositing pass saved on a
+            full-height element, and the contrast floor stops depending on which cube face
+            happens to be under the copy. */}
+        <div
+          aria-hidden="true"
+          className="nq-lean"
+          style={{
+            background: SAND,
+            /* Two shadows doing two jobs. The inset hairline is the lit edge of a pane, and it
+               is the reason this is a skew rather than a clip path. The outer one is the lift:
+               against a field of cubes that are themselves shaded, a flat panel with no shadow
+               reads as a hole cut in the card rather than as a surface laid on it. */
+            boxShadow:
+              'inset 1px 1px 0 rgba(246, 241, 233, 0.35), 0 26px 52px -30px rgba(16, 19, 34, 0.6)',
+          }}
+        />
+
+        {/* ── The words ─────────────────────────────────────────────────────────────────── */}
+        {/* This block is what gives the card its height — the two layers above are absolute and
+            contribute none. `min-h` is the floor for the lean: a skew needs height to travel
+            across, and a card that shrink-wrapped to a short column would show a tilt of a few
+            pixels instead of a band. */}
         <div
           dir={isAr ? 'rtl' : 'ltr'}
-          className="flex flex-col px-6 py-10 sm:px-10 sm:py-12 lg:px-14 backdrop-blur-xl"
-          style={{
-            background: SAND_GLASS,
-            /* A hairline of the paper tone along the top and left edges. On glass it reads as
-               the lit edge of a pane rather than a border — without it the panel's boundary
-               against the sky is only a change of blur, which disappears wherever the sky
-               behind it happens to be empty. */
-            boxShadow: 'inset 1px 1px 0 rgba(246, 241, 233, 0.35)',
-          }}
+          className="relative flex flex-col min-h-[32rem] lg:min-h-[34rem] px-6 py-10 sm:py-12 lg:py-14"
         >
           {/* flex-1 + centred, so the block sits in the middle of whatever height the card
               resolved to and the copyright line stays on the floor rather than being dragged up
               under the buttons. */}
           <div className="flex-1 flex flex-col justify-center">
-            <div className="w-full max-w-[25rem] mx-auto">
+            {/* Narrower than the 25rem it used to be, and the number comes off the lean. The
+                upright box that fits inside a leaning band is the band's width minus
+                `height x tan(angle)`: at lg that is 30rem less about 90px, so 21rem clears the
+                slanted edges at the copy's top and bottom lines with room either side. Centred
+                on the card, which is also the band's centre at half height, so the margin lost
+                at the top-left is the margin gained at the bottom-right. */}
+            <div className="w-full max-w-[18rem] lg:max-w-[21rem] mx-auto">
               <h1 className="text-[1.75rem] sm:text-3xl lg:text-[2.1rem] font-black leading-tight">
                 {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
                 <br />
@@ -328,29 +330,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           </p>
         </div>
 
-        {/* ── Field ─────────────────────────────────────────────────────────────────────── */}
-        {/* `order-first` below lg and back in place at lg, so the field is a BAND across the top
-            of the card on a phone and the right-hand half on a desktop. A band rather than a
-            second full screen: the page this replaced dropped its artwork entirely below lg on
-            the reasoning that a phone which has to scroll past a screenful of decoration to reach
-            a sign-in button has been given a worse page. That reasoning was about the SIZE, not
-            about the atmosphere — 10rem of it costs nothing and the button stays above the fold.
-
-            `min-h` on this column is what gives the whole card its shape at lg: grid rows stretch,
-            so the sand column is as tall as this one whenever the copy is shorter. */}
-        <div
-          aria-hidden="true"
-          className="relative order-first lg:order-none h-40 lg:h-auto lg:min-h-[34rem]"
-        >
-          {/* `.nq-coast` is the seam: a plain blue fill at this cell's own bounds. It used to
-              overhang this cell and carry a stepped clip-path, which is why it needed rules per
-              breakpoint; a straight edge is the same edge at every width, so the class is four
-              lines now and there is no breakpoint in it. The fill is what shows through the
-              gaps the field leaves, so it is the blue and the field is the texture on it. */}
-          <div className="nq-coast">
-            <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
-          </div>
-        </div>
       </div>
     </div>
   );

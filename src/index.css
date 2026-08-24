@@ -863,6 +863,41 @@
   background: #8295cf;
 }
 
+/* The sign-in card's sand band: the panel the copy sits on, leaning across the blue.
+   Geometry only — the fill, the glass and the lit edge are set where the colours live, on the
+   element itself in LoginPage.
+
+   `skewX` and not `clip-path`, and the reason is the hairline. Both draw the same
+   parallelogram, but a transform carries the box-shadow with it, so the lit edge runs along
+   the two slanted sides the way it ran along the straight seam this replaced; `clip-path`
+   would draw the silhouette and then cut that edge off, because an inset shadow follows the
+   border box and knows nothing about the clip. The drop shadow gets the same treatment for
+   free, which is what lifts the band off the field rather than letting it read as a hole.
+
+   The copy is a SIBLING of this, never a child. Skewing the panel is a composition; skewing
+   the panel's text is nine degrees of leaning glyphs, which is a different request.
+
+   The angle is not one value at every width, and the arithmetic is why. A skew costs the panel
+   `height x tan(angle)` of usable width — the upright box that still fits inside a leaning one is
+   that much narrower than the lean itself. At 9 degrees over a 34rem card that is about 90px,
+   which a 30rem band can spend and still seat the buttons. On a phone the same 9 degrees would
+   eat a third of a 320px band, so the lean drops to 3 and reads as a tilt rather than a wedge. */
+.nq-lean {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 94%;
+  transform: translateX(-50%) skewX(-3deg);
+}
+
+@media (min-width: 1024px) {
+  .nq-lean {
+    width: 30rem;
+    transform: translateX(-50%) skewX(-9deg);
+  }
+}
+
 
 /* Both axes travel exactly one tile (380px, matching background-size), so the layer at the end
    of a cycle is pixel-identical to the start and the loop is invisible. The y value used to be
