@@ -175,6 +175,8 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
              looks like the images themselves are low quality. */
           tex.colorSpace = THREE.SRGBColorSpace;
           tex.anisotropy = anisotropy;
+          tex.minFilter = THREE.LinearMipmapLinearFilter;
+          tex.magFilter = THREE.LinearFilter;
           texturesRef.current[i] = tex;
           if (i === 0) setFirstReady(true);
           invalidate();
