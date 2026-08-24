@@ -116,7 +116,7 @@ const FRAG = /* glsl */ `
     float t = uMix * (1.0 + w) - w * 0.5;
     float m = smoothstep(t - w * 0.5, t + w * 0.5, grad);
 
-    gl_FragColor = vec4(texture2D(uFrom, vUv).rgb, 1.0);
+    gl_FragColor = vec4(mix(to, from, m), 1.0);
 
     /* The one line that is easy to leave out of a hand-written material and impossible to
        misread once it bites. The stills are tagged SRGBColorSpace, so texture2D hands back
@@ -177,6 +177,14 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
           tex.anisotropy = anisotropy;
           tex.minFilter = THREE.LinearMipmapLinearFilter;
           tex.magFilter = THREE.LinearFilter;
+          /* Upload it to the GPU NOW instead of waiting for a draw to trigger it.
+             Not an optimisation — without it these samplers stay black. The uniforms start
+             null (there is nothing to show before the first still arrives) and swapping a
+             real texture in afterwards does not, on its own, get the image onto the GPU:
+             `renderer.info.memory.textures` stays at 0 and every sample comes back (0,0,0),
+             which looks exactly like a shader bug and is not one. initTexture is the API for
+             precisely this case, and it also removes the frame-time spike an upload would
+             otherwise cause the first time each still is drawn. */
           gl.initTexture(tex);
           texturesRef.current[i] = tex;
           if (i === 0) setFirstReady(true);
@@ -266,19 +274,6 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     uniforms.uTo.value = tex[iTo];
     uniforms.uTexAspect.value.set(aspectOf(tex[iFrom]), aspectOf(tex[iTo]));
 
-    const f = uniforms.uFrom.value as any;
-    (window as any).__dbg = {
-      memTex: gl.info.memory.textures,
-      calls: gl.info.render.calls,
-      hasFrom: !!f,
-      img: f && f.image ? (f.image.width + 'x' + f.image.height) : null,
-      version: f ? f.version : null,
-      cs: f ? f.colorSpace : null,
-      texAspect: uniforms.uTexAspect.value.x,
-      frag: (window as any).__frag = undefined,
-      matUniformKeys: Object.keys((window as any).__mat ? (window as any).__mat.uniforms : {}).join(','),
-      aspect: uniforms.uAspect.value,
-    };
   });
 
   if (!firstReady) return null;
@@ -365,6 +360,7 @@ export const TemplateShowcase: React.FC = () => {
   return (
     <div
       ref={hostRef}
+      data-dbg={`${active ? 1 : 0}${idle ? 1 : 0}${hovered ? 1 : 0}${reduced ? 1 : 0}`}
       /* The inset IS the design. Sized so the still keeps the card's proportions on a desktop
          and still leaves a band of field visible all the way round on a phone, where the whole
          cell is only 10rem tall. */
