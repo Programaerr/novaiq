@@ -64,26 +64,13 @@ const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
  * Every other field on the site fades because it has to arrive out of one section and leave into
  * the next. This one has no neighbours — it is the whole screen, behind everything — so a fade
  * could only put a pale strip along the top and bottom of the page. The hard slice a zero fade
- * leaves at each edge is the failure mode described at length in TileField; here it is invisible,
- * because the layer is blurred and hangs 6% off every side of the viewport before it is clipped.
+ * leaves at each edge is the failure mode described at length in TileField; here it lands on the
+ * viewport's own edges, where there is nothing for it to be a seam against.
  *
  * Module scope, not inline. `fade` is a dependency of the material's useMemo, so a fresh object
  * literal on every render would rebuild the shader on every render.
  */
 const BACKDROP_FADE: FieldFade = { lo: 0, hi: 0 };
-
-/**
- * How far out of focus the field behind the card is.
- *
- * Tuned against the smallest thing in it rather than by eye, and a cube is a big thing: the field
- * runs a 46px pitch, and blur spreads a feature's brightness over an area, so it destroys small
- * features long before large ones. 22px erased this layer outright — the cubes averaged out into
- * flat sand and the page looked like the backdrop had failed to load. 8px is enough that they
- * read as a texture rather than as a second thing to look at, and not so far that they stop being
- * cubes. It is deliberately heavier than the 1.8px the falling code wanted, for the same reason
- * in reverse: a 19px glyph has to survive blur AS a glyph, a cube only has to survive as a shape.
- */
-const BACKDROP_BLUR = '8px';
 
 /**
  * Standalone sign-in page: one card, split down the middle. The company's words on sand, and the
@@ -95,9 +82,11 @@ const BACKDROP_BLUR = '8px';
  * app are the pieces that genuinely are shared: the auth call, the palette, the button system and
  * the tile field.
  *
- * The field runs TWICE and the two runs do different jobs. Behind the card it is blurred, so it
- * is atmosphere and nothing else; inside the card's second half it is sharp, and that half is
- * the site's blue. Both are the same component the home page's hero and the timeline page run,
+ * The field runs TWICE, in sand behind the card and in periwinkle inside it, and both runs are
+ * sharp. The outer one used to be blurred, back when the card held a THIRD field and three live
+ * scenes on one screen was two too many; there are two now, they are different colours, and a
+ * card that is a different colour from its ground does not need the ground put out of focus to
+ * be found. Both are the same component the home page's hero and the timeline page run,
  * on the shared tones, not a second cube scene written for this screen. That is the whole reason
  * it is worth having here: a sign-in page built out of the site's own parts reads as the site,
  * where a bespoke animation on the way in reads as a different product.
@@ -142,26 +131,31 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
          as a different product's login bolted on. */
       style={{ background: SAND, color: INK }}
     >
-      {/* The ground the card sits on: the site's own cube field, out of focus.
+      {/* The ground the card sits on: the site's own cube field, at full sharpness.
 
           The site's OWN, and that is the point of it rather than a shortcut. Anything bespoke back
           here — a night sky, falling code — is a scene this page owns and no other page has, and
           a sign-in screen that looks like nowhere else on the site is the one screen that can
           least afford to.
 
-          Blur is the rest of it. A second field at full sharpness behind a card containing a
-          THIRD field is three things asking to be looked at; blurred, it becomes a texture, and
-          the card reads as forward simply by being the only crisp thing on the screen. That depth
-          cue is doing the work a drop shadow would otherwise have to do.
+          It used to run at `blur(8px)`, and the reason it does not any more is that the reason it
+          did is gone. That blur was answering a specific problem: the card held a rotating panel
+          of stills at the time, so the screen carried THREE live scenes, and the outer one had to
+          be pushed back to a texture or all three competed. The panel is gone, this is one of two
+          scenes now, and they are in different colours — sand out here, periwinkle in the card —
+          so the card is already the only warm-to-cool step on the screen. Blurring the ground on
+          top of that is solving a problem twice.
 
-          `-inset-[6%]` and not `inset-0`: `filter: blur()` samples what is outside the element as
-          transparent, so a layer blurred at its own edges fades out along all four sides and the
-          page shows a pale halo around the field. Oversizing it past the clip on the parent puts
-          those soft edges off screen. */}
+          What the blur WAS also carrying is depth: it made the card read as forward by being the
+          only crisp thing on screen. That job moves to a real shadow on the card below, which is
+          the honest way to do it and costs a paint rather than a full-screen filter pass.
+
+          `inset-0` and not the `-inset-[6%]` this used to carry. The oversize existed because
+          `filter: blur()` samples outside the element as transparent, so a blurred layer fades
+          out along all four of its own edges and leaves a pale halo unless those edges are pushed
+          off screen. With no filter there are no soft edges to hide. */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute -inset-[6%]" style={{ filter: `blur(${BACKDROP_BLUR})` }}>
-          <TileField tones={SAND_TONES} fade={BACKDROP_FADE} />
-        </div>
+        <TileField tones={SAND_TONES} fade={BACKDROP_FADE} />
       </div>
 
       {/* The card. Three layers, back to front: the blue, the band, the words.
@@ -180,12 +174,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           No `dir` on the card any more. The old one was forced `ltr` to stop the two grid
           columns swapping sides with the language — there are no columns to swap now, the lean
           runs the same way in both languages because it is a picture, and the copy inside gets
-          its own direction on the block below. */}
-      <div className="relative w-full max-w-[64rem] rounded-[0.5rem] overflow-hidden">
+          its own direction on the block below.
+
+          The shadow is what the backdrop's blur used to do. Against a ground that is now as sharp
+          as the card is, nothing separates the two planes on its own: both are cube fields at the
+          same pitch, and without a shadow the card reads as a recoloured hole in the page rather
+          than as an object on it. Long and soft rather than tight and dark — the page it floats
+          on is warm sand, and a hard shadow on sand reads as dirt. */}
+      <div
+        className="relative w-full max-w-[64rem] rounded-[0.5rem] overflow-hidden"
+        style={{ boxShadow: '0 26px 58px -22px rgba(16, 19, 34, 0.5)' }}
+      >
         {/* ── The blue ──────────────────────────────────────────────────────────────────── */}
         {/* `.nq-coast` is the flat fill and the field is the texture on it; the fill is what
             shows through the gaps the cubes leave. It covers the whole card now rather than one
-            half of it, which is also what gives the band something to blur. */}
+            half of it, so the band has field on both sides of it at every height. */}
         <div className="nq-coast" aria-hidden="true">
           <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
         </div>
