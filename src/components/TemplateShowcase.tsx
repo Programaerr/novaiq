@@ -33,19 +33,21 @@ const SHOTS: readonly string[] = [dashboard, storefront, editor, landing, mobile
  *
  * CYCLE is the number that was asked for: a still changes every five seconds. The fade is carved
  * out of it rather than added to it, so the cadence stays five seconds however slow the
- * transition is. 1.1s is slow on purpose — a fast dissolve on a decorative panel reads as a
+ * transition is. 0.9s is slow on purpose — a fast dissolve on a decorative panel reads as a
  * glitch, and this panel sits beside a form somebody is trying to read.
  */
 const CYCLE = 5.0;
-const WIPE = 1.1;
+const WIPE = 0.9;
 
-/** How far each still drifts in over its life. Small: this is depth, not a zoom effect. */
-const KEN_BURNS = 0.055;
-
-/** Device pixel cap. The stills are 1000px wide and the frame is ~456 CSS px, so 2x is already
-    past native and anything beyond it is fill rate spent on detail the texture does not have. */
-const MAX_DPR =
-  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 1.5 : 2;
+/**
+ * Device pixel cap.
+ *
+ * The frame is ~456 CSS px at its widest, so 2x asks for 912 device pixels from a 1600px
+ * still — comfortably inside it, which is the point: a texture sampled below its own
+ * resolution stays sharp, one sampled above it cannot. The same cap on a phone costs nothing,
+ * because the band there is 310x128 CSS and 2x of that is a sixth of a megapixel.
+ */
+const MAX_DPR = 2;
 
 /**
  * A clip-space quad. `position.xy * 2` on a 1x1 plane covers exactly -1..1, which is the whole
@@ -65,7 +67,6 @@ const FRAG = /* glsl */ `
   uniform sampler2D uTex;
   uniform float uAspect;      // canvas width / height
   uniform float uTexAspect;   // still width / height
-  uniform float uZoom;
   uniform float uAlpha;       // 1 for the still that is holding, 0..1 for one fading in
   varying vec2 vUv;
 
@@ -81,19 +82,30 @@ const FRAG = /* glsl */ `
     if (uAspect > uTexAspect) sy = uTexAspect / uAspect;
     else                      sx = uAspect / uTexAspect;
     return vec2(
-      (vUv.x - 0.5) * sx / uZoom + 0.5,
-      (vUv.y - 1.0) * sy / uZoom + 1.0
+      (vUv.x - 0.5) * sx + 0.5,
+      (vUv.y - 1.0) * sy + 1.0
     );
   }
 
   void main() {
-    /* A plain crossfade: the incoming still is drawn OVER the outgoing one and its opacity is
-       raised from 0 to 1. The same change the CSS version of this panel made, and kept because
-       it is the quieter of the options — a patterned wipe draws the eye to the transition
-       itself, and the transition is not the thing here worth looking at. */
+    /* A plain crossfade and nothing else. The incoming still is drawn OVER the outgoing one
+       and its opacity is raised from 0 to 1; neither of them moves, scales or drifts while it
+       does. That is the whole transition, and the restraint is the point — this panel sits
+       beside a form somebody is trying to read, so the one thing it must not do is pull the
+       eye back every five seconds. A still that also creeps toward the viewer is asking to be
+       watched. */
     if (uAlpha <= 0.002) discard;
 
-    gl_FragColor = vec4(texture2D(uTex, cover()).rgb, uAlpha);
+    /* The -0.5 is a mip bias, and it is the difference between this panel looking sharp and
+       looking like a photograph of a screen.
+
+       The stills are minified by about 1.75x on a 2x desktop (1600 texels into 912 pixels).
+       Trilinear turns that into an LOD of ~0.8, which weights the sample almost entirely
+       toward mip 1 — an 800px image, drawn into 912 pixels. The source is high resolution and
+       the frame is high resolution and the thing sampled between them is not. Biasing half a
+       level down puts the weight back on mip 0 while leaving enough mipmap in play for the
+       phone band, where the same still is minified 3.4x and needs the filtering for real. */
+    gl_FragColor = vec4(texture2D(uTex, cover(), -0.5).rgb, uAlpha);
 
     /* The one line that is easy to leave out of a hand-written material and impossible to
        misread once it bites. The stills are tagged SRGBColorSpace, so texture2D hands back
@@ -114,7 +126,6 @@ function makeMaterial(tex: THREE.Texture, aspect: number) {
       uTex: { value: tex },
       uAspect: { value: 1 },
       uTexAspect: { value: aspect },
-      uZoom: { value: 1 },
       uAlpha: { value: 1 },
     },
     transparent: true,
@@ -135,13 +146,13 @@ interface SlidesProps {
  * it fails is worth writing down because it looks like a shader bug for a long time: three
  * assigns a texture UNIT to a sampler uniform and caches that assignment, so replacing the
  * value underneath an already-bound sampler can leave the old texture serving the slot. The
- * panel then animates perfectly — it drifts, it fades — while never changing picture, and
- * every non-sampler uniform in the same material updates correctly the whole time.
+ * panel then fades perfectly, on time, forever — while never changing picture, and every
+ * non-sampler uniform in the same material updates correctly the whole time.
  *
  * So no sampler ever changes value here. Each still gets a material of its own with its texture
  * bound once at construction, and the sequence advances by pointing the two meshes at different
- * MATERIALS. Everything that varies per frame — the fade, the drift, the aspect — is a float,
- * which is the class of uniform that was never in question.
+ * MATERIALS. Everything that varies per frame — the fade and the aspect — is a float, which
+ * is the class of uniform that was never in question.
  *
  * Two meshes and not five: only ever two stills are on screen, the one leaving and the one
  * arriving, so this is two draw calls at the peak and one the rest of the time.
@@ -186,7 +197,7 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
 
           /* Upload it to the GPU now instead of waiting for a draw to trigger it. It also
              removes the frame-time spike the first draw of each still would otherwise carry —
-             a 1000px texture uploading mid-fade is exactly when a hitch would be seen. */
+             a 1600px texture uploading mid-fade is exactly when a hitch would be seen. */
           gl.initTexture(tex);
 
           const img = tex.image as { width?: number; height?: number } | undefined;
@@ -233,7 +244,7 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
 
     const aspect = size.width / Math.max(1, size.height);
 
-    const show = (mesh: THREE.Mesh, mat: THREE.ShaderMaterial | null, zoom: number, alpha: number) => {
+    const show = (mesh: THREE.Mesh, mat: THREE.ShaderMaterial | null, alpha: number) => {
       if (!mat) {
         mesh.visible = false;
         return;
@@ -241,12 +252,11 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
       mesh.visible = true;
       mesh.material = mat;
       mat.uniforms.uAspect.value = aspect;
-      mat.uniforms.uZoom.value = zoom;
       mat.uniforms.uAlpha.value = alpha;
     };
 
     if (reduced) {
-      show(back, mats[0], 1, 1);
+      show(back, mats[0], 1);
       front.visible = false;
       return;
     }
@@ -273,15 +283,7 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
     const iFrom = cycle % SHOTS.length;
     const iTo = (cycle + 1) % SHOTS.length;
 
-    /* Each still drifts in slowly across its whole life — the WIPE it arrives during plus the
-       CYCLE it holds for. Measuring the drift against that full span rather than against the
-       hold alone is what keeps it continuous: the value a still leaves the wipe with is exactly
-       the value it starts its hold with, so there is no jump on the handover. */
-    const span = CYCLE + WIPE;
-    const zoomFrom = 1 + KEN_BURNS * Math.min(1, (p + WIPE) / span);
-    const zoomTo = 1 + KEN_BURNS * Math.min(1, Math.max(0, p - wipeStart) / span);
-
-    show(back, mats[iFrom], zoomFrom, 1);
+    show(back, mats[iFrom], 1);
 
     if (p < wipeStart || !mats[iTo]) {
       // Nothing arriving yet — or the next still has not decoded, in which case the current one
@@ -290,7 +292,10 @@ const Slides: React.FC<SlidesProps> = ({ reduced }) => {
       return;
     }
     const raw = (p - wipeStart) / WIPE;
-    show(front, mats[iTo], zoomTo, raw * raw * (3 - 2 * raw));
+    /* Smoothstep rather than a straight ramp, which is the same curve the CSS version of this
+       panel got for free from `ease-in-out`. A linear crossfade has a visible flat middle where
+       both stills sit at half opacity and the frame reads as neither of them. */
+    show(front, mats[iTo], raw * raw * (3 - 2 * raw));
   });
 
   if (!ready) return null;
