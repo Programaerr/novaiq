@@ -1025,33 +1025,42 @@
     backdrop-filter: blur(18px) saturate(150%);
   }
 
-  /* The navbar's two independent halves (.navbar-glass). Same translucency family as
-     .glass-bar but tuned for a borderless, more transparent read: lighter base, heavier
-     frost, no border/outline of its own (the user asked for glass without any frame).
-     Applied per-half in Navbar.tsx so each section is its own separate frosted bar. */
-  .navbar-glass {
-    background: rgba(8, 9, 12, 0.35);
+  /* The frost. Same translucency family as .glass-bar but tuned for a borderless, more
+     transparent read: lighter base, heavier frost, no border or outline of its own.
+
+     On ONE bar, at every width. It used to sit on `.navbar-glass`, which is applied per-half
+     in Navbar.tsx, so the navbar was two separate frosted pills with a transparent gap between
+     them from 640px up — and one continuous bar only on phones, where a media query moved the
+     material here and defrosted the halves. That exception is now the rule: the material lives
+     on the spacer, the halves are pure layout, and the navbar is a single object at any size.
+
+     The blur is what makes it worth being one shape. Two pills each carry their own backdrop
+     sample, and the strip of page running between them is un-frosted — so whatever is behind
+     the navbar reads sharp in the gap and soft either side of it, which is the one arrangement
+     that makes a frosted bar look like a mistake rather than like glass. */
+  .navbar-connect {
     -webkit-backdrop-filter: blur(32px) saturate(170%);
     backdrop-filter: blur(32px) saturate(170%);
   }
 
-  /* On phones the two halves join into ONE continuous glass bar. `.navbar-connect` is the outer
-     spacer: below 640px it carries the navbar-glass material itself and defrosts the halves
-     nested inside it, so the navbar reads as a single connected strip from the logo to the menu
-     button. At sm+ the spacer goes transparent again and the two separate pills return. */
-  @media (max-width: 639px) {
-    .navbar-connect {
-      background: rgba(8, 9, 12, 0.35);
-      -webkit-backdrop-filter: blur(32px) saturate(170%);
-      backdrop-filter: blur(32px) saturate(170%);
-      border-radius: 1rem;
-    }
-    .navbar-connect .navbar-glass {
-      background: transparent;
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-    }
+  /* `.navbar-glass` carries no material any more — it marks the two halves so the JSX still
+     names them, and this pins them transparent. Kept as a guard rather than deleted: the class
+     is on both halves, and a material put back on it would be a second backdrop sample nested
+     inside the first, which costs a full extra blur pass and shows as a darker rectangle at
+     each end of the bar. */
+  .navbar-connect .navbar-glass {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
+}
+
+/* Outside the @supports on purpose: the ground is not the enhancement, the blur is. This used
+   to live entirely inside it, so a browser without backdrop-filter got a navbar with no
+   background at all — white-on-paper text floating over the page. */
+.navbar-connect {
+  background: rgba(8, 9, 12, 0.35);
+  border-radius: 1rem;
 }
 
 /* The hero's floating template cards are a real WebGL scene now (TemplateCards3D.tsx) —
