@@ -139,8 +139,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             return (
               <article
                 key={choice.id}
+                /* No drop shadow. It was `0 26px 64px -28px rgba(16, 19, 34, 0.5)` — ink at half
+                   strength, thrown 26px down and spread 64. On a white page that reads as lift;
+                   on the periwinkle cube field it reads as a dark smear along the bottom edge,
+                   because a blurred near-black over a mid-blue darkens it toward grey rather
+                   than deepening it. The field's own cubes carry shading of their own, so the
+                   smear does not even land on a flat ground: it crosses cube faces at different
+                   brightnesses and stops looking like a shadow at all.
+                   Nothing is lost by removing it. Paper-white on periwinkle is already the
+                   sharpest edge on the page; a shadow is for separating planes that are close
+                   in value, and these two are as far apart as the palette goes. */
                 className="relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 bg-white overflow-hidden"
-                style={{ boxShadow: '0 26px 64px -28px rgba(16, 19, 34, 0.5)' }}
               >
                 {/* A faint wash of the section's blue at the top of each card, so the two read as
                     belonging to the page they sit on rather than as foreign white boxes. */}
