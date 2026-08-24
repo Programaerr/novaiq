@@ -75,14 +75,14 @@ const FRAG = /* glsl */ `
      phone's status bar — and the bottom is usually a footer that identifies nothing. On the
      phone band, where the frame is very wide and very short, that difference is the whole
      legibility of the panel. */
-  vec2 cover(vec2 uv) {
+  vec2 cover() {
     float sx = 1.0;
     float sy = 1.0;
     if (uAspect > uTexAspect) sy = uTexAspect / uAspect;
     else                      sx = uAspect / uTexAspect;
     return vec2(
-      (uv.x - 0.5) * sx / uZoom + 0.5,
-      (uv.y - 1.0) * sy / uZoom + 1.0
+      (vUv.x - 0.5) * sx / uZoom + 0.5,
+      (vUv.y - 1.0) * sy / uZoom + 1.0
     );
   }
 
