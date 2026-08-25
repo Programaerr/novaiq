@@ -37,10 +37,30 @@ export default defineConfig(() => {
           // rarely-changing chunks independently of frequently-changing app code.
           manualChunks(id) {
             if (!id.includes('node_modules')) return undefined;
-            // No 3D scene renders in the browser any more — three.js is a devDependency now,
-            // used only by tools/export-card-model.mjs to build the printable credential-card
-            // mesh offline in Node (see that file). It is never imported from src/, so it never
-            // reaches this function or the client bundle at all; there is nothing here to chunk.
+
+            // three.js and @react-three/fiber stay in the eager `vendor` bucket, deliberately.
+            // They are not optional any more: the home page's tile field, the timeline and the
+            // sign-in ground all render a scene at first paint, so deferring them would move the
+            // download rather than save it. (This comment used to say the opposite — that three
+            // was a devDependency used by an offline tool and never imported from src/. That
+            // stopped being true several scenes ago.)
+            //
+            // drei is a different case and needs its own bucket. Exactly one component uses it
+            // — the rental demo's BuildingModel — and that component sits behind React.lazy inside
+            // the sandbox modal, which most visitors never open. Left in the generic `vendor`
+            // chunk it is first-paint weight for every one of them. Its own chunk is imported
+            // only by the sandbox's, so it downloads when the modal does and not before.
+            //
+            // The transitive packages are listed with it because they are drei's alone. zustand
+            // and suspend-react are deliberately NOT here: fiber uses them too, so moving them
+            // would make the eager chunk depend on this one and drag the whole thing forward,
+            // which is the exact failure this rule exists to prevent.
+            if (
+              /node_modules\/(@react-three\/drei|three-stdlib|troika-three-text|troika-three-utils|three-mesh-bvh|meshline|maath|camera-controls|detect-gpu|stats-gl|stats\.js|hls\.js)\//.test(id)
+            ) {
+              return 'vendor-drei';
+            }
+
             if (id.includes('firebase')) return 'vendor-firebase';
             // React and the icon set are both eager and both almost never change, while the
             // rest of `vendor` does. Splitting them off means a dependency bump elsewhere no
