@@ -416,6 +416,59 @@ const Rig: React.FC = () => {
   return null;
 };
 
+/**
+ * The key light, and the object it is aimed at.
+ *
+ * Its own component at module scope, which matters for more than tidiness: written inline in
+ * `BuildingModel` the target was a new component type on every render, so React threw the
+ * `<object3D>` away and rebuilt it every time a hover changed state — and for the frame in
+ * between, the light's target was an object no longer in the scene.
+ *
+ * The aiming is the part worth keeping. A directionalLight's target defaults to the world
+ * origin, so the shadow camera centres on the ground UNDER the building rather than on the
+ * building: a mass 6.7 units tall ends up almost entirely outside a frustum measured from y=0,
+ * and what falls outside on the wrong side comes back shadowed. The first render of this rebuild
+ * had a facade lit by nothing but the fill — not too dark, but ENTIRELY in its own shadow. With
+ * the target at mid-height the frustum can be symmetric, which is the only arrangement that
+ * stays correct at every angle the model turns through.
+ */
+const KeyLight: React.FC = () => {
+  const sunRef = useRef<THREE.DirectionalLight>(null);
+  const targetRef = useRef<THREE.Object3D>(null);
+  useEffect(() => {
+    if (sunRef.current && targetRef.current) sunRef.current.target = targetRef.current;
+  }, []);
+  return (
+    <>
+      <object3D ref={targetRef} position={[0, TOTAL_H * 0.46, 0]} />
+      {/* Low and to one side. Low on purpose: a light overhead lands on the balcony slabs and
+          nowhere else, and it is the shadow a balcony throws DOWN the wall that makes the facade
+          read as having depth. Off the camera's own axis too, so the two faces you can see are
+          never the same brightness — a mass lit head-on has no form.
+
+          The frustum is sized from the bounding sphere, same as the camera fit: radius ~3.9 at
+          the widest, so +/-4.4 has margin for the balconies and a slid-out storey without
+          wasting texels. 1024 is enough for a model that occupies about a third of a 580px
+          canvas. */}
+      <directionalLight
+        ref={sunRef}
+        position={[7.4, 6.6, 2.0]}
+        intensity={2.9}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+        shadow-bias={-0.0008}
+        shadow-normalBias={0.015}
+        shadow-camera-near={1}
+        shadow-camera-far={24}
+        shadow-camera-left={-4.4}
+        shadow-camera-right={4.4}
+        shadow-camera-top={4.4}
+        shadow-camera-bottom={-4.4}
+      />
+    </>
+  );
+};
+
 const Building: React.FC<SceneProps> = ({
   accent,
   selectedFloor,
@@ -659,18 +712,6 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
   const [hoverFloor, setHoverFloor] = useState<number | null>(null);
   const [reduced, setReduced] = useState(false);
   const [idle, setIdle] = useState(false);
-  const sunRef = useRef<THREE.DirectionalLight>(null);
-  const sunTargetRef = useRef<THREE.Object3D>(null);
-
-  /** Points the key light at the middle of the building. A light's `target` is a real object in
-   *  the scene graph, so it has to be mounted and then assigned — setting `target-position`
-   *  alone moves an object whose matrix nothing updates. */
-  const SunTarget = () => {
-    useEffect(() => {
-      if (sunRef.current && sunTargetRef.current) sunRef.current.target = sunTargetRef.current;
-    }, []);
-    return <object3D ref={sunTargetRef} position={[0, TOTAL_H * 0.46, 0]} />;
-  };
   const dragRef = useRef({ active: false, last: 0, spin: 0, velocity: 0 });
   const accentColor = useMemo(() => new THREE.Color(accent), [accent]);
 
@@ -735,39 +776,7 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
       >
         <Rig />
 
-        {/* Key light, low and to one side. Low on purpose: a light overhead lands on the balcony
-            slabs and nowhere else, and it is the shadow a balcony throws DOWN the wall that
-            makes the facade read as having depth.
-
-            It is AIMED, and that turned out to be the whole ballgame. A directionalLight's
-            target defaults to the world origin, so the shadow camera is centred on the ground
-            under the building rather than on the building — which put a mass 6.7 units tall
-            almost entirely outside a frustum measured from y=0, and everything outside the
-            shadow frustum on the wrong side comes back shadowed. The first render of this
-            rebuild had a facade lit by nothing but the fill: not too dark, but ENTIRELY in its
-            own shadow. `<SunTarget />` below sits at mid-height and the frustum is symmetric
-            around it, which is the only arrangement that is correct at every angle the model
-            turns through.
-
-            Sized from the bounding sphere, same as the camera fit: radius ~3.9 at the widest,
-            so +/-4.4 has margin for the balconies and the slid-out storey without wasting
-            texels. 1024 is enough for a model that occupies about a third of a 580px canvas. */}
-        <SunTarget />
-        <directionalLight
-          ref={sunRef}
-          position={[7.4, 6.6, 2.0]}
-          intensity={2.9}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
-          shadow-bias={-0.0008}
-          shadow-normalBias={0.015}
-          shadow-camera-near={1}
-          shadow-camera-far={24}
-          shadow-camera-left={-4.4}
-          shadow-camera-right={4.4}
-          shadow-camera-top={4.4}
-          shadow-camera-bottom={-4.4}
-        />
+        <KeyLight />
         {/* Cool fill from the opposite side, so the shadowed face is dark but not black. A face
             in true black has no silhouette against a near-black page. */}
         <directionalLight position={[-4.4, 4.6, -3.4]} intensity={0.45} color="#7f9dd6" />
