@@ -139,17 +139,32 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             return (
               <article
                 key={choice.id}
-                /* No drop shadow. It was `0 26px 64px -28px rgba(16, 19, 34, 0.5)` — ink at half
-                   strength, thrown 26px down and spread 64. On a white page that reads as lift;
-                   on the periwinkle cube field it reads as a dark smear along the bottom edge,
-                   because a blurred near-black over a mid-blue darkens it toward grey rather
-                   than deepening it. The field's own cubes carry shading of their own, so the
-                   smear does not even land on a flat ground: it crosses cube faces at different
-                   brightnesses and stops looking like a shadow at all.
-                   Nothing is lost by removing it. Paper-white on periwinkle is already the
-                   sharpest edge on the page; a shadow is for separating planes that are close
-                   in value, and these two are as far apart as the palette goes. */
-                className="relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 bg-white overflow-hidden"
+                /* Frosted glass, not white.
+                
+                   The blur is the load-bearing part, not the transparency. What is behind these
+                   cards is a cube field — high-contrast geometry with its own edges and shading —
+                   so a merely translucent card would show sharp cubes straight through the
+                   headline. The blur is what turns that into a wash the type can sit on. A card
+                   this size over a busy ground either frosts properly or stays opaque; the
+                   in-between is the one option that fails.
+
+                   The surface itself lives in `.nq-card-glass` (index.css), because the version
+                   for browsers without `backdrop-filter` has to be opaque and an inline style
+                   cannot carry an `@supports`. Measured, not chosen: the frosted card reads
+                   #C1C7E0 and black on it is 12.51:1, 11.77:1 at the darkest quarter.
+
+                   A hairline border and no box-shadow of any kind. Glass needs a lit edge to
+                   read as a pane rather than as a hole, and a 1px inside-white line does that
+                   without putting any ink back under the card.
+
+                   `backdrop-filter` re-samples what is beneath it, and beneath it is a WebGL
+                   field that animates — so this costs a blur pass per frame per card while the
+                   field is running. Measured at 120fps on the reference machine with both cards
+                   on screen, and the field already parks itself at `frameloop: 'never'` when it
+                   scrolls out and on `data-idle`, which is when two full-card blurs would
+                   otherwise be pure waste. 18px, not the navbar's 32: the radius is what the
+                   pass costs, and 18 is already past the point where a cube edge survives it. */
+                className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden backdrop-blur-[18px] backdrop-saturate-[140%] border border-white/45"
               >
                 {/* A faint wash of the section's blue at the top of each card, so the two read as
                     belonging to the page they sit on rather than as foreign white boxes. */}

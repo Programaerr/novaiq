@@ -921,6 +921,33 @@
   }
 }
 
+/* ═══ Frosted card ═════════════════════════════════════════════════════════════
+
+   The ground under the two template choice cards. It is a class rather than an inline style for
+   one reason: the fallback needs `@supports`, and an inline style cannot have one.
+
+   Without `backdrop-filter` the translucency is not merely less pretty, it is wrong. What is
+   behind these cards is a cube field, and 66% paper over sharp cube edges puts a headline on
+   patterned ground. So the default here is OPAQUE, and the frost is the enhancement layered on
+   top where the browser can actually do it — the same order the navbar uses.
+
+   #C1C7E0 is not a chosen colour. It is the frosted surface MEASURED off the rendered page:
+   average of the clean surface pixels across a whole card. Using it as the fallback means a
+   browser without backdrop-filter gets the same colour, minus the softness.
+
+   Worth writing down because the intuition was wrong: PAPER at 66% does NOT stay warm here.
+   Two thirds of a warm cream over one third of a saturated periwinkle lands at a cool lavender,
+   which is the correct answer for glass over blue and not the answer the palette suggests.
+   Black on it measures 12.51:1, and 11.77:1 at the darkest quarter of the card. */
+.nq-card-glass {
+  background: #c1c7e0;
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nq-card-glass {
+    background: rgba(246, 241, 233, 0.66);
+  }
+}
+
 /* ═══ Tracked labels, and why Arabic never gets the tracking ════════════════════════
 
    The wide-spaced uppercase label — "BROWSE", "LEGAL", "BACK TO TOP" — is a Latin device, and
