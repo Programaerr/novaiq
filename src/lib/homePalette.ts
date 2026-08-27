@@ -1,43 +1,103 @@
 /**
- * The home page's palette, in one place.
+ * The site's palette, in one place.
  *
- * The site is monochrome everywhere else — black ground, near-white accent. The home page is a
- * deliberate exception built from a wireframe that specified these two values directly, and an
- * exception is only survivable if it is contained: five components each carrying their own copy of
- * `#8295CF` is not an exception any more, it is a second theme nobody can find all of.
+ * ## What changed, and why the names did too
  *
- * So every home section reads its colour from here, and reverting the page to the site's
- * monochrome is a change to this file rather than an audit of the components.
+ * This file used to hold a light, warm system: SAND grounds, a PAPER break, a PERIWINKLE accent
+ * and a near-black INK for the type. The site is now black and orange, which is not a hue swap —
+ * it is an inversion. Every ground goes dark and the mark on it goes light, so a constant called
+ * SAND holding `#101013` and one called INK holding a near-white would have been two lies sitting
+ * in the one file the whole site reads its colour from.
  *
- * The sand tones are not free choices either — SAND is the section ground, and DEEP and LIGHT are
- * the trough and crest of the cube field's own shader ramp. Keeping the DOM inside the range the
- * WebGL is already painting is what stops the canvas reading as a picture pasted onto a page.
+ * So the names describe the ROLE now rather than the colour: GROUND, SURFACE, ACCENT, INK. The
+ * next repaint is a change to the eight values below and nothing else — no rename, no audit. That
+ * is the property this file is supposed to have and did not.
+ *
+ * ## The one rule that survives the inversion
+ *
+ * The old palette's load-bearing note was that INK, not white, had to be the label on PERIWINKLE:
+ * white measured 2.94:1 there and the ink measured 6.28:1. The same asymmetry holds on orange and
+ * points the same way — `INK on ACCENT` is 2.55:1 and fails, `ON_ACCENT on ACCENT` is 7.31:1. The
+ * bright accent takes a DARK label. Every measurement below is computed, not estimated.
+ *
+ *   INK on GROUND ............ 16.89:1      ACCENT on GROUND ......... 6.62:1
+ *   INK on GROUND_DEEP ....... 18.68:1      ACCENT on GROUND_DEEP .... 7.31:1
+ *   INK on GROUND_RAISED ..... 14.76:1      ON_ACCENT on ACCENT ...... 7.31:1
+ *   INK on SURFACE ........... 13.36:1      INK on ACCENT ............ 2.55:1  <- fails, by design
+ *   INK_DIM on GROUND ........ 9.14:1       INK on ACCENT_DEEP ....... 4.77:1
+ *
+ * ## The grounds are spaced by L*, not by contrast ratio
+ *
+ * Four near-blacks a contrast ratio cannot tell apart: GROUND against SURFACE is 1.2:1, which
+ * says nothing, because the ratio formula compresses to nothing down here. The question for two
+ * grounds is whether the step is VISIBLE, and that is a CIE L* question. These are spaced to the
+ * same perceptual steps the sand system had:
+ *
+ *                          new             old it replaces
+ *   deep    -> ground      4.8 L*          5.4 L*
+ *   ground  -> raised      6.7 L*          7.4 L*
+ *   ground  -> surface    10.7 L*         17.1 L*
  */
 
-/** The ground every section below the hero is painted on. */
-export const SAND = '#D5BDAC';
-/** A step down, for a band that needs to separate from its neighbours without a border. */
-export const SAND_DEEP = '#C9AE95';
-/** A step up, for a raised surface on sand. */
-export const SAND_LIGHT = '#E4D3C4';
+/** The ground every section is painted on. */
+export const GROUND = '#101013';
+
 /**
- * The ground for a section that has to read as a clean break from the sand without leaving the
- * family.
- *
- * The wireframe draws the phases section on plain white, and plain white is what it must LOOK
- * like sitting under a #D5BDAC screen — but a true #FFF next to sand goes blue by comparison, the
- * same way a white shirt goes blue next to tan. This is the crest tone of the hero's own tile
- * shader (#F3E8DC) lightened until it reads as paper, so the break between the two sections is a
- * change in value rather than in temperature.
+ * A step down from the ground, for a band that has to separate from its neighbours without a
+ * border. True black: on a near-black ground there is nowhere else for a step down to go.
  */
-export const PAPER = '#F6F1E9';
-/** The panel, and the one accent that marks state on the light grounds. */
-export const PERIWINKLE = '#8295CF';
+export const GROUND_DEEP = '#000000';
+
+/** A step up from the ground, for a raised surface standing on it. */
+export const GROUND_RAISED = '#1E1E23';
+
 /**
- * One ink for everything on the light surfaces.
+ * The ground for a section that has to read as a clean break from the others without leaving
+ * the family — what PAPER was in the light system, inverted.
  *
- * Near-black rather than black: pure black on a mid-tone reads as a hole punched in it. It also
- * has to be the DARK member of every pair on this page — white on PERIWINKLE measures 2.97:1,
- * under the 4.5:1 a body-sized line needs, where this ink is 6.4:1 on the same blue.
+ * The break is smaller than it used to be (10.7 L* against 17.1) and that is deliberate rather
+ * than a shortfall. Matching the old jump would put this at L* 22, a mid grey, and a grey panel
+ * on a black page reads as a different material rather than as the same page a shade lighter.
  */
-export const INK = '#101322';
+export const SURFACE = '#26262D';
+
+/**
+ * The one accent: buttons, marks, the crest of the cube fields, anything that has to be found.
+ *
+ * Bright enough that it carries at small sizes on black (6.62:1) and still takes a black label
+ * (7.31:1). Those two facts together are what let one value be both the fill and the mark.
+ */
+export const ACCENT = '#FF6A00';
+
+/**
+ * The accent as a GROUND, for a section painted in it rather than marked with it.
+ *
+ * A full page of #FF6A00 is not a section, it is a warning. This is the same hue taken down until
+ * it can hold a light label (INK on it is 4.77:1) — so the rule flips between the two: the bright
+ * accent takes a dark mark, the deep accent takes a light one. Both directions are measured above.
+ */
+export const ACCENT_DEEP = '#B8460A';
+
+/**
+ * The mark on every ground. Near-white rather than pure white, and warm rather than neutral, so
+ * it sits with the orange instead of against it.
+ *
+ * "Ink" is still the right word: it is what is written on the page. The page just went black.
+ */
+export const INK = '#F5F1EC';
+
+/**
+ * The same mark, quieted, for supporting copy. Kept as a solid value rather than as INK at an
+ * alpha, because an alpha over the four different grounds above resolves to four different
+ * colours and only one of them would ever have been the one that was measured.
+ */
+export const INK_DIM = '#B9B3AC';
+
+/**
+ * The mark on ACCENT, and the only place black is used as a foreground.
+ *
+ * It exists as its own name rather than as GROUND_DEEP at the call sites, because those two are
+ * the same value for a reason that could stop being true: this one is "whatever reads on the
+ * accent", and if the accent ever moves toward red this is what moves with it.
+ */
+export const ON_ACCENT = '#000000';
