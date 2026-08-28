@@ -377,12 +377,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
         isCurrent
           ? 'bg-periwinkle border-periwinkle text-white shadow-lg shadow-periwinkle/25'
           : isCompleted
-          ? 'bg-[#07111F] border-white/70 text-white shadow-lg shadow-black/50'
+          ? 'bg-[#080A0D] border-white/70 text-white shadow-lg shadow-black/50'
           : 'bg-[#071431] border-periwinkle/20 text-white/50 hover:border-periwinkle/40'
                 }`}
               >
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  isCurrent ? 'bg-white text-periwinkle' : isCompleted ? 'bg-white text-[#07111F]' : 'bg-white/10 text-white/60'
+                  isCurrent ? 'bg-white text-periwinkle' : isCompleted ? 'bg-white text-[#080A0D]' : 'bg-white/10 text-white/60'
                 }`}>
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>

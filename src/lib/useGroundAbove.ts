@@ -112,7 +112,7 @@ function measure(el: HTMLElement): string | null {
 /** The page's own ground, for when nothing above paints a colour of its own. */
 function pageGround(): string {
   const raw = getComputedStyle(document.documentElement).getPropertyValue('--nq-ground').trim();
-  return toHex(raw) ?? '#F7F9FC';
+  return toHex(raw) ?? '#F7F7F5';
 }
 
 /**
@@ -123,7 +123,7 @@ function pageGround(): string {
  */
 export function useGroundAbove(ref: RefObject<HTMLElement | null>, pageKey: string): string {
   const [color, setColor] = useState<string>(() =>
-    typeof document === 'undefined' ? '#F7F9FC' : pageGround(),
+    typeof document === 'undefined' ? '#F7F7F5' : pageGround(),
   );
 
   // Layout effect, not effect: this runs before the browser paints, so the belt's first painted

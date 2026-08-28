@@ -371,7 +371,7 @@
        background composition; the page still looks dark, which is exactly why it can sit there
        unnoticed. The flat colour belongs on `html` (see --nq-ground), which is also the element
        whose colour fills the overscroll area, so nothing is lost by taking it off here. */
-    color: #07111F;
+    color: #080A0D;
     overflow-x: hidden;
   }
 
@@ -1670,7 +1670,7 @@ html[data-scrolling] .nq-btn-beam::before {
    Safari, `scrollbar-color` is Firefox and the standard. Only the first was ever set here, so
    every non-Chromium visitor got the OS default grey column beside a sand page.
 
-   Alpha rather than a flat #07111F, for the same reason the card surfaces use it: the thumb runs
+   Alpha rather than a flat #080A0D, for the same reason the card surfaces use it: the thumb runs
    the full height of a page that changes colour down its length — paper, sand, periwinkle, the
    cube bands between them — so a fixed hex is only right at one scroll position. At 0.72 it reads
    as black everywhere while still taking the tint of whatever it is currently over.
