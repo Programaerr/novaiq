@@ -188,15 +188,15 @@ export const Footer: React.FC<FooterProps> = ({
           top: 0,
           height: 'var(--nq-band)',
           // Seen only for the frame before the canvas over it paints, but it has to make the same
-          // journey — section colour, through ice, into paper — or that first frame flashes a
-          // different band than the one that replaces it.
+          // journey — section colour, through warm white, into paper — or that first frame
+          // flashes a different band than the one that replaces it.
           background: `linear-gradient(to bottom, ${fromColor} 0%, ${WHITE} 52%, ${PAPER} 100%)`,
         }}
       >
-        {/* Ice is the body of the band, not either of its ends. It arrives out of whatever
-            colour the page ended on and still settles into the footer's paper — ice is simply
-            what the cubes in between are made of, which is the one place on a blue page the
-            site's own light-neutral still shows. */}
+        {/* WHITE is the body of the band, not either of its ends. It arrives out of whatever
+            colour the page ended on and still settles into the footer's paper — warm white is
+            simply what the cubes in between are made of, which is the one place on a dark
+            Obsidian page the site's own light-neutral still shows. */}
         <TileField tones={connectionTones(fromColor, PAPER, ORANGE, WHITE)} fade={FOOTER_BAND_FADE} />
       </div>
 
