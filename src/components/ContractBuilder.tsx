@@ -96,7 +96,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const errorInputClass = (field: string) =>
     fieldErrors.has(field)
       ? 'border-red-600 focus:border-red-500 ring-1 ring-red-600/40'
-      : 'border-periwinkle/30 focus:border-periwinkle';
+      : 'border-steel/60 focus:border-orange';
 
   const clearFieldError = (field: string) => {
     if (!fieldErrors.has(field)) return;
@@ -378,7 +378,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           ? 'bg-periwinkle border-periwinkle text-white shadow-lg shadow-periwinkle/25'
           : isCompleted
           ? 'bg-[#080A0D] border-white/70 text-white shadow-lg shadow-black/50'
-          : 'bg-[#071431] border-periwinkle/20 text-white/50 hover:border-periwinkle/40'
+          : 'bg-obsidian border-white/10 text-white/50 hover:border-orange'
                 }`}
               >
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
@@ -396,12 +396,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
         </div>
 
         {/* Form Container */}
-        <form onSubmit={handleSubmitContract} className="bg-[#171E42] border border-periwinkle/30 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
+        <form onSubmit={handleSubmitContract} className="bg-graphite border border-white/10 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
           
           {/* STEP 1: Company Details */}
           {currentStep === 1 && (
             <div className="space-y-6 animate-fade-in">
-              <div className="border-b border-periwinkle/25 pb-4">
+              <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-white" />
                   <span>{getTranslation('stepCompanyInfo', lang)}</span>
@@ -422,7 +422,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       clearFieldError('companyName');
                     }}
                     placeholder={getTranslation('companyNamePlaceholder', lang)}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#071431] border focus:outline-none text-white text-xs transition-colors ${errorInputClass('companyName')}`}
+                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs transition-colors ${errorInputClass('companyName')}`}
                   />
                 </div>
 
@@ -435,7 +435,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     value={crNumber}
                     onChange={(e) => setCrNumber(e.target.value)}
                     placeholder={getTranslation('crNumberPlaceholder', lang)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#071431] border border-periwinkle/25 focus:border-periwinkle focus:outline-none text-white text-xs font-mono"
+                    className="w-full px-4 py-3 rounded-xl bg-obsidian border border-steel/60 focus:border-orange focus:outline-none text-white text-xs font-mono"
                   />
                   {/* Said outright rather than left to the absence of a `*`: plenty of clients
                       here are individuals or new businesses with no commercial register at
@@ -461,7 +461,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       clearFieldError('repName');
                     }}
                     placeholder={getTranslation('repNamePlaceholder', lang)}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#071431] border focus:outline-none text-white text-xs transition-colors ${errorInputClass('repName')}`}
+                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs transition-colors ${errorInputClass('repName')}`}
                   />
                 </div>
 
@@ -484,7 +484,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     // The live verdict outranks the submit-time one: while someone is fixing a
                     // number the field should follow what they are typing right now, not stay
                     // red because of the value that failed when they last pressed submit.
-                    className={`w-full px-4 py-3 rounded-xl bg-[#071431] border focus:outline-none text-white text-xs font-mono transition-colors ${
+                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs font-mono transition-colors ${
                       phoneError
                         ? 'border-red-600 focus:border-red-500 ring-1 ring-red-600/40'
                         : errorInputClass('phone')
@@ -509,7 +509,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           {/* STEP 2: Template & Specifications */}
           {currentStep === 2 && (
             <div className="space-y-6 animate-fade-in">
-              <div className="border-b border-periwinkle/25 pb-4">
+              <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <Layers className="w-5 h-5 text-periwinkle" />
                   <span>{getTranslation('stepTechSpecs', lang)}</span>
@@ -522,21 +522,21 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               </div>
 
 
-              <div className="p-4 rounded-2xl bg-[#071431] border border-periwinkle/25 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="p-4 rounded-2xl bg-obsidian border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   {isCustomProject ? (
-                    <div className="w-16 h-16 rounded-xl bg-periwinkle/25 border border-periwinkle/40 flex items-center justify-center shrink-0">
+                    <div className="w-16 h-16 rounded-xl bg-periwinkle/25 border border-steel/60 flex items-center justify-center shrink-0">
                       <PenLine className="w-6 h-6 text-white" />
                     </div>
                   ) : (
                     <img
                       src={template.previewImage}
                       alt={template.title}
-                      className="w-16 h-16 rounded-xl object-cover border border-periwinkle/40"
+                      className="w-16 h-16 rounded-xl object-cover border border-steel/60"
                     />
                   )}
                   <div>
-                    <span className="text-[10px] font-bold text-white bg-periwinkle/25 border border-periwinkle/40 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-white bg-periwinkle/25 border border-steel/60 px-2.5 py-0.5 rounded-full">
                       {isCustomProject ? (isAr ? 'مشروع مخصص بالكامل' : 'Fully Custom Project') : template.categoryLabel}
                     </span>
                     <h4 className="text-sm font-bold text-white mt-1">
@@ -558,7 +558,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       setTemplate(found);
                     }
                   }}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#0B1130] border border-periwinkle/40 text-white text-xs font-semibold"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-graphite border border-steel/60 text-white text-xs font-semibold"
                 >
                   <option value={CUSTOM_OPTION_VALUE}>
                     {isAr ? '✏️ قالب مخصص بالكامل — صف مشروعك بنفسك' : '✏️ Fully Custom Project — describe it yourself'}
@@ -585,7 +585,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       clearFieldError('customProjectName');
                     }}
                     placeholder={isAr ? 'مثال: منصة حجوزات صالات أفراح' : 'e.g. Event Hall Booking Platform'}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#071431] border focus:outline-none text-white text-xs transition-colors ${errorInputClass('customProjectName')}`}
+                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs transition-colors ${errorInputClass('customProjectName')}`}
                   />
                 </div>
               )}
@@ -593,7 +593,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
               {/* Appearance — the whole "what it looks like" group in one labelled card. */}
               <div className="text-white font-bold text-sm mt-1">{isAr ? 'تخصيص المظهر' : 'Appearance'}</div>
-              <div className="p-4 rounded-2xl bg-[#071431] border border-periwinkle/25">
+              <div className="p-4 rounded-2xl bg-obsidian border border-white/10">
                 <label className="block text-xs font-semibold text-white/85 mb-2">
                   {getTranslation('colorSchemeLabel', lang)}
                 </label>
@@ -605,7 +605,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       onClick={() => setPrimaryColor(c.hex)}
                       title={isAr ? c.labelAr : c.labelEn}
                       className={`w-9 h-9 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-center ${
-                        !isCustomColor && primaryColor === c.hex ? 'border-white scale-110 shadow-lg' : 'border-periwinkle/40 hover:border-periwinkle/60'
+                        !isCustomColor && primaryColor === c.hex ? 'border-white scale-110 shadow-lg' : 'border-steel/60 hover:border-orange'
                       }`}
                       style={{ backgroundColor: c.hex }}
                     >
@@ -622,7 +622,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       onClick={() => customColorInputRef.current?.click()}
                       title={isAr ? 'لون مخصص' : 'Custom Color'}
                       className={`w-9 h-9 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-center overflow-hidden ${
-                        isCustomColor ? 'border-white scale-110 shadow-lg' : 'border-periwinkle/40 hover:border-periwinkle/60'
+                        isCustomColor ? 'border-white scale-110 shadow-lg' : 'border-steel/60 hover:border-orange'
                       }`}
                       style={isCustomColor ? { backgroundColor: primaryColor } : undefined}
                     >
@@ -651,7 +651,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-[#071431] border border-periwinkle/25">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-obsidian border border-white/10">
                 {/* Theme Preference */}
                 <div>
                   <label className="block text-xs font-semibold text-white/85 mb-1.5">
@@ -675,7 +675,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         className={`p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
                           themePreference === opt.id
                             ? 'bg-periwinkle border-white text-white'
-                            : 'bg-[#071431] border-periwinkle/25 text-white/60 hover:border-periwinkle/60'
+                            : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
                         }`}
                       >
                         {opt.label}
@@ -703,7 +703,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         className={`p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all truncate ${
                           languageSupport === opt.id
                             ? 'bg-periwinkle border-white text-white'
-                            : 'bg-[#071431] border-periwinkle/25 text-white/60 hover:border-periwinkle/60'
+                            : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
                         }`}
                       >
                         {opt.label}
@@ -736,7 +736,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         clearFieldError('customDescription');
                       }}
                       placeholder={isAr ? 'اكتب وصفك التفصيلية هنا...' : 'Write your detailed description here...'}
-                      className={`w-full p-3.5 rounded-xl bg-[#071431] border focus:outline-none text-white text-xs leading-relaxed transition-colors ${errorInputClass('customDescription')}`}
+                      className={`w-full p-3.5 rounded-xl bg-obsidian border focus:outline-none text-white text-xs leading-relaxed transition-colors ${errorInputClass('customDescription')}`}
                     />
                   </div>
 
@@ -747,7 +747,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </div>
                 </div>
               ) : (
-                <div className="p-4 sm:p-5 rounded-2xl bg-[#071431]/60 border-2 border-dashed border-periwinkle/40 space-y-2.5">
+                <div className="p-4 sm:p-5 rounded-2xl bg-obsidian/60 border-2 border-dashed border-steel/60 space-y-2.5">
                   <label className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white">
                     <PenLine className="w-4 h-4 shrink-0" />
                     <span>{isAr ? 'وصف القالب والمطلوب تنفيذه' : 'Template description & what you need built'}</span>
@@ -757,7 +757,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     value={customFeaturesText}
                     onChange={(e) => setCustomFeaturesText(e.target.value)}
                     placeholder={getTranslation('customFeaturesPlaceholder', lang)}
-                    className="w-full p-3.5 rounded-xl bg-[#071431] border border-periwinkle/25 focus:border-periwinkle focus:outline-none text-white text-xs"
+                    className="w-full p-3.5 rounded-xl bg-obsidian border border-steel/60 focus:border-orange focus:outline-none text-white text-xs"
                   />
                 </div>
               )}
@@ -765,7 +765,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               {/* ── Live project spec outline ── placed LAST (per request): the customer fills the
                   inputs first, then reads the assembled summary at the bottom. Reads the same state
                   the contract is assembled from, so it can never disagree with what is sent. */}
-              <div className="p-4 rounded-2xl bg-periwinkle/10 border border-periwinkle/40 space-y-3">
+              <div className="p-4 rounded-2xl bg-periwinkle/10 border border-steel/60 space-y-3">
                 <div className="flex items-center gap-2 text-white font-bold text-sm">
                   <FileCheck className="w-4 h-4 text-periwinkle" />
                   {isAr ? 'مخطط مواصفات المشروع' : 'Project Spec Outline'}
@@ -812,7 +812,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               the time anyone pressed the button. */}
           {currentStep === 3 && (
             <div className="space-y-6 animate-fade-in">
-              <div className="border-b border-periwinkle/25 pb-4">
+              <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <FileSignature className="w-5 h-5 text-white" />
                   <span>{getTranslation('stepSignature', lang)}</span>
@@ -837,7 +837,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
                 <div
                   data-lenis-prevent
-                  className="max-h-72 overflow-y-auto rounded-2xl border border-periwinkle/25 bg-[#071431] p-4"
+                  className="max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-obsidian p-4"
                 >
                   <ol className="list-decimal space-y-2.5 ps-4 marker:font-bold marker:text-white/45">
                     {terms.map((term, i) => (
@@ -871,8 +871,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </div>
 
                 <div
-                  className={`relative rounded-2xl overflow-hidden border-2 border-dashed bg-[#071431] transition-colors ${
-                    signatureMissing ? 'border-white ring-2 ring-white/40' : 'border-periwinkle/40'
+                  className={`relative rounded-2xl overflow-hidden border-2 border-dashed bg-obsidian transition-colors ${
+                    signatureMissing ? 'border-white ring-2 ring-white/40' : 'border-steel/60'
                   }`}
                 >
                   <canvas
@@ -917,13 +917,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 )}
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#071431] border border-periwinkle/25 text-xs text-white/85 space-y-2">
+              <div className="p-4 rounded-2xl bg-obsidian border border-white/10 text-xs text-white/85 space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="w-4 h-4 rounded bg-[#0B1130] border-periwinkle/40 text-white focus:ring-white cursor-pointer"
+                    className="w-4 h-4 rounded bg-graphite border-steel/60 text-white focus:ring-white cursor-pointer"
                   />
                   <span className="text-xs font-semibold text-white">
                     {getTranslation('agreeTermsCheckbox', lang)}
@@ -936,7 +936,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   printing it twice under two headings only invites the question of why they
                   differ. Nothing follows it but the button that commits to it. */}
               {isCustomProject ? (
-                <div className="p-5 rounded-2xl bg-[#071431] border border-periwinkle/25 space-y-2">
+                <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
                   <div className="text-sm font-bold text-white">
                     {isAr ? 'مشروع مخصص — السعر يُحدَّد بعد المراجعة' : 'Custom Project — price to be quoted after review'}
                   </div>
@@ -947,7 +947,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </p>
                 </div>
               ) : (
-                <div className="p-5 rounded-2xl bg-[#071431] border border-periwinkle/25 font-mono flex items-center justify-between gap-3">
+                <div className="p-5 rounded-2xl bg-obsidian border border-white/10 font-mono flex items-center justify-between gap-3">
                   <span className="text-base font-bold text-white">{getTranslation('totalCostSummary', lang)}</span>
                   <span className="text-xl text-white font-extrabold">
                     {formatPrice(totalPriceIQD, lang, currency)}
@@ -958,7 +958,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           )}
 
           {/* Form Navigation Buttons */}
-          <div className="pt-4 border-t border-periwinkle/25 flex items-center justify-between">
+          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
             {currentStep > 1 ? (
               /* Back is the quiet one. All three buttons in this bar were the same solid fill,
                  so a three-step form gave no clue which way it wanted you to go. */

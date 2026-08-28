@@ -130,7 +130,7 @@ export const TONES: Record<NqTone, ToneSpec> = {
      at all). */
   footer: {
     solid: { bg: OBSIDIAN, fg: '#FFFFFF', badgeBg: ORANGE, badgeFg: OBSIDIAN },
-    quiet: { bg: 'rgba(255,106,0,0.16)', fg: OBSIDIAN, tile: '#EDD3BF', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    quiet: { bg: 'rgba(255,106,0,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: ORANGE, badgeFg: OBSIDIAN },
     ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: ORANGE, badgeFg: OBSIDIAN },
     accent: ORANGE,
     darkRing: true,

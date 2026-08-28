@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
+import { GRAPHITE } from '../lib/homePalette';
 
 interface AboutSectionProps {
   language?: Language;
@@ -18,7 +19,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ language = 'ar' }) =
         {/* The border itself glints — see .solid-shimmer. No overflow-hidden: the shimmer
             ring sits at inset:-1px, on the border and therefore outside the padding box a
             clip would cut at. Nothing in this panel needed the clip. */}
-        <div className="solid-shimmer p-5 sm:p-6 rounded-3xl border border-zinc-700 shadow-2xl" style={{ background: '#0B1130' }}>
+        <div className="solid-shimmer p-5 sm:p-6 rounded-3xl border border-zinc-700 shadow-2xl" style={{ background: GRAPHITE }}>
 
           
           <div className="max-w-3xl mx-auto text-center space-y-4">
