@@ -4,7 +4,7 @@ import { useLiveTemplates } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
-import { PERIWINKLE } from '../lib/homePalette';
+import { COBALT, COBALT_DEEP, MIDNIGHT } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 import { trackLoad } from '../lib/loadTracker';
@@ -97,7 +97,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     <section
       id="templates-section"
       style={{
-        background: PERIWINKLE,
+        background: COBALT_DEEP,
         /* Pull the whole section up behind the floating navbar, exactly as the hero and the
            timeline do — so the blue reaches the top of the viewport instead of leaving the
            body's black visible between the navbar and the section. */
@@ -166,24 +166,26 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                    pass costs, and 18 is already past the point where a cube edge survives it. */
                 className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden backdrop-blur-[18px] backdrop-saturate-[140%] border border-white/45"
               >
-                {/* A faint wash of the section's blue at the top of each card, so the two read as
-                    belonging to the page they sit on rather than as foreign white boxes. */}
+                {/* A faint wash of the section's OWN blue (COBALT_DEEP, not the brighter button
+                    Cobalt) at the top of each card, so the two read as belonging to the page they
+                    sit on rather than as foreign white boxes — matching the section behind it is
+                    the point, so this has to track whatever COBALT_DEEP is, not the accent. */}
                 <div
                   aria-hidden="true"
                   className="absolute inset-x-0 top-0 h-24 pointer-events-none"
-                  style={{ background: `linear-gradient(to bottom, ${PERIWINKLE}22, ${PERIWINKLE}00)` }}
+                  style={{ background: `linear-gradient(to bottom, ${COBALT_DEEP}2e, ${COBALT_DEEP}00)` }}
                 />
 
                 <div className="relative flex items-center gap-3">
                   <span
                     className="w-14 h-14 rounded-2xl grid place-items-center shrink-0"
-                    style={{ background: PERIWINKLE, color: '#FFFFFF' }}
+                    style={{ background: COBALT, color: '#FFFFFF' }}
                   >
                     <Icon className="w-7 h-7" strokeWidth={2.2} />
                   </span>
                   <span
                     className="text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-[0.14em] uppercase"
-                    style={{ color: '#000000' }}
+                    style={{ color: MIDNIGHT }}
                   >
                     {currentLang === 'ar' ? choice.tagAr : choice.tagEn}
                   </span>
