@@ -9,13 +9,18 @@
          screen", and the iOS metas make "Add to Home Screen" work on iPhone Safari too. -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <!-- Matches the page's own background exactly. Android/Chrome paints its address bar with
-         this, so a value even slightly off shows as a seam between the browser chrome and the
-         top of the site — and the old #030712 was blue-tinted against a black page. -->
-    <meta name="theme-color" content="#000000" />
+    <!-- Matches the page's own background exactly (--nq-ground in src/index.css). Android/Chrome
+         paints its address bar with this, so a value even slightly off shows as a seam between
+         the browser chrome and the top of the site. Ice White, not black — the brand's flat page
+         background moved to a light neutral; #000000 here would flash a dark bar above a light
+         page on first paint. -->
+    <meta name="theme-color" content="#F7F9FC" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- `default` gives dark status-bar icons/clock, for the light ICE page underneath them.
+         `black-translucent` (light icons over transparent) was right for the site's earlier
+         black ground and would be unreadable on this one. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="NOVAIQ" />
     <!-- Cairo & Tajawal are self-hosted (see src/index.css @font-face rules) instead of
          loaded from Google Fonts, to avoid the extra third-party round-trip and the
