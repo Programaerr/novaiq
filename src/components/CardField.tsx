@@ -39,20 +39,18 @@ const TILE_H = 196;
 /**
  * The card's own colour, before the light touches it.
  *
- * The crest of the section field itself (`shadeColor(OBSIDIAN, 0.14)` — see TileField's
- * OBSIDIAN_TONES), not a step lighter than it: a Lambert material multiplies its base by the
- * light, so whatever number goes in here comes out darker once lit. Lit at the crest tone the
- * cards land UNDER the ground they sit on and read as holes punched in it rather than as objects
- * on it. Set here, the lit face comes out ABOVE the crest and the shaded sides at about the
- * ground itself, which is the same range the site's cube field paints and the reason the two
- * look related.
- *
- * Re-derived every time the ground behind these has moved: flat periwinkle, then Cobalt Deep,
- * and now Obsidian — the brand's own near-black neutral, used here as a full-bleed fill rather
- * than a tint of the accent. A tint picked for any earlier, lighter ground reads washed out and
- * pale over a fill this dark, which is why the value is recomputed rather than carried forward.
+ * The crest of `CUBE_BLACK`, TileField's neutral "light black" (`shadeColor(CUBE_BLACK, 0.16)` —
+ * see `SIGNAL_TONES` there), NOT a tint of whatever the ground behind these actually is. The
+ * ground is the brand's Signal Orange now, on direct client instruction, but the cards — like
+ * the cube field's own swell — stay a shade of black rather than a shade of Orange: the same
+ * "technical grid standing on the signal colour" the tile field's own module note describes. A
+ * Lambert material multiplies its base by the light, so whatever number goes in here comes out
+ * darker once lit; lit at the crest tone the cards land UNDER the ground they sit on and read as
+ * holes punched in it rather than as objects on it. Set here, the lit face comes out ABOVE the
+ * crest and the shaded sides at about the black itself, which is the same range the site's cube
+ * field paints and the reason the two look related.
  */
-const CARD_TINT = '#2B2C2F';
+const CARD_TINT = '#606469';
 
 /**
  * The diagonal, and the two small angles that make a flat grid look like objects.

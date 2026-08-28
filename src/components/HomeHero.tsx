@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { OBSIDIAN, WHITE, PAPER } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
@@ -9,15 +9,14 @@ import { NqButton } from './ui/NqButton';
  * The home page's container: a WARM WHITE screen with a swell of tiles running across it, and a
  * single panel holding the name and the two ways in.
  *
- * ## Brand colour, kept off the panel entirely
+ * ## The panel is the brand's own Signal Orange, on direct instruction
  *
- * The ground is WHITE (`#F7F7F5`), the site's light-neutral. The panel is OBSIDIAN, the brand's
- * own dark neutral — not Signal Orange, which this brief reserves strictly for things that are
- * actually being pressed or pointed at, and rules out as a background outright. A panel this
- * size, in this hero, is the single loudest brand moment on the page; making it Orange would be
- * exactly the loud, undifferentiated colour use the brief warns against, so it gets Obsidian
- * instead and Orange survives only as the small badge on the primary button inside it. See
- * homePalette.ts for the reasoning in full.
+ * The ground is WHITE (`#F7F7F5`), the site's light-neutral. The panel was Obsidian at first —
+ * this brief's own written brand system reserves Orange strictly for things being pressed or
+ * pointed at and rules it out as a background outright, and a panel this size is the loudest
+ * brand moment on the page. The client asked for it anyway: Orange, full strength, as the panel
+ * itself, not a restrained neutral with Orange as a small badge inside it. See homePalette.ts for
+ * the contrast consequences that decision carries.
  *
  * ## The header is not in this file
  *
@@ -27,15 +26,13 @@ import { NqButton } from './ui/NqButton';
  * hero carried a hand-kept copy of it and a merge is exactly where two copies of one navigation
  * drift apart and stop compiling.
  *
- * ## Contrast decided the panel's own text
+ * ## Contrast decided the panel's own text, and Orange decides it the opposite way from Obsidian
  *
- * The panel is a dark ground, so the wordmark and tagline are WHITE — 18.48:1 there, the same
- * pairing the rest of the dark surfaces on this site use. The two buttons below run on the
- * opposite rule for the opposite reason: white text on Signal Orange measures a failing 2.87:1
- * at body-button size (Orange is the brighter of the two directions a saturated accent can fail
- * in), so both carry dark Obsidian on a light `glass` body instead of one being an outline in
- * white. They still differ in weight — solid against translucent — so the hierarchy the drawing
- * shows survives; it is carried by fill rather than by a colour that could not be read.
+ * White on Signal Orange measures a failing 2.87:1, under even the 3:1 floor for a large mark —
+ * Orange is bright enough that the DARK member of a pair is the one that reads, the opposite of
+ * what the same panel needed in Obsidian. The wordmark and tagline are OBSIDIAN now, 6.90:1 on
+ * the fill. The two buttons keep the logic they already had: OBSIDIAN on a light `glass` body,
+ * which was already the correct pairing for Orange and needed no change when the panel did.
  */
 
 interface HomeHeroProps {
@@ -100,20 +97,20 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div
             aria-hidden="true"
             className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[0.5rem]"
-            style={{ background: OBSIDIAN }}
+            style={{ background: ORANGE }}
           >
             <div
               className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
-                style={{ color: WHITE }}
+                style={{ color: OBSIDIAN }}
               >
                 NOVAIQ
               </span>
               <p
                 className="mt-3 text-[0.8rem] sm:text-sm uw:text-base font-bold leading-relaxed"
-                style={{ color: WHITE, opacity: 0.72 }}
+                style={{ color: OBSIDIAN, opacity: 0.72 }}
               >
                 {isAr
                   ? 'استوديو تصميم وبرمجة — نبني مواقع وأنظمة تشتغل لشركتك.'

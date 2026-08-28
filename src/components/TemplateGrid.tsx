@@ -97,10 +97,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     <section
       id="templates-section"
       style={{
-        background: OBSIDIAN,
+        background: ORANGE,
         /* Pull the whole section up behind the floating navbar, exactly as the hero and the
-           timeline do — so the dark ground reaches the top of the viewport instead of leaving a
-           seam of body colour visible between the navbar and the section. */
+           timeline do — so the ground reaches the top of the viewport instead of leaving a seam
+           of body colour visible between the navbar and the section. Orange, on direct client
+           instruction — this layout's other full-bleed panels stayed Obsidian, but this one and
+           the timeline section beside it did not (see TileField's SECTION_TONES). */
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
@@ -112,17 +114,18 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       <div className="relative nq-container">
         {/* ── The heading ─────────────────────────────────────────────────────────────────
             Two cards, not a menu: the customer picks a delivery and we carry that choice into
-            the contract. */}
+            the contract. Text is OBSIDIAN, not white — Orange is bright enough that the dark
+            member of the pair is the one that reads (6.90:1, where white is a failing 2.87:1). */}
         <div className="mt-6 sm:mt-8 text-center max-w-3xl mx-auto">
           <h2
             className="text-[1.7rem] sm:text-[2.4rem] uw:text-[3rem] font-black leading-none tracking-tight"
-            style={{ color: '#FFFFFF' }}
+            style={{ color: OBSIDIAN }}
           >
             {currentLang === 'ar' ? 'ماذا تريد أن تبني؟' : 'What do you want to build?'}
           </h2>
           <p
             className="mt-4 text-[0.95rem] sm:text-base uw:text-lg font-bold leading-relaxed"
-            style={{ color: '#FFFFFF' }}
+            style={{ color: OBSIDIAN, opacity: 0.85 }}
           >
             {currentLang === 'ar'
               ? 'بطاقتان — اختر موقعاً أو تطبيقاً، ونكمل معك العقد فوراً.'
@@ -166,15 +169,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                    pass costs, and 18 is already past the point where a cube edge survives it. */
                 className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden backdrop-blur-[18px] backdrop-saturate-[140%] border border-white/45"
               >
-                {/* A faint wash of the section's OWN dark ground (OBSIDIAN, not the brighter
-                    accent Orange) at the top of each card, so the two read as belonging to the
-                    page they sit on rather than as foreign white boxes — matching the section
-                    behind it is the point, so this has to track whatever OBSIDIAN is, not the
-                    accent, and Orange is never a wash in this system regardless. */}
+                {/* A faint wash of the section's OWN ground at the top of each card, so the two
+                    read as belonging to the page they sit on rather than as foreign white boxes.
+                    ORANGE, matching the section directly — this is a wash rather than a fill, low
+                    opacity fading to nothing, so it does not compete with the one full-strength
+                    Orange element on the card (the icon tile below). */}
                 <div
                   aria-hidden="true"
                   className="absolute inset-x-0 top-0 h-24 pointer-events-none"
-                  style={{ background: `linear-gradient(to bottom, ${OBSIDIAN}2e, ${OBSIDIAN}00)` }}
+                  style={{ background: `linear-gradient(to bottom, ${ORANGE}2e, ${ORANGE}00)` }}
                 />
 
                 <div className="relative flex items-center gap-3">

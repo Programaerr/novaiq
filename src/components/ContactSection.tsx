@@ -5,8 +5,8 @@ import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
-import { ERROR, OBSIDIAN, PAPER, SUCCESS, WHITE } from '../lib/homePalette';
-import { BAND_FADE, OBSIDIAN_TONES, TileField } from './TileField';
+import { ERROR, OBSIDIAN, ORANGE, PAPER, SUCCESS, WHITE } from '../lib/homePalette';
+import { BAND_FADE, SIGNAL_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
 /**
@@ -15,16 +15,12 @@ import { NqButton } from './ui/NqButton';
  *
  * ## The edge above it is made of cubes, not of a shape
  *
- * The section's ground is OBSIDIAN and the one above it is paper, and a straight seam between
- * two flat colours across a full-width page is the most obvious edge on the site. So the top of
- * this section is a STRIP of the same tile field the hero uses, in the brand's dark neutral
- * instead of warm white: the cubes are absent at the top of the strip where the ground is still
- * paper, assemble as the ground turns, and settle away into flat Obsidian before the heading. The
- * dark ground arrives as something that was built rather than as a rectangle that starts.
- *
- * It is the hero's gesture in reverse, and deliberately so. The page opens with a field of warm
- * white cubes breaking up downward into the paper and closes with a field of dark ones assembling
- * upward out of it — the same move, bracketing everything between.
+ * The section's ground is ORANGE and the one above it is paper, and a straight seam between two
+ * flat colours across a full-width page is the most obvious edge on the site. So the top of this
+ * section is a STRIP of the same tile field the hero uses, in the brand's signal colour: the
+ * cubes are absent at the top of the strip where the ground is still paper, assemble as the
+ * ground turns, and settle away into flat Orange before the heading. The colour arrives as
+ * something that was built rather than as a rectangle that starts.
  *
  * ## Labels are inside the fields, and they are real labels
  *
@@ -35,15 +31,15 @@ import { NqButton } from './ui/NqButton';
  *
  * ## Contrast decided the fills, and changed with every identity this section has had
  *
- * Under the sand/periwinkle identity the section's ground was light enough that ink text sat
- * directly on it at 6.4:1. This brief's brief is stricter than even the blue identity before it:
- * Orange may never be a background at all, not even a darkened one, so this section fills with
- * OBSIDIAN — the brand's own dark neutral — rather than a tint of the accent. That is a DARK
- * ground either way. Every mark that sits directly on it had to flip from dark to light with it:
- * the heading is WHITE now, not ink, and the error/confirmation messages moved off plain ink onto
- * real semantic colours (see the notes at each). Text still inside a field block stays dark,
- * because that block is still a light WHITE surface floating on the section — only what sits on
- * the section's own ground moved.
+ * This section's ground has been a light periwinkle, then a dark Obsidian, and is now the brand's
+ * own Signal Orange — a direct client instruction, choosing a fully saturated section over the
+ * more restrained dark-neutral fill the written brief itself had called for. Orange is dark
+ * enough that OBSIDIAN text reads on it directly (6.90:1) — the heading uses that, not white,
+ * which is what a section this bright actually needs. The two status messages could not follow
+ * the same rule: red and green both measure under 1.3:1 directly on Orange, with no legible
+ * darkened rescue (the fix reads as mud, not as the colour). Both sit on a small Obsidian chip
+ * instead, where they stay themselves at full saturation — see the notes at each. Text still
+ * inside a field block stays dark on its own light WHITE surface, unaffected by any of this.
  */
 
 interface Field {
@@ -177,7 +173,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
          leaving a disconnected strip. Otherwise the top padding clears the absolutely-positioned
          tile strip above it, which takes up no height of its own. */
       style={{
-        background: OBSIDIAN,
+        background: ORANGE,
         ...(isPageTop
           ? { marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))' }
           : {}),
@@ -210,10 +206,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                strip of half-blue. Blue lands at 34%, just after the field reaches full height. Move
                either number without the other and you get back one of the two faults the note on
                BAND_FADE describes. */
-            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + OBSIDIAN + ' 40%)',
+            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + ORANGE + ' 40%)',
           }}
         >
-          <TileField tones={OBSIDIAN_TONES} fade={BAND_FADE} />
+          <TileField tones={SIGNAL_TONES} fade={BAND_FADE} />
         </div>
       )}
 
@@ -221,13 +217,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
         {/* Steps with the phases section above it and for the same reason — see the note there.
             One island of the same width twice running is what makes the two read as one page. */}
         <div className="mx-auto max-w-[56rem] uw:max-w-[72rem]">
-          {/* This heading sits directly on the section's own ground, the dark OBSIDIAN fill — so
-              its text has to be the light member of the pair, WHITE. Every other coloured text in
-              this section sits on a nested light card (the field blocks) and stays dark; this is
-              the one heading with no card under it. */}
+          {/* This heading sits directly on the section's own ground, the bright ORANGE fill —
+              which is dark enough (relatively) that OBSIDIAN reads on it at 6.90:1, the same
+              dark ink every field block on this section already uses. Nothing here needed a
+              light/dark flip: the only two things that could not just stay OBSIDIAN were the
+              status messages, which needed their own chip (see the notes there). */}
           <h2
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
-            style={{ color: WHITE, ['--nq-rise-delay' as string]: '80ms' }}
+            style={{ color: OBSIDIAN, ['--nq-rise-delay' as string]: '80ms' }}
             >
               {isAr ? 'المراسلة والدعم' : 'Messaging & Support'}
             </h2>
@@ -302,17 +299,19 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                         and the live region so it is announced when it appears rather than only
                         found by someone who goes looking for it.
 
-                        Sits directly on the section's dark Obsidian ground, not on the light
-                        field block above it, and it is an error — ERROR, which measures 5.27:1
-                        on Obsidian directly (no darkened variant needed here, unlike the previous
-                        identity's fill, which was lighter than its own darkest tone). This was
-                        previously rendered in plain ink, which is not an error colour at all. */}
+                        On its own small OBSIDIAN chip rather than bare on the section — the
+                        section's ground is Orange now, and red-on-orange has no good answer:
+                        plain ERROR is 1.31:1 there, and darkening it toward something that
+                        clears 4.5:1 (`#571E20`) turns it a muddy brown that no longer reads as
+                        an error at all. A dark chip lets ERROR stay itself, at full saturation
+                        (5.27:1 on Obsidian) — this was previously rendered in plain ink, which
+                        was not an error colour at all. */}
                     {error && (
                       <p
                         id={id + '-error'}
                         role="alert"
-                        className="mt-1.5 px-1 text-[0.78rem] font-extrabold"
-                        style={{ color: ERROR }}
+                        className="mt-1.5 inline-block px-2.5 py-1 rounded-lg text-[0.78rem] font-extrabold"
+                        style={{ color: ERROR, background: OBSIDIAN }}
                       >
                         {error}
                       </p>
@@ -340,12 +339,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                   {sending ? (isAr ? 'جاري الإرسال…' : 'Sending…') : isAr ? 'أرسل' : 'Send'}
                 </NqButton>
 
-                {/* The confirmation sits beside the button that caused it, and is announced.
-                    SUCCESS rather than ink — this is on the section's own dark ground and reads
-                    8.70:1 there, and a success message is exactly the case the brief's semantic
-                    system exists for: Orange cannot also mean "this worked". */}
+                {/* The confirmation sits beside the button that caused it, and is announced, on
+                    the same small OBSIDIAN chip the error uses — green-on-orange has the same
+                    problem red-on-orange does (1.26:1, and a darkened fix reads as murky
+                    brown-green rather than success). On Obsidian, SUCCESS stays itself at full
+                    saturation (8.70:1) — exactly the case the brief's semantic system exists
+                    for: Orange cannot also mean "this worked". */}
                 {sent && (
-                  <p role="status" className="text-[0.85rem] font-extrabold" style={{ color: SUCCESS }}>
+                  <p role="status" className="inline-block px-2.5 py-1 rounded-lg text-[0.85rem] font-extrabold" style={{ color: SUCCESS, background: OBSIDIAN }}>
                     {isAr ? 'وصلت رسالتك. نرد عليك قريباً.' : 'Got it. We will reply shortly.'}
                   </p>
                 )}

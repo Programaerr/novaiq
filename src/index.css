@@ -902,20 +902,21 @@
 /* ── The sign-in page's flat ground ───────────────────────────────────────────────
    The base fill behind CardField's 3D cards — what shows through the gaps between them, and the
    colour the page falls back to for the one frame before either the stylesheet or the WebGL
-   canvas has painted anything. It has to match the ground CardField was lit against (OBSIDIAN,
-   the brand's own dark neutral, used as a full-bleed fill) exactly, or the gaps between cards
-   read as a different colour than the cards themselves are standing on.
+   canvas has painted anything. It has to match whatever ground CardField's cards are lit against
+   exactly, or the gaps between cards read as a different colour than the cards themselves are
+   standing on — ORANGE now, the brand's own Signal colour, on direct client instruction; this
+   layout's other full-bleed panels stayed on the neutral Obsidian, but this screen did not.
 
    Older comment, kept for the archaeology: this class used to be a split-card seam between a
    blue field and a sand words-column, first a stepped "coastline" clip-path and then a straight
    grid boundary. The page it belonged to was rebuilt again since — full-bleed cards over a flat
    ground, with a leaning band carrying the copy (see LoginPage.tsx) — and the class was kept
-   because "the sign-in page's flat dark ground" was still the right job for it, through two
-   different colours of that ground, just not the original shape. */
+   because "the sign-in page's flat ground" was still the right job for it, through three
+   different colours of that ground now, just not the original shape. */
 .nq-coast {
   position: absolute;
   inset: 0;
-  background: #080a0d;
+  background: #ff6a00;
 }
 
 /* The sign-in card's sand band: the panel the copy sits on, leaning across the blue.
@@ -986,19 +987,18 @@
    patterned ground. So the default here is OPAQUE, and the frost is the enhancement layered on
    top where the browser can actually do it — the same order the navbar uses.
 
-   #ABACAD is not a chosen colour. It is `mix(SURFACE_LIGHT, OBSIDIAN, 0.66)` — 66% of the brand's
-   raised white over the section's own dark neutral fill, computed the same way the live
-   `@supports` version below composites at runtime. Using it as the fallback means a browser
-   without backdrop-filter gets the same colour, minus the softness.
+   #FFCCA8 is not a chosen colour. It is `mix(SURFACE_LIGHT, ORANGE, 0.66)` — 66% of the brand's
+   raised white over the section's own ground, computed the same way the live `@supports` version
+   below composites at runtime. Using it as the fallback means a browser without backdrop-filter
+   gets the same colour, minus the softness.
 
-   Worth writing down because the intuition keeps being wrong here, three identities running:
-   white at 66% does NOT stay near-white. Two thirds of white over one third of a genuinely dark,
-   near-black fill lands at a neutral mid-grey — the correct answer for glass over Obsidian, and
-   the plainest of the three versions this constant has been (a cool lavender over periwinkle, a
-   pale blue-grey over Cobalt Deep, now a flat grey over true black — each one exactly as
-   saturated as the ground it was glass over). Obsidian on it measures 8.72:1. */
+   Worth writing down because the intuition keeps being wrong here, four identities running: this
+   constant has been a cool lavender over periwinkle, a pale blue-grey over Cobalt Deep, a flat
+   grey over Obsidian, and is now a warm peach over Orange — each one exactly as saturated and as
+   warm or cool as the ground it was glass over, never a fixed "frosted white". Obsidian on this
+   one measures 13.64:1. */
 .nq-card-glass {
-  background: #abacad;
+  background: #ffcca8;
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nq-card-glass {
