@@ -75,7 +75,7 @@ const SPEED = 13;
  *
  * The sizes are absolute and a screen is not: 240px of card is 17% of a desktop and 62% of a
  * phone, so the same field that reads as a wall of cards on a laptop reads as three slabs
- * sliding past on a handset. It also has to share the screen with the sand band, which is WIDER
+ * sliding past on a handset. It also has to share the screen with the ICE band, which is WIDER
  * on a phone in relative terms — the strip of field left either side of it is thin, and a thin
  * strip only reads as cards if the cards are small enough for several to fall inside it.
  */
@@ -105,7 +105,7 @@ function makeFaceTexture() {
   const g = c.getContext('2d');
   if (!g) return null;
   const bar = (x: number, y: number, bw: number, bh: number, alpha: number) => {
-    g.fillStyle = `rgba(246, 241, 233, ${alpha})`;
+    g.fillStyle = `rgba(233, 237, 244, ${alpha})`;
     g.beginPath();
     g.roundRect(x, y, bw, bh, bh / 2);
     g.fill();

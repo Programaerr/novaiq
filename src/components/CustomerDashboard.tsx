@@ -69,7 +69,7 @@ return (
               {i > 0 && (
                 <div
                   className="h-0.5 flex-1 rounded-full transition-colors"
-                  style={{ background: filled ? color : 'rgba(16, 19, 34, 0.15)' }}
+                  style={{ background: filled ? color : 'rgba(7, 17, 31, 0.15)' }}
                   aria-hidden="true"
                 />
               )}
@@ -79,7 +79,7 @@ return (
                   style={
                     filled
                       ? { background: color, borderColor: color, boxShadow: `0 0 0 3px ${color}33` }
-                      : { background: 'transparent', borderColor: 'rgba(16, 19, 34, 0.3)' }
+                      : { background: 'transparent', borderColor: 'rgba(7, 17, 31, 0.3)' }
                   }
                   aria-hidden="true"
                 />

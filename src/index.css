@@ -368,7 +368,7 @@
        background composition; the page still looks dark, which is exactly why it can sit there
        unnoticed. The flat colour belongs on `html` (see --nq-ground), which is also the element
        whose colour fills the overscroll area, so nothing is lost by taking it off here. */
-    color: #101322;
+    color: #07111F;
     overflow-x: hidden;
   }
 
@@ -1661,7 +1661,7 @@ html[data-scrolling] .nq-btn-beam::before {
    Safari, `scrollbar-color` is Firefox and the standard. Only the first was ever set here, so
    every non-Chromium visitor got the OS default grey column beside a sand page.
 
-   Alpha rather than a flat #101322, for the same reason the card surfaces use it: the thumb runs
+   Alpha rather than a flat #07111F, for the same reason the card surfaces use it: the thumb runs
    the full height of a page that changes colour down its length — paper, sand, periwinkle, the
    cube bands between them — so a fixed hex is only right at one scroll position. At 0.72 it reads
    as black everywhere while still taking the tint of whatever it is currently over.
@@ -1669,8 +1669,8 @@ html[data-scrolling] .nq-btn-beam::before {
    The track stays transparent, which is the older note here and still true: any single value
    picked for it is a stripe at every scroll position but one. */
 :root {
-  --nq-bar: rgb(16 19 34 / 0.72);
-  --nq-bar-hover: rgb(16 19 34 / 0.9);
+  --nq-bar: rgb(7 17 31 / 0.72);
+  --nq-bar-hover: rgb(7 17 31 / 0.9);
 }
 
 /* The standard properties — Firefox, and Chrome too, which is the part that surprises.
@@ -1718,8 +1718,8 @@ html[data-scrolling] .nq-btn-beam::before {
    `--nq-bar` from their own originating element. */
 .nq-scroll-dark,
 .sandbox-root {
-  --nq-bar: rgb(246 241 233 / 0.30);
-  --nq-bar-hover: rgb(246 241 233 / 0.55);
+  --nq-bar: rgb(233 237 244 / 0.30);
+  --nq-bar-hover: rgb(233 237 244 / 0.55);
   scrollbar-color: var(--nq-bar) transparent;
 }
 

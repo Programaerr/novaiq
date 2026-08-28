@@ -120,8 +120,8 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
     const Field: React.FC<{ label: string; value: string }> = ({ label, value }) => (
       <div style={{ marginBottom: 4 }}>
-        <span style={{ color: '#64748b', fontSize: 11 }}>{label}: </span>
-        <strong style={{ color: '#0f172a', fontSize: 12 }}>{value}</strong>
+        <span style={{ color: '#636E7F', fontSize: 11 }}>{label}: </span>
+        <strong style={{ color: '#07111F', fontSize: 12 }}>{value}</strong>
       </div>
     );
 
@@ -130,8 +130,8 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
         style={{
           fontSize: 13,
           fontWeight: 800,
-          color: '#0f172a',
-          borderBottom: '2px solid #0f172a',
+          color: '#07111F',
+          borderBottom: '2px solid #07111F',
           paddingBottom: 4,
           marginBottom: 7,
           letterSpacing: isAr ? 0 : 0.3,
@@ -157,19 +157,19 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           left: -20000,
           width: 794,
           backgroundColor: '#ffffff',
-          color: '#0f172a',
+          color: '#07111F',
           fontFamily: isAr ? "'Cairo', 'Tajawal', sans-serif" : "'Helvetica Neue', Arial, sans-serif",
           textAlign: isAr ? 'right' : 'left',
         }}
       >
         {/* Header banner */}
-        <div style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '16px 28px' }}>
+        <div style={{ backgroundColor: '#07111F', color: '#ffffff', padding: '16px 28px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: 3 }}>NOVAIQ</div>
-              <div style={{ fontSize: 11, color: '#cbd5e1', marginTop: 4 }}>{t.tagline}</div>
+              <div style={{ fontSize: 11, color: '#D2D4D7', marginTop: 4 }}>{t.tagline}</div>
             </div>
-            <div style={{ textAlign: isAr ? 'left' : 'right', fontSize: 11, color: '#e2e8f0' }}>
+            <div style={{ textAlign: isAr ? 'left' : 'right', fontSize: 11, color: '#E6E7E9' }}>
               <div style={{ fontWeight: 700, fontSize: 13, color: '#ffffff' }}>
                 {t.ref}: {contract.contractNumber}
               </div>
@@ -183,11 +183,11 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           </div>
         </div>
 
-        <div style={{ height: 4, backgroundColor: '#475569' }} />
+        <div style={{ height: 4, backgroundColor: '#656B74' }} />
 
         {/* Document title */}
         <div style={{ padding: '12px 28px 0', textAlign: 'center' }}>
-          <h1 style={{ fontSize: 17, fontWeight: 900, color: '#0f172a', letterSpacing: isAr ? 0 : 1 }}>
+          <h1 style={{ fontSize: 17, fontWeight: 900, color: '#07111F', letterSpacing: isAr ? 0 : 1 }}>
             {t.docTitle}
           </h1>
         </div>
@@ -215,36 +215,36 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             <SectionTitle>{t.s2}</SectionTitle>
             <Field label={t.template} value={templateTitle} />
             <div style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: '#64748b', fontSize: 11 }}>{t.identity}: </span>
-              <strong style={{ color: '#0f172a', fontSize: 12 }}>{themeLabel}</strong>
+              <span style={{ color: '#636E7F', fontSize: 11 }}>{t.identity}: </span>
+              <strong style={{ color: '#07111F', fontSize: 12 }}>{themeLabel}</strong>
               <span
                 style={{
                   display: 'inline-block',
                   width: 13,
                   height: 13,
                   borderRadius: 4,
-                  backgroundColor: contract.primaryColor || '#8b5cf6',
-                  border: '1px solid #cbd5e1',
+                  backgroundColor: contract.primaryColor || '#7557FF',
+                  border: '1px solid #D2D4D7',
                 }}
               />
-              <span style={{ fontSize: 10.5, color: '#475569', fontFamily: 'monospace' }}>
-                {(contract.primaryColor || '#8b5cf6').toUpperCase()}
+              <span style={{ fontSize: 10.5, color: '#656B74', fontFamily: 'monospace' }}>
+                {(contract.primaryColor || '#7557FF').toUpperCase()}
               </span>
             </div>
             <Field label={t.langSupport} value={languageSupportLabel} />
 
             {translatedNotes && (
               <div style={{ marginTop: 8 }}>
-                <span style={{ color: '#64748b', fontSize: 11 }}>{t.notes}:</span>
+                <span style={{ color: '#636E7F', fontSize: 11 }}>{t.notes}:</span>
                 <div
                   style={{
                     marginTop: 4,
                     padding: 8,
-                    backgroundColor: '#f8fafc',
-                    border: '1px solid #e2e8f0',
+                    backgroundColor: '#F7F9FC',
+                    border: '1px solid #E6E7E9',
                     borderRadius: 6,
                     fontSize: 11.5,
-                    color: '#1e293b',
+                    color: '#27303C',
                     lineHeight: 1.5,
                   }}
                 >
@@ -255,7 +255,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
             {translatedAdminNotes && (
               <div style={{ marginTop: 8 }}>
-                <span style={{ color: '#64748b', fontSize: 11 }}>{t.agreedTerms}:</span>
+                <span style={{ color: '#636E7F', fontSize: 11 }}>{t.agreedTerms}:</span>
                 <div
                   style={{
                     marginTop: 4,
@@ -264,7 +264,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                     border: '1px solid #fde68a',
                     borderRadius: 6,
                     fontSize: 11.5,
-                    color: '#1e293b',
+                    color: '#27303C',
                     lineHeight: 1.5,
                   }}
                 >
@@ -279,7 +279,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             <SectionTitle>{t.s3}</SectionTitle>
             <div
               style={{
-                border: '1px solid #e2e8f0',
+                border: '1px solid #E6E7E9',
                 borderRadius: 6,
                 overflow: 'hidden',
               }}
@@ -293,7 +293,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '12px 14px',
-                  backgroundColor: '#0f172a',
+                  backgroundColor: '#07111F',
                   color: '#ffffff',
                 }}
               >
@@ -314,7 +314,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             <SectionTitle>{t.s4}</SectionTitle>
             <ol style={{ margin: 0, paddingInlineStart: 18 }}>
               {terms.map((term, i) => (
-                <li key={i} style={{ fontSize: 10, color: '#334155', marginBottom: 3, lineHeight: 1.45 }}>
+                <li key={i} style={{ fontSize: 10, color: '#434A55', marginBottom: 3, lineHeight: 1.45 }}>
                   {term}
                 </li>
               ))}
@@ -326,7 +326,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             <SectionTitle>{t.s5}</SectionTitle>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24 }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6 }}>{t.clientSig}</div>
+                <div style={{ fontSize: 11, color: '#636E7F', marginBottom: 6 }}>{t.clientSig}</div>
                 {contract.signatureDataUrl ? (
                   <img
                     src={contract.signatureDataUrl}
@@ -342,18 +342,18 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                     }}
                   />
                 ) : (
-                  <div style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic', height: 56 }}>
+                  <div style={{ fontSize: 11, color: '#B5B8BC', fontStyle: 'italic', height: 56 }}>
                     {t.signedElectronically}
                   </div>
                 )}
                 <div
                   style={{
-                    borderTop: '1px solid #94a3b8',
+                    borderTop: '1px solid #B5B8BC',
                     marginTop: 4,
                     paddingTop: 4,
                     fontSize: 11,
                     fontWeight: 700,
-                    color: '#0f172a',
+                    color: '#07111F',
                     maxWidth: 220,
                   }}
                 >
@@ -363,14 +363,14 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
               <div
                 style={{
-                  border: '2px solid #0f172a',
+                  border: '2px solid #07111F',
                   borderRadius: 8,
                   padding: '12px 16px',
                   textAlign: 'center',
                   width: 210,
                 }}
               >
-                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>{t.companySig}</div>
+                <div style={{ fontSize: 10, color: '#636E7F', marginBottom: 4 }}>{t.companySig}</div>
                 {contract.companySignatureDataUrl ? (
                   <img
                     src={contract.companySignatureDataUrl}
@@ -378,15 +378,15 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                     style={{ height: 44, maxWidth: 160, objectFit: 'contain', filter: 'invert(1)', display: 'block', margin: '0 auto' }}
                   />
                 ) : (
-                  <div style={{ fontSize: 10, color: '#94a3b8', fontStyle: 'italic', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ fontSize: 10, color: '#B5B8BC', fontStyle: 'italic', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {t.pendingApproval}
                   </div>
                 )}
-                <div style={{ fontSize: 11, fontWeight: 900, color: '#0f172a', marginTop: 6, borderTop: '1px solid #cbd5e1', paddingTop: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 900, color: '#07111F', marginTop: 6, borderTop: '1px solid #D2D4D7', paddingTop: 6 }}>
                   {t.seal}
                 </div>
-                <div style={{ fontSize: 9, color: '#475569', marginTop: 4, letterSpacing: 0.5 }}>{t.verified}</div>
-                <div style={{ fontSize: 9, color: '#475569', marginTop: 6, fontFamily: 'monospace' }}>
+                <div style={{ fontSize: 9, color: '#656B74', marginTop: 4, letterSpacing: 0.5 }}>{t.verified}</div>
+                <div style={{ fontSize: 9, color: '#656B74', marginTop: 6, fontFamily: 'monospace' }}>
                   {t.authCode}: NVQ-{contract.contractNumber.slice(-6)}
                 </div>
               </div>
@@ -397,8 +397,8 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
         {/* Footer */}
         <div
           style={{
-            backgroundColor: '#0f172a',
-            color: '#94a3b8',
+            backgroundColor: '#07111F',
+            color: '#B5B8BC',
             fontSize: 9.5,
             padding: '8px 28px',
             textAlign: 'center',

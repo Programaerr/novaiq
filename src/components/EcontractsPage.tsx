@@ -39,7 +39,7 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
             {isAr ? 'العقد الإلكتروني' : 'E-contract'}
           </h2>
-          <p className="text-xs sm:text-sm leading-relaxed bg-[#F6F1E9] text-[#101322] rounded-2xl p-4 sm:p-5">
+          <p className="text-xs sm:text-sm leading-relaxed bg-[#E9EDF4] text-[#07111F] rounded-2xl p-4 sm:p-5">
             {isAr
               ? 'عقد تقديم خدمات تصميم وتطوير برمجي — البنود القياسية التي تُوقَّع إلكترونياً عند إنشاء أي عقد، كما تظهر في وثيقة العقد نفسها.'
               : 'Software design & development services agreement — the standard clauses signed electronically on every contract, exactly as they appear in the contract document itself.'}
@@ -78,11 +78,11 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
         </div>
 
         <div
-          className="mt-8 p-5 rounded-3xl bg-[#F6F1E9] border flex items-start gap-4"
-          style={{ borderColor: 'rgba(16, 19, 34, 0.15)' }}
+          className="mt-8 p-5 rounded-3xl bg-[#E9EDF4] border flex items-start gap-4"
+          style={{ borderColor: 'rgba(7, 17, 31, 0.15)' }}
         >
-          <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#101322' }} />
-          <p className="text-xs sm:text-sm leading-relaxed text-[#101322]">
+          <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#07111F' }} />
+          <p className="text-xs sm:text-sm leading-relaxed text-[#07111F]">
             {isAr
               ? 'ملاحظة: هذا العرض للبنود القياسية للعقد. تُحدَّد بيانات كل عقد (الأطراف، المدة، القيمة، نطاق العمل) عند إنشائه وتُكتب في وثيقة العقد قبل التوقيع.'
               : 'Note: this shows the contract’s standard clauses. Each contract’s details (parties, duration, value, scope) are set when it is created and stated in the contract document before signing.'}
