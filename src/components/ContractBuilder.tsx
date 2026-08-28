@@ -526,7 +526,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <div className="p-4 rounded-2xl bg-obsidian border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   {isCustomProject ? (
-                    <div className="w-16 h-16 rounded-xl bg-orange/15 border border-steel/60 flex items-center justify-center shrink-0">
+                    <div className="w-16 h-16 rounded-xl bg-white/5 border border-steel/60 flex items-center justify-center shrink-0">
                       <PenLine className="w-6 h-6 text-white" />
                     </div>
                   ) : (
@@ -537,7 +537,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     />
                   )}
                   <div>
-                    <span className="text-[10px] font-bold text-white bg-orange/15 border border-steel/60 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-white bg-white/8 border border-steel/60 px-2.5 py-0.5 rounded-full">
                       {isCustomProject ? (isAr ? 'مشروع مخصص بالكامل' : 'Fully Custom Project') : template.categoryLabel}
                     </span>
                     <h4 className="text-sm font-bold text-white mt-1">
@@ -766,7 +766,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               {/* ── Live project spec outline ── placed LAST (per request): the customer fills the
                   inputs first, then reads the assembled summary at the bottom. Reads the same state
                   the contract is assembled from, so it can never disagree with what is sent. */}
-              <div className="p-4 rounded-2xl bg-orange/10 border border-steel/60 space-y-3">
+              <div className="p-4 rounded-2xl bg-white/5 border border-steel/60 space-y-3">
                 <div className="flex items-center gap-2 text-white font-bold text-sm">
                   <FileCheck className="w-4 h-4 text-orange" />
                   {isAr ? 'مخطط مواصفات المشروع' : 'Project Spec Outline'}
