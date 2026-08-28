@@ -4,7 +4,7 @@ import { useLiveTemplates } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
-import { COBALT, COBALT_DEEP, MIDNIGHT } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 import { trackLoad } from '../lib/loadTracker';
@@ -97,10 +97,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     <section
       id="templates-section"
       style={{
-        background: COBALT_DEEP,
+        background: OBSIDIAN,
         /* Pull the whole section up behind the floating navbar, exactly as the hero and the
-           timeline do — so the blue reaches the top of the viewport instead of leaving the
-           body's black visible between the navbar and the section. */
+           timeline do — so the dark ground reaches the top of the viewport instead of leaving a
+           seam of body colour visible between the navbar and the section. */
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
@@ -151,7 +151,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                    The surface itself lives in `.nq-card-glass` (index.css), because the version
                    for browsers without `backdrop-filter` has to be opaque and an inline style
                    cannot carry an `@supports`. Measured, not chosen: the frosted card reads
-                   #C1C7E0 and black on it is 12.51:1, 11.77:1 at the darkest quarter.
+                   #ABACAD and Obsidian on it is 8.72:1.
 
                    A hairline border and no box-shadow of any kind. Glass needs a lit edge to
                    read as a pane rather than as a hole, and a 1px inside-white line does that
@@ -166,26 +166,31 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                    pass costs, and 18 is already past the point where a cube edge survives it. */
                 className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden backdrop-blur-[18px] backdrop-saturate-[140%] border border-white/45"
               >
-                {/* A faint wash of the section's OWN blue (COBALT_DEEP, not the brighter button
-                    Cobalt) at the top of each card, so the two read as belonging to the page they
-                    sit on rather than as foreign white boxes — matching the section behind it is
-                    the point, so this has to track whatever COBALT_DEEP is, not the accent. */}
+                {/* A faint wash of the section's OWN dark ground (OBSIDIAN, not the brighter
+                    accent Orange) at the top of each card, so the two read as belonging to the
+                    page they sit on rather than as foreign white boxes — matching the section
+                    behind it is the point, so this has to track whatever OBSIDIAN is, not the
+                    accent, and Orange is never a wash in this system regardless. */}
                 <div
                   aria-hidden="true"
                   className="absolute inset-x-0 top-0 h-24 pointer-events-none"
-                  style={{ background: `linear-gradient(to bottom, ${COBALT_DEEP}2e, ${COBALT_DEEP}00)` }}
+                  style={{ background: `linear-gradient(to bottom, ${OBSIDIAN}2e, ${OBSIDIAN}00)` }}
                 />
 
                 <div className="relative flex items-center gap-3">
+                  {/* Obsidian on Orange, not white — white on Signal Orange is 2.87:1, under
+                      even the 3:1 an icon needs; Obsidian measures 6.90:1. This is also the one
+                      Orange fill on the card, exactly the "worth being a point of attraction"
+                      element the brief describes for an icon that matters. */}
                   <span
                     className="w-14 h-14 rounded-2xl grid place-items-center shrink-0"
-                    style={{ background: COBALT, color: '#FFFFFF' }}
+                    style={{ background: ORANGE, color: OBSIDIAN }}
                   >
                     <Icon className="w-7 h-7" strokeWidth={2.2} />
                   </span>
                   <span
                     className="text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-[0.14em] uppercase"
-                    style={{ color: MIDNIGHT }}
+                    style={{ color: OBSIDIAN }}
                   >
                     {currentLang === 'ar' ? choice.tagAr : choice.tagEn}
                   </span>

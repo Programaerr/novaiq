@@ -180,12 +180,12 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                         </h3>
                         <span
                           className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0"
-                          /* PAPER_DEEP, not ORANGE. The panel is glass over the blue cube field, so
-                             a cobalt chip would be close to the field's own colour laid on top of
-                             the field — close enough to read as a hole in the panel rather than
-                             as a tile on it. A light chip is the one thing on this now-dark panel
-                             that pops forward instead of receding into it. Midnight on it measures
-                             14.55:1. */
+                          /* PAPER_DEEP, not ORANGE. The panel is glass over the dark cube field, so
+                             an Orange chip would fight the one signal colour this whole page is
+                             trying to keep rare — and Orange is reserved for things being pressed
+                             or pointed at, not passive icon chrome. A light chip is what pops
+                             forward off this now-dark panel instead of receding into it. Obsidian
+                             on it measures 14.30:1. */
                           style={{ background: PAPER_DEEP, color: OBSIDIAN }}
                           aria-hidden="true"
                         >
@@ -221,7 +221,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                       {/* The phase's place in the sequence. This used to carry a week range as
                           well; see the note on `milestones` for why the timing is not stated
                           here but in the contract that actually sets it. */}
-                      <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(247,249,252,0.2)' }}>
+                      <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(247,247,245,0.2)' }}>
                         <div className="text-xl font-black tracking-tight" style={{ color: WHITE }}>
                           {isAr ? `المرحلة ${index + 1} من 4` : `Phase ${index + 1} of 4`}
                         </div>

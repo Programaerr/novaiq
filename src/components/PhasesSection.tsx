@@ -2,7 +2,7 @@ import React from 'react';
 import { Blocks, FileSignature, PencilRuler, Rocket } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { COBALT, ICE_DEEP, MIDNIGHT, PAPER } from '../lib/homePalette';
+import { ORANGE, PAPER_DEEP, OBSIDIAN, PAPER } from '../lib/homePalette';
 
 /**
  * The phases section: the four steps of a project, as a rail and four cards.
@@ -26,13 +26,13 @@ import { COBALT, ICE_DEEP, MIDNIGHT, PAPER } from '../lib/homePalette';
  * it, the dimmed numerals and the blue that filled the rule and the tile of whichever step was
  * lit. There is nothing left to be live, so nothing pretends to be.
  *
- * ## The blue is on every mark now
+ * ## Orange is on every mark now
  *
- * Cobalt was the state while the bar could set one. Without it the four cells are equals, so all
- * four marks carry it. The glyph on them is near-black rather than white for a measured reason:
- * white on Cobalt (`#2864FF`) is 4.82:1, comfortably clear of what a graphical icon needs (3:1),
- * but Midnight measures 3.93:1 there — under the 4.5:1 a body-sized LABEL would need, though this
- * mark carries an icon rather than text, so the icon-contrast floor is the one that applies.
+ * The brand's one accent was the state while the bar could set one. Without it the four cells
+ * are equals, so all four marks carry it. The glyph on them is near-black rather than white, and
+ * this one IS a hard requirement rather than a style choice: white on Signal Orange (`#FF6A00`)
+ * is 2.87:1, under even the 3:1 a graphical icon needs; Obsidian measures 6.90:1 on the same
+ * fill. There is no version of this mark that reads with a light glyph.
  *
  * ## Reading order follows the language
  *
@@ -141,8 +141,8 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
       id="phases"
       data-seen={seen ? 'true' : 'false'}
       /* Its own ground and its own vertical rhythm — see HOME_SECTIONS.md. The change of ground
-         from the hero's ice is what separates the two sections; the padding is what stops the
-         rail from landing on the seam. */
+         from the hero's warm white is what separates the two sections; the padding is what stops
+         the rail from landing on the seam. */
       style={{ background: PAPER }}
       className="relative py-20 sm:py-28 lg:py-32"
     >
@@ -153,7 +153,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
             of them. Nothing mirrors this by hand; the box takes its direction from the document. */}
         <h2
           className="mx-auto max-w-[56rem] uw:max-w-[72rem] text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
-          style={{ color: MIDNIGHT }}
+          style={{ color: OBSIDIAN }}
         >
           {isAr ? 'مراحل العمل' : 'How we work'}
         </h2>
@@ -177,7 +177,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
           <span
             aria-hidden="true"
             className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2"
-            style={{ background: ICE_DEEP }}
+            style={{ background: PAPER_DEEP }}
           />
 
           <ol className="grid gap-y-12 sm:gap-y-16 sm:grid-cols-2 sm:grid-rows-2 sm:grid-flow-col sm:gap-x-14 lg:gap-x-20">
@@ -193,7 +193,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                 >
                   <span
                     className="text-[2.4rem] sm:text-[3rem] uw:text-[3.6rem] font-black leading-[0.85] tabular-nums"
-                    style={{ color: MIDNIGHT }}
+                    style={{ color: OBSIDIAN }}
                     aria-hidden="true"
                   >
                     {i + 1}
@@ -205,7 +205,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                   <span
                     aria-hidden="true"
                     className="w-px shrink-0 self-stretch"
-                    style={{ background: ICE_DEEP }}
+                    style={{ background: PAPER_DEEP }}
                   />
 
                   <div className="min-w-0 pt-0.5">
@@ -218,20 +218,20 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                         while the rail carried the visible name — one h3 per phase, under the
                         section's h2, and nothing said twice.
 
-                        Blue on all four marks. The tile used to be blue only on the live phase,
-                        and there is no live phase without the rail to set one. Near-black on the
-                        blue rather than white: white on #8295CF is 2.97:1, under the 4.5:1 it
-                        would need. */}
+                        Orange on all four marks. The tile used to be blue only on the live phase,
+                        and there is no live phase without the rail to set one. Obsidian on the
+                        Orange rather than white: white on Signal Orange is 2.87:1, under even the
+                        3:1 a graphical icon needs. */}
                     <div className="flex items-center gap-3 sm:gap-4">
                       <h3
                         className="text-[1.05rem] sm:text-[1.2rem] uw:text-[1.35rem] font-black leading-none"
-                        style={{ color: MIDNIGHT }}
+                        style={{ color: OBSIDIAN }}
                       >
                         {isAr ? phase.ar.name : phase.en.name}
                       </h3>
                       <span
                         className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 uw:w-[4.5rem] uw:h-[4.5rem] rounded-2xl shrink-0"
-                        style={{ background: COBALT, color: MIDNIGHT }}
+                        style={{ background: ORANGE, color: OBSIDIAN }}
                         aria-hidden="true"
                       >
                         <Icon className="w-6 h-6 sm:w-7 sm:h-7 uw:w-8 uw:h-8" strokeWidth={1.9} />
@@ -247,7 +247,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                         line the cards started with. */}
                     <p
                       className="mt-5 sm:mt-6 max-w-[58ch] text-[0.92rem] sm:text-[1.02rem] uw:text-[1.1rem] font-bold leading-[1.9]"
-                      style={{ color: MIDNIGHT, opacity: 0.78 }}
+                      style={{ color: OBSIDIAN, opacity: 0.78 }}
                     >
                       {isAr ? phase.ar.body : phase.en.body}
                     </p>
