@@ -109,12 +109,12 @@ export const PolicyPage: React.FC<PolicyPageProps> = ({ type, language }) => {
     <section className="py-4 sm:py-6 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-8">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-obsidian tracking-tight mb-2">
             {type === 'privacy'
               ? (isAr ? 'سياسة الخصوصية' : 'Privacy Policy')
               : (isAr ? 'شروط الخدمة' : 'Terms of Service')}
           </h2>
-          <p className="text-white/90 text-xs sm:text-sm">
+          <p className="text-steel-light text-xs sm:text-sm">
             {isAr
               ? 'آخر تحديث: أغسطس 2026 — منصة NOVAIQ البرمجية'
               : 'Last updated: August 2026 — NOVAIQ Software Platform'}

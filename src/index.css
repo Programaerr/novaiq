@@ -1142,9 +1142,21 @@
 
 /* Outside the @supports on purpose: the ground is not the enhancement, the blur is. This used
    to live entirely inside it, so a browser without backdrop-filter got a navbar with no
-   background at all — white-on-paper text floating over the page. */
+   background at all — white-on-paper text floating over the page.
+
+   Obsidian, and at 0.86 rather than the 0.35 this carried while the PAGE was dark. A dark scrim
+   only reads as dark over something dark: at 0.35 over Warm White it composites to #A3A4A4, and
+   the bar rendered as a mid-grey slab with its own white labels at 2.33:1 on it. The interior of
+   this bar is light-on-dark by construction — text-white, bg-zinc-900, border-zinc-800 — so the
+   ground is the one value that has to move; flipping the bar to a light material would have been
+   a redesign of every control inside it.
+
+   0.86 and not 1: at that alpha the worst case (the bar over the lightest part of the page)
+   composites to #292B2D, where text-white is 13.25:1, text-white/70 is 7.30:1 and the Orange CTA
+   is 4.95:1 — while 14% of the backdrop still comes through, so the blur behind it is still
+   doing visible work rather than being paid for and hidden. */
 .navbar-connect {
-  background: rgba(8, 9, 12, 0.35);
+  background: rgba(8, 10, 13, 0.86);
   border-radius: 1rem;
 }
 

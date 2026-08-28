@@ -2,6 +2,7 @@ import React from 'react';
 import { FileSignature, FileText, Scale, Clock } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { contractTerms } from '../data/contractTerms';
+import { ORANGE, ORANGE_ON_LIGHT, STEEL } from '../lib/homePalette';
 
 interface EcontractsPageProps {
   language: Language;
@@ -13,9 +14,9 @@ interface EcontractsPageProps {
 // Text is white on the dark ground. Keeping the accent values here (rather than raw hex
 // scattered across the cards) mirrors homePalette's reason for existing: one place to retune
 // the brand.
-const ACCENT = '#FF6A00';
+const ACCENT = ORANGE;
 const ACCENT_SOFT = 'rgba(255, 106, 0, 0.14)';
-const SECONDARY = '#9299A3';
+const SECONDARY = STEEL;
 
 // Shown in clause 3 (milestone delivery). This page presents the standard NOVAIQ agreement, and
 // the timeline is the one clause that varies per contract — 8 weeks is the custom-project default
@@ -31,12 +32,12 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-8">
           <div
-            className="w-14 h-14 mx-auto mb-4 rounded-2xl border flex items-center justify-center text-white shadow-xl"
-            style={{ background: ACCENT_SOFT, borderColor: 'rgba(255,255,255,0.14)' }}
+            className="w-14 h-14 mx-auto mb-4 rounded-2xl border flex items-center justify-center shadow-xl"
+            style={{ background: ACCENT_SOFT, borderColor: 'rgba(8,10,13,0.10)' }}
           >
-            <FileSignature className="w-6 h-6" style={{ color: ACCENT }} />
+            <FileSignature className="w-6 h-6" style={{ color: ORANGE_ON_LIGHT }} />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-obsidian tracking-tight mb-2">
             {isAr ? 'العقد الإلكتروني' : 'E-contract'}
           </h2>
           <p className="text-xs sm:text-sm leading-relaxed bg-[#E9E7E3] text-[#080A0D] rounded-2xl p-4 sm:p-5">
