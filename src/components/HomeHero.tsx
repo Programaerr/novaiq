@@ -6,17 +6,18 @@ import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
 /**
- * The home page's container: an WHITE-coloured screen with a swell of tiles running across it, and a
+ * The home page's container: a WARM WHITE screen with a swell of tiles running across it, and a
  * single panel holding the name and the two ways in.
  *
- * ## Brand colour, at two densities
+ * ## Brand colour, kept off the panel entirely
  *
- * The ground is WHITE (`#F7F9FC`), the site's light-neutral. The panel is OBSIDIAN, the brand's
- * Electric Cobalt brought back toward Midnight — not the bright, button-toned Cobalt itself, which
- * the brand's own brief reserves for things that are actually being pressed or pointed at. A panel
- * this size, in this hero, is the single loudest brand moment on the page, so it gets the
- * restrained member of the pair rather than the loud one. See homePalette.ts for the measured
- * derivation.
+ * The ground is WHITE (`#F7F7F5`), the site's light-neutral. The panel is OBSIDIAN, the brand's
+ * own dark neutral — not Signal Orange, which this brief reserves strictly for things that are
+ * actually being pressed or pointed at, and rules out as a background outright. A panel this
+ * size, in this hero, is the single loudest brand moment on the page; making it Orange would be
+ * exactly the loud, undifferentiated colour use the brief warns against, so it gets Obsidian
+ * instead and Orange survives only as the small badge on the primary button inside it. See
+ * homePalette.ts for the reasoning in full.
  *
  * ## The header is not in this file
  *
@@ -26,15 +27,15 @@ import { NqButton } from './ui/NqButton';
  * hero carried a hand-kept copy of it and a merge is exactly where two copies of one navigation
  * drift apart and stop compiling.
  *
- * ## Contrast decided the panel's own text, twice now
+ * ## Contrast decided the panel's own text
  *
- * The panel used to be light enough (periwinkle, `#8295CF`) that dark ink sat on it directly at
- * 6.4:1. OBSIDIAN is a dark ground on purpose, so the wordmark and tagline moved to WHITE —
- * 17.95:1 there, the same pairing the rest of the dark surfaces on this site use. The two buttons
- * below stayed on their own logic: white TEXT on a Cobalt-family fill measures under 4.5:1 at
- * body-button size, so both carry dark ink on a light `glass` body instead of one being an outline
- * in white. They still differ in weight — solid against translucent — so the hierarchy the
- * drawing shows survives; it is carried by fill rather than by a colour that could not be read.
+ * The panel is a dark ground, so the wordmark and tagline are WHITE — 18.48:1 there, the same
+ * pairing the rest of the dark surfaces on this site use. The two buttons below run on the
+ * opposite rule for the opposite reason: white text on Signal Orange measures a failing 2.87:1
+ * at body-button size (Orange is the brighter of the two directions a saturated accent can fail
+ * in), so both carry dark Obsidian on a light `glass` body instead of one being an outline in
+ * white. They still differ in weight — solid against translucent — so the hierarchy the drawing
+ * shows survives; it is carried by fill rather than by a colour that could not be read.
  */
 
 interface HomeHeroProps {
