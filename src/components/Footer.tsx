@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { COBALT, ICE, PAPER } from '../lib/homePalette';
+import { ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
@@ -40,24 +40,24 @@ interface FooterProps {
  * is not a variant, it is the old design still shipping. Its `--ft-bg` was `0 0 0`.
  */
 const PAPER_VARS: React.CSSProperties = {
-  ['--ft-fg' as string]: '7 17 31',
-  ['--ft-bg' as string]: '233 237 244',
+  ['--ft-fg' as string]: '8 10 13',
+  ['--ft-bg' as string]: '233 231 227',
   background: PAPER,
   ['--ft-a40' as string]: '0.72',
   ['--ft-a50' as string]: '0.8',
   ['--ft-a55' as string]: '0.86',
   ['--ft-a60' as string]: '0.9',
   ['--ft-a70' as string]: '0.94',
-  // Brand accent (Cobalt) and the ink that sits on it — used for markers, the CTA and social
-  // hovers so the footer reads in the site's own colour instead of flat monochrome.
+  // Brand accent (Signal Orange) and the ink that sits on it — used for markers, the CTA and
+  // social hovers so the footer reads in the site's own colour instead of flat monochrome.
   //
-  // `--ft-accent-ink` is WHITE, not Midnight, and that is a genuine flip from the old identity:
-  // periwinkle (`#8295CF`) was light enough for dark ink to sit on it at 6.4:1, but Cobalt
-  // (`#2864FF`) is more saturated and less luminous — Midnight on it measures only 3.93:1, under
-  // the 4.5:1 the social-icon hover (the one place this variable is read) needs at full opacity.
-  // White on Cobalt measures 4.82:1.
-  ['--ft-accent' as string]: '40 100 255',
-  ['--ft-accent-ink' as string]: '255 255 255',
+  // `--ft-accent-ink` is OBSIDIAN, not white — Signal Orange is bright enough that white on it
+  // measures a failing 2.87:1 (under even the 3:1 an icon needs), where Obsidian measures 6.90:1.
+  // Every earlier identity's accent needed the opposite: periwinkle and Cobalt were both dark
+  // enough, or close to it, that a LIGHT ink read better; Orange is the first accent this footer
+  // has carried that is too bright for its own ink to be light.
+  ['--ft-accent' as string]: '255 106 0',
+  ['--ft-accent-ink' as string]: '8 10 13',
 };
 
 interface FooterColumnProps {
@@ -190,14 +190,14 @@ export const Footer: React.FC<FooterProps> = ({
           // Seen only for the frame before the canvas over it paints, but it has to make the same
           // journey — section colour, through ice, into paper — or that first frame flashes a
           // different band than the one that replaces it.
-          background: `linear-gradient(to bottom, ${fromColor} 0%, ${ICE} 52%, ${PAPER} 100%)`,
+          background: `linear-gradient(to bottom, ${fromColor} 0%, ${WHITE} 52%, ${PAPER} 100%)`,
         }}
       >
         {/* Ice is the body of the band, not either of its ends. It arrives out of whatever
             colour the page ended on and still settles into the footer's paper — ice is simply
             what the cubes in between are made of, which is the one place on a blue page the
             site's own light-neutral still shows. */}
-        <TileField tones={connectionTones(fromColor, PAPER, COBALT, ICE)} fade={FOOTER_BAND_FADE} />
+        <TileField tones={connectionTones(fromColor, PAPER, ORANGE, WHITE)} fade={FOOTER_BAND_FADE} />
       </div>
 
       {/* Top padding clears the belt, which is absolutely positioned and so takes up no height of
