@@ -976,22 +976,23 @@
    patterned ground. So the default here is OPAQUE, and the frost is the enhancement layered on
    top where the browser can actually do it — the same order the navbar uses.
 
-   #A9B4CB is not a chosen colour. It is `mix(ICE, COBALT_DEEP, 0.66)` — 66% of the brand's light
-   neutral over the section's own dark blue fill, computed the same way the live `@supports`
-   version below composites at runtime. Using it as the fallback means a browser without
-   backdrop-filter gets the same colour, minus the softness.
+   #ABACAD is not a chosen colour. It is `mix(SURFACE_LIGHT, OBSIDIAN, 0.66)` — 66% of the brand's
+   raised white over the section's own dark neutral fill, computed the same way the live
+   `@supports` version below composites at runtime. Using it as the fallback means a browser
+   without backdrop-filter gets the same colour, minus the softness.
 
-   Worth writing down because the intuition was wrong, twice now: ICE at 66% does NOT stay
-   near-white here. Two thirds of a cool near-white over one third of a dark, saturated Cobalt
-   Deep lands at a pale blue-grey — the correct answer for glass over a genuinely dark fill, and
-   noticeably darker than this same 66% mix landed under the old, lighter periwinkle ground.
-   Midnight on it measures 9.09:1. */
+   Worth writing down because the intuition keeps being wrong here, three identities running:
+   white at 66% does NOT stay near-white. Two thirds of white over one third of a genuinely dark,
+   near-black fill lands at a neutral mid-grey — the correct answer for glass over Obsidian, and
+   the plainest of the three versions this constant has been (a cool lavender over periwinkle, a
+   pale blue-grey over Cobalt Deep, now a flat grey over true black — each one exactly as
+   saturated as the ground it was glass over). Obsidian on it measures 8.72:1. */
 .nq-card-glass {
-  background: #a9b4cb;
+  background: #abacad;
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nq-card-glass {
-    background: rgba(247, 249, 252, 0.66);
+    background: rgba(255, 255, 255, 0.66);
   }
 }
 
@@ -1676,8 +1677,8 @@ html[data-scrolling] .nq-btn-beam::before {
    The track stays transparent, which is the older note here and still true: any single value
    picked for it is a stripe at every scroll position but one. */
 :root {
-  --nq-bar: rgb(7 17 31 / 0.72);
-  --nq-bar-hover: rgb(7 17 31 / 0.9);
+  --nq-bar: rgb(8 10 13 / 0.72);
+  --nq-bar-hover: rgb(8 10 13 / 0.9);
 }
 
 /* The standard properties — Firefox, and Chrome too, which is the part that surprises.
@@ -1725,8 +1726,8 @@ html[data-scrolling] .nq-btn-beam::before {
    `--nq-bar` from their own originating element. */
 .nq-scroll-dark,
 .sandbox-root {
-  --nq-bar: rgb(233 237 244 / 0.30);
-  --nq-bar-hover: rgb(233 237 244 / 0.55);
+  --nq-bar: rgb(233 231 227 / 0.30);
+  --nq-bar-hover: rgb(233 231 227 / 0.55);
   scrollbar-color: var(--nq-bar) transparent;
 }
 
