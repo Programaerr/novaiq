@@ -3,12 +3,12 @@ import { ContractData } from '../types';
 /**
  * One distinct colour per contract stage, shared by the customer profile and the admin panel.
  *
- * The home palette supplies the page (ice ground, paper cards, midnight text, cobalt accent);
- * the stages need to be distinguishable from one another AT A GLANCE, which is a different job
- * than the page's own palette — so each stage gets its own hue, chosen to sit comfortably on
- * the paper cards while staying clearly different from the two beside it:
+ * The home palette supplies the page (warm white ground, paper cards, Obsidian text, Orange
+ * accent); the stages need to be distinguishable from one another AT A GLANCE, which is a
+ * different job than the page's own palette — so each stage gets its own hue, chosen to sit
+ * comfortably on the paper cards while staying clearly different from the two beside it:
  *
- *   submitted      → cobalt      (the site's own accent — the contract has just entered)
+ *   submitted      → orange      (the site's own accent — the contract has just entered)
  *   under_review   → gold/amber  (attention: someone is examining it)
  *   in_development → teal        (work is underway)
  *   completed      → green       (delivered)
@@ -36,14 +36,16 @@ export const STAGE_COLORS: Record<ContractData['status'], StageColor> = {
     softBg: 'rgba(154, 160, 166, 0.18)',
   },
   submitted: {
-    fill: '#2864FF',
+    fill: '#FF6A00',
     // `border-periwinkle`/`bg-periwinkle` are Tailwind's own OLD token names, aliased in @theme
-    // onto the brand's Cobalt now (see index.css) — they resolve correctly without being renamed
-    // here. `text-[#2255D7]` is a literal, so it has to be re-derived directly: darkened from
-    // plain Cobalt (already 4.82:1 on white) to 6.27:1, matching the safety margin the old
-    // darkened periwinkle (`#4A5DA8`, 6.14:1) carried.
-    badge: 'bg-periwinkle/20 border-periwinkle text-[#2255D7]',
-    softBg: 'rgba(40, 100, 255, 0.22)',
+    // onto `orange-on-light` now (see index.css) — they resolve correctly without being renamed
+    // here, and safely: plain Signal Orange is 2.68:1 on white, under even the 3:1 a border
+    // needs, which is exactly why that alias points at the darkened variant rather than the raw
+    // accent. `text-[#A14605]` is a literal, so it has to be re-derived directly: darkened from
+    // plain Orange until it clears 6.19:1 on white, matching the safety margin earlier stages on
+    // this badge have carried.
+    badge: 'bg-periwinkle/20 border-periwinkle text-[#A14605]',
+    softBg: 'rgba(255, 106, 0, 0.22)',
   },
   under_review: {
     fill: '#D9A441',
