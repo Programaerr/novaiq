@@ -93,3 +93,32 @@ export const MUTED = '#8B96A8';
  *  toward Midnight until it clears AA on Ice White — MUTED itself measures 2.83:1 there and
  *  fails; this measures 4.90:1. */
 export const MUTED_LIGHT = '#636E7F';
+
+/**
+ * Semantic status colours — success/warning/error/info — deliberately separate from the brand
+ * core above. The brief is explicit that brand colour must never double as a status colour: a
+ * user who has learned "blue means brand" should not also have to read "blue means informational
+ * notice" out of the same hue, and a destructive action coloured in the brand's own Cobalt would
+ * read as an invitation rather than a warning.
+ *
+ * Each has two members for the same reason MUTED does. The bright member (SUCCESS/WARNING/ERROR/
+ * INFO) is 5.0–8.8:1 on Midnight and on Cobalt Deep — the two dark grounds this identity uses —
+ * and drops under 3.6:1 on Ice White, so it is for icons, borders, badges and any dark-ground
+ * text. The `_ON_LIGHT` member is the same hue mixed toward Midnight until it clears 4.5:1 on Ice
+ * White, for text on a light ground — the case a contact-form error message actually needs, and
+ * the case this project's error/status copy had been quietly failing before this pass (rendered
+ * in plain ink, which carries no error meaning at all).
+ */
+export const SUCCESS = '#22C55E';
+export const SUCCESS_ON_LIGHT = '#188146';
+export const WARNING = '#F59E0B';
+export const WARNING_ON_LIGHT = '#9B6813';
+export const ERROR = '#EF4444';
+export const ERROR_ON_LIGHT = '#CF3D3F';
+/** Error text on the brand's OWN full-bleed blue (COBALT_DEEP), which needs its own step: plain
+ *  ERROR measures only 3.40:1 there — Cobalt Deep is markedly lighter than Midnight, and a red
+ *  tuned to clear the darker of the two dark grounds does not automatically clear the lighter
+ *  one. Lightened until it clears (4.54:1). */
+export const ERROR_ON_BRAND = '#F17374';
+export const INFO = '#38BDF8';
+export const INFO_ON_LIGHT = '#2478A1';
