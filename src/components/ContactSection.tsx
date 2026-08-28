@@ -301,13 +301,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
 
                     {/* The error goes under its own field, not into a summary at the top. `role`
                         and the live region so it is announced when it appears rather than only
-                        found by someone who goes looking for it. */}
+                        found by someone who goes looking for it.
+
+                        Sits directly on the section's dark ground, not on the light field block
+                        above it, and it is an error — ERROR_ON_BRAND rather than plain ERROR:
+                        plain ERROR is 3.40:1 on this specific blue (Cobalt Deep reads lighter
+                        than Midnight, the ground it was tuned against) and fails AA. This was
+                        previously rendered in plain ink, which is not an error colour at all. */}
                     {error && (
-                      {/* Sits directly on the section's dark ground, not on the light field block
-                          above it, and it is an error — ERROR_ON_BRAND rather than plain ERROR:
-                          plain ERROR is 3.40:1 on this specific blue (Cobalt Deep reads lighter
-                          than Midnight, the ground it was tuned against) and fails AA. This was
-                          previously rendered in plain ink, which is not an error colour at all. */}
                       <p
                         id={id + '-error'}
                         role="alert"

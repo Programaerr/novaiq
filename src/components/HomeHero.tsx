@@ -1,41 +1,41 @@
 import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
+import { COBALT_DEEP, ICE, PAPER } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
 /**
- * The home page's container: a sand-coloured screen with a swell of tiles running across it, and a
+ * The home page's container: an ICE-coloured screen with a swell of tiles running across it, and a
  * single panel holding the name and the two ways in.
  *
- * ## Built from the wireframe, including its colours
+ * ## Brand colour, at two densities
  *
- * #D5BDAC for the ground and #8295CF for the panel were specified directly, and they are a
- * deliberate break from the site's monochrome — every other page here is black with a near-white
- * accent. That is a design decision rather than an oversight, so the two values live at the top of
- * this file as named constants and nowhere else, which keeps the departure to one section and one
- * place to change it back.
+ * The ground is ICE (`#F7F9FC`), the site's light-neutral. The panel is COBALT_DEEP, the brand's
+ * Electric Cobalt brought back toward Midnight — not the bright, button-toned Cobalt itself, which
+ * the brand's own brief reserves for things that are actually being pressed or pointed at. A panel
+ * this size, in this hero, is the single loudest brand moment on the page, so it gets the
+ * restrained member of the pair rather than the loud one. See homePalette.ts for the measured
+ * derivation.
  *
  * ## The header is not in this file
  *
  * The wireframe shows the bar sitting inside the container, and it does: the shared Navbar is
- * fixed and floats above the page, and this section is pulled up behind it so the sand runs to the
+ * fixed and floats above the page, and this section is pulled up behind it so ICE runs to the
  * top edge of the screen underneath. There is no second navbar here — an earlier version of this
  * hero carried a hand-kept copy of it and a merge is exactly where two copies of one navigation
  * drift apart and stop compiling.
  *
- * ## Contrast decided the one place this diverges from the drawing
+ * ## Contrast decided the panel's own text, twice now
  *
- * The wireframe shows two identical white pills. White TEXT on #8295CF measures 2.97:1, which is
- * under the 4.5:1 a body-sized label needs, so both buttons carry dark ink on a light body instead
- * of the second one being an outline in white. They still differ in weight — solid against
- * translucent — so the hierarchy the drawing shows survives; it is carried by fill rather than by
- * a colour that could not be read.
+ * The panel used to be light enough (periwinkle, `#8295CF`) that dark ink sat on it directly at
+ * 6.4:1. COBALT_DEEP is a dark ground on purpose, so the wordmark and tagline moved to ICE —
+ * 17.95:1 there, the same pairing the rest of the dark surfaces on this site use. The two buttons
+ * below stayed on their own logic: white TEXT on a Cobalt-family fill measures under 4.5:1 at
+ * body-button size, so both carry dark ink on a light `glass` body instead of one being an outline
+ * in white. They still differ in weight — solid against translucent — so the hierarchy the
+ * drawing shows survives; it is carried by fill rather than by a colour that could not be read.
  */
-
-/* The wireframe's palette, now shared with every section below this one — see lib/homePalette.ts
-   for why it lives in one file rather than being retyped per component. */
 
 interface HomeHeroProps {
   language?: Language;
@@ -63,12 +63,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
          and leave a black strip across the top. `svh` rather than `vh` so a phone's collapsing
          address bar cannot make this taller than the screen it is meant to match. */
       style={{
-        /* Sand for all but the last band of the screen, then a ramp into the paper of the section
+        /* Ice for all but the last band of the screen, then a ramp into the paper of the section
            below. The canvas above this is transparent, so this is the ground the cubes stand on —
            and they are breaking up across exactly the same band (HERO_FADE.lo, one value, shared).
            The two together are the edge: blocks thinning out over ground that is already becoming
            the next section, so there is no line anywhere for a line to be wrong at. */
-        background: `linear-gradient(to bottom, ${SAND} ${100 - HERO_FADE.lo * 100}%, ${PAPER} 100%)`,
+        background: `linear-gradient(to bottom, ${ICE} ${100 - HERO_FADE.lo * 100}%, ${PAPER} 100%)`,
         minHeight: '100svh',
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
@@ -99,20 +99,20 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div
             aria-hidden="true"
             className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[0.5rem]"
-            style={{ background: PERIWINKLE }}
+            style={{ background: COBALT_DEEP }}
           >
             <div
               className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
-                style={{ color: INK }}
+                style={{ color: ICE }}
               >
                 NOVAIQ
               </span>
               <p
                 className="mt-3 text-[0.8rem] sm:text-sm uw:text-base font-bold leading-relaxed"
-                style={{ color: INK, opacity: 0.72 }}
+                style={{ color: ICE, opacity: 0.85 }}
               >
                 {isAr
                   ? 'استوديو تصميم وبرمجة — نبني مواقع وأنظمة تشتغل لشركتك.'

@@ -406,14 +406,14 @@ export function useNqSurface(
   /* The ring is keyed to the GROUND, not to the surface. A ring in the button's own accent sits
      invisibly on top of a button already wearing that accent; what has to be seen is the outline
      against the page behind it. */
-  const ring = spec.darkRing ? 'focus-visible:ring-[#101322]' : 'focus-visible:ring-white';
+  const ring = spec.darkRing ? 'focus-visible:ring-[#07111F]' : 'focus-visible:ring-white';
 
   return {
     pair,
     size: s,
     style: { background: pair.bg, color: pair.fg },
-    badgeBg: pair.badgeBg ?? (isLight(surface) ? INK : '#FFFFFF'),
-    badgeFg: pair.badgeFg ?? (isLight(surface) ? PAPER : INK),
+    badgeBg: pair.badgeBg ?? (isLight(surface) ? MIDNIGHT : '#FFFFFF'),
+    badgeFg: pair.badgeFg ?? (isLight(surface) ? PAPER : MIDNIGHT),
     handlers,
     tiles: mounted && wantsTiles ? <ButtonTiles drive={drive} tones={tones} /> : null,
     className: [

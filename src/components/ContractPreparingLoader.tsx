@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, RefreshCw } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { INK, PAPER, PERIWINKLE } from '../lib/homePalette';
+import { COBALT, MIDNIGHT, PAPER } from '../lib/homePalette';
 import { NqButton } from './ui/NqButton';
 
 interface ContractPreparingLoaderProps {
@@ -38,18 +38,18 @@ export const ContractPreparingLoader: React.FC<ContractPreparingLoaderProps> = (
           <div
             className="absolute inset-0 rounded-full animate-spin"
             style={{
-              border: `2px solid ${PERIWINKLE}33`,
-              borderTopColor: PERIWINKLE,
-              boxShadow: `0 0 22px ${PERIWINKLE}50`,
+              border: `2px solid ${COBALT}33`,
+              borderTopColor: COBALT,
+              boxShadow: `0 0 22px ${COBALT}50`,
             }}
           />
-          <ShieldCheck className="w-6 h-6" style={{ color: INK }} />
+          <ShieldCheck className="w-6 h-6" style={{ color: MIDNIGHT }} />
         </div>
         <div className="space-y-1.5">
-          <p className="text-sm font-bold" style={{ color: INK }}>
+          <p className="text-sm font-bold" style={{ color: MIDNIGHT }}>
             {isAr ? 'جارِ تجهيز عقدك الإلكتروني...' : 'Preparing your electronic contract...'}
           </p>
-          <p className="text-xs" style={{ color: INK, opacity: 0.6 }}>
+          <p className="text-xs" style={{ color: MIDNIGHT, opacity: 0.6 }}>
             {isSlow
               ? isAr
                 ? 'الاتصال بطيء ويستغرق وقتاً أطول من المعتاد. عقدك محفوظ ولن يضيع — يمكنك إعادة التحميل والوصول إليه من "طلباتي".'

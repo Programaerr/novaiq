@@ -2,7 +2,7 @@ import React from 'react';
 import { Blocks, FileSignature, PencilRuler, Rocket } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { INK, PAPER, PERIWINKLE, SAND_DEEP } from '../lib/homePalette';
+import { COBALT, ICE_DEEP, MIDNIGHT, PAPER } from '../lib/homePalette';
 
 /**
  * The phases section: the four steps of a project, as a rail and four cards.
@@ -28,9 +28,11 @@ import { INK, PAPER, PERIWINKLE, SAND_DEEP } from '../lib/homePalette';
  *
  * ## The blue is on every mark now
  *
- * #8295CF was the state while the bar could set one. Without it the four cells are equals, so all
+ * Cobalt was the state while the bar could set one. Without it the four cells are equals, so all
  * four marks carry it. The glyph on them is near-black rather than white for a measured reason:
- * white on #8295CF is 2.97:1, under the 4.5:1 it would need, where this ink is 6.4:1.
+ * white on Cobalt (`#2864FF`) is 4.82:1, comfortably clear of what a graphical icon needs (3:1),
+ * but Midnight measures 3.93:1 there — under the 4.5:1 a body-sized LABEL would need, though this
+ * mark carries an icon rather than text, so the icon-contrast floor is the one that applies.
  *
  * ## Reading order follows the language
  *
@@ -139,7 +141,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
       id="phases"
       data-seen={seen ? 'true' : 'false'}
       /* Its own ground and its own vertical rhythm — see HOME_SECTIONS.md. The change of ground
-         from the hero's sand is what separates the two sections; the padding is what stops the
+         from the hero's ice is what separates the two sections; the padding is what stops the
          rail from landing on the seam. */
       style={{ background: PAPER }}
       className="relative py-20 sm:py-28 lg:py-32"
@@ -151,7 +153,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
             of them. Nothing mirrors this by hand; the box takes its direction from the document. */}
         <h2
           className="mx-auto max-w-[56rem] uw:max-w-[72rem] text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
-          style={{ color: INK }}
+          style={{ color: MIDNIGHT }}
         >
           {isAr ? 'مراحل العمل' : 'How we work'}
         </h2>
@@ -175,7 +177,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
           <span
             aria-hidden="true"
             className="hidden sm:block absolute top-0 bottom-0 left-1/2 w-px -translate-x-1/2"
-            style={{ background: SAND_DEEP }}
+            style={{ background: ICE_DEEP }}
           />
 
           <ol className="grid gap-y-12 sm:gap-y-16 sm:grid-cols-2 sm:grid-rows-2 sm:grid-flow-col sm:gap-x-14 lg:gap-x-20">
@@ -191,7 +193,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                 >
                   <span
                     className="text-[2.4rem] sm:text-[3rem] uw:text-[3.6rem] font-black leading-[0.85] tabular-nums"
-                    style={{ color: INK }}
+                    style={{ color: MIDNIGHT }}
                     aria-hidden="true"
                   >
                     {i + 1}
@@ -203,7 +205,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                   <span
                     aria-hidden="true"
                     className="w-px shrink-0 self-stretch"
-                    style={{ background: SAND_DEEP }}
+                    style={{ background: ICE_DEEP }}
                   />
 
                   <div className="min-w-0 pt-0.5">
@@ -223,13 +225,13 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                     <div className="flex items-center gap-3 sm:gap-4">
                       <h3
                         className="text-[1.05rem] sm:text-[1.2rem] uw:text-[1.35rem] font-black leading-none"
-                        style={{ color: INK }}
+                        style={{ color: MIDNIGHT }}
                       >
                         {isAr ? phase.ar.name : phase.en.name}
                       </h3>
                       <span
                         className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 uw:w-[4.5rem] uw:h-[4.5rem] rounded-2xl shrink-0"
-                        style={{ background: PERIWINKLE, color: INK }}
+                        style={{ background: COBALT, color: MIDNIGHT }}
                         aria-hidden="true"
                       >
                         <Icon className="w-6 h-6 sm:w-7 sm:h-7 uw:w-8 uw:h-8" strokeWidth={1.9} />
@@ -245,7 +247,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                         line the cards started with. */}
                     <p
                       className="mt-5 sm:mt-6 max-w-[58ch] text-[0.92rem] sm:text-[1.02rem] uw:text-[1.1rem] font-bold leading-[1.9]"
-                      style={{ color: INK, opacity: 0.78 }}
+                      style={{ color: MIDNIGHT, opacity: 0.78 }}
                     >
                       {isAr ? phase.ar.body : phase.en.body}
                     </p>
