@@ -22,6 +22,20 @@
          black ground and would be unreadable on this one. -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="NOVAIQ" />
+    <!-- Social preview. Did not exist before this pass — the brief's own brand system had
+         nothing to inherit here, so this is new rather than re-themed: a plain Midnight ground,
+         a subtle technical grid, a single restrained Cobalt/Violet glow in one corner, the
+         wordmark. Same restraint the rest of the identity uses — one accent moment, not a wall
+         of gradient. Generated as a real 1200×630 PNG (og-image.png in public/), not left as an
+         SVG, since several scrapers (Twitter/X among them) do not reliably render SVG previews. -->
+    <meta property="og:title" content="NOVAIQ" />
+    <meta property="og:description" content="Enterprise-grade software, applications, and AI systems — engineered, not templated." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NOVAIQ" />
+    <meta name="twitter:description" content="Enterprise-grade software, applications, and AI systems — engineered, not templated." />
+    <meta name="twitter:image" content="/og-image.png" />
     <!-- Cairo & Tajawal are self-hosted (see src/index.css @font-face rules) instead of
          loaded from Google Fonts, to avoid the extra third-party round-trip and the
          visible font swap-in delay that came with it. -->
