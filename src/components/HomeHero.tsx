@@ -112,7 +112,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </span>
               <p
                 className="mt-3 text-[0.8rem] sm:text-sm uw:text-base font-bold leading-relaxed"
-                style={{ color: ICE, opacity: 0.85 }}
+                style={{ color: ICE, opacity: 0.72 }}
               >
                 {isAr
                   ? 'استوديو تصميم وبرمجة — نبني مواقع وأنظمة تشتغل لشركتك.'
@@ -144,7 +144,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             {/* Both pills are NqButton on the `glass` tone — translucent white over the panel,
                 which is the pairing that tone exists for. The cube field each one lifts on hover
                 is built from what its own fill resolves to over that blue, so the solid one raises
-                near-white blocks and the quiet one raises pale periwinkle ones. */}
+                near-white blocks and the quiet one raises pale cobalt-tinted ones. */}
             <NqButton
               tone="glass"
               variant="solid"

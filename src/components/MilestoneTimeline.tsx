@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { INK, PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
+import { COBALT_DEEP, ICE, ICE_DEEP, MIDNIGHT } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { ProjectCtaButton } from './ProjectCtaButton';
 
@@ -84,7 +84,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       id="timeline-section"
       data-seen={seen ? 'true' : 'false'}
       style={{
-        background: PERIWINKLE,
+        background: COBALT_DEEP,
         /* Pull the whole section up behind the floating navbar, exactly as the hero does — so
            the cube field at the top runs under the navbar instead of starting below it as a
            black strip. The navbar is fixed and floats above the page; without this the cubes
@@ -102,9 +102,13 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
 
       <div className="relative nq-container">
         <div className="mx-auto max-w-[56rem]">
+          {/* This heading and the paragraph under it sit directly on the section's own ground —
+              COBALT_DEEP, a dark fill — so both read ICE, not the dark ink everything inside the
+              frosted panel below still uses. See the note on that panel for why the panel itself
+              stayed on the dark side of the pair even though it looks like a "light glass". */}
           <h2
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
-            style={{ color: INK, ['--nq-rise-delay' as string]: '80ms' }}
+            style={{ color: ICE, ['--nq-rise-delay' as string]: '80ms' }}
           >
             {isAr ? 'مراحل تنفيذ مشروعك' : 'Project Phases & Delivery'}
           </h2>
@@ -113,7 +117,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
               is simply per-contract rather than the same eight weeks for everyone. */}
           <p
             className="nq-rise mt-4 max-w-[42rem] text-sm sm:text-base font-bold leading-relaxed"
-            style={{ color: INK, opacity: 0.66, ['--nq-rise-delay' as string]: '130ms' }}
+            style={{ color: ICE, opacity: 0.8, ['--nq-rise-delay' as string]: '130ms' }}
           >
             {isAr
               ? 'أربع مراحل ثابتة لكل مشروع، ومدّة التنفيذ تُحدَّد في القسم الأول من اتفاقك حسب حجم العمل.'
@@ -123,16 +127,26 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
           {/* ── The four phases, in one frosted panel ───────────────────────────────────────────
               Semi-transparent over the blue, with a heavy blur: the copy stays sharp while the
               background keeps showing through, instead of hiding it behind opaque cards. The
-              panel IS the container — no per-phase cards inside it. */}
+              panel IS the container — no per-phase cards inside it.
+
+              Still reads as "glass over the field" rather than "a light card", and that changed
+              what colour glass this is. The old ground (periwinkle) was light-medium, so a little
+              near-white mixed into it stayed clearly light and every mark inside was dark ink.
+              COBALT_DEEP is a genuinely dark, saturated ground — the SAME 16% of near-white
+              composites down to `#354D83`, a medium-dark blue, not a light surface. Ink text on
+              that measures 2.29:1 and disappears; every mark inside this panel is ICE now, not
+              ink, and the tint itself moved from PAPER to ICE (composites to `#374E84`, 7.70:1
+              for ICE text) since ICE is the primary light-neutral this identity actually frosts
+              things with. */}
           <div
             className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/25 backdrop-blur-2xl"
             style={{
-              background: 'rgba(246, 241, 233, 0.16)',
+              background: 'rgba(247, 249, 252, 0.18)',
               /* A clear drop shadow so the panel reads as floating above the cube field rather
                  than sitting flat on it — the field is busy, and without the shadow the two
                  planes fight for the same depth. */
               boxShadow:
-                'inset 0 0 0 1px rgba(255,255,255,0.06), 0 40px 90px -20px rgba(16,19,34,0.55), 0 12px 28px -8px rgba(16,19,34,0.35)',
+                'inset 0 0 0 1px rgba(255,255,255,0.08), 0 40px 90px -20px rgba(7,17,31,0.6), 0 12px 28px -8px rgba(7,17,31,0.4)',
               ['--nq-rise-delay' as string]: '180ms',
             }}
           >
