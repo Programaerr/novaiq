@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
+import { COBALT, ICE, PAPER } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
@@ -40,18 +40,24 @@ interface FooterProps {
  * is not a variant, it is the old design still shipping. Its `--ft-bg` was `0 0 0`.
  */
 const PAPER_VARS: React.CSSProperties = {
-  ['--ft-fg' as string]: '16 19 34',
-  ['--ft-bg' as string]: '246 241 233',
+  ['--ft-fg' as string]: '7 17 31',
+  ['--ft-bg' as string]: '233 237 244',
   background: PAPER,
   ['--ft-a40' as string]: '0.72',
   ['--ft-a50' as string]: '0.8',
   ['--ft-a55' as string]: '0.86',
   ['--ft-a60' as string]: '0.9',
   ['--ft-a70' as string]: '0.94',
-  // Brand accent (periwinkle) and the ink that sits on it — used for markers, the CTA and
-  // social hovers so the footer reads in the site's own colour instead of flat monochrome.
-  ['--ft-accent' as string]: '130 149 207',
-  ['--ft-accent-ink' as string]: '16 19 34',
+  // Brand accent (Cobalt) and the ink that sits on it — used for markers, the CTA and social
+  // hovers so the footer reads in the site's own colour instead of flat monochrome.
+  //
+  // `--ft-accent-ink` is WHITE, not Midnight, and that is a genuine flip from the old identity:
+  // periwinkle (`#8295CF`) was light enough for dark ink to sit on it at 6.4:1, but Cobalt
+  // (`#2864FF`) is more saturated and less luminous — Midnight on it measures only 3.93:1, under
+  // the 4.5:1 the social-icon hover (the one place this variable is read) needs at full opacity.
+  // White on Cobalt measures 4.82:1.
+  ['--ft-accent' as string]: '40 100 255',
+  ['--ft-accent-ink' as string]: '255 255 255',
 };
 
 interface FooterColumnProps {
@@ -182,16 +188,16 @@ export const Footer: React.FC<FooterProps> = ({
           top: 0,
           height: 'var(--nq-band)',
           // Seen only for the frame before the canvas over it paints, but it has to make the same
-          // journey — section colour, through sand, into paper — or that first frame flashes a
+          // journey — section colour, through ice, into paper — or that first frame flashes a
           // different band than the one that replaces it.
-          background: `linear-gradient(to bottom, ${fromColor} 0%, ${SAND} 52%, ${PAPER} 100%)`,
+          background: `linear-gradient(to bottom, ${fromColor} 0%, ${ICE} 52%, ${PAPER} 100%)`,
         }}
       >
-        {/* Sand is the body of the band, not either of its ends. It arrives out of whatever
-            colour the page ended on and still settles into the footer's paper — sand is simply
+        {/* Ice is the body of the band, not either of its ends. It arrives out of whatever
+            colour the page ended on and still settles into the footer's paper — ice is simply
             what the cubes in between are made of, which is the one place on a blue page the
-            site's original ground still shows. */}
-        <TileField tones={connectionTones(fromColor, PAPER, PERIWINKLE, SAND)} fade={FOOTER_BAND_FADE} />
+            site's own light-neutral still shows. */}
+        <TileField tones={connectionTones(fromColor, PAPER, COBALT, ICE)} fade={FOOTER_BAND_FADE} />
       </div>
 
       {/* Top padding clears the belt, which is absolutely positioned and so takes up no height of
