@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { OBSIDIAN, WHITE, PAPER_DEEP, OBSIDIAN } from '../lib/homePalette';
+import { OBSIDIAN, PAPER_DEEP, WHITE } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { ProjectCtaButton } from './ProjectCtaButton';
 
@@ -125,28 +125,28 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
           </p>
 
           {/* ── The four phases, in one frosted panel ───────────────────────────────────────────
-              Semi-transparent over the blue, with a heavy blur: the copy stays sharp while the
+              Semi-transparent over the field, with a heavy blur: the copy stays sharp while the
               background keeps showing through, instead of hiding it behind opaque cards. The
               panel IS the container — no per-phase cards inside it.
 
-              Still reads as "glass over the field" rather than "a light card", and that changed
-              what colour glass this is. The old ground (periwinkle) was light-medium, so a little
-              near-white mixed into it stayed clearly light and every mark inside was dark ink.
-              OBSIDIAN is a genuinely dark, saturated ground — the SAME 16% of near-white
-              composites down to `#354D83`, a medium-dark blue, not a light surface. Ink text on
-              that measures 2.29:1 and disappears; every mark inside this panel is WHITE now, not
-              ink, and the tint itself moved from PAPER to WHITE (composites to `#374E84`, 7.70:1
-              for WHITE text) since WHITE is the primary light-neutral this identity actually frosts
-              things with. */}
+              Reads as "glass over the field" rather than "a light card", and that has meant a
+              different colour of glass under every identity this section has carried. The old
+              periwinkle ground was light-medium, so a little near-white mixed into it stayed
+              clearly light and every mark inside was dark ink. Cobalt Deep was darker still, and
+              needed the marks flipped to light. OBSIDIAN is darker again — this identity's own
+              near-black — so 18% of warm white over it composites to `#333537`, a plain dark
+              grey with barely a hint of the ground colour left in it. WHITE text on that measures
+              11.48:1; the direction (light marks on a dark glass) is unchanged from the identity
+              right before this one, only the exact darkness of the glass moved. */}
           <div
             className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/25 backdrop-blur-2xl"
             style={{
-              background: 'rgba(247, 249, 252, 0.18)',
+              background: 'rgba(247, 247, 245, 0.18)',
               /* A clear drop shadow so the panel reads as floating above the cube field rather
                  than sitting flat on it — the field is busy, and without the shadow the two
                  planes fight for the same depth. */
               boxShadow:
-                'inset 0 0 0 1px rgba(255,255,255,0.08), 0 40px 90px -20px rgba(7,17,31,0.6), 0 12px 28px -8px rgba(7,17,31,0.4)',
+                'inset 0 0 0 1px rgba(255,255,255,0.08), 0 40px 90px -20px rgba(8,10,13,0.6), 0 12px 28px -8px rgba(8,10,13,0.4)',
               ['--nq-rise-delay' as string]: '180ms',
             }}
           >
