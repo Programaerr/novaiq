@@ -350,7 +350,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
         {/* Phase stepper — the three phases of building a contract. Each is clickable so a
             customer can jump back to a phase they want to revisit; the active one is filled
-            periwinkle, a finished one turns sand with a check, and the next is dim until reached.
+            Signal Orange with an Obsidian label (white on Orange is 2.68:1 and does not read), a
+            finished one turns near-white with a check, and the next is dim until reached.
             Three phases, not four: pricing/terms and the signature used to be separate screens,
             which meant the customer agreed to a figure on one page and signed on another with the
             figure no longer in front of them. They are one phase: read the price, read the
@@ -375,14 +376,14 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 aria-current={isCurrent ? 'step' : undefined}
                 className={`text-start p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-2.5 cursor-pointer ${
         isCurrent
-          ? 'bg-periwinkle border-periwinkle text-white shadow-lg shadow-periwinkle/25'
+          ? 'bg-orange border-orange text-obsidian shadow-lg shadow-orange/25'
           : isCompleted
-          ? 'bg-[#080A0D] border-white/70 text-white shadow-lg shadow-black/50'
+          ? 'bg-obsidian border-white/70 text-white shadow-lg shadow-black/50'
           : 'bg-obsidian border-white/10 text-white/50 hover:border-orange'
                 }`}
               >
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  isCurrent ? 'bg-white text-periwinkle' : isCompleted ? 'bg-white text-[#080A0D]' : 'bg-white/10 text-white/60'
+                  isCurrent ? 'bg-white text-periwinkle' : isCompleted ? 'bg-white text-obsidian' : 'bg-white/10 text-white/60'
                 }`}>
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
@@ -511,7 +512,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             <div className="space-y-6 animate-fade-in">
               <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-periwinkle" />
+                  <Layers className="w-5 h-5 text-orange" />
                   <span>{getTranslation('stepTechSpecs', lang)}</span>
                 </h3>
                 <p className="text-white/55 text-[11px] sm:text-xs mt-1.5 max-w-2xl">
@@ -525,7 +526,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <div className="p-4 rounded-2xl bg-obsidian border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   {isCustomProject ? (
-                    <div className="w-16 h-16 rounded-xl bg-periwinkle/25 border border-steel/60 flex items-center justify-center shrink-0">
+                    <div className="w-16 h-16 rounded-xl bg-orange/15 border border-steel/60 flex items-center justify-center shrink-0">
                       <PenLine className="w-6 h-6 text-white" />
                     </div>
                   ) : (
@@ -536,7 +537,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     />
                   )}
                   <div>
-                    <span className="text-[10px] font-bold text-white bg-periwinkle/25 border border-steel/60 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-white bg-orange/15 border border-steel/60 px-2.5 py-0.5 rounded-full">
                       {isCustomProject ? (isAr ? 'مشروع مخصص بالكامل' : 'Fully Custom Project') : template.categoryLabel}
                     </span>
                     <h4 className="text-sm font-bold text-white mt-1">
@@ -674,7 +675,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         onClick={() => setThemePreference(opt.id)}
                         className={`p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
                           themePreference === opt.id
-                            ? 'bg-periwinkle border-white text-white'
+                            ? 'bg-orange border-white text-obsidian'
                             : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
                         }`}
                       >
@@ -702,7 +703,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         title={opt.label}
                         className={`p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all truncate ${
                           languageSupport === opt.id
-                            ? 'bg-periwinkle border-white text-white'
+                            ? 'bg-orange border-white text-obsidian'
                             : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
                         }`}
                       >
@@ -765,9 +766,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               {/* ── Live project spec outline ── placed LAST (per request): the customer fills the
                   inputs first, then reads the assembled summary at the bottom. Reads the same state
                   the contract is assembled from, so it can never disagree with what is sent. */}
-              <div className="p-4 rounded-2xl bg-periwinkle/10 border border-steel/60 space-y-3">
+              <div className="p-4 rounded-2xl bg-orange/10 border border-steel/60 space-y-3">
                 <div className="flex items-center gap-2 text-white font-bold text-sm">
-                  <FileCheck className="w-4 h-4 text-periwinkle" />
+                  <FileCheck className="w-4 h-4 text-orange" />
                   {isAr ? 'مخطط مواصفات المشروع' : 'Project Spec Outline'}
                 </div>
                 <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2.5 text-xs">

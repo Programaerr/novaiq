@@ -56,12 +56,21 @@
   /* Aliases onto the brand core above, kept under their OLD names.
      `bg-ink`, `text-periwinkle`, `border-sand` and the rest are compiled into ~300 call sites
      across the admin dashboard, the customer dashboard and the contract builder — real utility
-     classes Tailwind generated from these exact token names under an earlier identity. Verified
-     (not assumed) that these specifically sit on light paper/white surfaces (the admin panel's
-     inputs and cards) — which is why `--color-periwinkle` resolves to `orange-on-light` rather
-     than plain Orange: plain Orange is 2.68:1 on Warm White, under even the 3:1 a border needs,
-     where the darkened variant is 4.65:1. Aliasing with var() means these lines are the entire
-     cost of keeping ~15 files untouched, rather than a rename sweeping through all of them. */
+     classes Tailwind generated from these exact token names under an earlier identity.
+     `--color-periwinkle` resolves to `orange-on-light` because every surviving use of it is on a
+     LIGHT ground: plain Orange is 2.68:1 on Warm White, under even the 3:1 a border needs, where
+     the darkened variant is 4.65:1. Aliasing with var() means these lines are the entire cost of
+     keeping ~15 files untouched, rather than a rename sweeping through all of them.
+
+     That "every surviving use is on a light ground" is now true and was not when these aliases
+     were written — worth recording, because it is the exact trap the next identity change will
+     walk into. The admin and customer dashboards were checked and were genuinely light. The
+     contract builder was not: it was a dark island left on the previous Cobalt palette, so its
+     43 `border-periwinkle/N` edges composited this token over near-black and landed at 1.23:1 —
+     a border system that was not merely off-brand but invisible. Those edges are now neutral
+     steel/white alpha with Signal Orange on focus, which is what the dark half of this system
+     asks for anyway. An alias is only safe while every consumer stands on the ground it was
+     measured against, and nothing in CSS enforces that. */
   --color-ink: var(--color-obsidian);
   --color-sand: var(--color-white-warm);
   --color-sand-deep: var(--color-paper-deep);
