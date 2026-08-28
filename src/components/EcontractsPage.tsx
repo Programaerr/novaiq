@@ -7,15 +7,15 @@ interface EcontractsPageProps {
   language: Language;
 }
 
-// The palette this page draws from: COBALT (#2864FF) is the primary — the accent every feature
-// on the dark site uses — and MUTED is the secondary, the token this identity already reserves
-// for metadata-weight text on a dark ground (measured 6.34:1 on Midnight; see homePalette.ts).
+// The palette this page draws from: ORANGE (#FF6A00) is the primary — the accent every feature
+// on the dark site uses — and STEEL is the secondary, the token this identity already reserves
+// for metadata-weight text on a dark ground (measured 6.90:1 on Obsidian; see homePalette.ts).
 // Text is white on the dark ground. Keeping the accent values here (rather than raw hex
 // scattered across the cards) mirrors homePalette's reason for existing: one place to retune
 // the brand.
-const ACCENT = '#2864FF';
-const ACCENT_SOFT = 'rgba(40, 100, 255, 0.14)';
-const SECONDARY = '#8B96A8';
+const ACCENT = '#FF6A00';
+const ACCENT_SOFT = 'rgba(255, 106, 0, 0.14)';
+const SECONDARY = '#9299A3';
 
 // Shown in clause 3 (milestone delivery). This page presents the standard NOVAIQ agreement, and
 // the timeline is the one clause that varies per contract — 8 weeks is the custom-project default
@@ -39,7 +39,7 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
             {isAr ? 'العقد الإلكتروني' : 'E-contract'}
           </h2>
-          <p className="text-xs sm:text-sm leading-relaxed bg-[#E9EDF4] text-[#07111F] rounded-2xl p-4 sm:p-5">
+          <p className="text-xs sm:text-sm leading-relaxed bg-[#E9E7E3] text-[#080A0D] rounded-2xl p-4 sm:p-5">
             {isAr
               ? 'عقد تقديم خدمات تصميم وتطوير برمجي — البنود القياسية التي تُوقَّع إلكترونياً عند إنشاء أي عقد، كما تظهر في وثيقة العقد نفسها.'
               : 'Software design & development services agreement — the standard clauses signed electronically on every contract, exactly as they appear in the contract document itself.'}
@@ -78,11 +78,11 @@ export const EcontractsPage: React.FC<EcontractsPageProps> = ({ language }) => {
         </div>
 
         <div
-          className="mt-8 p-5 rounded-3xl bg-[#E9EDF4] border flex items-start gap-4"
+          className="mt-8 p-5 rounded-3xl bg-[#E9E7E3] border flex items-start gap-4"
           style={{ borderColor: 'rgba(7, 17, 31, 0.15)' }}
         >
-          <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#07111F' }} />
-          <p className="text-xs sm:text-sm leading-relaxed text-[#07111F]">
+          <Clock className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#080A0D' }} />
+          <p className="text-xs sm:text-sm leading-relaxed text-[#080A0D]">
             {isAr
               ? 'ملاحظة: هذا العرض للبنود القياسية للعقد. تُحدَّد بيانات كل عقد (الأطراف، المدة، القيمة، نطاق العمل) عند إنشائه وتُكتب في وثيقة العقد قبل التوقيع.'
               : 'Note: this shows the contract’s standard clauses. Each contract’s details (parties, duration, value, scope) are set when it is created and stated in the contract document before signing.'}
