@@ -880,24 +880,22 @@
 /* Drifts left and down, so it uncovers its top and right edges. */
 
 
-/* ── The seam on the sign-in card ─────────────────────────────────────────────────
-   The blue field and the sand words meet on a straight edge, and that edge is simply the
-   boundary between the two grid cells.
+/* ── The sign-in page's flat ground ───────────────────────────────────────────────
+   The base fill behind CardField's 3D cards — what shows through the gaps between them, and the
+   colour the page falls back to for the one frame before either the stylesheet or the WebGL
+   canvas has painted anything. It has to match the ground CardField was lit against (COBALT_DEEP,
+   the brand's blue brought back toward Midnight for a full-bleed fill) exactly, or the gaps
+   between cards read as a different blue than the cards themselves are standing on.
 
-   It used to be a stepped "coastline": a clip-path polygon that broke the join into squares
-   and hung the blue 16% (about 80px) over the words column. That shape was doing two jobs and
-   doing both badly — the steps read as a ragged tear rather than a join between two halves of
-   one card, and the overhang meant the field was physically on top of the copy, so the words
-   column had to carry a lopsided padding just to keep its own text and buttons out from under
-   it. Every value on one side had to be re-tuned whenever the other moved.
-
-   A straight seam needs none of that. The halves are already a grid; letting the cell boundary
-   BE the edge is what a split card is, the padding on the words side goes back to symmetric,
-   and there is nothing left that can overlap. */
+   Older comment, kept for the archaeology: this class used to be a split-card seam between a
+   blue field and a sand words-column, first a stepped "coastline" clip-path and then a straight
+   grid boundary. The page it belonged to was rebuilt again since — full-bleed cards over a flat
+   ground, with a leaning band carrying the copy (see LoginPage.tsx) — and the class was kept
+   because "the sign-in page's flat blue" was still the right job for it, just not that shape. */
 .nq-coast {
   position: absolute;
   inset: 0;
-  background: #8295cf;
+  background: #132e6d;
 }
 
 /* The sign-in card's sand band: the panel the copy sits on, leaning across the blue.

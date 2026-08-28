@@ -39,14 +39,19 @@ const TILE_H = 196;
 /**
  * The card's own colour, before the light touches it.
  *
- * A step LIGHTER than the crest of the section field, and the step is the whole point: the
- * ground behind these is flat PERIWINKLE, and a Lambert material multiplies its base by the
- * light, so whatever number goes in here comes out darker. Lit at the crest tone the cards land
- * UNDER the ground they sit on and read as holes punched in it rather than as objects on it.
- * Set here, the lit face comes out at about the crest and the shaded sides at about the trough,
- * which is the same range the site's cube field paints and the reason the two look related.
+ * The crest of the section field itself (`shadeColor(COBALT_DEEP, 0.14)` — see TileField's
+ * COBALT_TONES), not a step lighter than it: a Lambert material multiplies its base by the
+ * light, so whatever number goes in here comes out darker once lit. Lit at the crest tone the
+ * cards land UNDER the ground they sit on and read as holes punched in it rather than as objects
+ * on it. Set here, the lit face comes out ABOVE the crest and the shaded sides at about the
+ * ground itself, which is the same range the site's cube field paints and the reason the two
+ * look related.
+ *
+ * Re-derived when the ground behind these moved from flat periwinkle (`#8295CF`) to the brand's
+ * Cobalt Deep (`#132E6D`) — a much darker, more saturated blue, so the old tint (picked for the
+ * lighter ground) read washed out and pale over the new one until this was recomputed against it.
  */
-const CARD_TINT = '#A9B8E4';
+const CARD_TINT = '#344B81';
 
 /**
  * The diagonal, and the two small angles that make a flat grid look like objects.

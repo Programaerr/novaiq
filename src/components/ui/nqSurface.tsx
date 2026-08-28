@@ -50,10 +50,9 @@ interface ToneSpec {
   ghost: Pair;
   /** Carried on the crests of the cube field. The one colour that says which page this is on. */
   accent: string;
-  /** Whether the focus ring is drawn in ink rather than white. Keyed to the PAGE behind the
+  /** Whether the focus ring is drawn in Midnight rather than white. Keyed to the PAGE behind the
       button, not to the button: a ring in the button's own family disappears into it, and what has
-      to be visible is the outline against the ground. Both periwinkle grounds want ink — white on
-      #8295CF measures 2.97:1. */
+      to be visible is the outline against the ground. */
   darkRing: boolean;
 }
 
@@ -62,69 +61,81 @@ const CHROME_QUIET = '#17171C';
 /**
  * The six grounds, and what a pressable surface on each is made of.
  *
- * Every pair here is one that already existed somewhere in the site and was measured to pass
- * 4.5:1 — this table collects them rather than inventing a palette. `paper.solid` is the templates
- * page's black-on-white pill, `periwinkle.solid` is the contact form's ink-on-blue, `glass.solid`
- * is the hero's near-white. What is new is that they are now one component.
+ * ## Why several pairs flip fg from dark to light where the old table had it the other way
+ *
+ * The old periwinkle (`#8295CF`) was light enough that Midnight text sat on it at 6.4:1. Electric
+ * Cobalt (`#2864FF`) is a different kind of blue — more saturated, less luminous — and Midnight on
+ * it measures 3.93:1, under the 4.5:1 a label needs. Every pair below that puts a label ON Cobalt
+ * or Cobalt Deep uses white, not Midnight; every pair that puts Cobalt AS a badge fill on a light
+ * ground does the same. This was checked pair by pair rather than assumed, because the direction
+ * you flip is not consistent — a badge sitting on ICE still wants Cobalt Deep or Midnight text
+ * (both dark, both fine on a light fill), it is only text ON the bright Cobalt itself that has to
+ * change hands.
  */
 export const TONES: Record<NqTone, ToneSpec> = {
-  /* The dark site chrome: navbar, login, cookie bar, dialogs. Periwinkle is the site's one accent
-     on black, and INK on it measures 6.4:1 where white measures 2.97:1 — so the label is ink, not
-     white, exactly as homePalette's note on INK spells out. */
+  /* The dark site chrome: navbar, login, cookie bar, dialogs. Cobalt is the brand's one saturated
+     accent on Midnight, and white on it measures 4.82:1 where Midnight measures 3.93:1 — so the
+     label is white here, the opposite of what the old, lighter periwinkle needed. */
   chrome: {
-    solid: { bg: PERIWINKLE, fg: INK, badgeBg: INK, badgeFg: '#FFFFFF' },
-    quiet: { bg: CHROME_QUIET, fg: '#F4F4F5', badgeBg: PERIWINKLE, badgeFg: INK },
-    ghost: { bg: 'transparent', fg: '#F4F4F5', tile: CHROME_QUIET, badgeBg: PERIWINKLE, badgeFg: INK },
-    accent: SAND,
+    solid: { bg: COBALT, fg: '#FFFFFF', badgeBg: MIDNIGHT, badgeFg: '#FFFFFF' },
+    quiet: { bg: CHROME_QUIET, fg: '#F4F4F5', badgeBg: COBALT, badgeFg: '#FFFFFF' },
+    ghost: { bg: 'transparent', fg: '#F4F4F5', tile: CHROME_QUIET, badgeBg: COBALT, badgeFg: '#FFFFFF' },
+    accent: ICE,
     darkRing: false,
   },
-  /* PAPER sections — the phases section, the templates grid. The solid pair is the templates
-     page's existing black pill with its white badge. */
+  /* PAPER sections — the phases section, the templates grid's own card chrome. The solid pair is
+     the templates page's existing dark pill with its white badge, now Midnight rather than a flat
+     `#000000` — the brand replaced pure black as a fill everywhere else, and a button is not the
+     one exception. */
   paper: {
-    solid: { bg: '#000000', fg: '#FFFFFF', badgeBg: '#FFFFFF', badgeFg: '#000000' },
-    quiet: { bg: 'rgba(0,0,0,0.06)', fg: '#000000', tile: '#E8E2D9', badgeBg: INK, badgeFg: PAPER },
-    ghost: { bg: 'transparent', fg: INK, tile: PAPER, badgeBg: INK, badgeFg: PAPER },
-    accent: PERIWINKLE,
+    solid: { bg: MIDNIGHT, fg: '#FFFFFF', badgeBg: '#FFFFFF', badgeFg: MIDNIGHT },
+    quiet: { bg: 'rgba(7,17,31,0.06)', fg: MIDNIGHT, tile: ICE, badgeBg: MIDNIGHT, badgeFg: PAPER },
+    ghost: { bg: 'transparent', fg: MIDNIGHT, tile: PAPER, badgeBg: MIDNIGHT, badgeFg: PAPER },
+    accent: COBALT,
     darkRing: true,
   },
-  /* SAND grounds. */
-  sand: {
-    solid: { bg: INK, fg: PAPER, badgeBg: PERIWINKLE, badgeFg: INK },
-    quiet: { bg: SAND_DEEP, fg: INK, badgeBg: INK, badgeFg: PAPER },
-    ghost: { bg: 'transparent', fg: INK, tile: SAND, badgeBg: INK, badgeFg: PAPER },
-    accent: PERIWINKLE,
+  /* ICE grounds — the light surfaces the old table called "sand". */
+  ice: {
+    solid: { bg: MIDNIGHT, fg: PAPER, badgeBg: COBALT, badgeFg: '#FFFFFF' },
+    quiet: { bg: ICE_DEEP, fg: MIDNIGHT, badgeBg: MIDNIGHT, badgeFg: PAPER },
+    ghost: { bg: 'transparent', fg: MIDNIGHT, tile: ICE, badgeBg: MIDNIGHT, badgeFg: PAPER },
+    accent: COBALT,
     darkRing: true,
   },
-  /* The contact section's blue. The solid pair is that form's existing ink pill with its
-     periwinkle badge. */
-  periwinkle: {
-    solid: { bg: INK, fg: PAPER, badgeBg: PERIWINKLE, badgeFg: INK },
-    quiet: { bg: '#96A6DA', fg: INK, badgeBg: INK, badgeFg: PAPER },
-    ghost: { bg: 'transparent', fg: INK, tile: PERIWINKLE, badgeBg: INK, badgeFg: PAPER },
-    accent: SAND,
-    darkRing: true,
+  /* The contact section's ground — Cobalt brought back toward Midnight for a full-bleed fill (see
+     homePalette's COBALT_DEEP). The solid pair is that form's own light pill; the badge stays
+     Midnight-on-ICE rather than white-on-Cobalt because it sits ON the light pill, not on the
+     section's own dark ground. */
+  cobalt: {
+    solid: { bg: ICE, fg: MIDNIGHT, badgeBg: COBALT_DEEP, badgeFg: '#FFFFFF' },
+    quiet: { bg: '#556996', fg: '#FFFFFF', badgeBg: MIDNIGHT, badgeFg: PAPER },
+    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: COBALT_DEEP, badgeBg: MIDNIGHT, badgeFg: PAPER },
+    accent: ICE,
+    darkRing: false,
   },
-  /* The footer, which is a paper ground that carries periwinkle as its accent rather than as its
-     fill — so its call to action is the one surface on the site that is periwinkle-on-paper. It
-     gets its own entry rather than borrowing `paper` (whose solid is black, and black is not what
-     the footer's `--ft-accent` means) or `chrome` (whose ring is white, and white on paper is no
-     ring at all). */
+  /* The footer, which is a paper ground that carries Cobalt as its accent rather than as its fill
+     — so its call to action is the one surface on the site that is Cobalt-on-paper. It gets its
+     own entry rather than borrowing `paper` (whose solid is Midnight, and Midnight is not what the
+     footer's `--ft-accent` means) or `chrome` (whose ring is white, and white on paper is no ring
+     at all). */
   footer: {
-    solid: { bg: PERIWINKLE, fg: INK, badgeBg: INK, badgeFg: PAPER },
-    quiet: { bg: 'rgba(130,149,207,0.16)', fg: INK, tile: '#DFE1EE', badgeBg: PERIWINKLE, badgeFg: INK },
-    ghost: { bg: 'transparent', fg: INK, tile: PAPER, badgeBg: PERIWINKLE, badgeFg: INK },
-    accent: SAND,
+    solid: { bg: COBALT_DEEP, fg: '#FFFFFF', badgeBg: MIDNIGHT, badgeFg: PAPER },
+    quiet: { bg: 'rgba(40,100,255,0.16)', fg: MIDNIGHT, tile: '#CAD7F6', badgeBg: COBALT, badgeFg: '#FFFFFF' },
+    ghost: { bg: 'transparent', fg: MIDNIGHT, tile: PAPER, badgeBg: COBALT, badgeFg: '#FFFFFF' },
+    accent: ICE,
     darkRing: true,
   },
-  /* The hero's two pills, which are translucent white sitting on the PERIWINKLE panel. The fills
-     stay translucent so the panel reads through them; `tile` is what each one actually resolves to
-     over that blue, computed rather than guessed — a field built from the transparent value would
-     come out white and float off the button. */
+  /* The hero's two pills, which are translucent white sitting on the panel — now COBALT_DEEP
+     rather than the old, lighter periwinkle. The fills stay translucent so the panel reads through
+     them; `tile` is what each one actually resolves to over THAT ground, recomputed rather than
+     guessed — a field built from the transparent value would come out white and float off the
+     button, and a tile computed against the old ground would be visibly wrong against the new,
+     darker one. */
   glass: {
-    solid: { bg: 'rgba(255,255,255,0.92)', fg: INK, tile: '#F5F6FA', badgeBg: INK, badgeFg: '#FFFFFF' },
-    quiet: { bg: 'rgba(255,255,255,0.55)', fg: INK, tile: '#C7CFE9', badgeBg: INK, badgeFg: '#FFFFFF' },
-    ghost: { bg: 'transparent', fg: INK, tile: PERIWINKLE, badgeBg: INK, badgeFg: '#FFFFFF' },
-    accent: PERIWINKLE,
+    solid: { bg: 'rgba(255,255,255,0.92)', fg: MIDNIGHT, tile: '#ECEEF3', badgeBg: MIDNIGHT, badgeFg: '#FFFFFF' },
+    quiet: { bg: 'rgba(255,255,255,0.55)', fg: MIDNIGHT, tile: '#95A1BD', badgeBg: MIDNIGHT, badgeFg: '#FFFFFF' },
+    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: COBALT_DEEP, badgeBg: MIDNIGHT, badgeFg: '#FFFFFF' },
+    accent: COBALT,
     darkRing: true,
   },
 };

@@ -330,7 +330,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     that does nothing. */}
                 <NqButton
                   type="submit"
-                  tone="periwinkle"
+                  tone="cobalt"
                   variant="solid"
                   size="md"
                   loading={sending}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { INK, PERIWINKLE, SAND } from '../lib/homePalette';
+import { COBALT, COBALT_DEEP, ERROR_ON_BRAND, ICE, MIDNIGHT } from '../lib/homePalette';
 import { CardField } from './CardField';
 import { NqButton } from './ui/NqButton';
 
@@ -36,27 +36,19 @@ function GoogleIcon() {
 }
 
 /**
- * The lightest ink that still clears 4.5:1 on the band below.
+ * The muted ink for the band below, at the lightest opacity that still clears 4.5:1.
  *
  * Measured rather than picked, and re-measured every time the surface under it changed: solid
- * sand, an ink sky, falling code, frosted glass over a cube field, and now solid sand again.
+ * sand, an ink sky, falling code, frosted glass over a cube field, solid sand again, and now solid
+ * ICE — the brand's light-neutral, on the brand's own Midnight rather than the old ink triplet.
  *
- * The band is opaque, so for the first time in a while the surface IS the swatch. Sampled off
- * the rendered page at nine heights down the band, every one of them reads #D5BDAC exactly — no
- * spread at all, where the glass version moved across a six percent range and the solid-sand
- * version before THAT moved with whatever was behind it. Full ink on it measures 10.28:1 and
- * this value 7.57:1, at every point on the panel.
- *
- * It stays at 0.85 rather than being wound back to the 0.7 an opaque sand panel would allow.
- * 0.7 measures 5.14:1, which is fine today and was 4.94:1 the last time this surface was glass
- * — four hundredths over the bar, on a surface that has now moved five times. The margin is
- * cheaper than re-deriving it a sixth time.
- *
- * Worth writing down because the reflex on a light panel is to reach for /60 or /50 the way the
- * old dark version of this screen used `text-white/60`. On sand that reflex is a full step
- * worse than it looks.
+ * The band is opaque, so the surface IS the swatch: MIDNIGHT at 0.62 over ICE resolves to
+ * `#676E77`, which measures 4.89:1 there — comfortable room above the 4.5:1 floor, where the old
+ * ink-on-sand pairing had to sit at 0.85 to clear the same bar with only hundredths to spare. The
+ * margin moved because the ground did: ICE is measurably lighter than the sand it replaced, so
+ * the same visual "muted" effect needs less opacity to still read as ink rather than as noise.
  */
-const INK_MUTED = 'rgba(16, 19, 34, 0.85)';
+const INK_MUTED = 'rgba(7, 17, 31, 0.62)';
 
 /**
  * Standalone sign-in page: three layers on a full-bleed screen. A field of 3D template cards in
@@ -105,21 +97,28 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
   return (
     <div
-      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] flex items-center selection:bg-[#101322] selection:text-[#F6F1E9]"
+      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] flex items-center selection:bg-[#07111F] selection:text-[#F7F9FC]"
       /* Painted here rather than left to the document. The page this replaced was white-on-black
          and inherited its ground from the body; a screen that gets its background from somewhere
          else is a screen that goes black the day that somewhere else changes.
 
-         PERIWINKLE, because that is what covers the screen now. `.nq-coast` below paints the same
-         blue as a plain CSS fill, so this is only ever seen in the frame before the stylesheet
-         lands — but a fallback that does not match what covers it is a flash of the wrong colour,
-         and this is the first screen a visitor sees. It was SAND while the blue was a card on a
-         sand page, and INK before that, while the backdrop was a night sky.
+         COBALT_DEEP, because that is what covers the screen now — the brand's own blue brought
+         back toward Midnight for a full-bleed fill, matching every other place this layout uses a
+         whole-section colour panel (see homePalette.ts). `.nq-coast` below paints the same value
+         as a plain CSS fill, so this is only ever seen in the frame before the stylesheet lands —
+         but a fallback that does not match what covers it is a flash of the wrong colour, and this
+         is the first screen a visitor sees. It was flat periwinkle before the brand replaced it,
+         SAND while the blue was a card on a sand page before THAT, and INK before that, while the
+         backdrop was a night sky.
+
+         `color: ICE`, not the dark ink this used to be — the old periwinkle was light enough for
+         dark text to sit on directly (6.4:1); COBALT_DEEP is a dark ground, and everything that
+         inherits this default text colour needs to be the light member of the pair now.
 
          No padding and no `place-items-center` any more. The card they were centring is gone;
          the layers are the page, and `flex items-center` is here only to hold the copy in the
          middle of a screen it no longer fills. */
-      style={{ background: PERIWINKLE, color: INK }}
+      style={{ background: COBALT_DEEP, color: ICE }}
     >
       {/* Three layers, back to front: the blue, the band, the words. They used to sit inside a
           card — a 64rem box with rounded corners and a shadow, floating on a sand page. The box is
@@ -157,25 +156,24 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
       {/* Decorative and empty: it is the surface, and the words are a sibling above it rather
           than children inside it, because a skewed parent skews its text (see .nq-lean).
 
-          SOLID sand, and this is the one place the redesign overrode the shape it was given.
-          The panel this replaces was frosted glass at 0.72 over a blurred SAND backdrop, which
-          landed on sand because what it was mixing with was already sand. The same 0.72 over
-          the periwinkle field mixes with something darker and much bluer and lands on #BEB2B6
-          — a mauve. It is still legible, 9.1:1, but the card then has no sand in it at all,
-          and a sand band is the whole idea. Opaque is also a compositing pass saved on a
-          full-height element, and the contrast floor stops depending on which cube face
-          happens to be under the copy. */}
+          SOLID ice, not glass. The panel this replaced was frosted glass at 0.72 over a blurred
+          light backdrop, which worked while what it was mixing with was already light — but 0.72
+          of ICE over COBALT_DEEP's dark, saturated blue mixes down into a washed, muddy blue-grey
+          the brand's own light-neutral family does not contain, and re-tuning the mix for every
+          future ground change is exactly the fragility a solid fill avoids. Opaque is also a
+          compositing pass saved on a full-height element, and the contrast floor stops depending
+          on which cube face happens to be under the copy. */}
       <div
         aria-hidden="true"
         className="nq-lean"
         style={{
-          background: SAND,
+          background: ICE,
           /* Two shadows doing two jobs. The inset hairline is the lit edge of a pane, and it
              is the reason this is a skew rather than a clip path. The outer one is the lift:
              against a field of cubes that are themselves shaded, a flat panel with no shadow
              reads as a hole cut in the card rather than as a surface laid on it. */
           boxShadow:
-            'inset 1px 1px 0 rgba(246, 241, 233, 0.35), 0 26px 52px -30px rgba(16, 19, 34, 0.6)',
+            'inset 1px 1px 0 rgba(255, 255, 255, 0.5), 0 26px 52px -30px rgba(7, 17, 31, 0.6)',
         }}
       />
 
@@ -195,9 +193,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           No horizontal padding, deliberately: the clearance between the copy and the band's
           slanted edges is set once, on `.nq-lean-copy`. Padding here would be a second helping
           of the same clearance, taken out of the copy rather than out of the field. */}
+      {/* `color: MIDNIGHT`, overriding the page wrapper's ICE. That default serves the outer
+          COBALT_DEEP ground; this block visually sits on the light ICE band beside it, not on the
+          blue, so anything in here that does not set its own colour (the heading, the perk
+          labels) needs to inherit dark, not light. Every element that already carries an explicit
+          colour (INK_MUTED text, the error banner) is unaffected either way. */}
       <div
         dir={isAr ? 'rtl' : 'ltr'}
         className="relative w-full flex flex-col min-h-[34rem] py-10 sm:py-12 lg:py-14"
+        style={{ color: MIDNIGHT }}
       >
         {/* flex-1 + centred, so the block sits in the middle of its 34rem and the copyright line
             stays on its floor rather than being dragged up under the buttons. */}
@@ -257,7 +261,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                   {/* `mt-px` rather than `items-start`: the icon is a 16px square whose artwork
                       is centred in it, and Arabic sits low in its own line box, so optically
                       centred and box-centred are one pixel apart here. */}
-                  <Icon className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" style={{ color: PERIWINKLE }} />
+                  <Icon className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" style={{ color: COBALT }} />
                   <span>{text}</span>
                 </li>
               ))}
@@ -284,11 +288,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 first-time Google sign-in, so "log in" and "sign up" are the same click here and
                 offering both would be two doors into one room.
 
-                `footer` is the tone, on a sand ground, and the borrow is deliberate. The
-                wireframe paints this button in the panel blue — the same blue as the half beside
-                it — and `footer` is the site's only pair that puts PERIWINKLE in the fill with
-                INK on top of it (6.28:1). `chrome` has the same fill but a white focus ring,
-                which on sand is no ring at all. */}
+                `footer` is the tone, on the ICE band, and the borrow is deliberate. The
+                wireframe paints this button in the panel's own blue — the same blue as the full
+                screen behind it — and `footer` is the site's only pair that fills solid with
+                COBALT_DEEP and white on top of it (12.81:1). `chrome` has a similar fill but a
+                white focus ring, which on the light band here is no ring at all — `footer`'s ring
+                is Midnight, which shows. */}
             <NqButton
               tone="footer"
               variant="solid"
@@ -308,7 +313,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 anything worth signing in for. The line underneath says where the wall actually
                 is, so choosing this does not feel like it might cost them something later on. */}
             <NqButton
-              tone="sand"
+              tone="ice"
               variant="solid"
               size="md"
               radius="xl"
