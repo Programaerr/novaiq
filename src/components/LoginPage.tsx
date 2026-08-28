@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { COBALT, COBALT_DEEP, ERROR_ON_BRAND, ICE, MIDNIGHT } from '../lib/homePalette';
+import { COBALT, COBALT_DEEP, ICE, MIDNIGHT } from '../lib/homePalette';
 import { CardField } from './CardField';
 import { NqButton } from './ui/NqButton';
 
@@ -52,7 +52,8 @@ const INK_MUTED = 'rgba(7, 17, 31, 0.62)';
 
 /**
  * Standalone sign-in page: three layers on a full-bleed screen. A field of 3D template cards in
- * the panel blue, a sand band leaning across it, and the company's words on the band.
+ * the brand's own blue (COBALT_DEEP), an ICE band leaning across it, and the company's words on
+ * the band.
  *
  * Self-contained by design — it renders its own ground rather than mounting inside the site's
  * shared chrome. App gives it the whole viewport (see the early return there), so there is no
