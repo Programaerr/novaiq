@@ -22,7 +22,7 @@ export const ProjectCtaButton: React.FC<ProjectCtaButtonProps> = ({ onCreateCont
           conic beam rolling round its outline, borrowed wholesale for a section it had nothing
           to do with. */}
       <NqButton
-        tone="cobalt"
+        tone="obsidian"
         variant="solid"
         size="lg"
         onClick={() => {

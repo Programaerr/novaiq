@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GRAPHITE, OBSIDIAN, ORANGE, PAPER, PAPER_DEEP, SURFACE_LIGHT, WHITE } from '../../lib/homePalette';
+import { OBSIDIAN, ORANGE, PAPER, PAPER_DEEP, WHITE } from '../../lib/homePalette';
 import { buttonTones, contrastRatio, isLight } from '../../lib/tone';
 import { ButtonTiles, newDrive } from './ButtonTiles';
 
@@ -61,81 +61,92 @@ const CHROME_QUIET = '#17171C';
 /**
  * The six grounds, and what a pressable surface on each is made of.
  *
- * ## Why several pairs flip fg from dark to light where the old table had it the other way
+ * ## Why Orange needs dark text where Cobalt (the identity before this one) needed light
  *
- * The old periwinkle (`#8295CF`) was light enough that Midnight text sat on it at 6.4:1. Electric
- * Cobalt (`#2864FF`) is a different kind of blue — more saturated, less luminous — and Midnight on
- * it measures 3.93:1, under the 4.5:1 a label needs. Every pair below that puts a label ON Cobalt
- * or Cobalt Deep uses white, not Midnight; every pair that puts Cobalt AS a badge fill on a light
- * ground does the same. This was checked pair by pair rather than assumed, because the direction
- * you flip is not consistent — a badge sitting on ICE still wants Cobalt Deep or Midnight text
- * (both dark, both fine on a light fill), it is only text ON the bright Cobalt itself that has to
- * change hands.
+ * The two accents fail contrast in OPPOSITE directions, which is the whole reason this table was
+ * rewritten pair by pair rather than swapped by search-and-replace. Cobalt (`#2864FF`) was dark
+ * enough that white read on it and Midnight did not. Signal Orange (`#FF6A00`) is the other way:
+ * white on it is 2.87:1, under even the 3:1 floor for a large mark, where Obsidian on it is
+ * 6.90:1. Every pair below that puts a label ON Orange or Ember uses Obsidian, not white. A badge
+ * sitting on a LIGHT fill still wants Obsidian too — both directions land on the same dark ink
+ * here, which is different from the Cobalt table (where the light-fill case wanted dark and the
+ * bright-fill case wanted light) purely because Orange is the brighter of the two accents in
+ * absolute terms, not because there is a single rule for "the accent's text colour".
+ *
+ * ## Why the full-bleed panels are Obsidian, not a tint of Orange
+ *
+ * The previous identity used a darkened tint of its own accent for the sections that fill the
+ * whole screen. This brief rules that out explicitly — Orange is never a background, not even a
+ * quiet one — so those same sections (the `obsidian` tone below, and `SECTION_TONES` /
+ * `OBSIDIAN_TONES` in TileField.tsx) fill with the brand's dark neutral instead, and Orange
+ * survives only as the badge, the border, the small thing actually being pointed at.
  */
 export const TONES: Record<NqTone, ToneSpec> = {
-  /* The dark site chrome: navbar, login, cookie bar, dialogs. Cobalt is the brand's one saturated
-     accent on Midnight, and white on it measures 4.82:1 where Midnight measures 3.93:1 — so the
-     label is white here, the opposite of what the old, lighter periwinkle needed. */
+  /* The dark site chrome: navbar, login, cookie bar, dialogs. Orange is the brand's one saturated
+     accent on Obsidian, and Obsidian on Orange measures 6.90:1 where white measures a failing
+     2.87:1 — so the label is dark here, on its own bright fill. */
   chrome: {
-    solid: { bg: COBALT, fg: '#FFFFFF', badgeBg: MIDNIGHT, badgeFg: '#FFFFFF' },
-    quiet: { bg: CHROME_QUIET, fg: '#F4F4F5', badgeBg: COBALT, badgeFg: '#FFFFFF' },
-    ghost: { bg: 'transparent', fg: '#F4F4F5', tile: CHROME_QUIET, badgeBg: COBALT, badgeFg: '#FFFFFF' },
-    accent: ICE,
+    solid: { bg: ORANGE, fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: ORANGE },
+    quiet: { bg: CHROME_QUIET, fg: '#F4F4F5', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    ghost: { bg: 'transparent', fg: '#F4F4F5', tile: CHROME_QUIET, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    accent: WHITE,
     darkRing: false,
   },
   /* PAPER sections — the phases section, the templates grid's own card chrome. The solid pair is
-     the templates page's existing dark pill with its white badge, now Midnight rather than a flat
-     `#000000` — the brand replaced pure black as a fill everywhere else, and a button is not the
-     one exception. */
+     the templates page's existing dark pill with its white badge, Obsidian rather than a flat
+     `#000000` — the brief is explicit that pure black is not the brand's dark neutral, Obsidian
+     is, and a button is not the one exception. */
   paper: {
-    solid: { bg: MIDNIGHT, fg: '#FFFFFF', badgeBg: '#FFFFFF', badgeFg: MIDNIGHT },
-    quiet: { bg: 'rgba(7,17,31,0.06)', fg: MIDNIGHT, tile: ICE, badgeBg: MIDNIGHT, badgeFg: PAPER },
-    ghost: { bg: 'transparent', fg: MIDNIGHT, tile: PAPER, badgeBg: MIDNIGHT, badgeFg: PAPER },
-    accent: COBALT,
+    solid: { bg: OBSIDIAN, fg: '#FFFFFF', badgeBg: '#FFFFFF', badgeFg: OBSIDIAN },
+    quiet: { bg: 'rgba(8,10,13,0.06)', fg: OBSIDIAN, tile: WHITE, badgeBg: OBSIDIAN, badgeFg: PAPER },
+    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: OBSIDIAN, badgeFg: PAPER },
+    accent: ORANGE,
     darkRing: true,
   },
-  /* ICE grounds — the light surfaces the old table called "sand". */
-  ice: {
-    solid: { bg: MIDNIGHT, fg: PAPER, badgeBg: COBALT, badgeFg: '#FFFFFF' },
-    quiet: { bg: ICE_DEEP, fg: MIDNIGHT, badgeBg: MIDNIGHT, badgeFg: PAPER },
-    ghost: { bg: 'transparent', fg: MIDNIGHT, tile: ICE, badgeBg: MIDNIGHT, badgeFg: PAPER },
-    accent: COBALT,
+  /* WHITE grounds — the light surfaces earlier tables called "sand" then "ice". */
+  white: {
+    solid: { bg: OBSIDIAN, fg: PAPER, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    quiet: { bg: PAPER_DEEP, fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: PAPER },
+    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: WHITE, badgeBg: OBSIDIAN, badgeFg: PAPER },
+    accent: ORANGE,
     darkRing: true,
   },
-  /* The contact section's ground — Cobalt brought back toward Midnight for a full-bleed fill (see
-     homePalette's COBALT_DEEP). The solid pair is that form's own light pill; the badge stays
-     Midnight-on-ICE rather than white-on-Cobalt because it sits ON the light pill, not on the
-     section's own dark ground. */
-  cobalt: {
-    solid: { bg: ICE, fg: MIDNIGHT, badgeBg: COBALT_DEEP, badgeFg: '#FFFFFF' },
-    quiet: { bg: '#556996', fg: '#FFFFFF', badgeBg: MIDNIGHT, badgeFg: PAPER },
-    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: COBALT_DEEP, badgeBg: MIDNIGHT, badgeFg: PAPER },
-    accent: ICE,
+  /* The contact section's ground — Obsidian, the full-bleed neutral (see the module note on why
+     this is not a tint of Orange). The solid pair is that form's own light pill; its badge is the
+     one Orange moment in this tone, because a form's submit action is exactly the kind of thing
+     the brief calls "worth being a point of attraction" — the quiet/ghost badges stay neutral so
+     Orange does not appear twice in the same cluster and dilute itself. */
+  obsidian: {
+    solid: { bg: WHITE, fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    quiet: { bg: '#3F444B', fg: '#FFFFFF', badgeBg: OBSIDIAN, badgeFg: PAPER },
+    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: PAPER },
+    accent: WHITE,
     darkRing: false,
   },
-  /* The footer, which is a paper ground that carries Cobalt as its accent rather than as its fill
-     — so its call to action is the one surface on the site that is Cobalt-on-paper. It gets its
-     own entry rather than borrowing `paper` (whose solid is Midnight, and Midnight is not what the
+  /* The footer, which is a paper ground that carries Orange as its accent rather than as its fill
+     — so its call to action is the one surface on the site that is Orange-on-paper. It gets its
+     own entry rather than borrowing `paper` (whose solid is Obsidian, and Obsidian is not what the
      footer's `--ft-accent` means) or `chrome` (whose ring is white, and white on paper is no ring
      at all). */
   footer: {
-    solid: { bg: COBALT_DEEP, fg: '#FFFFFF', badgeBg: MIDNIGHT, badgeFg: PAPER },
-    quiet: { bg: 'rgba(40,100,255,0.16)', fg: MIDNIGHT, tile: '#CAD7F6', badgeBg: COBALT, badgeFg: '#FFFFFF' },
-    ghost: { bg: 'transparent', fg: MIDNIGHT, tile: PAPER, badgeBg: COBALT, badgeFg: '#FFFFFF' },
-    accent: ICE,
+    solid: { bg: OBSIDIAN, fg: '#FFFFFF', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    quiet: { bg: 'rgba(255,106,0,0.16)', fg: OBSIDIAN, tile: '#EDD3BF', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    accent: ORANGE,
     darkRing: true,
   },
-  /* The hero's two pills, which are translucent white sitting on the panel — now COBALT_DEEP
-     rather than the old, lighter periwinkle. The fills stay translucent so the panel reads through
-     them; `tile` is what each one actually resolves to over THAT ground, recomputed rather than
-     guessed — a field built from the transparent value would come out white and float off the
-     button, and a tile computed against the old ground would be visibly wrong against the new,
-     darker one. */
+  /* The hero's two pills, which are translucent white sitting on the panel — Obsidian, the
+     full-bleed neutral. The fills stay translucent so the panel reads through them; `tile` is
+     what each one actually resolves to over THAT ground, recomputed rather than guessed. The
+     primary pill's badge is Orange-on-Obsidian: this is the site's main call to action, and the
+     brief's own test for whether something earns the accent — "is this worth being a point of
+     attraction?" — the answer for the hero's own primary button is yes. The secondary (quiet)
+     pill's badge stays Obsidian-on-white, so the one Orange mark in the hero is unambiguous. */
   glass: {
-    solid: { bg: 'rgba(255,255,255,0.92)', fg: MIDNIGHT, tile: '#ECEEF3', badgeBg: MIDNIGHT, badgeFg: '#FFFFFF' },
-    quiet: { bg: 'rgba(255,255,255,0.55)', fg: MIDNIGHT, tile: '#95A1BD', badgeBg: MIDNIGHT, badgeFg: '#FFFFFF' },
-    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: COBALT_DEEP, badgeBg: MIDNIGHT, badgeFg: '#FFFFFF' },
-    accent: COBALT,
+    solid: { bg: 'rgba(255,255,255,0.92)', fg: OBSIDIAN, tile: '#EBEBEC', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    quiet: { bg: 'rgba(255,255,255,0.55)', fg: OBSIDIAN, tile: '#909192', badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
+    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
+    accent: ORANGE,
     darkRing: true,
   },
 };
@@ -406,14 +417,14 @@ export function useNqSurface(
   /* The ring is keyed to the GROUND, not to the surface. A ring in the button's own accent sits
      invisibly on top of a button already wearing that accent; what has to be seen is the outline
      against the page behind it. */
-  const ring = spec.darkRing ? 'focus-visible:ring-[#07111F]' : 'focus-visible:ring-white';
+  const ring = spec.darkRing ? 'focus-visible:ring-[#080A0D]' : 'focus-visible:ring-white';
 
   return {
     pair,
     size: s,
     style: { background: pair.bg, color: pair.fg },
-    badgeBg: pair.badgeBg ?? (isLight(surface) ? MIDNIGHT : '#FFFFFF'),
-    badgeFg: pair.badgeFg ?? (isLight(surface) ? PAPER : MIDNIGHT),
+    badgeBg: pair.badgeBg ?? (isLight(surface) ? OBSIDIAN : '#FFFFFF'),
+    badgeFg: pair.badgeFg ?? (isLight(surface) ? PAPER : OBSIDIAN),
     handlers,
     tiles: mounted && wantsTiles ? <ButtonTiles drive={drive} tones={tones} /> : null,
     className: [

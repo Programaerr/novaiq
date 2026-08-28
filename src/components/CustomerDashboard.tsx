@@ -153,7 +153,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
             is the quiet weight; the label hides on a narrow screen and `aria-label` keeps the
             name at every width. */}
         <NqButton
-          tone="ice"
+          tone="white"
           variant="quiet"
           size="sm"
           radius="xl"
@@ -456,7 +456,7 @@ function CustomerContractRow({
 
           <div className="flex justify-end pt-1">
             <NqButton
-              tone="ice"
+              tone="white"
               variant="solid"
               size="sm"
               radius="xl"

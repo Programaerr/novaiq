@@ -5,8 +5,8 @@ import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
-import { COBALT_DEEP, ERROR_ON_BRAND, ICE, MIDNIGHT, PAPER, SUCCESS } from '../lib/homePalette';
-import { BAND_FADE, COBALT_TONES, TileField } from './TileField';
+import { ERROR, OBSIDIAN, PAPER, SUCCESS, WHITE } from '../lib/homePalette';
+import { BAND_FADE, OBSIDIAN_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
 /**
@@ -15,16 +15,16 @@ import { NqButton } from './ui/NqButton';
  *
  * ## The edge above it is made of cubes, not of a shape
  *
- * The section's ground is COBALT_DEEP and the one above it is paper, and a straight seam between
+ * The section's ground is OBSIDIAN and the one above it is paper, and a straight seam between
  * two flat colours across a full-width page is the most obvious edge on the site. So the top of
- * this section is a STRIP of the same tile field the hero uses, in the brand's blue instead of
- * ice: the cubes are absent at the top of the strip where the ground is still paper, assemble as
- * the ground turns, and settle away into flat blue before the heading. The blue arrives as
- * something that was built rather than as a rectangle that starts.
+ * this section is a STRIP of the same tile field the hero uses, in the brand's dark neutral
+ * instead of warm white: the cubes are absent at the top of the strip where the ground is still
+ * paper, assemble as the ground turns, and settle away into flat Obsidian before the heading. The
+ * dark ground arrives as something that was built rather than as a rectangle that starts.
  *
- * It is the hero's gesture in reverse, and deliberately so. The page opens with a field of ice
- * cubes breaking up downward into the paper and closes with a field of blue ones assembling upward
- * out of it — the same move, bracketing everything between.
+ * It is the hero's gesture in reverse, and deliberately so. The page opens with a field of warm
+ * white cubes breaking up downward into the paper and closes with a field of dark ones assembling
+ * upward out of it — the same move, bracketing everything between.
  *
  * ## Labels are inside the fields, and they are real labels
  *
@@ -33,17 +33,17 @@ import { NqButton } from './ui/NqButton';
  * message box rather than centred in it, which is the other reading: a caption that stays. That is
  * what these are — a real label, in place, above its input, inside the same block.
  *
- * ## Contrast decided the fills, and changed when the brand did
+ * ## Contrast decided the fills, and changed with every identity this section has had
  *
- * Under the old identity the section's ground (periwinkle, `#8295CF`) was light enough that ink
- * text sat directly on it at 6.4:1. COBALT_DEEP is a different kind of blue on purpose — a full
- * fill in the brand's actual Electric Cobalt would break the brief's own rule that bold colour
- * stay rare, so this section fills with Cobalt brought back toward Midnight instead, and that is a
- * DARK ground. Every mark that sits directly on it had to flip from dark to light with it: the
- * heading is ICE now, not ink, and the error/confirmation messages moved off plain ink onto real
- * semantic colours tuned for this specific ground (see the notes at each). Text still inside a
- * field block stays dark, because that block is still a light ICE surface floating on the section
- * — only what sits on the section's own ground moved.
+ * Under the sand/periwinkle identity the section's ground was light enough that ink text sat
+ * directly on it at 6.4:1. This brief's brief is stricter than even the blue identity before it:
+ * Orange may never be a background at all, not even a darkened one, so this section fills with
+ * OBSIDIAN — the brand's own dark neutral — rather than a tint of the accent. That is a DARK
+ * ground either way. Every mark that sits directly on it had to flip from dark to light with it:
+ * the heading is WHITE now, not ink, and the error/confirmation messages moved off plain ink onto
+ * real semantic colours (see the notes at each). Text still inside a field block stays dark,
+ * because that block is still a light WHITE surface floating on the section — only what sits on
+ * the section's own ground moved.
  */
 
 interface Field {
@@ -177,7 +177,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
          leaving a disconnected strip. Otherwise the top padding clears the absolutely-positioned
          tile strip above it, which takes up no height of its own. */
       style={{
-        background: COBALT_DEEP,
+        background: OBSIDIAN,
         ...(isPageTop
           ? { marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))' }
           : {}),
@@ -210,10 +210,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                strip of half-blue. Blue lands at 34%, just after the field reaches full height. Move
                either number without the other and you get back one of the two faults the note on
                BAND_FADE describes. */
-            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + COBALT_DEEP + ' 40%)',
+            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + OBSIDIAN + ' 40%)',
           }}
         >
-          <TileField tones={COBALT_TONES} fade={BAND_FADE} />
+          <TileField tones={OBSIDIAN_TONES} fade={BAND_FADE} />
         </div>
       )}
 
@@ -221,14 +221,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
         {/* Steps with the phases section above it and for the same reason — see the note there.
             One island of the same width twice running is what makes the two read as one page. */}
         <div className="mx-auto max-w-[56rem] uw:max-w-[72rem]">
-          {/* This heading sits directly on the section's own ground, which is now the dark
-              COBALT_DEEP fill rather than the old, much lighter periwinkle — so its text has to
-              be the light member of the pair, not MIDNIGHT. Every other coloured text in this
-              section sits on a nested light card (the field blocks) and stays dark; this is the
-              one heading with no card under it. */}
+          {/* This heading sits directly on the section's own ground, the dark OBSIDIAN fill — so
+              its text has to be the light member of the pair, WHITE. Every other coloured text in
+              this section sits on a nested light card (the field blocks) and stays dark; this is
+              the one heading with no card under it. */}
           <h2
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
-            style={{ color: ICE, ['--nq-rise-delay' as string]: '80ms' }}
+            style={{ color: WHITE, ['--nq-rise-delay' as string]: '80ms' }}
             >
               {isAr ? 'المراسلة والدعم' : 'Messaging & Support'}
             </h2>
@@ -250,17 +249,17 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                   >
                     {/* Label and input inside one light block, as drawn. The block IS the field:
                         clicking anywhere on it lands in the input, because the label owns the whole
-                        box and the input fills what is left of it. Stays a light ICE surface
-                        against the now much darker section ground — the field has to keep reading
-                        as an input, not blend into the dark blue around it. */}
+                        box and the input fills what is left of it. Stays a light WHITE surface
+                        against the section's dark Obsidian ground — the field has to keep reading
+                        as an input, not blend into the dark ground around it. */}
                     <label
                       htmlFor={id}
-                      className="block rounded-xl px-4 pt-3 pb-2.5 cursor-text transition-shadow duration-200 focus-within:shadow-[0_0_0_2px_#07111F]"
-                      style={{ background: ICE }}
+                      className="block rounded-xl px-4 pt-3 pb-2.5 cursor-text transition-shadow duration-200 focus-within:shadow-[0_0_0_2px_#080A0D]"
+                      style={{ background: WHITE }}
                     >
                       <span
                         className="block text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-wide"
-                        style={{ color: MIDNIGHT, opacity: 0.75 }}
+                        style={{ color: OBSIDIAN, opacity: 0.75 }}
                       >
                         {isAr ? field.ar : field.en}
                       </span>
@@ -278,7 +277,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                              on a coloured panel is the one control here that can be pulled out of
                              the layout it sits in. */
                           className="mt-1 block w-full bg-transparent border-0 outline-none resize-none text-[0.95rem] uw:text-[1.05rem] font-bold leading-relaxed"
-                          style={{ color: MIDNIGHT }}
+                          style={{ color: OBSIDIAN }}
                         />
                       ) : (
                         <input
@@ -294,7 +293,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                           /* 40px of input under a 20px label clears the 44px the whole block needs
                              to be a comfortable touch target. */
                           className="mt-1 block w-full h-10 uw:h-12 bg-transparent border-0 outline-none text-[0.95rem] uw:text-[1.05rem] font-bold"
-                          style={{ color: MIDNIGHT }}
+                          style={{ color: OBSIDIAN }}
                         />
                       )}
                     </label>
@@ -303,17 +302,17 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                         and the live region so it is announced when it appears rather than only
                         found by someone who goes looking for it.
 
-                        Sits directly on the section's dark ground, not on the light field block
-                        above it, and it is an error — ERROR_ON_BRAND rather than plain ERROR:
-                        plain ERROR is 3.40:1 on this specific blue (Cobalt Deep reads lighter
-                        than Midnight, the ground it was tuned against) and fails AA. This was
+                        Sits directly on the section's dark Obsidian ground, not on the light
+                        field block above it, and it is an error — ERROR, which measures 5.27:1
+                        on Obsidian directly (no darkened variant needed here, unlike the previous
+                        identity's fill, which was lighter than its own darkest tone). This was
                         previously rendered in plain ink, which is not an error colour at all. */}
                     {error && (
                       <p
                         id={id + '-error'}
                         role="alert"
                         className="mt-1.5 px-1 text-[0.78rem] font-extrabold"
-                        style={{ color: ERROR_ON_BRAND }}
+                        style={{ color: ERROR }}
                       >
                         {error}
                       </p>
@@ -331,7 +330,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     that does nothing. */}
                 <NqButton
                   type="submit"
-                  tone="cobalt"
+                  tone="obsidian"
                   variant="solid"
                   size="md"
                   loading={sending}
@@ -343,8 +342,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
 
                 {/* The confirmation sits beside the button that caused it, and is announced.
                     SUCCESS rather than ink — this is on the section's own dark ground and reads
-                    5.62:1 there, and a success message is exactly the case the brief's semantic
-                    system exists for: brand blue cannot also mean "this worked". */}
+                    8.70:1 there, and a success message is exactly the case the brief's semantic
+                    system exists for: Orange cannot also mean "this worked". */}
                 {sent && (
                   <p role="status" className="text-[0.85rem] font-extrabold" style={{ color: SUCCESS }}>
                     {isAr ? 'وصلت رسالتك. نرد عليك قريباً.' : 'Got it. We will reply shortly.'}
