@@ -277,19 +277,19 @@
        scroll flashes a different shade across the top or bottom of the page — which is why it
        is a variable read by both `html` and `body` rather than the same literal written twice
        and left to drift. See the note on body::before. */
-    --nq-ground: #D5BDAC;
+    --nq-ground: #F7F9FC;
 
-    /* The accent, and now the only hue the interface itself ever draws. The old identity was
-       monochrome by design, one deliberate chromatic object against a black-and-white page — this
-       one is built the other way round: sand and paper carry the page, periwinkle is what a button,
-       a link or a focus ring is FOR. There is no black left standing in for either role: the
-       darkest tone in the whole system is `--color-ink`, a near-navy, never a literal #000.
+    /* The accent, and now the only saturated hue the interface itself draws freely. Two identities
+       ago this was monochrome by design, one deliberate chromatic object against a black-and-white
+       page; the sand/periwinkle identity that followed built it the other way round — light
+       neutrals carry the page, one blue is what a button, a link or a focus ring is FOR. This is
+       the same shape, re-hued to the brand's Electric Cobalt. There is no black left standing in
+       for either role: the darkest tone in the whole system is `--color-midnight`, never a
+       literal #000.
 
-       `.nq-btn--solid` fills with this and DARKENS on hover now, not brightens — the page itself
-       got light, so a hover that dims a couple of steps toward ink is what reads as the control
-       being pressed into a light surface, where the old brightening-toward-white logic would have
-       washed the fill out toward invisibility instead. */
-    --nq-accent: #8295CF;
+       `.nq-btn--solid` fills with this and brightens to white on hover — see that rule for why,
+       and for the note that it is effectively unreachable in the app today. */
+    --nq-accent: #2864FF;
     background-color: var(--nq-ground);
 
     /* ── The content container, as a NUMBER rather than a utility class ────────────────────────
@@ -408,7 +408,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-color: #D5BDAC;
+    background-color: #F7F9FC;
   }
 }
 
@@ -703,15 +703,17 @@
   );
 }
 
-/* The primary button takes the DARK beam, and this is a direct consequence of the palette change
-   rather than a preference: `.nq-btn--solid` fills with periwinkle, and a periwinkle-on-periwinkle
-   beam would draw with almost no contrast against its own body.
+/* The primary button takes the LIGHT beam, and this is a direct consequence of the palette
+   change rather than a preference: `.nq-btn--solid` fills with Cobalt, and Midnight on Cobalt
+   measures 3.93:1 — under the 4.5:1 a beam wants to actually be seen against its own body, where
+   white measures 4.82:1. This flipped from a dark beam when the accent moved from the lighter
+   periwinkle (`#8295CF`) to the brand's more saturated Cobalt.
 
    Declared here rather than by adding the modifier class in JSX, because the thing that decides it
    is the surface colour, and the surface colour is decided in this file. A component should not
    have to know which way its own beam has to point. */
 .nq-btn--solid {
-  --beam-ink: var(--color-ink);
+  --beam-ink: #FFFFFF;
 }
 
 .nq-btn:hover .nq-btn-beam,
@@ -749,16 +751,20 @@
    layout box, and leaves every button on the site with a zero border — so one `inset: -2px`
    now means the same distance everywhere. (A white border on a white body was invisible at
    rest anyway; its only visible job was the dimmed rim on hover, which moves down with it.) */
-/* The primary is a pale fill with BLACK on it. It was violet with white, at ~4.6:1 — scraping past
-   AA — and the swap to a monochrome palette turns that into the strongest contrast on the site:
-   black on #E4E4E7 is 17.4:1. Worth stating plainly, because a black-and-white palette is usually
-   assumed to cost accessibility and here it bought nearly four times the margin on the one control
-   that matters most.
+/* This rule predates BOTH identities the site has had since — its own comment used to describe
+   "the swap to a monochrome palette" and a black-and-white button, which was already stale before
+   the sand/periwinkle identity replaced it and is doubly so now. It is effectively unreachable
+   today: every current `.nq-btn--solid` in the app renders inside `.sandbox-root`, which
+   overrides it a few rules down. Corrected in place anyway rather than left to bit-rot, because
+   the alternative is exactly the kind of drifted legacy colour a future component could resurrect
+   by using this class outside the sandbox.
+   Fill is Cobalt with white on it (4.82:1) rather than dark ink (3.93:1, under the 4.5:1 a label
+   needs) — Cobalt is more saturated than the periwinkle this rule was last written for.
    The top inset highlight is what stops a flat fill reading as a sticker — a real surface catches
    slightly more light along its upper edge. */
 .nq-btn--solid {
   background: var(--nq-accent);
-  color: #000000;
+  color: #FFFFFF;
   border: 0;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.18),
@@ -767,16 +773,13 @@
 }
 
 /* Hover goes LIGHTER, not darker. On a dark page a darkening hover reads as the control receding
-   at the moment it is being reached for; brightening reads as it coming forward.
-
-   This is why --nq-accent rests at #E4E4E7 instead of pure white: the resting fill has to leave
-   somewhere brighter to go. Pure white at rest would have forced the hover to darken, inverting
-   the rule the rest of the site's controls follow. */
+   at the moment it is being reached for; brightening reads as it coming forward. Text flips to
+   Midnight (never literal black) to stay readable once the fill turns white. */
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
   background: #FFFFFF;
-  color: #000000;
+  color: var(--color-midnight);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
@@ -791,14 +794,14 @@
    vanish into a disc of exactly its own shade. The two values have to arrive from the button. */
 .nq-btn--solid {
   --nq-surface: var(--nq-accent);  /* the button's body */
-  --nq-ink: #000000;               /* what is written on it */
+  --nq-ink: #FFFFFF;               /* what is written on it */
 }
 
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
   --nq-surface: #FFFFFF;
-  --nq-ink: #000000;
+  --nq-ink: var(--color-midnight);
 }
 
 /* Preview sandbox chrome — the demo's own controls (back, palette, share, request) sit on a dark

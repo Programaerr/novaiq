@@ -7,13 +7,15 @@ interface EcontractsPageProps {
   language: Language;
 }
 
-// The palette this page draws from: PERIWINKLE (#8295CF) is the primary — the accent every
-// feature on the dark site uses — and SAND (#D5BDAC) is the secondary. Text is white on the
-// dark ground. Keeping the accent values here (rather than raw hex scattered across the cards)
-// mirrors homePalette's reason for existing: one place to retune the brand.
-const ACCENT = '#8295CF';
-const ACCENT_SOFT = 'rgba(130, 149, 207, 0.14)';
-const SECONDARY = '#D5BDAC';
+// The palette this page draws from: COBALT (#2864FF) is the primary — the accent every feature
+// on the dark site uses — and MUTED is the secondary, the token this identity already reserves
+// for metadata-weight text on a dark ground (measured 6.34:1 on Midnight; see homePalette.ts).
+// Text is white on the dark ground. Keeping the accent values here (rather than raw hex
+// scattered across the cards) mirrors homePalette's reason for existing: one place to retune
+// the brand.
+const ACCENT = '#2864FF';
+const ACCENT_SOFT = 'rgba(40, 100, 255, 0.14)';
+const SECONDARY = '#8B96A8';
 
 // Shown in clause 3 (milestone delivery). This page presents the standard NOVAIQ agreement, and
 // the timeline is the one clause that varies per contract — 8 weeks is the custom-project default
