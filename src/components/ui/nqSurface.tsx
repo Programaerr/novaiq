@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { INK, PAPER, PERIWINKLE, SAND, SAND_DEEP } from '../../lib/homePalette';
+import { COBALT, COBALT_DEEP, ICE, ICE_DEEP, ICE_LIGHT, MIDNIGHT, PAPER } from '../../lib/homePalette';
 import { buttonTones, contrastRatio, isLight } from '../../lib/tone';
 import { ButtonTiles, newDrive } from './ButtonTiles';
 
@@ -19,7 +19,7 @@ import { ButtonTiles, newDrive } from './ButtonTiles';
 
 /* ── Tones ──────────────────────────────────────────────────────────────────────────────── */
 
-export type NqTone = 'chrome' | 'paper' | 'sand' | 'periwinkle' | 'glass' | 'footer';
+export type NqTone = 'chrome' | 'paper' | 'ice' | 'cobalt' | 'glass' | 'footer';
 export type NqVariant = 'solid' | 'quiet' | 'ghost';
 export type NqSize = 'sm' | 'md' | 'lg';
 /** Pill everywhere by default. `xl` exists for the two places a pill would be wrong — a row of
