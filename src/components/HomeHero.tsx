@@ -60,11 +60,11 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
     <section
       id="home-hero"
       /* The full first screen, pulled up behind the floating Navbar: `<main>`'s padding reserves
-         the nav band and gap, so without a matching negative margin the sand would start below it
+         the nav band and gap, so without a matching negative margin the ground would start below it
          and leave a black strip across the top. `svh` rather than `vh` so a phone's collapsing
          address bar cannot make this taller than the screen it is meant to match. */
       style={{
-        /* Ice for all but the last band of the screen, then a ramp into the paper of the section
+        /* Warm white for all but the last band of the screen, then a ramp into the paper of the section
            below. The canvas above this is transparent, so this is the ground the cubes stand on —
            and they are breaking up across exactly the same band (HERO_FADE.lo, one value, shared).
            The two together are the edge: blocks thinning out over ground that is already becoming
@@ -145,7 +145,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             {/* Both pills are NqButton on the `glass` tone — translucent white over the panel,
                 which is the pairing that tone exists for. The cube field each one lifts on hover
                 is built from what its own fill resolves to over that blue, so the solid one raises
-                near-white blocks and the quiet one raises pale cobalt-tinted ones. */}
+                near-white blocks and the quiet one raises pale grey-tinted ones. */}
             <NqButton
               tone="glass"
               variant="solid"

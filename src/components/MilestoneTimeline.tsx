@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { COBALT_DEEP, ICE, ICE_DEEP, MIDNIGHT } from '../lib/homePalette';
+import { OBSIDIAN, WHITE, PAPER_DEEP, OBSIDIAN } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { ProjectCtaButton } from './ProjectCtaButton';
 
@@ -84,7 +84,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       id="timeline-section"
       data-seen={seen ? 'true' : 'false'}
       style={{
-        background: COBALT_DEEP,
+        background: OBSIDIAN,
         /* Pull the whole section up behind the floating navbar, exactly as the hero does — so
            the cube field at the top runs under the navbar instead of starting below it as a
            black strip. The navbar is fixed and floats above the page; without this the cubes
@@ -103,12 +103,12 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       <div className="relative nq-container">
         <div className="mx-auto max-w-[56rem]">
           {/* This heading and the paragraph under it sit directly on the section's own ground —
-              COBALT_DEEP, a dark fill — so both read ICE, not the dark ink everything inside the
+              OBSIDIAN, a dark fill — so both read WHITE, not the dark ink everything inside the
               frosted panel below still uses. See the note on that panel for why the panel itself
               stayed on the dark side of the pair even though it looks like a "light glass". */}
           <h2
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
-            style={{ color: ICE, ['--nq-rise-delay' as string]: '80ms' }}
+            style={{ color: WHITE, ['--nq-rise-delay' as string]: '80ms' }}
           >
             {isAr ? 'مراحل تنفيذ مشروعك' : 'Project Phases & Delivery'}
           </h2>
@@ -117,7 +117,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
               is simply per-contract rather than the same eight weeks for everyone. */}
           <p
             className="nq-rise mt-4 max-w-[42rem] text-sm sm:text-base font-bold leading-relaxed"
-            style={{ color: ICE, opacity: 0.8, ['--nq-rise-delay' as string]: '130ms' }}
+            style={{ color: WHITE, opacity: 0.8, ['--nq-rise-delay' as string]: '130ms' }}
           >
             {isAr
               ? 'أربع مراحل ثابتة لكل مشروع، ومدّة التنفيذ تُحدَّد في القسم الأول من اتفاقك حسب حجم العمل.'
@@ -132,11 +132,11 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
               Still reads as "glass over the field" rather than "a light card", and that changed
               what colour glass this is. The old ground (periwinkle) was light-medium, so a little
               near-white mixed into it stayed clearly light and every mark inside was dark ink.
-              COBALT_DEEP is a genuinely dark, saturated ground — the SAME 16% of near-white
+              OBSIDIAN is a genuinely dark, saturated ground — the SAME 16% of near-white
               composites down to `#354D83`, a medium-dark blue, not a light surface. Ink text on
-              that measures 2.29:1 and disappears; every mark inside this panel is ICE now, not
-              ink, and the tint itself moved from PAPER to ICE (composites to `#374E84`, 7.70:1
-              for ICE text) since ICE is the primary light-neutral this identity actually frosts
+              that measures 2.29:1 and disappears; every mark inside this panel is WHITE now, not
+              ink, and the tint itself moved from PAPER to WHITE (composites to `#374E84`, 7.70:1
+              for WHITE text) since WHITE is the primary light-neutral this identity actually frosts
               things with. */}
           <div
             className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/25 backdrop-blur-2xl"
@@ -158,7 +158,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                     {/* The step number, quiet and small — sequence without the card's numeral. */}
                     <span
                       className="pt-1 text-[1.35rem] sm:text-[1.5rem] font-black leading-none tabular-nums shrink-0"
-                      style={{ color: ICE, opacity: 0.7 }}
+                      style={{ color: WHITE, opacity: 0.7 }}
                       aria-hidden="true"
                     >
                       {index + 1}
@@ -167,26 +167,26 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                     <span
                       aria-hidden="true"
                       className="w-px self-stretch shrink-0"
-                      style={{ background: ICE, opacity: 0.25 }}
+                      style={{ background: WHITE, opacity: 0.25 }}
                     />
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-3 sm:gap-4">
                         <h3
                           className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
-                          style={{ color: ICE }}
+                          style={{ color: WHITE }}
                         >
                           {ms.phaseTitle}
                         </h3>
                         <span
                           className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0"
-                          /* ICE_DEEP, not COBALT. The panel is glass over the blue cube field, so
+                          /* PAPER_DEEP, not ORANGE. The panel is glass over the blue cube field, so
                              a cobalt chip would be close to the field's own colour laid on top of
                              the field — close enough to read as a hole in the panel rather than
                              as a tile on it. A light chip is the one thing on this now-dark panel
                              that pops forward instead of receding into it. Midnight on it measures
                              14.55:1. */
-                          style={{ background: ICE_DEEP, color: MIDNIGHT }}
+                          style={{ background: PAPER_DEEP, color: OBSIDIAN }}
                           aria-hidden="true"
                         >
                           <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.9} />
@@ -195,7 +195,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
 
                       <p
                         className="mt-2 text-xs font-bold"
-                        style={{ color: ICE, opacity: 0.75 }}
+                        style={{ color: WHITE, opacity: 0.75 }}
                       >
                         {ms.status}
                       </p>
@@ -206,11 +206,11 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                             <CheckCircle2
                               className="w-4 h-4 shrink-0 mt-0.5"
                               strokeWidth={2.2}
-                              style={{ color: ICE }}
+                              style={{ color: WHITE }}
                             />
                             <span
                               className="text-[0.92rem] font-bold leading-[1.9]"
-                              style={{ color: ICE, opacity: 0.9 }}
+                              style={{ color: WHITE, opacity: 0.9 }}
                             >
                               {task}
                             </span>
@@ -222,7 +222,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                           well; see the note on `milestones` for why the timing is not stated
                           here but in the contract that actually sets it. */}
                       <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(247,249,252,0.2)' }}>
-                        <div className="text-xl font-black tracking-tight" style={{ color: ICE }}>
+                        <div className="text-xl font-black tracking-tight" style={{ color: WHITE }}>
                           {isAr ? `المرحلة ${index + 1} من 4` : `Phase ${index + 1} of 4`}
                         </div>
                       </div>
