@@ -39,19 +39,20 @@ const TILE_H = 196;
 /**
  * The card's own colour, before the light touches it.
  *
- * The crest of the section field itself (`shadeColor(COBALT_DEEP, 0.14)` — see TileField's
- * COBALT_TONES), not a step lighter than it: a Lambert material multiplies its base by the
+ * The crest of the section field itself (`shadeColor(OBSIDIAN, 0.14)` — see TileField's
+ * OBSIDIAN_TONES), not a step lighter than it: a Lambert material multiplies its base by the
  * light, so whatever number goes in here comes out darker once lit. Lit at the crest tone the
  * cards land UNDER the ground they sit on and read as holes punched in it rather than as objects
  * on it. Set here, the lit face comes out ABOVE the crest and the shaded sides at about the
  * ground itself, which is the same range the site's cube field paints and the reason the two
  * look related.
  *
- * Re-derived when the ground behind these moved from flat periwinkle (`#8295CF`) to the brand's
- * Cobalt Deep (`#132E6D`) — a much darker, more saturated blue, so the old tint (picked for the
- * lighter ground) read washed out and pale over the new one until this was recomputed against it.
+ * Re-derived every time the ground behind these has moved: flat periwinkle, then Cobalt Deep,
+ * and now Obsidian — the brand's own near-black neutral, used here as a full-bleed fill rather
+ * than a tint of the accent. A tint picked for any earlier, lighter ground reads washed out and
+ * pale over a fill this dark, which is why the value is recomputed rather than carried forward.
  */
-const CARD_TINT = '#344B81';
+const CARD_TINT = '#2B2C2F';
 
 /**
  * The diagonal, and the two small angles that make a flat grid look like objects.
@@ -75,7 +76,7 @@ const SPEED = 13;
  *
  * The sizes are absolute and a screen is not: 240px of card is 17% of a desktop and 62% of a
  * phone, so the same field that reads as a wall of cards on a laptop reads as three slabs
- * sliding past on a handset. It also has to share the screen with the ICE band, which is WIDER
+ * sliding past on a handset. It also has to share the screen with the WHITE band, which is WIDER
  * on a phone in relative terms — the strip of field left either side of it is thin, and a thin
  * strip only reads as cards if the cards are small enough for several to fall inside it.
  */
@@ -105,7 +106,7 @@ function makeFaceTexture() {
   const g = c.getContext('2d');
   if (!g) return null;
   const bar = (x: number, y: number, bw: number, bh: number, alpha: number) => {
-    g.fillStyle = `rgba(233, 237, 244, ${alpha})`;
+    g.fillStyle = `rgba(233, 231, 227, ${alpha})`;
     g.beginPath();
     g.roundRect(x, y, bw, bh, bh / 2);
     g.fill();
@@ -400,7 +401,7 @@ export const CardField: React.FC = () => {
         orthographic
         camera={{ position: [0, 0, 900], zoom: 1, near: 0.1, far: 4000 }}
         dpr={DPR}
-        /* `alpha` so the periwinkle fill on `.nq-coast` is what shows through the gaps between
+        /* `alpha` so the Obsidian fill on `.nq-coast` is what shows through the gaps between
            cards, rather than this canvas painting its own ground. One flat colour, declared once,
            in the place the rest of the page reads it from.
            `antialias` off because the canvas is already being downsampled and then blurred, which
