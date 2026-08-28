@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
+import { OBSIDIAN, ORANGE_ON_LIGHT } from '../../lib/homePalette';
 
 // Chrome that wraps a template demo rather than being part of any one demo: the fixed-width
 // responsive preview frame and the shared menu glyph. Split out of
@@ -138,13 +139,13 @@ export const ResponsivePreview: React.FC<{
             {isLoading && (
               <div
                 className="absolute inset-0 flex flex-col items-center justify-center gap-3"
-                style={{ background: 'rgba(246, 241, 233, 0.92)' }}
+                style={{ background: 'rgba(247, 247, 245, 0.92)' }}
               >
                 <span
                   className="w-7 h-7 rounded-full animate-spin"
-                  style={{ border: '2px solid rgba(130, 149, 207, 0.35)', borderTopColor: '#8295CF' }}
+                  style={{ border: `2px solid ${ORANGE_ON_LIGHT}33`, borderTopColor: ORANGE_ON_LIGHT }}
                 />
-                <span className="text-[11px] font-mono" style={{ color: '#101322', opacity: 0.6 }}>
+                <span className="text-[11px] font-mono" style={{ color: OBSIDIAN, opacity: 0.6 }}>
                   جارٍ تحميل الموقع…
                 </span>
               </div>
