@@ -1,124 +1,119 @@
 /**
  * NOVAIQ's brand palette, in one place.
  *
- * ## What this replaced
+ * ## What this replaced, twice now
  *
- * This module used to hold a warm sand/periwinkle exception carried by the home and account
- * pages alone, with the rest of the site running black-and-white. That identity is retired: the
- * company adopted a new, deliberately restrained system — Deep Midnight, Electric Cobalt,
- * Intelligent Violet, Ice White — and it now IS the site's identity end to end, not a page-level
- * exception. Every name below was chosen to describe what the colour actually is under the new
- * system, which is why none of them are the old SAND/PERIWINKLE/INK names with new hexes slotted
- * in: a constant called PERIWINKLE holding an electric blue would be a name that lies forever.
+ * This module first carried a warm sand/periwinkle exception for the home and account pages,
+ * then a Midnight/Cobalt/Violet system when the company adopted a restrained blue identity. Both
+ * are retired: the company moved again, to Obsidian Black + Signal Orange — "a dark engineering
+ * laboratory meets premium enterprise software." Every name below describes what the colour
+ * actually is under THIS system; nothing here is a leftover name holding a new hex.
  *
- * ## Why one large fill and one small accent, from the same hue
+ * ## Why the large fills are neutral, not a tint of the accent
  *
- * The brand's own brief is explicit that Cobalt is worth little if it is everywhere: bold colour
- * stays rare so it reads as a decision each time it appears, not as wallpaper. But the layout
- * this identity was applied to already uses a full-bleed colour panel as a real structural
- * element in several places (the hero's curtain, the contact section, the timeline section, the
- * templates section, half the sign-in card) — re-skinning without redesigning means those panels
- * stay panels, they cannot become plain neutral just because the brand wants restraint elsewhere.
- * COBALT_DEEP is the resolution: a large fill reads as "the brand's blue, at rest" rather than as
- * a shouted CTA, while COBALT itself stays reserved for the things that are actually asking to be
- * pressed or noticed — buttons, small icon tiles, the accent on a crest. One hue, two densities,
- * chosen by how much of the screen it is allowed to cover.
+ * The Cobalt system before this one used a darkened tint of its own accent (`COBALT_DEEP`) for
+ * the handful of full-bleed colour panels this layout relies on (the hero's curtain, the contact
+ * section, the timeline section, the templates section, half the sign-in screen). That move does
+ * not carry over: this brief is explicit that Orange is never a background — "لا تجعل: كل
+ * Background برتقالي" — and a "deep orange" panel would be exactly that, just quieter. So the
+ * large-fill role moves to OBSIDIAN, the brand's own dark neutral, with Orange kept for what it
+ * is reserved for everywhere else in this system: the small thing that is actually asking to be
+ * pressed or noticed — a button, an icon tile, the foam on a crest. A dark panel with an orange
+ * signal on it is closer to the brief's own mental image ("شبكة تقنية مظلمة دقيقة جدًا تحتوي على
+ * نقاط اتصال برتقالية مهمة") than a panel dyed orange ever was.
+ *
+ * ## Why the primary button's label is dark, not white
+ *
+ * The reflex for a saturated fill is white text. Measured, Signal Orange does not support it:
+ * white on `#FF6A00` is 2.87:1, under the 3:1 floor even for large text. Obsidian on the same
+ * orange is 6.90:1. Every pairing below that puts text ON Orange or Ember uses the dark member of
+ * the pair for exactly this reason — it is not a stylistic choice, white genuinely does not read.
  *
  * ## Why the light neutrals are four steps, not one
  *
- * The brand brief itself warns against pure white everywhere flattening the page. The old
- * identity's answer to that was SAND/SAND_DEEP/SAND_LIGHT/PAPER — four related near-white tones
- * so adjacent sections and raised surfaces could separate without a border. ICE/PAPER/ICE_DEEP/
- * ICE_LIGHT is the same four-step idea, derived from the brief's own Ice White (`#F7F9FC`) by the
- * same channel-mix math `shadeColor` already uses elsewhere in this codebase, rather than four
- * independently eyeballed hexes.
+ * Warm White (`#F7F7F5`) is the brief's own light-mode background, but a single flat tone used
+ * everywhere is what the brief itself warns against as flattening — the light-neutral family
+ * (WHITE/PAPER/PAPER_DEEP/SURFACE_LIGHT) gives adjacent sections and raised surfaces a way to
+ * separate without a border, the same four-step idea the previous two identities also needed,
+ * derived here by the same channel-mix math (`shadeColor` in TileField.tsx) rather than picked
+ * by eye.
  *
- * ## Why muted text has two values
+ * ## Why muted text and three semantic colours each have two values
  *
- * The brief's own Muted Slate (`#8B96A8`) is correct on the dark surfaces it names — measured at
- * 6.34:1 on Midnight — but drops to 2.83:1 on Ice White, under the 3:1 floor even for large text.
- * A single "muted" constant would be right in dark mode and silently failing in light mode.
- * MUTED_LIGHT is that same slate, darkened toward Midnight until it clears 4.5:1 on Ice
- * (measured 4.90:1) — the brief was explicit that accessibility is not negotiable for a look.
+ * Steel Gray (`#9299A3`) is 6.90:1 on Obsidian and a failing 2.68:1 on Warm White — correct on a
+ * dark surface, silently broken on a light one. The four semantic colours have the same problem
+ * in a more severe form (Success/Info/Warning all fall under 2.2:1 on Warm White). Each below has
+ * a light-ground counterpart, darkened toward Obsidian until it clears 4.5:1, because the brief
+ * is explicit that accessibility is not negotiable for a look.
+ *
+ * ## Why Warning is yellow-gold rather than amber-orange
+ *
+ * The brief calls this out directly: Orange is the brand, and a Warning colour that reads as
+ * "slightly duller orange" would teach a visitor that every brand moment might be a caution. This
+ * Warning sits in yellow-gold territory instead, far enough from `#FF6A00` on the wheel that the
+ * two are never confused.
  */
 
-/** Deep Midnight — the one dark ground, and the ink for every light surface. */
-export const MIDNIGHT = '#07111F';
+/** Obsidian Black — the brand's dark neutral: primary dark ground, ink for light surfaces, AND
+ *  the fill for every full-bleed panel this layout uses (see the module note on why that role
+ *  did not become a tint of Orange). */
+export const OBSIDIAN = '#080A0D';
 
-/**
- * Electric Cobalt — the brand's primary colour, reserved for things that are actually
- * interactive or singled out: buttons, active states, links, icons that matter, the accent a
- * field or crest carries. Never a large fill — see COBALT_DEEP for that.
- */
-export const COBALT = '#2864FF';
-
-/**
- * Cobalt, brought most of the way back to Midnight — for the handful of places in this layout
- * that are a full-bleed colour panel rather than a button or a highlight. Measured, not
- * eyeballed: `mix(MIDNIGHT, COBALT, 0.35)`, so a whole section reads as "the brand's blue at
- * rest" instead of a CTA stretched across the screen. White on it measures 12.81:1.
- */
-export const COBALT_DEEP = '#132E6D';
+/** Graphite — a step up from Obsidian, for cards, modals and elevated surfaces that need to read
+ *  as sitting ABOVE the dark ground rather than as more of it. */
+export const GRAPHITE = '#12161C';
 
 /**
- * Intelligent Violet — the secondary accent, and the one the brief is strictest about: AI-related
- * moments, a gradient's second stop, a glow, never the majority colour of anything. It also reads
- * lower in contrast than Cobalt at both ends (4.12:1 on Midnight, 4.60:1 on white) — a genuine
- * reason beyond taste to keep it out of body-sized text and let it carry backgrounds, borders and
- * glows instead.
+ * Signal Orange — the primary accent, and reserved for things that are actually interactive or
+ * singled out: buttons, active states, links, an icon that matters, the foam on a crest. Never a
+ * background or a large fill.
  */
-export const VIOLET = '#7557FF';
+export const ORANGE = '#FF6A00';
+/** Orange, darkened toward Obsidian until it clears 4.5:1 on Warm White — for a link or small
+ *  text label that has to be Orange but sits on a LIGHT ground, where plain Orange measures a
+ *  failing 2.68:1. */
+export const ORANGE_ON_LIGHT = '#BA4F04';
 
-/** Ice White — the primary light ground, and the brief's literal light-mode background value. */
-export const ICE = '#F7F9FC';
 /**
- * A step down from ICE, for a section that has to read as a clean break from its neighbour
- * without a border between them — the role PAPER played against SAND in the old identity, kept
- * under the same name because "paper" never implied warmth, only a quiet neutral surface.
+ * Ember — the secondary accent, used more sparingly than Orange itself: illustration detail, a
+ * hover glow, a chart series, one end of the brand gradient. Not a text colour on either ground
+ * at body size (white on it is 2.36:1; use Obsidian, exactly as with Orange, where it must carry
+ * text at all).
  */
-export const PAPER = '#E9EDF4';
+export const EMBER = '#FF8A1F';
+
+/** Warm White — the primary light ground, and the brief's literal light-mode background value. */
+export const WHITE = '#F7F7F5';
+/** A step down from WHITE, for a section that has to read as a clean break from its neighbour
+ *  without a border between them. */
+export const PAPER = '#E9E7E3';
 /** A further step down from PAPER, for a badge, divider or note-box that needs to separate from
  *  the surface around it without a border. */
-export const ICE_DEEP = '#DCE2EC';
-/** A step up from ICE — pure white, for a raised card surface. The brief asks for cards that are
- *  "white/off-white with simple visual separation"; this is the white half of that pair. */
-export const ICE_LIGHT = '#FFFFFF';
+export const PAPER_DEEP = '#DCDBD6';
+/** A step up from WHITE — pure white, for a raised card surface. */
+export const SURFACE_LIGHT = '#FFFFFF';
 
-/** Surface Dark — dark-mode's elevated card, a step up from Midnight rather than more of it. */
-export const SURFACE_DARK = '#101A28';
-
-/** Secondary/metadata text on a DARK ground (Midnight or Surface Dark). 6.34:1 on Midnight. */
-export const MUTED = '#8B96A8';
-/** Secondary/metadata text on a LIGHT ground (Ice/Paper/Ice Deep). The same slate, darkened
- *  toward Midnight until it clears AA on Ice White — MUTED itself measures 2.83:1 there and
- *  fails; this measures 4.90:1. */
-export const MUTED_LIGHT = '#636E7F';
+/** Secondary/metadata text on a DARK ground (Obsidian or Graphite). 6.90:1 on Obsidian. */
+export const STEEL = '#9299A3';
+/** Secondary/metadata text on a LIGHT ground. The same steel, darkened toward Obsidian until it
+ *  clears AA on Warm White — STEEL itself measures 2.68:1 there and fails; this measures 4.59:1. */
+export const STEEL_LIGHT = '#6B7179';
 
 /**
- * Semantic status colours — success/warning/error/info — deliberately separate from the brand
- * core above. The brief is explicit that brand colour must never double as a status colour: a
- * user who has learned "blue means brand" should not also have to read "blue means informational
- * notice" out of the same hue, and a destructive action coloured in the brand's own Cobalt would
- * read as an invitation rather than a warning.
+ * Semantic status colours — success/warning/error/info — deliberately independent of the brand
+ * core. Brand colour must never double as a status colour: Orange means the brand, not "this is
+ * a warning" or "this succeeded", and a user who has learned one meaning for it should not have
+ * to unlearn it reading a toast.
  *
- * Each has two members for the same reason MUTED does. The bright member (SUCCESS/WARNING/ERROR/
- * INFO) is 5.0–8.8:1 on Midnight and on Cobalt Deep — the two dark grounds this identity uses —
- * and drops under 3.6:1 on Ice White, so it is for icons, borders, badges and any dark-ground
- * text. The `_ON_LIGHT` member is the same hue mixed toward Midnight until it clears 4.5:1 on Ice
- * White, for text on a light ground — the case a contact-form error message actually needs, and
- * the case this project's error/status copy had been quietly failing before this pass (rendered
- * in plain ink, which carries no error meaning at all).
+ * Each has two members, for the ground it is measured against: the bright member is correct on
+ * Obsidian/Graphite (4.8–10.3:1) and fails on Warm White; the `_ON_LIGHT` member is the same hue
+ * darkened until it clears 4.5:1 there.
  */
 export const SUCCESS = '#22C55E';
-export const SUCCESS_ON_LIGHT = '#188146';
-export const WARNING = '#F59E0B';
-export const WARNING_ON_LIGHT = '#9B6813';
+export const SUCCESS_ON_LIGHT = '#198241';
+export const WARNING = '#EAB308';
+export const WARNING_ON_LIGHT = '#8B6C0A';
 export const ERROR = '#EF4444';
-export const ERROR_ON_LIGHT = '#CF3D3F';
-/** Error text on the brand's OWN full-bleed blue (COBALT_DEEP), which needs its own step: plain
- *  ERROR measures only 3.40:1 there — Cobalt Deep is markedly lighter than Midnight, and a red
- *  tuned to clear the darker of the two dark grounds does not automatically clear the lighter
- *  one. Lightened until it clears (4.54:1). */
-export const ERROR_ON_BRAND = '#F17374';
+export const ERROR_ON_LIGHT = '#CA3B3B';
 export const INFO = '#38BDF8';
-export const INFO_ON_LIGHT = '#2478A1';
+export const INFO_ON_LIGHT = '#26799F';

@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 /* ── NOVAIQ brand tokens ───────────────────────────────────────────────────────────────
-   Deep Midnight, Electric Cobalt, Intelligent Violet, Ice White — the company's identity,
-   end to end, not a page-level exception any more. Every page (home, admin panel, customer
-   profile, contract builder) reads its colour from these tokens rather than its own copy of
-   a hex, which is the same reason the JS-side mirror of these values lives in one file
-   (homePalette.ts) instead of being repeated at each call site.
-   --color-* in @theme generates bg-ice / text-midnight / border-midnight/10 etc. on demand.
-   See homePalette.ts for the full rationale behind each name and value — this block exists
+   Obsidian Black, Signal Orange, Ember, Warm White — the company's identity, end to end, not
+   a page-level exception any more. Every page (home, admin panel, customer profile, contract
+   builder) reads its colour from these tokens rather than its own copy of a hex, which is the
+   same reason the JS-side mirror of these values lives in one file (homePalette.ts) instead
+   of being repeated at each call site.
+   --color-* in @theme generates bg-white-warm / text-obsidian / border-obsidian/10 etc. on
+   demand. See homePalette.ts for the full rationale behind each name and value — this block exists
    only to make the same values reachable as Tailwind utilities. */
 @theme {
   /* The ultrawide step, as a breakpoint rather than ten copies of `min-[1700px]:`.
@@ -29,43 +29,44 @@
      the same property, which is exactly where it is hardest to see. 106.25rem is 1700px. */
   --breakpoint-uw: 106.25rem;
 
-  /* Brand core. See homePalette.ts for the reasoning behind each — in short: COBALT is the
-     small/interactive accent, COBALT_DEEP is the same hue brought back toward MIDNIGHT for the
-     handful of full-bleed colour panels this layout already relies on, and VIOLET stays a
-     sparing secondary rather than a second primary. */
-  --color-midnight: #07111F;
-  --color-cobalt: #2864FF;
-  --color-cobalt-deep: #132E6D;
-  --color-violet: #7557FF;
+  /* Brand core. See homePalette.ts for the reasoning behind each. In short: ORANGE is the
+     small/interactive accent and is NEVER a background — this brief is explicit that a "deep
+     orange" panel is still a background — so the full-bleed-panel role this layout needs moves
+     to OBSIDIAN, the brand's own dark neutral, instead of a tint of the accent the way the
+     previous (Cobalt) identity used one. EMBER stays a sparing secondary. */
+  --color-obsidian: #080A0D;
+  --color-graphite: #12161C;
+  --color-orange: #FF6A00;
+  --color-orange-on-light: #BA4F04;
+  --color-ember: #FF8A1F;
 
-  /* The light-neutral family — Ice White plus three derived steps, so a raised card, a quiet
+  /* The light-neutral family — Warm White plus three derived steps, so a raised card, a quiet
      section break and a badge/divider can each read as a distinct surface without a border
-     between them, the way SAND/PAPER/SAND_DEEP/SAND_LIGHT did before. */
-  --color-ice: #F7F9FC;
-  --color-paper: #E9EDF4;
-  --color-ice-deep: #DCE2EC;
-  --color-ice-light: #FFFFFF;
+     between them. */
+  --color-white-warm: #F7F7F5;
+  --color-paper: #E9E7E3;
+  --color-paper-deep: #DCDBD6;
+  --color-surface-light: #FFFFFF;
 
-  --color-surface-dark: #101A28;
-
-  /* Two mutes, not one: the brief's own Muted Slate (#8B96A8) is 6.34:1 on Midnight and a failing
-     2.83:1 on Ice White — a single "muted" token would be silently inaccessible in light mode. */
-  --color-muted: #8B96A8;
-  --color-muted-light: #636E7F;
+  /* Two steels, not one: Steel Gray (#9299A3) is 6.90:1 on Obsidian and a failing 2.68:1 on Warm
+     White — a single "muted" token would be silently inaccessible in light mode. */
+  --color-steel: #9299A3;
+  --color-steel-light: #6B7179;
 
   /* Aliases onto the brand core above, kept under their OLD names.
      `bg-ink`, `text-periwinkle`, `border-sand` and the rest are compiled into ~300 call sites
      across the admin dashboard, the customer dashboard and the contract builder — real utility
-     classes Tailwind generated from these exact token names under the previous identity. None of
-     those call sites drew a large fill (a border, a small badge fill, a shadow tint), so each
-     resolves to the small-scale member of its new family rather than the "-deep" one reserved for
-     full-bleed panels. Aliasing with var() means these three lines are the entire cost of keeping
-     ~15 files untouched, rather than a rename sweeping through all of them for no visual gain. */
-  --color-ink: var(--color-midnight);
-  --color-sand: var(--color-ice);
-  --color-sand-deep: var(--color-ice-deep);
-  --color-sand-light: var(--color-ice-light);
-  --color-periwinkle: var(--color-cobalt);
+     classes Tailwind generated from these exact token names under an earlier identity. Verified
+     (not assumed) that these specifically sit on light paper/white surfaces (the admin panel's
+     inputs and cards) — which is why `--color-periwinkle` resolves to `orange-on-light` rather
+     than plain Orange: plain Orange is 2.68:1 on Warm White, under even the 3:1 a border needs,
+     where the darkened variant is 4.65:1. Aliasing with var() means these lines are the entire
+     cost of keeping ~15 files untouched, rather than a rename sweeping through all of them. */
+  --color-ink: var(--color-obsidian);
+  --color-sand: var(--color-white-warm);
+  --color-sand-deep: var(--color-paper-deep);
+  --color-sand-light: var(--color-surface-light);
+  --color-periwinkle: var(--color-orange-on-light);
 
   /* Tailwind's OWN black/white/zinc scale, retargeted to this palette.
      Every `bg-black`, `text-white`, `border-zinc-800` (or any shade of it) anywhere in the app
@@ -74,28 +75,29 @@
      makes this the one central fix for the ~430 places across ~35 files that still drew whichever
      identity came before: none of them have to change, because none of them ever hardcoded a
      colour — they asked the theme for "black" and the theme is what is being redefined.
-     zinc runs ice → midnight, the same family the brand core above is built from, so a border at
-     zinc-800 or a muted label at zinc-500 both land inside the one palette rather than introducing
-     a second, unrelated grey scale next to it. Each stop is `mix(ICE_LIGHT, MIDNIGHT, t)` at a t
-     chosen to mirror the original scale's own spacing — clustered near-white through 400, a
-     midpoint at 500, then dropping fast toward ink — rather than a flat linear ramp; zinc-950
-     lands on MIDNIGHT exactly, same as zinc-950 landed on the previous identity's ink.
+     zinc runs white → obsidian, the same family the brand core above is built from, so a border
+     at zinc-800 or a muted label at zinc-500 both land inside the one palette rather than
+     introducing a second, unrelated grey scale next to it. Each stop is
+     `mix(SURFACE_LIGHT, OBSIDIAN, t)` at a t chosen to mirror the original scale's own spacing —
+     clustered near-white through 400, a midpoint at 500, then dropping fast toward ink — rather
+     than a flat linear ramp; zinc-950 lands on OBSIDIAN exactly, same as zinc-950 landed on the
+     ink of every identity before this one.
      The one place this must NOT reach is the rental demo (Sakan) — a customer's product, not
      ours — which re-shadows every one of these same variables back to Tailwind's stock values.
      See `.rental-scope` below and its two mount points in TemplateInteractiveSandbox.tsx. */
-  --color-black: #07111F;
-  --color-white: #F7F9FC;
-  --color-zinc-50: #FAFAFB;
-  --color-zinc-100: #F3F3F4;
-  --color-zinc-200: #E6E7E9;
-  --color-zinc-300: #D2D4D7;
-  --color-zinc-400: #B5B8BC;
-  --color-zinc-500: #8D9298;
-  --color-zinc-600: #656B74;
-  --color-zinc-700: #434A55;
-  --color-zinc-800: #27303C;
-  --color-zinc-900: #161F2C;
-  --color-zinc-950: #07111F;
+  --color-black: #080A0D;
+  --color-white: #F7F7F5;
+  --color-zinc-50: #FAFAFA;
+  --color-zinc-100: #F3F3F3;
+  --color-zinc-200: #E6E7E7;
+  --color-zinc-300: #D3D3D3;
+  --color-zinc-400: #B5B6B6;
+  --color-zinc-500: #8D8E90;
+  --color-zinc-600: #666769;
+  --color-zinc-700: #434547;
+  --color-zinc-800: #282A2C;
+  --color-zinc-900: #17191C;
+  --color-zinc-950: #080A0D;
 }
 
 /* Restores Tailwind's stock black/white/zinc inside the rental demo (Sakan), which the override
@@ -277,19 +279,20 @@
        scroll flashes a different shade across the top or bottom of the page — which is why it
        is a variable read by both `html` and `body` rather than the same literal written twice
        and left to drift. See the note on body::before. */
-    --nq-ground: #F7F9FC;
+    --nq-ground: #F7F7F5;
 
     /* The accent, and now the only saturated hue the interface itself draws freely. Two identities
        ago this was monochrome by design, one deliberate chromatic object against a black-and-white
-       page; the sand/periwinkle identity that followed built it the other way round — light
-       neutrals carry the page, one blue is what a button, a link or a focus ring is FOR. This is
-       the same shape, re-hued to the brand's Electric Cobalt. There is no black left standing in
-       for either role: the darkest tone in the whole system is `--color-midnight`, never a
-       literal #000.
+       page; the blue identity that followed built it the other way round — light neutrals carry
+       the page, one saturated hue is what a button, a link or a focus ring is FOR. This is the
+       same shape, re-hued to the brand's Signal Orange — the brief's own priority order, and the
+       reason a "deep orange" panel never appears anywhere in this system: Orange stays the small,
+       interactive signal, never a fill. There is no black left standing in for either role: the
+       darkest tone in the whole system is `--color-obsidian`, never a literal #000.
 
        `.nq-btn--solid` fills with this and brightens to white on hover — see that rule for why,
        and for the note that it is effectively unreachable in the app today. */
-    --nq-accent: #2864FF;
+    --nq-accent: #FF6A00;
     background-color: var(--nq-ground);
 
     /* ── The content container, as a NUMBER rather than a utility class ────────────────────────
@@ -408,7 +411,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-color: #F7F9FC;
+    background-color: #F7F7F5;
   }
 }
 
@@ -703,17 +706,18 @@
   );
 }
 
-/* The primary button takes the LIGHT beam, and this is a direct consequence of the palette
-   change rather than a preference: `.nq-btn--solid` fills with Cobalt, and Midnight on Cobalt
-   measures 3.93:1 — under the 4.5:1 a beam wants to actually be seen against its own body, where
-   white measures 4.82:1. This flipped from a dark beam when the accent moved from the lighter
-   periwinkle (`#8295CF`) to the brand's more saturated Cobalt.
+/* The primary button takes the DARK beam again, and it is a direct consequence of the palette
+   rather than a preference: `.nq-btn--solid` fills with Signal Orange, and white on it measures
+   2.87:1 — under even the 3:1 floor for a large mark, where Obsidian measures 6.90:1. The
+   previous (Cobalt) identity needed the opposite flip for the opposite reason: Midnight on
+   Cobalt was the one that failed there. Neither is a fixed rule about dark vs. light beams —
+   both follow from measuring the actual fill each time it changes.
 
    Declared here rather than by adding the modifier class in JSX, because the thing that decides it
    is the surface colour, and the surface colour is decided in this file. A component should not
    have to know which way its own beam has to point. */
 .nq-btn--solid {
-  --beam-ink: #FFFFFF;
+  --beam-ink: var(--color-obsidian);
 }
 
 .nq-btn:hover .nq-btn-beam,
@@ -751,20 +755,21 @@
    layout box, and leaves every button on the site with a zero border — so one `inset: -2px`
    now means the same distance everywhere. (A white border on a white body was invisible at
    rest anyway; its only visible job was the dimmed rim on hover, which moves down with it.) */
-/* This rule predates BOTH identities the site has had since — its own comment used to describe
-   "the swap to a monochrome palette" and a black-and-white button, which was already stale before
-   the sand/periwinkle identity replaced it and is doubly so now. It is effectively unreachable
+/* This rule predates every identity the site has had since — its own comment used to describe
+   "the swap to a monochrome palette" and a black-and-white button, restyled once for Cobalt and
+   now for Orange without ever becoming reachable in between. It is effectively unreachable
    today: every current `.nq-btn--solid` in the app renders inside `.sandbox-root`, which
    overrides it a few rules down. Corrected in place anyway rather than left to bit-rot, because
    the alternative is exactly the kind of drifted legacy colour a future component could resurrect
    by using this class outside the sandbox.
-   Fill is Cobalt with white on it (4.82:1) rather than dark ink (3.93:1, under the 4.5:1 a label
-   needs) — Cobalt is more saturated than the periwinkle this rule was last written for.
+   Fill is Signal Orange with Obsidian on it (6.90:1) rather than white (2.87:1, under the 3:1
+   floor even for a large mark) — Orange, unusually for a saturated accent, is bright enough that
+   the DARK member of the pair is the one that reads.
    The top inset highlight is what stops a flat fill reading as a sticker — a real surface catches
    slightly more light along its upper edge. */
 .nq-btn--solid {
   background: var(--nq-accent);
-  color: #FFFFFF;
+  color: var(--color-obsidian);
   border: 0;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.18),
@@ -773,13 +778,15 @@
 }
 
 /* Hover goes LIGHTER, not darker. On a dark page a darkening hover reads as the control receding
-   at the moment it is being reached for; brightening reads as it coming forward. Text flips to
-   Midnight (never literal black) to stay readable once the fill turns white. */
+   at the moment it is being reached for; brightening reads as it coming forward. Text stays
+   Obsidian in both states this time — unlike the previous identity, where the accent needed a
+   fg flip on hover, Orange's dark label already reads on white too (18.48:1), so there is
+   nothing to flip. */
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
   background: #FFFFFF;
-  color: var(--color-midnight);
+  color: var(--color-obsidian);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
@@ -794,14 +801,14 @@
    vanish into a disc of exactly its own shade. The two values have to arrive from the button. */
 .nq-btn--solid {
   --nq-surface: var(--nq-accent);  /* the button's body */
-  --nq-ink: #FFFFFF;               /* what is written on it */
+  --nq-ink: var(--color-obsidian); /* what is written on it */
 }
 
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
   --nq-surface: #FFFFFF;
-  --nq-ink: var(--color-midnight);
+  --nq-ink: var(--color-obsidian);
 }
 
 /* Preview sandbox chrome — the demo's own controls (back, palette, share, request) sit on a dark
