@@ -347,7 +347,7 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
       uTrough: { value: new THREE.Color(tones.trough) },
       uCrest: { value: new THREE.Color(tones.crest) },
       uFoam: { value: new THREE.Color(tones.foam) },
-      uSand: { value: new THREE.Color(tones.ground) },
+      uGround: { value: new THREE.Color(tones.ground) },
       uIntoLo: { value: new THREE.Color(tones.intoLo) },
       uIntoHi: { value: new THREE.Color(tones.intoHi) },
       // A hair above zero on an edge that is meant not to fade: smoothstep with both edges equal
@@ -460,7 +460,7 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
       uniform vec3 uTrough;
       uniform vec3 uCrest;
       uniform vec3 uFoam;
-      uniform vec3 uSand;
+      uniform vec3 uGround;
       uniform vec3 uLight;
 
       varying vec3 vInto;
@@ -484,16 +484,16 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
         // resolves to exactly three flat values — the top lit, one side in half light, one in
         // shadow. That corner is the whole reason the field reads as solid rather than printed.
         // The ambient floor is high on purpose. A textbook 0.2 gives the shaded faces real contrast
-        // and drags the whole field several steps darker than the sand it stands on, which turns a
-        // sand-coloured section brown. Lifting the floor keeps the three faces distinguishable
-        // while the field's average stays where the background is.
+        // and drags the whole field several steps darker than the ground it stands on, which reads
+        // as mud rather than the ground's own hue gone flat. Lifting the floor keeps the three
+        // faces distinguishable while the field's average stays where the background is.
         float lam = max(dot(normalize(vN), uLight), 0.0);
         c *= 0.72 + 0.4 * lam;
 
         // Troughs sink toward the ground they stand on instead of just being short. Without it the
         // low cubes are still full-strength colour and the field looks like a bar chart; with it
         // the swell fades into the sand at its edges the way spent water does.
-        c = mix(uSand, c, mix(0.35, 1.0, vW));
+        c = mix(uGround, c, mix(0.35, 1.0, vW));
 
         // And the last of the colour goes with the last of the height. The ground beneath is
         // already ramping to whatever comes next across this same band, so a cube that kept full
