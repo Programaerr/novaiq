@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { PAPER, PERIWINKLE, SAND } from '../lib/homePalette';
+import { COBALT, COBALT_DEEP, ICE, PAPER } from '../lib/homePalette';
 
 /**
  * The hero's field: a grid of CUBES standing on a tilted plane, with a swell running through it.
@@ -78,26 +78,42 @@ export interface FieldTones {
   intoHi: string;
 }
 
-/** The hero's: the sand of its own section, with the panel's blue on the crests. */
-export const SAND_TONES: FieldTones = {
-  trough: '#CDB49C',
-  crest: '#F3E8DC',
-  foam: PERIWINKLE,
-  ground: SAND,
+/**
+ * The hero's: the ice of its own section, with the brand's cobalt on the crests.
+ *
+ * Trough/crest are DERIVED from the ground via `shadeColor` (defined below) rather than picked by
+ * eye — `±0.14`, the same step `connectionTones` already uses for a per-page belt, so a hand-set
+ * ramp and a computed one are built by the same rule instead of two different ones that happen to
+ * look similar today and drift apart the next time either ground colour moves.
+ */
+export const HERO_TONES: FieldTones = {
+  trough: shadeColor(ICE, -0.14),
+  crest: shadeColor(ICE, 0.14),
+  foam: COBALT,
+  ground: ICE,
   // Down into the paper of the section below. The top never fades, so its colour is only ever the
   // ground it already stands on.
   intoLo: PAPER,
-  intoHi: SAND,
+  intoHi: ICE,
 };
 
-/** The contact band's: the panel's blue, with the page's sand on the crests. */
-export const PERIWINKLE_TONES: FieldTones = {
-  trough: '#6E80B8',
-  crest: '#A5B4E0',
-  foam: SAND,
-  ground: PERIWINKLE,
+/**
+ * The contact band's: the brand's blue at rest, with the page's ice on the crests.
+ *
+ * `COBALT_DEEP` rather than `COBALT` for the ground — this fills the ENTIRE section, and the
+ * brand's own brief asks for bold colour to stay rare enough to carry weight when it appears. A
+ * full-bleed panel in the button-bright blue would be exactly the loud, undifferentiated colour
+ * use the brief warns against; brought back toward Midnight, the section reads as "the brand's
+ * blue, at rest" instead of a CTA stretched across the screen. See homePalette.ts for the measured
+ * derivation and the contrast numbers on it.
+ */
+export const COBALT_TONES: FieldTones = {
+  trough: shadeColor(COBALT_DEEP, -0.14),
+  crest: shadeColor(COBALT_DEEP, 0.14),
+  foam: ICE,
+  ground: COBALT_DEEP,
   // Up out of the paper above and down into the section's own blue below.
-  intoLo: PERIWINKLE,
+  intoLo: COBALT_DEEP,
   intoHi: PAPER,
 };
 
@@ -107,18 +123,18 @@ export const PERIWINKLE_TONES: FieldTones = {
  * The only ramp here that does not straddle its ground. Paper is a step off white, so a crest
  * "lighter than the ground" would be white — the tops of the swell would go out at exactly the
  * moment they catch the most light, and the field would read as a grid of holes rather than a
- * relief. Both ends sit BELOW paper instead, in the sand the rest of the page is made of, so the
- * cubes read as warm blocks standing on paper and the swell still runs dark to light across them.
- * The same two colours the phases section above already draws on paper with.
+ * relief. Both ends sit BELOW paper instead, in the same ice-deep family the rest of the page is
+ * made of, so the cubes read as blocks standing on paper and the swell still runs dark to light
+ * across them.
  */
 export const PAPER_BAND_TONES: FieldTones = {
-  trough: '#BFA184',
-  crest: '#E9DACA',
-  foam: PERIWINKLE,
+  trough: shadeColor(PAPER, -0.1),
+  crest: shadeColor(PAPER, 0.05),
+  foam: COBALT,
   ground: PAPER,
   // Down into the footer's own paper, up into the blue of the section above.
   intoLo: PAPER,
-  intoHi: PERIWINKLE,
+  intoHi: COBALT_DEEP,
 };
 
 /**
@@ -129,18 +145,21 @@ export const PAPER_BAND_TONES: FieldTones = {
  * something else. This one has nothing to cross into — it fills its section and simply runs out at
  * the top and bottom, so neither end lands on a straight seam.
  *
- * `foam` stays the page's sand so the field ties to whatever panel is sitting on it.
+ * `foam` stays the page's ice so the field ties to whatever panel is sitting on it. Ground is
+ * `COBALT_DEEP` for the same reason `COBALT_TONES` above uses it: this is a full-bleed fill, and
+ * the brand's brief reserves the brighter, button-toned Cobalt for things that are actually being
+ * pointed at rather than for whole screens of colour.
  *
  * Shared by the timeline page and the templates page. It was written twice, once in each, which is
  * exactly how two sections that are meant to be the same surface drift into two surfaces.
  */
 export const SECTION_TONES: FieldTones = {
-  trough: '#6E80B8',
-  crest: '#A5B4E0',
-  foam: SAND,
-  ground: PERIWINKLE,
-  intoLo: PERIWINKLE,
-  intoHi: PERIWINKLE,
+  trough: shadeColor(COBALT_DEEP, -0.14),
+  crest: shadeColor(COBALT_DEEP, 0.14),
+  foam: ICE,
+  ground: COBALT_DEEP,
+  intoLo: COBALT_DEEP,
+  intoHi: COBALT_DEEP,
 };
 
 /**
@@ -580,7 +599,7 @@ export interface TileFieldProps {
  * and two numbers, and keeping them as arguments rather than as a second copy of this file is what
  * stops the two drifting into two different ideas of what a cube looks like.
  */
-export const TileField: React.FC<TileFieldProps> = ({ tones = SAND_TONES, fade = HERO_FADE }) => {
+export const TileField: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HERO_FADE }) => {
   const hostRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const [idle, setIdle] = useState(false);

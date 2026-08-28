@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
-/* ── Home palette as theme tokens ─────────────────────────────────────────────────────
-   The homepage carries the only colour on the site: sand grounds, a paper break, a
-   periwinkle accent, one ink. The admin panel and customer profile now share it (they used
-   to sit in the site's black), and they share it by referencing these tokens rather than
-   their own copy of the hexes — the same reason the palette lives in homePalette.ts.
-   --color-* in @theme generates bg-paper / text-ink / border-ink/10 etc. on demand. */
+/* ── NOVAIQ brand tokens ───────────────────────────────────────────────────────────────
+   Deep Midnight, Electric Cobalt, Intelligent Violet, Ice White — the company's identity,
+   end to end, not a page-level exception any more. Every page (home, admin panel, customer
+   profile, contract builder) reads its colour from these tokens rather than its own copy of
+   a hex, which is the same reason the JS-side mirror of these values lives in one file
+   (homePalette.ts) instead of being repeated at each call site.
+   --color-* in @theme generates bg-ice / text-midnight / border-midnight/10 etc. on demand.
+   See homePalette.ts for the full rationale behind each name and value — this block exists
+   only to make the same values reachable as Tailwind utilities. */
 @theme {
   /* The ultrawide step, as a breakpoint rather than ten copies of `min-[1700px]:`.
 
@@ -26,39 +29,73 @@
      the same property, which is exactly where it is hardest to see. 106.25rem is 1700px. */
   --breakpoint-uw: 106.25rem;
 
-  --color-sand: #D5BDAC;
-  --color-sand-deep: #C9AE95;
-  --color-sand-light: #E4D3C4;
-  --color-paper: #F6F1E9;
-  --color-periwinkle: #8295CF;
-  --color-ink: #101322;
+  /* Brand core. See homePalette.ts for the reasoning behind each — in short: COBALT is the
+     small/interactive accent, COBALT_DEEP is the same hue brought back toward MIDNIGHT for the
+     handful of full-bleed colour panels this layout already relies on, and VIOLET stays a
+     sparing secondary rather than a second primary. */
+  --color-midnight: #07111F;
+  --color-cobalt: #2864FF;
+  --color-cobalt-deep: #132E6D;
+  --color-violet: #7557FF;
+
+  /* The light-neutral family — Ice White plus three derived steps, so a raised card, a quiet
+     section break and a badge/divider can each read as a distinct surface without a border
+     between them, the way SAND/PAPER/SAND_DEEP/SAND_LIGHT did before. */
+  --color-ice: #F7F9FC;
+  --color-paper: #E9EDF4;
+  --color-ice-deep: #DCE2EC;
+  --color-ice-light: #FFFFFF;
+
+  --color-surface-dark: #101A28;
+
+  /* Two mutes, not one: the brief's own Muted Slate (#8B96A8) is 6.34:1 on Midnight and a failing
+     2.83:1 on Ice White — a single "muted" token would be silently inaccessible in light mode. */
+  --color-muted: #8B96A8;
+  --color-muted-light: #636E7F;
+
+  /* Aliases onto the brand core above, kept under their OLD names.
+     `bg-ink`, `text-periwinkle`, `border-sand` and the rest are compiled into ~300 call sites
+     across the admin dashboard, the customer dashboard and the contract builder — real utility
+     classes Tailwind generated from these exact token names under the previous identity. None of
+     those call sites drew a large fill (a border, a small badge fill, a shadow tint), so each
+     resolves to the small-scale member of its new family rather than the "-deep" one reserved for
+     full-bleed panels. Aliasing with var() means these three lines are the entire cost of keeping
+     ~15 files untouched, rather than a rename sweeping through all of them for no visual gain. */
+  --color-ink: var(--color-midnight);
+  --color-sand: var(--color-ice);
+  --color-sand-deep: var(--color-ice-deep);
+  --color-sand-light: var(--color-ice-light);
+  --color-periwinkle: var(--color-cobalt);
 
   /* Tailwind's OWN black/white/zinc scale, retargeted to this palette.
      Every `bg-black`, `text-white`, `border-zinc-800` (or any shade of it) anywhere in the app
      compiles to `var(--color-*)` — Tailwind v4 always emits a var() reference, never an inlined
      literal, specifically so a theme can be swapped by changing the variable once. That is what
-     makes this the one central fix for the ~430 places across ~35 files that still drew the old
-     black-and-white identity: none of them have to change, because none of them ever hardcoded a
+     makes this the one central fix for the ~430 places across ~35 files that still drew whichever
+     identity came before: none of them have to change, because none of them ever hardcoded a
      colour — they asked the theme for "black" and the theme is what is being redefined.
-     zinc runs paper → sand → ink, the same three tones the account pages already use, so a
-     border at zinc-800 or a muted label at zinc-500 both land inside the one palette rather than
-     introducing a fourth, unrelated grey scale next to sand/paper/periwinkle/ink above.
+     zinc runs ice → midnight, the same family the brand core above is built from, so a border at
+     zinc-800 or a muted label at zinc-500 both land inside the one palette rather than introducing
+     a second, unrelated grey scale next to it. Each stop is `mix(ICE_LIGHT, MIDNIGHT, t)` at a t
+     chosen to mirror the original scale's own spacing — clustered near-white through 400, a
+     midpoint at 500, then dropping fast toward ink — rather than a flat linear ramp; zinc-950
+     lands on MIDNIGHT exactly, same as zinc-950 landed on the previous identity's ink.
      The one place this must NOT reach is the rental demo (Sakan) — a customer's product, not
      ours — which re-shadows every one of these same variables back to Tailwind's stock values.
      See `.rental-scope` below and its two mount points in TemplateInteractiveSandbox.tsx. */
-  --color-black: #101322;
-  --color-white: #F6F1E9;
-  --color-zinc-50: #F8F4EE;
-  --color-zinc-100: #EFE6D8;
-  --color-zinc-200: #E4D3C4;
-  --color-zinc-300: #D5BDAC;
-  --color-zinc-400: #C9AE95;
-  --color-zinc-500: #A99884;
-  --color-zinc-600: #7D7568;
-  --color-zinc-700: #58524A;
-  --color-zinc-800: #383A4A;
-  --color-zinc-900: #1D2033;
-  --color-zinc-950: #101322;
+  --color-black: #07111F;
+  --color-white: #F7F9FC;
+  --color-zinc-50: #FAFAFB;
+  --color-zinc-100: #F3F3F4;
+  --color-zinc-200: #E6E7E9;
+  --color-zinc-300: #D2D4D7;
+  --color-zinc-400: #B5B8BC;
+  --color-zinc-500: #8D9298;
+  --color-zinc-600: #656B74;
+  --color-zinc-700: #434A55;
+  --color-zinc-800: #27303C;
+  --color-zinc-900: #161F2C;
+  --color-zinc-950: #07111F;
 }
 
 /* Restores Tailwind's stock black/white/zinc inside the rental demo (Sakan), which the override
