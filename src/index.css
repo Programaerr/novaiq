@@ -893,19 +893,20 @@
 /* ── The sign-in page's flat ground ───────────────────────────────────────────────
    The base fill behind CardField's 3D cards — what shows through the gaps between them, and the
    colour the page falls back to for the one frame before either the stylesheet or the WebGL
-   canvas has painted anything. It has to match the ground CardField was lit against (COBALT_DEEP,
-   the brand's blue brought back toward Midnight for a full-bleed fill) exactly, or the gaps
-   between cards read as a different blue than the cards themselves are standing on.
+   canvas has painted anything. It has to match the ground CardField was lit against (OBSIDIAN,
+   the brand's own dark neutral, used as a full-bleed fill) exactly, or the gaps between cards
+   read as a different colour than the cards themselves are standing on.
 
    Older comment, kept for the archaeology: this class used to be a split-card seam between a
    blue field and a sand words-column, first a stepped "coastline" clip-path and then a straight
    grid boundary. The page it belonged to was rebuilt again since — full-bleed cards over a flat
    ground, with a leaning band carrying the copy (see LoginPage.tsx) — and the class was kept
-   because "the sign-in page's flat blue" was still the right job for it, just not that shape. */
+   because "the sign-in page's flat dark ground" was still the right job for it, through two
+   different colours of that ground, just not the original shape. */
 .nq-coast {
   position: absolute;
   inset: 0;
-  background: #132e6d;
+  background: #080a0d;
 }
 
 /* The sign-in card's sand band: the panel the copy sits on, leaning across the blue.
