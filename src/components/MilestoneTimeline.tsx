@@ -158,7 +158,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                     {/* The step number, quiet and small — sequence without the card's numeral. */}
                     <span
                       className="pt-1 text-[1.35rem] sm:text-[1.5rem] font-black leading-none tabular-nums shrink-0"
-                      style={{ color: INK, opacity: 0.5 }}
+                      style={{ color: ICE, opacity: 0.7 }}
                       aria-hidden="true"
                     >
                       {index + 1}
@@ -167,25 +167,26 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                     <span
                       aria-hidden="true"
                       className="w-px self-stretch shrink-0"
-                      style={{ background: INK, opacity: 0.18 }}
+                      style={{ background: ICE, opacity: 0.25 }}
                     />
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-3 sm:gap-4">
                         <h3
                           className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
-                          style={{ color: INK }}
+                          style={{ color: ICE }}
                         >
                           {ms.phaseTitle}
                         </h3>
                         <span
                           className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0"
-                          /* SAND, not PERIWINKLE. The panel is translucent paper over the blue
-                             cube field, so a periwinkle chip was the field's own colour laid on
-                             top of the field — close enough to read as a hole in the panel rather
-                             than as a tile on it. Sand is the palette's other half and the one
-                             thing on this panel that is warm. INK on it measures 10.28:1. */
-                          style={{ background: SAND, color: INK }}
+                          /* ICE_DEEP, not COBALT. The panel is glass over the blue cube field, so
+                             a cobalt chip would be close to the field's own colour laid on top of
+                             the field — close enough to read as a hole in the panel rather than
+                             as a tile on it. A light chip is the one thing on this now-dark panel
+                             that pops forward instead of receding into it. Midnight on it measures
+                             14.55:1. */
+                          style={{ background: ICE_DEEP, color: MIDNIGHT }}
                           aria-hidden="true"
                         >
                           <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.9} />
@@ -194,7 +195,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
 
                       <p
                         className="mt-2 text-xs font-bold"
-                        style={{ color: INK, opacity: 0.6 }}
+                        style={{ color: ICE, opacity: 0.75 }}
                       >
                         {ms.status}
                       </p>
@@ -205,11 +206,11 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                             <CheckCircle2
                               className="w-4 h-4 shrink-0 mt-0.5"
                               strokeWidth={2.2}
-                              style={{ color: INK }}
+                              style={{ color: ICE }}
                             />
                             <span
                               className="text-[0.92rem] font-bold leading-[1.9]"
-                              style={{ color: INK, opacity: 0.82 }}
+                              style={{ color: ICE, opacity: 0.9 }}
                             >
                               {task}
                             </span>
@@ -220,8 +221,8 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                       {/* The phase's place in the sequence. This used to carry a week range as
                           well; see the note on `milestones` for why the timing is not stated
                           here but in the contract that actually sets it. */}
-                      <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(16,19,34,0.15)' }}>
-                        <div className="text-xl font-black tracking-tight" style={{ color: INK }}>
+                      <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(247,249,252,0.2)' }}>
+                        <div className="text-xl font-black tracking-tight" style={{ color: ICE }}>
                           {isAr ? `المرحلة ${index + 1} من 4` : `Phase ${index + 1} of 4`}
                         </div>
                       </div>
