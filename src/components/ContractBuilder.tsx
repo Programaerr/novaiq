@@ -23,7 +23,7 @@ import { NqButton } from './ui/NqButton';
 import { loadContractDraft, saveContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
 import { contractTerms } from '../data/contractTerms';
-import { ERROR, OBSIDIAN, ORANGE_ON_LIGHT, SUCCESS } from '../lib/homePalette';
+import { ERROR, OBSIDIAN, SUCCESS } from '../lib/homePalette';
 
 interface ContractBuilderProps {
   selectedTemplate: Template | null;
@@ -94,9 +94,15 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const city = draft?.city || 'بغداد';
   const [fieldErrors, setFieldErrors] = useState<Set<string>>(new Set());
 
+  // The brand's own ERROR token, written as the literal `#EF4444` (Tailwind's JIT scanner reads
+  // arbitrary-value classes as static text, not runtime JS — an interpolated `${ERROR}` here would
+  // silently generate no CSS at all), not Tailwind's stock red-600/red-500. Those are close but
+  // different exact hexes, which is precisely the drift "consistent" rules out: every other error
+  // state on the site (ContactSection, LoginPage) is this one red, not a Tailwind default that
+  // happens to look similar. Must match `ERROR` in homePalette.ts if that value ever changes.
   const errorInputClass = (field: string) =>
     fieldErrors.has(field)
-      ? 'border-red-600 focus:border-red-500 ring-1 ring-red-600/40'
+      ? 'border-[#EF4444] focus:border-[#EF4444] ring-1 ring-[#EF4444]/40'
       : 'border-steel/60 focus:border-orange';
 
   const clearFieldError = (field: string) => {
@@ -390,8 +396,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           : 'bg-obsidian border-white/10 text-white/50 hover:border-orange'
                 }`}
               >
+                {/* `#BA4F04` — ORANGE_ON_LIGHT, the same darkened-for-a-light-fill orange every
+                    other white/light chip on the site uses; `text-periwinkle` resolved to this
+                    exact value already (via a legacy alias two identities old), just under a name
+                    that no longer means anything to a reader of this file. */}
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  isCurrent ? 'bg-white text-periwinkle' : isCompleted ? 'bg-white text-obsidian' : 'bg-white/10 text-white/60'
+                  isCurrent ? 'bg-white text-[#BA4F04]' : isCompleted ? 'bg-white text-obsidian' : 'bg-white/10 text-white/60'
                 }`}>
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
@@ -495,12 +505,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     // red because of the value that failed when they last pressed submit.
                     className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs font-mono transition-colors ${
                       phoneError
-                        ? 'border-red-600 focus:border-red-500 ring-1 ring-red-600/40'
+                        ? 'border-[#EF4444] focus:border-[#EF4444] ring-1 ring-[#EF4444]/40'
                         : errorInputClass('phone')
                     }`}
                   />
                   {phoneError ? (
-                    <p className="text-[11px] font-bold text-red-500 mt-1 flex items-center gap-1.5">
+                    <p className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: ERROR }}>
                       <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>{phoneError}</span>
                     </p>
@@ -749,7 +759,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     />
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-sand/10 border border-sand/40 text-[11px] text-sand-light">
+                  {/* `white-warm`/`surface-light`, the current names — `sand`/`sand-light` still
+                      resolve to the exact same values through a legacy alias, but a reader
+                      shouldn't have to know that three identities' worth of renaming happened to
+                      find out what colour this actually is. */}
+                  <div className="p-3.5 rounded-xl bg-white-warm/10 border border-white-warm/40 text-[11px] text-surface-light">
                     {isAr
                       ? 'لا يوجد سعر مسبق لمشروع مخصص — سيراجع فريقنا وصفك ويرسل لك عرض سعر ومدة تنفيذ مناسبة بعد تقديم الطلب.'
                       : 'A custom project has no upfront price — our team will review your description and send back a quote and timeline after you submit.'}
@@ -909,12 +923,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     nobody has done anything wrong on first arriving at this step — so it
                     states the requirement plainly instead of in red. */}
                 {hasSignature ? (
-                  <p className="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
+                  <p className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: SUCCESS }}>
                     <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                     <span>{isAr ? 'تم التوقيع — يمكنك الآن إتمام العقد.' : 'Signed — you can now complete the contract.'}</span>
                   </p>
                 ) : signatureMissing ? (
-                  <p className="text-[11px] font-bold text-red-500 flex items-center gap-1.5">
+                  <p className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: ERROR }}>
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     <span>{isAr ? 'التوقيع مطلوب لإتمام العقد — ارسم توقيعك في المساحة أعلاه.' : 'A signature is required to complete the contract — draw yours in the area above.'}</span>
                   </p>
