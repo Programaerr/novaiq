@@ -39,18 +39,16 @@ const TILE_H = 196;
 /**
  * The card's own colour, before the light touches it.
  *
- * The crest of `CUBE_BLACK`, TileField's neutral "light black" (`shadeColor(CUBE_BLACK, 0.16)` —
- * see `SIGNAL_TONES` there), NOT a tint of whatever the ground behind these actually is. The
- * ground is the brand's Signal Orange now, on direct client instruction, but the cards — like
- * the cube field's own swell — stay a shade of black rather than a shade of Orange: the same
- * "technical grid standing on the signal colour" the tile field's own module note describes. A
- * Lambert material multiplies its base by the light, so whatever number goes in here comes out
- * darker once lit; lit at the crest tone the cards land UNDER the ground they sit on and read as
- * holes punched in it rather than as objects on it. Set here, the lit face comes out ABOVE the
- * crest and the shaded sides at about the black itself, which is the same range the site's cube
+ * The crest of Signal Orange (`shadeColor(ORANGE, 0.14)` — see `SIGNAL_TONES` in TileField.tsx),
+ * matching the third pass: the ground behind these cards is WARM WHITE now (`.nq-coast`), and the
+ * cards are this page's own version of the site's cube swell — the flat ground is white
+ * everywhere, and the raised geometry standing on it carries the brand's Orange, here as much as
+ * on every cube field elsewhere. A Lambert material multiplies its base by the light, so whatever
+ * number goes in here comes out darker once lit; lit at the crest tone the cards land ABOVE the
+ * crest and the shaded sides fall to about the trough, which is the same range the site's cube
  * field paints and the reason the two look related.
  */
-const CARD_TINT = '#606469';
+const CARD_TINT = '#FF7F24';
 
 /**
  * The diagonal, and the two small angles that make a flat grid look like objects.
@@ -399,7 +397,7 @@ export const CardField: React.FC = () => {
         orthographic
         camera={{ position: [0, 0, 900], zoom: 1, near: 0.1, far: 4000 }}
         dpr={DPR}
-        /* `alpha` so the Obsidian fill on `.nq-coast` is what shows through the gaps between
+        /* `alpha` so the WARM WHITE fill on `.nq-coast` is what shows through the gaps between
            cards, rather than this canvas painting its own ground. One flat colour, declared once,
            in the place the rest of the page reads it from.
            `antialias` off because the canvas is already being downsampled and then blurred, which

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
+import { OBSIDIAN, WHITE, PAPER } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
@@ -9,14 +9,15 @@ import { NqButton } from './ui/NqButton';
  * The home page's container: a WARM WHITE screen with a swell of tiles running across it, and a
  * single panel holding the name and the two ways in.
  *
- * ## The panel is the brand's own Signal Orange, on direct instruction
+ * ## The panel is Obsidian again — third pass, and it's where the brief's "black" now lives
  *
- * The ground is WHITE (`#F7F7F5`), the site's light-neutral. The panel was Obsidian at first —
- * this brief's own written brand system reserves Orange strictly for things being pressed or
- * pointed at and rules it out as a background outright, and a panel this size is the loudest
- * brand moment on the page. The client asked for it anyway: Orange, full strength, as the panel
- * itself, not a restrained neutral with Orange as a small badge inside it. See homePalette.ts for
- * the contrast consequences that decision carries.
+ * The ground is WHITE (`#F7F7F5`), the site's light-neutral. The panel went Obsidian → Orange →
+ * Obsidian across three rounds of feedback: this brief's own written brand system reserved
+ * Orange strictly for things being pressed or pointed at; the client then asked for a full-
+ * strength Orange panel anyway; the client's third pass asks for a white ground with black
+ * confined to secondary text — read as, the loudest brand moment on the page is exactly the
+ * bounded panel that should carry the confined dark neutral, with white primary text on it. See
+ * homePalette.ts for the contrast consequences.
  *
  * ## The header is not in this file
  *
@@ -26,13 +27,11 @@ import { NqButton } from './ui/NqButton';
  * hero carried a hand-kept copy of it and a merge is exactly where two copies of one navigation
  * drift apart and stop compiling.
  *
- * ## Contrast decided the panel's own text, and Orange decides it the opposite way from Obsidian
+ * ## Contrast decided the panel's own text, and it flips back with the panel
  *
- * White on Signal Orange measures a failing 2.87:1, under even the 3:1 floor for a large mark —
- * Orange is bright enough that the DARK member of a pair is the one that reads, the opposite of
- * what the same panel needed in Obsidian. The wordmark and tagline are OBSIDIAN now, 6.90:1 on
- * the fill. The two buttons keep the logic they already had: OBSIDIAN on a light `glass` body,
- * which was already the correct pairing for Orange and needed no change when the panel did.
+ * White on Signal Orange measured a failing 2.87:1; white on Obsidian is the opposite case, comfortably
+ * past 18:1. The wordmark and tagline are WHITE again now that the panel is dark. The two buttons'
+ * `glass` tone was recomputed the same way — see nqSurface.tsx's own note on it.
  */
 
 interface HomeHeroProps {
@@ -97,20 +96,20 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div
             aria-hidden="true"
             className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[0.5rem]"
-            style={{ background: ORANGE }}
+            style={{ background: OBSIDIAN }}
           >
             <div
               className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
-                style={{ color: OBSIDIAN }}
+                style={{ color: WHITE }}
               >
                 NOVAIQ
               </span>
               <p
                 className="mt-3 text-[0.8rem] sm:text-sm uw:text-base font-bold leading-relaxed"
-                style={{ color: OBSIDIAN, opacity: 0.72 }}
+                style={{ color: WHITE, opacity: 0.72 }}
               >
                 {isAr
                   ? 'استوديو تصميم وبرمجة — نبني مواقع وأنظمة تشتغل لشركتك.'

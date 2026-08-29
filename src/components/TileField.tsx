@@ -85,14 +85,6 @@ export interface FieldTones {
 }
 
 /**
- * The neutral "light black" the client asked for on top of the brand's Orange: darker than
- * `STEEL`, lighter than `OBSIDIAN` or `GRAPHITE` — visibly a shade of black rather than a shade of
- * the ground it stands on. `mix(OBSIDIAN, STEEL, 0.42)`, so it is derived rather than picked, and
- * it stays a fixed reference independent of whatever colour a given tone-set's ground is.
- */
-const CUBE_BLACK = '#42464C';
-
-/**
  * The hero's: the page's own warm white, with the brand's orange on the crests.
  *
  * Trough/crest are DERIVED from the ground via `shadeColor` (defined below) rather than picked by
@@ -112,27 +104,29 @@ export const HERO_TONES: FieldTones = {
 };
 
 /**
- * The contact band's: the brand's Signal Orange at rest, with `CUBE_BLACK` cubes standing on it.
+ * The contact band's: WARM WHITE at rest, with cubes shaded in the brand's own Signal Orange.
  *
- * `ORANGE` fills the ENTIRE section — a direct call from the client after seeing the neutral
- * (Obsidian) version of this belt read as a flat black wall with almost no visible texture: the
- * cube swell was shaded in steps of the SAME near-black the ground already was, so trough and
- * crest barely separated from it or from each other. The ground is the brand's Signal Orange now;
- * the cubes stay `CUBE_BLACK`, a neutral "light black" independent of it, so the swell reads as a
- * dark technical grid standing on the signal colour rather than one more shade of it.
+ * Second correction on this same belt. It filled with Obsidian first, and the cube swell shaded
+ * from the same near-black read as a flat wall with barely any visible texture. It filled with
+ * Orange next, with the cubes shaded a neutral `CUBE_BLACK` — legible, but not what was asked
+ * for: the client wants the ORANGE on the cubes themselves, white kept for the plain ground, and
+ * black confined to secondary text rather than spent on a full-bleed fill. So the ground is WHITE
+ * again, the swell is shaded in steps of Orange (`shadeColor(ORANGE, ±0.14)`), and `foam` — the
+ * fleck on each crest — is Obsidian, a small dark accent rather than another wash of colour.
  */
 export const SIGNAL_TONES: FieldTones = {
-  trough: shadeColor(CUBE_BLACK, -0.16),
-  crest: shadeColor(CUBE_BLACK, 0.16),
-  foam: ORANGE,
-  ground: ORANGE,
-  // Up out of the paper above and down into the section's own Orange ground below.
-  intoLo: ORANGE,
-  intoHi: PAPER,
+  trough: shadeColor(ORANGE, -0.14),
+  crest: shadeColor(ORANGE, 0.14),
+  foam: OBSIDIAN,
+  ground: WHITE,
+  // Down into the paper of the section below. The top never fades, so its colour is only ever
+  // the ground it already stands on.
+  intoLo: PAPER,
+  intoHi: WHITE,
 };
 
 /**
- * The footer band's: the page's paper coming up out of the contact section's dark ground.
+ * The footer band's: the page's paper coming up out of the contact section's own white ground.
  *
  * The only ramp here that does not straddle its ground. Paper is a step off white, so a crest
  * "lighter than the ground" would be white — the tops of the swell would go out at exactly the
@@ -146,33 +140,33 @@ export const PAPER_BAND_TONES: FieldTones = {
   crest: shadeColor(PAPER, 0.05),
   foam: ORANGE,
   ground: PAPER,
-  // Down into the footer's own paper, up into the Orange ground of the section above.
+  // Down into the footer's own paper, up into the white ground of the section above.
   intoLo: PAPER,
-  intoHi: ORANGE,
+  intoHi: WHITE,
 };
 
 /**
- * A whole SECTION of the brand's Signal Orange, rather than a strip across the edge of one.
+ * A whole SECTION of the page's own warm white, its cubes shaded in the brand's Signal Orange.
  *
  * Both `into` edges are the ground's own colour, which is what makes this different from the band
  * sets above: those cross from one section's colour into the next, so each end fades toward
  * something else. This one has nothing to cross into — it fills its section and simply runs out at
  * the top and bottom, so neither end lands on a straight seam.
  *
- * Ground is `ORANGE` on direct client instruction, replacing the Obsidian full-bleed fill this
- * used before — see `SIGNAL_TONES` above for why the cubes on it are `CUBE_BLACK` rather than a
- * shade of the ground.
+ * Ground moved from Obsidian to Orange to WHITE across three rounds of client feedback, landing
+ * here: the FLAT fill is white, matching the rest of the page, and Orange lives entirely on the
+ * cubes themselves — see `SIGNAL_TONES` above for the same shift on the contact band.
  *
  * Shared by the timeline page and the templates page. It was written twice, once in each, which is
  * exactly how two sections that are meant to be the same surface drift into two surfaces.
  */
 export const SECTION_TONES: FieldTones = {
-  trough: shadeColor(CUBE_BLACK, -0.16),
-  crest: shadeColor(CUBE_BLACK, 0.16),
-  foam: ORANGE,
-  ground: ORANGE,
-  intoLo: ORANGE,
-  intoHi: ORANGE,
+  trough: shadeColor(ORANGE, -0.14),
+  crest: shadeColor(ORANGE, 0.14),
+  foam: OBSIDIAN,
+  ground: WHITE,
+  intoLo: WHITE,
+  intoHi: WHITE,
 };
 
 /**

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { OBSIDIAN, ORANGE, ORANGE_ON_LIGHT, WHITE } from '../lib/homePalette';
+import { ERROR, OBSIDIAN, ORANGE, WHITE } from '../lib/homePalette';
 import { CardField } from './CardField';
 import { NqButton } from './ui/NqButton';
 
@@ -39,21 +39,22 @@ function GoogleIcon() {
  * The muted ink for the band below, at the lightest opacity that still clears 4.5:1.
  *
  * Measured rather than picked, and re-measured every time the surface under it changed: solid
- * sand, an ink sky, falling code, frosted glass over a cube field, solid sand, then a run of
- * saturated full-screen grounds behind it (Cobalt Deep, Obsidian, now Orange) — the band itself
- * has stayed solid WHITE with OBSIDIAN ink through all of them, since none of those changes ever
- * touched the band's own surface.
+ * sand, an ink sky, falling code, frosted glass over a cube field, solid sand, a run of saturated
+ * full-screen grounds behind it (Cobalt Deep, Obsidian, Orange) with the band itself staying
+ * solid WHITE with OBSIDIAN ink through all of them — and now, third pass, the band itself flips
+ * to OBSIDIAN: it is the confined dark panel the brief's "black" lives in, with the outer screen
+ * gone WHITE around it. The ink flips with it, WHITE rather than OBSIDIAN.
  *
- * The band is opaque, so the surface IS the swatch: OBSIDIAN at 0.62 over WHITE resolves to
- * `#636465`, which measures 5.53:1 there — comfortable room above the 4.5:1 floor.
+ * The band is opaque, so the surface IS the swatch: WHITE at 0.62 over OBSIDIAN resolves to
+ * `#A1A2A3`, which measures 7.75:1 there — the same 0.62 fraction of ink as before, just the
+ * light member of the pair now that the surface it sits on is the dark one.
  */
-const INK_MUTED = 'rgba(8, 10, 13, 0.62)';
+const INK_MUTED = 'rgba(255, 255, 255, 0.62)';
 
 /**
- * Standalone sign-in page: three layers on a full-bleed screen. A field of 3D template cards in
- * the brand's own Signal Orange (ORANGE — a client instruction, not the neutral this layout's
- * other full-bleed panels use), a WHITE band leaning across it, and the company's words on the
- * band.
+ * Standalone sign-in page: three layers on a full-bleed screen. A WARM WHITE field of 3D template
+ * cards tinted in the brand's Signal Orange, an OBSIDIAN band leaning across it — the confined
+ * dark panel the third client pass asks for — and the company's words on the band, in white.
  *
  * Self-contained by design — it renders its own ground rather than mounting inside the site's
  * shared chrome. App gives it the whole viewport (see the early return there), so there is no
@@ -103,24 +104,23 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
          and inherited its ground from the body; a screen that gets its background from somewhere
          else is a screen that goes black the day that somewhere else changes.
 
-         ORANGE, on direct client instruction — the brand's own Signal Orange, full strength, as
-         a full-bleed fill. The written brief this identity started from ruled that out (see
-         homePalette.ts), reserving Orange for buttons and small marks and filling whole-section
-         panels with the neutral Obsidian instead; the client asked for Orange itself here anyway,
-         which is why the value below is `ORANGE` and not a neutral. `.nq-coast` below paints the
-         same value as a plain CSS fill, so this is only ever seen in the frame before the
-         stylesheet lands — but a fallback that does not match what covers it is a flash of the
-         wrong colour, and this is the first screen a visitor sees.
+         WARM WHITE, the client's third pass — the written brief this identity started from
+         always reserved Orange for buttons and small marks and filled whole-section panels with
+         the neutral Obsidian instead; the client asked for a full-strength Orange fill here, and
+         has since asked for white instead, with the dark neutral confined to the leaning band
+         (`.nq-lean`) rather than spent on the flat screen. `.nq-coast` below paints the same
+         value as a plain CSS fill, so this is only ever seen in the frame before the stylesheet
+         lands — but a fallback that does not match what covers it is a flash of the wrong colour,
+         and this is the first screen a visitor sees.
 
-         `color: OBSIDIAN`, not white — Orange is bright enough that the dark member of the pair
-         is the one that reads (6.90:1, where white is a failing 2.87:1), so everything that
-         inherits this default text colour needs to be dark now, the opposite of what the same
-         screen needed in Obsidian.
+         `color: OBSIDIAN` is unchanged and needs no flip this time — WHITE is a light ground the
+         same way Orange's own light-fill cases were, so the default ink stays dark; only the band
+         (a genuinely dark surface now) needs its own explicit light override, set where it starts.
 
          No padding and no `place-items-center` any more. The card they were centring is gone;
          the layers are the page, and `flex items-center` is here only to hold the copy in the
          middle of a screen it no longer fills. */
-      style={{ background: ORANGE, color: OBSIDIAN }}
+      style={{ background: WHITE, color: OBSIDIAN }}
     >
       {/* Three layers, back to front: the blue, the band, the words. They used to sit inside a
           card — a 64rem box with rounded corners and a shadow, floating on a sand page. The box is
@@ -142,10 +142,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           clearance with it. The BAND spans the screen and leans further on a tall one, which is
           the whole point of it being full bleed; the COPY stays in the middle 34rem, where the
           arithmetic that sized `.nq-lean-copy` still holds. */}
-      {/* ── The dark ground ───────────────────────────────────────────────────────────── */}
-      {/* `.nq-coast` is the flat Obsidian fill; the field on it is the texture, and the fill
+      {/* ── The card field's own ground ───────────────────────────────────────────────── */}
+      {/* `.nq-coast` is the flat WARM WHITE fill; the field on it is the texture, and the fill
           is what shows through the gaps between the cards — CardField's canvas is transparent, so
-          the dark ground is declared once, here, in the place the rest of the page reads it from.
+          the ground is declared once, here, in the place the rest of the page reads it from.
 
           It used to be the site's cube field. The cards say something the cubes could not: what
           sits behind a sign-in form is the catalogue it gets you into, and a card is the shape a
@@ -158,24 +158,26 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
       {/* Decorative and empty: it is the surface, and the words are a sibling above it rather
           than children inside it, because a skewed parent skews its text (see .nq-lean).
 
-          SOLID white, not glass. The panel this replaced was frosted glass at 0.72 over a blurred
-          light backdrop, which worked while what it was mixing with was already light — but 0.72
-          of WHITE over a full-strength saturated fill (Obsidian's near-black, and now Orange)
-          mixes into something the brand's own light-neutral family does not contain either way,
-          and re-tuning the mix for every future ground change is exactly the fragility a solid
-          fill avoids. Opaque is also a compositing pass saved on a full-height element, and the
-          contrast floor stops depending on which cube face happens to be under the copy. */}
+          SOLID Obsidian, not glass, and not white either any more. It was solid white through
+          Cobalt Deep and Obsidian and Orange alike, on the reasoning that a translucent mix would
+          have to be re-tuned every time the ground behind it changed colour — that reasoning
+          still holds, it just lands on the opposite fill now: the third pass confines the brief's
+          black to exactly the bounded panels like this one, so THIS is where Obsidian actually
+          lives, opaque, for the same compositing-cost and contrast-floor reasons as before. */}
       <div
         aria-hidden="true"
         className="nq-lean"
         style={{
-          background: WHITE,
+          background: OBSIDIAN,
           /* Two shadows doing two jobs. The inset hairline is the lit edge of a pane, and it
-             is the reason this is a skew rather than a clip path. The outer one is the lift:
-             against a field of cubes that are themselves shaded, a flat panel with no shadow
-             reads as a hole cut in the card rather than as a surface laid on it. */
+             is the reason this is a skew rather than a clip path — dimmed from the white band's
+             own 0.5 to the same quiet 0.06 every other confined dark panel on the site uses
+             (MilestoneTimeline's frosted panel, TemplateGrid's cards), since a bright inset line
+             reads as a lit edge on a light surface and as a glare on a dark one. The outer shadow
+             is the lift: against a field of cards that are themselves shaded, a flat panel with
+             no shadow reads as a hole cut in the field rather than as a surface laid on it. */
           boxShadow:
-            'inset 1px 1px 0 rgba(255, 255, 255, 0.5), 0 26px 52px -30px rgba(7, 17, 31, 0.6)',
+            'inset 1px 1px 0 rgba(255, 255, 255, 0.06), 0 26px 52px -30px rgba(7, 17, 31, 0.6)',
         }}
       />
 
@@ -195,16 +197,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           No horizontal padding, deliberately: the clearance between the copy and the band's
           slanted edges is set once, on `.nq-lean-copy`. Padding here would be a second helping
           of the same clearance, taken out of the copy rather than out of the field. */}
-      {/* `color: OBSIDIAN`, redundant with the page wrapper's own default now that both grounds
-          (the Orange fill and this WHITE band) want the same dark ink — kept explicit anyway
-          rather than relying on that coincidence, since the two are set for different reasons
-          and could stop matching the next time either ground moves. Every element in here that
-          already carries an explicit colour (INK_MUTED text, the error banner) is unaffected
-          either way. */}
+      {/* `color: WHITE`, and no longer redundant with the page wrapper's own default — the two
+          grounds have gone opposite ways on this pass: the page is WHITE (wants dark ink) and
+          this band is OBSIDIAN (wants light ink), so this override is what actually keeps the
+          copy readable now, not a coincidence kept explicit out of caution. Every element in here
+          that already carries an explicit colour (INK_MUTED text, the error banner) sets its own
+          regardless. */}
       <div
         dir={isAr ? 'rtl' : 'ltr'}
         className="relative w-full flex flex-col min-h-[34rem] py-10 sm:py-12 lg:py-14"
-        style={{ color: OBSIDIAN }}
+        style={{ color: WHITE }}
       >
         {/* flex-1 + centred, so the block sits in the middle of its 34rem and the copyright line
             stays on its floor rather than being dragged up under the buttons. */}
@@ -264,9 +266,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                   {/* `mt-px` rather than `items-start`: the icon is a 16px square whose artwork
                       is centred in it, and Arabic sits low in its own line box, so optically
                       centred and box-centred are one pixel apart here. */}
-                  {/* ORANGE_ON_LIGHT, not plain Orange — this icon sits on the light WHITE band,
-                      and plain Orange is 2.68:1 there, under even the 3:1 an icon needs. */}
-                  <Icon className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" style={{ color: ORANGE_ON_LIGHT }} />
+                  {/* Plain ORANGE, not the `_ON_LIGHT` variant — the band is OBSIDIAN now, not
+                      WHITE, and Orange on a near-black ground has no legibility problem to fix;
+                      the darkened variant existed only for the light band this replaces. */}
+                  <Icon className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" style={{ color: ORANGE }} />
                   <span>{text}</span>
                 </li>
               ))}
@@ -274,15 +277,21 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
             {/* `role="alert"` so a sign-in failure is announced rather than only drawn. A message
                 that appears silently under a button somebody just pressed is a message a screen
-                reader user never receives. */}
+                reader user never receives.
+
+                Recoloured for the dark band: the light-ground chip (dark red text on a barely-
+                tinted white) does not survive the band going Obsidian, so this is ERROR's own
+                small-chip pattern from ContactSection instead — a translucent tint of ERROR over
+                the panel's own dark fill (14% composites to `#281215`) with ERROR itself as the
+                text, 4.70:1 there. */}
             {error && (
               <div
                 role="alert"
                 className="mt-5 p-3 rounded-[0.375rem] text-[13px] font-medium leading-[1.6]"
                 style={{
-                  background: 'rgba(127, 29, 29, 0.1)',
-                  color: '#7F1D1D',
-                  boxShadow: 'inset 0 0 0 1px rgba(127, 29, 29, 0.3)',
+                  background: 'rgba(239, 68, 68, 0.14)',
+                  color: ERROR,
+                  boxShadow: 'inset 0 0 0 1px rgba(239, 68, 68, 0.35)',
                 }}
               >
                 {error}
@@ -293,14 +302,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 first-time Google sign-in, so "log in" and "sign up" are the same click here and
                 offering both would be two doors into one room.
 
-                `signal` is the tone, on the WHITE band, and the borrow is deliberate. The
-                wireframe paints this button in the panel's own ground — the same Orange fill as
-                the full screen behind it — and `signal` is the one pair built for exactly that:
-                Orange with Obsidian on top of it (6.90:1) and a dark ring, where `chrome` has the
-                identical fill but a white focus ring, which on the light band here is no ring
-                at all. */}
+                `chrome` is the tone now, not `signal` — the band this sits on is OBSIDIAN, the
+                exact dark chrome ground `chrome` was built for (navbar, login, cookie bar,
+                dialogs), so its own white focus ring is correct again rather than vanishing. That
+                was the one thing `signal` existed to fix, back when this button's real ground was
+                a bright Orange band; the band is dark now and the fix is no longer needed. */}
             <NqButton
-              tone="signal"
+              tone="chrome"
               variant="solid"
               size="lg"
               radius="xl"
@@ -316,9 +324,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             {/* Browsing the catalogue, opening a demo and reading the timeline need no account,
                 and requiring one to look around turns a visitor away before they have seen
                 anything worth signing in for. The line underneath says where the wall actually
-                is, so choosing this does not feel like it might cost them something later on. */}
+                is, so choosing this does not feel like it might cost them something later on.
+
+                `obsidian`, not `white` — this button sits on the same dark band as the one above
+                it, and `obsidian`'s solid pair is exactly the light pill (WHITE fill, OBSIDIAN
+                text) that pops against a genuinely dark ground; `white`'s dark-Obsidian pill was
+                built for a light ground and would all but vanish here. */}
             <NqButton
-              tone="white"
+              tone="obsidian"
               variant="solid"
               size="md"
               radius="xl"

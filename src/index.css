@@ -911,12 +911,17 @@
    blue field and a sand words-column, first a stepped "coastline" clip-path and then a straight
    grid boundary. The page it belonged to was rebuilt again since — full-bleed cards over a flat
    ground, with a leaning band carrying the copy (see LoginPage.tsx) — and the class was kept
-   because "the sign-in page's flat ground" was still the right job for it, through three
-   different colours of that ground now, just not the original shape. */
+   because "the sign-in page's flat ground" was still the right job for it, through four
+   different colours of that ground now, just not the original shape.
+
+   WARM WHITE, the third client pass — matching the site's flat sections everywhere else. The
+   cards CardField draws over it carry the brand's Orange now, the same "flat ground, coloured
+   swell" split the site's own cube fields use; the leaning band above it is the confined dark
+   panel instead (see `.nq-lean`'s own background in LoginPage.tsx). */
 .nq-coast {
   position: absolute;
   inset: 0;
-  background: #ff6a00;
+  background: #f7f7f5;
 }
 
 /* The sign-in card's sand band: the panel the copy sits on, leaning across the blue.
@@ -983,26 +988,28 @@
    one reason: the fallback needs `@supports`, and an inline style cannot have one.
 
    Without `backdrop-filter` the translucency is not merely less pretty, it is wrong. What is
-   behind these cards is a cube field, and 66% paper over sharp cube edges puts a headline on
-   patterned ground. So the default here is OPAQUE, and the frost is the enhancement layered on
-   top where the browser can actually do it — the same order the navbar uses.
+   behind these cards is a cube field, and a translucent panel over sharp cube edges puts a
+   headline on patterned ground. So the default here is OPAQUE, and the frost is the enhancement
+   layered on top where the browser can actually do it — the same order the navbar uses.
 
-   #FFCCA8 is not a chosen colour. It is `mix(SURFACE_LIGHT, ORANGE, 0.66)` — 66% of the brand's
-   raised white over the section's own ground, computed the same way the live `@supports` version
-   below composites at runtime. Using it as the fallback means a browser without backdrop-filter
-   gets the same colour, minus the softness.
+   `#202224` is not a chosen colour. It is `mix(SURFACE_LIGHT, OBSIDIAN, 0.9)` — 90% of the
+   brand's dark neutral over the section's own white ground, computed the same way the live
+   `@supports` version below composites at runtime. Using it as the fallback means a browser
+   without backdrop-filter gets the same colour, minus the softness.
 
-   Worth writing down because the intuition keeps being wrong here, four identities running: this
+   Worth writing down because the intuition keeps being wrong here, five identities running: this
    constant has been a cool lavender over periwinkle, a pale blue-grey over Cobalt Deep, a flat
-   grey over Obsidian, and is now a warm peach over Orange — each one exactly as saturated and as
-   warm or cool as the ground it was glass over, never a fixed "frosted white". Obsidian on this
-   one measures 13.64:1. */
+   grey over Obsidian, a warm peach over Orange, and is DARK now — the third client pass moves the
+   flat section back to white and asks for black confined to secondary text, and this card is
+   where that confined black lives. 90% Obsidian composited over the section's own white ground
+   reads `#202224`; WHITE text on it measures 15.96:1. Translucent-over-dark rather than
+   translucent-over-light, so browsers that get the real blur see dark glass instead of light. */
 .nq-card-glass {
-  background: #ffcca8;
+  background: #202224;
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nq-card-glass {
-    background: rgba(255, 255, 255, 0.66);
+    background: rgba(8, 10, 13, 0.88);
   }
 }
 

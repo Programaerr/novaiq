@@ -5,7 +5,7 @@ import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
-import { ERROR, OBSIDIAN, ORANGE, PAPER, SUCCESS, WHITE } from '../lib/homePalette';
+import { ERROR, OBSIDIAN, PAPER, PAPER_DEEP, SUCCESS, WHITE } from '../lib/homePalette';
 import { BAND_FADE, SIGNAL_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
@@ -15,12 +15,12 @@ import { NqButton } from './ui/NqButton';
  *
  * ## The edge above it is made of cubes, not of a shape
  *
- * The section's ground is ORANGE and the one above it is paper, and a straight seam between two
+ * The section's ground is WHITE and the one above it is paper, and a straight seam between two
  * flat colours across a full-width page is the most obvious edge on the site. So the top of this
- * section is a STRIP of the same tile field the hero uses, in the brand's signal colour: the
- * cubes are absent at the top of the strip where the ground is still paper, assemble as the
- * ground turns, and settle away into flat Orange before the heading. The colour arrives as
- * something that was built rather than as a rectangle that starts.
+ * section is a STRIP of the same tile field the hero uses: the cubes are absent at the top of the
+ * strip where the ground is still paper, assemble as the ground turns, and settle away into flat
+ * white before the heading — the swell itself is what carries the brand's Signal Orange now,
+ * rather than the flat ground it used to fill.
  *
  * ## Labels are inside the fields, and they are real labels
  *
@@ -31,16 +31,16 @@ import { NqButton } from './ui/NqButton';
  *
  * ## Contrast decided the fills, and changed with every identity this section has had
  *
- * This section's ground has been a light periwinkle, then a dark Obsidian, and is now the brand's
- * own Signal Orange — a direct client instruction, choosing a fully saturated section over the
- * more restrained dark-neutral fill the written brief itself had called for. Orange is dark
- * enough that OBSIDIAN text reads on it directly (6.90:1) — the heading uses that, not white,
- * which is what a section this bright actually needs. The two status messages could not follow
- * the same rule: red and green both measure under 1.3:1 directly on Orange, with no legible
- * darkened rescue (the fix reads as mud, not as the colour). Both sit on a small Obsidian chip
- * instead, where they stay themselves at full saturation — see the notes at each. Text still
- * inside a field block stays dark on its own light WHITE surface, unaffected by any of this.
- */
+ * This section's ground has been a light periwinkle, a dark Obsidian, the brand's own Signal
+ * Orange, and is WARM WHITE again on the client's third pass — with black now confined to
+ * secondary text rather than spent on the flat ground itself. OBSIDIAN reads on white at 18+:1,
+ * so the heading needed no change of direction, only of which bright ground it sits on. The two
+ * status messages follow the same logic they already did: red and green both measure under 4.5:1
+ * directly on either bright ground (white included — plain ERROR on WHITE is 3.51:1), so both
+ * still sit on a small Obsidian chip, where they stay themselves at full saturation — see the
+ * notes at each. The field blocks themselves moved off WHITE (which is now the section's own
+ * ground, so a same-coloured block would vanish into it) onto PAPER_DEEP, the establishment
+ * "light input surface on a white ground" the rest of the design system already uses. */
 
 interface Field {
   key: 'name' | 'phone' | 'message';
@@ -173,7 +173,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
          leaving a disconnected strip. Otherwise the top padding clears the absolutely-positioned
          tile strip above it, which takes up no height of its own. */
       style={{
-        background: ORANGE,
+        background: WHITE,
         ...(isPageTop
           ? { marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))' }
           : {}),
@@ -206,7 +206,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                strip of half-blue. Blue lands at 34%, just after the field reaches full height. Move
                either number without the other and you get back one of the two faults the note on
                BAND_FADE describes. */
-            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + ORANGE + ' 40%)',
+            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + WHITE + ' 40%)',
           }}
         >
           <TileField tones={SIGNAL_TONES} fade={BAND_FADE} />
@@ -217,11 +217,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
         {/* Steps with the phases section above it and for the same reason — see the note there.
             One island of the same width twice running is what makes the two read as one page. */}
         <div className="mx-auto max-w-[56rem] uw:max-w-[72rem]">
-          {/* This heading sits directly on the section's own ground, the bright ORANGE fill —
-              which is dark enough (relatively) that OBSIDIAN reads on it at 6.90:1, the same
-              dark ink every field block on this section already uses. Nothing here needed a
-              light/dark flip: the only two things that could not just stay OBSIDIAN were the
-              status messages, which needed their own chip (see the notes there). */}
+          {/* This heading sits directly on the section's own ground — WARM WHITE, the third
+              pass's flat fill — so it stays OBSIDIAN as secondary chrome on the page's own
+              paper, same as every other section label outside a bounded panel now reads. The
+              only two things that could not just stay plain OBSIDIAN-on-ground were the status
+              messages, which needed their own chip (see the notes there). */}
           <h2
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
             style={{ color: OBSIDIAN, ['--nq-rise-delay' as string]: '80ms' }}
@@ -246,13 +246,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                   >
                     {/* Label and input inside one light block, as drawn. The block IS the field:
                         clicking anywhere on it lands in the input, because the label owns the whole
-                        box and the input fills what is left of it. Stays a light WHITE surface
-                        against the section's dark Obsidian ground — the field has to keep reading
-                        as an input, not blend into the dark ground around it. */}
+                        box and the input fills what is left of it. PAPER_DEEP, not WHITE — the
+                        section's own ground is WHITE now, and a WHITE block on a WHITE section
+                        would vanish; PAPER_DEEP is the same "light input surface on a white
+                        ground" the rest of the design system already uses. */}
                     <label
                       htmlFor={id}
                       className="block rounded-xl px-4 pt-3 pb-2.5 cursor-text transition-shadow duration-200 focus-within:shadow-[0_0_0_2px_#080A0D]"
-                      style={{ background: WHITE }}
+                      style={{ background: PAPER_DEEP }}
                     >
                       <span
                         className="block text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-wide"
@@ -329,7 +330,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     that does nothing. */}
                 <NqButton
                   type="submit"
-                  tone="obsidian"
+                  tone="white"
                   variant="solid"
                   size="md"
                   loading={sending}

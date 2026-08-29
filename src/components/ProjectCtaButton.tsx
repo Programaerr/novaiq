@@ -16,13 +16,13 @@ interface ProjectCtaButtonProps {
 export const ProjectCtaButton: React.FC<ProjectCtaButtonProps> = ({ onCreateContract, language = 'ar' }) => {
   return (
     <div className="flex justify-center">
-      {/* `periwinkle`, which is the ground MilestoneTimeline actually paints — so the cubes this
-          lifts carry SAND on their crests, the same accent the section's own field around it is
-          already carrying. It was `.filter-pill-btn`, the templates page's white pill with a
-          conic beam rolling round its outline, borrowed wholesale for a section it had nothing
-          to do with. */}
+      {/* `white`, matching the ground MilestoneTimeline actually paints on its third pass — a
+          WARM WHITE flat section, with this button sitting directly on it rather than inside the
+          frosted panel above. `white` gives a dark Obsidian solid pill, which is what reads on a
+          light ground; `obsidian` (a light pill for a genuinely dark ground) is what the
+          templates grid's own cards use instead, now that those are the dark surface. */}
       <NqButton
-        tone="obsidian"
+        tone="white"
         variant="solid"
         size="lg"
         onClick={() => {

@@ -4,7 +4,7 @@ import { useLiveTemplates } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
-import { OBSIDIAN, ORANGE } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE, WHITE } from '../lib/homePalette';
 import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 import { trackLoad } from '../lib/loadTracker';
@@ -97,12 +97,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     <section
       id="templates-section"
       style={{
-        background: ORANGE,
+        background: WHITE,
         /* Pull the whole section up behind the floating navbar, exactly as the hero and the
            timeline do — so the ground reaches the top of the viewport instead of leaving a seam
-           of body colour visible between the navbar and the section. Orange, on direct client
-           instruction — this layout's other full-bleed panels stayed Obsidian, but this one and
-           the timeline section beside it did not (see TileField's SECTION_TONES). */
+           of body colour visible between the navbar and the section. WARM WHITE, the client's
+           third pass — the flat sections went Obsidian, then Orange, and are white now, with the
+           dark neutral confined to this section's own two cards instead (see below). */
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
@@ -114,8 +114,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       <div className="relative nq-container">
         {/* ── The heading ─────────────────────────────────────────────────────────────────
             Two cards, not a menu: the customer picks a delivery and we carry that choice into
-            the contract. Text is OBSIDIAN, not white — Orange is bright enough that the dark
-            member of the pair is the one that reads (6.90:1, where white is a failing 2.87:1). */}
+            the contract. Text is OBSIDIAN, secondary chrome sitting directly on the section's
+            own white ground, same as every section label outside a bounded panel now reads. */}
         <div className="mt-6 sm:mt-8 text-center max-w-3xl mx-auto">
           <h2
             className="text-[1.7rem] sm:text-[2.4rem] uw:text-[3rem] font-black leading-none tracking-tight"
@@ -154,7 +154,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                    The surface itself lives in `.nq-card-glass` (index.css), because the version
                    for browsers without `backdrop-filter` has to be opaque and an inline style
                    cannot carry an `@supports`. Measured, not chosen: the frosted card reads
-                   #ABACAD and Obsidian on it is 8.72:1.
+                   `#202224` (90% Obsidian over the section's own white ground) and WHITE text on
+                   it is 15.96:1 — this is where the brief's "black confined to secondary text"
+                   rule puts the dark neutral, now that the flat section itself is white.
 
                    A hairline border and no box-shadow of any kind. Glass needs a lit edge to
                    read as a pane rather than as a hole, and a 1px inside-white line does that
@@ -169,22 +171,25 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                    pass costs, and 18 is already past the point where a cube edge survives it. */
                 className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden backdrop-blur-[18px] backdrop-saturate-[140%] border border-white/45"
               >
-                {/* A faint wash of the section's OWN ground at the top of each card, so the two
-                    read as belonging to the page they sit on rather than as foreign white boxes.
-                    ORANGE, matching the section directly — this is a wash rather than a fill, low
-                    opacity fading to nothing, so it does not compete with the one full-strength
-                    Orange element on the card (the icon tile below). */}
+                {/* A faint highlight at the top of each dark card — the lit top edge a real glass
+                    pane catches, not a wash of the section's own ground any more: the ground is
+                    WHITE now and the card is dark, so what used to blend the card into an Orange
+                    section instead reads as a sheen on a dark one. Low opacity fading to nothing,
+                    so it does not compete with the one full-strength Orange element on the card
+                    (the icon tile below). */}
                 <div
                   aria-hidden="true"
                   className="absolute inset-x-0 top-0 h-24 pointer-events-none"
-                  style={{ background: `linear-gradient(to bottom, ${ORANGE}2e, ${ORANGE}00)` }}
+                  style={{ background: `linear-gradient(to bottom, ${WHITE}2e, ${WHITE}00)` }}
                 />
 
                 <div className="relative flex items-center gap-3">
                   {/* Obsidian on Orange, not white — white on Signal Orange is 2.87:1, under
                       even the 3:1 an icon needs; Obsidian measures 6.90:1. This is also the one
-                      Orange fill on the card, exactly the "worth being a point of attraction"
-                      element the brief describes for an icon that matters. */}
+                      Orange fill on the card — the dark card's own tint doesn't change this pair,
+                      since the tile is a small opaque fill, not a wash of whatever is behind it —
+                      exactly the "worth being a point of attraction" element the brief describes
+                      for an icon that matters. */}
                   <span
                     className="w-14 h-14 rounded-2xl grid place-items-center shrink-0"
                     style={{ background: ORANGE, color: OBSIDIAN }}
@@ -193,22 +198,26 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   </span>
                   <span
                     className="text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-[0.14em] uppercase"
-                    style={{ color: OBSIDIAN }}
+                    style={{ color: WHITE }}
                   >
                     {currentLang === 'ar' ? choice.tagAr : choice.tagEn}
                   </span>
                 </div>
 
+                {/* WHITE, not Obsidian — the card itself IS the confined dark panel now, so its
+                    primary copy is the "primary text" the brief asks to read white. Was a literal
+                    `#000000` before this pass, which the brand's own rule already treats as a
+                    mistake: the darkest tone in this system is Obsidian, never a flat black. */}
                 <h3
                   className="relative mt-6 text-[1.6rem] sm:text-[2rem] uw:text-[2.4rem] font-black leading-tight"
-                  style={{ color: '#000000' }}
+                  style={{ color: WHITE }}
                 >
                   {currentLang === 'ar' ? choice.titleAr : choice.titleEn}
                 </h3>
 
                 <p
                     className="relative mt-3 text-[0.92rem] sm:text-base uw:text-lg font-bold leading-relaxed"
-                    style={{ color: '#000000' }}
+                    style={{ color: WHITE, opacity: 0.85 }}
                 >
                   {currentLang === 'ar' ? choice.descAr : choice.descEn}
                 </p>
@@ -216,12 +225,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 {/* No price on the card: the customer chooses by reading the offer and opening the
                     live preview, then continues straight into the contract. */}
                 <div className="relative mt-auto pt-8 flex flex-wrap items-center gap-3">
-                  {/* `paper`, because that is the ground these cards sit on. The black pill and
-                      its white badge are the pair this page already used; what is new is that the
-                      cubes it lifts are black too, and the periwinkle on their crests is the same
-                      accent the band at the foot of this page carries. */}
+                  {/* `obsidian`, not `paper` — the card these buttons sit on IS a dark ground now
+                      (the section's own flat fill moved to white; the card is the confined dark
+                      panel), so the pair needed is a LIGHT pill that pops against it, which is
+                      exactly what `obsidian`'s solid gives: WHITE fill, OBSIDIAN text. `paper`'s
+                      own dark-on-dark pill was built for the card's previous light-glass era and
+                      would all but vanish here. */}
                   <NqButton
-                    tone="paper"
+                    tone="obsidian"
                     variant="solid"
                     size="md"
                     loading={disabled}
@@ -234,7 +245,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
                   {onOpenStandalonePreview && template && (
                     <NqButton
-                      tone="paper"
+                      tone="obsidian"
                       variant="quiet"
                       size="md"
                       onClick={() => onOpenStandalonePreview(template, choice.id === 'app' ? 'app' : 'site')}

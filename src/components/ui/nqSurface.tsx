@@ -73,13 +73,16 @@ const CHROME_QUIET = '#17171C';
  * bright-fill case wanted light) purely because Orange is the brighter of the two accents in
  * absolute terms, not because there is a single rule for "the accent's text colour".
  *
- * ## Why the full-bleed panels are Obsidian, not a tint of Orange
+ * ## Where Obsidian actually lives, after three passes on the same question
  *
- * The previous identity used a darkened tint of its own accent for the sections that fill the
- * whole screen. This brief rules that out explicitly — Orange is never a background, not even a
- * quiet one — so those same sections (the `obsidian` tone below, and `SECTION_TONES` /
- * `SIGNAL_TONES` in TileField.tsx) fill with the brand's dark neutral instead, and Orange
- * survives only as the badge, the border, the small thing actually being pointed at.
+ * The brief ruled out Orange as any kind of background, including a quiet tint — that part never
+ * moved. What moved is WHERE the dark neutral lives. Pass one put Obsidian on the full-bleed
+ * sections themselves; the client asked for Orange there instead; the client's third pass asked
+ * for white sections with black confined to "where secondary things are written" — read as: the
+ * flat sections (and `SECTION_TONES` / `SIGNAL_TONES` in TileField.tsx) are WHITE now, and
+ * Obsidian lives in the bounded panel each section carries instead — the hero's curtain, the
+ * timeline's frosted panel, the templates grid's two cards (the `obsidian` tone below). Orange
+ * moved the other way: off the flat ground entirely and onto the cube swell itself.
  */
 export const TONES: Record<NqTone, ToneSpec> = {
   /* The dark site chrome: navbar, login, cookie bar, dialogs. Orange is the brand's one saturated
@@ -116,20 +119,24 @@ export const TONES: Record<NqTone, ToneSpec> = {
      one Orange moment in this tone, because a form's submit action is exactly the kind of thing
      the brief calls "worth being a point of attraction" — the quiet/ghost badges stay neutral so
      Orange does not appear twice in the same cluster and dilute itself. */
-  /* Named for the ground this tone was built for, which has since moved on: the section it
-     serves (ContactSection) filled with Obsidian at first and is Orange now, on the same client
-     instruction as the hero panel. Kept as an internal identifier rather than renamed — like
-     Tailwind's own "black"/"white" utility names elsewhere in this codebase, the string is a key,
-     not a promise about the literal colour. `ghost.fg` and `.tile` are the two values that
-     actually depend on the real ground and have to track it: `fg` flips to Obsidian (white is
-     2.87:1 on Orange, Obsidian is 6.90:1) and `tile` becomes Orange, since a transparent ghost
-     button's real surface is whatever is actually behind it. */
+  /* Named for the ground this tone was built for, and — third pass now — actually matches it
+     again. It served ContactSection first (genuinely Obsidian), then Orange when the client
+     asked for a saturated ground there; ContactSection's ground is WHITE now (see that file, and
+     `tone="white"` is what its button uses instead) and this tone has moved on to the templates
+     grid's two cards, which are a REAL dark ground under the third pass — an ~90% Obsidian glass
+     panel over the page's white (`#202224`), not a tint the tone has to guess at. `solid` never
+     changed through any of this: `{bg: WHITE, fg: OBSIDIAN}` is a light pill that reads on any
+     ground darker than itself, orange or true Obsidian alike. `ghost.fg` and `.tile`, and the
+     ring, are what actually depend on which ground is real: `fg` is WHITE again (this ground is
+     genuinely dark, so white text is what reads, the reverse of the Orange interlude), `tile` is
+     the card's own `#202224`, and the ring goes back to white (`darkRing: false`) since a dark
+     ring on a dark card would vanish the same way a white one vanished on Orange. */
   obsidian: {
     solid: { bg: WHITE, fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: OBSIDIAN },
     quiet: { bg: '#3F444B', fg: '#FFFFFF', badgeBg: OBSIDIAN, badgeFg: PAPER },
-    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: ORANGE, badgeBg: OBSIDIAN, badgeFg: PAPER },
-    accent: WHITE,
-    darkRing: true,
+    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: '#202224', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    accent: ORANGE,
+    darkRing: false,
   },
   /* The footer, which is a paper ground that carries Orange as its accent rather than as its fill
      — so its call to action is the one surface on the site that is Orange-on-paper. It gets its
@@ -150,18 +157,19 @@ export const TONES: Record<NqTone, ToneSpec> = {
      brief's own test for whether something earns the accent — "is this worth being a point of
      attraction?" — the answer for the hero's own primary button is yes. The secondary (quiet)
      pill's badge stays Obsidian-on-white, so the one Orange mark in the hero is unambiguous. */
-  /* Recomputed when the hero's panel itself became Orange (client instruction — see HomeHero's
-     own note): `tile` is the translucent fill's real colour over whatever is actually behind
-     it, and that ground changed from Obsidian to Orange entirely. `ghost`'s `fg` flips from
-     white to Obsidian for the same reason every other pairing on Orange does — this button is
-     genuinely transparent, so its label sits on the real Orange fill, and white there is a
-     failing 2.87:1 where Obsidian is 6.90:1. */
+  /* Recomputed a second time now that the hero's panel has moved back to Obsidian (the third
+     pass — see HomeHero's own note): `tile` is the translucent fill's real colour over whatever
+     is actually behind it, and that ground is Obsidian again. `ghost`'s `fg` flips from Obsidian
+     back to white, the reverse of the Orange interlude — this button is genuinely transparent,
+     so its label sits on the real Obsidian fill, where white is 18+:1 and Obsidian text would be
+     invisible. `darkRing` follows the same reversal: a dark ring vanishes on a dark panel, so
+     it's false again, as it was before the Orange interlude. */
   glass: {
-    solid: { bg: 'rgba(255,255,255,0.92)', fg: OBSIDIAN, tile: '#FFF3EB', badgeBg: ORANGE, badgeFg: OBSIDIAN },
-    quiet: { bg: 'rgba(255,255,255,0.55)', fg: OBSIDIAN, tile: '#FFBC8C', badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
-    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: ORANGE, badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
+    solid: { bg: 'rgba(255,255,255,0.92)', fg: OBSIDIAN, tile: '#E4E4E2', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    quiet: { bg: 'rgba(255,255,255,0.55)', fg: OBSIDIAN, tile: '#8B8C8D', badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
+    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
     accent: ORANGE,
-    darkRing: true,
+    darkRing: false,
   },
   /* Same fill as `chrome` (Orange, Obsidian text) but with a dark ring instead of white — for a
    * button that has to match a full-bleed Orange ground while sitting on a LIGHT surface next to
