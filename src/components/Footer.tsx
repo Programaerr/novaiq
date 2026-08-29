@@ -1,9 +1,8 @@
 import React, { useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
+import { ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
-import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 import { useGroundAbove } from '../lib/useGroundAbove';
@@ -164,45 +163,43 @@ export const Footer: React.FC<FooterProps> = ({
       />
 
       {/* ── The connection belt ───────────────────────────────────────────────────────────────
-          A field of cubes standing on the section above and dissolving into this footer's ground,
-          so every page closes on the same gesture no matter what colour it ends on. The band ramps
-          from `fromColor` (the section directly above) into the footer's own ground; its top is
-          continuous with that section and its bottom settles into flat ground before the links. One
-          belt, owned by the footer, instead of a separate edge hand-built into every page.
+          A direct correction: this used to be a field of cubes standing on the section above and
+          dissolving into the footer's ground. The client's actual ask, spelled out after seeing
+          it rendered, was a flat WHITE background with no cube texture at all — so the field is
+          gone outright, not just re-tinted. What still "connects the page to the footer" is a
+          single clean Signal Orange bar instead of a texture doing that job.
 
-          It used to start half a band ABOVE the footer, overhanging the section so the cubes read
-          as standing on it. That worked while every page ended in flat colour. It stopped working
-          the moment a section above grew a cube field of its own: this canvas is opaque, so the
-          overhang painted over the last ~120px of that field — and it painted its own field there
-          at the strength its top fade says, which is nearly nothing. The section's cubes were at
-          half height on one side of the line and gone on the other, sliced clean across the page.
-
-          Starting at the footer's own top edge removes the overlap entirely, and with it the whole
-          class of bug: the section's field runs to its own bottom edge and fades to nothing there,
-          this one starts from nothing at exactly that pixel, and the two meet at the one value they
-          are guaranteed to agree on — zero. */}
+          The wrapper keeps the same reserved height (`--nq-band`) and the same top-anchored
+          position the cube version used, so nothing below it (the footer's own top padding,
+          sized off this same variable) has to move. Only what is drawn INSIDE that space changed. */}
       <div
         aria-hidden="true"
         className="absolute inset-x-0"
         style={{
           top: 0,
           height: 'var(--nq-band)',
-          // Seen only for the frame before the canvas over it paints, but it has to make the same
-          // journey — section colour, through warm white, into paper — or that first frame
-          // flashes a different band than the one that replaces it.
-          background: `linear-gradient(to bottom, ${fromColor} 0%, ${WHITE} 52%, ${PAPER} 100%)`,
+          // Flat WHITE, arriving out of whatever colour the page ended on (`fromColor`) and
+          // settling into the footer's own paper — the same journey the cube field used to make,
+          // just with nothing drawn on top of it now.
+          background: `linear-gradient(to bottom, ${fromColor} 0%, ${WHITE} 45%, ${WHITE} 78%, ${PAPER} 100%)`,
         }}
       >
-        {/* WHITE is the flat plane the band stands on, not either of its ends — it arrives out of
-            whatever colour the page ended on and still settles into the footer's paper, same as
-            before. What changed is the swell ON that plane: every page's own cube field now
-            shades its swell from Signal Orange rather than from its own ground (see
-            `SIGNAL_TONES` / `SECTION_TONES` in TileField.tsx), and this belt was the one place
-            still shading from WHITE — nearly invisible cubes, and the one surface on the site
-            that did not read as the same brand gesture as everywhere else. `swellFrom: ORANGE`
-            unifies it; `foam: OBSIDIAN` matches the small dark fleck every other Orange swell
-            carries on its crest, rather than a second helping of Orange on top of Orange. */}
-        <TileField tones={connectionTones(fromColor, PAPER, OBSIDIAN, WHITE, ORANGE)} fade={FOOTER_BAND_FADE} />
+        {/* The join itself: one confident Signal Orange bar, low in the band — close to where the
+            flat white actually meets the footer's paper, which is the seam it is marking. Faded
+            at both horizontal ends rather than run edge to edge, and lit with its own soft glow,
+            so it reads as a deliberate accent placed there rather than a rule drawn across the
+            page. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 rounded-full"
+          style={{
+            bottom: '18%',
+            height: '3px',
+            marginInline: 'clamp(1.5rem, 8vw, 6rem)',
+            background: `linear-gradient(to right, transparent, ${ORANGE}, transparent)`,
+            boxShadow: `0 0 22px 1px ${ORANGE}55`,
+          }}
+        />
       </div>
 
       {/* Top padding clears the belt, which is absolutely positioned and so takes up no height of
