@@ -112,30 +112,12 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
 
       <div className="relative nq-container">
-        {/* ── The heading ─────────────────────────────────────────────────────────────────
-            Two cards, not a menu: the customer picks a delivery and we carry that choice into
-            the contract. Text is OBSIDIAN, secondary chrome sitting directly on the section's
-            own white ground, same as every section label outside a bounded panel now reads. */}
-        <div className="mt-6 sm:mt-8 text-center max-w-3xl mx-auto">
-          <h2
-            className="text-[1.7rem] sm:text-[2.4rem] uw:text-[3rem] font-black leading-none tracking-tight"
-            style={{ color: OBSIDIAN }}
-          >
-            {currentLang === 'ar' ? 'ماذا تريد أن تبني؟' : 'What do you want to build?'}
-          </h2>
-          <p
-            className="mt-4 text-[0.95rem] sm:text-base uw:text-lg font-bold leading-relaxed"
-            style={{ color: OBSIDIAN, opacity: 0.85 }}
-          >
-            {currentLang === 'ar'
-              ? 'بطاقتان — اختر موقعاً أو تطبيقاً، ونكمل معك العقد فوراً.'
-              : 'Two cards — pick a website or an app, and we continue your contract right away.'}
-          </p>
-        </div>
-
         {/* ── The two cards ─────────────────────────────────────────────────────────────
-            Tall, full-height panels so each reads as a destination rather than a row. */}
-        <div className="mt-10 sm:mt-14 grid gap-6 sm:gap-8 lg:grid-cols-2 items-stretch">
+            Tall, full-height panels so each reads as a destination rather than a row. No heading
+            above them any more — the client asked for this section's intro copy ("ماذا تريد أن
+            تبني؟" / "بطاقتان — اختر...") removed outright, so the cards are now the section's
+            first visual content and carry their own top margin down accordingly. */}
+        <div className="mt-4 sm:mt-6 grid gap-6 sm:gap-8 lg:grid-cols-2 items-stretch">
           {CHOICES.map((choice, i) => {
             const Icon = choice.icon;
             const disabled = !template;
