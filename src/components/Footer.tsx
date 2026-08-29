@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { ORANGE, WHITE, PAPER } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { NovaiqLogo } from './NovaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
@@ -193,11 +193,16 @@ export const Footer: React.FC<FooterProps> = ({
           background: `linear-gradient(to bottom, ${fromColor} 0%, ${WHITE} 52%, ${PAPER} 100%)`,
         }}
       >
-        {/* WHITE is the body of the band, not either of its ends. It arrives out of whatever
-            colour the page ended on and still settles into the footer's paper — warm white is
-            simply what the cubes in between are made of, which is the one place on a dark
-            Obsidian page the site's own light-neutral still shows. */}
-        <TileField tones={connectionTones(fromColor, PAPER, ORANGE, WHITE)} fade={FOOTER_BAND_FADE} />
+        {/* WHITE is the flat plane the band stands on, not either of its ends — it arrives out of
+            whatever colour the page ended on and still settles into the footer's paper, same as
+            before. What changed is the swell ON that plane: every page's own cube field now
+            shades its swell from Signal Orange rather than from its own ground (see
+            `SIGNAL_TONES` / `SECTION_TONES` in TileField.tsx), and this belt was the one place
+            still shading from WHITE — nearly invisible cubes, and the one surface on the site
+            that did not read as the same brand gesture as everywhere else. `swellFrom: ORANGE`
+            unifies it; `foam: OBSIDIAN` matches the small dark fleck every other Orange swell
+            carries on its crest, rather than a second helping of Orange on top of Orange. */}
+        <TileField tones={connectionTones(fromColor, PAPER, OBSIDIAN, WHITE, ORANGE)} fade={FOOTER_BAND_FADE} />
       </div>
 
       {/* Top padding clears the belt, which is absolutely positioned and so takes up no height of

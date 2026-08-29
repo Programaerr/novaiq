@@ -256,23 +256,32 @@ function shadeColor(hex: string, amt: number): string {
  * The five paint colours for a connection band joining `from` (the section above) to `to` (the
  * footer's ground), with `foam` as the accent on the crests.
  *
- * `body` is what the field itself is MADE of — its ground, and the trough/crest a step either side
- * of it. It defaults to `from`, which makes the band a continuation of the section above; passing
- * something else makes the band a colour in its own right, arriving out of `from` at the top and
- * settling into `to` at the bottom. Only the middle changes: both ends still resolve to exactly the
- * colours either side of them, which is what keeps the joins invisible whatever the body is.
+ * `ground` is the flat plane the field stands on. It defaults to `from`, which makes the band a
+ * continuation of the section above; passing something else makes the flat plane a colour in its
+ * own right, arriving out of `from` at the top and settling into `to` at the bottom. Only the
+ * middle changes: both ends still resolve to exactly the colours either side of them, which is
+ * what keeps the joins invisible whatever the ground is.
+ *
+ * `swellFrom` is a SEPARATE knob, added once every section's own cube swell stopped being a shade
+ * of its own ground and started being a shade of the brand's Signal Orange instead (see
+ * `SIGNAL_TONES` / `SECTION_TONES`). Before that, one colour served both jobs — the plane and the
+ * swell on it were always the same family, so `body` alone was enough. Now the footer's belt has
+ * to match every other page's convention (a WHITE plane, an ORANGE swell) rather than the plane's
+ * own colour, and `ground`/`swellFrom` are how it does that without the two ever having to agree.
+ * It defaults to `ground`, so a caller that never passes it gets the old one-colour behaviour back.
  */
 export function connectionTones(
   from: string,
   to: string,
   foam: string,
-  body: string = from,
+  ground: string = from,
+  swellFrom: string = ground,
 ): FieldTones {
   return {
-    trough: shadeColor(body, -0.14),
-    crest: shadeColor(body, 0.14),
+    trough: shadeColor(swellFrom, -0.14),
+    crest: shadeColor(swellFrom, 0.14),
     foam,
-    ground: body,
+    ground,
     intoLo: to,
     intoHi: from,
   };
