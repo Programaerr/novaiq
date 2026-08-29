@@ -23,6 +23,7 @@ import { NqButton } from './ui/NqButton';
 import { loadContractDraft, saveContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
 import { contractTerms } from '../data/contractTerms';
+import { ERROR, OBSIDIAN, ORANGE_ON_LIGHT, SUCCESS } from '../lib/homePalette';
 
 interface ContractBuilderProps {
   selectedTemplate: Template | null;
@@ -338,12 +339,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     <section id="contract-section" className="py-4 sm:py-6 relative">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Title */}
+        {/* Section title — sits directly on the page's own white ground, outside the dark form
+            panel below it, so it follows the same rule every other section's heading does now:
+            OBSIDIAN, secondary chrome on white, not a dark panel's own primary text. It used to be
+            `text-white`, a leftover from when this whole page sat on a dark ground by default —
+            true three identities ago, not true since the site's base ground went light, and
+            invisible ever since: white text with no dark backing under it. `font-black` and the
+            rest of the site's heading weight, in place of the one-off `font-extrabold` this page
+            had drifted to on its own. */}
         <div className="text-center mb-5">
-          <h2 className="text-xl sm:text-3xl font-extrabold text-white mb-1.5">
+          <h2 className="text-xl sm:text-3xl font-black mb-1.5" style={{ color: OBSIDIAN }}>
             {getTranslation('builderTitle', lang)}
           </h2>
-          <p className="text-white/70 text-xs sm:text-sm max-w-2xl mx-auto">
+          <p className="text-xs sm:text-sm max-w-2xl mx-auto font-bold" style={{ color: OBSIDIAN, opacity: 0.7 }}>
             {getTranslation('builderSubtext', lang)}
           </p>
         </div>

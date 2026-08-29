@@ -573,24 +573,25 @@ export default function App() {
         )}
 
         {activePage === 'custom-request' && (
-          <div className="page-in max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Frosted glass card: the same `nq-card` beam the site's other cards wear, a soft
-                rounded frame and a blurred backdrop, so the contract builder reads as one of the
-                site's panels rather than a bare dark slab. */}
-            <div className="nq-card relative rounded-[1.75rem] overflow-hidden backdrop-blur-2xl ring-1 ring-white/15 p-3 sm:p-5">
-              <Suspense fallback={null}>
-                <ContractBuilderGate
-                  language={language}
-                  currency={currency}
-                  user={currentUser}
-                  selectedTemplate={selectedTemplateForContract}
-                  onContractGenerated={handleContractGenerated}
-                  initialCustomFeaturesText={initialCustomFeaturesText}
-                  initialPrimaryColor={initialPrimaryColor}
-                  onContinueAsGuest={leaveSignIn}
-                />
-              </Suspense>
-            </div>
+          // No wrapping card here any more — it used to nest a translucent `.nq-card` glass
+          // panel around ContractBuilder's own opaque dark form, which added a second, nearly
+          // invisible card around a card and a THIRD width-constrained container on top of the
+          // two ContractBuilder already renders internally. ContractBuilder is a complete page
+          // now (its own ground, its own panel, its own width), so this wrapper's only job is
+          // the page-transition class every other `activePage` branch already uses bare.
+          <div className="page-in">
+            <Suspense fallback={null}>
+              <ContractBuilderGate
+                language={language}
+                currency={currency}
+                user={currentUser}
+                selectedTemplate={selectedTemplateForContract}
+                onContractGenerated={handleContractGenerated}
+                initialCustomFeaturesText={initialCustomFeaturesText}
+                initialPrimaryColor={initialPrimaryColor}
+                onContinueAsGuest={leaveSignIn}
+              />
+            </Suspense>
           </div>
         )}
 

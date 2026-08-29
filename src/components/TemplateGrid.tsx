@@ -5,7 +5,6 @@ import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
 import { OBSIDIAN, ORANGE, WHITE } from '../lib/homePalette';
-import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 import { trackLoad } from '../lib/loadTracker';
 import type { DemoMode } from './TemplateInteractiveSandbox';
@@ -107,10 +106,6 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       }}
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
     >
-      {/* ── The whole background ─────────────────────────────────────────────────────────────
-          One full-bleed cube field covering the section and dissolving at both edges. */}
-      <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
-
       <div className="relative nq-container">
         {/* ── The two cards ─────────────────────────────────────────────────────────────
             Tall, full-height panels so each reads as a destination rather than a row. No heading

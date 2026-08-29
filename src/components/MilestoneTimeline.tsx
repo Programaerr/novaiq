@@ -9,7 +9,6 @@ import {
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { OBSIDIAN, PAPER_DEEP, WHITE } from '../lib/homePalette';
-import { SECTION_FADE, SECTION_TONES, TileField } from './TileField';
 import { ProjectCtaButton } from './ProjectCtaButton';
 
 interface MilestoneTimelineProps {
@@ -93,13 +92,6 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       }}
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+3.5rem)] pb-20 sm:pb-28 lg:pb-32"
     >
-      {/* ── The whole background ─────────────────────────────────────────────────────────────────
-          One full-bleed cube field instead of a strip across the top. It covers the entire
-          section and dissolves at both edges: up under the navbar above (TIMELINE_FADE.hi) and
-          down into the footer below (TIMELINE_FADE.lo), so neither end lands on a straight
-          seam. */}
-      <TileField tones={SECTION_TONES} fade={SECTION_FADE} />
-
       <div className="relative nq-container">
         <div className="mx-auto max-w-[56rem]">
           {/* This heading and the paragraph under it sit directly on the section's own ground —
