@@ -250,7 +250,7 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="lg:col-span-2">
             <FooterColumn heading={isAr ? 'تصفح' : 'Browse'}>
               <FooterLink label={isAr ? 'الرئيسية' : 'Home'} onClick={go('home')} />
-              <FooterLink label={isAr ? 'القوالب البرمجية' : 'Ready Templates'} onClick={go('templates')} />
+              <FooterLink label={isAr ? 'القوالب' : 'Ready Templates'} onClick={go('templates')} />
               <FooterLink label={isAr ? 'مراحل العمل' : 'Roadmap & Process'} onClick={go('timeline')} />
             </FooterColumn>
           </div>

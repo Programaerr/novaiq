@@ -104,7 +104,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
             style={{ color: OBSIDIAN, ['--nq-rise-delay' as string]: '80ms' }}
           >
-            {isAr ? 'مراحل تنفيذ مشروعك' : 'Project Phases & Delivery'}
+            {isAr ? 'مراحل العمل' : 'Project Phases & Delivery'}
           </h2>
 
           {/* The one thing the phase list can no longer say for itself: the duration is real, it

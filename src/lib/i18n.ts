@@ -158,7 +158,7 @@ export const UI_TRANSLATIONS = {
     brandTitle: 'NOVAIQ',
     brandTagline: 'منظومة تطوير البرمجيات السحابية',
     navHome: 'الرئيسية',
-    navTemplates: 'القوالب البرمجية',
+    navTemplates: 'القوالب',
     navCustomRequest: 'طلب تطوير مخصص',
     navTimeline: 'مراحل العمل',
     navAbout: 'من نحن',

@@ -125,8 +125,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navItems = [
     { id: 'home', label: isAr ? 'الرئيسية' : 'Home', icon: Home, href: '/' },
-    { id: 'templates', label: isAr ? 'القوالب البرمجية' : 'Ready Templates', icon: Layers, href: '?page=templates' },
-    { id: 'timeline', label: isAr ? 'مراحل العمل والتسليم' : 'Roadmap & Process', icon: Calendar, href: '?page=timeline' },
+    { id: 'templates', label: isAr ? 'القوالب' : 'Ready Templates', icon: Layers, href: '?page=templates' },
+    { id: 'timeline', label: isAr ? 'مراحل العمل' : 'Roadmap & Process', icon: Calendar, href: '?page=timeline' },
   ];
 
   const handleNavClick = (id: string, e?: React.MouseEvent) => {
