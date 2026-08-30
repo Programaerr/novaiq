@@ -7,7 +7,7 @@ import { subscribeToContracts } from '../lib/firebase';
 import { logoutAccount } from '../lib/auth';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
-import { TabButton, KpiCell } from './admin/shared';
+import { TabButton, KpiCell, StatChip, BottomTabBar, MoreSheet, TabGroup } from './admin/shared';
 import { OverviewTab } from './admin/OverviewTab';
 import { ContractsTab } from './admin/ContractsTab';
 import { PricingTab } from './admin/PricingTab';
@@ -31,6 +31,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   const [tab, setTab] = useState<Tab>('overview');
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   // No starfield behind the control panel. This is a working tool, not a showcase: dense
   // tables that scroll, live-updating figures and forms, used for long stretches at a time.
@@ -116,8 +117,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   const tabs = groups.flatMap((g) => g.items);
   const activeLabel = tabs.find((t) => t.id === tab)?.label ?? '';
 
+  // The bottom bar's own four slots: the "Business" group's three tabs (what actually gets
+  // opened every day) plus a fourth "More" slot for everything else. Everything past that
+  // slot lives in the sheet, grouped exactly like the desktop sidebar's own groups.
+  const primaryTabs = groups[0].items;
+  const moreGroups: TabGroup[] = groups.slice(1);
+  const isMoreTab = !primaryTabs.some((t) => t.id === tab);
+
   return (
-    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-12">
+    // pb-24 clears the fixed bottom tab bar on mobile; lg:pb-12 is the panel's own original
+    // breathing room once the bar disappears at the desktop sidebar breakpoint.
+    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-24 lg:pb-12">
       {showLogoutConfirm && (
         <LogoutConfirmDialog
           isAr={isAr}
@@ -125,6 +135,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           onConfirm={() => logoutAccount()}
         />
       )}
+      {showMore && (
+        <MoreSheet
+          groups={moreGroups}
+          active={tab}
+          onSelect={(id) => setTab(id as Tab)}
+          onClose={() => setShowMore(false)}
+          isAr={isAr}
+        />
+      )}
+      <BottomTabBar
+        primary={primaryTabs}
+        active={tab}
+        onSelect={(id) => {
+          setTab(id as Tab);
+          setShowMore(false);
+        }}
+        onMore={() => setShowMore((v) => !v)}
+        moreActive={isMoreTab || showMore}
+        isAr={isAr}
+      />
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-ink/15">
         <div className="flex items-center gap-3">
@@ -153,8 +183,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           These four figures used to live inside the Overview tab, which meant the answer to "how
           is the business doing" was only visible on the one screen nobody works on — you left it
           the moment you went to edit a contract or a price. Kept here they are simply always true
-          and always in view, and Overview is free to be analysis rather than a scoreboard. */}
-      <div className="mb-6 rounded-2xl bg-paper border border-ink/15 grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-ink/15 rtl:divide-x-reverse overflow-hidden">
+          and always in view, and Overview is free to be analysis rather than a scoreboard.
+
+          Two renderings of the same four numbers, not one hidden behind a breakpoint modifier:
+          the desktop grid earns its four-way divider on a screen wide enough to show all four at
+          once, but the same layout at 2-per-row on a phone was two stacked rows before any tab's
+          own content started. A horizontally-scrolling strip of chips is the pattern a phone
+          already knows from every native app's metrics carousel — swipe past what you don't need
+          instead of scrolling past it. */}
+      <div className="hidden lg:grid mb-6 rounded-3xl bg-paper border border-ink/15 grid-cols-4 divide-x divide-ink/15 rtl:divide-x-reverse overflow-hidden">
         <KpiCell
           label={isAr ? 'العقود' : 'Contracts'}
           value={String(stats.count)}
@@ -173,6 +210,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           accent={stats.netProfitIQD >= 0 ? 'text-emerald-700' : 'text-red-600'}
         />
       </div>
+      <div className="lg:hidden mb-6 -mx-4 px-4 overflow-x-auto">
+        <div className="flex gap-2.5 w-max pb-1">
+          <StatChip icon={FileCheck} label={isAr ? 'العقود' : 'Contracts'} value={String(stats.count)} tint="#FF6A00" />
+          <StatChip icon={BarChart3} label={isAr ? 'القيمة المتعاقدة' : 'Contracted'} value={formatPrice(stats.totalIQD, language, currency)} tint="#080A0D" />
+          <StatChip icon={ArrowLeftRight} label={isAr ? 'المحصّل' : 'Collected'} value={formatPrice(stats.totalCollectedIQD, language, currency)} tint="#3E8F5F" />
+          <StatChip
+            icon={ShieldCheck}
+            label={isAr ? 'الربح المحقق' : 'Realized profit'}
+            value={formatPrice(stats.netProfitIQD, language, currency)}
+            tint={stats.netProfitIQD >= 0 ? '#3E8F5F' : '#D9534F'}
+          />
+        </div>
+      </div>
 
       <div className="lg:flex lg:items-start lg:gap-6">
         {/* Desktop sidebar nav — a horizontal wrapping pill row was the only layout at any
@@ -190,15 +240,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           ))}
         </nav>
 
-        {/* Mobile/tablet: one scrolling row rather than a wrapping block. Six pills wrapping to
-            three lines pushed the actual content off a phone screen before it started. */}
-        <div className="lg:hidden -mx-4 px-4 mb-6 overflow-x-auto">
-          <div className="flex gap-2 w-max pb-1">
-            {tabs.map((t) => (
-              <TabButton key={t.id} tabItem={t} active={tab === t.id} onClick={() => setTab(t.id)} />
-            ))}
-          </div>
-        </div>
+        {/* Mobile navigation is the fixed bottom bar now (rendered once, above, outside this
+            flex row) — no in-flow mobile nav needed here any more. */}
 
         <div className="flex-1 min-w-0 space-y-6">
           {/* Names the screen you are on. With the nav grouped and the mobile row scrolling, the
