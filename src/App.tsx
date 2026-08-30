@@ -491,23 +491,29 @@ export default function App() {
       
       {/* Supernova Atmospheric Background */}
 
-      {/* Main Header Bar — on every page. Its floating pill is fixed and transparent, so it
-          reads as sitting on the page backdrop rather than pushing content down. */}
-      <Navbar
-        activePage={activePage}
-        setActivePage={(page) => navigateTo(page)}
-        language={language}
-        setLanguage={setLanguage}
-      />
+      {/* Main Header Bar — on every page except the control panel (orders), which already has
+          its own header (AdminDashboard/CustomerDashboard) and reads as an app screen rather
+          than a marketing page — the floating site nav sitting on top of it read as clutter. The
+          Footer just below follows the same `activePage !== 'orders'` rule for the same reason. */}
+      {activePage !== 'orders' && (
+        <Navbar
+          activePage={activePage}
+          setActivePage={(page) => navigateTo(page)}
+          language={language}
+          setLanguage={setLanguage}
+        />
+      )}
 
       {/* Main Content View with Hardware Accelerated Transitions. The Navbar above is
           fixed/floating, so it doesn't push content down like an in-flow element would —
           this padding is what clears it, starting --content-gap below wherever it actually
           ends. That offset is measured at runtime rather than hardcoded per breakpoint, so a
           change to the bar's own size re-flows the page automatically instead of silently
-          overlapping it. */}
+          overlapping it. Zero on the control panel, where there is no Navbar above to clear —
+          --nav-bottom would otherwise still hold its last measured value from before the panel
+          was entered, reserving a blank strip for a bar that isn't there. */}
       <main
-        style={{ paddingTop: 'calc(var(--nav-bottom, 74px) + var(--content-gap))' }}
+        style={{ paddingTop: activePage === 'orders' ? 0 : 'calc(var(--nav-bottom, 74px) + var(--content-gap))' }}
         /* No bottom padding on the home, timeline, or templates pages. Everywhere else the page
            ends on black and this breathes before the footer's own margin; on home the last section
            is blue and the footer is sand, and on the timeline and templates pages the blue section
