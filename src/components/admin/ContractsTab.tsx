@@ -533,33 +533,41 @@ function ContractRow({
               ) : (
                 <div className="space-y-2">
                   {payments.map((p) => (
-                    <div key={p.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 rounded-lg bg-paper border border-ink/10">
-                      <input
-                        type="date"
-                        value={p.date}
-                        onChange={(e) => updatePayment(p.id, { date: e.target.value })}
-                        className="px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono w-36 shrink-0"
-                      />
-                      <PriceInput
-                        value={String(p.amountIQD)}
-                        onChange={(v) => updatePayment(p.id, { amountIQD: Number(v) || 0 })}
-                        className="px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono w-32 shrink-0"
-                      />
-                      <input
-                        type="text"
-                        value={p.note || ''}
-                        onChange={(e) => updatePayment(p.id, { note: e.target.value })}
-                        placeholder={isAr ? 'ملاحظة (اختياري)' : 'Note (optional)'}
-                        className="flex-1 min-w-24 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePayment(p.id)}
-                        title={isAr ? 'حذف الدفعة' : 'Remove payment'}
-                        className="p-1.5 rounded-md bg-red-100 hover:bg-red-900 border border-red-300 text-red-700 cursor-pointer transition-colors shrink-0"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
+                    // صفّان واضحان على الهاتف بدل أربعة عناصر تتزاحم في صفّ واحد وتلتف بشكل
+                    // عشوائي (flex-wrap القديمة): التاريخ والمبلغ جنباً إلى جنب (grid-cols-2)،
+                    // ثم الملاحظة وزر الحذف جنباً إلى جنب أسفلهما. sm:contents يُلغي هذا
+                    // التجميع بدءاً من sm فيعود التخطيط الأصلي (صفّ واحد بأربعة عناصر) تماماً.
+                    <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-lg bg-paper border border-ink/10">
+                      <div className="grid grid-cols-2 sm:contents gap-2">
+                        <input
+                          type="date"
+                          value={p.date}
+                          onChange={(e) => updatePayment(p.id, { date: e.target.value })}
+                          className="w-full sm:w-36 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono shrink-0"
+                        />
+                        <PriceInput
+                          value={String(p.amountIQD)}
+                          onChange={(v) => updatePayment(p.id, { amountIQD: Number(v) || 0 })}
+                          className="w-full sm:w-32 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono shrink-0"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 sm:contents">
+                        <input
+                          type="text"
+                          value={p.note || ''}
+                          onChange={(e) => updatePayment(p.id, { note: e.target.value })}
+                          placeholder={isAr ? 'ملاحظة (اختياري)' : 'Note (optional)'}
+                          className="flex-1 min-w-0 sm:min-w-24 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removePayment(p.id)}
+                          title={isAr ? 'حذف الدفعة' : 'Remove payment'}
+                          className="p-1.5 rounded-md bg-red-100 hover:bg-red-900 border border-red-300 text-red-700 cursor-pointer transition-colors shrink-0"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
