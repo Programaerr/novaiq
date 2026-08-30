@@ -246,8 +246,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* No `ms-auto` any more. It was what pushed this group to the far end of a
             full-width bar; the bar now hugs its contents below `lg`, and `justify-between`
             does the same job from `lg` up without a margin fighting it. */}
-        <div className="navbar-glass flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
-          <nav className="hidden lg:flex items-center gap-0.5" aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}>
+        <div className="navbar-glass flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
+          <nav className="hidden lg:flex items-center gap-2" aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}>
             {navItems.map((item) => {
               const isActive = activePage === item.id;
               return (
@@ -397,7 +397,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <a
                 href="?page=orders"
                 onClick={(e) => handleNavClick('orders', e)}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] font-medium text-white/90 hover:bg-zinc-900 hover:text-white transition-all cursor-pointer"
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-xl text-[11px] font-medium text-white/90 hover:bg-zinc-900 hover:text-white transition-all cursor-pointer"
               >
                 <span
                   className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-zinc-900 border border-zinc-800 text-white/90 overflow-hidden"
@@ -420,7 +420,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <a
                 href="?page=login"
                 onClick={goToLogin}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] font-bold text-white bg-white/10 border border-white/10 hover:bg-white/15 transition-all cursor-pointer"
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-xl text-[11px] font-bold text-white bg-white/10 border border-white/10 hover:bg-white/15 transition-all cursor-pointer"
               >
                 <span
                   className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-black text-white"
@@ -436,7 +436,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               list. The icon tile sets the floor (it is taller than the label beside it), so it
               comes down with the padding; trimming only the padding around a 32px tile would
               have bought almost nothing. 48px per row before, 40 now. */}
-          <div className="space-y-0.5">
+          <div className="space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activePage === item.id;
@@ -445,7 +445,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={item.id}
                   href={item.href}
                   onClick={(e) => handleNavClick(item.id, e)}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-xl text-[11px] transition-all cursor-pointer ${
+                  className={`w-full flex items-center gap-2 px-2 py-2 rounded-xl text-[11px] transition-all cursor-pointer ${
                     isActive
                       ? 'bg-white text-black font-bold shadow-lg'
                       : 'text-white/90 font-medium hover:bg-zinc-900 hover:text-white'
