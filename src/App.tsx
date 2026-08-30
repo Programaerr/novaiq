@@ -609,6 +609,7 @@ export default function App() {
                 currency={currency}
                 user={currentUser}
                 onContinueAsGuest={leaveSignIn}
+                onBackToSite={() => navigateTo('home')}
               />
             </Suspense>
           </div>

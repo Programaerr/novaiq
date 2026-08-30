@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Settings, ArrowLeftRight } from 'lucide-react';
+import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Settings, ArrowLeftRight, Home } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
@@ -22,11 +22,14 @@ import { CurrencyConverterCard } from './admin/CurrencyConverterCard';
 interface AdminDashboardProps {
   language: Language;
   currency?: Currency;
+  /** Leaves the control panel for the public site — see the note on this same prop in
+   *  AdminPage.tsx for why it exists at all now. */
+  onBackToSite: () => void;
 }
 
 type Tab = 'overview' | 'contracts' | 'pricing' | 'currency' | 'team' | 'members' | 'settings';
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, currency = 'IQD' }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, currency = 'IQD', onBackToSite }) => {
   const isAr = language === 'ar';
   const [tab, setTab] = useState<Tab>('overview');
   const [contracts, setContracts] = useState<ContractData[]>([]);
@@ -170,13 +173,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
             </p>
           </div>
         </div>
-        <button
-          onClick={() => setShowLogoutConfirm(true)}
-          className="px-4 py-2 rounded-xl bg-white/80 hover:bg-sand-light border border-ink/15 text-ink/75 hover:text-ink text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* لا يوجد Navbar فوق هذه الصفحة (مخفي عمداً — انظر App.tsx) ولا Footer تحتها،
+              فالعودة للموقع كانت تعتمد فقط على زر الرجوع في المتصفح قبل هذا الزر. */}
+          <button
+            onClick={onBackToSite}
+            className="px-4 py-2 rounded-xl bg-white/80 hover:bg-sand-light border border-ink/15 text-ink/75 hover:text-ink text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            <span>{isAr ? 'العودة للموقع' : 'Back to site'}</span>
+          </button>
+          <button
+            onClick={() => setShowLogoutConfirm(true)}
+            className="px-4 py-2 rounded-xl bg-white/80 hover:bg-sand-light border border-ink/15 text-ink/75 hover:text-ink text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
+          </button>
+        </div>
       </div>
 
       {/* The money, above everything, on every screen.
@@ -251,7 +265,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           {tab === 'overview' && (
             <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} currency={currency} />
           )}
-          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} currency={currency} contracts={contracts} stats={stats} />}
+          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} currency={currency} contracts={contracts} stats={stats} onBackToSite={onBackToSite} />}
           {tab === 'pricing' && <PricingTab isAr={isAr} language={language} currency={currency} />}
           {tab === 'currency' && (
             <div className="max-w-2xl">
@@ -259,7 +273,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
             </div>
           )}
           {tab === 'team' && <TeamTab isAr={isAr} />}
-          {tab === 'members' && <MembersTab isAr={isAr} language={language} currency={currency} contracts={contracts} />}
+          {tab === 'members' && <MembersTab isAr={isAr} language={language} currency={currency} contracts={contracts} onBackToSite={onBackToSite} />}
           {tab === 'settings' && <SettingsTab isAr={isAr} />}
         </div>
       </div>

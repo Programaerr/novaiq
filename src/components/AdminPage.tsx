@@ -19,6 +19,11 @@ interface AdminPageProps {
    * When present, no loader flashes on re-entry: the page renders instantly from known state.
    */
   user?: User | null;
+  /** Leaves the control panel / account page for the public site. Both dashboards render their
+   *  own ground with no Navbar or Footer above/below them (a working tool, not a page inside the
+   *  site's chrome — see the `activePage !== 'orders'` guards on both in App.tsx), so without
+   *  this there is no way back to browsing except the browser's own back button. */
+  onBackToSite: () => void;
 }
 
 // The admin allowlist check is a Firestore read that, for a returning customer, resolves to
@@ -31,7 +36,7 @@ const adminCache = new Map<string, boolean>();
 // and the owner/partner alike. Login/sign-up is identical for both; what happens after
 // depends entirely on the admins allowlist (src/lib/auth.ts), checked here once per
 // session: admins get the full control panel, everyone else gets their own contracts.
-export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD', onContinueAsGuest, user: passedUser }) => {
+export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD', onContinueAsGuest, onBackToSite, user: passedUser }) => {
   const [subscribedUser, setSubscribedUser] = useState<User | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
 
@@ -103,6 +108,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
   // itself. Both the guard above and this branch have to read the same resolved value or the
   // flash that was removed comes back as a wrong-dashboard flash instead.
   return resolvedIsAdmin
-    ? <AdminDashboard language={language} currency={currency} />
-    : <CustomerDashboard language={language} currency={currency} user={effectiveUser} />;
+    ? <AdminDashboard language={language} currency={currency} onBackToSite={onBackToSite} />
+    : <CustomerDashboard language={language} currency={currency} user={effectiveUser} onBackToSite={onBackToSite} />;
 };

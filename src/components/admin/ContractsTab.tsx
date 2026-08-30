@@ -38,12 +38,14 @@ export function ContractsTab({
   currency,
   contracts,
   stats,
+  onBackToSite,
 }: {
   isAr: boolean;
   language: Language;
   currency: Currency;
   contracts: ContractData[];
   stats: AdminStats;
+  onBackToSite: () => void;
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ContractData['status']>('all');
@@ -131,6 +133,7 @@ export function ContractsTab({
               currency={currency}
               expanded={expandedId === (c.id || c.contractNumber)}
               onToggle={() => setExpandedId((prev) => (prev === (c.id || c.contractNumber) ? null : c.id || c.contractNumber || null))}
+              onBackToSite={onBackToSite}
             />
           ))}
         </div>
@@ -203,6 +206,7 @@ function ContractRow({
   currency,
   expanded,
   onToggle,
+  onBackToSite,
 }: {
   contract: ContractData;
   /** كل عقود الموقع (غير مُصفّاة) — تُمرَّر للملف الشخصي بحيث يقدر يجمع كل عقود نفس الشخص،
@@ -213,6 +217,7 @@ function ContractRow({
   currency: Currency;
   expanded: boolean;
   onToggle: () => void;
+  onBackToSite: () => void;
 }) {
   const [showProfile, setShowProfile] = useState(false);
   // Legacy contracts saved before the payment ledger existed only have a lump `paidAmountIQD`
@@ -669,6 +674,7 @@ function ContractRow({
           photoURL=""
           contracts={allContracts}
           onClose={() => setShowProfile(false)}
+          onBackToSite={onBackToSite}
         />
       )}
     </div>

@@ -29,11 +29,13 @@ export function MembersTab({
   language,
   currency,
   contracts,
+  onBackToSite,
 }: {
   isAr: boolean;
   language: Language;
   currency: Currency;
   contracts: ContractData[];
+  onBackToSite: () => void;
 }) {
   const [users, setUsers] = useState<ManagedUser[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -253,6 +255,7 @@ export function MembersTab({
           disabled={profileUser.disabled}
           contracts={contracts}
           onClose={() => setProfileUser(null)}
+          onBackToSite={onBackToSite}
         />
       )}
     </div>

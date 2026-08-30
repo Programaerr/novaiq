@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet } from 'lucide-react';
+import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -20,6 +20,10 @@ interface CustomerDashboardProps {
   language: Language;
   currency?: Currency;
   user: User;
+  /** Leaves the account page for the public site — this page has no Navbar above it or Footer
+   *  below it (see the `activePage !== 'orders'` guards in App.tsx), so without this the only
+   *  way back was the browser's own back button. */
+  onBackToSite: () => void;
 }
 
 const STATUS_LABEL_AR: Record<ContractData['status'], string> = {
@@ -117,7 +121,7 @@ return (
 // then falls back to the email the contract carries, so a contract still shows even when the
 // email typed in the form differs from the Google account's. Admins never see this:
 // AdminPage routes them to AdminDashboard instead, before this component is ever rendered.
-export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, currency = 'IQD', user }) => {
+export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, currency = 'IQD', user, onBackToSite }) => {
   const isAr = language === 'ar';
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -161,22 +165,36 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
             <p className="text-xs text-ink/60 font-mono" dir="ltr">{user.email}</p>
           </div>
         </div>
-        {/* `sand`, which is the ground this dashboard is painted on — it was carrying the dark
-            chrome's `.nq-btn` on a light page. Signing out is not the primary action here, so it
-            is the quiet weight; the label hides on a narrow screen and `aria-label` keeps the
-            name at every width. */}
-        <NqButton
-          tone="white"
-          variant="quiet"
-          size="sm"
-          radius="xl"
-          onClick={() => setShowLogoutConfirm(true)}
-          aria-label={isAr ? 'تسجيل الخروج' : 'Sign Out'}
-          className="shrink-0"
-          icon={<LogOut className="w-4 h-4" />}
-        >
+        {/* لا يوجد Navbar فوق هذه الصفحة (مخفي عمداً) ولا Footer تحتها، فالعودة للموقع كانت
+            تعتمد فقط على زر رجوع المتصفح قبل هذا الزر. */}
+        <div className="flex items-center gap-2 shrink-0">
+          <NqButton
+            tone="white"
+            variant="quiet"
+            size="sm"
+            radius="xl"
+            onClick={onBackToSite}
+            aria-label={isAr ? 'العودة للموقع' : 'Back to site'}
+            icon={<Home className="w-4 h-4" />}
+          >
+            <span className="hidden sm:inline">{isAr ? 'العودة للموقع' : 'Back to site'}</span>
+          </NqButton>
+          {/* `sand`, which is the ground this dashboard is painted on — it was carrying the dark
+              chrome's `.nq-btn` on a light page. Signing out is not the primary action here, so it
+              is the quiet weight; the label hides on a narrow screen and `aria-label` keeps the
+              name at every width. */}
+          <NqButton
+            tone="white"
+            variant="quiet"
+            size="sm"
+            radius="xl"
+            onClick={() => setShowLogoutConfirm(true)}
+            aria-label={isAr ? 'تسجيل الخروج' : 'Sign Out'}
+            icon={<LogOut className="w-4 h-4" />}
+          >
           <span className="hidden sm:inline">{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
-        </NqButton>
+          </NqButton>
+        </div>
       </div>
 
       {contracts.length === 0 ? (

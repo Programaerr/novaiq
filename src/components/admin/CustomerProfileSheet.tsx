@@ -3,7 +3,7 @@
 // عقوده (customer_notes)، بخلاف ملاحظات العقد نفسه (adminNotes) التي تبقى خاصة بعقد واحد.
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Phone, Mail, MapPin, Calendar, FileCheck, Loader2, Save, StickyNote } from 'lucide-react';
+import { X, Phone, Mail, MapPin, Calendar, FileCheck, Loader2, Save, StickyNote, Home } from 'lucide-react';
 import { ContractData } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
@@ -29,6 +29,9 @@ interface CustomerProfileSheetProps {
    *  سيعني اشتراكاً حياً ثانياً على نفس البيانات لسبب واحد فقط. */
   contracts: ContractData[];
   onClose: () => void;
+  /** Leaves the control panel for the public site directly from the sheet, without closing it
+   *  first — the same control the dashboard behind it carries, reachable one tap earlier. */
+  onBackToSite: () => void;
 }
 
 function formatDate(iso: string | undefined, isAr: boolean): string {
@@ -49,6 +52,7 @@ export function CustomerProfileSheet({
   disabled,
   contracts,
   onClose,
+  onBackToSite,
 }: CustomerProfileSheetProps) {
   // نفس منطق الملكية المستخدم في firestore.rules وCustomerDashboard: uid أولاً، والبريد
   // احتياطاً لعقد أقدم من وجود هذا الحقل.
@@ -118,6 +122,13 @@ export function CustomerProfileSheet({
             </div>
             <span className="text-[11px] text-ink/50 font-mono truncate block" dir="ltr">{email}</span>
           </div>
+          <button
+            onClick={onBackToSite}
+            title={isAr ? 'العودة للموقع' : 'Back to site'}
+            className="p-2 rounded-xl bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors shrink-0"
+          >
+            <Home className="w-4 h-4" />
+          </button>
           <button
             onClick={onClose}
             className="p-2 rounded-xl bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors shrink-0"
