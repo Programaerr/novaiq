@@ -265,13 +265,23 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Contact. */}
           <div className="lg:col-span-4">
-              <div className="rounded-2xl bg-[rgb(var(--ft-accent)/0.1)] backdrop-blur-xl p-5"
-                style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-accent) / 0.3)' }}
+              {/* برتقالي صافٍ حقيقي، لا غسلة 10% كانت بالكاد تُرى — تصحيح مباشر. لا حاجة
+                  لـ backdrop-blur بعد الآن: التمويه كان يخدم غسلة شفافة تكشف ما خلفها، ولا معنى
+                  له فوق تعبئة معتمة بالكامل (تكلفة GPU بلا أي أثر مرئي).
+                  الحلقة المحيطة (boxShadow) كانت أيضاً برتقالية بنسبة 30% — نفس درجة لون التعبئة
+                  تقريباً، فتختفي فيها بمجرد أن تصبح التعبئة نفسها برتقالية صافية. استُبدلت بحافة
+                  مضيئة بيضاء خفيفة، نفس أسلوب ".nq-btn--solid" في التعامل مع سطح برتقالي معتم. */}
+              <div className="rounded-2xl bg-[rgb(var(--ft-accent))] p-5"
+                style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18), inset 0 1px 0 rgba(255,255,255,0.25)' }}
               >
-                <p className="nq-label text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a60))]">
+                {/* النص لا يعود يستخدم شفافيات --ft-aXX (60%/50%) الموروثة من زمن الغسلة
+                    الشبه-شفافة: على برتقالي صافٍ، حبر --ft-fg بشفافية 60% أو 50% نسبته 3.56:1
+                    و2.83:1 فقط — فاشلة تحت 4.5:1. حبر بكامل قوته (بلا شفافية) نسبته 6.90:1، وهذا
+                    ما يُستخدم في كل مكان آخر بالموقع لنص فوق برتقالي مباشرة. */}
+                <p className="nq-label text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg))]">
                   {isAr ? 'ابدأ مشروعك اليوم' : 'Start a project today'}
                 </p>
-                <p                 className="mt-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a50))] leading-relaxed">
+                <p className="mt-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg))] opacity-90 leading-relaxed">
                   {isAr
                     ? 'أخبرنا عن فكرتك وسنرجع إليك بمواصفات أولية خلال 48 ساعة.'
                     : 'Tell us about your idea and we will come back with a first spec within 48 hours.'}
