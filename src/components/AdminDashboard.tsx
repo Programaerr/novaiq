@@ -244,8 +244,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
             flex row) — no in-flow mobile nav needed here any more. */}
 
         <div className="flex-1 min-w-0 space-y-6">
-          {/* Names the screen you are on. With the nav grouped and the mobile row scrolling, the
-              active pill is not always visible — the heading is. */}
+          {/* Names the screen you are on. The active tab's own icon is highlighted in the bottom
+              bar or the sidebar, but neither is always in the same glance as the content below
+              it — the heading always is. */}
           <h2 className="text-sm font-bold text-ink/55 border-b border-ink/10 pb-2">{activeLabel}</h2>
           {tab === 'overview' && (
             <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} currency={currency} />

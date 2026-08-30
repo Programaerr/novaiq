@@ -347,7 +347,13 @@ function ContractRow({
   };
 
   return (
-    <div className="rounded-2xl bg-paper border border-ink/10 overflow-hidden">
+    // حافة ملوّنة بلون مرحلة العقد (STAGE_COLORS) على الجانب البدائي (inline-start) — يمين
+    // في العربية، يسار في الإنجليزية تلقائياً — بحيث تُعرف حالة العقد بلمحة واحدة قبل حتى
+    // قراءة الشارة، خصوصاً في قائمة طويلة يتم تمريرها بسرعة على الهاتف.
+    <div
+      className="rounded-3xl bg-paper border border-ink/10 overflow-hidden"
+      style={{ borderInlineStartWidth: '4px', borderInlineStartColor: STAGE_COLORS[contract.status].fill }}
+    >
       {expanded && <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} />}
 
       <button

@@ -249,7 +249,10 @@ function CustomerContractRow({
   };
 
   return (
-    <div className="rounded-2xl bg-paper border border-ink/10 overflow-hidden">
+    <div
+      className="rounded-3xl bg-paper border border-ink/10 overflow-hidden"
+      style={{ borderInlineStartWidth: '4px', borderInlineStartColor: STAGE_COLORS[contract.status].fill }}
+    >
       {expanded && <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} />}
 
       <button
