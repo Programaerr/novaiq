@@ -60,7 +60,13 @@ function StatusRail({ status, isAr }: { status: ContractData['status']; isAr: bo
   };
 return (
     <div className="pt-4">
-      <div className="flex items-center">
+      {/* صفّان منفصلان لا صفّ واحد: النقاط والخطوط الواصلة أعلى، وتسميات الخطوات أسفل. كانا معاً
+          من قبل — كل نقطة وتسميتها في عمود واحد بعرضه الطبيعي (shrink-0) — وهذا ينهار على شاشة
+          هاتف ضيقة: تسمية طويلة مثل "قيد المراجعة" أعرض من المسافة الفعلية بين نقطتين متجاورتين،
+          فيمتد نصّها أفقياً (whitespace-nowrap لا يسمح لها بالنزول سطراً) ويتداخل بصرياً مع تسمية
+          الخطوة المجاورة. الحل: صفّ التسميات الآن grid-cols-4 منفصل، فكل خطوة تأخذ ربع العرض
+          بالضبط مهما طال نصّها، ويُسمح للنص بالالتفاف على سطرين بدل التمدد جانبياً. */}
+      <div className="flex items-center px-1.5">
         {STATUS_STEPS.map((step, i) => {
           const filled = reached >= i;
           const color = STAGE_COLORS[step].fill;
@@ -73,25 +79,32 @@ return (
                   aria-hidden="true"
                 />
               )}
-              <div className="flex flex-col items-center gap-1 shrink-0">
-                <span
-                  className="w-3 h-3 rounded-full border transition-all"
-                  style={
-                    filled
-                      ? { background: color, borderColor: color, boxShadow: `0 0 0 3px ${color}33` }
-                      : { background: 'transparent', borderColor: 'rgba(7, 17, 31, 0.3)' }
-                  }
-                  aria-hidden="true"
-                />
-                <span
-                  className={`text-[9px] sm:text-[10px] font-bold whitespace-nowrap ${
-                    filled ? 'text-ink' : 'text-ink/40'
-                  }`}
-                >
-                  {isAr ? labels[step].ar : labels[step].en}
-                </span>
-              </div>
+              <span
+                className="w-3 h-3 rounded-full border transition-all shrink-0"
+                style={
+                  filled
+                    ? { background: color, borderColor: color, boxShadow: `0 0 0 3px ${color}33` }
+                    : { background: 'transparent', borderColor: 'rgba(7, 17, 31, 0.3)' }
+                }
+                aria-hidden="true"
+              />
             </React.Fragment>
+          );
+        })}
+      </div>
+      <div className="grid grid-cols-4 gap-1 mt-1.5">
+        {STATUS_STEPS.map((step) => {
+          const i = STATUS_STEPS.indexOf(step);
+          const filled = reached >= i;
+          return (
+            <span
+              key={step}
+              className={`text-[9px] sm:text-[10px] font-bold text-center leading-tight ${
+                filled ? 'text-ink' : 'text-ink/40'
+              }`}
+            >
+              {isAr ? labels[step].ar : labels[step].en}
+            </span>
           );
         })}
       </div>

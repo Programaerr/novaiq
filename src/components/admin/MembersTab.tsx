@@ -128,13 +128,15 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
       </div>
 
       <div className="relative max-w-md">
-        <Search className="w-4 h-4 text-ink/50 absolute right-3.5 top-1/2 -translate-y-1/2" />
+        {/* موضع الأيقونة يتبع اتجاه اللغة الآن (يمين في العربية، يسار في الإنجليزية) بدل موضع
+            ثابت فيزيائياً — نفس النمط المستخدم أصلاً في ContractsTab.tsx لحقل البحث هناك. */}
+        <Search className={`absolute ${isAr ? 'right-3.5' : 'left-3.5'} top-1/2 -translate-y-1/2 w-4 h-4 text-ink/50`} />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={isAr ? 'ابحث بالبريد أو الاسم...' : 'Search by email or name...'}
-          className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs"
+          className={`w-full ${isAr ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 rounded-xl bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs`}
         />
       </div>
 
