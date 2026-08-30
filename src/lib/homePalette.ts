@@ -1,113 +1,107 @@
 /**
- * NOVAIQ's brand palette, in one place.
+ * لوحة ألوان NOVAIQ التجارية، في مكان واحد.
  *
- * ## What this replaced, twice now
+ * ## ما الذي استُبدل، مرتين حتى الآن
  *
- * This module first carried a warm sand/periwinkle exception for the home and account pages,
- * then a Midnight/Cobalt/Violet system when the company adopted a restrained blue identity. Both
- * are retired: the company moved again, to Obsidian Black + Signal Orange — "a dark engineering
- * laboratory meets premium enterprise software." Every name below describes what the colour
- * actually is under THIS system; nothing here is a leftover name holding a new hex.
+ * كان هذا الملف يحمل أولاً استثناء رملي/بنفسجي فاتح (sand/periwinkle) لصفحة الرئيسية والحساب،
+ * ثم نظام Midnight/Cobalt/Violet عندما تبنّت الشركة هوية زرقاء هادئة. كلاهما تقاعد الآن: انتقلت
+ * الشركة مجدداً إلى Obsidian Black + Signal Orange — "مختبر هندسي داكن يلتقي ببرمجيات مؤسسات
+ * فاخرة". كل اسم أدناه يصف ما اللون فعلياً ضمن هذا النظام؛ لا يوجد هنا أي اسم قديم متبقٍ يحمل
+ * قيمة hex جديدة.
  *
- * ## Why the large fills are neutral, not a tint of the accent
+ * ## لماذا التعبئات الكبيرة محايدة، وليست درجة من لون الإبراز
  *
- * The Cobalt system before this one used a darkened tint of its own accent (`COBALT_DEEP`) for
- * the handful of full-bleed colour panels this layout relies on (the hero's curtain, the contact
- * section, the timeline section, the templates section, half the sign-in screen). That move does
- * not carry over: this brief is explicit that Orange is never a background — "لا تجعل: كل
- * Background برتقالي" — and a "deep orange" panel would be exactly that, just quieter. So the
- * large-fill role moves to OBSIDIAN, the brand's own dark neutral, with Orange kept for what it
- * is reserved for everywhere else in this system: the small thing that is actually asking to be
- * pressed or noticed — a button, an icon tile, the foam on a crest. A dark panel with an orange
- * signal on it is closer to the brief's own mental image ("شبكة تقنية مظلمة دقيقة جدًا تحتوي على
- * نقاط اتصال برتقالية مهمة") than a panel dyed orange ever was.
+ * نظام Cobalt السابق لهذا استخدم درجة داكنة من لون إبرازه نفسه (`COBALT_DEEP`) لعدد قليل من
+ * ألواح اللون الممتدة على كامل الشاشة التي يعتمد عليها هذا التخطيط (ستارة الهيرو، قسم التواصل،
+ * قسم الجدول الزمني، قسم القوالب، نصف شاشة تسجيل الدخول). هذا لا ينتقل معنا: هذا البريف واضح بأن
+ * البرتقالي لا يكون خلفية أبداً — "لا تجعل: كل Background برتقالي" — ولوحة "برتقالي غامق" ستكون
+ * بالضبط ذلك، فقط أهدأ. لذا ينتقل دور التعبئة الكبيرة إلى OBSIDIAN، محايد العلامة التجارية الداكن
+ * الخاص بها، مع إبقاء البرتقالي لما هو محجوز له في كل مكان آخر من هذا النظام: الشيء الصغير الذي
+ * يطلب فعلاً أن يُضغط عليه أو يُلاحظ — زر، أيقونة، الرغوة على قمة الموجة. لوحة داكنة عليها إشارة
+ * برتقالية أقرب إلى الصورة الذهنية للبريف نفسه ("شبكة تقنية مظلمة دقيقة جدًا تحتوي على نقاط
+ * اتصال برتقالية مهمة") من لوحة مصبوغة بالكامل بالبرتقالي.
  *
- * ## Why the primary button's label is dark, not white
+ * ## لماذا نص الزر الرئيسي داكن، وليس أبيض
  *
- * The reflex for a saturated fill is white text. Measured, Signal Orange does not support it:
- * white on `#FF6A00` is 2.87:1, under the 3:1 floor even for large text. Obsidian on the same
- * orange is 6.90:1. Every pairing below that puts text ON Orange or Ember uses the dark member of
- * the pair for exactly this reason — it is not a stylistic choice, white genuinely does not read.
+ * ردة الفعل المعتادة لتعبئة مشبعة هي نص أبيض. بالقياس الفعلي، البرتقالي الإشاري (Signal Orange) لا
+ * يدعم ذلك: الأبيض على `#FF6A00` نسبته 2.87:1، وهذا أقل من حد 3:1 حتى للنص الكبير. Obsidian على
+ * نفس البرتقالي نسبته 6.90:1. كل زوج أدناه يضع نصاً على البرتقالي أو Ember يستخدم العضو الداكن من
+ * الزوج لهذا السبب بالضبط — هذا ليس خياراً أسلوبياً، الأبيض فعلاً لا يُقرأ بوضوح.
  *
- * ## Why the light neutrals are four steps, not one
+ * ## لماذا المحايدات الفاتحة أربع درجات، وليست درجة واحدة
  *
- * Warm White (`#F7F7F5`) is the brief's own light-mode background, but a single flat tone used
- * everywhere is what the brief itself warns against as flattening — the light-neutral family
- * (WHITE/PAPER/PAPER_DEEP/SURFACE_LIGHT) gives adjacent sections and raised surfaces a way to
- * separate without a border, the same four-step idea the previous two identities also needed,
- * derived here by the same channel-mix math (`shadeColor` in TileField.tsx) rather than picked
- * by eye.
+ * الأبيض الدافئ (`#F7F7F5`) هو خلفية الوضع الفاتح المكتوبة حرفياً في البريف، لكن درجة واحدة مسطحة
+ * تُستخدم في كل مكان هي بالضبط ما يحذّر منه البريف نفسه بوصفه تسطيحاً — عائلة المحايد الفاتح
+ * (WHITE/PAPER/PAPER_DEEP/SURFACE_LIGHT) تمنح الأقسام المتجاورة والأسطح المرتفعة طريقة للانفصال
+ * دون حد فاصل، وهي نفس فكرة الأربع درجات التي احتاجتها الهويتان السابقتان أيضاً، مُشتقة هنا بنفس
+ * رياضيات مزج القنوات اللونية (`shadeColor` في TileField.tsx) بدلاً من اختيارها بالعين.
  *
- * ## Why muted text and three semantic colours each have two values
+ * ## لماذا النص الخافت وكل الألوان الدلالية الثلاثة لها قيمتان
  *
- * Steel Gray (`#9299A3`) is 6.90:1 on Obsidian and a failing 2.68:1 on Warm White — correct on a
- * dark surface, silently broken on a light one. The four semantic colours have the same problem
- * in a more severe form (Success/Info/Warning all fall under 2.2:1 on Warm White). Each below has
- * a light-ground counterpart, darkened toward Obsidian until it clears 4.5:1, because the brief
- * is explicit that accessibility is not negotiable for a look.
+ * الرمادي الفولاذي (`#9299A3`) نسبته 6.90:1 على Obsidian و2.68:1 فاشلة على الأبيض الدافئ — صحيح
+ * على سطح داكن، معطوب بصمت على سطح فاتح. الألوان الدلالية الأربعة لها نفس المشكلة بشكل أشد
+ * (Success/Info/Warning جميعها تحت 2.2:1 على الأبيض الدافئ). كل لون أدناه له نظير على الأرضية
+ * الفاتحة، مُعتَّم باتجاه Obsidian حتى يتجاوز 4.5:1، لأن البريف واضح بأن إمكانية الوصول (accessibility)
+ * غير قابلة للتفاوض مقابل شكل جميل.
  *
- * ## Why Warning is yellow-gold rather than amber-orange
+ * ## لماذا لون التحذير (Warning) أصفر ذهبي وليس كهرمانياً برتقالياً
  *
- * The brief calls this out directly: Orange is the brand, and a Warning colour that reads as
- * "slightly duller orange" would teach a visitor that every brand moment might be a caution. This
- * Warning sits in yellow-gold territory instead, far enough from `#FF6A00` on the wheel that the
- * two are never confused.
+ * البريف ينبّه لهذا مباشرة: البرتقالي هو العلامة التجارية، ولون تحذير يُقرأ وكأنه "برتقالي أقل
+ * حدة قليلاً" سيُعلّم الزائر أن أي لحظة من العلامة التجارية قد تكون تحذيراً. لذا يقع هذا التحذير في
+ * منطقة الأصفر الذهبي بدلاً من ذلك، بعيداً بما يكفي عن `#FF6A00` على عجلة الألوان بحيث لا يُخلط
+ * بينهما أبداً.
  */
 
-/** Obsidian Black — the brand's dark neutral: primary dark ground, ink for light surfaces, AND
- *  the fill for every full-bleed panel this layout uses (see the module note on why that role
- *  did not become a tint of Orange). */
+/** Obsidian Black — محايد العلامة التجارية الداكن: الأرضية الداكنة الأساسية، حبر الأسطح الفاتحة،
+ *  وأيضاً تعبئة كل لوحة ممتدة على كامل الشاشة في هذا التخطيط (انظر ملاحظة الملف عن سبب عدم تحوّل
+ *  هذا الدور إلى درجة من البرتقالي). */
 export const OBSIDIAN = '#080A0D';
 
-/** Graphite — a step up from Obsidian, for cards, modals and elevated surfaces that need to read
- *  as sitting ABOVE the dark ground rather than as more of it. */
+/** Graphite — درجة أعلى من Obsidian، للبطاقات والنوافذ المنبثقة والأسطح المرتفعة التي تحتاج أن
+ *  تُقرأ وكأنها تجلس فوق الأرضية الداكنة لا كأنها المزيد منها. */
 export const GRAPHITE = '#12161C';
 
 /**
- * Signal Orange — the primary accent, and reserved for things that are actually interactive or
- * singled out: buttons, active states, links, an icon that matters, the foam on a crest. Never a
- * background or a large fill.
+ * Signal Orange — لون الإبراز الأساسي، ومحجوز للأشياء التفاعلية فعلاً أو المُفرَدة: الأزرار،
+ * الحالات النشطة، الروابط، أيقونة مهمة، الرغوة على قمة الموجة. أبداً خلفية أو تعبئة كبيرة.
  */
 export const ORANGE = '#FF6A00';
-/** Orange, darkened toward Obsidian until it clears 4.5:1 on Warm White — for a link or small
- *  text label that has to be Orange but sits on a LIGHT ground, where plain Orange measures a
- *  failing 2.68:1. */
+/** برتقالي، مُعتَّم باتجاه Obsidian حتى يتجاوز 4.5:1 على الأبيض الدافئ — لرابط أو نص صغير يجب أن
+ *  يكون برتقالياً لكنه يجلس على أرضية فاتحة، حيث البرتقالي الصافي نسبته 2.68:1 فاشلة. */
 export const ORANGE_ON_LIGHT = '#BA4F04';
 
 /**
- * Ember — the secondary accent, used more sparingly than Orange itself: illustration detail, a
- * hover glow, a chart series, one end of the brand gradient. Not a text colour on either ground
- * at body size (white on it is 2.36:1; use Obsidian, exactly as with Orange, where it must carry
- * text at all).
+ * Ember — لون الإبراز الثانوي، يُستخدم بتحفظ أكبر من البرتقالي نفسه: تفاصيل الرسوم التوضيحية،
+ * توهج عند التمرير، سلسلة بيانات في رسم بياني، أحد طرفي تدرج العلامة التجارية. ليس لون نص على أي
+ * من الأرضيتين بحجم النص العادي (الأبيض عليه 2.36:1)؛ استخدم Obsidian، تماماً كما مع البرتقالي، حيثما
+ * وجب أن يحمل نصاً على الإطلاق.
  */
 export const EMBER = '#FF8A1F';
 
-/** Warm White — the primary light ground, and the brief's literal light-mode background value. */
+/** الأبيض الدافئ — الأرضية الفاتحة الأساسية، وقيمة خلفية الوضع الفاتح المكتوبة حرفياً في البريف. */
 export const WHITE = '#F7F7F5';
-/** A step down from WHITE, for a section that has to read as a clean break from its neighbour
- *  without a border between them. */
+/** درجة أخفض من WHITE، لقسم يجب أن يُقرأ كفاصل نظيف عن جاره دون حد فاصل بينهما. */
 export const PAPER = '#E9E7E3';
-/** A further step down from PAPER, for a badge, divider or note-box that needs to separate from
- *  the surface around it without a border. */
+/** درجة أخفض أخرى من PAPER، لشارة أو خط فاصل أو صندوق ملاحظة يحتاج أن ينفصل عن السطح المحيط به
+ *  دون حد فاصل. */
 export const PAPER_DEEP = '#DCDBD6';
-/** A step up from WHITE — pure white, for a raised card surface. */
+/** درجة أعلى من WHITE — أبيض صافٍ، لسطح بطاقة مرتفع. */
 export const SURFACE_LIGHT = '#FFFFFF';
 
-/** Secondary/metadata text on a DARK ground (Obsidian or Graphite). 6.90:1 on Obsidian. */
+/** نص ثانوي/بيانات وصفية على أرضية داكنة (Obsidian أو Graphite). نسبته 6.90:1 على Obsidian. */
 export const STEEL = '#9299A3';
-/** Secondary/metadata text on a LIGHT ground. The same steel, darkened toward Obsidian until it
- *  clears AA on Warm White — STEEL itself measures 2.68:1 there and fails; this measures 4.59:1. */
+/** نص ثانوي/بيانات وصفية على أرضية فاتحة. نفس الرمادي الفولاذي، مُعتَّم باتجاه Obsidian حتى يتجاوز
+ *  حد AA على الأبيض الدافئ — STEEL نفسه نسبته 2.68:1 هناك وهذا فاشل؛ هذا يقيس 4.59:1. */
 export const STEEL_LIGHT = '#6B7179';
 
 /**
- * Semantic status colours — success/warning/error/info — deliberately independent of the brand
- * core. Brand colour must never double as a status colour: Orange means the brand, not "this is
- * a warning" or "this succeeded", and a user who has learned one meaning for it should not have
- * to unlearn it reading a toast.
+ * ألوان الحالة الدلالية — نجاح/تحذير/خطأ/معلومة — مستقلة عمداً عن لون العلامة التجارية الأساسي.
+ * لون العلامة التجارية يجب ألا يكون أبداً مضاعَفاً كلون حالة: البرتقالي يعني العلامة التجارية، لا
+ * "هذا تحذير" ولا "هذا نجح"، ومستخدم تعلّم معنى واحداً له لا يجب أن يضطر لتعلّم معنى مختلف عند
+ * قراءة إشعار toast.
  *
- * Each has two members, for the ground it is measured against: the bright member is correct on
- * Obsidian/Graphite (4.8–10.3:1) and fails on Warm White; the `_ON_LIGHT` member is the same hue
- * darkened until it clears 4.5:1 there.
+ * لكل لون عضوان، حسب الأرضية التي يُقاس عليها: العضو الساطع صحيح على Obsidian/Graphite (4.8–10.3:1)
+ * ويفشل على الأبيض الدافئ؛ عضو `_ON_LIGHT` هو نفس درجة اللون معتَّمة حتى تتجاوز 4.5:1 هناك.
  */
 export const SUCCESS = '#22C55E';
 export const SUCCESS_ON_LIGHT = '#198241';
