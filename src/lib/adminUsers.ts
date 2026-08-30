@@ -1,4 +1,4 @@
-import { collection, getDocs, getDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 export interface ManagedUser {
@@ -89,6 +89,18 @@ export async function setUserDisabled(uid: string, disabled: boolean): Promise<v
 
 export async function deleteUserAccount(uid: string): Promise<void> {
   await authedFetch(`/api/admin/users/${uid}`, { method: 'DELETE' });
+}
+
+// ملاحظة دائمة عن الشخص نفسه (لا عن عقد واحد بذاته) — القسم المستمر في ملفه الشخصي الذي
+// يبقى معه عبر كل عقوده. مخزّنة في مجموعة `customer_notes` منفصلة تماماً عن `users` (انظر
+// firestore.rules لسبب الفصل)، ومقروءة/مكتوبة فقط من ملف العميل الشخصي في لوحة التحكم.
+export async function getCustomerNote(uid: string): Promise<string> {
+  const snap = await getDoc(doc(db, 'customer_notes', uid));
+  return snap.exists() ? ((snap.data().note as string) || '') : '';
+}
+
+export async function saveCustomerNote(uid: string, note: string): Promise<void> {
+  await setDoc(doc(db, 'customer_notes', uid), { note, updatedAt: new Date().toISOString() });
 }
 
 export interface TeamMember {

@@ -126,5 +126,16 @@ service cloud.firestore {
       allow create: if contactMessageIsClean();
       allow read, update, delete: if isAdmin();
     }
+
+    // ملاحظات الأدمن الخاصة بكل عميل (شخص، لا عقد واحد) — مُعرِّف المستند هو uid حساب العميل
+    // نفسه، ويُقرأ ويُكتب حصراً من ملفه الشخصي في لوحة التحكم (CustomerProfileSheet.tsx).
+    //
+    // مجموعة منفصلة عمداً عن `users/{uid}` بدل إضافة حقل عليها مباشرة: تلك المجموعة مرآة
+    // يكتبها الحساب نفسه فقط عند كل دخول (src/lib/auth.ts) — لو سمحنا للأدمن بالكتابة على
+    // نفس المستند، أي خطأ بسيط في الكود قد يكتب فوق displayName/email/photoURL الحقيقية
+    // لحساب العميل. هذه مجموعة أدمن فقط بالكامل، ولا علاقة لها بما يكتبه العميل عن نفسه.
+    match /customer_notes/{uid} {
+      allow read, write: if isAdmin();
+    }
   }
 }
