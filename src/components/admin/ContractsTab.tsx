@@ -657,6 +657,20 @@ function ContractRow({
           </div>
         </div>
       )}
+
+      {showProfile && contract.uid && (
+        <CustomerProfileSheet
+          isAr={isAr}
+          language={language}
+          currency={currency}
+          uid={contract.uid}
+          email={contract.email}
+          displayName={contract.repName}
+          photoURL=""
+          contracts={allContracts}
+          onClose={() => setShowProfile(false)}
+        />
+      )}
     </div>
   );
 }
