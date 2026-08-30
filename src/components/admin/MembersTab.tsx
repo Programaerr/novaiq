@@ -1,4 +1,5 @@
-// Subscriber management: the non-admin account list, with disable and delete controls.
+// Subscriber management: the non-admin account list, with disable and delete controls, and a
+// per-person profile pulling every contract they hold into one place.
 import { useState, useEffect } from 'react';
 import {
   Trash2,
@@ -8,22 +9,38 @@ import {
   RotateCcw,
   Ban,
   UserCheck,
+  IdCard,
 } from 'lucide-react';
+import { ContractData } from '../../types';
+import { Language } from '../../lib/i18n';
+import { Currency } from '../../lib/currency';
 import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser } from '../../lib/adminUsers';
 import { showToast } from '../../lib/toast';
 import { StatTile } from './shared';
+import { CustomerProfileSheet } from './CustomerProfileSheet';
 
 // Fetched list lives at module level so switching tabs (which remounts this component) renders
 // instantly from the cached data instead of re-fetching and flashing a spinner. The Refresh
 // button and a full page reload always fetch fresh data, so the cache never goes stale for long.
 let membersCache: ManagedUser[] | null = null;
 
-export function MembersTab({ isAr }: { isAr: boolean }) {
+export function MembersTab({
+  isAr,
+  language,
+  currency,
+  contracts,
+}: {
+  isAr: boolean;
+  language: Language;
+  currency: Currency;
+  contracts: ContractData[];
+}) {
   const [users, setUsers] = useState<ManagedUser[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [busyUid, setBusyUid] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [profileUser, setProfileUser] = useState<ManagedUser | null>(null);
 
   const load = async () => {
     setIsLoading(true);
@@ -188,6 +205,13 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
+                  onClick={() => setProfileUser(u)}
+                  title={isAr ? 'الملف الشخصي' : 'Profile'}
+                  className="p-2 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/75 hover:text-ink cursor-pointer transition-colors"
+                >
+                  <IdCard className="w-3.5 h-3.5" />
+                </button>
+                <button
                   onClick={() => handleToggleDisabled(u)}
                   disabled={busyUid === u.uid}
                   title={u.disabled ? (isAr ? 'إعادة تفعيل' : 'Re-enable') : (isAr ? 'تعطيل' : 'Disable')}
@@ -213,6 +237,23 @@ export function MembersTab({ isAr }: { isAr: boolean }) {
             </div>
           ))}
         </div>
+      )}
+
+      {profileUser && (
+        <CustomerProfileSheet
+          isAr={isAr}
+          language={language}
+          currency={currency}
+          uid={profileUser.uid}
+          email={profileUser.email}
+          displayName={profileUser.displayName}
+          photoURL={profileUser.photoURL}
+          createdAt={profileUser.createdAt}
+          lastSignInAt={profileUser.lastSignInAt}
+          disabled={profileUser.disabled}
+          contracts={contracts}
+          onClose={() => setProfileUser(null)}
+        />
       )}
     </div>
   );

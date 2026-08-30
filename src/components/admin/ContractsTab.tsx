@@ -15,6 +15,7 @@ import {
   RotateCcw,
   Plus,
   X,
+  IdCard,
 } from 'lucide-react';
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
@@ -29,6 +30,7 @@ import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '..
 import { PriceInput } from '../PriceInput';
 import { STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, CollectionBar, AdminStats } from './shared';
 import { STAGE_COLORS } from '../../lib/statusColors';
+import { CustomerProfileSheet } from './CustomerProfileSheet';
 
 export function ContractsTab({
   isAr,
@@ -123,6 +125,7 @@ export function ContractsTab({
             <ContractRow
               key={c.id || c.contractNumber}
               contract={c}
+              allContracts={contracts}
               isAr={isAr}
               language={language}
               currency={currency}
@@ -194,6 +197,7 @@ CompanySignaturePad.displayName = 'CompanySignaturePad';
 
 function ContractRow({
   contract,
+  allContracts,
   isAr,
   language,
   currency,
@@ -201,12 +205,16 @@ function ContractRow({
   onToggle,
 }: {
   contract: ContractData;
+  /** كل عقود الموقع (غير مُصفّاة) — تُمرَّر للملف الشخصي بحيث يقدر يجمع كل عقود نفس الشخص،
+   *  لا هذا العقد وحده. */
+  allContracts: ContractData[];
   isAr: boolean;
   language: Language;
   currency: Currency;
   expanded: boolean;
   onToggle: () => void;
 }) {
+  const [showProfile, setShowProfile] = useState(false);
   // Legacy contracts saved before the payment ledger existed only have a lump `paidAmountIQD`
   // — seed a single migrated entry so that money isn't silently dropped from the ledger the
   // first time this contract is opened after the feature shipped. The id must be stable
@@ -390,11 +398,26 @@ function ContractRow({
 
       {expanded && (
         <div className="p-4 pt-0 space-y-4 border-t border-ink/10 animate-fade-in">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-4">
-            <div className="text-ink/60">{isAr ? 'الممثل:' : 'Representative:'} <span className="text-ink">{contract.repName}</span></div>
-            <div className="text-ink/60">{isAr ? 'الهاتف:' : 'Phone:'} <span className="text-ink font-mono" dir="ltr">{contract.phone}</span></div>
-            <div className="text-ink/60">{isAr ? 'البريد:' : 'Email:'} <span className="text-ink font-mono" dir="ltr">{contract.email}</span></div>
-            <div className="text-ink/60">{isAr ? 'المدينة:' : 'City:'} <span className="text-ink">{translateText(contract.city, language)}</span></div>
+          <div className="flex items-start justify-between gap-3 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs flex-1">
+              <div className="text-ink/60">{isAr ? 'الممثل:' : 'Representative:'} <span className="text-ink">{contract.repName}</span></div>
+              <div className="text-ink/60">{isAr ? 'الهاتف:' : 'Phone:'} <span className="text-ink font-mono" dir="ltr">{contract.phone}</span></div>
+              <div className="text-ink/60">{isAr ? 'البريد:' : 'Email:'} <span className="text-ink font-mono" dir="ltr">{contract.email}</span></div>
+              <div className="text-ink/60">{isAr ? 'المدينة:' : 'City:'} <span className="text-ink">{translateText(contract.city, language)}</span></div>
+            </div>
+            {/* الملف الشخصي: كل عقود هذا الشخص مجمَّعة، لا هذا العقد وحده — سلاسة التعامل معه
+                لا تتطلب فتح كل عقد بمفرده لمعرفة رقمه أو مجموع تعاقداته. متاح فقط لعقد يحمل
+                حساباً حقيقياً (uid)، وهو كل عقد يُنشأ اليوم. */}
+            {contract.uid && (
+              <button
+                type="button"
+                onClick={() => setShowProfile(true)}
+                title={isAr ? 'الملف الشخصي للعميل' : 'Customer profile'}
+                className="p-2 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors shrink-0"
+              >
+                <IdCard className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
           {contract.customFeaturesText && (

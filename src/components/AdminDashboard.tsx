@@ -259,7 +259,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
             </div>
           )}
           {tab === 'team' && <TeamTab isAr={isAr} />}
-          {tab === 'members' && <MembersTab isAr={isAr} />}
+          {tab === 'members' && <MembersTab isAr={isAr} language={language} currency={currency} contracts={contracts} />}
           {tab === 'settings' && <SettingsTab isAr={isAr} />}
         </div>
       </div>
