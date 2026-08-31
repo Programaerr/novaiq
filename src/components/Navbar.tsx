@@ -12,7 +12,7 @@ import { Language } from '../lib/i18n';
 import { NqButton } from './ui/NqButton';
 import { NqLink } from './ui/NqLink';
 import { useFloatingBarBottom } from '../lib/useFloatingBarBottom';
-import { NovaiqLogo } from './NovaiqLogo';
+import { NuvaiqLogo } from './NuvaiqLogo';
 
 // The nav toggle's icon: three uneven bars that settle toward an even split on hover, and
 // morph in place into an X on open — the same three bars animating throughout, never two
@@ -207,7 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             centring was chosen when the mark was the only thing that showed on a phone, and
             it is what made the full lockup impossible there: a centred box can only grow
             HALF its width toward the language button, and that button starts about 40px
-            from the centre. So the ceiling was a lockup of ~80px. NOVAIQ + a 34px mark +
+            from the centre. So the ceiling was a lockup of ~80px. NUVAIQ + a 34px mark +
             "...Design" is 147px.
 
             That is the whole story behind what this looked like: the arithmetic never
@@ -236,7 +236,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                also what reveals the wordmark. */
             className="flex items-center justify-center cursor-pointer group min-h-11 px-1.5 -mx-1.5"
           >
-            <NovaiqLogo size={34} showText={true} animated revealed={logoRevealed} />
+            <NuvaiqLogo size={34} showText={true} animated revealed={logoRevealed} />
           </a>
         </div>
 
@@ -380,7 +380,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="pb-2 border-b border-zinc-800">
             <span className="text-[11px] font-bold text-white flex items-center gap-2">
               <Compass className="w-3.5 h-3.5 text-white" />
-              <span>{isAr ? 'أقسام منصة NOVAIQ' : 'NOVAIQ Pages'}</span>
+              <span>{isAr ? 'أقسام منصة NUVAIQ' : 'NUVAIQ Pages'}</span>
             </span>
           </div>
 

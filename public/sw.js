@@ -1,4 +1,4 @@
-/* NOVAIQ service worker.
+/* NUVAIQ service worker.
 
    Two goals, no build step:
    · SPEED — every repeat visit serves the app's own hashed assets (JS/CSS/fonts/images)

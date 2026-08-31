@@ -30,7 +30,7 @@ export const LogoutConfirmDialog: React.FC<LogoutConfirmDialogProps> = ({ isAr, 
         <div className="text-center space-y-1.5">
           <h3 className="text-base font-bold text-ink">{isAr ? 'تسجيل الخروج؟' : 'Sign out?'}</h3>
           <p className="text-xs text-ink/60">
-            {isAr ? 'سيتم تسجيل خروجك من حسابك في NOVAIQ.' : 'You will be signed out of your NOVAIQ account.'}
+            {isAr ? 'سيتم تسجيل خروجك من حسابك في NUVAIQ.' : 'You will be signed out of your NUVAIQ account.'}
           </p>
         </div>
         <div className="flex gap-3">

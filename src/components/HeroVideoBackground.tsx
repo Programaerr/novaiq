@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { OBSIDIAN } from '../lib/homePalette';
 
 /**
- * خلفية فيديو متحركة للصندوق الأسود في الـ Hero (الذي يحمل اسم الشعار NOVAIQ).
+ * خلفية فيديو متحركة للصندوق الأسود في الـ Hero (الذي يحمل اسم الشعار NUVAIQ).
  *
  * ## المصادر وترتيبها
  * قائمة روابط فيديو خارجية (motionbgs.com). فيديو واحد يُختار عشوائياً مرة واحدة عند

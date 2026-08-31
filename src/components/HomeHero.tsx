@@ -111,7 +111,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
                 style={{ color: WHITE }}
               >
-                NOVAIQ
+                NUVAIQ
               </span>
               <p
                 className="mt-3 text-[0.8rem] sm:text-sm uw:text-base font-bold leading-relaxed"

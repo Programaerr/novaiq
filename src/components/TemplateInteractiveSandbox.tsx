@@ -59,7 +59,7 @@ interface TemplateInteractiveSandboxProps {
   onClose: () => void;
   onSelectForContract: (template: Template, customNotes?: string, primaryColorHex?: string) => void;
   /**
-   * Render only the demo itself — no NOVAIQ preview toolbar, device switcher or price bar. This
+   * Render only the demo itself — no NUVAIQ preview toolbar, device switcher or price bar. This
    * is the mode the device-frame iframe and the dedicated `?live=` tab use, where the customer
    * must be looking at a product and not at a preview tool.
    */
@@ -618,7 +618,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
         <span>© 2026 {SAKAN_IDENTITY.name} — جميع الحقوق محفوظة.</span>
         <span className="flex items-center gap-1.5">
           صُمّم وبُرمج بواسطة
-          <span className="text-slate-300 font-black font-mono tracking-widest">NOVAIQ</span>
+          <span className="text-slate-300 font-black font-mono tracking-widest">NUVAIQ</span>
         </span>
       </div>
     </footer>

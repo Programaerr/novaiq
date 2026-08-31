@@ -326,7 +326,7 @@ export function subscribeToContracts(callback: (contracts: ContractData[]) => vo
 // read documents they own (`ownsContract()` — see firestore.rules), and a collection query with
 // no filter is rejected by those rules even when the client would only ever display their own.
 // A `where('uid', '==', uid)` query is exactly the shape the rules accept, so the customer sees
-// real-time updates (status, NOVAIQ's signature, admin notes) the moment the admin saves them —
+// real-time updates (status, NUVAIQ's signature, admin notes) the moment the admin saves them —
 // the same live subscription the admin dashboard uses, scoped to their own documents.
 export function subscribeToMyContracts(
   uid: string | undefined,

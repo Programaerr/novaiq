@@ -167,7 +167,7 @@ export const ResponsivePreview: React.FC<{
   );
 };
 
-/** Three bars of deliberately uneven length — the same treatment as the NOVAIQ navbar's own
+/** Three bars of deliberately uneven length — the same treatment as the NUVAIQ navbar's own
  *  menu control, so the demos share the studio's visual language. */
 export const SiteMenuIcon: React.FC = () => (
   <span className="flex flex-col items-start gap-[3.5px] w-5 shrink-0" aria-hidden="true">
@@ -224,7 +224,7 @@ export const SiteTopBar: React.FC<{
   /** For wordmarks that are latin//path-like ("~/Logo") — RTL would otherwise reorder them
    *  into "Logo/~", since the surrounding document runs right-to-left. */
   logoNameLtr?: boolean;
-  /** NOVAIQ's own catalogue name for this template — a preview-only label, not part of the
+  /** NUVAIQ's own catalogue name for this template — a preview-only label, not part of the
    *  fictional site's own branding, so it gets a thin strip of its own inside the same
    *  rounded/bordered shell rather than sharing the logo row with the demo's own identity. */
   topLabel?: React.ReactNode;

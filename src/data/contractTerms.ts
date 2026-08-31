@@ -1,7 +1,7 @@
 import { Language } from '../lib/i18n';
 
 /**
- * The clauses of the NOVAIQ software design & development services agreement, in the order
+ * The clauses of the NUVAIQ software design & development services agreement, in the order
  * they are numbered.
  *
  * ## Why these live in one shared module
@@ -17,7 +17,7 @@ import { Language } from '../lib/i18n';
  * ## What is in them
  *
  * Deliberately covering both directions: the clauses that protect the client (delivery,
- * revisions, IP handover, warranty, confidentiality) and those that protect NOVAIQ (fixed
+ * revisions, IP handover, warranty, confidentiality) and those that protect NUVAIQ (fixed
  * scope, implied approval, capped liability, late payment, cancellation) sit in the same
  * numbered list, because a contract that only defends one side is the one that gets argued
  * about later.

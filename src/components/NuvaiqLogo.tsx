@@ -1,7 +1,7 @@
 import React from 'react';
 import logoMark from '../assets/images/novaiq-icon.png';
 
-interface NovaiqLogoProps {
+interface NuvaiqLogoProps {
   className?: string;
   showText?: boolean;
   size?: number;
@@ -13,7 +13,7 @@ interface NovaiqLogoProps {
   revealed?: boolean;
 }
 
-export const NovaiqLogo: React.FC<NovaiqLogoProps> = ({
+export const NuvaiqLogo: React.FC<NuvaiqLogoProps> = ({
   className = "",
   showText = true,
   size = 36,
@@ -35,13 +35,13 @@ export const NovaiqLogo: React.FC<NovaiqLogoProps> = ({
             animated ? 'navbar-logo-name' : ''
           }`}
         >
-          NOVAIQ
+          NUVAIQ
         </span>
       )}
 
       <img
         src={logoMark}
-        alt="NOVAIQ"
+        alt="NUVAIQ"
         width={size}
         height={size}
         className={`shrink-0 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] ${

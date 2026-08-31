@@ -49,7 +49,7 @@ function normalizeEmail(email: string): string {
 // auth change no matter how many components subscribe.
 //
 // Skipped entirely on `?live=` — the standalone template preview is a customer-facing demo
-// site with no NOVAIQ account layer, and each device frame loads it in its own iframe. Left
+// site with no NUVAIQ account layer, and each device frame loads it in its own iframe. Left
 // unguarded, simply opening a preview would restore auth state and re-write the signed-in
 // admin's users/ document once per frame, for a page that never reads it.
 const isLiveTemplateView =

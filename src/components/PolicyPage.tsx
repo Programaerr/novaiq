@@ -63,8 +63,8 @@ const TERMS_SECTIONS: Section[] = [
     icon: FileText,
     title: { ar: 'طبيعة الخدمة', en: 'Nature of the Service' },
     body: {
-      ar: 'توفر NOVAIQ قوالب برمجية جاهزة قابلة للتخصيص، بالإضافة إلى خدمات تطوير مخصص للمواقع والتطبيقات. تُعتبر الأسعار المعروضة تقديرية حتى يتم تأكيد المواصفات النهائية وتوقيع العقد الإلكتروني.',
-      en: 'NOVAIQ provides customizable ready-made software templates as well as custom web and application development services. Displayed prices are estimates until final specifications are confirmed and the digital contract is signed.',
+      ar: 'توفر NUVAIQ قوالب برمجية جاهزة قابلة للتخصيص، بالإضافة إلى خدمات تطوير مخصص للمواقع والتطبيقات. تُعتبر الأسعار المعروضة تقديرية حتى يتم تأكيد المواصفات النهائية وتوقيع العقد الإلكتروني.',
+      en: 'NUVAIQ provides customizable ready-made software templates as well as custom web and application development services. Displayed prices are estimates until final specifications are confirmed and the digital contract is signed.',
     },
   },
   {
@@ -116,8 +116,8 @@ export const PolicyPage: React.FC<PolicyPageProps> = ({ type, language }) => {
           </h2>
           <p className="text-steel-light text-xs sm:text-sm">
             {isAr
-              ? 'آخر تحديث: أغسطس 2026 — منصة NOVAIQ البرمجية'
-              : 'Last updated: August 2026 — NOVAIQ Software Platform'}
+              ? 'آخر تحديث: أغسطس 2026 — منصة NUVAIQ البرمجية'
+              : 'Last updated: August 2026 — NUVAIQ Software Platform'}
           </p>
         </div>
 

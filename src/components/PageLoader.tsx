@@ -23,7 +23,7 @@ export const PageLoader: React.FC = () => (
         className="font-black tracking-[0.3em] font-mono text-base select-none"
         style={{ color: OBSIDIAN, opacity: 0.75 }}
       >
-        NOVAIQ
+        NUVAIQ
       </span>
     </div>
   </div>

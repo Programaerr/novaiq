@@ -5,7 +5,7 @@ import { Language } from '../lib/i18n';
 import { readStoredCurrency } from '../lib/currency';
 import { writePendingContractSelection } from '../lib/pendingContractSelection';
 import type { Template } from '../types';
-import { NovaiqLogo } from './NovaiqLogo';
+import { NuvaiqLogo } from './NuvaiqLogo';
 import type { ThemeColor } from './TemplateInteractiveSandbox';
 import { NqButton } from './ui/NqButton';
 
@@ -26,7 +26,7 @@ function readStoredLanguage(): Language {
 /**
  * The template as its own website, on its own URL (`?live=<template-id>`).
  *
- * Nothing of NOVAIQ's own shell renders here — no navbar, no cosmic background, no preview
+ * Nothing of NUVAIQ's own shell renders here — no navbar, no cosmic background, no preview
  * toolbar. That is the entire point: this is what the "open in a new tab" action opens, and
  * a customer must be looking at a website, not a preview tool. It reads through
  * `useLiveTemplates` (not the static catalogue) specifically so an admin's price/name/image
@@ -47,7 +47,7 @@ export const TemplateLivePage: React.FC = () => {
   const [currency] = useState(() => readStoredCurrency());
 
   // Embedded inside a device frame the parent already provides every control, so the
-  // return-to-NOVAIQ bar would just be chrome drawn on top of chrome.
+  // return-to-NUVAIQ bar would just be chrome drawn on top of chrome.
   const isEmbedded = window.self !== window.top;
   const isAr = language === 'ar';
 
@@ -87,7 +87,7 @@ export const TemplateLivePage: React.FC = () => {
     document.documentElement.lang = language;
     document.title = template
       ? `${template.title} — ${isAr ? 'معاينة حية' : 'Live Preview'}`
-      : isAr ? 'معاينة حية | NOVAIQ' : 'Live Preview | NOVAIQ';
+      : isAr ? 'معاينة حية | NUVAIQ' : 'Live Preview | NUVAIQ';
   }, [template, language, isAr]);
 
   // Covers everything in the sandbox that isn't a price (which already renders correctly per
@@ -149,7 +149,7 @@ export const TemplateLivePage: React.FC = () => {
           </p>
         </div>
         <NqButton tone="chrome" variant="solid" size="sm" radius="xl" onClick={goHome}>
-          {isAr ? 'العودة إلى NOVAIQ' : 'Back to NOVAIQ'}
+          {isAr ? 'العودة إلى NUVAIQ' : 'Back to NUVAIQ'}
         </NqButton>
       </div>
     );
@@ -185,9 +185,9 @@ export const TemplateLivePage: React.FC = () => {
               : 'bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2'
           }`}
         >
-          <NovaiqLogo size={18} showText={false} />
+          <NuvaiqLogo size={18} showText={false} />
           <span className="hidden sm:inline text-[10px] text-white/75 px-1">
-            {isAr ? 'معاينة حية لقالب NOVAIQ' : 'NOVAIQ live template preview'}
+            {isAr ? 'معاينة حية لقالب NUVAIQ' : 'NUVAIQ live template preview'}
           </span>
           {/* Both were 32px tall and one of them was icon-only below `sm` with no accessible
               name at all — a floating bar over someone else's page is exactly where a control has

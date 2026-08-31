@@ -139,7 +139,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
   useEffect(() => {
     // Live subscription scoped to this account's own documents (uid first, email fallback).
     // Because it queries `where(uid == …)` — the exact shape Firestore rules allow a customer
-    // to run — every admin save (status, NOVAIQ's signature, agreed notes) lands here in
+    // to run — every admin save (status, NUVAIQ's signature, agreed notes) lands here in
     // real time, without a refresh, exactly as it appears in the admin panel.
     return subscribeToMyContracts(user.uid, user.email || undefined, setContracts);
   }, [user.email, user.uid]);
@@ -249,7 +249,7 @@ function CustomerContractRow({
 
   // Read-only for the client — never editable here, only in the admin dashboard. Showing it
   // at all (not just cost/profit, which stay admin-only) is deliberate: both sides can see
-  // exactly what's been paid and what's left, instead of only NOVAIQ having a record of it.
+  // exactly what's been paid and what's left, instead of only NUVAIQ having a record of it.
   const paidAmountIQD = contract.payments ? sumPayments(contract.payments) : contract.paidAmountIQD || 0;
   const remainingIQD = Math.max((contract.totalPriceIQD || 0) - paidAmountIQD, 0);
   const installmentsPlanned = contract.installmentsPlanned || 0;
@@ -396,8 +396,8 @@ function CustomerContractRow({
           )}
 
           {/* Signatures — the customer's own on the right (as drawn when the contract was
-              created), NOVAIQ's on the left (added by the admin on approval). Showing the
-              customer their own signature confirms it was actually stored; showing NOVAIQ's
+              created), NUVAIQ's on the left (added by the admin on approval). Showing the
+              customer their own signature confirms it was actually stored; showing NUVAIQ's
               confirms the countersign landed. */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {contract.signatureDataUrl ? (
@@ -426,12 +426,12 @@ function CustomerContractRow({
             {contract.companySignatureDataUrl ? (
               <div className="p-3 rounded-xl bg-emerald-100/80 border border-emerald-300/40 text-xs">
                 <span className="text-[11px] font-bold text-emerald-700 block mb-2">
-                  {isAr ? 'توقيع NOVAIQ' : 'NOVAIQ Signature'}
+                  {isAr ? 'توقيع NUVAIQ' : 'NUVAIQ Signature'}
                 </span>
                 <div className="bg-white rounded-lg h-16 flex items-center px-2">
                   <img
                     src={contract.companySignatureDataUrl}
-                    alt={isAr ? 'توقيع NOVAIQ' : 'NOVAIQ signature'}
+                    alt={isAr ? 'توقيع NUVAIQ' : 'NUVAIQ signature'}
                     className="max-h-full max-w-full object-contain"
                     style={{ filter: 'invert(1)' }}
                   />
@@ -440,7 +440,7 @@ function CustomerContractRow({
             ) : (
               <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
                 <span className="text-[11px] font-bold text-ink/60 block">
-                  {isAr ? 'توقيع NOVAIQ' : 'NOVAIQ Signature'}
+                  {isAr ? 'توقيع NUVAIQ' : 'NUVAIQ Signature'}
                 </span>
                 <p className="mt-2 text-ink/50">
                   {isAr ? 'بانتظار مراجعة الفريق وتوقيعه.' : 'Awaiting the team’s review and sign-off.'}

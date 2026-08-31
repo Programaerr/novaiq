@@ -143,7 +143,7 @@ export function ContractsTab({
 }
 
 // ---------------------------------------------------------------------------
-// Company signature pad — NOVAIQ's own sign-off on a negotiated contract
+// Company signature pad — NUVAIQ's own sign-off on a negotiated contract
 // ---------------------------------------------------------------------------
 
 interface CompanySignatureHandle {
@@ -624,7 +624,7 @@ function ContractRow({
 
           <div>
             <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
-              {isAr ? 'توقيع واعتماد NOVAIQ (يظهر على العقد المطبوع بجانب توقيع العميل)' : "NOVAIQ's Sign-off (shown on the printed contract next to the client's signature)"}
+              {isAr ? 'توقيع واعتماد NUVAIQ (يظهر على العقد المطبوع بجانب توقيع العميل)' : "NUVAIQ's Sign-off (shown on the printed contract next to the client's signature)"}
             </label>
             <CompanySignaturePad
               ref={signatureRef}

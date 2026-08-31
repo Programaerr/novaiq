@@ -137,7 +137,7 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
           {/* Document Header Box */}
           <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <span className="text-2xl font-black text-white tracking-widest font-['Cairo'] block">NOVAIQ</span>
+              <span className="text-2xl font-black text-white tracking-widest font-['Cairo'] block">NUVAIQ</span>
               <span className="text-xs text-white/75">
                 {isAr ? 'منصة القوالب البرمجية والعقد الإلكتروني الذكي' : 'Smart Software Templates & Electronic Contract Platform'}
               </span>
@@ -210,10 +210,10 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
               <div className="text-[10px] text-white/75">{contract.repName}</div>
             </div>
 
-            {/* NOVAIQ Stamp Seal */}
+            {/* NUVAIQ Stamp Seal */}
             <div className="p-3 rounded-2xl border border-zinc-700 bg-zinc-900 text-center space-y-1 w-48">
               <ShieldCheck className="w-5 h-5 text-white mx-auto" />
-              <div className="text-xs font-black text-white font-mono">{isAr ? 'ختم NOVAIQ الرسمي' : 'NOVAIQ Official Seal'}</div>
+              <div className="text-xs font-black text-white font-mono">{isAr ? 'ختم NUVAIQ الرسمي' : 'NUVAIQ Official Seal'}</div>
               <div className="text-[9px] text-white/75">VERIFIED CONTRACT</div>
             </div>
           </div>

@@ -70,7 +70,7 @@ export async function generateContractPDF(element: HTMLElement, contract: Contra
   }
 
   const cleanCompanyName = (contract.companyName || 'Company').replace(/[^a-zA-Z0-9_\-]/g, '_');
-  const filename = `NOVAIQ_Contract_${cleanCompanyName}_${contract.contractNumber}.pdf`;
+  const filename = `NUVAIQ_Contract_${cleanCompanyName}_${contract.contractNumber}.pdf`;
 
   try {
     const pdfBlob = doc.output('blob');

@@ -155,7 +155,7 @@ export function translateText(text: string | undefined | null, lang: Language): 
 export const UI_TRANSLATIONS = {
   ar: {
     // Brand & Header
-    brandTitle: 'NOVAIQ',
+    brandTitle: 'NUVAIQ',
     brandTagline: 'منظومة تطوير البرمجيات السحابية',
     navHome: 'الرئيسية',
     navTemplates: 'القوالب',
@@ -259,15 +259,15 @@ export const UI_TRANSLATIONS = {
     cancelBtn: 'إلغاء الأمر',
 
     // Footer & About
-    aboutTitle: 'من نحن - NOVAIQ',
+    aboutTitle: 'من نحن - NUVAIQ',
     aboutDesc: 'نحن منظومة هندسة برمجية سحابية متخصصة في بناء المنصات الفضائية عالية الأداء والتطبيقات المؤسسية الرقمية والمواقع المتكاملة.',
-    rightsReserved: 'جميع الحقوق محفوظة منصة NOVAIQ البرمجية',
+    rightsReserved: 'جميع الحقوق محفوظة منصة NUVAIQ البرمجية',
     privacyPolicy: 'سياسة الخصوصية',
     termsOfService: 'شروط الخدمة'
   },
   en: {
     // Brand & Header
-    brandTitle: 'NOVAIQ',
+    brandTitle: 'NUVAIQ',
     brandTagline: 'Cloud Software Engineering Platform',
     navHome: 'Home',
     navTemplates: 'Templates',
@@ -351,7 +351,7 @@ export const UI_TRANSLATIONS = {
 
     // Firebase Orders Modal
     ordersTitle: 'Saved Project Specs & Requests',
-    ordersSubtitle: 'All your custom project specs with NOVAIQ are permanently saved on the cloud.',
+    ordersSubtitle: 'All your custom project specs with NUVAIQ are permanently saved on the cloud.',
     searchOrdersPlaceholder: 'Search by request number or company name...',
     noOrdersFound: 'No saved requests found matching your search.',
     contractNumberHeader: 'Request #',
@@ -371,9 +371,9 @@ export const UI_TRANSLATIONS = {
     cancelBtn: 'Cancel',
 
     // Footer & About
-    aboutTitle: 'About Us - NOVAIQ',
+    aboutTitle: 'About Us - NUVAIQ',
     aboutDesc: 'We are a cloud software engineering platform specializing in building high-performance cosmic systems, enterprise applications, and responsive websites.',
-    rightsReserved: 'All rights reserved NOVAIQ Software Platform',
+    rightsReserved: 'All rights reserved NUVAIQ Software Platform',
     privacyPolicy: 'Privacy Policy',
     termsOfService: 'Terms of Service'
   }

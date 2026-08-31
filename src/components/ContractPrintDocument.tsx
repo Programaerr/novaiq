@@ -63,17 +63,17 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       s5: isAr ? '5. التواقيع والاعتماد' : '5. SIGNATURES & AUTHORIZATION',
       clientSig: isAr ? 'توقيع ممثل الشركة' : 'Client Representative Signature',
       signedElectronically: isAr ? '[ تم التوقيع إلكترونياً ]' : '[ Signed Electronically ]',
-      companySig: isAr ? 'توقيع واعتماد NOVAIQ' : 'NOVAIQ Sign-off',
+      companySig: isAr ? 'توقيع واعتماد NUVAIQ' : 'NUVAIQ Sign-off',
       pendingApproval: isAr ? '[ قيد الاعتماد ]' : '[ Pending Approval ]',
       // No "official", no "certified", no claim of validity without a wet signature. This is a
       // private agreement between two named parties — it is not issued, stamped or notarised by
       // any authority, and wording that implies otherwise is a liability rather than a feature.
-      seal: isAr ? 'ختم NOVAIQ' : 'NOVAIQ SEAL',
+      seal: isAr ? 'ختم NUVAIQ' : 'NUVAIQ SEAL',
       verified: isAr ? 'عقد إلكتروني بين الطرفين' : 'E-CONTRACT BETWEEN THE PARTIES',
       authCode: isAr ? 'رمز العقد' : 'CONTRACT REF',
       footer: isAr
-        ? 'NOVAIQ — صدرت هذه الوثيقة إلكترونياً عبر منصة NOVAIQ، وهي اتفاق خاص بين الطرفين الموقّعَين عليها.'
-        : 'NOVAIQ — Issued electronically via the NOVAIQ platform; a private agreement between its two signatories.',
+        ? 'NUVAIQ — صدرت هذه الوثيقة إلكترونياً عبر منصة NUVAIQ، وهي اتفاق خاص بين الطرفين الموقّعَين عليها.'
+        : 'NUVAIQ — Issued electronically via the NUVAIQ platform; a private agreement between its two signatories.',
     };
 
     const paymentPlanLabel = (() => {
@@ -166,7 +166,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
         <div style={{ backgroundColor: '#080A0D', color: '#ffffff', padding: '16px 28px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: 3 }}>NOVAIQ</div>
+              <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: 3 }}>NUVAIQ</div>
               <div style={{ fontSize: 11, color: '#D3D3D3', marginTop: 4 }}>{t.tagline}</div>
             </div>
             <div style={{ textAlign: isAr ? 'left' : 'right', fontSize: 11, color: '#E6E7E7' }}>

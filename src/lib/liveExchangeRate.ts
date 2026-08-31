@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 
 // A free, no-API-key exchange rate feed (open.er-api.com) — CORS-open, so this can be called
 // directly from the browser with no backend proxy needed. Its IQD figure is the official/
-// interbank-ish peg, which in Iraq commonly differs from the informal market rate NOVAIQ's own
+// interbank-ish peg, which in Iraq commonly differs from the informal market rate NUVAIQ's own
 // fixed pricing constant (IQD_PER_USD in currency.ts) is calibrated to — this is a separate,
 // on-demand admin tool for a live reference number, not a replacement for that pricing constant.
 const RATE_ENDPOINT = 'https://open.er-api.com/v6/latest/USD';

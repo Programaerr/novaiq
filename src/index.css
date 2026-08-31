@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── NOVAIQ brand tokens ───────────────────────────────────────────────────────────────
+/* ── NUVAIQ brand tokens ───────────────────────────────────────────────────────────────
    Obsidian Black, Signal Orange, Ember, Warm White — the company's identity, end to end, not
    a page-level exception any more. Every page (home, admin panel, customer profile, contract
    builder) reads its colour from these tokens rather than its own copy of a hex, which is the
@@ -111,7 +111,7 @@
 
 /* Restores Tailwind's stock black/white/zinc inside the rental demo (Sakan), which the override
    above would otherwise recolour along with everything else. Sakan is a customer's product being
-   demonstrated, with its own brand — not NOVAIQ's — so the moment its markup is reached, these
+   demonstrated, with its own brand — not NUVAIQ's — so the moment its markup is reached, these
    variables shadow back to the exact values Tailwind ships (captured from a build with no theme
    override active, so this is pixel-identical to "untouched"). Nothing inside has to know this
    scope exists; every `bg-black`/`zinc-*` class inside it simply resolves differently than the

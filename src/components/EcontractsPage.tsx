@@ -18,7 +18,7 @@ const ACCENT = ORANGE;
 const ACCENT_SOFT = 'rgba(255, 106, 0, 0.14)';
 const SECONDARY = STEEL;
 
-// Shown in clause 3 (milestone delivery). This page presents the standard NOVAIQ agreement, and
+// Shown in clause 3 (milestone delivery). This page presents the standard NUVAIQ agreement, and
 // the timeline is the one clause that varies per contract — 8 weeks is the custom-project default
 // (see ContractBuilder) used here so the page reads fully; a specific contract states its own.
 const REPRESENTATIVE_TIMELINE_WEEKS = 8;

@@ -102,7 +102,7 @@ export interface ContractData {
   // Legal & Digital Signature
   signatureDataUrl: string;
   agreedToTerms: boolean;
-  // Set only by the admin dashboard — NOVAIQ's own sign-off, shown on the printed contract
+  // Set only by the admin dashboard — NUVAIQ's own sign-off, shown on the printed contract
   // next to the client's signature so the client can see the work was actually approved.
   companySignatureDataUrl?: string;
   
@@ -120,7 +120,7 @@ export interface ContractData {
   // never shown on the client's own printed contract. Deliberately separate from `status`
   // (which tracks project progress): a contract can be `completed` and still `unpaid`, or
   // `submitted` and already `paid` in full up front.
-  /** What NOVAIQ actually spent to deliver this contract (freelancers, hosting, etc.), entered
+  /** What NUVAIQ actually spent to deliver this contract (freelancers, hosting, etc.), entered
    *  manually since there's no other cost-tracking system in the app to derive it from. */
   costIQD?: number;
   paymentStatus?: 'unpaid' | 'partial' | 'paid';

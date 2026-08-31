@@ -20,7 +20,7 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
 
 // `?live=<template-id>` is served as its own document rather than as a route inside the app.
 // It has to be a genuinely separate page: it's what the device-frame iframes load and what
-// the "open in a new tab" action opens, so none of NOVAIQ's own shell (navbar, background,
+// the "open in a new tab" action opens, so none of NUVAIQ's own shell (navbar, background,
 // scroll rig, translator) may mount around it — the customer must be looking at the template
 // and nothing else.
 const TemplateLivePage = lazy(() =>

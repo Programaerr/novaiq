@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
-import { NovaiqLogo } from './NovaiqLogo';
+import { NuvaiqLogo } from './NuvaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
@@ -219,7 +219,7 @@ export const Footer: React.FC<FooterProps> = ({
               {/* The mark is white artwork on transparency, which is nothing at all on paper.
                   brightness(0) takes any colour to black and leaves the alpha alone, so the one
                   asset reads here without a second file or a chip behind it. */}
-              <NovaiqLogo size={34} showText={false} className="brightness-0" />
+              <NuvaiqLogo size={34} showText={false} className="brightness-0" />
             </a>
             <p               className="mt-5 max-w-sm uw:max-w-md text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg)/var(--ft-a55))] leading-relaxed">
               {isAr
@@ -303,7 +303,7 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Bottom bar. */}
         <div className="mt-14 pt-6 border-t border-[rgb(var(--ft-accent)/0.25)] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="nq-label text-xs sm:text-sm uw:text-base tracking-[0.14em] uppercase text-[rgb(var(--ft-fg)/var(--ft-a40))]">
-            © {new Date().getFullYear()} NOVAIQ — {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved'}
+            © {new Date().getFullYear()} NUVAIQ — {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved'}
           </p>
           {/* A ghost rather than a bare text button, and the reason is the 44px floor: this was
               the height of its own 12px type, which is a target you have to aim at. */}

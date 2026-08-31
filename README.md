@@ -1,6 +1,6 @@
-# NOVAIQ
+# NUVAIQ
 
-منصة NOVAIQ — عرض قوالب الويب الجاهزة وطلب العقود الإلكترونية للشركات والمؤسسات.
+منصة NUVAIQ — عرض قوالب الويب الجاهزة وطلب العقود الإلكترونية للشركات والمؤسسات.
 
 React 19 · TypeScript · Vite · Tailwind v4 · Firebase · Express
 

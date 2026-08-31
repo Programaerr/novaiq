@@ -166,7 +166,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-ink">
-              {isAr ? 'لوحة تحكم NOVAIQ' : 'NOVAIQ Control Panel'}
+              {isAr ? 'لوحة تحكم NUVAIQ' : 'NUVAIQ Control Panel'}
             </h1>
             <p className="text-xs text-ink/55">
               {isAr ? 'كل شيء عن أعمالك في مكان واحد' : 'Everything about your business, in one place'}

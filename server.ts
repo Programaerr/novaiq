@@ -130,7 +130,7 @@ const translateLimit = rateLimit({ windowMs: 60_000, max: 20 });
 
 // API Health Check
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', app: 'NOVAIQ Cosmic Engine' });
+  res.json({ status: 'ok', app: 'NUVAIQ Cosmic Engine' });
 });
 
 // ---------------------------------------------------------------------------
@@ -355,7 +355,7 @@ async function startServer() {
   app.listen(PORT, '0.0.0.0', () => {
     const networkIP = getLocalNetworkIP();
     console.log('');
-    console.log('  NOVAIQ Server is running:');
+    console.log('  NUVAIQ Server is running:');
     console.log(`  ➜  Local:   http://localhost:${PORT}`);
     if (networkIP) {
       console.log(`  ➜  Network: http://${networkIP}:${PORT}`);

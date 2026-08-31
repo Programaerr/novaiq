@@ -240,13 +240,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 than Latin at the same size: the ascenders (ل ك ا) and the marks above them
                 (the shadda in "سجّل") occupy space Latin leaves empty, so a leading that looks
                 airy in English is cramped here. */}
-            {/* At 16rem the ceiling is 1.75rem — "حسابك في NOVAIQ" sets at ~238px in a
+            {/* At 16rem the ceiling is 1.75rem — "حسابك في NUVAIQ" sets at ~238px in a
                 256px column, and 2.1rem would wrap a two-word phrase across three lines. At
                 25rem there is room for the 2.1rem the desktop layout always ran. */}
             <h1 className="text-[1.75rem] lg:text-[2.1rem] font-black leading-[1.35]">
               {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
               <br />
-              {isAr ? 'حسابك في NOVAIQ' : 'NOVAIQ account'}
+              {isAr ? 'حسابك في NUVAIQ' : 'NUVAIQ account'}
             </h1>
 
             <p className="mt-3 lg:mt-4 text-[15px] lg:text-base leading-[1.75]" style={{ color: INK_MUTED }}>
@@ -361,7 +361,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             full-width line is the one line that would hang off the edge. The column is what
             keeps it inside; the alignment is the column's, for the reason given above. */}
         <p className="nq-lean-copy shrink-0 mt-10 text-[13px] font-medium leading-[1.6]" style={{ color: INK_MUTED }}>
-          {isAr ? '© NOVAIQ — جميع الحقوق محفوظة' : '© NOVAIQ — All rights reserved'}
+          {isAr ? '© NUVAIQ — جميع الحقوق محفوظة' : '© NUVAIQ — All rights reserved'}
         </p>
       </div>
     </div>
