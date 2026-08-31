@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { SURFACE_LIGHT } from '../lib/homePalette';
 
 /**
  * One card, in pixels.
@@ -37,18 +38,50 @@ const TILE_W = 360;
 const TILE_H = 196;
 
 /**
- * The card's own colour, before the light touches it.
+ * The two colours a card can be, and how many of each.
  *
- * The crest of Signal Orange (`shadeColor(ORANGE, 0.14)` — see `SIGNAL_TONES` in TileField.tsx),
- * matching the third pass: the ground behind these cards is WARM WHITE now (`.nq-coast`), and the
- * cards are this page's own version of the site's cube swell — the flat ground is white
- * everywhere, and the raised geometry standing on it carries the brand's Orange, here as much as
- * on every cube field elsewhere. A Lambert material multiplies its base by the light, so whatever
- * number goes in here comes out darker once lit; lit at the crest tone the cards land ABOVE the
- * crest and the shaded sides fall to about the trough, which is the same range the site's cube
- * field paints and the reason the two look related.
+ * ## Why most of them are not Orange
+ *
+ * They all used to be, and that is what put this screen over budget: measured off the rendered
+ * page, 29.3% of the desktop sign-in view was saturated Orange, against a brand budget of 8-15%
+ * and a rule that Orange is never a background.
+ *
+ * The comment that used to sit here said these cards paint "the same range the site's cube field
+ * paints and the reason the two look related". They did not. Every cube field on the site is
+ * NEUTRAL geometry that carries Orange only as `foam`, and TileField's shader spends even that
+ * sparingly — `mix(c, uFoam, smoothstep(0.86, 1.0, vW) * 0.55)`, which is the top 14% of the
+ * swell at just over half strength. A field painting 100% of its geometry at full strength was
+ * related to those only by hue.
+ *
+ * So the geometry is neutral like every other field, and Orange is the sparse thing standing in
+ * it. That is also the graphic language the brand brief describes in its own words: a precise dark
+ * technical grid with a few important orange connection points, not a grid dyed orange.
+ *
+ * ## The values
+ *
+ * A Lambert material multiplies its base by the light, so whatever number goes in here comes out
+ * darker once lit — about 0.89 of it on a face square to the light (see the material note below).
+ * SURFACE_LIGHT lands at roughly #E3E3E3 lit, which sits inside the band the hero's own cubes
+ * occupy (`shadeColor(WHITE, ±0.14)`), so a card and a cube read as the same material seen twice.
+ * The accent keeps the value the whole field used to be, the crest of Signal Orange.
  */
-const CARD_TINT = '#FF7F24';
+const CARD_BASE = SURFACE_LIGHT;
+const CARD_ACCENT = '#FF7F24';
+/** One card in seven. Chosen to land the field's own Orange near 4% of the screen, which leaves
+ *  the page's actual signals — the Google button, the three perk icons — room inside the budget. */
+const ACCENT_EVERY = 7;
+
+/**
+ * Which cards are the accent, decided from the grid position alone.
+ *
+ * Deterministic for the same reason the lightness wobble below is: `count` changes with the
+ * viewport, so anything seeded off the instance index would deal a different hand every time the
+ * window is resized, and the field would visibly reshuffle while being dragged.
+ */
+function isAccentCard(c: number, r: number): boolean {
+  const h = Math.sin(c * 12.9898 + r * 78.233) * 43758.5453;
+  return h - Math.floor(h) < 1 / ACCENT_EVERY;
+}
 
 /**
  * The diagonal, and the two small angles that make a flat grid look like objects.
@@ -119,17 +152,37 @@ function makeFaceTexture() {
 /**
  * How far out of focus the whole thing is, and it is bought twice over.
  *
- * DPR is the first half and the cheaper one. The canvas renders at a fraction of the screen's
- * resolution and the browser scales it up, which is a bilinear blur that costs nothing — it is
- * the same pass that was going to composite the layer anyway, and it cuts the fragment work by
- * about three quarters at the same time.
+ * ## Why this is a function and not a constant
  *
- * BLUR is the second half, and it is small on purpose: its only job is to erase the resampling
- * steps the upscale leaves on a hard edge. Doing the whole defocus this way would mean a
- * full-screen filter re-run every frame the cards move, which is the expensive way to arrive at
- * the same picture.
+ * R3F's `dpr` is a device-pixel-ratio, not a fraction of the element. A literal 0.55 therefore
+ * does not mean "render at 55%" — it means the browser magnifies whatever is drawn by
+ * `devicePixelRatio / 0.55` on its way to the screen, which is 1.8x on a 1x monitor, 3.6x on a
+ * 2x laptop and 5.5x on a 3x phone. The artifact was a lottery on the visitor's hardware, and
+ * BLUR is a fixed CSS length that cannot scale to cover it. Measured on the running page before
+ * this changed: a 730x499 buffer stretched across 2656x1816 physical pixels.
+ *
+ * So the MAGNIFICATION is what is held constant, and dpr falls out of it. Every screen now lands
+ * near 2.2x, which is an upscale a 3px blur can actually absorb. The fill saving the constant was
+ * bought for is still there — a 1x screen renders at half, a 2x screen at about 0.9 rather than
+ * the 2.0 an unconstrained canvas would take — it simply stops varying by device.
+ *
+ * ## BLUR
+ *
+ * Small on purpose: its only job is to erase the resampling steps the upscale leaves on a hard
+ * edge, and with the upscale now bounded there is a known amount of step to erase rather than an
+ * unknown one. Doing the whole defocus this way would mean a full-screen filter re-run every
+ * frame the cards move, which is the expensive way to arrive at the same picture.
  */
-const DPR: [number, number] = [0.4, 0.55];
+const MAX_UPSCALE = 2.2;
+/** Floor so a 1x screen still buys the fill saving; ceiling so a 3x phone does not pay full price. */
+const DPR_MIN = 0.5;
+const DPR_MAX = 1.25;
+
+function fieldDpr(): number {
+  const device = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
+  return Math.min(DPR_MAX, Math.max(DPR_MIN, device / MAX_UPSCALE));
+}
+
 const BLUR = '3px';
 
 /** Rounded rectangle as a THREE.Shape, for the extrude below. */
@@ -174,17 +227,20 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
   const clockRef = useRef(0);
   const unit = unitFor(size.width);
 
-  /* Low segment counts throughout. This is background geometry at 40% resolution behind a blur;
-     the silhouette is a rounded rectangle and five segments a corner is already more than the
-     blur can carry. */
+  /* Still low, but no longer as low as it was. Five segments on a 22-unit corner radius was
+     tuned for a buffer that was then magnified 3.6x, where the facets were the smallest error in
+     the picture. With the upscale bounded the silhouette is the thing the eye actually reads, and
+     a faceted corner is what stops a rounded rectangle looking rounded. Ten is still cheap here:
+     this is ONE geometry shared by every instance, so the vertex cost is paid once for the whole
+     field rather than per card. */
   const geometry = useMemo(() => {
     const geo = new THREE.ExtrudeGeometry(cardShape(CARD_W, CARD_H, CARD_R), {
       depth: CARD_D,
       bevelEnabled: true,
       bevelThickness: CARD_BEVEL,
       bevelSize: CARD_BEVEL,
-      bevelSegments: 2,
-      curveSegments: 5,
+      bevelSegments: 3,
+      curveSegments: 10,
     });
     /* Extrude runs from z=0 forward, so without this every card hangs off its own origin and the
        tilt below rotates the grid about a plane that is not the grid. */
@@ -226,7 +282,8 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
     if (!mesh || !face) return;
     const m = new THREE.Matrix4();
     const colour = new THREE.Color();
-    const base = new THREE.Color(CARD_TINT);
+    const neutral = new THREE.Color(CARD_BASE);
+    const accent = new THREE.Color(CARD_ACCENT);
     let i = 0;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -244,7 +301,8 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
            resizes rather than random on every mount. Enough that the field is not wallpaper, far
            too little to read as a pattern of its own. */
         const wobble = 1 + 0.07 * Math.sin(c * 1.7 + r * 2.9);
-        mesh.setColorAt(i, colour.copy(base).multiplyScalar(wobble));
+        const src = isAccentCard(c, r) ? accent : neutral;
+        mesh.setColorAt(i, colour.copy(src).multiplyScalar(wobble));
         i += 1;
       }
     }
@@ -366,6 +424,9 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
 export const CardField: React.FC = () => {
   const [idle, setIdle] = useState(false);
   const [reduced, setReduced] = useState(false);
+  /* devicePixelRatio is not fixed for the life of the page: browser zoom changes it, and so does
+     dragging the window between a laptop screen and an external monitor. Both fire `resize`. */
+  const [dpr, setDpr] = useState(fieldDpr);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -374,6 +435,12 @@ export const CardField: React.FC = () => {
     const mo = new MutationObserver(read);
     mo.observe(root, { attributes: true, attributeFilter: ['data-idle'] });
     return () => mo.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const read = () => setDpr(fieldDpr());
+    window.addEventListener('resize', read);
+    return () => window.removeEventListener('resize', read);
   }, []);
 
   useEffect(() => {
@@ -396,12 +463,17 @@ export const CardField: React.FC = () => {
         frameloop={running ? 'always' : 'demand'}
         orthographic
         camera={{ position: [0, 0, 900], zoom: 1, near: 0.1, far: 4000 }}
-        dpr={DPR}
+        dpr={dpr}
         /* `alpha` so the WARM WHITE fill on `.nq-coast` is what shows through the gaps between
            cards, rather than this canvas painting its own ground. One flat colour, declared once,
            in the place the rest of the page reads it from.
-           `antialias` off because the canvas is already being downsampled and then blurred, which
-           is a far better anti-aliaser than MSAA and is free. */
+           `antialias` off, but not for the reason that used to be written here. The old note
+           said the canvas was "already being downsampled", which had it backwards: rendering
+           below the display resolution and scaling UP is undersampling, and undersampling
+           magnifies aliasing rather than averaging it away — there was never a supersample to
+           be a better anti-aliaser than MSAA. It stays off because the 3px blur above genuinely
+           does cover a 2.2x step, and MSAA on a layer that is about to be blurred is paid for
+           and then thrown away. */
         gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
       >
         <Grid reduced={reduced} />
