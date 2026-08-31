@@ -245,6 +245,8 @@ function ContractRow({
   const [payments, setPayments] = useState<PaymentRecord[]>(() => baselinePayments(contract));
   const [installmentsPlanned, setInstallmentsPlanned] = useState(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
   const [adminNotes, setAdminNotes] = useState(contract.adminNotes || '');
+  /** رابط المعاينة الخاص الذي يتابع منه العميل موقعه أثناء التنفيذ. */
+  const [previewUrl, setPreviewUrl] = useState(contract.previewUrl || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -259,9 +261,10 @@ function ContractRow({
     setPayments(baselinePayments(contract));
     setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
     setAdminNotes(contract.adminNotes || '');
+    setPreviewUrl(contract.previewUrl || '');
     setSignatureDirty(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contract.status, contract.totalPriceIQD, contract.costIQD, contract.payments, contract.paidAmountIQD, contract.installmentsPlanned, contract.adminNotes, contract.companySignatureDataUrl]);
+  }, [contract.status, contract.totalPriceIQD, contract.costIQD, contract.payments, contract.paidAmountIQD, contract.installmentsPlanned, contract.adminNotes, contract.previewUrl, contract.companySignatureDataUrl]);
 
   const addPayment = () => {
     setPayments((prev) => [...prev, { id: newPaymentId(), amountIQD: 0, date: todayIsoDate(), note: '' }]);
@@ -285,6 +288,7 @@ function ContractRow({
     JSON.stringify(payments) !== JSON.stringify(baselinePayments(contract)) ||
     installmentsPlannedNum !== (contract.installmentsPlanned || 0) ||
     adminNotes !== (contract.adminNotes || '') ||
+    previewUrl.trim() !== (contract.previewUrl || '') ||
     signatureDirty;
 
   const rowProfit = paidAmountIQD - Number(cost || 0);

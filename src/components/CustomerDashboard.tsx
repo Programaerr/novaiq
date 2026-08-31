@@ -410,7 +410,9 @@ function CustomerContractRow({
                     src={contract.signatureDataUrl}
                     alt={isAr ? 'توقيعك' : 'Your signature'}
                     className="max-h-full max-w-full object-contain"
-                    style={{ filter: 'invert(1)' }}
+                    /* القلب للتواقيع القديمة ذات الحبر الأبيض فقط — الجديدة داكنة أصلاً
+                       (انظر signatureInk في types.ts). */
+                    style={{ filter: contract.signatureInk === 'dark' ? undefined : 'invert(1)' }}
                   />
                 </div>
               </div>
@@ -433,7 +435,7 @@ function CustomerContractRow({
                     src={contract.companySignatureDataUrl}
                     alt={isAr ? 'توقيع NUVAIQ' : 'NUVAIQ signature'}
                     className="max-h-full max-w-full object-contain"
-                    style={{ filter: 'invert(1)' }}
+                    style={{ filter: contract.companySignatureInk === 'dark' ? undefined : 'invert(1)' }}
                   />
                 </div>
               </div>

@@ -376,9 +376,10 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                       height: 56,
                       maxWidth: 200,
                       objectFit: 'contain',
-                      // The pad draws in near-white on a dark canvas; inverting makes the
-                      // same stroke legible as dark ink on this white document.
-                      filter: 'invert(1)',
+                      /* التواقيع الجديدة تُرسم بحبر داكن أصلاً فتُطبع كما هي. القلب يبقى
+                         للتواقيع القديمة وحدها (بلا signatureInk) — تلك رُسمت بحبر أبيض
+                         وبدون قلبها تختفي تماماً على هذه الورقة البيضاء. */
+                      filter: contract.signatureInk === 'dark' ? undefined : 'invert(1)',
                       display: 'block',
                     }}
                   />
@@ -416,7 +417,14 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                   <img
                     src={contract.companySignatureDataUrl}
                     alt=""
-                    style={{ height: 44, maxWidth: 160, objectFit: 'contain', filter: 'invert(1)', display: 'block', margin: '0 auto' }}
+                    style={{
+                      height: 44,
+                      maxWidth: 160,
+                      objectFit: 'contain',
+                      filter: contract.companySignatureInk === 'dark' ? undefined : 'invert(1)',
+                      display: 'block',
+                      margin: '0 auto',
+                    }}
                   />
                 ) : (
                   <div style={{ fontSize: 10, color: '#B5B6B6', fontStyle: 'italic', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
