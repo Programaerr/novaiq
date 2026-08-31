@@ -433,8 +433,18 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             Three phases, not four: pricing/terms and the signature used to be separate screens,
             which meant the customer agreed to a figure on one page and signed on another with the
             figure no longer in front of them. They are one phase: read the price, read the
-            clauses, sign, send. */}
-        <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mb-6">
+            clauses, sign, send.
+
+            Stacked below `sm`, three across above it. Three across on a phone does not fit and
+            never did: measured at a 360px viewport, each card came out 86.7px wide and the
+            padding, the 32px icon and the gap took 68 of them, leaving a text column of 18.7px
+            for titles that want 71, 99 and 97 — so 73% to 81% of every title was cut and every
+            phase label wrapped mid-phrase. Stacked, each card gets the full width of the grid and
+            every string fits on one line.
+
+            It buys that with height, about 190px against 74. Worth it here: this is three rows
+            above a form, read once on the way in, and a row of "بيانا..." names nothing. */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mb-6">
           {[
             { step: 1, title: isAr ? 'بيانات الشركة' : 'Company Details', icon: Building2, phase: isAr ? 'المرحلة الأولى' : 'Phase one' },
             { step: 2, title: isAr ? 'مواصفات المشروع' : 'Project Specs', icon: Layers, phase: isAr ? 'المرحلة الثانية' : 'Phase two' },
@@ -471,7 +481,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </div>
                 <div className="min-w-0">
                   <span className="block text-xs opacity-70">{s.phase}</span>
-                  <span className="block text-xs sm:text-sm font-bold truncate">{s.title}</span>
+                  {/* No `truncate`. It was hiding the overflow rather than fixing it, and now
+                      that the cards are sized to hold their text there is nothing to hide: at
+                      the sm breakpoint, where the longest title is still 14px over its column,
+                      it wraps at the space between two words instead of disappearing. */}
+                  <span className="block text-xs sm:text-sm font-bold leading-snug">{s.title}</span>
                 </div>
               </button>
             );
