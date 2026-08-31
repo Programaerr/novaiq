@@ -25,6 +25,7 @@ import { ColorWheel } from './ui/ColorWheel';
 import { loadContractDraft, saveContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
 import { contractTerms } from '../data/contractTerms';
+import { trackEvent } from '../lib/analytics';
 import { ERROR, OBSIDIAN, SUCCESS } from '../lib/homePalette';
 
 interface ContractBuilderProps {
@@ -1211,6 +1212,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     );
                     return;
                   }
+                  // خطوة اكتملت فعلاً (بعد اجتياز كل تحققات هذه الخطوة) — هذا ما يكشف أين
+                  // بالضبط يتوقف الزبائن داخل العقد بدل معرفة "دخل ولم يكمل" فقط.
+                  trackEvent('contract_step_completed', { step: currentStep, project_type: projectType });
                   setCurrentStep(currentStep + 1);
                   cosmicAudio.playPing();
                 }}

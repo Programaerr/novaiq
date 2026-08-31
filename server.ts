@@ -98,13 +98,13 @@ const CSP = [
   // تسجيل دخول Google ليس سكربتاً من عندنا: Firebase Auth يحمّل apis.google.com/js/api.js
   // ثم إطار الدخول من نطاق المشروع على firebaseapp.com. بدون هذه الثلاثة تمنع CSP الملف
   // فيفشل الدخول صامتاً — وهي نطاقات Google/Firebase الرسمية فقط، لا فتح عام.
-  "script-src 'self' https://apis.google.com https://www.gstatic.com https://*.firebaseapp.com",
+  "script-src 'self' https://apis.google.com https://www.gstatic.com https://*.firebaseapp.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   "media-src 'self' data: blob:",
   "worker-src 'self' blob:",
-  "connect-src 'self' https://*.googleapis.com https://*.google.com https://*.firebaseio.com https://*.firebasestorage.app https://*.firebaseapp.com wss://*.firebaseio.com",
+  "connect-src 'self' https://*.googleapis.com https://*.google.com https://*.firebaseio.com https://*.firebasestorage.app https://*.firebaseapp.com wss://*.firebaseio.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
   "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://apis.google.com https://*.google.com",
   "object-src 'none'",
   "base-uri 'self'",

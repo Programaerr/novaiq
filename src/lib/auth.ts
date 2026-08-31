@@ -8,6 +8,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import { trackEvent } from './analytics';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -17,7 +18,12 @@ const googleProvider = new GoogleAuthProvider();
 // allowlist (see isAdminEmail/addAdminEmail below), checked after login — the app decides
 // where to route someone once it knows who they are, not at account-creation time.
 export function loginWithGoogle() {
-  return signInWithPopup(auth, googleProvider);
+  // الحدث يُسجَّل بعد نجاح الدخول فقط، لا عند فتح النافذة: نافذة تُفتح ثم تُغلق ليست تسجيل
+  // دخول، وحسابها كذلك كان سيضخّم الرقم. بلا أي بيانات عن الحساب نفسه (انظر lib/analytics.ts).
+  return signInWithPopup(auth, googleProvider).then((result) => {
+    trackEvent('login', { method: 'google' });
+    return result;
+  });
 }
 
 export function logoutAccount() {

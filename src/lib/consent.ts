@@ -1,7 +1,8 @@
 export type ConsentStatus = 'accepted' | 'rejected';
 
 const STORAGE_KEY = 'nuvaiq_cookie_consent';
-const CONSENT_EVENT = 'nuvaiq_consent_changed';
+/** مُصدَّر لأن analytics.ts يستمع إليه ليشغّل/يوقف التتبّع لحظة تغيّر قرار الزائر. */
+export const CONSENT_EVENT = 'nuvaiq_consent_changed';
 
 export function getConsentStatus(): ConsentStatus | null {
   try {

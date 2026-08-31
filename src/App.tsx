@@ -19,6 +19,7 @@ import { Language } from './lib/i18n';
 import { useCurrentUser } from './lib/auth';
 import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
 import { consumePendingContractSelection } from './lib/pendingContractSelection';
+import { initAnalytics, trackPageView, trackEvent } from './lib/analytics';
 import { saveContractToFirebase } from './lib/firebase';
 import { clearContractDraft } from './lib/contractDraft';
 import { showToast } from './lib/toast';
@@ -228,6 +229,16 @@ export default function App() {
     };
   }, []);
 
+  // Google Analytics — لا يحمّل شيئاً قبل موافقة الزائر على الكوكيز، ويلتقط تغيّر قراره
+  // لاحقاً (انظر lib/analytics.ts). مرة واحدة لعمر التطبيق.
+  useEffect(() => initAnalytics(), []);
+
+  // مشاهدة صفحة عند كل تنقّل: التطبيق صفحة واحدة و?page= لا تُنتج تحميلاً جديداً، فبدون هذا
+  // كان GA سيسجّل مشاهدة واحدة يتيمة لكل زائر مهما تصفّح.
+  useEffect(() => {
+    trackPageView(activePage);
+  }, [activePage]);
+
   // Picks up a template selected from the standalone `?live=` tab's "order this template"
   // button (TemplateLivePage.tsx) — that tab shares no React state with this one, so the
   // hand-off travels through localStorage instead (see lib/pendingContractSelection.ts).
@@ -364,6 +375,11 @@ export default function App() {
       setInitialPrimaryColor(primaryColorHex || '');
       setInitialProjectType(projectType);
     }
+    trackEvent('start_contract', {
+      project_type: projectType || 'unspecified',
+      template_id: template?.id || 'none',
+      signed_in: !!currentUser,
+    });
     if (!currentUser) {
       postLoginPage.current = 'custom-request';
       navigateTo('login');
@@ -399,6 +415,14 @@ export default function App() {
     try {
       await saveContractToFirebase(contract);
       clearContractDraft();
+      // الحدث الأهم في القمع كله: عقد وُقّع وحُفظ فعلاً. لا بريد ولا هاتف ولا اسم شركة هنا —
+      // بيانات تعريف شخصية في GA مخالفة لشروط Google نفسها (انظر lib/analytics.ts).
+      trackEvent('contract_submitted', {
+        project_type: contract.projectType || 'unspecified',
+        template_id: contract.templateId,
+        value: contract.totalPriceIQD || 0,
+        currency: 'IQD',
+      });
       showToast(
         isAr ? 'تم إنشاء العقد وحفظه في حسابك' : 'Contract created and saved to your account',
         'success'
@@ -580,6 +604,7 @@ export default function App() {
                 focusTemplateId={lastPreviewedTemplateId}
                 onSelectTemplateForContract={startContract}
                 onOpenStandalonePreview={(template, mode = 'site') => {
+                  trackEvent('open_preview', { template_id: template.id, mode });
                   setLastPreviewedTemplateId(template.id);
                   setStandalonePreviewMode(mode);
                   setStandalonePreviewTemplate(template);
