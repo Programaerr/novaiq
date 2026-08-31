@@ -112,7 +112,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 style={{ color: WHITE, opacity: 0.72 }}
               >
                 {isAr
-                  ? 'استوديو تصميم وبرمجة — نبني مواقع وأنظمة تشتغل لشركتك.'
+                  ? 'اطلب موقعك او قالبك وافتح عقد والباقي علينا'
                   : 'A design and engineering studio building sites and systems that work.'}
               </p>
             </div>
@@ -163,7 +163,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               onClick={onStart}
               className="sm:text-sm"
             >
-              {isAr ? 'شاهد أعمالنا' : 'See our work'}
+              {isAr ? 'اختار مشروعك' : 'See our work'}
             </NqButton>
           </div>
         </div>
