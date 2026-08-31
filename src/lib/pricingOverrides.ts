@@ -234,11 +234,21 @@ export function applyPricingOverrides(
       basePriceIQD: o.basePriceIQD ?? t.basePriceIQD,
       basePriceUSD: o.basePriceUSD ?? t.basePriceUSD,
       // دمج جزئي مقصود: لو الأدمن عدّل سعر "الموقع" فقط، متغيّر "التطبيق" (سواء الثابت
-      // الأصلي في t.variants أو undefined) يبقى كما هو بلا مسّ — كل متغيّر مستقل فعلاً.
+      // الأصلي في t.variants أو غير موجود) يبقى كما هو بلا مسّ — كل متغيّر مستقل فعلاً.
+      // الأرقام (لا النصوص) تُدعَّم دائماً بسعر القالب العام حتى لا يبقى priceIQD/USD
+      // بلا قيمة لو أُرسل override جزئي بلا سعر (description فقط، مثلاً).
       variants: o.variants
         ? {
-            website: { ...t.variants?.website, ...o.variants.website } as TemplateVariant,
-            app: { ...t.variants?.app, ...o.variants.app } as TemplateVariant,
+            website: {
+              priceIQD: o.variants.website?.priceIQD ?? t.variants?.website?.priceIQD ?? t.basePriceIQD,
+              priceUSD: o.variants.website?.priceUSD ?? t.variants?.website?.priceUSD ?? t.basePriceUSD,
+              description: o.variants.website?.description ?? t.variants?.website?.description ?? '',
+            },
+            app: {
+              priceIQD: o.variants.app?.priceIQD ?? t.variants?.app?.priceIQD ?? t.basePriceIQD,
+              priceUSD: o.variants.app?.priceUSD ?? t.variants?.app?.priceUSD ?? t.basePriceUSD,
+              description: o.variants.app?.description ?? t.variants?.app?.description ?? '',
+            },
           }
         : t.variants,
     };
@@ -258,6 +268,17 @@ export function useLiveTemplates(): Template[] {
     });
   }, []);
 
+  // كل مستند في overrides لا يطابق معرّف قالب ثابت هو قالب أضافه الأدمن بنفسه بالكامل من
+  // لوحة التحكم (انظر buildTemplateFromOverride) — يُبنى ويُلحق بعد القوالب الثابتة، فأي
+  // مستهلك لـ useLiveTemplates (المعرض العام، حاسبة العقد، لوحة الأسعار) يراه تلقائياً.
+  const customTemplates = useMemo(
+    () =>
+      Object.entries(overrides)
+        .filter(([id]) => !STATIC_TEMPLATE_IDS.has(id))
+        .map(([id, o]) => buildTemplateFromOverride(id, o)),
+    [overrides]
+  );
+
   // Memoised on `overrides`, and this is load-bearing rather than a micro-optimisation.
   //
   // applyPricingOverrides returns the static array untouched while there are no overrides,
@@ -272,5 +293,9 @@ export function useLiveTemplates(): Template[] {
   //
   // That is why it only started biting after prices were edited in the admin panel: with no
   // overrides saved, the early return kept the reference stable and hid the whole problem.
-  return useMemo(() => applyPricingOverrides(templatesData, overrides), [overrides]);
+  const staticLive = useMemo(() => applyPricingOverrides(templatesData, overrides), [overrides]);
+
+  // مذكور أعلاه: كلا الطرفين ثابتا المرجع طالما overrides لم يتغيّر، فهذا الدمج نفسه يبقى
+  // ثابت المرجع بنفس المنطق — لا يعيد إشعال حلقة إعادة الرسم التي وصفها التعليق أعلاه.
+  return useMemo(() => [...staticLive, ...customTemplates], [staticLive, customTemplates]);
 }
