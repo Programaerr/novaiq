@@ -641,22 +641,31 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     dir="ltr" is not cosmetic. It puts the square on the left the way the sketch
                     draws it, AND it stops '#' — a bidi-neutral — from jumping to the far end of a
                     code that begins with a letter, which is how #F59E0B came out as F59E0B#. */}
-                <div className="grid grid-cols-3 gap-3">
+                {/* Three across from `sm` up, stacked below it. Measured on a 360px phone with
+                    all three in a row: the tile is 79px wide, the code is 56px, and the swatch
+                    plus padding takes 40 of them — so a code centred on the tile lands ON the
+                    swatch and cannot be read. Stacked, each tile has the full card width. */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {brandColors.map((c, i) => (
                     <div
                       key={i}
                       dir="ltr"
-                      className="relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-steel/60 hover:border-orange focus-within:border-orange transition-colors"
+                      className="relative flex items-center px-3 py-2.5 rounded-xl border border-steel/60 hover:border-orange focus-within:border-orange transition-colors"
                     >
                       {/* Its own border, because a near-black pick would otherwise vanish into the
                           card behind it: white/40 on obsidian measures 3.77:1, past the 3:1 WCAG
                           asks of a boundary that identifies a control. white/30 would be 2.61
                           and would not. */}
                       <span
-                        className="w-7 h-7 rounded-lg border border-white/40 shrink-0"
+                        className="w-7 h-7 rounded-full border border-white/40 shrink-0"
                         style={{ backgroundColor: c.value }}
                       />
-                      <span className="text-sm font-bold font-mono tracking-wide text-white truncate">
+                      {/* Centred on the RECTANGLE, not on the space left over beside the swatch,
+                          so the three codes line up with each other down the row whatever size the
+                          swatch is. That means taking it out of the flex flow and centring it over
+                          the whole tile; `pointer-events-none` keeps the click falling through to
+                          the input underneath, which is what opens the picker. */}
+                      <span className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono tracking-wide text-white pointer-events-none">
                         {c.value.toUpperCase()}
                       </span>
                       <input
@@ -815,7 +824,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         <span
                           key={i}
                           title={c.value.toUpperCase()}
-                          className="w-4 h-4 rounded-md border border-white/30 shrink-0"
+                          className="w-4 h-4 rounded-full border border-white/40 shrink-0"
                           style={{ backgroundColor: c.value }}
                         />
                       ))}
