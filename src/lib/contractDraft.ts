@@ -15,6 +15,7 @@ export interface ContractDraft {
   languageSupport: 'ar' | 'en' | 'ar_en';
   isCustomProject: boolean;
   customProjectName: string;
+  projectType: 'website' | 'app';
 }
 
 // Everything the customer types into ContractBuilder is mirrored here so a page refresh,

@@ -48,6 +48,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
       s2: isAr ? '2. القالب المعتمد والمواصفات الفنية' : '2. APPROVED TEMPLATE & TECHNICAL SPECIFICATIONS',
       template: isAr ? 'القالب المعتمد' : 'Approved Template',
+      projectType: isAr ? 'نوع المشروع' : 'Project Type',
       notes: isAr ? 'ملاحظات ومتطلبات خاصة' : 'Custom Notes & Requirements',
       agreedTerms: isAr ? 'الشروط المتفق عليها بعد المراجعة' : 'Agreed Terms After Review',
       identity: isAr ? 'الهوية البصرية' : 'Visual Identity',
@@ -87,6 +88,20 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           return isAr ? '3 دفعات حسب مراحل الإنجاز الموثقة' : '3 installments across documented milestones';
         default:
           return contract.paymentPlan;
+      }
+    })();
+
+    /* نوع المشروع المتفق عليه — موقع إلكتروني أم تطبيق هاتف. عقد وُقّع قبل وجود هذا الحقل لا
+       يحمل قيمة، ولا يجوز اختراع واحدة له: يُترك سطره غائباً تماماً بدل طباعة نوع لم يختره
+       أحد (نفس مبدأ الألوان أدناه). */
+    const projectTypeLabel = (() => {
+      switch (contract.projectType) {
+        case 'website':
+          return isAr ? 'موقع إلكتروني' : 'Website';
+        case 'app':
+          return isAr ? 'تطبيق هاتف (iOS و Android)' : 'Mobile App (iOS & Android)';
+        default:
+          return null;
       }
     })();
 
@@ -225,6 +240,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           <div style={{ marginBottom: 14 }}>
             <SectionTitle>{t.s2}</SectionTitle>
             <Field label={t.template} value={templateTitle} />
+            {projectTypeLabel && <Field label={t.projectType} value={projectTypeLabel} />}
             <div style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ color: '#6B7179', fontSize: 11 }}>{t.identity}: </span>
               <strong style={{ color: '#080A0D', fontSize: 12 }}>{themeLabel}</strong>

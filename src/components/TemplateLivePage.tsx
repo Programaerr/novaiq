@@ -129,10 +129,15 @@ export const TemplateLivePage: React.FC = () => {
   // through localStorage since this document shares no React state with the opener tab; App.tsx
   // picks it up on mount. If the customer isn't signed in yet, ContractBuilderGate shows the
   // login screen first — the pending selection just waits in state until they finish.
-  const goToContract = (selected?: Template, customNotes?: string, primaryColorHex?: string) => {
+  const goToContract = (
+    selected?: Template,
+    customNotes?: string,
+    primaryColorHex?: string,
+    projectType?: 'website' | 'app'
+  ) => {
     const target = selected || template;
     if (!target) return;
-    writePendingContractSelection({ templateId: target.id, customNotes, primaryColorHex });
+    writePendingContractSelection({ templateId: target.id, customNotes, primaryColorHex, projectType });
     closeBackToOpener(`${window.location.pathname}?page=custom-request`);
   };
 
@@ -211,7 +216,9 @@ export const TemplateLivePage: React.FC = () => {
             variant="solid"
             size="sm"
             radius="xl"
-            onClick={() => goToContract()}
+            /* الشريط السفلي خارج الصندوق (لا يعرف مفتاح الموقع/التطبيق الداخلي)، فيعتمد على
+               ?mode= الذي فُتحت به هذه الصفحة أصلاً — وهو نفس الاختيار الذي ضغطه العميل. */
+            onClick={() => goToContract(undefined, undefined, undefined, isAppMode ? 'app' : 'website')}
             aria-label={isAr ? 'اطلب هذا القالب' : 'Order this template'}
             title={isAr ? 'اطلب هذا القالب' : 'Order this template'}
             className="px-3"

@@ -26,7 +26,12 @@ const TemplateInteractiveSandbox = lazy(() =>
 );
 
 interface TemplateGridProps {
-  onSelectTemplateForContract: (template: Template, customNotes?: string) => void;
+  onSelectTemplateForContract: (
+    template: Template,
+    customNotes?: string,
+    primaryColorHex?: string,
+    projectType?: 'website' | 'app'
+  ) => void;
   onOpenStandalonePreview?: (template: Template, mode?: DemoMode) => void;
   language?: Language;
   currency?: Currency;
@@ -227,7 +232,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     tone="obsidian"
                     variant="solid"
                     size="md"
-                    onClick={() => onSelectTemplateForContract(pricedTemplate, choice.note)}
+                    onClick={() => onSelectTemplateForContract(pricedTemplate, choice.note, undefined, choice.id)}
                     className="uw:text-base"
                     badge={<ArrowLeft className="w-4 h-4 rotate-180" strokeWidth={2.6} />}
                   >
@@ -264,9 +269,9 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             language={language}
             currency={currency}
             onClose={() => setPreviewTemplate(null)}
-            onSelectForContract={(template) => {
+            onSelectForContract={(template, customNotes, primaryColorHex, projectType) => {
               setPreviewTemplate(null);
-              onSelectTemplateForContract(template);
+              onSelectTemplateForContract(template, customNotes, primaryColorHex, projectType);
             }}
           />
         </Suspense>

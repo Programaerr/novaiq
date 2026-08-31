@@ -57,7 +57,12 @@ export type { ThemeColor };
 interface TemplateInteractiveSandboxProps {
   template: Template;
   onClose: () => void;
-  onSelectForContract: (template: Template, customNotes?: string, primaryColorHex?: string) => void;
+  onSelectForContract: (
+    template: Template,
+    customNotes?: string,
+    primaryColorHex?: string,
+    projectType?: 'website' | 'app'
+  ) => void;
   /**
    * Render only the demo itself — no NUVAIQ preview toolbar, device switcher or price bar. This
    * is the mode the device-frame iframe and the dedicated `?live=` tab use, where the customer
@@ -893,7 +898,16 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
           <button
-            onClick={() => onSelectForContract(template, buildCustomizationSummary(), THEME_COLOR_HEX[themeColor])}
+            onClick={() =>
+              onSelectForContract(
+                template,
+                buildCustomizationSummary(),
+                THEME_COLOR_HEX[themeColor],
+                // نفس مفتاح الموقع/التطبيق الذي كان العميل ينظر إليه لحظة الطلب — أدق إشارة
+                // ممكنة لما يريد فعلاً شراءه، تُحفظ كحقل مستقل في العقد (types.ts).
+                mode === 'app' ? 'app' : 'website'
+              )
+            }
             className="nq-btn nq-btn--solid flex-1 sm:flex-initial px-4 sm:px-5 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <span className="nq-btn-beam" aria-hidden="true" />

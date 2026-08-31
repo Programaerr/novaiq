@@ -9,6 +9,7 @@ export interface PendingContractSelection {
   templateId: string;
   customNotes?: string;
   primaryColorHex?: string;
+  projectType?: 'website' | 'app';
 }
 
 export function writePendingContractSelection(selection: PendingContractSelection): void {

@@ -81,6 +81,10 @@ export interface ContractData {
   // Template selection
   templateId: string;
   templateTitle: string;
+  /** موقع إلكتروني أم تطبيق هاتف — يُحدَّد لحظة اختيار العميل من بطاقتَي القوالب أو من
+   *  مفتاح الموقع/التطبيق داخل المعاينة الحية، ويُطبع في العقد كحقل مستقل بدل الاكتفاء بنص
+   *  حر قد يُعدَّل أو يُحذَف. اختياري فقط للتوافق مع عقود أُنشئت قبل وجود هذا الحقل. */
+  projectType?: 'website' | 'app';
   
   // Customizations. The priced add-on checklist that used to sit here is gone: anything the
   // customer wants beyond the template itself is written in `customFeaturesText` and quoted by
