@@ -45,6 +45,18 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
         .catch(() => caches.match(SHELL).then((cached) => cached || fetch(request)))
+        // كانت الحلقة أعلاه تُرجع Promise قد يُرفَض (لا Response) لو فشل fetch(request) الثاني
+        // أيضاً (لا يوجد كاش بعد + الشبكة لا تزال غير جاهزة، بالضبط ما حدث أثناء أول زيارة
+        // للدومين الجديد قبل اكتمال DNS) — وrespondWith يتطلب Response دائماً، فرَفضُه يظهر
+        // للزائر كـ"خطأ شبكة" حتى لو كانت المشكلة مؤقتة بحتة. شبكة أمان أخيرة تضمن Response
+        // حقيقياً في كل الأحوال، فلا يتعطل service worker نفسه بشكل دائم بعد فشل عابر واحد.
+        .catch(
+          () =>
+            new Response('<h1>تعذّر الاتصال</h1><p>تحقق من الإنترنت وأعد المحاولة.</p>', {
+              status: 503,
+              headers: { 'Content-Type': 'text/html; charset=utf-8' },
+            })
+        )
     );
     return;
   }
@@ -60,7 +72,9 @@ self.addEventListener('fetch', (event) => {
           }
           return res;
         })
-        .catch(() => cached);
+        // نفس الخلل: لو `cached` غير موجود (أول طلب لهذا المورد) وفشلت الشبكة أيضاً، كان هذا
+        // يُرجع `cached` (= undefined) بدل Response حقيقي — وrespondWith لا يقبل undefined.
+        .catch(() => cached || new Response('', { status: 504 }));
       return cached || refresh;
     })
   );
