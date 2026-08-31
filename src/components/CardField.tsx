@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { SURFACE_LIGHT } from '../lib/homePalette';
 
 /**
  * One card, in pixels.
@@ -38,50 +37,18 @@ const TILE_W = 360;
 const TILE_H = 196;
 
 /**
- * The two colours a card can be, and how many of each.
+ * The card's own colour, before the light touches it.
  *
- * ## Why most of them are not Orange
- *
- * They all used to be, and that is what put this screen over budget: measured off the rendered
- * page, 29.3% of the desktop sign-in view was saturated Orange, against a brand budget of 8-15%
- * and a rule that Orange is never a background.
- *
- * The comment that used to sit here said these cards paint "the same range the site's cube field
- * paints and the reason the two look related". They did not. Every cube field on the site is
- * NEUTRAL geometry that carries Orange only as `foam`, and TileField's shader spends even that
- * sparingly — `mix(c, uFoam, smoothstep(0.86, 1.0, vW) * 0.55)`, which is the top 14% of the
- * swell at just over half strength. A field painting 100% of its geometry at full strength was
- * related to those only by hue.
- *
- * So the geometry is neutral like every other field, and Orange is the sparse thing standing in
- * it. That is also the graphic language the brand brief describes in its own words: a precise dark
- * technical grid with a few important orange connection points, not a grid dyed orange.
- *
- * ## The values
- *
- * A Lambert material multiplies its base by the light, so whatever number goes in here comes out
- * darker once lit — about 0.89 of it on a face square to the light (see the material note below).
- * SURFACE_LIGHT lands at roughly #E3E3E3 lit, which sits inside the band the hero's own cubes
- * occupy (`shadeColor(WHITE, ±0.14)`), so a card and a cube read as the same material seen twice.
- * The accent keeps the value the whole field used to be, the crest of Signal Orange.
+ * The crest of Signal Orange (`shadeColor(ORANGE, 0.14)` — see `SIGNAL_TONES` in TileField.tsx),
+ * matching the third pass: the ground behind these cards is WARM WHITE now (`.nq-coast`), and the
+ * cards are this page's own version of the site's cube swell — the flat ground is white
+ * everywhere, and the raised geometry standing on it carries the brand's Orange, here as much as
+ * on every cube field elsewhere. A Lambert material multiplies its base by the light, so whatever
+ * number goes in here comes out darker once lit; lit at the crest tone the cards land ABOVE the
+ * crest and the shaded sides fall to about the trough, which is the same range the site's cube
+ * field paints and the reason the two look related.
  */
-const CARD_BASE = SURFACE_LIGHT;
-const CARD_ACCENT = '#FF7F24';
-/** One card in seven. Chosen to land the field's own Orange near 4% of the screen, which leaves
- *  the page's actual signals — the Google button, the three perk icons — room inside the budget. */
-const ACCENT_EVERY = 7;
-
-/**
- * Which cards are the accent, decided from the grid position alone.
- *
- * Deterministic for the same reason the lightness wobble below is: `count` changes with the
- * viewport, so anything seeded off the instance index would deal a different hand every time the
- * window is resized, and the field would visibly reshuffle while being dragged.
- */
-function isAccentCard(c: number, r: number): boolean {
-  const h = Math.sin(c * 12.9898 + r * 78.233) * 43758.5453;
-  return h - Math.floor(h) < 1 / ACCENT_EVERY;
-}
+const CARD_TINT = '#FF7F24';
 
 /**
  * The diagonal, and the two small angles that make a flat grid look like objects.
@@ -282,8 +249,7 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
     if (!mesh || !face) return;
     const m = new THREE.Matrix4();
     const colour = new THREE.Color();
-    const neutral = new THREE.Color(CARD_BASE);
-    const accent = new THREE.Color(CARD_ACCENT);
+    const base = new THREE.Color(CARD_TINT);
     let i = 0;
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -301,8 +267,7 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
            resizes rather than random on every mount. Enough that the field is not wallpaper, far
            too little to read as a pattern of its own. */
         const wobble = 1 + 0.07 * Math.sin(c * 1.7 + r * 2.9);
-        const src = isAccentCard(c, r) ? accent : neutral;
-        mesh.setColorAt(i, colour.copy(src).multiplyScalar(wobble));
+        mesh.setColorAt(i, colour.copy(base).multiplyScalar(wobble));
         i += 1;
       }
     }
