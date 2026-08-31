@@ -968,11 +968,11 @@
    panel that is supposed to be constant. */
 .nq-lean {
   position: absolute;
-  /* كان full-bleed (top/bottom: 0) فيغطي الشاشة عمودياً بالكامل ويخفي CardField خلفه شبه
-     تماماً. نسب علوية/سفلية متساوية = يبقى في المنتصف عمودياً تلقائياً، بلا أي حساب يدوي —
-     نفس زاوية الميلان (skewX) وعرض العمود كما هما، فقط أقصر عمودياً. */
-  top: 12%;
-  bottom: 12%;
+  /* Full bleed. It was briefly inset 12% top and bottom, to stop the panel covering the card
+     field behind it — reverted on the owner's call: the band is meant to run the full height of
+     the screen, and the field reads through the gaps beside it rather than above and below. */
+  top: 0;
+  bottom: 0;
   left: 50%;
   width: 21rem;
   transform: translateX(-50%) skewX(-4deg);
