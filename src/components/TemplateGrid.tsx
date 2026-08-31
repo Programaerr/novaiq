@@ -85,10 +85,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   currency = 'IQD',
 }) => {
   const currentLang: Language = language === 'en' ? 'en' : 'ar';
-  // Static catalogue merged with any live admin price overrides — يشمل الآن أي قالب أضافه
-  // الأدمن بالكامل من لوحة التحكم أيضاً (انظر useLiveTemplates)، لا القالب الثابت فقط.
+  // Static catalogue merged with any live admin price overrides.
   const templatesData = useLiveTemplates();
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+
+  // The catalogue is a single line — سَكَن — offered as both a website and an app, each
+  // priced and described separately from the admin Pricing tab (see resolveVariant below).
+  const template = templatesData[0];
 
   return (
     <section

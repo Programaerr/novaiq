@@ -35,15 +35,12 @@ export interface Template {
     colorGrad: string;
     contentPreview: string;
   }[];
-  /** تسعير ووصف مستقلان لـ"موقع إلكتروني" و"تطبيق هاتف" — اختياري: قالب بدونه (كل القوالب
-   *  الساكنة الحالية) يستخدم basePriceIQD/USD والوصف العام الموحّد كافتراضي لكلا الخيارين. */
+  /** تسعير ووصف مستقلان لـ"موقع إلكتروني" و"تطبيق هاتف" — اختياري: قالب بدونه يستخدم
+   *  basePriceIQD/USD والوصف العام الموحّد كافتراضي لكلا الخيارين. */
   variants?: {
     website: TemplateVariant;
     app: TemplateVariant;
   };
-  /** false لقالب أُضيف من لوحة التحكم كبطاقة تسعير فقط — بلا تجربة تفاعلية مبنية فعلياً
-   *  (المعاينة الحية الحالية بُنيت يدوياً لقالب "سَكَن" وحده). غير موجود أو true = له تجربة حقيقية. */
-  hasInteractiveDemo?: boolean;
 }
 
 /** Sentinel `ContractData.templateId` for a fully custom (non-catalogue) project — the one
