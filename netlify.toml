@@ -6,3 +6,34 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# ---------------------------------------------------------------------------
+# ترويسات الأمان — تُطبَّق على كل صفحة وملف يخدمه Netlify.
+#
+# القيمة الحقيقية هنا هي Content-Security-Policy: حتى لو نجح أحدهم يوماً في حقن نص في
+# الصفحة (عبر حقل عقد، رسالة تواصل، اسم شركة...)، فالمتصفح نفسه يرفض تنفيذ أي سكربت لا
+# يأتي من نطاقنا، ويرفض إرسال أي بيانات إلى نطاق غير مذكور أدناه — أي أن الحقنة تبقى نصاً
+# ميتاً بدل أن تصبح تنفيذ كود أو تسريب بيانات. React أصلاً يهرّب كل نص يعرضه ولا يوجد في
+# الكود أي dangerouslySetInnerHTML، فهذه طبقة ثانية فوق الأولى لا بديلاً عنها.
+#
+# ملاحظتان تمنعان كسر الموقع، ومن غيّرهما عليه اختبار تسجيل الدخول أولاً:
+#  • Cross-Origin-Opener-Policy لازم يبقى same-origin-allow-popups تحديداً: القيمة الأشد
+#    (same-origin) تقطع اتصال نافذة تسجيل دخول Google المنبثقة بالصفحة، فيعلّق الدخول.
+#  • frame-ancestors 'self' وليس 'none': الموقع يعرض المعاينة الحية (?live=) داخل إطار
+#    من نفس النطاق؛ 'none' كانت ستُفرغ إطار المعاينة.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' https://*.googleapis.com https://*.google.com https://*.firebaseio.com https://*.firebasestorage.app https://*.firebaseapp.com wss://*.firebaseio.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+    # لا استنتاج لنوع الملف من محتواه: صورة رفعها أحدهم لا يمكن أن تُنفَّذ كسكربت.
+    X-Content-Type-Options = "nosniff"
+    # لا يُوضع الموقع داخل إطار في نطاق غريب (هجوم clickjacking) — نفس معنى frame-ancestors
+    # أعلاه، مكرّرة هنا للمتصفحات القديمة التي لا تقرأ CSP.
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # لا كاميرا ولا مايكروفون ولا موقع جغرافي — الموقع لا يستعمل أياً منها، وإغلاقها يعني
+    # أن أي كود مدسوس لا يستطيع طلبها أصلاً.
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
+    # HTTPS إجبارياً لسنة كاملة — يمنع هجوم "التنزيل إلى http" على شبكة عامة.
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
