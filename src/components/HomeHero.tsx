@@ -1,9 +1,10 @@
 import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { OBSIDIAN, WHITE, PAPER } from '../lib/homePalette';
+import { WHITE, PAPER } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
+import { HeroVideoBackground } from './HeroVideoBackground';
 
 /**
  * The home page's container: a WARM WHITE screen with a swell of tiles running across it, and a
@@ -96,10 +97,15 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div
             aria-hidden="true"
             className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[0.5rem]"
-            style={{ background: OBSIDIAN }}
           >
+            {/* فيديو متغيّر عشوائياً بدل الخلفية السوداء الصلبة — انظر توثيق المكوّن نفسه */}
+            <HeroVideoBackground />
+
+            {/* خلفية شفافة مغبشة خلف النص فقط، فوق الفيديو مباشرة — لضمان القراءة مهما
+                كان مشهد الفيديو خلفها فاتحاً أو مزدحماً بصرياً */}
             <div
-              className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
+              className="relative z-10 w-full max-w-[22rem] uw:max-w-[27rem] text-center rounded-2xl px-4 py-4 sm:px-5 sm:py-5 backdrop-blur-md"
+              style={{ background: 'rgba(5,7,12,0.38)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
@@ -112,8 +118,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                 style={{ color: WHITE, opacity: 0.72 }}
               >
                 {isAr
-                  ? 'اطلب موقعك او قالبك وافتح عقد والباقي علينا'
-                  : 'A design and engineering studio building sites and systems that work.'}
+                  ? 'اطلب موقعك او تصميمك الخاص والباقي علينا'
+                  : "Order your website or your own custom design — we'll handle the rest."}
               </p>
             </div>
           </div>
@@ -163,7 +169,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               onClick={onStart}
               className="sm:text-sm"
             >
-              {isAr ? 'اختار مشروعك' : 'See our work'}
+              {isAr ? 'اختار مشروعك' : 'Choose your project'}
             </NqButton>
           </div>
         </div>
