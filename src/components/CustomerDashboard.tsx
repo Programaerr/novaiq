@@ -361,6 +361,13 @@ function CustomerContractRow({
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs font-mono text-ink/75 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
+          {/* النسبة في السطر المطوي أيضاً: أهم رقم يبحث عنه العميل، ولا يجب أن يضطر لفتح
+              البطاقة ليراه. تظهر أثناء التنفيذ فقط — قبله هي رقم مرحلة ثابت لا خبر فيه. */}
+          {contract.status === 'in_development' && (
+            <span className="text-[11px] font-mono font-bold text-ink/70 tabular-nums" dir="ltr">
+              {contractProgress(contract).percent}%
+            </span>
+          )}
           <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${STAGE_COLORS[contract.status].badge}`}>
             {translateText(STATUS_LABEL_AR[contract.status], language)}
           </span>
