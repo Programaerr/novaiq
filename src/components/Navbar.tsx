@@ -173,7 +173,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     // ultrawide the header stayed at 1280 against 1600 of content and sat visibly inset — a
     // floating bar narrower than the page it belongs to. Its PADDING stays its own: this is a pill
     // with its own edge, not a text column, so it does not want the container's gutters.
-    <header dir="ltr" className="fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-[var(--nq-container)] mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
+    <header dir="ltr" className="nq-navbar fixed top-3 sm:top-2 left-0 right-0 z-50 w-full max-w-[var(--nq-container)] mx-auto px-3 sm:px-6 transition-all duration-300 pointer-events-auto">
       {/* Transparent spacer on desktop holding the two halves apart — it paints nothing itself,
           and the LOGIN cluster and NAVIGATION group stay two separate glass bars. On phones
           (.navbar-connect) the spacer becomes one continuous glass bar and the halves defrost
