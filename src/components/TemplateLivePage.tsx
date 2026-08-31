@@ -8,6 +8,7 @@ import type { Template } from '../types';
 import { NuvaiqLogo } from './NuvaiqLogo';
 import type { ThemeColor } from './TemplateInteractiveSandbox';
 import { NqButton } from './ui/NqButton';
+import { initAnalytics, trackPageView, trackEvent } from '../lib/analytics';
 
 const TemplateInteractiveSandbox = lazy(() =>
   import('./TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))
@@ -76,6 +77,15 @@ export const TemplateLivePage: React.FC = () => {
     };
   }, [smartHideActive]);
 
+  /* هذا مستند مستقل تماماً عن App.tsx (نقطة دخول أخرى — انظر main.tsx)، فلا يرث تهيئة
+     التتبّع منه. بدون هذين السطرين تختفي من التقارير أهم مرحلة في القمع: ماذا فعل الزائر
+     داخل المعاينة الحية قبل أن يطلب أو ينصرف. نفس شرط الموافقة يسري هنا (lib/analytics.ts). */
+  useEffect(() => initAnalytics(), []);
+  useEffect(() => {
+    if (!templateId) return;
+    trackPageView(`live-preview/${templateId}/${isAppMode ? 'app' : 'site'}`);
+  }, [templateId, isAppMode]);
+
   const template = useMemo(() => {
     const found = liveTemplates.find((t) => t.id === templateId);
     if (!found) return null;
@@ -137,6 +147,10 @@ export const TemplateLivePage: React.FC = () => {
   ) => {
     const target = selected || template;
     if (!target) return;
+    trackEvent('order_from_preview', {
+      template_id: target.id,
+      project_type: projectType || (isAppMode ? 'app' : 'website'),
+    });
     writePendingContractSelection({ templateId: target.id, customNotes, primaryColorHex, projectType });
     closeBackToOpener(`${window.location.pathname}?page=custom-request`);
   };
