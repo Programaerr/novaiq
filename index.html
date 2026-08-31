@@ -47,6 +47,15 @@
          Arabic mode: the NUVAIQ wordmark itself is Latin script. -->
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-variable-arabic.woff2" crossorigin>
     <link rel="preload" as="font" type="font/woff2" href="/fonts/cairo-variable-latin.woff2" crossorigin>
+
+    <!-- Google tag (gtag.js) — القصاصة الرسمية، تعمل من أول بايت بلا اعتماد على كود التطبيق.
+         محتواها في /gtag-init.js وليس inline هنا لسبب واحد: سياسة CSP على الموقع تمنع أي
+         سكربت مكتوب داخل الصفحة (script-src 'self')، فالنسخة الـinline كانت ستُحجب بصمت
+         ولا يصل شيء إلى Google Analytics أصلاً. ملف من نفس النطاق يمرّ، والسلوك مطابق حرفياً.
+         src/lib/analytics.ts يبني فوق هذا: مشاهدات التنقّل الداخلي (?page= لا تُنتج تحميلاً
+         جديداً يلتقطه gtag)، أحداث خطوات الزائر، وتنفيذ "رفض" في شريط الكوكيز فوراً. -->
+    <script src="/gtag-init.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H8YZB6DK8Q"></script>
   </head>
   <!-- Background, text colour, font and overflow are NOT set here. They live in one place —
        the `body` rule in @layer base (src/index.css) — and the utilities that used to be on this
