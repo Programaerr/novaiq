@@ -13,7 +13,7 @@ export const IQD_PER_USD = 1450;
 // choice should trigger.
 export type Currency = 'IQD' | 'USD';
 
-export const CURRENCY_STORAGE_KEY = 'novaiq_currency';
+export const CURRENCY_STORAGE_KEY = 'nuvaiq_currency';
 
 export function readStoredCurrency(): Currency {
   try {

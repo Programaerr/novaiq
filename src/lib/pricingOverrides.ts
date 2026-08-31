@@ -15,7 +15,7 @@ const OVERRIDES_COLLECTION = 'pricing_overrides';
 // flash reads as "reloading reverts to the old price" even though it self-corrects. Caching
 // the last-known overrides means the first paint on any repeat visit already has the
 // correct value, same bridge pattern already used for language/currency in this app.
-const OVERRIDES_CACHE_KEY = 'novaiq_pricing_overrides_cache';
+const OVERRIDES_CACHE_KEY = 'nuvaiq_pricing_overrides_cache';
 
 function readCachedOverrides(): Record<string, PricingOverride> {
   try {

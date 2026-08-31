@@ -10,7 +10,7 @@
    and this worker doesn't need to know them at build time. Bump `CACHE_VERSION` to force old
    caches to be purged after a deploy. */
 
-const CACHE_VERSION = 'novaiq-v1';
+const CACHE_VERSION = 'nuvaiq-v1';
 const CACHE = CACHE_VERSION;
 const SHELL = '/index.html';
 

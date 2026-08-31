@@ -3,7 +3,7 @@
 // previewing in that tab, there is no React state in common with App.tsx to carry the
 // selection through. Same-origin localStorage is what bridges the two documents, exactly
 // like the language/currency preferences already do.
-const KEY = 'novaiq_pending_contract_selection';
+const KEY = 'nuvaiq_pending_contract_selection';
 
 export interface PendingContractSelection {
   templateId: string;

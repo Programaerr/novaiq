@@ -17,7 +17,7 @@ const THEME_COLORS: ThemeColor[] = ['emerald', 'purple', 'cyan', 'amber', 'rose'
 
 function readStoredLanguage(): Language {
   try {
-    return localStorage.getItem('novaiq_language') === 'en' ? 'en' : 'ar';
+    return localStorage.getItem('nuvaiq_language') === 'en' ? 'en' : 'ar';
   } catch {
     return 'ar';
   }
