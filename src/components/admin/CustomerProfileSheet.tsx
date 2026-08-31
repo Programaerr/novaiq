@@ -1,14 +1,15 @@
 // ملف العميل الشخصي: كل ما يخص شخصاً واحداً في مكان واحد — رقم هاتفه، بريده، كل عقوده، ومجموع
-// ما تعاقد عليه ودفعه — بدل أن تبقى هذه المعلومات مبعثرة عقداً بعقد. الملاحظات هنا مستمرة عبر كل
-// عقوده (customer_notes)، بخلاف ملاحظات العقد نفسه (adminNotes) التي تبقى خاصة بعقد واحد.
+// ما تعاقد عليه ودفعه — بدل أن تبقى هذه المعلومات مبعثرة عقداً بعقد. رقم الهاتف والمدينة
+// والملاحظة قابلة للتعديل والحفظ من هنا مباشرة (customer_notes)، منفصلة تماماً عن العقود نفسها:
+// تعديلها لا يغيّر أي عقد قديم — تلك تبقى سجلاً تاريخياً لما وُقِّع عليه فعلاً بالضبط.
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Phone, Mail, MapPin, Calendar, FileCheck, Loader2, Save, StickyNote, Home } from 'lucide-react';
+import { X, Phone, Mail, MapPin, Calendar, FileCheck, Loader2, Save, StickyNote, Home, RefreshCw } from 'lucide-react';
 import { ContractData } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
 import { sumPayments } from '../../lib/payments';
-import { getCustomerNote, saveCustomerNote } from '../../lib/adminUsers';
+import { getCustomerProfileNote, saveCustomerProfileNote } from '../../lib/adminUsers';
 import { showToast } from '../../lib/toast';
 import { STAGE_COLORS } from '../../lib/statusColors';
 import { statusArabic } from './shared';
@@ -65,33 +66,42 @@ export function CustomerProfileSheet({
   const totalCollectedIQD = own.reduce((s, c) => s + (c.payments ? sumPayments(c.payments) : c.paidAmountIQD || 0), 0);
 
   const [note, setNote] = useState('');
-  const [noteLoaded, setNoteLoaded] = useState(false);
-  const [isSavingNote, setIsSavingNote] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [city, setCity] = useState('');
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    getCustomerNote(uid)
-      .then((n) => {
-        if (!cancelled) setNote(n);
+    setProfileLoaded(false);
+    getCustomerProfileNote(uid)
+      .then((p) => {
+        if (cancelled) return;
+        setNote(p.note);
+        // لا تجاوز محفوظ بعد — القيمة الافتراضية هي ما تحمله أحدث عقد لهذا الشخص، حتى تفتح
+        // الحقول بقيمة حقيقية دائماً بدل أن تبدأ فارغة كل مرة لعميل لم يُعدَّل ملفه من قبل.
+        setPhone(p.phone || latest?.phone || '');
+        setCity(p.city || latest?.city || '');
       })
       .finally(() => {
-        if (!cancelled) setNoteLoaded(true);
+        if (!cancelled) setProfileLoaded(true);
       });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uid]);
 
-  const handleSaveNote = async () => {
-    if (isSavingNote) return;
-    setIsSavingNote(true);
+  const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
     try {
-      await saveCustomerNote(uid, note.trim());
-      showToast(isAr ? 'تم حفظ الملاحظة' : 'Note saved', 'success');
+      await saveCustomerProfileNote(uid, { note: note.trim(), phone: phone.trim(), city: city.trim() });
+      showToast(isAr ? 'تم حفظ معلومات العميل' : 'Customer info saved', 'success');
     } catch {
-      showToast(isAr ? 'تعذر حفظ الملاحظة' : 'Failed to save the note', 'error');
+      showToast(isAr ? 'تعذر الحفظ، حاول مجدداً' : 'Failed to save — please try again', 'error');
     } finally {
-      setIsSavingNote(false);
+      setIsSaving(false);
     }
   };
 
@@ -139,20 +149,13 @@ export function CustomerProfileSheet({
         </div>
 
         <div className="p-4 space-y-4">
-          {/* معلومات التواصل — مأخوذة من أحدث عقد لهذا الشخص، لأن هذه الحقول (الهاتف، المدينة)
-              موجودة على العقود نفسها فقط، لا على حساب المستخدم المسجَّل دخوله. */}
+          {/* البريد وتاريخ الانضمام يبقيان للعرض فقط — البريد هو هوية الحساب نفسه (لا معنى
+              لتعديله من هنا، وتعديله لن يغيّر حساب Google الحقيقي)، وتاريخ الانضمام حقيقة من
+              Firebase Auth. الهاتف والمدينة تحتهما قابلان للتعديل والحفظ. */}
           <div className="p-3.5 rounded-2xl bg-white/70 border border-ink/10 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-            <div className="flex items-center gap-2 text-ink/75 min-w-0">
-              <Phone className="w-3.5 h-3.5 text-ink/45 shrink-0" />
-              <span className="font-mono truncate" dir="ltr">{latest?.phone || '—'}</span>
-            </div>
             <div className="flex items-center gap-2 text-ink/75 min-w-0">
               <Mail className="w-3.5 h-3.5 text-ink/45 shrink-0" />
               <span className="font-mono truncate" dir="ltr">{email}</span>
-            </div>
-            <div className="flex items-center gap-2 text-ink/75 min-w-0">
-              <MapPin className="w-3.5 h-3.5 text-ink/45 shrink-0" />
-              <span className="truncate">{latest ? translateText(latest.city, language) : '—'}</span>
             </div>
             <div className="flex items-center gap-2 text-ink/75 min-w-0">
               <Calendar className="w-3.5 h-3.5 text-ink/45 shrink-0" />
@@ -180,33 +183,68 @@ export function CustomerProfileSheet({
             </div>
           </div>
 
-          {/* ملاحظة دائمة عن الشخص نفسه — تبقى معه عبر كل عقوده الحالية والمستقبلية، بخلاف
-              ملاحظات عقد واحد بذاته (تلك تبقى في تبويب العقود). هذا هو مكان تدوين أشياء مثل
-              "يفضّل التواصل واتساب" أو "عميل دائم، يدفع دائماً بالموعد". */}
-          <div className="p-3.5 rounded-2xl bg-white/70 border border-ink/10 space-y-2">
+          {/* معلومات العميل — قابلة للتعديل والحفظ من هنا مباشرة، بمعزل تام عن العقود: تعديل
+              الهاتف أو المدينة هنا لا يغيّر أي عقد قديم بأثر رجعي، فقط "المعلومة الحالية
+              المعتمَدة" لهذا الشخص. الملاحظة تبقى معه عبر كل عقوده الحالية والمستقبلية، بخلاف
+              ملاحظة عقد واحد بذاته (adminNotes، في تبويب العقود). */}
+          <div className="p-3.5 rounded-2xl bg-white/70 border border-ink/10 space-y-3">
             <span className="text-[11px] font-bold text-ink/75 flex items-center gap-1.5">
               <StickyNote className="w-3.5 h-3.5 text-ink/50" />
-              {isAr ? 'ملاحظة دائمة عن هذا العميل' : 'Ongoing note about this customer'}
+              {isAr ? 'معلومات العميل' : 'Customer info'}
             </span>
-            {!noteLoaded ? (
+            {!profileLoaded ? (
               <div className="py-4 text-center"><Loader2 className="w-4 h-4 text-ink/50 mx-auto animate-spin" /></div>
             ) : (
               <>
-                <textarea
-                  rows={3}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder={isAr ? 'مثال: يفضّل التواصل عبر واتساب، عميل دائم...' : 'e.g. Prefers WhatsApp contact, repeat customer...'}
-                  className="w-full p-2.5 rounded-xl bg-paper border border-ink/10 text-ink text-xs"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="flex items-center gap-1.5 text-[10px] font-semibold text-ink/55 mb-1">
+                      <Phone className="w-3 h-3" />
+                      {isAr ? 'رقم الهاتف' : 'Phone'}
+                    </label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      dir="ltr"
+                      placeholder={isAr ? 'مثال: 07701234567' : 'e.g. 07701234567'}
+                      className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-1.5 text-[10px] font-semibold text-ink/55 mb-1">
+                      <MapPin className="w-3 h-3" />
+                      {isAr ? 'المدينة' : 'City'}
+                    </label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder={isAr ? 'مثال: بغداد' : 'e.g. Baghdad'}
+                      className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-ink/55 mb-1">
+                    {isAr ? 'ملاحظة دائمة عن هذا العميل' : 'Ongoing note about this customer'}
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder={isAr ? 'مثال: يفضّل التواصل عبر واتساب، عميل دائم...' : 'e.g. Prefers WhatsApp contact, repeat customer...'}
+                    className="w-full p-2.5 rounded-xl bg-paper border border-ink/10 text-ink text-xs"
+                  />
+                </div>
                 <div className="flex justify-end">
                   <button
-                    onClick={handleSaveNote}
-                    disabled={isSavingNote}
+                    onClick={handleSave}
+                    disabled={isSaving}
                     className="px-4 py-2 rounded-xl bg-white hover:bg-white disabled:opacity-60 text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all border border-white"
                   >
-                    {isSavingNote ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                    <span>{isAr ? 'حفظ الملاحظة' : 'Save note'}</span>
+                    {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                    <span>{isAr ? 'حفظ' : 'Save'}</span>
                   </button>
                 </div>
               </>
@@ -214,11 +252,21 @@ export function CustomerProfileSheet({
           </div>
 
           {/* كل عقوده — الأحدث أولاً. للاطلاع فقط: التعديل يبقى في تبويب العقود، حيث تعيش
-              أدوات الحالة/السعر/الدفعات الكاملة أصلاً، بدل تكرارها هنا. */}
+              أدوات الحالة/السعر/الدفعات الكاملة أصلاً، بدل تكرارها هنا.
+
+              `contracts` القادمة من AdminDashboard مشتركة لحظياً بـ Firestore (subscribeToContracts)
+              — أي تعديل حالة أو سعر أو دفعة يحفظه الأدمن في تبويب العقود ينعكس هنا فوراً بلا
+              أي تحديث للصفحة، بما فيها وقت `آخر تحديث` تحت كل عقد. */}
           <div className="space-y-2">
-            <span className="text-[11px] font-bold text-ink/60 block">
-              {isAr ? `عقود هذا العميل (${own.length})` : `This customer's contracts (${own.length})`}
-            </span>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-bold text-ink/60">
+                {isAr ? `عقود هذا العميل (${own.length})` : `This customer's contracts (${own.length})`}
+              </span>
+              <span className="flex items-center gap-1 text-[10px] text-ink/45">
+                <RefreshCw className="w-3 h-3" />
+                {isAr ? 'تحديث مباشر' : 'Live'}
+              </span>
+            </div>
             {own.length === 0 ? (
               <p className="py-6 text-center text-ink/45 text-xs border border-dashed border-ink/10 rounded-2xl">
                 {isAr ? 'لا يوجد عقود مرتبطة بهذا الحساب بعد.' : 'No contracts linked to this account yet.'}
@@ -232,7 +280,10 @@ export function CustomerProfileSheet({
                 >
                   <div className="min-w-0">
                     <div className="text-xs font-bold text-ink truncate">{translateText(c.templateTitle, language)}</div>
-                    <div className="text-[10px] text-ink/50 font-mono truncate">{c.contractNumber} · {formatDate(c.createdAt, isAr)}</div>
+                    <div className="text-[10px] text-ink/50 font-mono truncate">
+                      {c.contractNumber} · {formatDate(c.createdAt, isAr)}
+                      {c.updatedAt && ` · ${isAr ? 'آخر تحديث' : 'Updated'}: ${formatDate(c.updatedAt, isAr)}`}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="text-[11px] font-mono text-ink/75">{formatPrice(c.totalPriceIQD || 0, language, currency)}</span>
