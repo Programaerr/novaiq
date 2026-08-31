@@ -36,6 +36,22 @@ interface ContractBuilderProps {
   accountUid?: string | null;
 }
 
+/**
+ * A counted noun in Arabic changes with the count, and this form was printing one form for every
+ * number: "5 أسبوع" and "8 بنداً", which are the shapes for 1 and for 11-99 respectively, on values
+ * that are neither. 3 to 10 takes the plural — "5 أسابيع", "8 بنود".
+ *
+ * A function rather than the two fixed strings it currently resolves to, because both counts come
+ * from data: `deliveryWeeks` is a per-template field and the clause list is an array whose length
+ * is whatever `contractTerms` returns. Hard-coding today's answers would be correct until either
+ * one is edited, and wrong silently after that.
+ */
+function arCount(n: number, one: string, two: string, few: string, many: string): string {
+  if (n === 1) return one;
+  if (n === 2) return two;
+  return `${n} ${n >= 3 && n <= 10 ? few : many}`;
+}
+
 const PRESET_COLORS = [
   { hex: '#8b5cf6', labelAr: 'بنفسجي', labelEn: 'Purple' },
   { hex: '#10b981', labelAr: 'زمردي', labelEn: 'Emerald' },
@@ -244,7 +260,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     if (missing.size > 0) {
       setFieldErrors(missing);
       showToast(
-        isAr ? 'يرجى تعبئة كافة بيانات الشركة المطلوبة في الخطوة الأولى (محدّدة باللون الأحمر)' : 'Please complete the required company details in step 1 (highlighted in red)',
+        isAr ? 'يرجى إكمال بيانات شركتك في الخطوة الأولى (الحقول الناقصة محدّدة بالأحمر)' : 'Please complete the required company details in step 1 (highlighted in red)',
         'error'
       );
       setCurrentStep(1);
@@ -254,7 +270,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     if (!isValidIraqiPhone(phone)) {
       setFieldErrors(new Set(['phone']));
       showToast(
-        isAr ? 'خطأ في رقم الهاتف: يجب أن يبدأ رقم الهاتف العراقي بـ 07 ويتكون من 11 رقماً بالضبط' : 'Invalid Iraqi phone number format. Must start with 07 and be 11 digits.',
+        isAr ? 'رقم الهاتف يجب أن يبدأ بـ 07 ويتكوّن من 11 رقماً' : 'Invalid Iraqi phone number format. Must start with 07 and be 11 digits.',
         'error'
       );
       setCurrentStep(1);
@@ -267,7 +283,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       if (!customFeaturesText.trim()) missingCustom.add('customDescription');
       setFieldErrors(missingCustom);
       showToast(
-        isAr ? 'يرجى تسمية مشروعك ووصفه بالتفصيل في الخطوة الثانية (محدّدة باللون الأحمر)' : 'Please name and describe your project in detail in step 2 (highlighted in red)',
+        isAr ? 'يرجى تسمية مشروعك ووصفه في الخطوة الثانية (الحقول الناقصة محدّدة بالأحمر)' : 'Please name and describe your project in detail in step 2 (highlighted in red)',
         'error'
       );
       setCurrentStep(2);
@@ -275,7 +291,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     }
 
     if (!agreedToTerms) {
-      showToast(isAr ? 'يرجى الموافقة على الشروط والأحكام العامة للبدء' : 'Please accept the terms and conditions', 'error');
+      showToast(isAr ? 'يرجى الموافقة على بنود العقد أولاً' : 'Please accept the terms and conditions', 'error');
       return;
     }
 
@@ -357,7 +373,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           <h2 className="text-xl sm:text-3xl font-black mb-1.5" style={{ color: OBSIDIAN }}>
             {getTranslation('builderTitle', lang)}
           </h2>
-          <p className="text-xs sm:text-sm max-w-2xl mx-auto font-bold" style={{ color: OBSIDIAN, opacity: 0.7 }}>
+          <p className="text-sm sm:text-base max-w-2xl mx-auto font-bold leading-relaxed" style={{ color: OBSIDIAN, opacity: 0.7 }}>
             {getTranslation('builderSubtext', lang)}
           </p>
         </div>
@@ -373,7 +389,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
         <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mb-6">
           {[
             { step: 1, title: isAr ? 'بيانات الشركة' : 'Company Details', icon: Building2, phase: isAr ? 'المرحلة الأولى' : 'Phase one' },
-            { step: 2, title: isAr ? 'مواصفات القالب' : 'Template Specs', icon: Layers, phase: isAr ? 'المرحلة الثانية' : 'Phase two' },
+            { step: 2, title: isAr ? 'مواصفات المشروع' : 'Project Specs', icon: Layers, phase: isAr ? 'المرحلة الثانية' : 'Phase two' },
             { step: 3, title: isAr ? 'المراجعة والتوقيع' : 'Review & Sign', icon: FileSignature, phase: isAr ? 'المرحلة الثالثة' : 'Phase three' },
           ].map((s) => {
             const Icon = s.icon;
@@ -406,8 +422,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
                 <div className="min-w-0">
-                  <span className="block text-[10px] font-mono opacity-70">{s.phase}</span>
-                  <span className="block text-[11px] sm:text-xs font-bold truncate">{s.title}</span>
+                  <span className="block text-xs opacity-70">{s.phase}</span>
+                  <span className="block text-xs sm:text-sm font-bold truncate">{s.title}</span>
                 </div>
               </button>
             );
@@ -429,7 +445,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
                     {getTranslation('companyNameLabel', lang)} *
                   </label>
                   <input
@@ -441,12 +457,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       clearFieldError('companyName');
                     }}
                     placeholder={getTranslation('companyNamePlaceholder', lang)}
-                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs transition-colors ${errorInputClass('companyName')}`}
+                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-sm transition-colors ${errorInputClass('companyName')}`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
                     {getTranslation('crNumberLabel', lang)}
                   </label>
                   <input
@@ -454,13 +470,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     value={crNumber}
                     onChange={(e) => setCrNumber(e.target.value)}
                     placeholder={getTranslation('crNumberPlaceholder', lang)}
-                    className="w-full px-4 py-3 rounded-xl bg-obsidian border border-steel/60 focus:border-orange focus:outline-none text-white text-xs font-mono"
+                    className="w-full px-4 py-3 rounded-xl bg-obsidian border border-steel/60 focus:border-orange focus:outline-none text-white text-sm font-mono placeholder:font-sans"
                   />
                   {/* Said outright rather than left to the absence of a `*`: plenty of clients
                       here are individuals or new businesses with no commercial register at
                       all, and a blank field with no explanation reads as something they are
                       missing rather than something they can skip. */}
-                  <p className="text-[11px] text-white/60 mt-1">
+                  <p className="text-xs text-white/60 mt-1">
                     {isAr
                       ? 'يمكنك تركه فارغاً إذا لم يكن لديك سجل تجاري.'
                       : 'Leave blank if you do not have a commercial register.'}
@@ -468,7 +484,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
                     {getTranslation('repNameLabel', lang)} *
                   </label>
                   <input
@@ -480,12 +496,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       clearFieldError('repName');
                     }}
                     placeholder={getTranslation('repNamePlaceholder', lang)}
-                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs transition-colors ${errorInputClass('repName')}`}
+                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-sm transition-colors ${errorInputClass('repName')}`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
                     {getTranslation('phoneLabel', lang)} *
                   </label>
                   <input
@@ -503,19 +519,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     // The live verdict outranks the submit-time one: while someone is fixing a
                     // number the field should follow what they are typing right now, not stay
                     // red because of the value that failed when they last pressed submit.
-                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs font-mono transition-colors ${
+                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-sm font-mono transition-colors ${
                       phoneError
                         ? 'border-[#EF4444] focus:border-[#EF4444] ring-1 ring-[#EF4444]/40'
                         : errorInputClass('phone')
                     }`}
                   />
                   {phoneError ? (
-                    <p className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: ERROR }}>
+                    <p className="text-xs font-bold flex items-center gap-1.5" style={{ color: ERROR }}>
                       <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>{phoneError}</span>
                     </p>
                   ) : (
-                    <p className="text-[11px] text-white/60 mt-1">
+                    <p className="text-xs text-white/60 mt-1">
                       {isAr ? 'مثال: 07701234567 (11 رقماً)' : 'e.g. 07701234567 (11 digits)'}
                     </p>
                   )}
@@ -533,10 +549,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   <Layers className="w-5 h-5 text-orange" />
                   <span>{getTranslation('stepTechSpecs', lang)}</span>
                 </h3>
-                <p className="text-white/55 text-[11px] sm:text-xs mt-1.5 max-w-2xl">
+                <p className="text-white/55 text-xs sm:text-sm leading-relaxed mt-2 max-w-2xl">
                   {isAr
-                    ? 'اختر القالب وصف ما تريد تنفيذه — وتابع مواصفات مشروعك تتحدّث مباشرة في البطاقة أعلاه.'
-                    : 'Pick a template and describe what to build — your spec updates live in the card above.'}
+                    ? 'اختر قالباً وصِف ما تريد تنفيذه — وسترى مواصفاتك تتحدّث مباشرة في بطاقة الملخّص بالأسفل.'
+                    : 'Pick a template and describe what to build — your spec updates live in the summary card below.'}
                 </p>
               </div>
 
@@ -555,10 +571,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     />
                   )}
                   <div>
-                    <span className="text-[10px] font-bold text-white bg-white/8 border border-steel/60 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[11px] font-bold text-white bg-white/8 border border-steel/60 px-2.5 py-0.5 rounded-full">
                       {isCustomProject ? (isAr ? 'مشروع مخصص بالكامل' : 'Fully Custom Project') : template.categoryLabel}
                     </span>
-                    <h4 className="text-sm font-bold text-white mt-1">
+                    <h4 className="text-base font-bold text-white mt-1">
                       {isCustomProject ? (isAr ? 'صف مشروعك بنفسك بالأسفل' : 'Describe your project below') : template.title}
                     </h4>
                   </div>
@@ -577,10 +593,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       setTemplate(found);
                     }
                   }}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-graphite border border-steel/60 text-white text-xs font-semibold"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-graphite border border-steel/60 text-white text-sm font-semibold"
                 >
                   <option value={CUSTOM_OPTION_VALUE}>
-                    {isAr ? '✏️ قالب مخصص بالكامل — صف مشروعك بنفسك' : '✏️ Fully Custom Project — describe it yourself'}
+                    {isAr ? '✏️ مشروع مخصص بالكامل — صف مشروعك بنفسك' : '✏️ Fully Custom Project — describe it yourself'}
                   </option>
                   {templatesData.map((t) => (
                     <option key={t.id} value={t.id}>
@@ -592,7 +608,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
               {isCustomProject && (
                 <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
                     {isAr ? 'اسم مشروعك المخصص' : 'Name your custom project'} *
                   </label>
                   <input
@@ -604,16 +620,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       clearFieldError('customProjectName');
                     }}
                     placeholder={isAr ? 'مثال: منصة حجوزات صالات أفراح' : 'e.g. Event Hall Booking Platform'}
-                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-xs transition-colors ${errorInputClass('customProjectName')}`}
+                    className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-sm transition-colors ${errorInputClass('customProjectName')}`}
                   />
                 </div>
               )}
 
 
               {/* Appearance — the whole "what it looks like" group in one labelled card. */}
-              <div className="text-white font-bold text-sm mt-1">{isAr ? 'تخصيص المظهر' : 'Appearance'}</div>
+              <div className="text-white font-bold text-base mt-1">{isAr ? 'تخصيص المظهر' : 'Appearance'}</div>
               <div className="p-4 rounded-2xl bg-obsidian border border-white/10">
-                <label className="block text-xs font-semibold text-white/85 mb-2">
+                <label className="block text-sm font-semibold text-white/85 mb-2">
                   {getTranslation('colorSchemeLabel', lang)}
                 </label>
                 <div className="flex flex-wrap items-center gap-2.5">
@@ -662,7 +678,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </div>
                 </div>
                 {isCustomColor && (
-                  <p className="text-[11px] text-white/45 mt-2">
+                  <p className="text-xs text-white/60 mt-2">
                     {isAr
                       ? `سنستخدم هذا اللون بالضبط (${primaryColor}) في تصميم موقعك.`
                       : `We'll use this exact color (${primaryColor}) in your site's design.`}
@@ -670,11 +686,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-obsidian border border-white/10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-10 p-4 rounded-2xl bg-obsidian border border-white/10">
                 {/* Theme Preference */}
                 <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
-                    {isAr ? 'نمط الوضع (فاتح/داكن):' : 'Interface Mode:'}
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
+                    {isAr ? 'وضع العرض:' : 'Interface Mode:'}
                   </label>
                   {/* "Cosmic" used to be the third option. It named this site's own look rather
                       than anything the customer's build would actually get, so choosing it promised
@@ -691,7 +707,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         key={opt.id}
                         type="button"
                         onClick={() => setThemePreference(opt.id)}
-                        className={`p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
+                        className={`p-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all ${
                           themePreference === opt.id
                             ? 'bg-orange border-white text-obsidian'
                             : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
@@ -705,7 +721,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
                 {/* Language Support */}
                 <div>
-                  <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
                     {getTranslation('languageSupportLabel', lang)}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -719,7 +735,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         type="button"
                         onClick={() => setLanguageSupport(opt.id)}
                         title={opt.label}
-                        className={`p-2.5 rounded-xl border text-xs font-bold cursor-pointer transition-all truncate ${
+                        className={`p-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all truncate ${
                           languageSupport === opt.id
                             ? 'bg-orange border-white text-obsidian'
                             : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
@@ -738,12 +754,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               {isCustomProject ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-white/85 mb-1.5">
+                    <label className="block text-sm font-semibold text-white/85 mb-2">
                       {isAr ? 'صف مشروعك بالتفصيل الكامل' : 'Describe your project in full detail'} *
                     </label>
-                    <p className="text-[11px] text-white/60 mb-2">
+                    <p className="text-xs text-white/60 leading-relaxed mb-2">
                       {isAr
-                        ? 'اكتب كل ما يخطر ببالك: الصفحات والأقسام المطلوبة، الميزات، الجمهور المستهدف، أمثلة مواقع تعجبك، وأي تفاصيل تساعدنا نفهم رؤيتك تماماً قبل تسعير المشروع.'
+                        ? 'اكتب كل ما يخطر ببالك: الصفحات والأقسام المطلوبة، الميزات، الجمهور المستهدف، أمثلة مواقع تعجبك، وأي تفاصيل تساعدنا على فهم رؤيتك قبل تسعير المشروع.'
                         : 'Write everything that comes to mind: the pages/sections you need, features, target audience, sites you like as references, and any detail that helps us fully understand your vision before pricing the project.'}
                     </p>
                     <textarea
@@ -754,8 +770,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         setCustomFeaturesText(e.target.value);
                         clearFieldError('customDescription');
                       }}
-                      placeholder={isAr ? 'اكتب وصفك التفصيلية هنا...' : 'Write your detailed description here...'}
-                      className={`w-full p-3.5 rounded-xl bg-obsidian border focus:outline-none text-white text-xs leading-relaxed transition-colors ${errorInputClass('customDescription')}`}
+                      placeholder={isAr ? 'اكتب وصفك التفصيلي هنا...' : 'Write your detailed description here...'}
+                      className={`w-full p-3.5 rounded-xl bg-obsidian border focus:outline-none text-white text-sm leading-relaxed transition-colors ${errorInputClass('customDescription')}`}
                     />
                   </div>
 
@@ -763,7 +779,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       resolve to the exact same values through a legacy alias, but a reader
                       shouldn't have to know that three identities' worth of renaming happened to
                       find out what colour this actually is. */}
-                  <div className="p-3.5 rounded-xl bg-white-warm/10 border border-white-warm/40 text-[11px] text-surface-light">
+                  <div className="p-3.5 rounded-xl bg-white-warm/10 border border-white-warm/40 text-xs leading-relaxed text-surface-light">
                     {isAr
                       ? 'لا يوجد سعر مسبق لمشروع مخصص — سيراجع فريقنا وصفك ويرسل لك عرض سعر ومدة تنفيذ مناسبة بعد تقديم الطلب.'
                       : 'A custom project has no upfront price — our team will review your description and send back a quote and timeline after you submit.'}
@@ -771,7 +787,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </div>
               ) : (
                 <div className="p-4 sm:p-5 rounded-2xl bg-obsidian/60 border-2 border-dashed border-steel/60 space-y-2.5">
-                  <label className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white">
+                  <label className="flex items-center gap-2 text-sm font-bold text-white">
                     <PenLine className="w-4 h-4 shrink-0" />
                     <span>{isAr ? 'وصف القالب والمطلوب تنفيذه' : 'Template description & what you need built'}</span>
                   </label>
@@ -780,7 +796,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     value={customFeaturesText}
                     onChange={(e) => setCustomFeaturesText(e.target.value)}
                     placeholder={getTranslation('customFeaturesPlaceholder', lang)}
-                    className="w-full p-3.5 rounded-xl bg-obsidian border border-steel/60 focus:border-orange focus:outline-none text-white text-xs"
+                    className="w-full p-3.5 rounded-xl bg-obsidian border border-steel/60 focus:border-orange focus:outline-none text-white text-sm leading-relaxed"
                   />
                 </div>
               )}
@@ -789,13 +805,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   inputs first, then reads the assembled summary at the bottom. Reads the same state
                   the contract is assembled from, so it can never disagree with what is sent. */}
               <div className="p-4 rounded-2xl bg-white/5 border border-steel/60 space-y-3">
-                <div className="flex items-center gap-2 text-white font-bold text-sm">
+                <div className="flex items-center gap-2 text-white font-bold text-base">
                   <FileCheck className="w-4 h-4 text-orange" />
-                  {isAr ? 'مخطط مواصفات المشروع' : 'Project Spec Outline'}
+                  {isAr ? 'ملخّص مواصفات مشروعك' : 'Project Spec Outline'}
                 </div>
-                <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2.5 text-xs">
+                <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">
                   <div className="flex flex-col min-w-0">
-                    <dt className="text-white/55">{isAr ? 'نوع المشروع' : 'Project'}</dt>
+                    <dt className="text-white/55">{isAr ? 'المشروع' : 'Project'}</dt>
                     <dd className="font-bold text-white truncate">{isCustomProject ? (customProjectName.trim() || (isAr ? 'مشروع مخصص' : 'Custom')) : template.title}</dd>
                   </div>
                   <div className="flex flex-col min-w-0">
@@ -815,11 +831,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </div>
                   <div className="flex flex-col">
                     <dt className="text-white/55">{isAr ? 'مدة التنفيذ' : 'Delivery'}</dt>
-                    <dd className="font-bold text-white">{deliveryTimelineWeeks} {isAr ? 'أسبوع' : 'wks'}</dd>
+                    <dd className="font-bold text-white">{isAr ? arCount(deliveryTimelineWeeks, 'أسبوع واحد', 'أسبوعان', 'أسابيع', 'أسبوعاً') : `${deliveryTimelineWeeks} wks`}</dd>
                   </div>
                   <div className="flex flex-col">
                     <dt className="text-white/55">{isAr ? 'السعر' : 'Price'}</dt>
-                    <dd className="font-bold text-white">{isCustomProject ? (isAr ? 'لاحقاً' : 'Later') : formatPrice(totalPriceIQD, lang, currency)}</dd>
+                    <dd className="font-bold text-white">{isCustomProject ? (isAr ? 'بعد المراجعة' : 'Later') : formatPrice(totalPriceIQD, lang, currency)}</dd>
                   </div>
                 </dl>
               </div>
@@ -850,11 +866,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   smooth-scroll wrapper takes the wheel and moves the page behind instead. */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <label className="text-xs font-bold text-white/85">
+                  <label className="text-sm font-bold text-white/85">
                     {isAr ? 'بنود العقد — يُرجى قراءتها قبل التوقيع:' : 'Contract terms — please read before signing:'}
                   </label>
-                  <span className="text-[11px] text-white/45 shrink-0">
-                    {terms.length} {isAr ? 'بنداً' : 'clauses'}
+                  <span className="text-xs text-white/60 shrink-0">
+                    {isAr ? arCount(terms.length, 'بند واحد', 'بندان', 'بنود', 'بنداً') : `${terms.length} clauses`}
                   </span>
                 </div>
 
@@ -862,31 +878,31 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   data-lenis-prevent
                   className="max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-obsidian p-4"
                 >
-                  <ol className="list-decimal space-y-2.5 ps-4 marker:font-bold marker:text-white/45">
+                  <ol className="list-decimal space-y-2.5 ps-4 marker:font-bold marker:text-white/60">
                     {terms.map((term, i) => (
-                      <li key={i} className="text-[11px] leading-relaxed text-white/85">
+                      <li key={i} className="text-sm leading-relaxed text-white/85">
                         {term}
                       </li>
                     ))}
                   </ol>
                 </div>
 
-                <p className="text-[11px] text-white/45">
+                <p className="text-xs leading-relaxed text-white/60">
                   {isAr
-                    ? 'توقيعك أدناه إقرار بأنك قرأت البنود أعلاه ووافقت عليها، وستُطبع ضمن نسخة عقدك.'
+                    ? 'توقيعك أدناه إقرار بأنك قرأت البنود أعلاه ووافقت عليها، ويُطبع توقيعك ضمن نسخة عقدك.'
                     : 'Signing below acknowledges that you have read and accepted the terms above; they are printed in your contract copy.'}
                 </p>
               </div>
 
               <div className="space-y-2" ref={signaturePadRef}>
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-white/85">
-                    {isAr ? 'لوحة التوقيع الحي:' : 'Live Digital Signature Pad:'}
+                  <label className="text-sm font-bold text-white/85">
+                    {isAr ? 'توقيعك:' : 'Live Digital Signature Pad:'}
                   </label>
                   <button
                     type="button"
                     onClick={clearSignature}
-                    className="flex items-center gap-1 text-[11px] text-white/60 hover:text-white cursor-pointer"
+                    className="flex items-center gap-1 text-xs text-white/60 hover:text-white cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>{getTranslation('clearSignature', lang)}</span>
@@ -912,7 +928,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     className="w-full h-36 cursor-crosshair touch-none"
                   />
                   {!hasSignature && (
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-white/45 text-xs font-semibold">
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-white/60 text-sm font-semibold">
                       {isAr ? '[ ارسم توقيعك هنا ]' : '[ Draw your signature here ]'}
                     </div>
                   )}
@@ -923,24 +939,24 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     nobody has done anything wrong on first arriving at this step — so it
                     states the requirement plainly instead of in red. */}
                 {hasSignature ? (
-                  <p className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: SUCCESS }}>
+                  <p className="text-xs font-bold flex items-center gap-1.5" style={{ color: SUCCESS }}>
                     <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                     <span>{isAr ? 'تم التوقيع — يمكنك الآن إتمام العقد.' : 'Signed — you can now complete the contract.'}</span>
                   </p>
                 ) : signatureMissing ? (
-                  <p className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: ERROR }}>
+                  <p className="text-xs font-bold flex items-center gap-1.5" style={{ color: ERROR }}>
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                     <span>{isAr ? 'التوقيع مطلوب لإتمام العقد — ارسم توقيعك في المساحة أعلاه.' : 'A signature is required to complete the contract — draw yours in the area above.'}</span>
                   </p>
                 ) : (
-                  <p className="text-[11px] text-white/60 flex items-center gap-1.5">
+                  <p className="text-xs text-white/60 flex items-center gap-1.5">
                     <PenLine className="w-3.5 h-3.5 shrink-0" />
                     <span>{isAr ? 'التوقيع مطلوب لإتمام العقد.' : 'A signature is required to complete the contract.'}</span>
                   </p>
                 )}
               </div>
 
-              <div className="p-4 rounded-2xl bg-obsidian border border-white/10 text-xs text-white/85 space-y-2">
+              <div className="p-4 rounded-2xl bg-obsidian border border-white/10 text-sm text-white/85 space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -948,7 +964,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
                     className="w-4 h-4 rounded bg-graphite border-steel/60 text-white focus:ring-white cursor-pointer"
                   />
-                  <span className="text-xs font-semibold text-white">
+                  <span className="text-sm font-semibold text-white leading-relaxed">
                     {getTranslation('agreeTermsCheckbox', lang)}
                   </span>
                 </label>
@@ -960,19 +976,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   differ. Nothing follows it but the button that commits to it. */}
               {isCustomProject ? (
                 <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
-                  <div className="text-sm font-bold text-white">
+                  <div className="text-base font-bold text-white">
                     {isAr ? 'مشروع مخصص — السعر يُحدَّد بعد المراجعة' : 'Custom Project — price to be quoted after review'}
                   </div>
-                  <p className="text-xs text-white/60 leading-relaxed">
+                  <p className="text-sm text-white/60 leading-relaxed">
                     {isAr
                       ? 'سيراجع فريقنا الوصف الذي كتبته في الخطوة السابقة ويتواصل معك بعرض سعر ومدة تنفيذ دقيقة بعد تقديم الطلب.'
                       : 'Our team will review the description you wrote in the previous step and follow up with an accurate quote and timeline after you submit.'}
                   </p>
                 </div>
               ) : (
-                <div className="p-5 rounded-2xl bg-obsidian border border-white/10 font-mono flex items-center justify-between gap-3">
+                <div className="p-5 rounded-2xl bg-obsidian border border-white/10 flex items-center justify-between gap-3">
                   <span className="text-base font-bold text-white">{getTranslation('totalCostSummary', lang)}</span>
-                  <span className="text-xl text-white font-extrabold">
+                  <span className="text-xl text-white font-extrabold tabular-nums">
                     {formatPrice(totalPriceIQD, lang, currency)}
                   </span>
                 </div>
@@ -1012,7 +1028,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     if (missing.size > 0) {
                       setFieldErrors(missing);
                       showToast(
-                        isAr ? 'يرجى تعبئة كافة البيانات الأساسية المكتملة أولاً (محدّدة باللون الأحمر)' : 'Please complete the required basic info first (highlighted in red)',
+                        isAr ? 'يرجى إكمال البيانات الأساسية أولاً (الحقول الناقصة محدّدة بالأحمر)' : 'Please complete the required basic info first (highlighted in red)',
                         'error'
                       );
                       return;
@@ -1023,7 +1039,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     if (!isValidIraqiPhone(phone)) {
                       setFieldErrors(new Set(['phone']));
                       showToast(
-                        isAr ? 'رقم الهاتف يجب أن يبدأ بـ 07 ويتكون من 11 رقماً' : 'The phone number must start with 07 and be 11 digits',
+                        isAr ? 'رقم الهاتف يجب أن يبدأ بـ 07 ويتكوّن من 11 رقماً' : 'The phone number must start with 07 and be 11 digits',
                         'error'
                       );
                       return;
@@ -1035,7 +1051,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     if (!customFeaturesText.trim()) missingCustom.add('customDescription');
                     setFieldErrors(missingCustom);
                     showToast(
-                      isAr ? 'يرجى تسمية مشروعك ووصفه بالتفصيل أولاً (محدّدة باللون الأحمر)' : 'Please name and describe your project first (highlighted in red)',
+                      isAr ? 'يرجى تسمية مشروعك ووصفه أولاً (الحقول الناقصة محدّدة بالأحمر)' : 'Please name and describe your project first (highlighted in red)',
                       'error'
                     );
                     return;
@@ -1064,7 +1080,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   canSubmit
                     ? undefined
                     : isAr
-                      ? 'أكمل التوقيع والموافقة ورقم الهاتف أولاً'
+                      ? 'أكمل رقم الهاتف والموافقة والتوقيع أولاً'
                       : 'Complete the signature, approval and phone number first'
                 }
                 className="sm:text-sm"
