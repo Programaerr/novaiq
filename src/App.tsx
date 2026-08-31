@@ -501,6 +501,7 @@ export default function App() {
           setActivePage={(page) => navigateTo(page)}
           language={language}
           setLanguage={setLanguage}
+          currentUser={currentUser}
         />
       )}
 
