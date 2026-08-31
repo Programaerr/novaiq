@@ -48,6 +48,21 @@ service cloud.firestore {
       function customerCreateIsClean() {
         let d = request.resource.data;
         return d.status == 'submitted'
+          // العقد يُنسب إلى بريد الحساب الموقّع نفسه، لا إلى بريد يكتبه من ينشئه: بدون هذا
+          // يقدر أي عميل مسجّل دخول ينشئ عقداً باسم بريد شخص آخر، فيظهر في لوحة التحكم كأنه
+          // منه. النموذج أصلاً يعبّئ بريد الحساب ولا يسمح بتعديله (ContractBuilder.tsx).
+          && d.email is string && d.email.lower() == request.auth.token.email.lower()
+          // أحجام وأنواع الحقول النصية. Firestore يقبل حتى 1MB للمستند الواحد، وبدون سقوف
+          // هنا يقدر حساب واحد يملأ المجموعة بمستندات ضخمة أو بأنواع غير متوقَّعة تكسر
+          // لوحة التحكم عند عرضها.
+          && d.companyName is string && d.companyName.size() > 0 && d.companyName.size() < 300
+          && d.repName is string && d.repName.size() > 0 && d.repName.size() < 300
+          && d.phone is string && d.phone.size() > 0 && d.phone.size() < 40
+          && d.templateTitle is string && d.templateTitle.size() < 400
+          && d.customFeaturesText is string && d.customFeaturesText.size() < 20000
+          // موقع إلكتروني أو تطبيق هاتف حصراً. مكتوبة كـ"إن وُجد" لأن عقداً أنشأه متصفح
+          // يحمل نسخة قديمة من الكود (قبل وجود الحقل) يجب أن يبقى قابلاً للإنشاء.
+          && (!('projectType' in d) || d.projectType in ['website', 'app'])
           && !('companySignatureDataUrl' in d)
           && !('completedAt' in d)
           && !('adminNotes' in d)

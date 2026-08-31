@@ -82,7 +82,50 @@ function getLocalNetworkIP(): string | null {
 // zero, rather than a hardcoded `true`.
 app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS) || 0);
 
-app.use(express.json({ limit: '10mb' }));
+// 10mb سابقاً بلا حاجة: أكبر جسم طلب حقيقي هنا هو دفعة ترجمة صفحة كاملة (نصوص قصيرة)، أما
+// توقيع العقد وصوره فتذهب إلى Firestore من المتصفح مباشرة ولا تمرّ من هنا إطلاقاً. سقف أقل
+// = سطح إرهاق أصغر: 120 طلباً بالدقيقة × 10mb تحليل JSON كانت طريقة رخيصة لإشغال السيرفر.
+app.use(express.json({ limit: '4mb' }));
+
+// ---------------------------------------------------------------------------
+// ترويسات الأمان — نسخة مطابقة لما يضبطه netlify.toml على الاستضافة، مكرّرة هنا لأن هذا
+// الخادم هو ما يعمل محلياً وعلى أي استضافة Node مستقبلاً؛ الموقع يجب أن يكون محمياً بنفس
+// القدر في الحالتين لا في واحدة فقط. راجع تعليقات netlify.toml لسبب كل قيمة (خصوصاً
+// same-origin-allow-popups التي بدونها يتعطّل تسجيل دخول Google).
+// ---------------------------------------------------------------------------
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "media-src 'self' data: blob:",
+  "worker-src 'self' blob:",
+  "connect-src 'self' https://*.googleapis.com https://*.google.com https://*.firebaseio.com https://*.firebasestorage.app https://*.firebaseapp.com wss://*.firebaseio.com",
+  "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+].join('; ');
+
+app.use((_req, res, next) => {
+  // في التطوير يحقن Vite سكربتات ووحدات inline (HMR)، فـ script-src 'self' وحدها تكسر
+  // الصفحة كلياً؛ لذلك تُطبَّق CSP في الإنتاج فقط، بينما بقية الترويسات آمنة في الحالتين.
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Content-Security-Policy', CSP);
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  // اسم/إصدار Express لا يفيد أي زائر، ويفيد فقط من يبحث عن ثغرة معروفة في إصدار بعينه.
+  res.removeHeader('X-Powered-By');
+  next();
+});
+app.disable('x-powered-by');
 
 // ---------------------------------------------------------------------------
 // Rate limiting — written here rather than pulled from express-rate-limit. This is the entire
@@ -174,6 +217,15 @@ function persistTranslationCache() {
   }, 1000);
 }
 
+/* رمز اللغة يُركَّب داخل رابط الطلب الخارج (sl=/tl= أدناه)، فقبوله كما يصل من المتصفح كان
+   يعني السماح بحقن معاملات إضافية في ذلك الرابط عبر قيمة مثل "ar&x=y" — لا يغيّر الوجهة (اسم
+   المضيف ثابت في الكود) لكنه يعبث بالطلب وبمفتاح الكاش. رمزان أو رمزان-وبلد، لا أكثر. */
+const LANG_CODE = /^[a-zA-Z]{2,3}(-[a-zA-Z]{2,4})?$/;
+/** أطول نص واحد يُقبل للترجمة — أطول من أي نص واجهة، ويغطّي وصف مشروع كاملاً في عقد. */
+const MAX_TEXT_LEN = 5000;
+/** أكبر دفعة: صفحة كاملة تُترجَم دفعة واحدة، لكن ليس عدداً غير محدود يولّده سكربت. */
+const MAX_BATCH = 500;
+
 async function translateOne(text: string, source: string, target: string): Promise<string> {
   const cacheKey = `${source}:${target}:${text}`;
   if (translationCache[cacheKey]) return translationCache[cacheKey];
@@ -200,11 +252,21 @@ app.post('/api/translate', translateLimit, async (req, res) => {
   try {
     const { text, texts, source = 'ar', target = 'en' } = req.body;
 
+    if (
+      typeof source !== 'string' || typeof target !== 'string' ||
+      !LANG_CODE.test(source) || !LANG_CODE.test(target)
+    ) {
+      return res.status(400).json({ error: 'Invalid language code' });
+    }
+
     // Batch form — one request for a whole page's worth of strings instead of N.
     if (Array.isArray(texts)) {
+      if (texts.length > MAX_BATCH) {
+        return res.status(413).json({ error: `Too many items (max ${MAX_BATCH})` });
+      }
       const results = await Promise.all(
         texts.map(async (item: unknown) => {
-          if (typeof item !== 'string' || !item.trim()) return '';
+          if (typeof item !== 'string' || !item.trim() || item.length > MAX_TEXT_LEN) return '';
           try {
             return await translateOne(item.trim(), source, target);
           } catch {
@@ -217,6 +279,9 @@ app.post('/api/translate', translateLimit, async (req, res) => {
 
     if (!text || typeof text !== 'string') {
       return res.status(400).json({ error: 'text or texts is required' });
+    }
+    if (text.length > MAX_TEXT_LEN) {
+      return res.status(413).json({ error: `Text too long (max ${MAX_TEXT_LEN})` });
     }
 
     const translated = await translateOne(text.trim(), source, target);
@@ -259,7 +324,11 @@ app.patch('/api/admin/users/:uid', requireAdmin, async (req, res) => {
     const { disabled, displayName } = req.body;
     const update: UpdateRequest = {};
     if (typeof disabled === 'boolean') update.disabled = disabled;
-    if (typeof displayName === 'string') update.displayName = displayName;
+    // سقف الطول: لا سبب لاسم عرض أطول من هذا، وبدونه يُكتب أي حجم يرسله الطلب في سجلّ حساب.
+    if (typeof displayName === 'string' && displayName.length <= 200) update.displayName = displayName;
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ error: 'Nothing to update' });
+    }
 
     const updated = await getAuth().updateUser(uid, update);
 
