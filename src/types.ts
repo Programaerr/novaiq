@@ -3,6 +3,14 @@ export interface TemplateFeature {
   included: boolean;
 }
 
+/** سعر ووصف طريقة تسليم واحدة لقالب — موقع إلكتروني أو تطبيق هاتف، كل واحد له رقمه
+ *  ونصّه الخاص بدل سعر واحد مشترك للاثنين. انظر resolveVariant في lib/pricingOverrides.ts. */
+export interface TemplateVariant {
+  priceIQD: number;
+  priceUSD: number;
+  description: string;
+}
+
 export interface Template {
   id: string;
   title: string;
@@ -27,6 +35,12 @@ export interface Template {
     colorGrad: string;
     contentPreview: string;
   }[];
+  /** تسعير ووصف مستقلان لـ"موقع إلكتروني" و"تطبيق هاتف" — اختياري: قالب بدونه يستخدم
+   *  basePriceIQD/USD والوصف العام الموحّد كافتراضي لكلا الخيارين. */
+  variants?: {
+    website: TemplateVariant;
+    app: TemplateVariant;
+  };
 }
 
 /** Sentinel `ContractData.templateId` for a fully custom (non-catalogue) project — the one

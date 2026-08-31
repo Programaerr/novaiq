@@ -15,6 +15,7 @@ import {
   RotateCcw,
   Plus,
   X,
+  IdCard,
 } from 'lucide-react';
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
@@ -29,6 +30,7 @@ import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '..
 import { PriceInput } from '../PriceInput';
 import { STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, CollectionBar, AdminStats } from './shared';
 import { STAGE_COLORS } from '../../lib/statusColors';
+import { CustomerProfileSheet } from './CustomerProfileSheet';
 
 export function ContractsTab({
   isAr,
@@ -36,12 +38,14 @@ export function ContractsTab({
   currency,
   contracts,
   stats,
+  onBackToSite,
 }: {
   isAr: boolean;
   language: Language;
   currency: Currency;
   contracts: ContractData[];
   stats: AdminStats;
+  onBackToSite: () => void;
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ContractData['status']>('all');
@@ -123,11 +127,13 @@ export function ContractsTab({
             <ContractRow
               key={c.id || c.contractNumber}
               contract={c}
+              allContracts={contracts}
               isAr={isAr}
               language={language}
               currency={currency}
               expanded={expandedId === (c.id || c.contractNumber)}
               onToggle={() => setExpandedId((prev) => (prev === (c.id || c.contractNumber) ? null : c.id || c.contractNumber || null))}
+              onBackToSite={onBackToSite}
             />
           ))}
         </div>
@@ -194,19 +200,26 @@ CompanySignaturePad.displayName = 'CompanySignaturePad';
 
 function ContractRow({
   contract,
+  allContracts,
   isAr,
   language,
   currency,
   expanded,
   onToggle,
+  onBackToSite,
 }: {
   contract: ContractData;
+  /** كل عقود الموقع (غير مُصفّاة) — تُمرَّر للملف الشخصي بحيث يقدر يجمع كل عقود نفس الشخص،
+   *  لا هذا العقد وحده. */
+  allContracts: ContractData[];
   isAr: boolean;
   language: Language;
   currency: Currency;
   expanded: boolean;
   onToggle: () => void;
+  onBackToSite: () => void;
 }) {
+  const [showProfile, setShowProfile] = useState(false);
   // Legacy contracts saved before the payment ledger existed only have a lump `paidAmountIQD`
   // — seed a single migrated entry so that money isn't silently dropped from the ledger the
   // first time this contract is opened after the feature shipped. The id must be stable
@@ -347,7 +360,13 @@ function ContractRow({
   };
 
   return (
-    <div className="rounded-2xl bg-paper border border-ink/10 overflow-hidden">
+    // حافة ملوّنة بلون مرحلة العقد (STAGE_COLORS) على الجانب البدائي (inline-start) — يمين
+    // في العربية، يسار في الإنجليزية تلقائياً — بحيث تُعرف حالة العقد بلمحة واحدة قبل حتى
+    // قراءة الشارة، خصوصاً في قائمة طويلة يتم تمريرها بسرعة على الهاتف.
+    <div
+      className="rounded-3xl bg-paper border border-ink/10 overflow-hidden"
+      style={{ borderInlineStartWidth: '4px', borderInlineStartColor: STAGE_COLORS[contract.status].fill }}
+    >
       {expanded && <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} />}
 
       <button
@@ -384,11 +403,26 @@ function ContractRow({
 
       {expanded && (
         <div className="p-4 pt-0 space-y-4 border-t border-ink/10 animate-fade-in">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-4">
-            <div className="text-ink/60">{isAr ? 'الممثل:' : 'Representative:'} <span className="text-ink">{contract.repName}</span></div>
-            <div className="text-ink/60">{isAr ? 'الهاتف:' : 'Phone:'} <span className="text-ink font-mono" dir="ltr">{contract.phone}</span></div>
-            <div className="text-ink/60">{isAr ? 'البريد:' : 'Email:'} <span className="text-ink font-mono" dir="ltr">{contract.email}</span></div>
-            <div className="text-ink/60">{isAr ? 'المدينة:' : 'City:'} <span className="text-ink">{translateText(contract.city, language)}</span></div>
+          <div className="flex items-start justify-between gap-3 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs flex-1">
+              <div className="text-ink/60">{isAr ? 'الممثل:' : 'Representative:'} <span className="text-ink">{contract.repName}</span></div>
+              <div className="text-ink/60">{isAr ? 'الهاتف:' : 'Phone:'} <span className="text-ink font-mono" dir="ltr">{contract.phone}</span></div>
+              <div className="text-ink/60">{isAr ? 'البريد:' : 'Email:'} <span className="text-ink font-mono" dir="ltr">{contract.email}</span></div>
+              <div className="text-ink/60">{isAr ? 'المدينة:' : 'City:'} <span className="text-ink">{translateText(contract.city, language)}</span></div>
+            </div>
+            {/* الملف الشخصي: كل عقود هذا الشخص مجمَّعة، لا هذا العقد وحده — سلاسة التعامل معه
+                لا تتطلب فتح كل عقد بمفرده لمعرفة رقمه أو مجموع تعاقداته. متاح فقط لعقد يحمل
+                حساباً حقيقياً (uid)، وهو كل عقد يُنشأ اليوم. */}
+            {contract.uid && (
+              <button
+                type="button"
+                onClick={() => setShowProfile(true)}
+                title={isAr ? 'الملف الشخصي للعميل' : 'Customer profile'}
+                className="p-2 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors shrink-0"
+              >
+                <IdCard className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
           {contract.customFeaturesText && (
@@ -456,7 +490,9 @@ function ContractRow({
             {/* Band 1 — position. Derived, read-only, led by the bar. */}
             <div className="p-3.5 space-y-3 border-b border-ink/10">
               <CollectionBar collected={paidAmountIQD} total={Number(totalPrice) || 0} isAr={isAr} />
-              <div className="grid grid-cols-3 gap-2 text-[11px]">
+              {/* عمود واحد على شاشة هاتف ضيقة، ثلاثة أعمدة بدءاً من sm — ثلاثة مبالغ مالية
+                  بخط 11px في عمود واحد ضيّق كانت تتزاحم فعلياً على هاتف بعرض 320-375px. */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
                 <div className="min-w-0">
                   <span className="text-ink/50 block mb-0.5">{isAr ? 'قيمة العقد' : 'Contract value'}</span>
                   <strong className="text-ink font-mono wrap-break-word">{formatPrice(Number(totalPrice) || 0, language, currency)}</strong>
@@ -531,33 +567,41 @@ function ContractRow({
               ) : (
                 <div className="space-y-2">
                   {payments.map((p) => (
-                    <div key={p.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2 rounded-lg bg-paper border border-ink/10">
-                      <input
-                        type="date"
-                        value={p.date}
-                        onChange={(e) => updatePayment(p.id, { date: e.target.value })}
-                        className="px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono w-36 shrink-0"
-                      />
-                      <PriceInput
-                        value={String(p.amountIQD)}
-                        onChange={(v) => updatePayment(p.id, { amountIQD: Number(v) || 0 })}
-                        className="px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono w-32 shrink-0"
-                      />
-                      <input
-                        type="text"
-                        value={p.note || ''}
-                        onChange={(e) => updatePayment(p.id, { note: e.target.value })}
-                        placeholder={isAr ? 'ملاحظة (اختياري)' : 'Note (optional)'}
-                        className="flex-1 min-w-24 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePayment(p.id)}
-                        title={isAr ? 'حذف الدفعة' : 'Remove payment'}
-                        className="p-1.5 rounded-md bg-red-100 hover:bg-red-900 border border-red-300 text-red-700 cursor-pointer transition-colors shrink-0"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
+                    // صفّان واضحان على الهاتف بدل أربعة عناصر تتزاحم في صفّ واحد وتلتف بشكل
+                    // عشوائي (flex-wrap القديمة): التاريخ والمبلغ جنباً إلى جنب (grid-cols-2)،
+                    // ثم الملاحظة وزر الحذف جنباً إلى جنب أسفلهما. sm:contents يُلغي هذا
+                    // التجميع بدءاً من sm فيعود التخطيط الأصلي (صفّ واحد بأربعة عناصر) تماماً.
+                    <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-lg bg-paper border border-ink/10">
+                      <div className="grid grid-cols-2 sm:contents gap-2">
+                        <input
+                          type="date"
+                          value={p.date}
+                          onChange={(e) => updatePayment(p.id, { date: e.target.value })}
+                          className="w-full sm:w-36 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono shrink-0"
+                        />
+                        <PriceInput
+                          value={String(p.amountIQD)}
+                          onChange={(v) => updatePayment(p.id, { amountIQD: Number(v) || 0 })}
+                          className="w-full sm:w-32 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px] font-mono shrink-0"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 sm:contents">
+                        <input
+                          type="text"
+                          value={p.note || ''}
+                          onChange={(e) => updatePayment(p.id, { note: e.target.value })}
+                          placeholder={isAr ? 'ملاحظة (اختياري)' : 'Note (optional)'}
+                          className="flex-1 min-w-0 sm:min-w-24 px-2 py-1.5 rounded-md bg-white/70 border border-ink/10 text-ink text-[11px]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removePayment(p.id)}
+                          title={isAr ? 'حذف الدفعة' : 'Remove payment'}
+                          className="p-1.5 rounded-md bg-red-100 hover:bg-red-900 border border-red-300 text-red-700 cursor-pointer transition-colors shrink-0"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -617,6 +661,21 @@ function ContractRow({
             </button>
           </div>
         </div>
+      )}
+
+      {showProfile && contract.uid && (
+        <CustomerProfileSheet
+          isAr={isAr}
+          language={language}
+          currency={currency}
+          uid={contract.uid}
+          email={contract.email}
+          displayName={contract.repName}
+          photoURL=""
+          contracts={allContracts}
+          onClose={() => setShowProfile(false)}
+          onBackToSite={onBackToSite}
+        />
       )}
     </div>
   );

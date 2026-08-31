@@ -1,18 +1,31 @@
-// Live catalogue editing: per-template name, image, price and demo-link overrides that the
-// public template grid picks up over Firestore without a redeploy.
+// تحرير كتالوج القوالب مباشرة من لوحة التحكم: اسم القالب، صورته، رابط عرضه، وسعره العام، بالإضافة
+// إلى سعر ووصف مستقلان لكل طريقة تسليم (موقع إلكتروني / تطبيق هاتف) — قالب واحد بخيارين، لا
+// قوالب متعددة. كل شيء هنا ينعكس فوراً على معرض القوالب العام وحاسبة العقد عبر Firestore، بدون
+// أي نشر برمجي جديد.
 import { useState, useEffect } from 'react';
 import {
   Save,
   Loader2,
   Layers,
+  Globe,
+  Smartphone,
 } from 'lucide-react';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, toUSD, Currency } from '../../lib/currency';
-import { useLiveTemplates, savePricingOverride } from '../../lib/pricingOverrides';
+import { useLiveTemplates, savePricingOverride, resolveVariant } from '../../lib/pricingOverrides';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { PriceInput } from '../PriceInput';
 import { StatTile } from './shared';
+
+// النص الافتراضي المعروض للزائر لكل اختيار طالما الأدمن لم يخصّص وصفاً خاصاً به — يجب أن
+// يبقى مطابقاً لـ CHOICES.descAr في TemplateGrid.tsx (لا استيراد مباشر عمداً: TemplateGrid
+// يجرّ معه محرّر القوالب التفاعلي بالكامل، وهذا نصّ ثابت لا يستحق ربط لوحة التحكم بحزمة الموقع
+// العام لأجله). تعديله هناك يستدعي تعديله هنا أيضاً.
+const DEFAULT_WEBSITE_DESC =
+  'موقع احترافي يعمل على كل المتصفحات — صفحات تعريفية، حجوزات فورية، ولوحة تحكم تدير طلباتك من مكان واحد.';
+const DEFAULT_APP_DESC =
+  'تطبيق جوال متكامل لنظامي iOS وأندرويد — نفس الخدمات في جيب عميلك، مع إشعارات وحجز من الهاتف مباشرة.';
 
 export function PricingTab({ isAr, language, currency }: { isAr: boolean; language: Language; currency: Currency }) {
   const templates = useLiveTemplates();
@@ -36,6 +49,55 @@ export function PricingTab({ isAr, language, currency }: { isAr: boolean; langua
   );
 }
 
+/** حقلا سعر ووصف لطريقة تسليم واحدة (موقع/تطبيق) — بنفس الشكل بالضبط للاثنين حتى يبقيا
+ *  متماثلين بصرياً. */
+function VariantFields({
+  icon: Icon,
+  label,
+  priceIQD,
+  onPriceChange,
+  description,
+  onDescriptionChange,
+  descPlaceholder,
+  isAr,
+}: {
+  icon: typeof Globe;
+  label: string;
+  priceIQD: string;
+  onPriceChange: (v: string) => void;
+  description: string;
+  onDescriptionChange: (v: string) => void;
+  descPlaceholder: string;
+  isAr: boolean;
+}) {
+  return (
+    <div className="rounded-xl bg-white/60 border border-ink/10 p-3 space-y-2">
+      <div className="flex items-center gap-1.5 text-ink/75">
+        <Icon className="w-3.5 h-3.5" />
+        <span className="text-[11px] font-extrabold">{label}</span>
+      </div>
+      <div>
+        <label className="block text-[10px] font-semibold text-ink/50 mb-1">{isAr ? 'السعر (د.ع)' : 'Price (IQD)'}</label>
+        <PriceInput
+          value={priceIQD}
+          onChange={onPriceChange}
+          className="w-full px-2.5 py-2 rounded-lg bg-white border border-ink/10 text-ink text-xs font-mono"
+        />
+      </div>
+      <div>
+        <label className="block text-[10px] font-semibold text-ink/50 mb-1">{isAr ? 'الوصف الظاهر للزائر' : 'Description shown to visitors'}</label>
+        <textarea
+          value={description}
+          onChange={(e) => onDescriptionChange(e.target.value)}
+          placeholder={descPlaceholder}
+          rows={3}
+          className="w-full px-2.5 py-2 rounded-lg bg-white border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-[11px] leading-relaxed resize-none"
+        />
+      </div>
+    </div>
+  );
+}
+
 function PricingRow({
   template,
   isAr,
@@ -53,6 +115,10 @@ function PricingRow({
   const [imageBroken, setImageBroken] = useState(false);
   const [demoUrl, setDemoUrl] = useState(template.demoUrl || '');
   const [basePriceIQD, setBasePriceIQD] = useState(String(template.basePriceIQD));
+  const [sitePriceIQD, setSitePriceIQD] = useState(String(resolveVariant(template, 'website', '').priceIQD));
+  const [siteDesc, setSiteDesc] = useState(resolveVariant(template, 'website', '').description);
+  const [appPriceIQD, setAppPriceIQD] = useState(String(resolveVariant(template, 'app', '').priceIQD));
+  const [appDesc, setAppDesc] = useState(resolveVariant(template, 'app', '').description);
   const [isSaving, setIsSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 
@@ -61,19 +127,29 @@ function PricingRow({
     setPreviewImage(template.previewImage);
     setDemoUrl(template.demoUrl || '');
     setBasePriceIQD(String(template.basePriceIQD));
+    setSitePriceIQD(String(resolveVariant(template, 'website', '').priceIQD));
+    setSiteDesc(resolveVariant(template, 'website', '').description);
+    setAppPriceIQD(String(resolveVariant(template, 'app', '').priceIQD));
+    setAppDesc(resolveVariant(template, 'app', '').description);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [template.title, template.previewImage, template.demoUrl, template.basePriceIQD]);
+  }, [template.title, template.previewImage, template.demoUrl, template.basePriceIQD, template.variants]);
 
   const handleSave = async () => {
     if (isSaving) return;
     setIsSaving(true);
     try {
+      const siteIQD = Number(sitePriceIQD) || 0;
+      const appIQD = Number(appPriceIQD) || 0;
       await savePricingOverride(template.id, {
         title: title.trim() || template.title,
         previewImage: previewImage.trim() || template.previewImage,
         demoUrl: demoUrl.trim(),
         basePriceIQD: Number(basePriceIQD) || 0,
         basePriceUSD: toUSD(Number(basePriceIQD) || 0),
+        variants: {
+          website: { priceIQD: siteIQD, priceUSD: toUSD(siteIQD), description: siteDesc.trim() },
+          app: { priceIQD: appIQD, priceUSD: toUSD(appIQD), description: appDesc.trim() },
+        },
       });
       setJustSaved(true);
       cosmicAudio.playPing();
@@ -184,13 +260,43 @@ function PricingRow({
 
           <div>
             <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
-              {isAr ? 'السعر الأساسي للقالب (د.ع)' : 'Template Base Price (IQD)'}
+              {isAr ? 'السعر العام (يظهر في القوائم والبطاقات قبل الاختيار)' : 'General price (shown in listings before a choice is made)'}
             </label>
             <PriceInput
               value={basePriceIQD}
               onChange={setBasePriceIQD}
               className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs font-mono"
             />
+          </div>
+
+          {/* التسعير الفعلي الذي يدخل العقد: "الهاتف" و"الموقع الإلكتروني" برقم ووصف مستقلين
+              تماماً — تعديل أحدهما لا يمسّ الآخر. */}
+          <div>
+            <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
+              {isAr ? 'التسعير حسب طريقة التسليم' : 'Pricing by delivery method'}
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <VariantFields
+                icon={Globe}
+                label={isAr ? 'الموقع الإلكتروني' : 'Website'}
+                priceIQD={sitePriceIQD}
+                onPriceChange={setSitePriceIQD}
+                description={siteDesc}
+                onDescriptionChange={setSiteDesc}
+                descPlaceholder={DEFAULT_WEBSITE_DESC}
+                isAr={isAr}
+              />
+              <VariantFields
+                icon={Smartphone}
+                label={isAr ? 'تطبيق الهاتف' : 'Mobile app'}
+                priceIQD={appPriceIQD}
+                onPriceChange={setAppPriceIQD}
+                description={appDesc}
+                onDescriptionChange={setAppDesc}
+                descPlaceholder={DEFAULT_APP_DESC}
+                isAr={isAr}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end pt-1">

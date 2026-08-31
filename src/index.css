@@ -968,8 +968,11 @@
    panel that is supposed to be constant. */
 .nq-lean {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  /* كان full-bleed (top/bottom: 0) فيغطي الشاشة عمودياً بالكامل ويخفي CardField خلفه شبه
+     تماماً. نسب علوية/سفلية متساوية = يبقى في المنتصف عمودياً تلقائياً، بلا أي حساب يدوي —
+     نفس زاوية الميلان (skewX) وعرض العمود كما هما، فقط أقصر عمودياً. */
+  top: 12%;
+  bottom: 12%;
   left: 50%;
   width: 21rem;
   transform: translateX(-50%) skewX(-4deg);
@@ -1369,12 +1372,22 @@ html[data-scrolling] .nq-btn-beam::before {
   animation-play-state: paused;
 }
 
-/* `data-demo` / `data-flat` (useDocumentFlag) are still set by the template sandbox, the admin
-   panel and the contracts page, but nothing in this stylesheet reads them any more. They
-   existed to take the animated cosmic background out of rendering on pages that covered it —
-   and that background is gone, replaced by one static gradient on body::before which costs
-   nothing to leave in place. The flags are harmless and cheap; they are noted here so the next
-   person does not go looking for the rule that used to be at this line. */
+/* `data-flat` (useDocumentFlag) is still set by the admin panel and the contracts page, but
+   nothing in this stylesheet reads it any more. It existed to take the animated cosmic
+   background out of rendering on pages that covered it — and that background is gone, replaced
+   by one static gradient on body::before which costs nothing to leave in place. The flag is
+   harmless and cheap; it is noted here so the next person does not go looking for the rule that
+   used to be at this line.
+
+   `data-demo` IS still read, just for something new: the live template preview
+   (TemplateInteractiveSandbox) is `fixed inset-0 z-50` — the exact same layer as the site's own
+   Navbar — so on a phone the two competed for the same strip of screen and the Navbar could sit
+   on top of the sandbox's own back/close button. useDocumentFlag already toggles `data-demo` for
+   exactly the sandbox's mounted lifetime, so hiding the Navbar on it needs no new plumbing: it
+   disappears the instant the preview opens and reappears the instant it closes, automatically. */
+html[data-demo] .nq-navbar {
+  display: none;
+}
 
 
 /* Roadmap card. Its surface, ring and lighting all come from `.nq-card` now — this class carries

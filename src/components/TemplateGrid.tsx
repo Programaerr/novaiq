@@ -1,6 +1,6 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { Template } from '../types';
-import { useLiveTemplates } from '../lib/pricingOverrides';
+import { useLiveTemplates, resolveVariant } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
@@ -89,7 +89,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   const templatesData = useLiveTemplates();
   const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
 
-  // The catalogue is a single line — سَكَن — that is offered as both a website and an app.
+  // The catalogue is a single line — سَكَن — offered as both a website and an app, each
+  // priced and described separately from the admin Pricing tab (see resolveVariant below).
   const template = templatesData[0];
 
   return (
@@ -113,9 +114,21 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             تبني؟" / "بطاقتان — اختر...") removed outright, so the cards are now the section's
             first visual content and carry their own top margin down accordingly. */}
         <div className="mt-4 sm:mt-6 grid gap-6 sm:gap-8 lg:grid-cols-2 items-stretch">
-          {CHOICES.map((choice, i) => {
+          {CHOICES.map((choice) => {
             const Icon = choice.icon;
-            const disabled = !template;
+            const variant = resolveVariant(
+              template,
+              choice.id,
+              currentLang === 'ar' ? choice.descAr : choice.descEn
+            );
+            // النسخة الفعلية المُمرَّرة للعقد: نفس القالب لكن بسعر هذا الاختيار تحديداً
+            // (موقع/تطبيق) بدل السعر العام الموحّد — هذا هو التسعير المنفصل الذي طلبه الأدمن
+            // من لوحة التحكم (قسم الأسعار).
+            const pricedTemplate: Template = {
+              ...template,
+              basePriceIQD: variant.priceIQD,
+              basePriceUSD: variant.priceUSD,
+            };
             return (
               <article
                 key={choice.id}
@@ -196,11 +209,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     className="relative mt-3 text-[0.92rem] sm:text-base uw:text-lg font-bold leading-relaxed"
                     style={{ color: WHITE, opacity: 0.85 }}
                 >
-                  {currentLang === 'ar' ? choice.descAr : choice.descEn}
+                  {variant.description}
                 </p>
 
                 {/* No price on the card: the customer chooses by reading the offer and opening the
-                    live preview, then continues straight into the contract. */}
+                    live preview, then continues straight into the contract. Each choice's own
+                    price (set separately per template in the admin Pricing tab) still flows into
+                    the contract the moment they pick it — see `pricedTemplate` above. */}
                 <div className="relative mt-auto pt-8 flex flex-wrap items-center gap-3">
                   {/* `obsidian`, not `paper` — the card these buttons sit on IS a dark ground now
                       (the section's own flat fill moved to white; the card is the confined dark
@@ -212,15 +227,14 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     tone="obsidian"
                     variant="solid"
                     size="md"
-                    loading={disabled}
-                    onClick={() => template && onSelectTemplateForContract(template, choice.note)}
+                    onClick={() => onSelectTemplateForContract(pricedTemplate, choice.note)}
                     className="uw:text-base"
                     badge={<ArrowLeft className="w-4 h-4 rotate-180" strokeWidth={2.6} />}
                   >
                     {currentLang === 'ar' ? choice.titleAr : choice.titleEn}
                   </NqButton>
 
-                  {onOpenStandalonePreview && template && (
+                  {onOpenStandalonePreview && (
                     <NqButton
                       tone="obsidian"
                       variant="quiet"

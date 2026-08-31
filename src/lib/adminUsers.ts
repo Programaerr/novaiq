@@ -1,4 +1,4 @@
-import { collection, getDocs, getDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 export interface ManagedUser {
@@ -89,6 +89,38 @@ export async function setUserDisabled(uid: string, disabled: boolean): Promise<v
 
 export async function deleteUserAccount(uid: string): Promise<void> {
   await authedFetch(`/api/admin/users/${uid}`, { method: 'DELETE' });
+}
+
+// ما يعرفه الأدمن عن هذا الشخص نفسه (لا عن عقد واحد بذاته) — يبقى معه عبر كل عقوده الحالية
+// والمستقبلية، مخزّن في مجموعة `customer_notes` منفصلة تماماً عن `users` (انظر
+// firestore.rules لسبب الفصل)، ومقروء/مكتوب فقط من ملف العميل الشخصي في لوحة التحكم.
+//
+// `phone`/`city` هنا اختياريان عمداً: القيمة المعروضة افتراضياً في الملف الشخصي تُقرأ من أحدث
+// عقد لهذا الشخص (انظر CustomerProfileSheet.tsx)، وهذان الحقلان لا يُكتبان إلا إذا عدّل الأدمن
+// رقم الهاتف أو المدينة بنفسه من الملف الشخصي — عندها تصبح "المعلومة الحالية المعتمَدة" بمعزل عن
+// العقود، والعقود القديمة تبقى كما وُقِّعت بالضبط، سجلاً تاريخياً لا يُعاد كتابته بأثر رجعي.
+export interface CustomerProfileNote {
+  note: string;
+  phone?: string;
+  city?: string;
+}
+
+export async function getCustomerProfileNote(uid: string): Promise<CustomerProfileNote> {
+  const snap = await getDoc(doc(db, 'customer_notes', uid));
+  if (!snap.exists()) return { note: '' };
+  const d = snap.data();
+  return { note: (d.note as string) || '', phone: (d.phone as string) || undefined, city: (d.city as string) || undefined };
+}
+
+export async function saveCustomerProfileNote(uid: string, profile: CustomerProfileNote): Promise<void> {
+  // كل حقل صراحة (لا `undefined`) — Firestore يرفض قيمة حقل `undefined` صراحة، وحقل فارغ
+  // يعني "لا يوجد تجاوز، اعتمد على أحدث عقد" لا "احذف القيمة القديمة بصمت".
+  await setDoc(doc(db, 'customer_notes', uid), {
+    note: profile.note,
+    phone: profile.phone || '',
+    city: profile.city || '',
+    updatedAt: new Date().toISOString(),
+  });
 }
 
 export interface TeamMember {

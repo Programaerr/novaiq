@@ -72,7 +72,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       tasks: [
         isAr ? 'اختبارات الأمان والسرعة' : 'Run load tests, security audits, and performance tuning',
         isAr ? 'تسليم الكود المصدري وصلاحيات الإدارة للعميل بعد اكتمال السداد' : 'Hand the source code and admin access to the client once payment is complete',
-        isAr ? 'ضمان إصلاح الأخطاء 30 يوماً، وأي صيانة لاحقة باتفاق مستقل' : 'A 30-day defect warranty, with any later maintenance under a separate agreement',
+        isAr ? 'ضمان إصلاح الأخطاء 15 يوماً، وأي صيانة لاحقة باتفاق مستقل' : 'A 15-day defect warranty, with any later maintenance under a separate agreement',
       ]
     }
   ];

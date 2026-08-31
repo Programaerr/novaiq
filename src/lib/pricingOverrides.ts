@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { templatesData } from '../data/templatesData';
-import { Template } from '../types';
+import { Template, TemplateVariant } from '../types';
 
 // Template prices are authored as static data (templatesData.ts) because they rarely
 // change and shouldn't need a database round trip to render the catalogue. But the admin
@@ -34,12 +34,24 @@ function writeCachedOverrides(overrides: Record<string, PricingOverride>) {
   }
 }
 
+/** تعديل جزئي على متغيّر تسليم واحد (موقع أو تطبيق) — أي حقل غائب يبقى على قيمته
+ *  الافتراضية (سعر القالب العام / نص الاختيار الموحّد)، انظر resolveVariant. */
+export interface VariantOverride {
+  priceIQD?: number;
+  priceUSD?: number;
+  description?: string;
+}
+
 export interface PricingOverride {
   title?: string;
   previewImage?: string;
   demoUrl?: string;
   basePriceIQD?: number;
   basePriceUSD?: number;
+  variants?: {
+    website?: VariantOverride;
+    app?: VariantOverride;
+  };
 }
 
 export function subscribeToPricingOverrides(callback: (overrides: Record<string, PricingOverride>) => void) {
@@ -88,6 +100,22 @@ export async function savePricingOverride(templateId: string, override: PricingO
   await setDoc(doc(db, OVERRIDES_COLLECTION, templateId), override, { merge: true });
 }
 
+/** يحل متغيّر تسليم واحد (موقع/تطبيق) لقالب: يرجّع override الخاص به إن وُجد، وإلا يبني
+ *  واحداً افتراضياً من سعر القالب العام + الوصف الموحّد المُمرَّر (نصوص CHOICES في
+ *  TemplateGrid حالياً) — فالقالب يستمر يعمل بلا أي تعديل حتى يُخصَّص صراحة. */
+export function resolveVariant(
+  template: Template,
+  kind: 'website' | 'app',
+  fallbackDescription: string
+): TemplateVariant {
+  const v = template.variants?.[kind];
+  return {
+    priceIQD: v?.priceIQD ?? template.basePriceIQD,
+    priceUSD: v?.priceUSD ?? template.basePriceUSD,
+    description: v?.description || fallbackDescription,
+  };
+}
+
 /**
  * An Arabic letter immediately followed by a Latin-1 or punctuation character.
  *
@@ -97,7 +125,7 @@ export async function savePricingOverride(templateId: string, override: PricingO
  * corruption that went through templatesData.ts, and the titles saved into Firestore while the file
  * was broken carry it too — an admin copying a name out of the catalogue copied the damage with it.
  */
-const MOJIBAKE = /[؀-ۿ][-˿ -⃿]/;
+const MOJIBAKE = /[؀-ۿ][-˿ -⃿]/;
 
 /**
  * An override string, unless it is unreadable.
@@ -131,6 +159,24 @@ export function applyPricingOverrides(
       demoUrl: o.demoUrl ?? t.demoUrl,
       basePriceIQD: o.basePriceIQD ?? t.basePriceIQD,
       basePriceUSD: o.basePriceUSD ?? t.basePriceUSD,
+      // دمج جزئي مقصود: لو الأدمن عدّل سعر "الموقع" فقط، متغيّر "التطبيق" (سواء الثابت
+      // الأصلي في t.variants أو غير موجود) يبقى كما هو بلا مسّ — كل متغيّر مستقل فعلاً.
+      // الأرقام (لا النصوص) تُدعَّم دائماً بسعر القالب العام حتى لا يبقى priceIQD/USD
+      // بلا قيمة لو أُرسل override جزئي بلا سعر (description فقط، مثلاً).
+      variants: o.variants
+        ? {
+            website: {
+              priceIQD: o.variants.website?.priceIQD ?? t.variants?.website?.priceIQD ?? t.basePriceIQD,
+              priceUSD: o.variants.website?.priceUSD ?? t.variants?.website?.priceUSD ?? t.basePriceUSD,
+              description: o.variants.website?.description ?? t.variants?.website?.description ?? '',
+            },
+            app: {
+              priceIQD: o.variants.app?.priceIQD ?? t.variants?.app?.priceIQD ?? t.basePriceIQD,
+              priceUSD: o.variants.app?.priceUSD ?? t.variants?.app?.priceUSD ?? t.basePriceUSD,
+              description: o.variants.app?.description ?? t.variants?.app?.description ?? '',
+            },
+          }
+        : t.variants,
     };
   });
 }

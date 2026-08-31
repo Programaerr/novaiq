@@ -4,161 +4,153 @@ import * as THREE from 'three';
 import { OBSIDIAN, ORANGE, PAPER, WHITE } from '../lib/homePalette';
 
 /**
- * The hero's field: a grid of CUBES standing on a tilted plane, with a swell running through it.
- * Each cube's height is the wave at its own cell, so the surface reads as water made of blocks.
+ * حقل الهيرو: شبكة من المكعبات واقفة على مستوٍ مائل، مع موجة تجري خلاله.
+ * ارتفاع كل مكعب هو قيمة الموجة عند خليته هو، فيقرأ السطح وكأنه ماء مصنوع من مكعبات.
  *
- * ## One draw call, and no per-frame work on the CPU
+ * ## استدعاء رسم واحد فقط، ولا عمل لكل إطار على المعالج (CPU)
  *
- * A field like this is usually built as a few thousand React elements, or as an InstancedMesh whose
- * matrices are rewritten every frame from JavaScript. Both spend the main thread on something the
- * GPU already knows how to do. Here the instance matrices are written ONCE — they only carry which
- * cell each cube belongs to — and the wave is evaluated in the vertex shader from the cube's own
- * position. Per frame the CPU updates a single float.
+ * حقل كهذا يُبنى عادة كآلاف قليلة من عناصر React، أو كـ InstancedMesh تُعاد كتابة مصفوفاته كل
+ * إطار من JavaScript. كلاهما يصرف الخيط الرئيسي (main thread) على شيء تعرف الـGPU أصلاً كيف
+ * تفعله. هنا تُكتب مصفوفات النُسخ (instance matrices) مرة واحدة فقط — لا تحمل سوى الخلية التي
+ * ينتمي إليها كل مكعب — وتُحسب الموجة داخل vertex shader من موضع المكعب نفسه. لكل إطار، لا يفعل
+ * المعالج أكثر من تحديث رقم عشري واحد.
  *
- * ## The grid is screen-aligned and then TILTED, rather than laid on the floor
+ * ## الشبكة محاذاة للشاشة ثم تُمال، لا أنها مرقودة على الأرض
  *
- * The obvious way to stand cubes up is to put the grid on the ground plane and look at it from an
- * isometric angle. That framing costs a great deal on a phone: a tall narrow viewport looking along
- * a floor needs the grid to run far into the distance to reach the top of the screen, and the cube
- * count roughly triples for a portrait screen that can afford it least.
+ * الطريقة البديهية لتوقيف مكعبات هي وضع الشبكة على مستوى الأرض ورؤيتها من زاوية إيزومترية. هذا
+ * التأطير مكلف جداً على الهاتف: شاشة طويلة وضيقة تنظر على طول أرضية تحتاج الشبكة أن تمتد بعيداً
+ * في العمق لتصل أعلى الشاشة، فيتضاعف عدد المكعبات تقريباً ثلاث مرات على شاشة عمودية هي أقل شاشة
+ * تتحمّل ذلك.
  *
- * So the grid stays aligned to the screen and the whole field is tilted toward the viewer instead.
- * An orthographic camera does not foreshorten, so a tilt of about 24 degrees is enough to open the
- * tops and one side of every cube — which is all it takes to read as solid — while the coverage
- * cost is 1/cos(24°), about nine per cent, rather than a factor of three.
+ * لذا تبقى الشبكة محاذية للشاشة ويُمال الحقل كله نحو المُشاهد بدلاً من ذلك. الكاميرا المتعامدة
+ * (orthographic) لا تُقصّر المنظور، فإمالة بحدود 24 درجة تكفي لفتح الأسطح العلوية وجانب واحد من
+ * كل مكعب — وهذا كل ما يلزم ليُقرأ كصلب — بينما تكلفة التغطية هي 1/cos(24°)، أي حوالي تسعة
+ * بالمئة، بدلاً من ثلاثة أضعاف.
  *
- * ## Why the cubes are sized in PIXELS rather than in world units
+ * ## لماذا تُقاس المكعبات بالبكسل لا بوحدات العالم (world units)
  *
- * The camera is orthographic at a fixed zoom, so one world unit is a fixed number of pixels and the
- * grid can be laid out in screen terms. That is the property that matters here: a field whose cell
- * COUNT is fixed gets chunky on a phone and fine on a desktop, where what you actually want is the
- * same size of cube everywhere and however many of them the screen has room for.
+ * الكاميرا متعامدة بتكبير ثابت، فوحدة عالم واحدة تساوي عدد بكسل ثابت، ويمكن تخطيط الشبكة بمقاييس
+ * الشاشة. هذه هي الخاصية المهمة هنا: حقل عدد خلاياه ثابت يصبح خشناً على الهاتف ودقيقاً على سطح
+ * المكتب، بينما المطلوب فعلاً هو نفس حجم المكعب في كل مكان وبقدر ما تتسع له الشاشة من عددها.
  *
- * ## Shading is six flat tones, and that is the point
+ * ## التظليل ست درجات مسطحة فقط، وهذا هو المقصود
  *
- * A box's normals are axis-aligned, so a plain lambert term against a fixed light resolves to one
- * tone per face — top bright, one side mid, one side dark. No gradients, no specular: the thing
- * that makes a cube read as a cube is three flat faces meeting at a corner, and anything smoother
- * fights that.
+ * أوجه الصندوق محاذية للمحاور، فحد lambert بسيط أمام إضاءة ثابتة يُحسم إلى درجة واحدة لكل وجه —
+ * الأعلى ساطع، جانب متوسط، جانب داكن. لا تدرّجات، لا لمعان (specular): ما يجعل المكعب يُقرأ
+ * كمكعب هو ثلاثة أوجه مسطحة تلتقي عند زاوية، وأي شيء أنعم من ذلك يعاكس هذا الأثر.
  *
- * NO BACKTICKS anywhere inside the shader strings below, including in prose: they are JS template
- * literals, and one backtick closes the string mid-shader. That compiles to a GLSL syntax error and
- * shows up as the field silently failing to draw.
+ * لا توجد علامات backtick (`) إطلاقاً داخل نصوص الـshader أدناه، حتى في التعليقات النثرية: فهي
+ * قوالب JS النصية (template literals)، وأي علامة backtick واحدة تُغلق النص في منتصف الـshader.
+ * هذا يترجم إلى خطأ صياغة GLSL ويظهر كحقل يفشل بصمت في الرسم.
  */
 
-/* ── Palette ────────────────────────────────────────────────────────────────────────────── */
+/* ── لوحة الألوان ───────────────────────────────────────────────────────────────────────── */
 
 /**
- * What a field is painted in.
+ * بم يُطلى الحقل.
  *
- * The ramp usually sits within a few steps of the ground it stands on, so the field reads as
- * texture on the background rather than a second object competing with it — that was the rule
- * for a monochrome page, where the ground WAS the only colour available to shade from.
+ * المدرّج عادة يقع ضمن خطوات قليلة من الأرضية التي يقف عليها، فيُقرأ الحقل كنسيج على الخلفية بدلاً
+ * من جسم ثانٍ يُنافسها — كانت هذه القاعدة لصفحة أحادية اللون، حيث كانت الأرضية هي اللون الوحيد
+ * المتاح للتظليل منه.
  *
- * `SIGNAL_TONES` and `SECTION_TONES` break that rule on purpose: the brand's own signal is a
- * saturated Orange, and a swell shaded in steps of Orange reads as noise, not water — so their
- * trough/crest sit in a neutral "light black" independent of `ground`, and only the SINK at zero
- * height (see the fragment shader's `mix(uGround, c, ...)`) still pulls a spent cube back toward
- * the true ground colour. The cubes read as a technical grid standing on the signal colour,
- * rather than a monochrome ramp of it.
+ * `SIGNAL_TONES` و`SECTION_TONES` تكسران هذه القاعدة عمداً: إشارة العلامة التجارية نفسها هي
+ * برتقالي مشبّع، وموجة مُظلَّلة بخطوات من البرتقالي تُقرأ كضجيج لا كماء — لذا يقع قاع/قمة الموجة
+ * فيهما في "أسود خفيف" محايد مستقل عن `ground`، وفقط الغرق (sink) عند الارتفاع صفر (انظر
+ * `mix(uGround, c, ...)` في fragment shader) لا يزال يسحب المكعب المستهلَك نحو لون الأرضية
+ * الحقيقي. تُقرأ المكعبات كشبكة تقنية واقفة على لون الإشارة، لا كمدرّج أحادي اللون منه.
  */
 export interface FieldTones {
-  /** The low of the swell. A step darker than the ground. */
+  /** قاع الموجة. درجة أغمق من الأرضية. */
   trough: string;
-  /** The high of the swell. A step lighter than the ground. */
+  /** قمة الموجة. درجة أفتح من الأرضية. */
   crest: string;
-  /** An accent, on the crests only, tying the field to the rest of the page. */
+  /** لمسة إبراز، على القمم فقط، تربط الحقل ببقية الصفحة. */
   foam: string;
-  /** The ground the field stands on. Troughs sink back toward it. */
+  /** الأرضية التي يقف عليها الحقل. القيعان تغرق نحوها. */
   ground: string;
   /**
-   * What the cubes turn into as they break up, at the BOTTOM edge and at the TOP edge.
+   * ما تتحول إليه المكعبات وهي تتلاشى، عند الحافة السفلى وعند الحافة العلوية.
    *
-   * Two, because the two edges of a field do not generally meet the same thing: a strip that
-   * arrives out of the paper above it and settles into the blue below it has to pale toward paper
-   * at one end and toward blue at the other. One colour for both leaves pale specks on the dark
-   * end or dark specks on the pale one — which is the tell that the cubes are being faded rather
-   * than actually going.
+   * قيمتان، لأن حافتَي الحقل عادة لا تلتقيان بنفس الشيء: شريط يصل من الورق فوقه ويستقر في الأزرق
+   * تحته يجب أن يشحب نحو الورق من طرف ونحو الأزرق من الطرف الآخر. لون واحد للطرفين يترك بقعاً
+   * فاتحة على الطرف الداكن أو بقعاً داكنة على الطرف الفاتح — وهذه العلامة التي تكشف أن المكعبات
+   * تتلاشى بتزييف بدلاً من أن تختفي فعلاً.
    */
   intoLo: string;
   intoHi: string;
 }
 
 /**
- * The hero's: the page's own warm white, with the brand's orange on the crests.
+ * حقل الهيرو: الأبيض الدافئ الخاص بالصفحة، مع برتقالي العلامة التجارية على القمم.
  *
- * Trough/crest are DERIVED from the ground via `shadeColor` (defined below) rather than picked by
- * eye — `±0.14`, the same step `connectionTones` already uses for a per-page belt, so a hand-set
- * ramp and a computed one are built by the same rule instead of two different ones that happen to
- * look similar today and drift apart the next time either ground colour moves.
+ * قاع/قمة الموجة مُشتقّان من الأرضية عبر `shadeColor` (معرّفة أدناه) لا مُختاران بالعين — بنسبة
+ * `±0.14`، نفس الخطوة التي تستخدمها `connectionTones` أصلاً لحزام كل صفحة، بحيث يُبنى المدرّج
+ * اليدوي والمحسوب بنفس القاعدة بدلاً من قاعدتين مختلفتين يتشابهان اليوم بالصدفة ثم يفترقان في
+ * المرة القادمة التي يتحرك فيها أي من لوني الأرضية.
  */
 export const HERO_TONES: FieldTones = {
   trough: shadeColor(WHITE, -0.14),
   crest: shadeColor(WHITE, 0.14),
   foam: ORANGE,
   ground: WHITE,
-  // Down into the paper of the section below. The top never fades, so its colour is only ever the
-  // ground it already stands on.
+  // نزولاً إلى ورق القسم الذي تحته. القمة لا تتلاشى أبداً، فلونها هو دائماً لون الأرضية التي تقف عليها أصلاً.
   intoLo: PAPER,
   intoHi: WHITE,
 };
 
 /**
- * The contact band's: WARM WHITE at rest, with cubes shaded in the brand's own Signal Orange.
+ * حزام قسم التواصل: أبيض دافئ في حالة السكون، مع مكعبات مُظلَّلة ببرتقالي العلامة التجارية نفسه.
  *
- * Second correction on this same belt. It filled with Obsidian first, and the cube swell shaded
- * from the same near-black read as a flat wall with barely any visible texture. It filled with
- * Orange next, with the cubes shaded a neutral `CUBE_BLACK` — legible, but not what was asked
- * for: the client wants the ORANGE on the cubes themselves, white kept for the plain ground, and
- * black confined to secondary text rather than spent on a full-bleed fill. So the ground is WHITE
- * again, the swell is shaded in steps of Orange (`shadeColor(ORANGE, ±0.14)`), and `foam` — the
- * fleck on each crest — is Obsidian, a small dark accent rather than another wash of colour.
+ * التصحيح الثاني على هذا الحزام نفسه. امتلأ أولاً بـObsidian، وموجة المكعبات المُظلَّلة من نفس
+ * الأسود القريب قُرئت كجدار مسطّح بلا نسيج مرئي يُذكر. ثم امتلأ بالبرتقالي، مع مكعبات مُظلَّلة
+ * بلون محايد `CUBE_BLACK` — مقروء، لكن ليس المطلوب: يريد العميل البرتقالي على المكعبات نفسها،
+ * والأبيض محفوظاً للأرضية البسيطة، والأسود محصوراً في النص الثانوي بدلاً من إنفاقه على تعبئة
+ * كاملة للشاشة. لذا الأرضية أبيض من جديد، والموجة مُظلَّلة بخطوات من البرتقالي
+ * (`shadeColor(ORANGE, ±0.14)`)، و`foam` — البقعة على كل قمة — Obsidian، لمسة داكنة صغيرة بدلاً
+ * من غسلة لونية إضافية.
  */
 export const SIGNAL_TONES: FieldTones = {
   trough: shadeColor(ORANGE, -0.14),
   crest: shadeColor(ORANGE, 0.14),
   foam: OBSIDIAN,
   ground: WHITE,
-  // Down into the paper of the section below. The top never fades, so its colour is only ever
-  // the ground it already stands on.
+  // نزولاً إلى ورق القسم الذي تحته. القمة لا تتلاشى أبداً، فلونها هو دائماً لون الأرضية التي تقف عليها أصلاً.
   intoLo: PAPER,
   intoHi: WHITE,
 };
 
 /**
- * The footer band's: the page's paper coming up out of the contact section's own white ground.
+ * حزام الفوتر: ورق الصفحة صاعداً من أرضية قسم التواصل البيضاء نفسها.
  *
- * The only ramp here that does not straddle its ground. Paper is a step off white, so a crest
- * "lighter than the ground" would be white — the tops of the swell would go out at exactly the
- * moment they catch the most light, and the field would read as a grid of holes rather than a
- * relief. Both ends sit BELOW paper instead, in the same paper-deep family the rest of the page
- * is made of, so the cubes read as blocks standing on paper and the swell still runs dark to
- * light across them.
+ * المدرّج الوحيد هنا الذي لا يمتد على جانبي أرضيته. الورق درجة عن الأبيض، فقمة "أفتح من
+ * الأرضية" ستكون أبيض — تخرج قمم الموجة بالضبط عند اللحظة التي تلتقط فيها أكبر قدر من الضوء،
+ * ويُقرأ الحقل كشبكة من الثقوب لا كنقش بارز. بل يقع الطرفان تحت الورق، في نفس عائلة paper-deep
+ * التي صُنعت منها بقية الصفحة، فتُقرأ المكعبات ككتل واقفة على الورق وتظل الموجة تجري من الداكن
+ * إلى الفاتح خلالها.
  */
 export const PAPER_BAND_TONES: FieldTones = {
   trough: shadeColor(PAPER, -0.1),
   crest: shadeColor(PAPER, 0.05),
   foam: ORANGE,
   ground: PAPER,
-  // Down into the footer's own paper, up into the white ground of the section above.
+  // نزولاً إلى ورق الفوتر نفسه، وصعوداً إلى الأرضية البيضاء للقسم الذي فوقه.
   intoLo: PAPER,
   intoHi: WHITE,
 };
 
 /**
- * A whole SECTION of the page's own warm white, its cubes shaded in the brand's Signal Orange.
+ * قسم كامل من الأبيض الدافئ الخاص بالصفحة، ومكعباته مُظلَّلة ببرتقالي العلامة التجارية.
  *
- * Both `into` edges are the ground's own colour, which is what makes this different from the band
- * sets above: those cross from one section's colour into the next, so each end fades toward
- * something else. This one has nothing to cross into — it fills its section and simply runs out at
- * the top and bottom, so neither end lands on a straight seam.
+ * حافتا "into" كلتاهما لون الأرضية نفسه، وهذا ما يجعل هذا مختلفاً عن مجموعات الأحزمة أعلاه: تلك
+ * تعبر من لون قسم إلى التالي، فكل طرف يشحب نحو شيء آخر. هذا المدرّج ليس له ما يعبر إليه — يملأ
+ * قسمه وينفد ببساطة عند الأعلى والأسفل، فلا يقع أي طرف على خياطة مستقيمة.
  *
- * Ground moved from Obsidian to Orange to WHITE across three rounds of client feedback, landing
- * here: the FLAT fill is white, matching the rest of the page, and Orange lives entirely on the
- * cubes themselves — see `SIGNAL_TONES` above for the same shift on the contact band.
+ * انتقلت الأرضية من Obsidian إلى Orange إلى الأبيض عبر ثلاث جولات من ملاحظات العميل، لتستقر
+ * هنا: التعبئة المسطحة أبيض، مطابقة لبقية الصفحة، والبرتقالي يعيش بالكامل على المكعبات نفسها —
+ * انظر `SIGNAL_TONES` أعلاه لنفس التحوّل على حزام التواصل.
  *
- * Shared by the timeline page and the templates page. It was written twice, once in each, which is
- * exactly how two sections that are meant to be the same surface drift into two surfaces.
+ * مشترك بين صفحة الجدول الزمني وصفحة القوالب. كُتب مرتين، مرة في كل منهما، وهذا بالضبط كيف
+ * يتباعد قسمان يُفترض أنهما نفس السطح إلى سطحين.
  */
 export const SECTION_TONES: FieldTones = {
   trough: shadeColor(ORANGE, -0.14),
@@ -170,76 +162,69 @@ export const SECTION_TONES: FieldTones = {
 };
 
 /**
- * How much of the canvas, as a fraction of its height, the field spends breaking up at each edge.
+ * كم من الكانفاس (Canvas)، كجزء من ارتفاعه، يصرفه الحقل وهو يتلاشى عند كل حافة.
  *
- * This is how a field ENDS, and it is a real edge rather than a shape laid over one: the cubes
- * themselves get shorter, narrower and paler as they approach the edge, each one crossing its own
- * threshold, until there is nothing left to stop. What you see is a field running out, not a field
- * being cropped.
+ * هكذا ينتهي حقل، وهي حافة حقيقية لا شكل مرسوم فوق واحدة: المكعبات نفسها تصبح أقصر وأضيق وأشحب
+ * وهي تقترب من الحافة، كل مكعب يعبر عتبته الخاصة، حتى لا يبقى شيء ليتوقف. ما تراه هو حقل ينفد،
+ * لا حقل يُقصّ.
  *
- * `lo` is the bottom of the canvas and `hi` the top; zero means that edge does not fade at all.
+ * `lo` هو أسفل الكانفاس و`hi` أعلاه؛ الصفر يعني أن تلك الحافة لا تتلاشى إطلاقاً.
  *
- * The DOM has to agree with whatever is passed here. The ground under the canvas ramps to the next
- * colour across exactly the same band, so the blocks thin out over ground that is already turning
- * into what comes next — which is why the two consumers export their bands as constants rather than
- * writing the number twice.
+ * يجب أن يتفق الـDOM مع أياً كانت القيمة الممرَّرة هنا. تتدرّج الأرضية تحت الكانفاس إلى اللون
+ * التالي عبر نفس الحزام بالضبط، فتترقّق الكتل فوق أرضية تتحول أصلاً إلى ما يليها — ولهذا يُصدِّر
+ * المستهلكان الاثنان أحزمتهما كثوابت بدلاً من كتابة الرقم مرتين.
  */
 export interface FieldFade {
   lo: number;
   hi: number;
 }
 
-/** The hero's: full strength at the top of the screen, breaking up into the fold. */
+/** حقل الهيرو: كامل القوة أعلى الشاشة، يتلاشى نحو الطية (fold). */
 export const HERO_FADE: FieldFade = { lo: 0.16, hi: 0 };
 
 /**
- * The contact band's: arrives out of the paper section above and settles into the blue below.
+ * حزام قسم التواصل: يصل من قسم الورق فوقه ويستقر في الأزرق تحته.
  *
- * `hi` has been wrong in both directions, and the two failures look nothing alike.
+ * كانت `hi` خاطئة في كلا الاتجاهين، والعطلان لا يتشابهان إطلاقاً.
  *
- * At 0.36 the top third of the band held almost no cubes, over a ground that was still a pale
- * paper-to-blue ramp — a dead strip between the paper section and the field, which is the "void"
- * that got reported. The answer to that was to drop `hi` to 0.05, and that produced the opposite
- * fault: "no fade" in this shader does not mean the field starts at the top, it means the first
- * row of cubes stands at FULL HEIGHT on the band's first pixel and is sliced flat by the canvas
- * edge. A straight horizontal cut across a field of hard-edged blocks — the same failure the note
- * on FOOTER_BAND_FADE below describes, arriving a second time on the other band.
+ * عند 0.36 كان الثلث العلوي من الحزام يحمل مكعبات قليلة جداً، فوق أرضية كانت لا تزال مدرّجاً
+ * شاحباً من الورق إلى الأزرق — شريط ميت بين قسم الورق والحقل، وهو "الفراغ" الذي أُبلغ عنه. كان
+ * الحل خفض `hi` إلى 0.05، وأنتج ذلك عطلاً معاكساً: "لا تلاشي" في هذا الـshader لا يعني أن الحقل
+ * يبدأ من الأعلى، بل يعني أن الصف الأول من المكعبات يقف بكامل ارتفاعه عند أول بكسل من الحزام
+ * ويُقطع مسطّحاً بحافة الكانفاس. قطع أفقي مستقيم عبر حقل من كتل حادة الحواف — نفس العطل الذي
+ * تصفه ملاحظة FOOTER_BAND_FADE أدناه، يصل هذه المرة على الحزام الآخر.
  *
- * Neither number was the real lever. The fade only reads as a void when the ground UNDER it has
- * already left paper: cubes fraying in over paper look like the section above sprouting them,
- * and the same cubes over a half-blue ramp look like a gap. So 0.22 here is paired with a
- * gradient in ContactSection that holds paper through most of it — see the note there. The two
- * numbers are one decision and cannot be tuned apart.
+ * لم يكن أي من الرقمين هو الرافعة الحقيقية. التلاشي لا يُقرأ كفراغ إلا عندما تكون الأرضية تحته
+ * قد غادرت الورق أصلاً: مكعبات تتفتّت فوق الورق تبدو وكأن القسم فوقها ينبتها، ونفس المكعبات فوق
+ * مدرّج نصفه أزرق تبدو كفجوة. لذا تُقرن 0.22 هنا بتدرّج في ContactSection يُبقي الورق طوال
+ * معظمه — انظر الملاحظة هناك. الرقمان قرار واحد ولا يمكن ضبط أحدهما بمعزل عن الآخر.
  */
 export const BAND_FADE: FieldFade = { lo: 0.36, hi: 0.28 };
 
-/** A full section's: a little at the top where the cubes slide under the navbar, more at the bottom
-    where they run into whatever follows. The middle stays full strength, which is where the content
-    sits. */
+/** قسم كامل: قليل عند الأعلى حيث تنزلق المكعبات تحت شريط التنقل، وأكثر عند الأسفل حيث تلتقي بما
+    يليها. يبقى الوسط بكامل القوة، وهو حيث يقع المحتوى. */
 export const SECTION_FADE: FieldFade = { lo: 0.22, hi: 0.1 };
 
 /**
- * A connection band at the meeting of a coloured section and the footer. The cubes stand on
- * `from` (the section above) and dissolve into `to` (the footer's ground) across the band.
+ * حزام اتصال عند التقاء قسم مُلوَّن بالفوتر. تقف المكعبات على `from` (القسم فوقه) وتذوب في `to`
+ * (أرضية الفوتر) عبر الحزام.
  *
- * BOTH edges fade, and the top one is the fix for a cut that was visible on every page. This read
- * `hi: 0` on the reasoning that the top is continuous with the section above, so it needed no
- * fade — but "no fade" in this shader means the first row of cubes stands at FULL HEIGHT on the
- * band's very first pixel. The result was a hard horizontal line across the page: flat colour
- * above it, a solid wall of cubes below it, starting all at once. The band's own gradient was
- * continuous; the field on top of it was not, and that was the seam.
+ * تتلاشى كلتا الحافتين، والحافة العلوية هي إصلاح لقطع كان مرئياً على كل صفحة. كانت هذه تقرأ
+ * `hi: 0` بمنطق أن الأعلى مستمر مع القسم فوقه، فلا يحتاج تلاشياً — لكن "لا تلاشي" في هذا
+ * الـshader يعني أن الصف الأول من المكعبات يقف بكامل ارتفاعه عند أول بكسل من الحزام تماماً.
+ * النتيجة كانت خطاً أفقياً حاداً عبر الصفحة: لون مسطّح فوقه، جدار صلب من المكعبات تحته، يبدآن
+ * دفعة واحدة. كان تدرّج الحزام نفسه مستمراً؛ الحقل فوقه لم يكن كذلك، وكانت تلك هي الخياطة.
  *
- * 0.3 against the 0.42 below is deliberate rather than symmetric. The top has to dissolve into a
- * flat colour, where any residue reads as dirt on a clean surface; the bottom dissolves into the
- * footer's own ruled grid and links, which hide the tail end. So the top gets a shorter, cleaner
- * exit and the bottom a longer one, and 0.72 of the band is spent arriving and leaving — the
- * middle third is where the field is actually at full strength.
+ * 0.3 مقابل 0.42 أدناه متعمَّد لا متماثل. يجب أن يذوب الأعلى في لون مسطّح، حيث أي بقية تُقرأ
+ * كأوساخ على سطح نظيف؛ يذوب الأسفل في شبكة الفوتر المسطّرة وروابطه، التي تُخفي نهاية الذيل. لذا
+ * يأخذ الأعلى خروجاً أقصر وأنظف والأسفل خروجاً أطول، ويُصرف 0.72 من الحزام على الوصول والمغادرة
+ * — الثلث الأوسط هو حيث الحقل فعلاً بكامل قوته.
  */
 export const FOOTER_BAND_FADE: FieldFade = { lo: 0.42, hi: 0.3 };
 
-/** Mix `hex` toward black (amt < 0) or white (amt > 0) by `amt` (0..1). Used to derive a band's
- *  trough/crest from the section it stands on, so the palette stays in one family without hand
- *  spelling a ramp for every possible ground. */
+/** يمزج `hex` نحو الأسود (amt < 0) أو الأبيض (amt > 0) بمقدار `amt` (0..1). يُستخدم لاشتقاق قاع/قمة
+ *  موجة حزام من القسم الذي يقف عليه، بحيث تبقى اللوحة في عائلة واحدة دون تهجئة مدرّج يدوياً لكل
+ *  أرضية محتملة. */
 function shadeColor(hex: string, amt: number): string {
   const h = hex.replace('#', '');
   const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
@@ -253,22 +238,20 @@ function shadeColor(hex: string, amt: number): string {
 }
 
 /**
- * The five paint colours for a connection band joining `from` (the section above) to `to` (the
- * footer's ground), with `foam` as the accent on the crests.
+ * الألوان الخمسة لحزام اتصال يربط `from` (القسم فوقه) بـ`to` (أرضية الفوتر)، مع `foam` كإبراز
+ * على القمم.
  *
- * `ground` is the flat plane the field stands on. It defaults to `from`, which makes the band a
- * continuation of the section above; passing something else makes the flat plane a colour in its
- * own right, arriving out of `from` at the top and settling into `to` at the bottom. Only the
- * middle changes: both ends still resolve to exactly the colours either side of them, which is
- * what keeps the joins invisible whatever the ground is.
+ * `ground` هو المستوى المسطّح الذي يقف عليه الحقل. تُهيّأ افتراضياً بـ`from`، مما يجعل الحزام
+ * امتداداً للقسم فوقه؛ تمرير قيمة أخرى يجعل المستوى المسطّح لوناً بحد ذاته، يصل من `from` عند
+ * الأعلى ويستقر في `to` عند الأسفل. لا يتغير سوى الوسط: يبقى الطرفان يحسمان بالضبط إلى الألوان
+ * على جانبيهما، وهذا ما يبقي نقاط الالتقاء غير مرئية أياً كانت الأرضية.
  *
- * `swellFrom` is a SEPARATE knob, added once every section's own cube swell stopped being a shade
- * of its own ground and started being a shade of the brand's Signal Orange instead (see
- * `SIGNAL_TONES` / `SECTION_TONES`). Before that, one colour served both jobs — the plane and the
- * swell on it were always the same family, so `body` alone was enough. Now the footer's belt has
- * to match every other page's convention (a WHITE plane, an ORANGE swell) rather than the plane's
- * own colour, and `ground`/`swellFrom` are how it does that without the two ever having to agree.
- * It defaults to `ground`, so a caller that never passes it gets the old one-colour behaviour back.
+ * `swellFrom` مقبض منفصل، أُضيف عندما توقفت موجة كل قسم عن كونها درجة من أرضيتها هي وبدأت تكون
+ * درجة من برتقالي العلامة التجارية بدلاً من ذلك (انظر `SIGNAL_TONES` / `SECTION_TONES`). قبل
+ * ذلك، كان لون واحد يخدم الوظيفتين — المستوى والموجة عليه كانا دائماً نفس العائلة، فكفى `body`
+ * وحده. الآن يجب أن يطابق حزام الفوتر عُرف كل صفحة أخرى (مستوى أبيض، موجة برتقالية) بدلاً من
+ * لون المستوى نفسه، و`ground`/`swellFrom` هما كيف يفعل ذلك دون أن يضطر الاثنان للاتفاق أبداً.
+ * تُهيَّأ افتراضياً بـ`ground`، فمستدعٍ لا يمررها أبداً يحصل على السلوك القديم أحادي اللون.
  */
 export function connectionTones(
   from: string,
@@ -287,75 +270,69 @@ export function connectionTones(
   };
 }
 
-/** Key direction, in the field's own space. Up and across, so the tops are the lit faces and the
-    two visible sides split into half light and shadow. */
+/** اتجاه الإضاءة الرئيسية، في فضاء الحقل نفسه. للأعلى وعبراً، بحيث تكون القمم هي الأوجه المضاءة
+    وينقسم الجانبان المرئيان إلى نصف مضاء ونصف مظلل. */
 const LIGHT = new THREE.Vector3(-0.42, 0.5, 0.76).normalize();
 
-/** How far the whole field is tipped toward the viewer, in radians. Enough to open the tops and one
-    side of every cube; more than about 0.5 and the far rows start hiding behind the near ones. */
+/** كم يميل الحقل كله نحو المُشاهد، بالراديان. يكفي لفتح الأسطح العلوية وجانب واحد من كل مكعب؛
+    أكثر من حوالي 0.5 تبدأ الصفوف البعيدة بالاختفاء خلف القريبة. */
 const TILT_X = 0.42;
 const TILT_Y = -0.3;
 
 /**
- * The pixel-ratio ceiling this canvas renders at.
+ * سقف نسبة البكسل (pixel ratio) الذي يُرسم به هذا الكانفاس.
  *
- * A phone reports a devicePixelRatio of 2 or 3. Rendering at 2x means four times the fragments and
- * at 3x nine times, on the device with the least GPU to spend and the only one that gets hot in
- * someone's hand — and it is the least visible, because the scene is flat tiles with no fine detail
- * for the extra pixels to resolve. So a coarse pointer (a touch screen) is capped at 1, and a mouse
- * — which means a desktop, with the headroom and a screen you sit close enough to see aliasing on —
- * keeps 1.25 rather than 1.5. Slightly softer than it used to be: the field is flat tiles, the
- * extra 0.25 cost a fifth of the fragment budget for detail nobody sits close enough to see, and on
- * a weak laptop that fifth is the difference between the swell running smooth and the page slowing.
+ * يُبلغ الهاتف عن devicePixelRatio بقيمة 2 أو 3. الرسم بـ2x يعني أربعة أضعاف الشظايا (fragments)
+ * وبـ3x تسعة أضعاف، على الجهاز الذي يملك أقل معالج رسوميات ليصرفه والوحيد الذي يسخن في يد أحدهم —
+ * وهو الأقل وضوحاً، لأن المشهد بلاطات مسطحة بلا تفاصيل دقيقة لتحلها البكسلات الإضافية. لذا
+ * مؤشر خشن (شاشة لمس) محدود بـ1، والفأرة — أي سطح مكتب، بالسعة والشاشة القريبة كفاية لرؤية
+ * التسنن (aliasing) عليها — تبقي 1.25 بدلاً من 1.5. أنعم قليلاً مما كانت: الحقل بلاطات مسطحة،
+ * وتكلف الـ0.25 الإضافية خُمس ميزانية الشظايا مقابل تفاصيل لا أحد يجلس قريباً كفاية ليراها،
+ * وعلى لابتوب ضعيف ذلك الخُمس هو الفرق بين موجة تجري بسلاسة وصفحة تتباطأ.
  *
- * This was a shared module while the site had three canvases on it. It has one, so the constant
- * lives with its only consumer; if a second scene ever appears it belongs back in lib/ rather than
- * copied into a second file.
+ * كان هذا وحدة مشتركة عندما كان للموقع ثلاثة كانفاسات عليه. الآن له واحد، فيعيش الثابت مع
+ * مستهلكه الوحيد؛ إن ظهر مشهد ثانٍ يوماً فمكانه في lib/ لا نسخة في ملف ثانٍ.
  *
- * Evaluated once at module load rather than per render: matchMedia is a layout-adjacent read and
- * the answer cannot change without a new device. Guarded for the build, where window does not exist
- * and the value is never used anyway.
+ * يُقيَّم مرة واحدة عند تحميل الوحدة لا لكل عرض: matchMedia قراءة قريبة من التخطيط والجواب لا
+ * يمكن أن يتغير دون جهاز جديد. محمي للبناء (build)، حيث window غير موجودة والقيمة لا تُستخدم
+ * أصلاً.
  */
 const MAX_DPR: number =
   typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 1 : 1.25;
 
-/** Pixels per world unit. Fixes the mapping between the screen and the scene, which is what lets
-    the grid be specified in pixels below. */
+/** بكسل لكل وحدة عالم. يثبّت العلاقة بين الشاشة والمشهد، وهذا ما يسمح بتحديد الشبكة بالبكسل أدناه. */
 const ZOOM = 100;
 
 /**
- * Tile pitch in CSS pixels, floor and ceiling. Smaller on a coarse pointer: a phone holds the
- * screen closer, and the same pitch that reads as a texture at arm's length reads as a
- * chequerboard at 30cm.
+ * تباعد البلاط (tile pitch) بالبكسل، أرضية وسقف. أصغر على مؤشر خشن: يمسك الهاتف الشاشة أقرب،
+ * ونفس التباعد الذي يُقرأ كنسيج على مسافة ذراع يُقرأ كرقعة شطرنج على 30 سم.
  */
 const CELL_MIN = MAX_DPR > 1 ? 46 : 34;
 const CELL_MAX = MAX_DPR > 1 ? 78 : 62;
 
-/** Cubes across the screen, which is the thing that actually has to stay constant. */
+/** عدد المكعبات عبر الشاشة، وهذا هو الشيء الذي يجب أن يبقى ثابتاً فعلاً. */
 const CELL_COLS = 44;
 
 /**
- * The pitch for a given screen width.
+ * التباعد لعرض شاشة معطى.
  *
- * A pitch fixed in CSS pixels is a pitch fixed in inches, and that is the wrong invariant for this
- * field. It is not a texture with a grain size, it is a COMPOSITION: a screen's worth of blocks
- * with a swell running through it, and what makes it read is how many blocks that is. Held at 46px
- * a 1440 screen gets 33 across and an ultrawide gets 78 — same picture, but at more than double the
- * count the blocks stop being blocks and the field turns into woven cloth behind the panel.
+ * تباعد ثابت بالبكسل هو تباعد ثابت بالإنش، وهذا هو الثابت الخاطئ لهذا الحقل. ليس نسيجاً بحبيبة
+ * ثابتة، بل تكوين: شاشة مليئة بالكتل مع موجة تجري خلالها، وما يجعله يُقرأ هو كم كتلة تلك. عند
+ * ثبات 46px، شاشة 1440 تحصل على 33 عبرها وشاشة فائقة العرض تحصل على 78 — نفس الصورة، لكن عند
+ * أكثر من ضعف العدد تتوقف الكتل عن كونها كتلاً ويتحول الحقل إلى قماش منسوج خلف اللوحة.
  *
- * So the count is what is held and the pitch follows, between a floor and a ceiling. The floor is
- * the old fixed value, which means nothing at or below 1500px moves by a pixel — the ramp only
- * starts where the screen is wider than the composition was ever drawn for. Rounded to whole
- * pixels so a drag-resize crosses a handful of values rather than rebuilding the material on
- * every frame of the drag.
+ * لذا العدد هو ما يبقى ثابتاً والتباعد يتبعه، بين أرضية وسقف. الأرضية هي القيمة الثابتة القديمة،
+ * مما يعني أن أي شيء عند 1500px أو أقل لا يتحرك بكسلاً واحداً — يبدأ المدرّج فقط حيث الشاشة أعرض
+ * مما رُسم له التكوين أصلاً. مُقرَّب لأرقام بكسل صحيحة بحيث يعبر تغيير حجم بالسحب عدداً قليلاً من
+ * القيم بدلاً من إعادة بناء المادة (material) في كل إطار من السحب.
  */
 const cellFor = (width: number): number =>
   Math.round(Math.min(CELL_MAX, Math.max(CELL_MIN, width / CELL_COLS)));
 
 function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
-    // Solid now, where the flat version was transparent. Cubes genuinely overlap each other on
-    // screen, so the depth buffer is doing real work and there is nothing left to blend.
+    // صلب الآن، حيث كانت النسخة المسطحة شفافة. تتداخل المكعبات فعلياً مع بعضها على الشاشة، فذاكرة
+    // العمق (depth buffer) تقوم بعمل حقيقي ولم يبقَ شيء لمزجه.
     transparent: false,
     uniforms: {
       uTime: { value: 0 },
@@ -366,9 +343,9 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
       uGround: { value: new THREE.Color(tones.ground) },
       uIntoLo: { value: new THREE.Color(tones.intoLo) },
       uIntoHi: { value: new THREE.Color(tones.intoHi) },
-      // A hair above zero on an edge that is meant not to fade: smoothstep with both edges equal
-      // is undefined at the boundary, and the artefact it produces is a single row of cubes that
-      // flickers between full height and nothing along the top of the screen.
+      // شعرة فوق الصفر على حافة يُفترض ألا تتلاشى: smoothstep بحافتين متساويتين غير مُعرَّف عند
+      // الحد، والعيب الذي ينتجه هو صف واحد من المكعبات يومض بين كامل الارتفاع ولا شيء على طول
+      // أعلى الشاشة.
       uFade: { value: new THREE.Vector2(Math.max(fade.lo, 1e-4), Math.max(fade.hi, 1e-4)) },
       uLight: { value: LIGHT.clone() },
     },
@@ -384,19 +361,18 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
       varying float vK;
       varying vec3 vN;
 
-      // One stable pseudo-random value per cell. Stable is the whole requirement: the threshold a
-      // cube dissolves at has to be a property of that cube, not of the frame, or the bottom of the
-      // field boils instead of settling.
+      // قيمة عشوائية زائفة واحدة ثابتة لكل خلية. الثبات هو المتطلَّب كله: العتبة التي يتلاشى عندها
+      // مكعب يجب أن تكون خاصية لذلك المكعب، لا للإطار، وإلا يغلي أسفل الحقل بدلاً من أن يستقر.
       float hash21(vec2 p) {
         p = fract(p * vec2(123.34, 456.21));
         p += dot(p, p + 45.32);
         return fract(p.x * p.y);
       }
 
-      // Three sines crossing at angles that share no common period, which is the whole trick to
-      // water: two waves make a visibly repeating interference pattern, three do not repeat inside
-      // the time anyone looks at it. The two travelling one way and one the other is what gives the
-      // swell somewhere to break against instead of marching evenly across the screen.
+      // ثلاث موجات جيبية تتقاطع بزوايا لا تشترك في دور مشترك، وهذه هي الحيلة كلها لصنع ماء:
+      // موجتان تصنعان نمط تداخل متكرر بوضوح، وثلاث لا تتكرر خلال الوقت الذي ينظر فيه أحد. اتجاه
+      // اثنتين بطريقة والثالثة بأخرى هو ما يمنح الموجة مكاناً تتكسر عليه بدلاً من أن تسير بانتظام
+      // عبر الشاشة.
       float swell(vec2 p) {
         float a = sin(p.x * 1.35 - uTime * 0.85);
         float b = sin((p.x * 0.72 + p.y * 1.05) - uTime * 0.55 + 1.7);
@@ -405,66 +381,60 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
       }
 
       void main() {
-        // The instance matrix carries nothing but this cube's cell centre, so the wave can be
-        // sampled per cube without any attribute of its own.
+        // مصفوفة النسخة (instance matrix) لا تحمل شيئاً سوى مركز خلية هذا المكعب، بحيث يمكن أخذ
+        // عينة من الموجة لكل مكعب دون أي خاصية (attribute) خاصة به.
         vec4 centre4 = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
         vec2 centre = centre4.xy;
         float w = swell(centre) * 0.5 + 0.5;
 
         vW = w;
 
-        // Where this cube sits DOWN THE SCREEN, taken through the same projection everything else
-        // goes through. The field is a flat grid that is then tilted as a whole, so no axis of the
-        // grid runs along the bottom of the frame; asking the projection is the only way to get a
-        // measure of "how close to the bottom edge" that survives the tilt, a resize, and a change
-        // of aspect. -1.0 is the bottom of the canvas.
+        // أين يقع هذا المكعب أسفل الشاشة، مأخوذاً عبر نفس الإسقاط الذي يمر به كل شيء آخر. الحقل
+        // شبكة مسطحة تُمال بعد ذلك ككل، فلا يجري أي محور من محاور الشبكة على طول أسفل الإطار؛
+        // سؤال الإسقاط هو الطريقة الوحيدة للحصول على مقياس "كم قريب من الحافة السفلى" ينجو من
+        // الإمالة، وتغيير الحجم، وتغيير النسبة. -1.0 هو أسفل الكانفاس.
         float ndcY = (projectionMatrix * modelViewMatrix * centre4).y;
-        // One band per edge, multiplied: a cube is at full strength only where it is clear of
-        // BOTH. A strip that has to arrive out of one colour and settle into another inside its
-        // own height needs both; a full-screen field that only ends at the fold sets the other to
-        // nothing and this collapses to the single band it had before.
+        // حزام واحد لكل حافة، مضروبان: يكون المكعب بكامل قوته فقط حيث يتحرر من كليهما. شريط يجب
+        // أن يصل من لون ويستقر في آخر ضمن ارتفاعه هو يحتاج كليهما؛ حقل بملء الشاشة ينتهي فقط عند
+        // الطية يضع الآخر عند الصفر وهذا ينهار إلى الحزام الواحد الذي كان لديه من قبل.
         float tLo = smoothstep(-1.0, -1.0 + 2.0 * uFade.x, ndcY);
         float tHi = smoothstep(1.0, 1.0 - 2.0 * uFade.y, ndcY);
         float t = tLo * tHi;
 
-        // Whichever band is the limiting one is the edge this cube is leaving by, and so is the
-        // colour it has to pale toward on the way out.
+        // أياً كان الحزام هو المُقيِّد فهو الحافة التي يغادر عبرها هذا المكعب، وبالتالي هو اللون
+        // الذي يجب أن يشحب نحوه في طريق خروجه.
         vInto = mix(uIntoHi, uIntoLo, step(tLo, tHi));
 
-        // Each cube gets its own point in the band to give out at, so the field frays. Without the
-        // per-cell offset every cube in a row would shrink in lockstep and the dissolve would be a
-        // horizontal line again — a soft one, but still a line, and a soft line across a field of
-        // hard-edged blocks is the one thing that would look like a mistake.
+        // يحصل كل مكعب على نقطته الخاصة في الحزام لينتهي عندها فيتفتّت الحقل. دون الإزاحة لكل
+        // خلية سيتقلّص كل مكعب في صف بانسجام تام ويعود الذوبان خطاً أفقياً من جديد — خط ناعم،
+        // لكن يبقى خطاً، وخط ناعم عبر حقل من كتل حادة الحواف هو الشيء الوحيد الذي سيبدو خطأ.
         float k = clamp((t - hash21(centre * 7.3) * 0.62) / 0.38, 0.0, 1.0);
         vK = k;
-        // Axis-aligned box normals survive a non-uniform axis-aligned scale unchanged in direction,
-        // so the geometry's own normal is the right one to light with — no normal matrix needed,
-        // and lighting in object space keeps the light fixed to the field rather than to the screen.
+        // عاديات (normals) صندوق محاذٍ للمحاور تنجو من تحجيم غير منتظم محاذٍ للمحاور دون تغيّر في
+        // الاتجاه، فالعادي الخاص بالهندسة نفسها هو الصحيح للإضاءة به — لا حاجة لمصفوفة عادية
+        // (normal matrix)، والإضاءة في فضاء الجسم تُبقي الضوء ثابتاً بالنسبة للحقل لا للشاشة.
         vN = normal;
 
-        // The FOOTPRINT is constant and the HEIGHT carries the wave. The flat version varied the
-        // footprint because that was the only dimension it had; a cube that changes width as well
-        // as height reads as a grid of objects breathing, where a cube field with one moving
-        // dimension reads as a surface. A gap of 0.16 of a cell is what keeps them individual
-        // blocks rather than a continuous extruded sheet.
-        // Under a cell tall at the crest, and that ceiling is the difference between a sea and a
-        // brick wall. Tall blocks on a tilted plane hide the ones behind them, so the swell stops
-        // being visible as a surface and the field flattens into a texture of pillars — which is
-        // exactly what 1.7 cells looked like. Keeping the tallest cube shorter than its own
-        // footprint means every row can still be seen over.
-        // The dissolve rides on the height the swell already asked for, so a cube on its way out
-        // keeps the shape of the wave it belongs to instead of being flattened by a separate rule.
+        // البصمة (footprint) ثابتة والارتفاع يحمل الموجة. كانت النسخة المسطحة تُغيّر البصمة لأن
+        // ذلك كان البُعد الوحيد المتاح لها؛ مكعب يتغير عرضه مع ارتفاعه يُقرأ كشبكة أجسام تتنفس،
+        // حيث حقل مكعبات ببُعد واحد متحرك يُقرأ كسطح. فجوة 0.16 من الخلية هي ما يبقيها كتلاً
+        // منفصلة بدلاً من صفيحة مبثوقة (extruded) متصلة.
+        // أقل من خلية بارتفاع عند القمة، وهذا السقف هو الفرق بين بحر وجدار من طوب. كتل عالية على
+        // مستوى مائل تخفي ما خلفها، فتتوقف الموجة عن كونها مرئية كسطح ويتسطح الحقل إلى نسيج من
+        // أعمدة — وهذا بالضبط ما بدت عليه 1.7 خلية. إبقاء أطول مكعب أقصر من بصمته نفسها يعني أن
+        // كل صف لا يزال يمكن رؤيته فوقه.
+        // يركب الذوبان على الارتفاع الذي طلبته الموجة أصلاً، فمكعب في طريقه للخروج يحافظ على شكل
+        // الموجة التي ينتمي إليها بدلاً من أن تُسطِّحه قاعدة منفصلة.
         float d = mix(0.08, 0.86, w) * uCell * k;
         vec3 p = position;
-        // Under two thirds of the cell, so a third of the ground shows between neighbours. At 0.8
-        // the side faces of a tilted grid close every gap and the field fuses into one corrugated
-        // sheet — the cubes stop being countable, which is the only thing making them cubes.
-        // Narrowing as well as shortening, which is the difference between blocks lying down and
-        // blocks receding. Height alone leaves a full-width tiled floor at the bottom of the frame;
-        // pulling the footprint in too opens the ground between them as they go.
+        // أقل من ثلثي الخلية، بحيث يظهر ثلث الأرضية بين الجيران. عند 0.8 تُغلق الأوجه الجانبية
+        // لشبكة مائلة كل فجوة ويندمج الحقل في صفيحة مموّجة واحدة — تتوقف المكعبات عن كونها
+        // قابلة للعدّ، وهذا هو الشيء الوحيد الذي يجعلها مكعبات.
+        // تضييق مع تقصير معاً، وهذا هو الفرق بين كتل مستلقية وكتل تتراجع. الارتفاع وحده يترك
+        // أرضية مبلطة بعرض كامل أسفل الإطار؛ سحب البصمة أيضاً يفتح الأرضية بينها وهي تذهب.
         p.xy *= uCell * 0.62 * mix(0.42, 1.0, k);
-        // Grown from the base rather than about the centre, so the tops rise and the field keeps a
-        // floor. Scaling about the centre sinks the trough cubes through the plane they stand on.
+        // ينمو من القاعدة لا حول المركز، بحيث ترتفع القمم ويحتفظ الحقل بأرضية. التحجيم حول المركز
+        // يُغرق مكعبات القاع خلال المستوى الذي تقف عليه.
         p.z = (p.z + 0.5) * d;
 
         gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(p, 1.0);
@@ -485,37 +455,36 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
       varying vec3 vN;
 
       void main() {
-        // Spent cubes leave rather than lie flat. A cube driven to zero height is still a quad on
-        // the base plane, and a field of those is a tiled floor across the bottom of the frame —
-        // the exact hard edge this is here to avoid. Dropping the fragment costs nothing and keeps
-        // the material opaque, so the depth buffer goes on doing its job for the cubes that remain.
+        // المكعبات المستهلَكة تغادر بدلاً من أن ترقد مسطّحة. مكعب دُفع لارتفاع صفر يبقى مربّعاً
+        // (quad) على المستوى القاعدي، وحقل من هذه هو أرضية مبلطة عبر أسفل الإطار — بالضبط الحافة
+        // الحادة التي وُجد هذا لتجنّبها. رمي الشظية (fragment) لا يكلّف شيئاً ويُبقي المادة معتمة،
+        // فتستمر ذاكرة العمق في عملها للمكعبات المتبقية.
         if (vK < 0.02) discard;
 
         vec3 c = mix(uTrough, uCrest, smoothstep(0.04, 0.94, vW));
-        // The panel's blue, on the crests only. It is what ties the field to the thing sitting on
-        // it — without it the two halves of the section read as two unrelated pictures.
+        // لون اللوحة، على القمم فقط. هو ما يربط الحقل بما يجلس فوقه — دونه يُقرأ نصفا القسم
+        // كصورتين غير مرتبطتين.
         c = mix(c, uFoam, smoothstep(0.86, 1.0, vW) * 0.55);
 
-        // One tone per face. A box has six normals and three of them ever face the camera, so this
-        // resolves to exactly three flat values — the top lit, one side in half light, one in
-        // shadow. That corner is the whole reason the field reads as solid rather than printed.
-        // The ambient floor is high on purpose. A textbook 0.2 gives the shaded faces real contrast
-        // and drags the whole field several steps darker than the ground it stands on, which reads
-        // as mud rather than the ground's own hue gone flat. Lifting the floor keeps the three
-        // faces distinguishable while the field's average stays where the background is.
+        // درجة واحدة لكل وجه. للصندوق ستة عاديات (normals) وثلاثة منها فقط يواجه الكاميرا أبداً،
+        // فهذا يحسم إلى ثلاث قيم مسطحة بالضبط — الأعلى مضاء، جانب في نصف ضوء، جانب في ظل. تلك
+        // الزاوية هي السبب كله وراء قراءة الحقل كصلب لا كمطبوع.
+        // أرضية الإضاءة المحيطة (ambient) عالية عمداً. قيمة كتابية معتادة 0.2 تمنح الأوجه المظلَّلة
+        // تبايناً حقيقياً وتسحب الحقل كله عدة درجات أغمق من الأرضية التي يقف عليها، وهذا يُقرأ
+        // كطين لا كصبغة أرضية أصلية مسطحة. رفع الأرضية يُبقي الأوجه الثلاثة قابلة للتمييز بينما
+        // يبقى متوسط الحقل حيث الخلفية.
         float lam = max(dot(normalize(vN), uLight), 0.0);
         c *= 0.72 + 0.4 * lam;
 
-        // Troughs sink toward the ground they stand on instead of just being short. Without it the
-        // low cubes are still full-strength colour and the field looks like a bar chart; with it
-        // the swell fades into the sand at its edges the way spent water does.
+        // تغرق القيعان نحو الأرضية التي تقف عليها بدلاً من أن تكون قصيرة فقط. دون ذلك تبقى
+        // المكعبات المنخفضة لوناً بكامل قوته ويبدو الحقل كرسم بياني بأعمدة؛ معها تذوب الموجة في
+        // الرمل عند أطرافها كما يفعل الماء المستهلَك.
         c = mix(uGround, c, mix(0.35, 1.0, vW));
 
-        // And the last of the colour goes with the last of the height. The ground beneath is
-        // already ramping to whatever comes next across this same band, so a cube that kept full
-        // colour until the moment it vanished would read as a chip of debris on a clean page.
-        // Held near full for most of the band and given up late, so the field stays itself until
-        // it is genuinely going.
+        // وآخر اللون يذهب مع آخر الارتفاع. الأرضية أسفله تتدرّج أصلاً نحو أياً كان قادماً عبر نفس
+        // هذا الحزام، فمكعب يحتفظ بلونه الكامل حتى لحظة اختفائه سيُقرأ كشظية حطام على صفحة نظيفة.
+        // يُبقى قريباً من الكمال لمعظم الحزام ويُترك متأخراً، بحيث يبقى الحقل نفسه حتى يكون فعلاً
+        // في طريقه للذهاب.
         c = mix(vInto, c, mix(0.12, 1.0, smoothstep(0.0, 0.7, vK)));
 
         gl_FragColor = vec4(c, 1.0);
@@ -524,7 +493,7 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
   });
 }
 
-/* ── The field ──────────────────────────────────────────────────────────────────────────── */
+/* ── الحقل ──────────────────────────────────────────────────────────────────────────────── */
 
 const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> = ({
   reduced,
@@ -536,10 +505,10 @@ const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> 
 
   const cellPx = cellFor(size.width);
   const cell = cellPx / ZOOM;
-  /* Margin rows and columns, and the tilt is what they pay for. Tipping the grid shortens its
-     projected height by cos(TILT_X) and its width by cos(TILT_Y), so a field sized exactly to the
-     screen pulls its own edges inside the frame and leaves bare sand along two sides. Six either
-     way covers that, the cube height standing proud at the top, and a resize mid-drag. */
+  /* صفوف وأعمدة هامشية، والإمالة هي ما تدفع ثمنها. إمالة الشبكة تُقصِّر ارتفاعها المُسقَط بمقدار
+     cos(TILT_X) وعرضها بمقدار cos(TILT_Y)، فحقل بحجم الشاشة بالضبط يسحب حوافه هو إلى داخل الإطار
+     ويترك رملاً عارياً على جانبين. ستة في كل اتجاه يغطي ذلك، مع ارتفاع المكعب بارزاً عند الأعلى،
+     وتغيير حجم أثناء السحب. */
   const cols = Math.ceil(size.width / cellPx / Math.cos(TILT_Y)) + 10;
   const rows = Math.ceil(size.height / cellPx / Math.cos(TILT_X)) + 10;
   const count = cols * rows;
@@ -557,7 +526,7 @@ const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> 
     [geometry, material],
   );
 
-  // Written once per layout, not per frame. Everything that moves is in the shader.
+  // تُكتب مرة واحدة لكل تخطيط (layout)، لا لكل إطار. كل ما يتحرك موجود داخل الـshader.
   useLayoutEffect(() => {
     const m = mesh.current;
     if (!m) return;
@@ -577,8 +546,8 @@ const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> 
 
   useFrame((_, delta) => {
     if (reduced) return;
-    // Clamped: this is the length of the pause after the loop stopped off screen, and an unclamped
-    // step would integrate the whole gap in one frame and jump the swell.
+    // مقيَّدة (clamped): هذا طول التوقف بعد أن توقفت الحلقة خارج الشاشة، وخطوة غير مقيَّدة كانت
+    // ستدمج الفجوة كلها في إطار واحد وتقفز بالموجة.
     clock.current += Math.min(delta, 0.05);
     material.uniforms.uTime.value = clock.current;
     invalidate();
@@ -587,33 +556,32 @@ const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> 
   return (
     <instancedMesh
       ref={mesh}
-      // `key` so a change in cube count rebuilds the mesh: an InstancedMesh's count is fixed at
-      // construction, and R3F reconstructs on an args change rather than mutating in place.
+      // `key` بحيث يعيد تغيير عدد المكعبات بناء الشبكة (mesh): عدد InstancedMesh ثابت عند
+      // الإنشاء، وتعيد R3F البناء عند تغيّر args بدلاً من التعديل في مكانه.
       key={count}
       args={[geometry, material, count]}
-      // The shader moves vertices the bounding sphere does not know about, and the sphere is
-      // derived from instance matrices that describe points rather than cubes. Culling against it
-      // can drop the whole field at certain sizes; there is one object here, so there is nothing
-      // for culling to save.
+      // يحرّك الـshader رؤوساً (vertices) لا تعرفها الكرة المحيطة (bounding sphere)، وهذه الكرة
+      // مُشتقة من مصفوفات نسخ تصف نقاطاً لا مكعبات. الحجب (culling) ضدها قد يُسقط الحقل كله عند
+      // أحجام معينة؛ يوجد جسم واحد هنا، فليس هناك ما يوفّره الحجب.
       frustumCulled={false}
     />
   );
 };
 
-/* ── The host ───────────────────────────────────────────────────────────────────────────── */
+/* ── المُضيف (host) ─────────────────────────────────────────────────────────────────────── */
 
 export interface TileFieldProps {
-  /** What the field is painted in, and what it turns into where it breaks up. */
+  /** بم يُطلى الحقل، وما يتحول إليه حيث يتفتّت. */
   tones?: FieldTones;
-  /** How much of the canvas it spends breaking up at each edge. */
+  /** كم من الكانفاس يصرفه وهو يتفتّت عند كل حافة. */
   fade?: FieldFade;
 }
 
 /**
- * One field, two configurations: the hero's full screen of sand and the contact section's strip of
- * blue. Both are the same grid, the same swell and the same shader — what differs is five colours
- * and two numbers, and keeping them as arguments rather than as a second copy of this file is what
- * stops the two drifting into two different ideas of what a cube looks like.
+ * حقل واحد، بإعدادين: شاشة الهيرو الكاملة من الرمل، وشريط الأزرق في قسم التواصل. كلاهما نفس
+ * الشبكة، نفس الموجة، ونفس الـshader — ما يختلف هو خمسة ألوان ورقمان، وإبقاؤهما كوسائط (arguments)
+ * بدلاً من نسخة ثانية من هذا الملف هو ما يمنع الاثنين من التباعد إلى فكرتين مختلفتين عن شكل
+ * المكعب.
  */
 export const TileField: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HERO_FADE }) => {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -631,10 +599,10 @@ export const TileField: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade =
     return () => io.disconnect();
   }, []);
 
-  /* `data-idle` is set on <html> by usePauseOffscreenWork() when the tab is backgrounded, the
-     window minimised or another window takes focus. Every CSS animation on the site stops on it; a
-     WebGL loop is the one thing on the page that would otherwise carry on burning frames for
-     nobody, so it reads the same flag rather than keeping its own idea of who is watching. */
+  /* تُضبط `data-idle` على <html> بواسطة usePauseOffscreenWork() عندما تُنقل التبويب للخلفية، أو
+     تُصغَّر النافذة، أو تأخذ نافذة أخرى التركيز. تتوقف كل حركة CSS في الموقع عليها؛ حلقة WebGL هي
+     الشيء الوحيد في الصفحة الذي كان سيستمر لولا ذلك في حرق إطارات لأحد، فتقرأ نفس العلَم بدلاً
+     من الاحتفاظ بفكرتها الخاصة عمّن يُشاهد. */
   useEffect(() => {
     const root = document.documentElement;
     const read = () => setIdle(root.hasAttribute('data-idle'));
@@ -654,29 +622,29 @@ export const TileField: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade =
 
   return (
     <div ref={hostRef} className="absolute inset-0" aria-hidden="true">
-      {/* Kept MOUNTED and parked at frameloop='never' off screen rather than unmounted. Tearing the
-          canvas down destroys the GL context, and rebuilding it costs a fresh context, a shader
-          recompile and a scene rebuild on the main thread every time the hero comes back.
+      {/* يبقى مُثبَّتاً (mounted) ومركوناً على frameloop='never' خارج الشاشة بدلاً من أن يُفكَّك.
+          هدم الكانفاس يدمّر سياق GL، وإعادة بنائه تكلّف سياقاً جديداً وإعادة تجميع shader وإعادة
+          بناء المشهد على الخيط الرئيسي في كل مرة يعود فيها الهيرو.
 
-          Orthographic: this is a flat field seen head on, and a perspective camera would taper the
-          tiles toward the edges of the screen for no reason. `antialias` off because the only edges
-          in the scene are the SDF ones, which antialias themselves for free. */}
+          متعامدة (orthographic): هذا حقل مسطّح يُرى من الأمام مباشرة، وكاميرا منظورية كانت
+          ستُضيّق البلاط نحو حواف الشاشة دون سبب. `antialias` مُطفأة لأن الحواف الوحيدة في المشهد
+          هي حواف SDF، وهذه تُنعّم حوافها بنفسها مجاناً. */}
       <Canvas
         orthographic
         frameloop={reduced ? 'demand' : active && !idle ? 'always' : 'never'}
         dpr={[1, MAX_DPR]}
-        // `far` matters now that there is depth in the scene: the default orthographic near/far is
-        // 0.1..2000, which is fine, but the camera has to stand back far enough that a crest at
-        // 1.7 cells tall cannot cross the near plane.
+        // `far` مهمة الآن أن هناك عمقاً في المشهد: near/far الافتراضيان للكاميرا المتعامدة هما
+        // 0.1..2000، وهذا جيد، لكن يجب أن تقف الكاميرا بعيداً كفاية بحيث لا يمكن لقمة بارتفاع 1.7
+        // خلية أن تعبر المستوى القريب (near plane).
         camera={{ zoom: ZOOM, position: [0, 0, 60], near: 0.1, far: 200 }}
-        // `antialias` back ON. The flat version drew its only edges with a signed-distance field
-        // and antialiased itself for free; a cube's silhouette is real geometry, and a field of
-        // hard-edged boxes without MSAA crawls with jaggies as the swell moves through it.
+        // `antialias` عادت للتشغيل. كانت النسخة المسطحة ترسم حوافها الوحيدة بحقل مسافة موقّع
+        // (signed-distance field) وتُنعّم نفسها مجاناً؛ صورة ظل (silhouette) المكعب هندسة حقيقية،
+        // وحقل من صناديق حادة الحواف دون MSAA يزحف بتسنن (jaggies) بينما تتحرك الموجة خلاله.
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
       >
-        {/* The tilt. On the group rather than the camera so the grid can still be laid out in
-            screen terms above — the cells are placed on a flat XY grid, and this turns that whole
-            plane toward the viewer afterwards. */}
+        {/* الإمالة. على المجموعة (group) لا على الكاميرا بحيث يمكن لا يزال تخطيط الشبكة بمقاييس
+            الشاشة أعلاه — تُوضع الخلايا على شبكة XY مسطحة، وهذا يُدير ذلك المستوى كله نحو
+            المُشاهد بعد ذلك. */}
         <group rotation={[TILT_X, TILT_Y, 0]}>
           <Field reduced={reduced} tones={tones} fade={fade} />
         </group>

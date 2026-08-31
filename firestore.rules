@@ -3,32 +3,30 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // True only for the owner/partner — regular customers also have accounts now (see
-    // src/lib/auth.ts), so "signed in" alone no longer implies "admin". Every admin-only
-    // rule below checks this instead of just request.auth != null.
+    // صحيحة فقط لصاحب/شريك الموقع — العملاء العاديون لهم حسابات أيضاً الآن (انظر
+    // src/lib/auth.ts)، لذا "مسجّل دخول" وحدها لم تعد تعني "أدمن". كل قاعدة أدناه خاصة
+    // بالأدمن تتحقق من هذه بدلاً من مجرد request.auth != null.
     //
-    // .lower() matters: every admin doc is created (and checked client-side) via
-    // normalizeEmail() in src/lib/auth.ts, which lowercases first. request.auth.token.email
-    // is NOT lowercased by Firebase Auth — a token email with any uppercase character
-    // (e.g. "Ahmed@Gmail.com") would look up admins/Ahmed@Gmail.com here, which never
-    // exists (only admins/ahmed@gmail.com does), so this always evaluated to false and
-    // every admin write silently failed for that account while the client-side check
-    // (which does lowercase) still showed them the full dashboard as an admin.
+    // .lower() مهمة: كل مستند أدمن يُنشأ (ويُتحقق منه في المتصفح) عبر normalizeEmail() في
+    // src/lib/auth.ts، التي تحوّل إلى أحرف صغيرة أولاً. request.auth.token.email لا
+    // يُحوَّل تلقائياً إلى أحرف صغيرة بواسطة Firebase Auth — بريد إلكتروني بأي حرف كبير
+    // (مثل "Ahmed@Gmail.com") كان سيبحث عن admins/Ahmed@Gmail.com هنا، وهذا لا يوجد أبداً
+    // (فقط admins/ahmed@gmail.com موجود)، فكانت هذه دائماً تُقيَّم إلى false وكانت كل
+    // كتابة أدمن تفشل بصمت لذلك الحساب بينما كان الفحص من جهة العميل (الذي يُحوّل فعلاً)
+    // لا يزال يُظهر له لوحة التحكم الكاملة كأدمن.
     function isAdmin() {
       return request.auth != null &&
         exists(/databases/$(database)/documents/admins/$(request.auth.token.email.lower()));
     }
 
-    // Contracts hold real customer financial/personal data — previously "if true" for
-    // every operation, meaning any visitor, signed in or not, could read/edit/delete any
-    // customer's contract (including its price) straight from the browser. Contract
-    // creation is gated behind login (ContractBuilderGate.tsx), so every contract now
-    // carries its creator's `uid`; a contract from before that field existed falls back to
-    // matching the account's email (case-insensitively, same normalization as isAdmin()).
-    // Customers only ever read their own contracts and create new ones (see
-    // CustomerDashboard.tsx — view + PDF download only); every further edit (status, final
-    // price, admin notes, deletion) happens exclusively from AdminDashboard.tsx, so update
-    // and delete are admin-only.
+    // تحمل العقود بيانات مالية/شخصية حقيقية لعملاء — كانت سابقاً "if true" لكل عملية،
+    // بمعنى أن أي زائر، مسجّلاً أو لا، يقدر يقرأ أو يعدّل أو يحذف عقد أي عميل (بما فيه
+    // سعره) مباشرة من المتصفح. إنشاء العقد محجوب خلف تسجيل الدخول (ContractBuilderGate.tsx)،
+    // فكل عقد الآن يحمل `uid` مُنشئه؛ عقد من قبل وجود هذا الحقل يعود للمطابقة عبر بريد
+    // الحساب الإلكتروني (بدون حساسية لحالة الأحرف، بنفس تطبيع isAdmin()). العملاء يقرؤون
+    // فقط عقودهم هم وينشئون عقوداً جديدة (انظر CustomerDashboard.tsx — عرض وتنزيل PDF
+    // فقط)؛ كل تعديل إضافي (الحالة، السعر النهائي، ملاحظات الأدمن، الحذف) يحدث حصراً من
+    // AdminDashboard.tsx، لذا update وdelete للأدمن فقط.
     match /contracts/{contractId} {
       function ownsContract() {
         return request.auth != null && (
@@ -36,17 +34,17 @@ service cloud.firestore {
           (!('uid' in resource.data) && resource.data.email.lower() == request.auth.token.email.lower())
         );
       }
-      // Firestore has no field-level write control: "create" is all-or-nothing, so a rule that
-      // only checks ownership lets a signed-in customer hand us a contract that already carries
-      // our countersignature, an approved status, a paid balance, or an admin note. Every field
-      // below is written exclusively by AdminDashboard/ContractsTab, so none of them has any
-      // business being present on the document a customer creates — the only legitimate initial
-      // status is the 'submitted' that ContractBuilder sets.
+      // ليس لدى Firestore تحكّم بمستوى الحقل: "create" إما كله أو لا شيء، فقاعدة تتحقق فقط
+      // من الملكية تسمح لعميل مسجّل دخول بأن يعطينا عقداً يحمل أصلاً توقيعنا المضاد، أو
+      // حالة معتمَدة، أو رصيداً مدفوعاً، أو ملاحظة أدمن. كل حقل أدناه يُكتب حصراً من
+      // AdminDashboard/ContractsTab، فلا يوجد لأي منها أي مبرر ليكون موجوداً في المستند
+      // الذي ينشئه عميل — الحالة الأولية المشروعة الوحيدة هي 'submitted' التي يضبطها
+      // ContractBuilder.
       //
-      // totalPriceIQD is deliberately NOT checked here. Validating it means recomputing it from
-      // the template catalogue and its add-ons, and that catalogue lives in application code,
-      // not in Firestore — a rule cannot read it. That check belongs on the server; until it
-      // exists, a wrong price is caught by the admin, who sets the final figure anyway.
+      // totalPriceIQD غير مُتحقَّق منه هنا عمداً. التحقق منه يعني إعادة حسابه من كتالوج
+      // القوالب وإضافاتها، وذلك الكتالوج يعيش في كود التطبيق، لا في Firestore — القاعدة لا
+      // تقدر تقرأه. هذا الفحص مكانه على السيرفر؛ وحتى يوجد، يلتقط الأدمن أي سعر خاطئ
+      // ويضبط الرقم النهائي بنفسه على أي حال.
       function customerCreateIsClean() {
         let d = request.resource.data;
         return d.status == 'submitted'
@@ -68,41 +66,76 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // Admin allowlist: a document's ID is the admin's email; its content doesn't matter,
-    // only its existence. `get` (fetch by exact ID) is open to any signed-in user so the
-    // app can check "am I an admin?"; `list` is denied so the set of admin emails can never
-    // be discovered by scanning. Only an existing admin can add another — the very first
-    // one is created once, manually, in the Firebase Console.
+    // قائمة الأدمن المسموح بهم: مُعرِّف المستند هو بريد الأدمن الإلكتروني؛ محتواه لا يهم،
+    // فقط وجوده. `get` (جلب بمُعرِّف دقيق) مفتوح لأي مستخدم مسجّل دخول بحيث يقدر التطبيق
+    // يتحقق "هل أنا أدمن؟"؛ `list` ممنوعة بحيث لا يمكن أبداً اكتشاف مجموعة بريدات الأدمن
+    // عبر مسح القائمة. فقط أدمن موجود يقدر يضيف آخر — الأدمن الأول الوحيد يُنشأ مرة واحدة،
+    // يدوياً، من Firebase Console.
     match /admins/{email} {
       allow get: if request.auth != null;
       allow list: if false;
       allow write: if isAdmin();
     }
 
-    // Client-queryable mirror of every signed-in account (written by src/lib/auth.ts on
-    // each login). Lets the Subscribers/Team admin panels list real accounts straight from
-    // Firestore, with no Admin SDK service account key required. Only the signed-in user
-    // may write their own doc; only an admin may list the full directory — a regular
-    // customer must never be able to enumerate every other customer's email/photo.
+    // نسخة قابلة للاستعلام من المتصفح لكل حساب مسجّل دخول (تُكتب بواسطة src/lib/auth.ts
+    // عند كل دخول). تتيح للوحات تحكم Subscribers/Team أن تسرد حسابات حقيقية مباشرة من
+    // Firestore، دون الحاجة لمفتاح حساب خدمة Admin SDK. فقط المستخدم المسجّل دخوله يقدر
+    // يكتب مستنده هو؛ فقط الأدمن يقدر يسرد الدليل الكامل — يجب ألا يقدر عميل عادي أبداً
+    // يعدّد بريد/صورة كل عميل آخر.
     match /users/{uid} {
       allow get: if isAdmin() || (request.auth != null && request.auth.uid == uid);
       allow list: if isAdmin();
       allow write: if request.auth != null && request.auth.uid == uid;
     }
 
-    // Live price overrides for the public catalogue: everyone needs to read these (any
-    // visitor browsing templates), but only an admin may change a price.
+    // تعديلات الأسعار الحية للكتالوج العام: كل زائر يحتاج يقرأها (أي زائر يتصفح القوالب)،
+    // لكن فقط الأدمن يقدر يغيّر سعراً.
     match /pricing_overrides/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Site-wide settings (currently just the social/WhatsApp links shown in the footer) —
-    // same shape as pricing_overrides: public read since every visitor's page renders them,
-    // admin-only write.
+    // إعدادات الموقع العامة (حالياً فقط روابط التواصل الاجتماعي/واتساب الظاهرة في
+    // الفوتر) — نفس شكل pricing_overrides: قراءة عامة لأن صفحة كل زائر تعرضها، كتابة
+    // للأدمن فقط.
     match /settings/{document=**} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // رسائل نموذج "المراسلة والدعم" (ContactSection.tsx) — لم يكن لهذه المجموعة أي قاعدة
+    // إطلاقاً، فكان الرفض الافتراضي في Firestore يمنع كل إرسال: كل زائر يملأ النموذج كان
+    // يرى رسالة "ما انرسلت الرسالة" دائماً، بصمت، دون أي علاقة بصحة البيانات التي كتبها.
+    //
+    // النموذج عام عمداً (لا حاجة لتسجيل دخول لإرسال رسالة، تماماً كصفحة تواصل عادية)، لذا
+    // `create` مفتوحة للجميع — لكن مقيَّدة بشكل الحقول التي يكتبها ContactSection.tsx
+    // فعلاً، بحيث لا يقدر أحد يستغل الفتحة العامة ليكتب مستنداً عشوائياً بحقول أو حجم غير
+    // متوقَّع. لا يوجد حالياً أي عرض إداري لهذه الرسائل في التطبيق، فـ`read`/`update`/
+    // `delete` أدمن فقط تحسّباً — خاصة رسائل عملاء محتملين لا يجب أن تكون قابلة للقراءة
+    // من أي زائر آخر.
+    match /contact_messages/{messageId} {
+      function contactMessageIsClean() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['name', 'phone', 'message', 'language', 'createdAt'])
+          && d.name is string && d.name.size() > 0 && d.name.size() < 200
+          && d.phone is string && d.phone.size() > 0 && d.phone.size() < 40
+          && d.message is string && d.message.size() > 0 && d.message.size() < 5000
+          && d.language is string;
+      }
+
+      allow create: if contactMessageIsClean();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ملاحظات الأدمن الخاصة بكل عميل (شخص، لا عقد واحد) — مُعرِّف المستند هو uid حساب العميل
+    // نفسه، ويُقرأ ويُكتب حصراً من ملفه الشخصي في لوحة التحكم (CustomerProfileSheet.tsx).
+    //
+    // مجموعة منفصلة عمداً عن `users/{uid}` بدل إضافة حقل عليها مباشرة: تلك المجموعة مرآة
+    // يكتبها الحساب نفسه فقط عند كل دخول (src/lib/auth.ts) — لو سمحنا للأدمن بالكتابة على
+    // نفس المستند، أي خطأ بسيط في الكود قد يكتب فوق displayName/email/photoURL الحقيقية
+    // لحساب العميل. هذه مجموعة أدمن فقط بالكامل، ولا علاقة لها بما يكتبه العميل عن نفسه.
+    match /customer_notes/{uid} {
+      allow read, write: if isAdmin();
     }
   }
 }
