@@ -10,7 +10,7 @@
    and this worker doesn't need to know them at build time. Bump `CACHE_VERSION` to force old
    caches to be purged after a deploy. */
 
-const CACHE_VERSION = 'nuvaiq-v1';
+const CACHE_VERSION = 'nuvaiq-v2';
 const CACHE = CACHE_VERSION;
 const SHELL = '/index.html';
 
@@ -33,6 +33,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== location.origin) return; // firebase / translate / fonts stay untouched
+
+  // مسارات /api/ لا تُخزَّن أبداً. الاستراتيجية أدناه "الكاش أولاً"، وردّ مثل /api/admin/users
+  // يحمل بيانات حساب مسجّل دخول — تخزينه يعني أن مستخدماً آخر على نفس الجهاز/المتصفح قد
+  // يُقدَّم له من الكاش ردٌّ يخصّ حساباً غيره، بلا أي طلب جديد يتحقق من صلاحيته.
+  if (url.pathname.startsWith('/api/')) return;
 
   // App shell: try the network first so a deploy is visible immediately; when offline,
   // fall back to the last cached index.html so the installed app still opens.

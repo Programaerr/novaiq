@@ -114,7 +114,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [companyName, setCompanyName] = useState(draft?.companyName || '');
   const [crNumber, setCrNumber] = useState(draft?.crNumber || '');
   const [repName, setRepName] = useState(draft?.repName || '');
-  const [email] = useState(draft?.email || accountEmail || '');
+  /* بريد الحساب الموقّع أولاً، لا بريد المسودة: من فتح النموذج بحساب ثم سجّل دخوله بحساب آخر
+     كانت مسودته تُبقي البريد القديم، فيُنشأ عقد ببريد لا يخصّ صاحب الحساب — وقاعدة Firestore
+     الآن ترفض ذلك صراحةً (firestore.rules)، فكانت النتيجة فشل حفظ صامت. */
+  const [email] = useState(accountEmail || draft?.email || '');
   const [phone, setPhone] = useState(draft?.phone || '');
   const city = draft?.city || 'بغداد';
   const [fieldErrors, setFieldErrors] = useState<Set<string>>(new Set());
