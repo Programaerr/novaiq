@@ -145,19 +145,35 @@ function makeFaceTexture() {
  * BLUR is a fixed CSS length that cannot scale to cover it. Measured on the running page before
  * this changed: a 730x499 buffer stretched across 2656x1816 physical pixels.
  *
- * So the MAGNIFICATION is what is held constant, and dpr falls out of it. Every screen now lands
- * near 2.2x, which is an upscale a 3px blur can actually absorb. The fill saving the constant was
- * bought for is still there — a 1x screen renders at half, a 2x screen at about 0.9 rather than
- * the 2.0 an unconstrained canvas would take — it simply stops varying by device.
+ * So the MAGNIFICATION is what is held constant, and dpr falls out of it. The fill saving the
+ * constant was bought for is still there — a 1x screen renders at two thirds, a 2x screen at
+ * about 0.6 rather than the 2.0 an unconstrained canvas would take — it simply stops varying by
+ * device.
+ *
+ * ## Why 1.5, and not the 2.2 this was set to
+ *
+ * 2.2 was picked as "an upscale a 3px blur can absorb", and for the STILL picture it is. For the
+ * moving one it is not, and the gap is measurable rather than a matter of taste.
+ *
+ * The field is one rigid translation, so the test is to find the sub-pixel shift that best maps
+ * one frame onto the next and look at what is left over. A correctly sampled moving picture leaves
+ * almost nothing; whatever remains is the part that is NOT motion, which is the part the eye reads
+ * as a flicker. Measured through the shipped blur, against a 14.2 no-shift baseline:
+ *
+ *     no AA, upscale 2.2   0.98      MSAA, upscale 1.5   0.39   <- here
+ *     MSAA,  upscale 2.2   0.53      MSAA, upscale 1.0   0.34
+ *
+ * Full resolution is the best number and is not worth buying: 1.21M pixels against 535k, for the
+ * last 13%. This is a decoration behind a sign-in form, and 1.5 already takes 60% of it.
  *
  * ## BLUR
  *
- * Small on purpose: its only job is to erase the resampling steps the upscale leaves on a hard
- * edge, and with the upscale now bounded there is a known amount of step to erase rather than an
- * unknown one. Doing the whole defocus this way would mean a full-screen filter re-run every
- * frame the cards move, which is the expensive way to arrive at the same picture.
+ * Small on purpose, and smaller in job than it used to be: with MSAA below carrying the edges, the
+ * blur is back to being defocus rather than the only thing standing between the viewer and a
+ * staircase. Doing the whole defocus this way would mean a full-screen filter re-run every frame
+ * the cards move, which is the expensive way to arrive at the same picture.
  */
-const MAX_UPSCALE = 2.2;
+const MAX_UPSCALE = 1.5;
 /** Floor so a 1x screen still buys the fill saving; ceiling so a 3x phone does not pay full price. */
 const DPR_MIN = 0.5;
 const DPR_MAX = 1.25;
@@ -455,14 +471,20 @@ export const CardField: React.FC = () => {
         /* `alpha` so the WARM WHITE fill on `.nq-coast` is what shows through the gaps between
            cards, rather than this canvas painting its own ground. One flat colour, declared once,
            in the place the rest of the page reads it from.
-           `antialias` off, but not for the reason that used to be written here. The old note
-           said the canvas was "already being downsampled", which had it backwards: rendering
-           below the display resolution and scaling UP is undersampling, and undersampling
-           magnifies aliasing rather than averaging it away — there was never a supersample to
-           be a better anti-aliaser than MSAA. It stays off because the 3px blur above genuinely
-           does cover a 2.2x step, and MSAA on a layer that is about to be blurred is paid for
-           and then thrown away. */
-        gl={{ antialias: false, alpha: true, powerPreference: 'low-power' }}
+           `antialias` ON, and the note that used to sit here got everything right except the
+           conclusion. Rendering below the display resolution and scaling UP is undersampling,
+           and undersampling magnifies aliasing rather than averaging it away — that part was
+           correct. What does not follow is the next step, that MSAA would be "paid for and then
+           thrown away" because the blur above covers it. A blur is a spatial filter and this is
+           a SAMPLING error: where an edge truly fell between two samples was never recorded, so
+           a later blur has nothing to recover and can only smear the staircase it is handed.
+
+           Measured through that very blur, on an identical buffer: the non-translational
+           residual is 0.98 without MSAA and 0.53 with it. Half the artifact, for a resolve pass
+           on a two-draw-call scene — at 2560x1440 on SwiftShader, with no GPU in the machine
+           at all, the field holds 120fps either way and p95 frame time does not move off
+           8.4ms. */
+        gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
       >
         <Grid reduced={reduced} />
       </Canvas>
