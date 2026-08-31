@@ -59,6 +59,22 @@ function arCount(n: number, one: string, two: string, few: string, many: string)
  */
 const DEFAULT_BRAND_COLORS = ['#8b5cf6', '#10b981', '#f59e0b'];
 
+/**
+ * The mark on each of the three tiles: the hue wheel itself, identical on all of them.
+ *
+ * Two gradients, and both are doing something. The conic one is the wheel — it starts at magenta
+ * so the ring runs magenta, red, yellow, green, cyan, blue clockwise from the top, and it closes on
+ * magenta again so there is no seam where the sweep wraps. The radial one washes the middle out to
+ * near-white, which is what makes it read as a colour PICKER rather than as a pie chart: saturation
+ * falling to nothing at the centre is how every colour wheel is drawn.
+ *
+ * A CSS gradient rather than an SVG or a PNG: it is two declarations, it costs no request, and it
+ * stays sharp at any size and any device pixel ratio.
+ */
+const COLOR_WHEEL =
+  'radial-gradient(circle closest-side, rgba(255,255,255,0.92), rgba(255,255,255,0) 72%),' +
+  'conic-gradient(#f0f, #f00, #ff0, #0f0, #0ff, #00f, #f0f)';
+
 
 export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   selectedTemplate,
@@ -652,13 +668,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       dir="ltr"
                       className="relative flex items-center px-3 py-2.5 rounded-xl border border-steel/60 hover:border-orange focus-within:border-orange transition-colors"
                     >
-                      {/* Its own border, because a near-black pick would otherwise vanish into the
-                          card behind it: white/40 on obsidian measures 3.77:1, past the 3:1 WCAG
-                          asks of a boundary that identifies a control. white/30 would be 2.61
-                          and would not. */}
+                      {/* The wheel, not the chosen colour: this circle says "pick a colour", and
+                          WHICH colour is read off the hex in the middle of the tile and off the
+                          three filled dots in the summary card below.
+
+                          It keeps a ring. Not for the reason the old solid swatch had one — there
+                          is no near-black fill to rescue any more — but because the wheel's own rim
+                          passes through blue and magenta, its two darkest points, and the ring is
+                          what keeps the circle's edge visible where those meet the panel.
+                          `aria-hidden`, because the input beside it already carries the name. */}
                       <span
+                        aria-hidden="true"
                         className="w-7 h-7 rounded-full border border-white/40 shrink-0"
-                        style={{ backgroundColor: c.value }}
+                        style={{ background: COLOR_WHEEL }}
                       />
                       {/* Centred on the RECTANGLE, not on the space left over beside the swatch,
                           so the three codes line up with each other down the row whatever size the
