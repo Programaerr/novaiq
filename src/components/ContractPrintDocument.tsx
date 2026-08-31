@@ -51,6 +51,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       notes: isAr ? 'ملاحظات ومتطلبات خاصة' : 'Custom Notes & Requirements',
       agreedTerms: isAr ? 'الشروط المتفق عليها بعد المراجعة' : 'Agreed Terms After Review',
       identity: isAr ? 'الهوية البصرية' : 'Visual Identity',
+      noColors: isAr ? 'الألوان تُحدَّد لاحقاً' : 'Colours to be agreed later',
       langSupport: isAr ? 'لغات النظام' : 'System Languages',
 
       s3: isAr ? '3. القيمة المالية ومدة التنفيذ' : '3. FINANCIAL VALUE & DELIVERY TIMELINE',
@@ -113,6 +114,16 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           return isAr ? 'داكن' : 'Dark';
       }
     })();
+
+    /* The colours the customer actually picked, in order. Empty is a real answer now — the
+       builder's three tiles start unpicked and only fill in when someone chooses — so this
+       filters rather than falling back. It used to substitute an orange for a missing first
+       colour, which was right while the field was always filled and only a contract signed
+       before the field existed could lack it, and is wrong now: printing a colour nobody chose
+       onto the contract the customer signs is the one thing this must not do. */
+    const chosenColors = [contract.primaryColor, contract.secondColor, contract.thirdColor].filter(
+      Boolean
+    ) as string[];
 
     // Section 4, from the same module the builder reads when it shows the customer what they
     // are about to sign (src/data/contractTerms.ts) — the two must never be able to disagree.
@@ -217,13 +228,13 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             <div style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ color: '#6B7179', fontSize: 11 }}>{t.identity}: </span>
               <strong style={{ color: '#080A0D', fontSize: 12 }}>{themeLabel}</strong>
-              {/* Every colour the customer chose, in the order they chose them. `filter(Boolean)`
-                  rather than three fixed slots: colours 2 and 3 are optional on ContractData, so a
-                  contract signed before they existed prints its single colour exactly as it always
-                  did instead of two empty swatches after it. */}
-              {[contract.primaryColor || '#FF8A1F', contract.secondColor, contract.thirdColor]
-                .filter(Boolean)
-                .map((hex, i) => (
+              {/* Whatever was chosen, however many that is: one colour on a contract signed
+                  before colours 2 and 3 existed prints exactly as it always did, and none at all
+                  prints as a sentence instead of a row of empty boxes. */}
+              {chosenColors.length === 0 ? (
+                <span style={{ fontSize: 11, color: '#666769' }}>{t.noColors}</span>
+              ) : (
+                chosenColors.map((hex, i) => (
                   <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                     <span
                       style={{
@@ -231,7 +242,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                         width: 13,
                         height: 13,
                         borderRadius: 4,
-                        backgroundColor: hex as string,
+                        backgroundColor: hex,
                         border: '1px solid #D3D3D3',
                       }}
                     />
@@ -239,10 +250,11 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                         and in this RTL document it jumps to the far side of a code that starts
                         with a letter, printing F59E0B# on the contract the customer keeps. */}
                     <span dir="ltr" style={{ fontSize: 10.5, color: '#666769', fontFamily: 'monospace' }}>
-                      {(hex as string).toUpperCase()}
+                      {hex.toUpperCase()}
                     </span>
                   </span>
-                ))}
+                ))
+              )}
             </div>
             <Field label={t.langSupport} value={languageSupportLabel} />
 

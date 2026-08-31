@@ -52,11 +52,14 @@ function arCount(n: number, one: string, two: string, few: string, many: string)
 }
 
 /**
- * What the three pickers start on, and only a starting point — each one is a free
- * `<input type="color">`, so the customer is never held to these.
+ * What each of the three colour DIALOGS opens on. Not what the tiles show, and not what the
+ * contract records: a tile the customer has not touched is empty, and stays empty all the way
+ * through to the printed contract.
  *
- * Three that are obviously unlike each other, on purpose: three similar swatches would read as one
- * control repeated by mistake rather than as three separate choices.
+ * A native `<input type="color">` has to be handed some value to open at, and an unset one opens
+ * at black — the worst possible place to start dragging from in a picker whose whole point is
+ * hue. These three are far apart on the wheel so that opening the second dialog does not land on
+ * the first tile's answer and invite three near-identical picks.
  */
 const DEFAULT_BRAND_COLORS = ['#8b5cf6', '#10b981', '#f59e0b'];
 
@@ -155,13 +158,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
      Sakan is still in templatesData, so the templates gallery and the timeline are unaffected. */
   const isCustomProject = true;
   const [customProjectName, setCustomProjectName] = useState(draft?.customProjectName || '');
-  /* Colour 1 keeps the `primaryColor` name it has on the wire; see the note in types.ts. */
-  const [primaryColor, setPrimaryColor] = useState(draft?.primaryColor || DEFAULT_BRAND_COLORS[0]);
-  const [secondColor, setSecondColor] = useState(draft?.secondColor || DEFAULT_BRAND_COLORS[1]);
-  const [thirdColor, setThirdColor] = useState(draft?.thirdColor || DEFAULT_BRAND_COLORS[2]);
-  /* Which of the three tiles the pointer is on, or null. A `:hover` rule cannot carry this:
-     the wheel is a WebGL canvas and what it needs is a value it can ease a uniform towards. */
-  const [hoveredColor, setHoveredColor] = useState<number | null>(null);
+  /* Empty until the customer picks, which is the whole of the change the owner asked for: the
+     hex code appears when a colour is chosen and the circle becomes that colour, so an untouched
+     tile can no longer report an answer nobody gave. Colour 1 keeps the `primaryColor` name it
+     has on the wire; see the note in types.ts. */
+  const [primaryColor, setPrimaryColor] = useState(draft?.primaryColor || '');
+  const [secondColor, setSecondColor] = useState(draft?.secondColor || '');
+  const [thirdColor, setThirdColor] = useState(draft?.thirdColor || '');
   const brandColors: Array<{ value: string; set: (v: string) => void }> = [
     { value: primaryColor, set: setPrimaryColor },
     { value: secondColor, set: setSecondColor },
@@ -655,32 +658,59 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     <div
                       key={i}
                       dir="ltr"
-                      onPointerEnter={() => setHoveredColor(i)}
-                      onPointerLeave={() => setHoveredColor((h) => (h === i ? null : h))}
-                      /* A touch screen has no hover, so the finger landing is the only moment the
-                         wheel can answer in before the dialog takes over the screen. */
-                      onPointerDown={() => setHoveredColor(i)}
                       className="relative flex items-center px-3 py-2.5 rounded-xl border border-steel/60 hover:border-orange focus-within:border-orange transition-colors"
                     >
-                      {/* The wheel, not the chosen colour: this circle says "pick a colour", and
-                          WHICH colour is read off the hex in the middle of the tile and off the
-                          three filled dots in the summary card below.
+                      {/* One circle, two jobs, never both at once. Empty, it is the hue wheel:
+                          a sign that nothing is chosen here and that pressing opens colours.
+                          Picked, it IS the colour — which is what was asked for, and it is also
+                          the only honest reading, because a wheel sitting on a filled slot says
+                          "choose" about a thing already chosen.
 
-                          No ring on it any more, and no rounding on a wrapper either. The shader
-                          saturates all the way to the rim and antialiases its own edge, so the
-                          colours reach the edge of the circle instead of fading into a white one. */}
-                      <ColorWheel size={28} active={hoveredColor === i} />
+                          The ring comes back with the fill, and only with the fill. It is what
+                          keeps a near-black pick from vanishing into the card behind it: white/40
+                          on obsidian measures 3.77:1, past the 3:1 WCAG 1.4.11 asks of a boundary
+                          that identifies a control, where white/30 would be 2.61 and would not.
+                          The wheel needs no such ring — it saturates to its own rim and
+                          antialiases its own edge — and a ring is exactly what made an earlier
+                          version of it read as white-edged. */}
+                      {c.value ? (
+                        <span
+                          aria-hidden="true"
+                          className="w-7 h-7 rounded-full border border-white/40 shrink-0"
+                          style={{ backgroundColor: c.value }}
+                        />
+                      ) : (
+                        <ColorWheel size={28} />
+                      )}
                       {/* Centred on the RECTANGLE, not on the space left over beside the swatch,
                           so the three codes line up with each other down the row whatever size the
                           swatch is. That means taking it out of the flex flow and centring it over
                           the whole tile; `pointer-events-none` keeps the click falling through to
                           the input underneath, which is what opens the picker. */}
-                      <span className="absolute inset-0 flex items-center justify-center text-sm font-bold font-mono tracking-wide text-white pointer-events-none">
-                        {c.value.toUpperCase()}
+                      <span
+                        /* The tile is dir="ltr" for the swatch's sake and for the '#'. The empty
+                           label is Arabic, and an Arabic phrase ending in a numeral inside an LTR
+                           run puts that numeral on the wrong side of the words. dir="auto" reads
+                           the first strong character and gets it right in either language. */
+                        dir={c.value ? 'ltr' : 'auto'}
+                        className={`absolute inset-0 flex items-center justify-center text-sm pointer-events-none ${
+                          c.value
+                            ? 'font-bold font-mono tracking-wide text-white'
+                            : 'font-semibold text-white/55'
+                        }`}
+                      >
+                        {c.value
+                          ? c.value.toUpperCase()
+                          : isAr
+                            ? `اللون ${i + 1}`
+                            : `Color ${i + 1}`}
                       </span>
                       <input
                         type="color"
-                        value={c.value}
+                        /* The dialog needs a value to open at; the STATE stays empty until the
+                           customer actually moves it, so opening a picker and closing it again
+                           without choosing leaves the tile as it found it. */
+                        value={c.value || DEFAULT_BRAND_COLORS[i]}
                         onChange={(e) => c.set(e.target.value)}
                         aria-label={isAr ? `اللون ${i + 1}` : `Color ${i + 1}`}
                         title={isAr ? `اختر اللون ${i + 1}` : `Pick color ${i + 1}`}
@@ -691,8 +721,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mt-3">
                   {isAr
-                    ? 'اضغط على أي مستطيل لاختيار لونه. راح نستخدم هذي الألوان الثلاثة بالضبط في تصميم موقعك، وتنطبع أكوادها في عقدك.'
-                    : 'Tap any rectangle to pick its colour. We will use these three exact colours in your design, and their codes are printed in your contract.'}
+                    ? 'اضغط على أي مستطيل واختار لونه، ويظهر كوده داخل المستطيل. الألوان اللي تختارها راح نستخدمها بالضبط في تصميم موقعك، وتنطبع أكوادها في عقدك.'
+                    : 'Tap any rectangle to pick its colour and its code appears inside it. The colours you pick are the exact ones we use in your design, and their codes are printed in your contract.'}
                 </p>
               </div>
 
@@ -826,18 +856,28 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </div>
                   <div className="flex flex-col min-w-0">
                     <dt className="text-white/55">{isAr ? 'الألوان' : 'Colors'}</dt>
-                    {/* Swatches only, no codes: three hexes side by side would not fit this
-                        column, and the codes are already printed under the pickers above and in
+                    {/* Only the colours actually picked, so this row cannot claim three
+                        answers when one was given — and a dash when none were, rather than three
+                        empty circles, which would read as three failed swatches.
+
+                        Swatches only, no codes: three hexes side by side would not fit this
+                        column, and the codes are already shown on the tiles above and printed in
                         the contract itself. The title attribute keeps them reachable. */}
                     <dd className="font-bold text-white flex items-center gap-1.5">
-                      {brandColors.map((c, i) => (
-                        <span
-                          key={i}
-                          title={c.value.toUpperCase()}
-                          className="w-4 h-4 rounded-full border border-white/40 shrink-0"
-                          style={{ backgroundColor: c.value }}
-                        />
-                      ))}
+                      {brandColors.some((c) => c.value) ? (
+                        brandColors
+                          .filter((c) => c.value)
+                          .map((c, i) => (
+                            <span
+                              key={i}
+                              title={c.value.toUpperCase()}
+                              className="w-4 h-4 rounded-full border border-white/40 shrink-0"
+                              style={{ backgroundColor: c.value }}
+                            />
+                          ))
+                      ) : (
+                        <span className="text-white/40">—</span>
+                      )}
                     </dd>
                   </div>
                   <div className="flex flex-col">
