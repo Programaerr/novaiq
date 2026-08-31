@@ -174,6 +174,13 @@ app.use('/api', rateLimit({ windowMs: 60_000, max: 120 }));
 // in the on-disk cache, so it is the one route where a script costs us something real.
 const translateLimit = rateLimit({ windowMs: 60_000, max: 20 });
 
+// نفس الروابط النظيفة التي يضبطها netlify.toml، حتى يتصرّف التشغيل المحلي/الذاتي مثل
+// الاستضافة تماماً: /privacy و/terms هما الرابطان المُسلَّمان لشاشة موافقة Google، ويجب
+// ألا يعملا في مكان دون آخر.
+app.get(['/privacy', '/terms'], (req, res) => {
+  res.redirect(301, `/?page=${req.path === '/terms' ? 'terms' : 'privacy'}`);
+});
+
 // API Health Check
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', app: 'NUVAIQ Cosmic Engine' });

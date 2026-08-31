@@ -258,6 +258,13 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Legal. */}
           <div className="lg:col-span-2">
             <FooterColumn heading={isAr ? 'قانوني' : 'Legal'}>
+              {/* الصفحتان موجودتان أصلاً كمسارَين (?page=privacy / ?page=terms) لكن لم يكن
+                  يقود إليهما أي رابط ظاهر — فلا الزائر يجدهما ولا مُدقّق شاشة موافقة Google
+                  الذي يفتح الصفحة الرئيسية ويبحث عن الرابطين. href حقيقي (لا "#") ليكونا
+                  رابطين قابلين للزحف والنسخ، وonClick يبقي التنقّل داخل التطبيق بلا إعادة
+                  تحميل؛ /privacy و/terms يحوّلهما Netlify إلى المسار الفعلي (netlify.toml). */}
+              <FooterLink label={isAr ? 'سياسة الخصوصية' : 'Privacy Policy'} href="/privacy" onClick={go('privacy')} />
+              <FooterLink label={isAr ? 'شروط الخدمة' : 'Terms of Service'} href="/terms" onClick={go('terms')} />
               <FooterLink label={isAr ? 'العقد الإلكتروني' : 'E-contract'} onClick={go('econtracts')} />
               <FooterLink label={isAr ? 'الدعم الفني' : 'Support'} onClick={go('support')} />
             </FooterColumn>
