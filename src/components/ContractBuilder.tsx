@@ -388,6 +388,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       paymentPlan,
       deliveryTimelineWeeks,
       signatureDataUrl,
+      // علامة أن هذا التوقيع بحبر داكن، فلا يقلبه أي عارض (انظر types.ts).
+      signatureInk: 'dark',
       agreedToTerms,
       status: 'submitted',
       createdAt: new Date().toISOString(),
@@ -1065,9 +1067,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </button>
                 </div>
 
+                {/* لوحة فاتحة، لأن الحبر صار داكناً (lib/useSignaturePad.ts) — وهي أيضاً
+                    نفس أرضية الورقة التي سيُطبع عليها التوقيع، فما يراه الموقّع هنا هو
+                    حرفياً ما سيظهر في عقده. */}
                 <div
-                  className={`relative rounded-2xl overflow-hidden border-2 border-dashed bg-obsidian transition-colors ${
-                    signatureMissing ? 'border-white ring-2 ring-white/40' : 'border-steel/60'
+                  className={`relative rounded-2xl overflow-hidden border-2 border-dashed bg-white transition-colors ${
+                    signatureMissing ? 'border-[#EF4444] ring-2 ring-[#EF4444]/40' : 'border-steel/60'
                   }`}
                 >
                   <canvas
@@ -1084,7 +1089,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     className="w-full h-36 cursor-crosshair touch-none"
                   />
                   {!hasSignature && (
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-white/60 text-sm font-semibold">
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-obsidian/45 text-sm font-semibold">
                       {isAr ? '[ ارسم توقيعك هنا ]' : '[ Draw your signature here ]'}
                     </div>
                   )}
