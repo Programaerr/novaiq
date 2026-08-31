@@ -65,6 +65,11 @@ service cloud.firestore {
           && (!('projectType' in d) || d.projectType in ['website', 'app'])
           && !('companySignatureDataUrl' in d)
           && !('completedAt' in d)
+          // حقلان يكتبهما الأدمن وحده: رابط المعاينة (يظهر للعميل كزر قابل للضغط) وساعة بدء
+          // التنفيذ (أساس حساب نسبة الإنجاز). عميل يقدر يكتبهما بنفسه كان يقدر يزرع رابطاً
+          // في حسابه أو يزوّر نسبة تقدّم مشروعه.
+          && !('previewUrl' in d)
+          && !('developmentStartedAt' in d)
           && !('adminNotes' in d)
           && !('costIQD' in d)
           && !('paymentStatus' in d)
