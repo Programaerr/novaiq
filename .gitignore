@@ -67,3 +67,4 @@ dist-eager-*.json
 # Chrome performance traces. Useful for an afternoon, 3.5MB forever.
 Trace-*.json.gz
 .netlify/
+deploy-nuvaiq.ps1
