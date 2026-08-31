@@ -1,7 +1,7 @@
-// تحرير كتالوج القوالب مباشرة من لوحة التحكم: اسم القالب، صورته، رابط عرضه، وسعره العام لكل
-// قالب، وابتداءً من هذا التعديل — سعر ووصف مستقلان لكل طريقة تسليم (موقع إلكتروني / تطبيق
-// هاتف)، بالإضافة إلى إضافة قالب جديد بالكامل من الصفر. كل شيء هنا ينعكس فوراً على معرض
-// القوالب العام وحاسبة العقد عبر Firestore، بدون أي نشر برمجي جديد.
+// تحرير كتالوج القوالب مباشرة من لوحة التحكم: اسم القالب، صورته، رابط عرضه، وسعره العام، بالإضافة
+// إلى سعر ووصف مستقلان لكل طريقة تسليم (موقع إلكتروني / تطبيق هاتف) — قالب واحد بخيارين، لا
+// قوالب متعددة. كل شيء هنا ينعكس فوراً على معرض القوالب العام وحاسبة العقد عبر Firestore، بدون
+// أي نشر برمجي جديد.
 import { useState, useEffect } from 'react';
 import {
   Save,
@@ -9,20 +9,10 @@ import {
   Layers,
   Globe,
   Smartphone,
-  Trash2,
-  Plus,
-  X,
 } from 'lucide-react';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, toUSD, Currency } from '../../lib/currency';
-import {
-  useLiveTemplates,
-  savePricingOverride,
-  deleteCustomTemplate,
-  slugifyTemplateId,
-  resolveVariant,
-  STATIC_TEMPLATE_IDS,
-} from '../../lib/pricingOverrides';
+import { useLiveTemplates, savePricingOverride, resolveVariant } from '../../lib/pricingOverrides';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { PriceInput } from '../PriceInput';
@@ -39,7 +29,6 @@ const DEFAULT_APP_DESC =
 
 export function PricingTab({ isAr, language, currency }: { isAr: boolean; language: Language; currency: Currency }) {
   const templates = useLiveTemplates();
-  const [showAddForm, setShowAddForm] = useState(false);
 
   return (
     <div className="space-y-3">
@@ -51,19 +40,6 @@ export function PricingTab({ isAr, language, currency }: { isAr: boolean; langua
           ? 'أي تعديل هنا ينعكس فوراً على معرض القوالب وحاسبة العقد للزوار — بدون الحاجة لأي تحديث برمجي.'
           : 'Any change here reflects immediately on the public template gallery and contract builder — no code deploy needed.'}
       </p>
-
-      {!showAddForm ? (
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-dashed border-ink/20 text-ink/70 text-xs font-bold hover:bg-paper hover:border-ink/35 transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          {isAr ? 'إضافة قالب جديد' : 'Add a new template'}
-        </button>
-      ) : (
-        <AddTemplateCard isAr={isAr} onClose={() => setShowAddForm(false)} />
-      )}
-
       <div className="space-y-2.5">
         {templates.map((t) => (
           <PricingRow key={t.id} template={t} isAr={isAr} language={language} currency={currency} />
@@ -73,139 +49,8 @@ export function PricingTab({ isAr, language, currency }: { isAr: boolean; langua
   );
 }
 
-/** نموذج إضافة قالب من الصفر: اسم + صورة + وصف عام، وسعر ووصف مستقلان لكل طريقة تسليم. يبني
- *  معرّفاً فريداً بنفسه (slugifyTemplateId) ويحفظ عبر نفس savePricingOverride المستعملة
- *  للتعديل — القالب الجديد يظهر تلقائياً في المعرض العام وحاسبة العقد فور الحفظ. */
-function AddTemplateCard({ isAr, onClose }: { isAr: boolean; onClose: () => void }) {
-  const [title, setTitle] = useState('');
-  const [previewImage, setPreviewImage] = useState('');
-  const [description, setDescription] = useState('');
-  const [sitePriceIQD, setSitePriceIQD] = useState('');
-  const [siteDesc, setSiteDesc] = useState('');
-  const [appPriceIQD, setAppPriceIQD] = useState('');
-  const [appDesc, setAppDesc] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-
-  const canSave = title.trim().length > 0 && previewImage.trim().length > 0;
-
-  const handleCreate = async () => {
-    if (!canSave || isSaving) return;
-    setIsSaving(true);
-    try {
-      const id = slugifyTemplateId(title);
-      const siteIQD = Number(sitePriceIQD) || 0;
-      const appIQD = Number(appPriceIQD) || siteIQD;
-      await savePricingOverride(id, {
-        title: title.trim(),
-        previewImage: previewImage.trim(),
-        description: description.trim(),
-        categoryLabel: isAr ? 'قالب مخصص' : 'Custom template',
-        basePriceIQD: siteIQD,
-        basePriceUSD: toUSD(siteIQD),
-        variants: {
-          website: { priceIQD: siteIQD, priceUSD: toUSD(siteIQD), description: siteDesc.trim() },
-          app: { priceIQD: appIQD, priceUSD: toUSD(appIQD), description: appDesc.trim() },
-        },
-      });
-      showToast(isAr ? 'أُضيف القالب بنجاح' : 'Template added', 'success');
-      cosmicAudio.playPing();
-      onClose();
-    } catch (error) {
-      const message = (error as { code?: string })?.code === 'permission-denied'
-        ? (isAr ? 'تم الرفض: تحقق من نشر قواعد Firestore وصلاحيات حسابك كأدمن' : 'Permission denied — check that Firestore rules are published and your account is an admin')
-        : (isAr ? 'تعذرت إضافة القالب، حاول مجدداً' : 'Failed to add the template — please try again');
-      showToast(message, 'error');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  return (
-    <div className="rounded-2xl bg-paper border border-ink/15 p-4 space-y-3 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-extrabold text-ink">{isAr ? 'قالب جديد' : 'New template'}</span>
-        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-ink/5 text-ink/50 cursor-pointer">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* لا تجربة تفاعلية حقيقية: القوالب المضافة من هنا بطاقة تسعير/وصف فقط — المعاينة
-          الحية التفاعلية الحالية مبنية يدوياً لقالب "سَكَن" وحده، ولا يمكن توليدها من نموذج. */}
-      <p className="text-[10px] text-ink/50 leading-relaxed">
-        {isAr
-          ? 'يُضاف كبطاقة تسعير ووصف في المعرض العام وحاسبة العقد — بدون معاينة حية تفاعلية (تلك مبنية يدوياً لقالب سَكَن فقط).'
-          : 'Added as a pricing/description card in the public gallery and contract builder — without an interactive live preview (that one is hand-built for the Sakan template only).'}
-      </p>
-
-      <div>
-        <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">{isAr ? 'اسم القالب' : 'Template name'} *</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs"
-        />
-      </div>
-      <div>
-        <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">{isAr ? 'رابط صورة القالب' : 'Template image URL'} *</label>
-        <input
-          type="text"
-          dir="ltr"
-          value={previewImage}
-          onChange={(e) => setPreviewImage(e.target.value)}
-          placeholder="https://..."
-          className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs font-mono"
-        />
-      </div>
-      <div>
-        <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">{isAr ? 'وصف عام (اختياري)' : 'General description (optional)'}</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={2}
-          className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs resize-none"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-        <VariantFields
-          icon={Globe}
-          label={isAr ? 'الموقع الإلكتروني' : 'Website'}
-          priceIQD={sitePriceIQD}
-          onPriceChange={setSitePriceIQD}
-          description={siteDesc}
-          onDescriptionChange={setSiteDesc}
-          descPlaceholder={DEFAULT_WEBSITE_DESC}
-          isAr={isAr}
-        />
-        <VariantFields
-          icon={Smartphone}
-          label={isAr ? 'تطبيق الهاتف' : 'Mobile app'}
-          priceIQD={appPriceIQD}
-          onPriceChange={setAppPriceIQD}
-          description={appDesc}
-          onDescriptionChange={setAppDesc}
-          descPlaceholder={DEFAULT_APP_DESC}
-          isAr={isAr}
-        />
-      </div>
-
-      <div className="flex justify-end pt-1">
-        <button
-          onClick={handleCreate}
-          disabled={!canSave || isSaving}
-          className="px-5 py-2.5 rounded-xl bg-white hover:bg-white disabled:opacity-50 text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all border border-white"
-        >
-          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-          <span>{isAr ? 'إضافة القالب' : 'Add template'}</span>
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/** حقلا سعر ووصف لطريقة تسليم واحدة — مستعمَلان في نموذج الإضافة وفي كل صف قالب حالي، بنفس
- *  الشكل بالضبط حتى يبقى "الموقع" و"الهاتف" متماثلين بصرياً أينما ظهرا. */
+/** حقلا سعر ووصف لطريقة تسليم واحدة (موقع/تطبيق) — بنفس الشكل بالضبط للاثنين حتى يبقيا
+ *  متماثلين بصرياً. */
 function VariantFields({
   icon: Icon,
   label,
@@ -264,7 +109,6 @@ function PricingRow({
   language: Language;
   currency: Currency;
 }) {
-  const isCustom = !STATIC_TEMPLATE_IDS.has(template.id);
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState(template.title);
   const [previewImage, setPreviewImage] = useState(template.previewImage);
@@ -276,7 +120,6 @@ function PricingRow({
   const [appPriceIQD, setAppPriceIQD] = useState(String(resolveVariant(template, 'app', '').priceIQD));
   const [appDesc, setAppDesc] = useState(resolveVariant(template, 'app', '').description);
   const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 
   useEffect(() => {
@@ -324,20 +167,6 @@ function PricingRow({
     }
   };
 
-  const handleDelete = async () => {
-    if (isDeleting) return;
-    if (!window.confirm(isAr ? 'حذف هذا القالب نهائياً؟' : 'Delete this template permanently?')) return;
-    setIsDeleting(true);
-    try {
-      await deleteCustomTemplate(template.id);
-      showToast(isAr ? 'تم حذف القالب' : 'Template deleted', 'success');
-    } catch {
-      showToast(isAr ? 'تعذر حذف القالب' : 'Failed to delete the template', 'error');
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
   return (
     <div className="rounded-2xl bg-paper border border-ink/10 overflow-hidden">
       <button
@@ -357,14 +186,7 @@ function PricingRow({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs sm:text-sm font-bold text-ink truncate">{translateText(template.title, language)}</span>
-            {isCustom && (
-              <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-700 text-[9px] font-extrabold">
-                {isAr ? 'مخصص' : 'Custom'}
-              </span>
-            )}
-          </div>
+          <div className="text-xs sm:text-sm font-bold text-ink truncate">{translateText(template.title, language)}</div>
           <div className="text-[10px] text-ink/50 truncate">{translateText(template.categoryLabel, language)}</div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -447,7 +269,7 @@ function PricingRow({
             />
           </div>
 
-          {/* التسعير الفعلي الذي يدخل العقد: كل طريقة تسليم برقمها ووصفها الخاص، منفصلين
+          {/* التسعير الفعلي الذي يدخل العقد: "الهاتف" و"الموقع الإلكتروني" برقم ووصف مستقلين
               تماماً — تعديل أحدهما لا يمسّ الآخر. */}
           <div>
             <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
@@ -477,19 +299,7 @@ function PricingRow({
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1">
-            {isCustom ? (
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/15 disabled:opacity-50 text-red-600 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
-              >
-                {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                <span>{isAr ? 'حذف القالب' : 'Delete template'}</span>
-              </button>
-            ) : (
-              <span />
-            )}
+          <div className="flex justify-end pt-1">
             <button
               onClick={handleSave}
               disabled={isSaving}

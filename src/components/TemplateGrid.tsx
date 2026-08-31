@@ -108,36 +108,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
     >
       <div className="relative nq-container">
-        {/* ── قالب واحد أو أكثر ────────────────────────────────────────────────────────────
-            كل قالب (الثابت + أي قالب أضافه الأدمن من لوحة التحكم — انظر useLiveTemplates)
-            يحصل على زوج بطاقاته الخاص. العنوان فوق كل زوج يظهر فقط لو أكثر من قالب واحد —
-            في الحالة الشائعة (قالب واحد) يبقى الشكل بالضبط كما كان، بلا عنوان إضافي. */}
-        {templatesData.map((template, ti) => (
-          <div key={template.id} className={ti === 0 ? 'mt-4 sm:mt-6' : 'mt-10 sm:mt-14'}>
-            {templatesData.length > 1 && (
-              <h3
-                className="mb-4 text-lg sm:text-xl font-black"
-                style={{ color: OBSIDIAN }}
-              >
-                {template.title}
-              </h3>
-            )}
-            <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 items-stretch">
-              {CHOICES.map((choice) => {
-                const Icon = choice.icon;
-                const variant = resolveVariant(
-                  template,
-                  choice.id,
-                  currentLang === 'ar' ? choice.descAr : choice.descEn
-                );
-                // النسخة الفعلية المُمرَّرة للعقد: نفس القالب لكن بسعر هذا الاختيار تحديداً
-                // (موقع/تطبيق) بدل السعر العام الموحّد — هذا هو التسعير المنفصل الذي طلبه الأدمن.
-                const pricedTemplate: Template = {
-                  ...template,
-                  basePriceIQD: variant.priceIQD,
-                  basePriceUSD: variant.priceUSD,
-                };
-                return (
+        {/* ── The two cards ─────────────────────────────────────────────────────────────
+            Tall, full-height panels so each reads as a destination rather than a row. No heading
+            above them any more — the client asked for this section's intro copy ("ماذا تريد أن
+            تبني؟" / "بطاقتان — اختر...") removed outright, so the cards are now the section's
+            first visual content and carry their own top margin down accordingly. */}
+        <div className="mt-4 sm:mt-6 grid gap-6 sm:gap-8 lg:grid-cols-2 items-stretch">
+          {CHOICES.map((choice) => {
+            const Icon = choice.icon;
+            const variant = resolveVariant(
+              template,
+              choice.id,
+              currentLang === 'ar' ? choice.descAr : choice.descEn
+            );
+            // النسخة الفعلية المُمرَّرة للعقد: نفس القالب لكن بسعر هذا الاختيار تحديداً
+            // (موقع/تطبيق) بدل السعر العام الموحّد — هذا هو التسعير المنفصل الذي طلبه الأدمن
+            // من لوحة التحكم (قسم الأسعار).
+            const pricedTemplate: Template = {
+              ...template,
+              basePriceIQD: variant.priceIQD,
+              basePriceUSD: variant.priceUSD,
+            };
+            return (
               <article
                 key={choice.id}
                 /* Frosted glass, not white.
@@ -242,10 +234,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     {currentLang === 'ar' ? choice.titleAr : choice.titleEn}
                   </NqButton>
 
-                  {/* قالب أضافه الأدمن بنفسه (hasInteractiveDemo === false) ليس له تجربة تفاعلية
-                      حقيقية مبنية — المعاينة الحالية مبنية يدوياً لقالب "سَكَن" وحده، فعرضها
-                      لقالب آخر يفتح نفس تجربة سَكَن تحت اسم مختلف وهذا خطأ لا ميزة. */}
-                  {onOpenStandalonePreview && template.hasInteractiveDemo !== false && (
+                  {onOpenStandalonePreview && (
                     <NqButton
                       tone="obsidian"
                       variant="quiet"
@@ -259,11 +248,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   )}
                 </div>
               </article>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+            );
+          })}
+        </div>
+
       </div>
 
       {/* Interactive Live Sandbox Preview Modal.
