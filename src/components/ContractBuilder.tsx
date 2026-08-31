@@ -13,7 +13,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Globe,
-  Smartphone
+  Smartphone,
+  X
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
@@ -767,13 +768,34 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         title={isAr ? `اختر اللون ${i + 1}` : `Pick color ${i + 1}`}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
+                      {/* The way back out. A native colour dialog has no "none" in it — it hands
+                          back a colour whatever you do — so a tile that has been filled could
+                          never be emptied again, and "empty" was only a state the page could put
+                          you in, never one you could ask for.
+
+                          It has to sit ABOVE the input, which covers the whole tile: z-10 plus
+                          its own hit area, or the press would fall through and open the picker
+                          it is meant to cancel. Full tile height and wide padding for a finger;
+                          it stops short of the centred code so the code stays pressable as the
+                          picker. Only rendered on a filled tile, where it has something to do. */}
+                      {c.value && (
+                        <button
+                          type="button"
+                          onClick={() => c.set('')}
+                          aria-label={isAr ? `مسح اللون ${i + 1}` : `Clear color ${i + 1}`}
+                          title={isAr ? 'مسح اللون' : 'Clear colour'}
+                          className="absolute inset-y-0 right-0 z-10 flex items-center px-2.5 text-white/45 hover:text-white focus-visible:text-white transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5" strokeWidth={2.5} />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mt-3">
                   {isAr
-                    ? 'اضغط على أي مستطيل واختار لونه، ويظهر كوده داخل المستطيل. الألوان اللي تختارها راح نستخدمها بالضبط في تصميم موقعك، وتنطبع أكوادها في عقدك.'
-                    : 'Tap any rectangle to pick its colour and its code appears inside it. The colours you pick are the exact ones we use in your design, and their codes are printed in your contract.'}
+                    ? 'اضغط على أي مستطيل واختار لونه، ويظهر كوده داخل المستطيل، وعلامة × ترجّعه فارغ. الألوان اللي تختارها راح نستخدمها بالضبط في تصميم موقعك، وتنطبع أكوادها في عقدك.'
+                    : 'Tap any rectangle to pick its colour and its code appears inside it; the × empties it again. The colours you pick are the exact ones we use in your design, and their codes are printed in your contract.'}
                 </p>
               </div>
 
