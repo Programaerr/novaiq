@@ -4,14 +4,12 @@ import { useLiveTemplates } from '../lib/pricingOverrides';
 import {
   FileSignature,
   Building2,
-  CheckSquare,
   RotateCcw,
   Layers,
   ArrowLeft,
   ArrowRight,
   FileCheck,
   PenLine,
-  Pipette,
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
@@ -52,14 +50,15 @@ function arCount(n: number, one: string, two: string, few: string, many: string)
   return `${n} ${n >= 3 && n <= 10 ? few : many}`;
 }
 
-const PRESET_COLORS = [
-  { hex: '#8b5cf6', labelAr: 'بنفسجي', labelEn: 'Purple' },
-  { hex: '#10b981', labelAr: 'زمردي', labelEn: 'Emerald' },
-  { hex: '#06b6d4', labelAr: 'سماوي', labelEn: 'Cyan' },
-  { hex: '#f59e0b', labelAr: 'ذهبي', labelEn: 'Amber' },
-  { hex: '#f43f5e', labelAr: 'ياقوتي', labelEn: 'Rose' },
-  { hex: '#71717a', labelAr: 'رمادي', labelEn: 'Monochrome' },
-];
+/**
+ * What the three pickers start on, and only a starting point — each one is a free
+ * `<input type="color">`, so the customer is never held to these.
+ *
+ * Three that are obviously unlike each other, on purpose: three similar swatches would read as one
+ * control repeated by mistake rather than as three separate choices.
+ */
+const DEFAULT_BRAND_COLORS = ['#8b5cf6', '#10b981', '#f59e0b'];
+
 
 export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   selectedTemplate,
@@ -146,11 +145,23 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // selectedTemplate (e.g. via the navbar's direct "Custom Contract" link) opens straight
   // into this mode instead of silently defaulting to the first template in the catalogue.
   const CUSTOM_OPTION_VALUE = CUSTOM_PROJECT_TEMPLATE_ID;
-  const [isCustomProject, setIsCustomProject] = useState(draft?.isCustomProject ?? !selectedTemplate);
+  /* Always true now. The one ready-made template came out of the picker below on the owner's
+     call, and with nothing left to choose between, the project type is not a choice. Kept as a
+     named constant rather than deleted, because every branch downstream already reads it and
+     already does the right thing: a price of 0 shown as "quoted after review", an 8-week
+     timeline, and templateId/templateTitle taken from the customer's own project name.
+     Sakan is still in templatesData, so the templates gallery and the timeline are unaffected. */
+  const isCustomProject = true;
   const [customProjectName, setCustomProjectName] = useState(draft?.customProjectName || '');
-  const [primaryColor, setPrimaryColor] = useState(draft?.primaryColor || '#8b5cf6');
-  const isCustomColor = !PRESET_COLORS.some((c) => c.hex === primaryColor);
-  const customColorInputRef = useRef<HTMLInputElement | null>(null);
+  /* Colour 1 keeps the `primaryColor` name it has on the wire; see the note in types.ts. */
+  const [primaryColor, setPrimaryColor] = useState(draft?.primaryColor || DEFAULT_BRAND_COLORS[0]);
+  const [secondColor, setSecondColor] = useState(draft?.secondColor || DEFAULT_BRAND_COLORS[1]);
+  const [thirdColor, setThirdColor] = useState(draft?.thirdColor || DEFAULT_BRAND_COLORS[2]);
+  const brandColors: Array<{ value: string; set: (v: string) => void }> = [
+    { value: primaryColor, set: setPrimaryColor },
+    { value: secondColor, set: setSecondColor },
+    { value: thirdColor, set: setThirdColor },
+  ];
   const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'both'>(draft?.themePreference || 'dark');
   const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>(draft?.languageSupport || 'ar_en');
   const [paymentPlan] = useState<'50_50' | '100_upfront' | '3_milestones'>('50_50');
@@ -170,9 +181,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     clear: clearSignature,
   } = useSignaturePad({ onStrokeStart: () => setSignatureMissing(false) });
 
+  /* Arriving from the live template preview. The line that flipped this out of custom mode is
+     gone with the picker, but the rest of the handoff still earns its place: the notes the
+     visitor typed in the demo become the project description, and the colour they picked there
+     becomes colour 1, so nothing they did before signing in is thrown away. */
   useEffect(() => {
     if (selectedTemplate) {
-      setIsCustomProject(false);
       setTemplate(selectedTemplate);
       if (initialCustomFeaturesText) setCustomFeaturesText(initialCustomFeaturesText);
       if (initialPrimaryColor) setPrimaryColor(initialPrimaryColor);
@@ -192,6 +206,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       city,
       customFeaturesText,
       primaryColor,
+      secondColor,
+      thirdColor,
       themePreference,
       languageSupport,
       isCustomProject,
@@ -206,6 +222,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     city,
     customFeaturesText,
     primaryColor,
+    secondColor,
+    thirdColor,
     themePreference,
     languageSupport,
     isCustomProject,
@@ -330,6 +348,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       templateTitle: isCustomProject ? customProjectName.trim() : template.title,
       customFeaturesText,
       primaryColor,
+      secondColor,
+      thirdColor,
       themePreference,
       languageSupport,
       basePriceIQD,
@@ -557,7 +577,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               </div>
 
 
-              <div className="p-4 rounded-2xl bg-obsidian border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="p-4 rounded-2xl bg-obsidian border border-white/10 flex items-center gap-4">
                 <div className="flex items-center gap-4">
                   {isCustomProject ? (
                     <div className="w-16 h-16 rounded-xl bg-white/5 border border-steel/60 flex items-center justify-center shrink-0">
@@ -571,7 +591,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     />
                   )}
                   <div>
-                    <span className="text-[11px] font-bold text-white bg-white/8 border border-steel/60 px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-bold text-white bg-white/8 border border-steel/60 px-2.5 py-0.5 rounded-full">
                       {isCustomProject ? (isAr ? 'مشروع مخصص بالكامل' : 'Fully Custom Project') : template.categoryLabel}
                     </span>
                     <h4 className="text-base font-bold text-white mt-1">
@@ -579,31 +599,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     </h4>
                   </div>
                 </div>
-
-                <select
-                  value={isCustomProject ? CUSTOM_OPTION_VALUE : template.id}
-                  onChange={(e) => {
-                    if (e.target.value === CUSTOM_OPTION_VALUE) {
-                      setIsCustomProject(true);
-                      return;
-                    }
-                    const found = templatesData.find(t => t.id === e.target.value);
-                    if (found) {
-                      setIsCustomProject(false);
-                      setTemplate(found);
-                    }
-                  }}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-graphite border border-steel/60 text-white text-sm font-semibold"
-                >
-                  <option value={CUSTOM_OPTION_VALUE}>
-                    {isAr ? '✏️ مشروع مخصص بالكامل — صف مشروعك بنفسك' : '✏️ Fully Custom Project — describe it yourself'}
-                  </option>
-                  {templatesData.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.title} ({formatPrice(t.basePriceIQD, lang, currency)})
-                    </option>
-                  ))}
-                </select>
+                {/* The dropdown that used to sit here is gone with the one template it offered.
+                    A select with a single option is not a choice, it is a control that cannot do
+                    anything, so the card now simply states what the project is. */}
               </div>
 
               {isCustomProject && (
@@ -632,58 +630,51 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 <label className="block text-sm font-semibold text-white/85 mb-2">
                   {getTranslation('colorSchemeLabel', lang)}
                 </label>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  {PRESET_COLORS.map((c) => (
-                    <button
-                      key={c.hex}
-                      type="button"
-                      onClick={() => setPrimaryColor(c.hex)}
-                      title={isAr ? c.labelAr : c.labelEn}
-                      className={`w-9 h-9 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-center ${
-                        !isCustomColor && primaryColor === c.hex ? 'border-white scale-110 shadow-lg' : 'border-steel/60 hover:border-orange'
-                      }`}
-                      style={{ backgroundColor: c.hex }}
-                    >
-                      {!isCustomColor && primaryColor === c.hex && <CheckSquare className="w-4 h-4 text-white" />}
-                    </button>
-                  ))}
+                {/* Three rectangles, each one a free colour picker.
 
-                  {/* Custom color — a native <input type="color"> gives the customer a full
-                      OS/browser color picker instead of being limited to the presets above;
-                      the swatch button just proxies a click through to the hidden input. */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => customColorInputRef.current?.click()}
-                      title={isAr ? 'لون مخصص' : 'Custom Color'}
-                      className={`w-9 h-9 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-center overflow-hidden ${
-                        isCustomColor ? 'border-white scale-110 shadow-lg' : 'border-steel/60 hover:border-orange'
-                      }`}
-                      style={isCustomColor ? { backgroundColor: primaryColor } : undefined}
+                    The whole rectangle is the input: a native `<input type="color">` stretched
+                    over it at zero opacity, so the square, the code and the space around them are
+                    one click target and the browser's own colour dialog opens from anywhere on it.
+                    `aria-label` rather than a visible caption per tile — the sketch has no room for
+                    one, but a screen reader still needs to hear which of the three it is landed on.
+
+                    dir="ltr" is not cosmetic. It puts the square on the left the way the sketch
+                    draws it, AND it stops '#' — a bidi-neutral — from jumping to the far end of a
+                    code that begins with a letter, which is how #F59E0B came out as F59E0B#. */}
+                <div className="grid grid-cols-3 gap-3">
+                  {brandColors.map((c, i) => (
+                    <div
+                      key={i}
+                      dir="ltr"
+                      className="relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-steel/60 hover:border-orange focus-within:border-orange transition-colors"
                     >
-                      {isCustomColor ? (
-                        <CheckSquare className="w-4 h-4 text-white drop-shadow" />
-                      ) : (
-                        <Pipette className="w-4 h-4 text-white/60" />
-                      )}
-                    </button>
-                    <input
-                      ref={customColorInputRef}
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      title={isAr ? 'اختر لوناً مخصصاً' : 'Pick a custom color'}
-                      className="absolute inset-0 w-9 h-9 opacity-0 cursor-pointer"
-                    />
-                  </div>
+                      {/* Its own border, because a near-black pick would otherwise vanish into the
+                          card behind it: white/40 on obsidian measures 3.77:1, past the 3:1 WCAG
+                          asks of a boundary that identifies a control. white/30 would be 2.61
+                          and would not. */}
+                      <span
+                        className="w-7 h-7 rounded-lg border border-white/40 shrink-0"
+                        style={{ backgroundColor: c.value }}
+                      />
+                      <span className="text-sm font-bold font-mono tracking-wide text-white truncate">
+                        {c.value.toUpperCase()}
+                      </span>
+                      <input
+                        type="color"
+                        value={c.value}
+                        onChange={(e) => c.set(e.target.value)}
+                        aria-label={isAr ? `اللون ${i + 1}` : `Color ${i + 1}`}
+                        title={isAr ? `اختر اللون ${i + 1}` : `Pick color ${i + 1}`}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                  ))}
                 </div>
-                {isCustomColor && (
-                  <p className="text-xs text-white/60 mt-2">
-                    {isAr
-                      ? `سنستخدم هذا اللون بالضبط (${primaryColor}) في تصميم موقعك.`
-                      : `We'll use this exact color (${primaryColor}) in your site's design.`}
-                  </p>
-                )}
+                <p className="text-xs text-white/60 leading-relaxed mt-3">
+                  {isAr
+                    ? 'اضغط على أي مستطيل لاختيار لونه. راح نستخدم هذي الألوان الثلاثة بالضبط في تصميم موقعك، وتنطبع أكوادها في عقدك.'
+                    : 'Tap any rectangle to pick its colour. We will use these three exact colours in your design, and their codes are printed in your contract.'}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-10 p-4 rounded-2xl bg-obsidian border border-white/10">
@@ -815,10 +806,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     <dd className="font-bold text-white truncate">{isCustomProject ? (customProjectName.trim() || (isAr ? 'مشروع مخصص' : 'Custom')) : template.title}</dd>
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <dt className="text-white/55">{isAr ? 'اللون الرئيسي' : 'Color'}</dt>
+                    <dt className="text-white/55">{isAr ? 'الألوان' : 'Colors'}</dt>
+                    {/* Swatches only, no codes: three hexes side by side would not fit this
+                        column, and the codes are already printed under the pickers above and in
+                        the contract itself. The title attribute keeps them reachable. */}
                     <dd className="font-bold text-white flex items-center gap-1.5">
-                      <span className="w-3.5 h-3.5 rounded-md border border-white/30 shrink-0" style={{ backgroundColor: primaryColor }} />
-                      <span className="font-mono truncate">{primaryColor.toUpperCase()}</span>
+                      {brandColors.map((c, i) => (
+                        <span
+                          key={i}
+                          title={c.value.toUpperCase()}
+                          className="w-4 h-4 rounded-md border border-white/30 shrink-0"
+                          style={{ backgroundColor: c.value }}
+                        />
+                      ))}
                     </dd>
                   </div>
                   <div className="flex flex-col">

@@ -217,19 +217,32 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             <div style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ color: '#6B7179', fontSize: 11 }}>{t.identity}: </span>
               <strong style={{ color: '#080A0D', fontSize: 12 }}>{themeLabel}</strong>
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 13,
-                  height: 13,
-                  borderRadius: 4,
-                  backgroundColor: contract.primaryColor || '#FF8A1F',
-                  border: '1px solid #D3D3D3',
-                }}
-              />
-              <span style={{ fontSize: 10.5, color: '#666769', fontFamily: 'monospace' }}>
-                {(contract.primaryColor || '#FF8A1F').toUpperCase()}
-              </span>
+              {/* Every colour the customer chose, in the order they chose them. `filter(Boolean)`
+                  rather than three fixed slots: colours 2 and 3 are optional on ContractData, so a
+                  contract signed before they existed prints its single colour exactly as it always
+                  did instead of two empty swatches after it. */}
+              {[contract.primaryColor || '#FF8A1F', contract.secondColor, contract.thirdColor]
+                .filter(Boolean)
+                .map((hex, i) => (
+                  <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 13,
+                        height: 13,
+                        borderRadius: 4,
+                        backgroundColor: hex as string,
+                        border: '1px solid #D3D3D3',
+                      }}
+                    />
+                    {/* dir="ltr" for the same reason as in the builder: '#' is a bidi-neutral,
+                        and in this RTL document it jumps to the far side of a code that starts
+                        with a letter, printing F59E0B# on the contract the customer keeps. */}
+                    <span dir="ltr" style={{ fontSize: 10.5, color: '#666769', fontFamily: 'monospace' }}>
+                      {(hex as string).toUpperCase()}
+                    </span>
+                  </span>
+                ))}
             </div>
             <Field label={t.langSupport} value={languageSupportLabel} />
 

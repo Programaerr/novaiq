@@ -9,6 +9,8 @@ export interface ContractDraft {
   city: string;
   customFeaturesText: string;
   primaryColor: string;
+  secondColor?: string;
+  thirdColor?: string;
   themePreference: 'dark' | 'light' | 'both';
   languageSupport: 'ar' | 'en' | 'ar_en';
   isCustomProject: boolean;

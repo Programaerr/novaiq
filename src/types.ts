@@ -86,7 +86,14 @@ export interface ContractData {
   // customer wants beyond the template itself is written in `customFeaturesText` and quoted by
   // us, rather than assembled from a menu of options they had no way to evaluate.
   customFeaturesText: string;
+  /* Three brand colours, and only the first one is required. It keeps the name `primaryColor`
+     because contracts already written to Firestore carry that field, the printed document reads
+     it, and the live-demo handoff (`pendingContractSelection`) passes exactly one colour —
+     renaming it would orphan all three. The other two are optional for the same reason: a
+     contract signed before this change has no second or third colour, and should still open. */
   primaryColor: string;
+  secondColor?: string;
+  thirdColor?: string;
   themePreference: 'dark' | 'light' | 'both';
   languageSupport: 'ar' | 'en' | 'ar_en';
   
