@@ -1,6 +1,6 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { Template } from '../types';
-import { useLiveTemplates } from '../lib/pricingOverrides';
+import { useLiveTemplates, resolveVariant } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
@@ -105,16 +105,36 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
     >
       <div className="relative nq-container">
-        {/* ── The two cards ─────────────────────────────────────────────────────────────
-            Tall, full-height panels so each reads as a destination rather than a row. No heading
-            above them any more — the client asked for this section's intro copy ("ماذا تريد أن
-            تبني؟" / "بطاقتان — اختر...") removed outright, so the cards are now the section's
-            first visual content and carry their own top margin down accordingly. */}
-        <div className="mt-4 sm:mt-6 grid gap-6 sm:gap-8 lg:grid-cols-2 items-stretch">
-          {CHOICES.map((choice, i) => {
-            const Icon = choice.icon;
-            const disabled = !template;
-            return (
+        {/* ── قالب واحد أو أكثر ────────────────────────────────────────────────────────────
+            كل قالب (الثابت + أي قالب أضافه الأدمن من لوحة التحكم — انظر useLiveTemplates)
+            يحصل على زوج بطاقاته الخاص. العنوان فوق كل زوج يظهر فقط لو أكثر من قالب واحد —
+            في الحالة الشائعة (قالب واحد) يبقى الشكل بالضبط كما كان، بلا عنوان إضافي. */}
+        {templatesData.map((template, ti) => (
+          <div key={template.id} className={ti === 0 ? 'mt-4 sm:mt-6' : 'mt-10 sm:mt-14'}>
+            {templatesData.length > 1 && (
+              <h3
+                className="mb-4 text-lg sm:text-xl font-black"
+                style={{ color: OBSIDIAN }}
+              >
+                {template.title}
+              </h3>
+            )}
+            <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 items-stretch">
+              {CHOICES.map((choice) => {
+                const Icon = choice.icon;
+                const variant = resolveVariant(
+                  template,
+                  choice.id,
+                  currentLang === 'ar' ? choice.descAr : choice.descEn
+                );
+                // النسخة الفعلية المُمرَّرة للعقد: نفس القالب لكن بسعر هذا الاختيار تحديداً
+                // (موقع/تطبيق) بدل السعر العام الموحّد — هذا هو التسعير المنفصل الذي طلبه الأدمن.
+                const pricedTemplate: Template = {
+                  ...template,
+                  basePriceIQD: variant.priceIQD,
+                  basePriceUSD: variant.priceUSD,
+                };
+                return (
               <article
                 key={choice.id}
                 /* Frosted glass, not white.
@@ -194,11 +214,13 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     className="relative mt-3 text-[0.92rem] sm:text-base uw:text-lg font-bold leading-relaxed"
                     style={{ color: WHITE, opacity: 0.85 }}
                 >
-                  {currentLang === 'ar' ? choice.descAr : choice.descEn}
+                  {variant.description}
                 </p>
 
                 {/* No price on the card: the customer chooses by reading the offer and opening the
-                    live preview, then continues straight into the contract. */}
+                    live preview, then continues straight into the contract. Each choice's own
+                    price (set separately per template in the admin Pricing tab) still flows into
+                    the contract the moment they pick it — see `pricedTemplate` above. */}
                 <div className="relative mt-auto pt-8 flex flex-wrap items-center gap-3">
                   {/* `obsidian`, not `paper` — the card these buttons sit on IS a dark ground now
                       (the section's own flat fill moved to white; the card is the confined dark
@@ -210,15 +232,17 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     tone="obsidian"
                     variant="solid"
                     size="md"
-                    loading={disabled}
-                    onClick={() => template && onSelectTemplateForContract(template, choice.note)}
+                    onClick={() => onSelectTemplateForContract(pricedTemplate, choice.note)}
                     className="uw:text-base"
                     badge={<ArrowLeft className="w-4 h-4 rotate-180" strokeWidth={2.6} />}
                   >
                     {currentLang === 'ar' ? choice.titleAr : choice.titleEn}
                   </NqButton>
 
-                  {onOpenStandalonePreview && template && (
+                  {/* قالب أضافه الأدمن بنفسه (hasInteractiveDemo === false) ليس له تجربة تفاعلية
+                      حقيقية مبنية — المعاينة الحالية مبنية يدوياً لقالب "سَكَن" وحده، فعرضها
+                      لقالب آخر يفتح نفس تجربة سَكَن تحت اسم مختلف وهذا خطأ لا ميزة. */}
+                  {onOpenStandalonePreview && template.hasInteractiveDemo !== false && (
                     <NqButton
                       tone="obsidian"
                       variant="quiet"
@@ -232,10 +256,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   )}
                 </div>
               </article>
-            );
-          })}
-        </div>
-
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Interactive Live Sandbox Preview Modal.
