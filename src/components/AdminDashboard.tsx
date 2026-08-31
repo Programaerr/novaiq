@@ -4,7 +4,7 @@ import { ContractData } from '../types';
 import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
 import { subscribeToContracts } from '../lib/firebase';
-import { logoutAccount } from '../lib/auth';
+import { logoutAccount, isCurrentUserAdmin } from '../lib/auth';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { TabButton, KpiCell, StatChip, BottomTabBar, MoreSheet, TabGroup } from './admin/shared';
@@ -46,10 +46,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   // `html[data-account]` in index.css.
   useDocumentFlag('account');
 
+  /* بوابة ثانية مستقلة عن AdminPage.
+   *
+   * السبب ليس تكراراً زائداً: الاشتراك بالعقود أدناه يسقط على نسخة localStorage المحلية عند
+   * فشل Firestore (وهو تصميم مقصود ليعمل الأدمن دون إنترنت). فمن يجبر ظهور هذه اللوحة بتعديل
+   * الجافاسكربت في متصفحه كان سيُرفض من الخادم — ثم يرى مع ذلك واجهة لوحة تحكم مملوءة بما
+   * في جهازه هو. لا تسريب لبيانات غيره، لكنه شكل انتحال لا مبرر له.
+   *
+   * لذلك: لا اشتراك ولا رسم للوحة قبل تحقق موقَّع من الخادم، والفشل يعني رفضاً صريحاً. */
+  const [verified, setVerified] = useState<boolean | undefined>(undefined);
   useEffect(() => {
+    let cancelled = false;
+    isCurrentUserAdmin().then((ok) => {
+      if (!cancelled) setVerified(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (verified !== true) return;
     const unsub = subscribeToContracts(setContracts);
     return unsub;
-  }, []);
+  }, [verified]);
 
   const stats = useMemo(() => {
     const totalIQD = contracts.reduce((s, c) => s + (c.totalPriceIQD || 0), 0);
@@ -126,6 +146,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   const primaryTabs = groups[0].items;
   const moreGroups: TabGroup[] = groups.slice(1);
   const isMoreTab = !primaryTabs.some((t) => t.id === tab);
+
+  // لا شيء من اللوحة يُرسَم قبل جواب الخادم (انظر البوابة الثانية أعلاه).
+  if (verified === undefined) {
+    return (
+      <div className="max-w-screen-2xl mx-auto px-4 py-24 text-center text-ink/60 text-xs">
+        {isAr ? 'جارٍ التحقق من الصلاحية…' : 'Verifying access…'}
+      </div>
+    );
+  }
+
+  if (!verified) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center space-y-4">
+        <ShieldCheck className="w-10 h-10 mx-auto text-ink/30" />
+        <h2 className="text-lg font-bold text-ink">{isAr ? 'غير مصرّح' : 'Not authorized'}</h2>
+        <p className="text-xs text-ink/60 leading-relaxed">
+          {isAr
+            ? 'هذا الحساب ليس ضمن مشرفي NUVAIQ. لوحة التحكم وبياناتها محمية على الخادم، ولا يمكن الوصول إليها من المتصفح مهما جرى تعديله.'
+            : 'This account is not a NUVAIQ admin. The control panel and its data are protected on the server and cannot be reached from the browser, whatever is changed in it.'}
+        </p>
+        <button
+          type="button"
+          onClick={onBackToSite}
+          className="px-4 py-2.5 rounded-xl bg-ink text-paper text-xs font-bold cursor-pointer"
+        >
+          {isAr ? 'العودة للموقع' : 'Back to site'}
+        </button>
+      </div>
+    );
+  }
 
   return (
     // pb-24 clears the fixed bottom tab bar on mobile; lg:pb-12 is the panel's own original
