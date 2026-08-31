@@ -1,0 +1,8 @@
+[build]
+  # فقط جهة الواجهة (vite build) — لا حاجة على Netlify لخطوة esbuild التي تبني dist/server.cjs
+  # (خادم Express)؛ Netlify يستضيف ملفات ثابتة فقط، لا يشغّل عملية Node مستمرة.
+  command = "npx vite build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
