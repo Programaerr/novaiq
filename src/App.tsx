@@ -159,6 +159,9 @@ export default function App() {
   // Carries the customer's exact choices from the interactive live-site demo into the contract form
   const [initialCustomFeaturesText, setInitialCustomFeaturesText] = useState<string>('');
   const [initialPrimaryColor, setInitialPrimaryColor] = useState<string>('');
+  // موقع إلكتروني أم تطبيق هاتف: يُلتقط من البطاقة التي ضغطها العميل (أو من مفتاح
+  // الموقع/التطبيق داخل المعاينة) ويصل إلى العقد كحقل مستقل، لا كنص حر داخل الوصف.
+  const [initialProjectType, setInitialProjectType] = useState<'website' | 'app' | undefined>(undefined);
 
   useSmoothScroll();
   useSectionScrollSpy(activePage, setActiveSection);
@@ -240,6 +243,7 @@ export default function App() {
     setSelectedTemplateForContract(found);
     setInitialCustomFeaturesText(pending.customNotes || '');
     setInitialPrimaryColor(pending.primaryColorHex || '');
+    setInitialProjectType(pending.projectType);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -348,11 +352,17 @@ export default function App() {
   // full-screen sign-in page (never the floating inline one), and `postLoginPage` carries them
   // straight into the builder the moment they have one. A template chosen before signing in is
   // remembered, so they land on exactly the contract they picked.
-  const startContract = (template?: Template, customNotes?: string, primaryColorHex?: string) => {
+  const startContract = (
+    template?: Template,
+    customNotes?: string,
+    primaryColorHex?: string,
+    projectType?: 'website' | 'app'
+  ) => {
     if (template) {
       setSelectedTemplateForContract(template);
       setInitialCustomFeaturesText(customNotes || '');
       setInitialPrimaryColor(primaryColorHex || '');
+      setInitialProjectType(projectType);
     }
     if (!currentUser) {
       postLoginPage.current = 'custom-request';
@@ -473,10 +483,10 @@ export default function App() {
                 setStandalonePreviewTemplate(null);
                 window.history.replaceState({}, '', window.location.pathname);
               }}
-              onSelectForContract={(template, customNotes, primaryColorHex) => {
+              onSelectForContract={(template, customNotes, primaryColorHex, projectType) => {
                 setStandalonePreviewTemplate(null);
                 window.history.replaceState({}, '', window.location.pathname);
-                startContract(template, customNotes, primaryColorHex);
+                startContract(template, customNotes, primaryColorHex, projectType);
               }}
             />
           </Suspense>
@@ -596,6 +606,7 @@ export default function App() {
                 onContractGenerated={handleContractGenerated}
                 initialCustomFeaturesText={initialCustomFeaturesText}
                 initialPrimaryColor={initialPrimaryColor}
+                initialProjectType={initialProjectType}
                 onContinueAsGuest={leaveSignIn}
               />
             </Suspense>

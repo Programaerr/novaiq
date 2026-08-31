@@ -11,7 +11,9 @@ import {
   FileCheck,
   PenLine,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Globe,
+  Smartphone
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
 import { Language, getTranslation } from '../lib/i18n';
@@ -31,6 +33,8 @@ interface ContractBuilderProps {
   currency?: Currency;
   initialCustomFeaturesText?: string;
   initialPrimaryColor?: string;
+  /** موقع إلكتروني أم تطبيق هاتف، قادماً من البطاقة/المعاينة التي دخل منها العميل. */
+  initialProjectType?: 'website' | 'app';
   accountEmail?: string | null;
   accountUid?: string | null;
 }
@@ -72,6 +76,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   currency = 'IQD',
   initialCustomFeaturesText,
   initialPrimaryColor,
+  initialProjectType,
   accountEmail,
   accountUid,
 }) => {
@@ -158,6 +163,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
      Sakan is still in templatesData, so the templates gallery and the timeline are unaffected. */
   const isCustomProject = true;
   const [customProjectName, setCustomProjectName] = useState(draft?.customProjectName || '');
+  /* نوع المشروع: موقع إلكتروني أم تطبيق هاتف. يبدأ على ما اختاره العميل فعلاً قبل وصوله إلى
+     هنا (بطاقة "اطلب موقع"/"اطلب تطبيق"، أو مفتاح الموقع/التطبيق داخل المعاينة الحية)، ويبقى
+     قابلاً للتغيير من الخطوة الثانية. من دخل مباشرة بلا أي اختيار سابق يبدأ على "موقع
+     إلكتروني" ويغيّره إن أراد — لكن الحقل موجود دائماً، فلا يُطبع عقد بلا نوع مشروع. */
+  const [projectType, setProjectType] = useState<'website' | 'app'>(
+    draft?.projectType || initialProjectType || 'website'
+  );
   /* Empty until the customer picks, which is the whole of the change the owner asked for: the
      hex code appears when a colour is chosen and the circle becomes that colour, so an untouched
      tile can no longer report an answer nobody gave. Colour 1 keeps the `primaryColor` name it
@@ -198,8 +210,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       setTemplate(selectedTemplate);
       if (initialCustomFeaturesText) setCustomFeaturesText(initialCustomFeaturesText);
       if (initialPrimaryColor) setPrimaryColor(initialPrimaryColor);
+      if (initialProjectType) setProjectType(initialProjectType);
     }
-  }, [selectedTemplate, initialCustomFeaturesText, initialPrimaryColor]);
+  }, [selectedTemplate, initialCustomFeaturesText, initialPrimaryColor, initialProjectType]);
 
   // Mirrors every field into localStorage as the customer types, so the draft survives a
   // refresh or an accidental navigation away. Cleared only once a contract is actually
@@ -220,6 +233,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       languageSupport,
       isCustomProject,
       customProjectName,
+      projectType,
     });
   }, [
     companyName,
@@ -236,6 +250,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     languageSupport,
     isCustomProject,
     customProjectName,
+    projectType,
   ]);
 
 
@@ -354,6 +369,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       city,
       templateId: isCustomProject ? CUSTOM_OPTION_VALUE : template.id,
       templateTitle: isCustomProject ? customProjectName.trim() : template.title,
+      projectType,
       customFeaturesText,
       primaryColor,
       secondColor,
@@ -631,6 +647,41 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </div>
               )}
 
+              {/* نوع المشروع — الحقل الذي يقرر ماذا يُطبع في العقد: "موقع إلكتروني" أو "تطبيق
+                  هاتف". يصل مضبوطاً مسبقاً على ما اختاره العميل في صفحة القوالب أو في المعاينة
+                  الحية، ويبقى قابلاً للتصحيح هنا قبل التوقيع — فما يُوقَّع عليه هو ما يراه. */}
+              <div>
+                <label className="block text-sm font-semibold text-white/85 mb-2">
+                  {isAr ? 'نوع المشروع' : 'Project Type'} *
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {([
+                    { id: 'website' as const, label: isAr ? 'موقع إلكتروني' : 'Website', Icon: Globe },
+                    { id: 'app' as const, label: isAr ? 'تطبيق هاتف' : 'Mobile App', Icon: Smartphone },
+                  ]).map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setProjectType(opt.id)}
+                      aria-pressed={projectType === opt.id}
+                      className={`p-3 rounded-xl border text-sm font-bold cursor-pointer transition-all flex items-center justify-center gap-2 ${
+                        projectType === opt.id
+                          ? 'bg-orange border-white text-obsidian'
+                          : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
+                      }`}
+                    >
+                      <opt.Icon className="w-4 h-4 shrink-0" />
+                      <span>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-white/60 mt-2 leading-relaxed">
+                  {isAr
+                    ? 'يُطبع هذا الاختيار في عقدك كنوع المشروع المتفق عليه.'
+                    : 'This choice is printed on your contract as the agreed project type.'}
+                </p>
+              </div>
+
 
               {/* Appearance — the whole "what it looks like" group in one labelled card. */}
               <div className="text-white font-bold text-base mt-1">{isAr ? 'تخصيص المظهر' : 'Appearance'}</div>
@@ -853,6 +904,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   <div className="flex flex-col min-w-0">
                     <dt className="text-white/55">{isAr ? 'المشروع' : 'Project'}</dt>
                     <dd className="font-bold text-white truncate">{isCustomProject ? (customProjectName.trim() || (isAr ? 'مشروع مخصص' : 'Custom')) : template.title}</dd>
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <dt className="text-white/55">{isAr ? 'النوع' : 'Type'}</dt>
+                    <dd className="font-bold text-white truncate">
+                      {projectType === 'app' ? (isAr ? 'تطبيق هاتف' : 'Mobile App') : (isAr ? 'موقع إلكتروني' : 'Website')}
+                    </dd>
                   </div>
                   <div className="flex flex-col min-w-0">
                     <dt className="text-white/55">{isAr ? 'الألوان' : 'Colors'}</dt>

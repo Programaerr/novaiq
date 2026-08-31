@@ -15,6 +15,7 @@ interface ContractBuilderGateProps {
   currency?: Currency;
   initialCustomFeaturesText?: string;
   initialPrimaryColor?: string;
+  initialProjectType?: 'website' | 'app';
   /** Leaves the sign-in screen without signing in — App sends them back to browsing. */
   onContinueAsGuest: () => void;
   /**
