@@ -170,6 +170,18 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
             </h4>
             <div className="space-y-2">
               <div>{isAr ? 'القالب المعتمد:' : 'Approved Template:'} <strong className="text-white text-sm font-bold">{templateTitle}</strong></div>
+              {/* نوع المشروع كما اختاره العميل — غائب تماماً في عقد وُقّع قبل وجود الحقل بدل
+                  طباعة نوع مفترض (نفس سلوك ContractPrintDocument). */}
+              {contract.projectType && (
+                <div>
+                  {isAr ? 'نوع المشروع:' : 'Project Type:'}{' '}
+                  <strong className="text-white text-sm font-bold">
+                    {contract.projectType === 'app'
+                      ? (isAr ? 'تطبيق هاتف (iOS و Android)' : 'Mobile App (iOS & Android)')
+                      : (isAr ? 'موقع إلكتروني' : 'Website')}
+                  </strong>
+                </div>
+              )}
               {contract.customFeaturesText && (
                 <div className="pt-2 text-white/90">
                   {isAr ? 'ملاحظات الشركة الخاصة:' : "Company's Custom Notes:"} <p className="text-white/75 text-[11px] bg-black p-2.5 rounded-lg border border-zinc-800 mt-1">{customNotes}</p>
