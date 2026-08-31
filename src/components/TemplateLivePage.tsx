@@ -55,20 +55,11 @@ export const TemplateLivePage: React.FC = () => {
   // useState(mode) هناك) — هنا فقط لتحديد هل هذا وضع "تطبيق الهاتف" لتفعيل السلوك أدناه.
   const isAppMode = params.get('mode') === 'app';
 
-  // الشريط السفلي يشتت الزبون وهو يتصفح تجربة التطبيق على الهاتف تحديداً — طلب صريح: يختفي
-  // جانبياً بمجرد تحريك الصفحة، ويظهر تلقائياً بمجرد توقف التمرير، وفقط على الهاتف وفقط في
-  // وضع "تطبيق الهاتف" (وضع الموقع الإلكتروني وسطح المكتب يبقيان بلا أي تغيير).
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 640px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-
+  // الشريط السفلي يشتت الزبون وهو يتصفح تجربة التطبيق — يختفي جانبياً بمجرد تحريك الصفحة،
+  // ويظهر تلقائياً بمجرد توقف التمرير، على الهاتف وعلى الحاسوب معاً، وفقط في وضع "تطبيق
+  // الهاتف" (وضع الموقع الإلكتروني يبقى بلا أي تغيير — شريطه ثابت في المنتصف كما كان).
   const [isScrolling, setIsScrolling] = useState(false);
-  const smartHideActive = isAppMode && isMobile;
+  const smartHideActive = isAppMode;
   useEffect(() => {
     if (!smartHideActive) return;
     let idleTimer: ReturnType<typeof setTimeout>;
