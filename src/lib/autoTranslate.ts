@@ -19,7 +19,7 @@ import bundledTranslations from '../data/translations.json';
 // localStorage here (per browser) and a shared on-disk cache on the server (every visitor).
 // Requests are also batched, so a page with 30 untranslated strings makes one network call.
 
-const CACHE_KEY = 'novaiq_translation_cache';
+const CACHE_KEY = 'nuvaiq_translation_cache';
 const BATCH_WINDOW_MS = 40;
 
 function loadCache(): Record<string, string> {

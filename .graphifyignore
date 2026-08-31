@@ -1,7 +1,7 @@
 # Keep the knowledge graph to this project's own code.
 #
 # Without this, 46% of the graph (442 of 963 nodes) was agent skill documentation rather
-# than novaiq source — and indexed twice over, since .agents/skills and .claude/skills are
+# than nuvaiq source — and indexed twice over, since .agents/skills and .claude/skills are
 # the same 11 react-three-fiber SKILL.md files reached through a symlink. The practical
 # effect was that a query like "where is the cursor spotlight glow defined" came back with
 # fifty nodes of R3F lighting/post-processing docs and nothing from src/ at all, spending

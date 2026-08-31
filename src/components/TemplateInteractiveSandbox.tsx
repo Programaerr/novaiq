@@ -75,7 +75,7 @@ interface TemplateInteractiveSandboxProps {
 
 export type DemoMode = 'site' | 'app';
 
-const BOOKINGS_KEY = 'novaiq_sandbox_rental_bookings';
+const BOOKINGS_KEY = 'nuvaiq_sandbox_rental_bookings';
 
 export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProps> = ({
   template,
@@ -100,7 +100,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [themeColor, setThemeColor] = useState<ThemeColor>(() => {
     if (initialThemeColor) return initialThemeColor;
     try {
-      return (localStorage.getItem('novaiq_sandbox_theme') as ThemeColor) || 'emerald';
+      return (localStorage.getItem('nuvaiq_sandbox_theme') as ThemeColor) || 'emerald';
     } catch {
       return 'emerald';
     }
@@ -122,7 +122,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const changeThemeColor = (color: ThemeColor) => {
     setThemeColor(color);
     try {
-      localStorage.setItem('novaiq_sandbox_theme', color);
+      localStorage.setItem('nuvaiq_sandbox_theme', color);
     } catch {
       /* ignore */
     }
@@ -171,7 +171,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   const [authView, setAuthView] = useState<'site' | 'login' | 'account'>('site');
   const [account, setAccount] = useState<SiteAccount | null>(() => {
     try {
-      const saved = localStorage.getItem('novaiq_sandbox_account');
+      const saved = localStorage.getItem('nuvaiq_sandbox_account');
       return saved ? (JSON.parse(saved) as SiteAccount) : null;
     } catch {
       return null;
@@ -201,7 +201,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
   useEffect(() => {
     try {
-      localStorage.setItem('novaiq_sandbox_account', account ? JSON.stringify(account) : '');
+      localStorage.setItem('nuvaiq_sandbox_account', account ? JSON.stringify(account) : '');
     } catch {
       /* ignore */
     }
@@ -222,7 +222,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
             return prev;
           }
         });
-      } else if (event.key === 'novaiq_sandbox_account') {
+      } else if (event.key === 'nuvaiq_sandbox_account') {
         setAccount((prev) => {
           const raw = event.newValue || '';
           if ((prev ? JSON.stringify(prev) : '') === raw) return prev;
@@ -245,7 +245,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       const data = event.data as { type?: string; color?: ThemeColor } | null;
-      if (data?.type === 'novaiq:theme' && data.color) setThemeColor(data.color);
+      if (data?.type === 'nuvaiq:theme' && data.color) setThemeColor(data.color);
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);

@@ -58,7 +58,7 @@ export const ResponsivePreview: React.FC<{
 
   useEffect(() => {
     iframeRef.current?.contentWindow?.postMessage(
-      { type: 'novaiq:theme', color: themeColor },
+      { type: 'nuvaiq:theme', color: themeColor },
       window.location.origin
     );
   }, [themeColor, width]);
@@ -110,7 +110,7 @@ export const ResponsivePreview: React.FC<{
               onLoad={() => {
                 setIsLoading(false);
                 iframeRef.current?.contentWindow?.postMessage(
-                  { type: 'novaiq:theme', color: themeColor },
+                  { type: 'nuvaiq:theme', color: themeColor },
                   window.location.origin
                 );
               }}

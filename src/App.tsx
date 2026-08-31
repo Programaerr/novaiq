@@ -55,7 +55,7 @@ const Footer = lazy(() => import('./components/Footer').then((m) => ({ default: 
 // And sessionStorage rather than localStorage, because the choice should not outlive the visit.
 // Persisted forever it would quietly hide sign-in from someone who does eventually want an
 // account, and they would have no obvious way to get the screen back.
-const GUEST_KEY = 'novaiq_guest';
+const GUEST_KEY = 'nuvaiq_guest';
 
 function readGuestMode(): boolean {
   try {
@@ -137,7 +137,7 @@ export default function App() {
   // (and re-trigger the whole-page translation pass) on every single page load.
   const [language, setLanguage] = useState<Language>(() => {
     try {
-      const saved = localStorage.getItem('novaiq_language');
+      const saved = localStorage.getItem('nuvaiq_language');
       return saved === 'en' ? 'en' : 'ar';
     } catch {
       return 'ar';
@@ -249,7 +249,7 @@ export default function App() {
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
     try {
-      localStorage.setItem('novaiq_language', language);
+      localStorage.setItem('nuvaiq_language', language);
     } catch {
       // Storage unavailable (private browsing) — the choice just won't persist.
     }
@@ -501,6 +501,7 @@ export default function App() {
           setActivePage={(page) => navigateTo(page)}
           language={language}
           setLanguage={setLanguage}
+          currentUser={currentUser}
         />
       )}
 

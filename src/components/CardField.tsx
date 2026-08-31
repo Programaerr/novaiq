@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { attachWebGLContextRecovery } from '../lib/webglContextRecovery';
 
 /**
  * One card, in pixels.
@@ -485,6 +486,9 @@ export const CardField: React.FC = () => {
            at all, the field holds 120fps either way and p95 frame time does not move off
            8.4ms. */
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
+        // انظر webglContextRecovery.ts — بدونها فقدان السياق (شائع هنا تحديداً: هذه خلفية
+        // صفحة تسجيل الدخول، حيث ينفتح popup تسجيل دخول Google فوقها مباشرة) كان نهائياً.
+        onCreated={(state) => attachWebGLContextRecovery(state.gl)}
       >
         <Grid reduced={reduced} />
       </Canvas>

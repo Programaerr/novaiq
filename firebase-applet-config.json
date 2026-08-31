@@ -1,10 +1,10 @@
 {
-  "projectId": "novaiq-2",
-  "appId": "1:260604029634:web:736480f2f839e9d22fa95b",
-  "apiKey": "AIzaSyDcxAl4hX9-4ozpWYqEEvGIS-5fKfCIQvo",
-  "authDomain": "novaiq-2.firebaseapp.com",
+  "projectId": "nuvaiq",
+  "appId": "1:313011918638:web:3666240efced74c7130cbf",
+  "apiKey": "AIzaSyAQcwa4-1QMpxBTt2H7jn0HABTplnVJsRU",
+  "authDomain": "nuvaiq.firebaseapp.com",
   "firestoreDatabaseId": "",
-  "storageBucket": "novaiq-2.firebasestorage.app",
-  "messagingSenderId": "260604029634",
-  "measurementId": "G-Q6TVSRSV6P"
+  "storageBucket": "nuvaiq.firebasestorage.app",
+  "messagingSenderId": "313011918638",
+  "measurementId": "G-H8YZB6DK8Q"
 }

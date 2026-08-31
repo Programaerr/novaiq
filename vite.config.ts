@@ -22,6 +22,14 @@ export default defineConfig(() => {
       allowedHosts: true,
     },
     build: {
+      // 1.4MB لا 500KB الافتراضي: `vendor` (three.js + react-three-fiber)، `vendor-firebase`
+      // و`vendor-pdf` تتجاوز الافتراضي بالتصميم، وكل واحد منها معالَج فعلاً بالطريقة الصحيحة
+      // (انظر تعليقات manualChunks/modulePreload أدناه) — three.js مطلوب فوراً عند أول رسم
+      // فيبقى في الحزمة الفورية عمداً، وpdf مستبعد من modulePreload فلا يُحمَّل إلا عند
+      // الحاجة الفعلية. التحذير الافتراضي كان يكرر تنبيهاً عن قرار مقصود ومُوثَّق أصلاً، لا
+      // مشكلة فعلية — رفع السقف هنا بدل تجاهل تحذير حقيقي مستقبلاً لو ظهرت حزمة كبيرة جديدة
+      // فعلاً غير معالَجة.
+      chunkSizeWarningLimit: 1400,
       modulePreload: {
         // Vite's default preloads every dependency of every lazy route up front to avoid
         // request waterfalls once a dynamic import fires — but that silently forces heavy,

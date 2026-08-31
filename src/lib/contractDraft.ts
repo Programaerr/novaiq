@@ -1,4 +1,4 @@
-const DRAFT_KEY = 'novaiq_contract_draft';
+const DRAFT_KEY = 'nuvaiq_contract_draft';
 
 export interface ContractDraft {
   companyName: string;

@@ -13,6 +13,10 @@ import { NqButton } from './ui/NqButton';
 import { NqLink } from './ui/NqLink';
 import { useFloatingBarBottom } from '../lib/useFloatingBarBottom';
 import { NuvaiqLogo } from './NuvaiqLogo';
+// نوع فقط (import type) — يُحذف بالكامل عند الترجمة، لا يسحب Firebase SDK فعلياً وقت التشغيل.
+// من يملك حالة الدخول فعلياً هو App.tsx (useCurrentUser، مطلوبة هناك أصلاً لتوجيه الصفحات)،
+// وهذا الملف يستقبلها كخاصية بدل الاشتراك بنفسه بشكل مكرر — انظر تعليق currentUser أدناه.
+import type { User } from 'firebase/auth';
 
 // The nav toggle's icon: three uneven bars that settle toward an even split on hover, and
 // morph in place into an X on open — the same three bars animating throughout, never two
@@ -46,6 +50,11 @@ interface NavbarProps {
   setActivePage: (page: string) => void;
   language: Language;
   setLanguage: (lang: Language) => void;
+  /** `undefined` = لم يُحسم بعد فحص الدخول الأولي، `null` = خرج. ممرَّرة من App.tsx (التي
+   *  تحتاجها أصلاً بشكل متزامن لتوجيه الصفحات عبر useCurrentUser) بدل اشتراك Navbar بنفسه
+   *  في auth.ts — كان اشتراكاً مكرراً بالكامل: نفس حالة تسجيل الدخول تُقرأ مرتين، وimport()
+   *  الديناميكي هنا لم يكن يؤجل تحميل Firebase فعلياً لأن App.tsx يحمّله بشكل متزامن أصلاً. */
+  currentUser: User | null | undefined;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -53,6 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActivePage,
   language,
   setLanguage,
+  currentUser,
 }) => {
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false);
   // Stands in for :hover on touch screens — pressing the brand plays the same reveal, then it
@@ -66,40 +76,23 @@ export const Navbar: React.FC<NavbarProps> = ({
   // measuring the header would make everything below the navbar jump down whenever the menu
   // is opened. The pill is the actual bar, and the drawer is its sibling.
   const barRef = useRef<HTMLDivElement | null>(null);
-  // undefined = the initial auth check hasn't resolved yet. Left this way (instead of
-  // defaulting to false) so an already-logged-in visitor never sees the page flash
-  // "Login" for a moment before flipping to "My Account" — the skeleton bridges that gap.
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(undefined);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  // مشتقة من خاصية currentUser (انظر تعليقها بالأعلى)، لا من اشتراك خاص بهذا الملف —
+  // undefined = لم يُحسم فحص الدخول الأولي بعد، وهذا ما يمنع "Login" من الوميض للحظة قبل أن
+  // ينقلب "حسابي" لزائر داخل بالفعل، بالضبط كما كان الاشتراك المحلي القديم يفعل.
+  const isLoggedIn = currentUser === undefined ? undefined : !!currentUser;
+  const avatarUrl = currentUser?.photoURL || null;
+  const userName = currentUser?.displayName || null;
   const [avatarBroken, setAvatarBroken] = useState(false);
-  const [userName, setUserName] = useState<string | null>(null);
   const isAr = language === 'ar';
 
   // Everything below the navbar (PageBackBar, page content) positions itself off this.
   useFloatingBarBottom(barRef, '--nav-bottom');
 
-  // Lightweight presence check only — just enough to swap "Login" for "My Account" in the
-  // nav (using the Google account's own profile photo instead of an icon+label once signed
-  // in). AdminPage does the real work of telling admins and customers apart after this.
-  // Dynamically imported (not a static import) so Firebase never loads on a page view that
-  // never touches auth — Navbar itself renders eagerly on every single page.
+  // رابط الصورة يتغيّر مع كل تبديل حساب (تسجيل دخول/خروج) — إعادة الضبط هنا تمنع صورة
+  // فشلت لحساب سابق من إخفاء صورة الحساب الجديد الصالحة تماماً.
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-    let cancelled = false;
-    import('../lib/auth').then(({ subscribeToAuthState }) => {
-      if (cancelled) return;
-      unsubscribe = subscribeToAuthState((user) => {
-        setIsLoggedIn(!!user);
-        setAvatarUrl(user?.photoURL || null);
-        setUserName(user?.displayName || null);
-        setAvatarBroken(false);
-      });
-    });
-    return () => {
-      cancelled = true;
-      unsubscribe?.();
-    };
-  }, []);
+    setAvatarBroken(false);
+  }, [avatarUrl]);
 
   // The drawer no longer carries its own close control (the toggle button itself already
   // shows an X once open) — so clicking anywhere outside it, or pressing Escape, is what

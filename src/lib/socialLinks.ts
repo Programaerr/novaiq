@@ -8,7 +8,7 @@ const SETTINGS_DOC = 'settings/social';
 // Same reasoning as OVERRIDES_CACHE_KEY in pricingOverrides.ts: without a local cache, a
 // fresh page load shows no social links at all until the async Firestore listener responds,
 // which reads as "links disappear on reload" even though it self-corrects a moment later.
-const LINKS_CACHE_KEY = 'novaiq_social_links_cache';
+const LINKS_CACHE_KEY = 'nuvaiq_social_links_cache';
 
 function readCachedLinks(): SocialLinks {
   try {

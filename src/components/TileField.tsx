@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { attachWebGLContextRecovery } from '../lib/webglContextRecovery';
 import * as THREE from 'three';
 import { OBSIDIAN, ORANGE, PAPER, WHITE } from '../lib/homePalette';
 
@@ -641,6 +642,11 @@ export const TileField: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade =
         // (signed-distance field) وتُنعّم نفسها مجاناً؛ صورة ظل (silhouette) المكعب هندسة حقيقية،
         // وحقل من صناديق حادة الحواف دون MSAA يزحف بتسنن (jaggies) بينما تتحرك الموجة خلاله.
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
+        // بدونها، أي فقدان لسياق WebGL (نافذة تسجيل دخول منبثقة، ضغط ذاكرة GPU لحظي...) كان
+        // نهائياً حتى إعادة تحميل الصفحة كاملة — انظر توثيق الدالة نفسها. مهم بالذات هنا لأن
+        // هذا الكانفاس مشترك ومُثبَّت طوال الجلسة (التعليق أعلاه)، فاستعادته تلقائياً تعيد
+        // الحقل بصرياً في كل صفحة بالموقع دفعة واحدة.
+        onCreated={(state) => attachWebGLContextRecovery(state.gl)}
       >
         {/* الإمالة. على المجموعة (group) لا على الكاميرا بحيث يمكن لا يزال تخطيط الشبكة بمقاييس
             الشاشة أعلاه — تُوضع الخلايا على شبكة XY مسطحة، وهذا يُدير ذلك المستوى كله نحو

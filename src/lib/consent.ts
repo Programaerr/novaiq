@@ -1,7 +1,7 @@
 export type ConsentStatus = 'accepted' | 'rejected';
 
-const STORAGE_KEY = 'novaiq_cookie_consent';
-const CONSENT_EVENT = 'novaiq_consent_changed';
+const STORAGE_KEY = 'nuvaiq_cookie_consent';
+const CONSENT_EVENT = 'nuvaiq_consent_changed';
 
 export function getConsentStatus(): ConsentStatus | null {
   try {
