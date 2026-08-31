@@ -68,6 +68,23 @@ const TILT_Y = 0.28;
 const SPEED = 13;
 
 /**
+ * How many tiles the drift travels before it snaps back, AND the period of the lightness wobble
+ * below. One constant for both, because they have to be the same number.
+ *
+ * The wrap is only invisible if the picture repeats over exactly the distance the drift resets by.
+ * Position always did: shifting the grid a whole number of tiles maps every card onto where
+ * another card was. Colour did not — the wobble was keyed to the raw column index, so a card
+ * carried a value no other column had, and the moment the drift snapped the entire field's
+ * lightness pattern jumped one column inside one frame. Measured as a single 2.98 spike against a
+ * 0.143 median frame delta, once per wrap, and it read as a blink.
+ *
+ * Four rather than one: at 360 units a tile that is a 1440px repeat, wider than most viewports, so
+ * the pattern still never shows itself as a pattern. It costs three extra columns of instances
+ * (see the grid below), which is the margin the longer travel needs anyway.
+ */
+const WRAP_TILES = 4;
+
+/**
  * How big a card is drawn, as a fraction of the sizes above.
  *
  * The sizes are absolute and a screen is not: 240px of card is 17% of a desktop and 62% of a
@@ -238,7 +255,9 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
   const { cols, rows, count } = useMemo(() => {
     /* Divided by the unit, because a smaller card is more cards. */
     const cover = (Math.hypot(size.width, size.height) * 1.1) / unit;
-    const c = Math.ceil(cover / TILE_W) + 2;
+    /* `+ WRAP_TILES + 1` and not `+ 2`: the grid is centred, so its right edge has to survive the
+       whole drift before the snap. The 2 that used to be here covered a one-tile travel. */
+    const c = Math.ceil(cover / TILE_W) + WRAP_TILES + 1;
     const r = Math.ceil(cover / TILE_H) + 2;
     return { cols: c, rows: r, count: c * r };
   }, [size.width, size.height, unit]);
@@ -265,8 +284,12 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
         face.setMatrixAt(i, m);
         /* A few percent of lightness either way, keyed off the position so it is stable across
            resizes rather than random on every mount. Enough that the field is not wallpaper, far
-           too little to read as a pattern of its own. */
-        const wobble = 1 + 0.07 * Math.sin(c * 1.7 + r * 2.9);
+           too little to read as a pattern of its own.
+
+           The `c` term is `2*PI*c / WRAP_TILES` and not a free coefficient: that makes it repeat
+           every WRAP_TILES columns, which is exactly the distance the drift snaps back by, and is
+           what stops the wrap showing as a blink. The `r` term is free — rows do not move. */
+        const wobble = 1 + 0.07 * Math.sin((2 * Math.PI * c) / WRAP_TILES + r * 2.9);
         mesh.setColorAt(i, colour.copy(base).multiplyScalar(wobble));
         i += 1;
       }
@@ -300,7 +323,7 @@ const Grid: React.FC<GridProps> = ({ reduced }) => {
     clockRef.current += Math.min(delta, 0.5);
     /* Divided by the unit so SPEED stays pixels-on-screen: the group is scaled, so a fixed
        distance in local units would travel slower on a phone than on a desktop. */
-    drift.position.x = -(((clockRef.current * SPEED) / unit) % TILE_W);
+    drift.position.x = -(((clockRef.current * SPEED) / unit) % (TILE_W * WRAP_TILES));
   });
 
   return (
