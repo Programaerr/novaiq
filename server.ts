@@ -170,9 +170,6 @@ function rateLimit({ windowMs, max }: { windowMs: number; max: number }) {
 
 // A ceiling on the whole API, generous enough that no real visitor meets it.
 app.use('/api', rateLimit({ windowMs: 60_000, max: 120 }));
-// Translation is tighter: every miss is an outbound call to Google's endpoint and a new entry
-// in the on-disk cache, so it is the one route where a script costs us something real.
-const translateLimit = rateLimit({ windowMs: 60_000, max: 20 });
 
 // نفس الروابط النظيفة التي يضبطها netlify.toml، حتى يتصرّف التشغيل المحلي/الذاتي مثل
 // الاستضافة تماماً: /privacy و/terms هما الرابطان المُسلَّمان لشاشة موافقة Google، ويجب
@@ -184,122 +181,6 @@ app.get(['/privacy', '/terms'], (req, res) => {
 // API Health Check
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', app: 'NUVAIQ Cosmic Engine' });
-});
-
-// ---------------------------------------------------------------------------
-// Auto-Translation (Arabic -> English) for dynamic/free-text content that isn't part of
-// the static UI dictionary — a client's custom feature notes, a template's add-on spec
-// labels, or any section added later.
-//
-// Deliberately NOT AI-based: it proxies the free public Google Translate endpoint, so it
-// needs no API key and no billing account and runs on any plain Node host.
-//
-// Results are cached to disk and shared by every visitor. Without this, each browser
-// re-translated the entire site on its first visit; now the first request for a given
-// string is the only one that ever hits the network, and the cache survives restarts.
-// ---------------------------------------------------------------------------
-
-const TRANSLATION_CACHE_FILE = path.join(process.cwd(), '.translation-cache.json');
-
-function loadTranslationCache(): Record<string, string> {
-  try {
-    if (fs.existsSync(TRANSLATION_CACHE_FILE)) {
-      return JSON.parse(fs.readFileSync(TRANSLATION_CACHE_FILE, 'utf-8'));
-    }
-  } catch (e) {
-    console.warn('Could not read translation cache, starting empty:', e);
-  }
-  return {};
-}
-
-const translationCache: Record<string, string> = loadTranslationCache();
-let cacheWriteTimer: NodeJS.Timeout | null = null;
-
-// Debounced so a burst of new strings results in one disk write, not one per string.
-function persistTranslationCache() {
-  if (cacheWriteTimer) clearTimeout(cacheWriteTimer);
-  cacheWriteTimer = setTimeout(() => {
-    try {
-      fs.writeFileSync(TRANSLATION_CACHE_FILE, JSON.stringify(translationCache, null, 2), 'utf-8');
-    } catch (e) {
-      console.warn('Could not persist translation cache:', e);
-    }
-  }, 1000);
-}
-
-/* رمز اللغة يُركَّب داخل رابط الطلب الخارج (sl=/tl= أدناه)، فقبوله كما يصل من المتصفح كان
-   يعني السماح بحقن معاملات إضافية في ذلك الرابط عبر قيمة مثل "ar&x=y" — لا يغيّر الوجهة (اسم
-   المضيف ثابت في الكود) لكنه يعبث بالطلب وبمفتاح الكاش. رمزان أو رمزان-وبلد، لا أكثر. */
-const LANG_CODE = /^[a-zA-Z]{2,3}(-[a-zA-Z]{2,4})?$/;
-/** أطول نص واحد يُقبل للترجمة — أطول من أي نص واجهة، ويغطّي وصف مشروع كاملاً في عقد. */
-const MAX_TEXT_LEN = 5000;
-/** أكبر دفعة: صفحة كاملة تُترجَم دفعة واحدة، لكن ليس عدداً غير محدود يولّده سكربت. */
-const MAX_BATCH = 500;
-
-async function translateOne(text: string, source: string, target: string): Promise<string> {
-  const cacheKey = `${source}:${target}:${text}`;
-  if (translationCache[cacheKey]) return translationCache[cacheKey];
-
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Translate service responded with ${response.status}`);
-  }
-
-  const data = await response.json();
-  // Response shape: [[[translatedChunk, originalChunk, ...], ...], ...] — Google splits
-  // long input into sentence chunks; join them back into one string.
-  const translated = ((data[0] || []) as any[]).map((segment) => segment[0]).join('');
-
-  if (translated) {
-    translationCache[cacheKey] = translated;
-    persistTranslationCache();
-  }
-  return translated;
-}
-
-app.post('/api/translate', translateLimit, async (req, res) => {
-  try {
-    const { text, texts, source = 'ar', target = 'en' } = req.body;
-
-    if (
-      typeof source !== 'string' || typeof target !== 'string' ||
-      !LANG_CODE.test(source) || !LANG_CODE.test(target)
-    ) {
-      return res.status(400).json({ error: 'Invalid language code' });
-    }
-
-    // Batch form — one request for a whole page's worth of strings instead of N.
-    if (Array.isArray(texts)) {
-      if (texts.length > MAX_BATCH) {
-        return res.status(413).json({ error: `Too many items (max ${MAX_BATCH})` });
-      }
-      const results = await Promise.all(
-        texts.map(async (item: unknown) => {
-          if (typeof item !== 'string' || !item.trim() || item.length > MAX_TEXT_LEN) return '';
-          try {
-            return await translateOne(item.trim(), source, target);
-          } catch {
-            return '';
-          }
-        })
-      );
-      return res.json({ translations: results });
-    }
-
-    if (!text || typeof text !== 'string') {
-      return res.status(400).json({ error: 'text or texts is required' });
-    }
-    if (text.length > MAX_TEXT_LEN) {
-      return res.status(413).json({ error: `Text too long (max ${MAX_TEXT_LEN})` });
-    }
-
-    const translated = await translateOne(text.trim(), source, target);
-    return res.json({ translated });
-  } catch (error: any) {
-    console.error('Translation error:', error);
-    return res.status(500).json({ error: error.message || 'Translation failed' });
-  }
 });
 
 // ---------------------------------------------------------------------------

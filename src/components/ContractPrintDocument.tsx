@@ -1,7 +1,6 @@
 import React from 'react';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
-import { useAutoTranslate } from '../lib/autoTranslate';
 import { formatPrice } from '../lib/currency';
 import { contractTerms } from '../data/contractTerms';
 
@@ -471,8 +470,10 @@ export const ConnectedContractPrintDocument = React.forwardRef<
   HTMLDivElement,
   { contract: ContractData; language: Language }
 >(({ contract, language }, ref) => {
-  const translatedNotes = useAutoTranslate(contract.customFeaturesText, language);
-  const translatedAdminNotes = useAutoTranslate(contract.adminNotes, language);
+  /* حرفياً كما كُتبا — انظر نفس التعليق في ContractPDFPreview: العقد يُطبع بنصّ صاحبه، لا
+     بإعادة صياغة آلية له. */
+  const translatedNotes = contract.customFeaturesText;
+  const translatedAdminNotes = contract.adminNotes;
 
   return (
     <ContractPrintDocument
