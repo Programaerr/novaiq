@@ -51,6 +51,40 @@ export const TemplateLivePage: React.FC = () => {
   const isEmbedded = window.self !== window.top;
   const isAr = language === 'ar';
 
+  // نفس ?mode= الذي تقرأه TemplateInteractiveSandbox من رابط الصفحة نفسها (انظر التعليق عند
+  // useState(mode) هناك) — هنا فقط لتحديد هل هذا وضع "تطبيق الهاتف" لتفعيل السلوك أدناه.
+  const isAppMode = params.get('mode') === 'app';
+
+  // الشريط السفلي يشتت الزبون وهو يتصفح تجربة التطبيق على الهاتف تحديداً — طلب صريح: يختفي
+  // جانبياً بمجرد تحريك الصفحة، ويظهر تلقائياً بمجرد توقف التمرير، وفقط على الهاتف وفقط في
+  // وضع "تطبيق الهاتف" (وضع الموقع الإلكتروني وسطح المكتب يبقيان بلا أي تغيير).
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  const [isScrolling, setIsScrolling] = useState(false);
+  const smartHideActive = isAppMode && isMobile;
+  useEffect(() => {
+    if (!smartHideActive) return;
+    let idleTimer: ReturnType<typeof setTimeout>;
+    const onScroll = () => {
+      setIsScrolling(true);
+      clearTimeout(idleTimer);
+      // 600ms بلا أي حدث تمرير جديد = "توقف الزائر فعلاً"، لا مجرد نبضة قصيرة بين حركتين.
+      idleTimer = setTimeout(() => setIsScrolling(false), 600);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(idleTimer);
+    };
+  }, [smartHideActive]);
+
   const template = useMemo(() => {
     const found = liveTemplates.find((t) => t.id === templateId);
     if (!found) return null;
@@ -149,7 +183,17 @@ export const TemplateLivePage: React.FC = () => {
       </Suspense>
 
       {!isEmbedded && (
-        <div className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-2xl bg-black/90 backdrop-blur-md border border-zinc-700/80 shadow-2xl">
+        <div
+          className={`fixed z-[70] flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-2xl bg-black/90 backdrop-blur-md border border-zinc-700/80 shadow-2xl transition-[transform,opacity] duration-300 ease-out ${
+            smartHideActive
+              ? `bottom-20 rtl:left-2 ltr:right-2 ${
+                  isScrolling
+                    ? 'rtl:-translate-x-[130%] ltr:translate-x-[130%] opacity-0 pointer-events-none'
+                    : 'translate-x-0 opacity-100'
+                }`
+              : 'bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2'
+          }`}
+        >
           <NovaiqLogo size={18} showText={false} />
           <span className="hidden sm:inline text-[10px] text-white/75 px-1">
             {isAr ? 'معاينة حية لقالب NOVAIQ' : 'NOVAIQ live template preview'}

@@ -724,58 +724,10 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
     <div className="space-y-5 sm:space-y-6">
       {renderTopBar()}
 
-      {/* Section nav. On the site this is a real bar of links rather than a drawer — a laptop
-          has the width for it, and hiding four destinations behind a hamburger on a 1280px
-          screen is the single most common thing a "responsive" template gets backwards. */}
-      <nav
-        aria-label="أقسام الموقع"
-        className="flex flex-wrap items-center gap-1.5 rounded-2xl bg-slate-900/70 border border-slate-800 p-1.5"
-      >
-        {SITE_TABS.filter((t) => !t.cta).map((t) => (
-          <button
-            key={t.id}
-            onClick={() => {
-              setActiveTab(t.id);
-              cosmicAudio.playTick();
-            }}
-            /* aria-current rather than aria-selected: these are destinations, not tabs in a
-               tablist, and a screen reader should announce "current page" the way it would on
-               any site nav. */
-            aria-current={tab === t.id ? 'page' : undefined}
-            style={tab === t.id ? { background: accentHex, color: '#0b0f17' } : undefined}
-            className={`min-h-10 px-4 rounded-xl text-[11px] font-black cursor-pointer transition-colors ${
-              tab === t.id ? '' : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-
-        {/* The owner CTA, pushed to the far end and outlined rather than filled: it has to read
-            as a different KIND of thing from the four browsing links beside it, without
-            outshouting the accent-filled active pill next to it. */}
-        {SITE_TABS.filter((t) => t.cta).map((t) => (
-          <button
-            key={t.id}
-            onClick={() => {
-              setActiveTab(t.id);
-              cosmicAudio.playPing();
-            }}
-            aria-current={tab === t.id ? 'page' : undefined}
-            style={
-              tab === t.id
-                ? { background: accentHex, color: '#0b0f17' }
-                : { borderColor: accentHex, color: accentHex }
-            }
-            className={`ms-auto inline-flex items-center gap-1.5 min-h-10 px-4 rounded-xl text-[11px] font-black cursor-pointer transition-colors ${
-              tab === t.id ? '' : 'border bg-transparent hover:bg-white/5'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" aria-hidden="true" />
-            {t.label}
-          </button>
-        ))}
-      </nav>
+      {/* شريط تنقّل أفقي كان مكرَّراً هنا فوق نفس أقسام الموقع (SITE_TABS) — القائمة الجانبية
+          (الدرج المفتوح من زر الهامبرغر في renderTopBar) تغطي نفس الوجهات بالضبط بلا أي
+          استثناء (بما فيها زر المالك)، وظاهرة دائماً بلا أي شرط عرض شاشة — إزالته أزالت
+          تكراراً كان يسبب تداخلاً مع باقي عناصر الصفحة. */}
 
       {tab === 'home' && home}
       {tab === 'units' && units}
