@@ -4,6 +4,7 @@ import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
 import { ERROR, OBSIDIAN, ORANGE, WHITE } from '../lib/homePalette';
 import { CardField } from './CardField';
+import { NuvaiqLogo } from './NuvaiqLogo';
 import { NqButton } from './ui/NqButton';
 
 interface LoginPageProps {
@@ -36,41 +37,53 @@ function GoogleIcon() {
 }
 
 /**
- * The muted ink for the band below, at the lightest opacity that still clears 4.5:1.
- *
- * Measured rather than picked, and re-measured every time the surface under it changed: solid
- * sand, an ink sky, falling code, frosted glass over a cube field, solid sand, a run of saturated
- * full-screen grounds behind it (Cobalt Deep, Obsidian, Orange) with the band itself staying
- * solid WHITE with OBSIDIAN ink through all of them — and now, third pass, the band itself flips
- * to OBSIDIAN: it is the confined dark panel the brief's "black" lives in, with the outer screen
- * gone WHITE around it. The ink flips with it, WHITE rather than OBSIDIAN.
- *
- * The band is opaque, so the surface IS the swatch: WHITE at 0.62 over OBSIDIAN resolves to
- * `#A1A2A3`, which measures 7.75:1 there — the same 0.62 fraction of ink as before, just the
- * light member of the pair now that the surface it sits on is the dark one.
+ * The muted ink INSIDE the dark panel — white at the lightest opacity that still clears 4.5:1
+ * against it. WHITE at 0.62 over OBSIDIAN resolves to `#A1A2A3`, which measures 7.75:1 there.
  */
-const INK_MUTED = 'rgba(255, 255, 255, 0.62)';
+const INK_MUTED_ON_DARK = 'rgba(255, 255, 255, 0.62)';
 
 /**
- * Standalone sign-in page: three layers on a full-bleed screen. A WARM WHITE field of 3D template
- * cards tinted in the brand's Signal Orange, an OBSIDIAN band leaning across it — the confined
- * dark panel the third client pass asks for — and the company's words on the band, in white.
+ * The muted ink ON THE GLASS, and it is a different number from the one above for a reason worth
+ * keeping: the surface under it is not a colour, it is whatever the card field happens to be
+ * showing through 62% white.
  *
- * Self-contained by design — it renders its own ground rather than mounting inside the site's
- * shared chrome. App gives it the whole viewport (see the early return there), so there is no
- * navbar to sit under and no page padding to clear. The only things it takes from the rest of the
- * app are the pieces that genuinely are shared: the auth call, the palette, the button system and
- * the tile field.
+ * The old page's trick of dropping a grey in for "quiet" does not survive that. Measured against
+ * the worst case the glass can composite to — an Orange card directly behind it, `#FFC69E` — the
+ * site's own muted grey STEEL_LIGHT lands at 3.24:1 and fails, and it still fails at every glass
+ * opacity up to 0.86 (4.23:1). Quiet has to be made out of the ink that passes rather than out of
+ * a lighter colour: OBSIDIAN at 0.68 measures 5.90:1 over that same worst case and 7.05:1 over
+ * the plain ground, so the fine print is dimmed without ever going under the floor.
+ */
+const INK_MUTED_ON_GLASS = 'rgba(8, 10, 13, 0.68)';
+
+/**
+ * Standalone sign-in page: two panels of frosted white glass floating on a field of 3D template
+ * cards, to the owner's whiteboard.
  *
- * The field runs ONCE, behind everything, and it is deliberately out of focus. This page has
- * been through a blurred cube field, falling code, a rotating panel of stills and a drifting
- * grid of cards, and every one of them failed the same way: it became a second thing to read on
- * a screen that has one job, which is a button. Out of focus is what lets a background be
- * atmosphere instead of content.
+ * ## The shape, and what each half is for
  *
- * The type is sized from the column rather than from the viewport, and the column is sized from
- * the lean. See `.nq-lean-copy` in index.css for that derivation and the block below for the
- * scale that falls out of it.
+ * The words panel and the action panel, side by side on a wide screen and stacked on a phone.
+ * The split is the point: one panel says why an account is worth having, the other is the two
+ * buttons and nothing else. The layout this replaces ran all of it down one 16rem column inside
+ * a skewed band, where the pitch and the button competed for the same narrow measure.
+ *
+ * ## Why the words sit on an opaque black box inside the glass
+ *
+ * Straight from the sketch, and it is the right instinct: glass is a translucent surface over a
+ * moving background, and a paragraph on it is a paragraph whose contrast changes as the cards
+ * drift past. The dark box is opaque, so the copy has ONE ground — WHITE on OBSIDIAN, 18.48:1,
+ * whatever happens behind the panel.
+ *
+ * The action panel has no such box because it needs none: its two buttons carry their own fills,
+ * and the only loose text on the glass is the fine print, which uses the measured ink above.
+ *
+ * ## The r3f layer
+ *
+ * CardField runs ONCE, behind everything, and is deliberately out of focus. It is also what makes
+ * the glass legible AS glass: frosted white over a flat colour is just a lighter flat colour. The
+ * page has been through a blurred cube field, falling code, a rotating panel of stills and a
+ * drifting grid of cards, and every one of them failed the same way until it was pushed out of
+ * focus — it became a second thing to read on a screen that has one job, which is a button.
  */
 export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGuest }) => {
   const isAr = language === 'ar';
@@ -99,270 +112,194 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
   return (
     <div
-      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] flex items-center selection:bg-[#080A0D] selection:text-[#F7F7F5]"
-      /* Painted here rather than left to the document. The page this replaced was white-on-black
-         and inherited its ground from the body; a screen that gets its background from somewhere
-         else is a screen that goes black the day that somewhere else changes.
-
-         WARM WHITE, the client's third pass — the written brief this identity started from
-         always reserved Orange for buttons and small marks and filled whole-section panels with
-         the neutral Obsidian instead; the client asked for a full-strength Orange fill here, and
-         has since asked for white instead, with the dark neutral confined to the leaning band
-         (`.nq-lean`) rather than spent on the flat screen. `.nq-coast` below paints the same
-         value as a plain CSS fill, so this is only ever seen in the frame before the stylesheet
-         lands — but a fallback that does not match what covers it is a flash of the wrong colour,
-         and this is the first screen a visitor sees.
-
-         `color: OBSIDIAN` is unchanged and needs no flip this time — WHITE is a light ground the
-         same way Orange's own light-fill cases were, so the default ink stays dark; only the band
-         (a genuinely dark surface now) needs its own explicit light override, set where it starts.
-
-         No padding and no `place-items-center` any more. The card they were centring is gone;
-         the layers are the page, and `flex items-center` is here only to hold the copy in the
-         middle of a screen it no longer fills. */
+      className="nq-login relative min-h-screen overflow-hidden font-['Cairo'] flex items-center justify-center px-4 py-10 sm:px-6 sm:py-12 selection:bg-[#080A0D] selection:text-[#F7F7F5]"
+      /* Painted here rather than left to the document. A screen that gets its background from
+         somewhere else is a screen that goes black the day that somewhere else changes, and this
+         is the first screen a visitor sees. `.nq-coast` below paints the same value as a plain
+         CSS fill, so this is only ever seen in the frame before the stylesheet lands. */
       style={{ background: WHITE, color: OBSIDIAN }}
     >
-      {/* Three layers, back to front: the blue, the band, the words. They used to sit inside a
-          card — a 64rem box with rounded corners and a shadow, floating on a sand page. The box is
-          gone and these are the page.
-
-          It went because the page behind it did. A card is an object ON something, and once the
-          ground was flat sand with nothing in it, the composition was a rectangle of design
-          sitting in an empty margin — the margin was not framing anything, it was left over. Full
-          bleed, the blue runs to all four edges and the band runs the height of the screen,
-          which is the same picture without the part that was doing nothing.
-
-          `overflow-hidden` on the page is what makes the lean safe: the band is skewed, so its
-          corners travel past the screen's own edges and this is what cuts them off.
-
-          The page is `flex items-center` and the words block below keeps its own `min-h-[34rem]`
-          rather than stretching. That is deliberate and it is what protects the copy from the
-          taller viewport: a skew costs `height x tan(angle)` of width, so a block that grew to
-          fill a 1200px screen would lean 84px across the copy instead of 38 and take the
-          clearance with it. The BAND spans the screen and leans further on a tall one, which is
-          the whole point of it being full bleed; the COPY stays in the middle 34rem, where the
-          arithmetic that sized `.nq-lean-copy` still holds. */}
       {/* ── The card field's own ground ───────────────────────────────────────────────── */}
-      {/* `.nq-coast` is the flat WARM WHITE fill; the field on it is the texture, and the fill
-          is what shows through the gaps between the cards — CardField's canvas is transparent, so
-          the ground is declared once, here, in the place the rest of the page reads it from.
+      {/* `.nq-coast` is the flat WARM WHITE fill; the field on it is the texture, and the fill is
+          what shows through the gaps between the cards — CardField's canvas is transparent.
 
-          It used to be the site's cube field. The cards say something the cubes could not: what
-          sits behind a sign-in form is the catalogue it gets you into, and a card is the shape a
-          template takes everywhere else on this site. */}
+          The cards say something cubes could not: what sits behind a sign-in form is the
+          catalogue it gets you into, and a card is the shape a template takes everywhere else on
+          this site. */}
       <div className="nq-coast" aria-hidden="true">
         <CardField />
       </div>
 
-      {/* ── The band ──────────────────────────────────────────────────────────────────── */}
-      {/* Decorative and empty: it is the surface, and the words are a sibling above it rather
-          than children inside it, because a skewed parent skews its text (see .nq-lean).
+      {/* ── The two panels ────────────────────────────────────────────────────────────── */}
+      {/* Words first, action second, in READING order rather than in fixed screen positions —
+          so in Arabic the pitch starts at the right edge where the eye does and the buttons
+          land at the left, and in English the pair mirrors. A sign-in screen is read before it
+          is used; the panel that argues for an account belongs where reading starts.
 
-          SOLID Obsidian, not glass, and not white either any more. It was solid white through
-          Cobalt Deep and Obsidian and Orange alike, on the reasoning that a translucent mix would
-          have to be re-tuned every time the ground behind it changed colour — that reasoning
-          still holds, it just lands on the opposite fill now: the third pass confines the brief's
-          black to exactly the bounded panels like this one, so THIS is where Obsidian actually
-          lives, opaque, for the same compositing-cost and contrast-floor reasons as before. */}
-      <div
-        aria-hidden="true"
-        className="nq-lean"
-        style={{
-          background: OBSIDIAN,
-          /* Two shadows doing two jobs. The inset hairline is the lit edge of a pane, and it
-             is the reason this is a skew rather than a clip path — dimmed from the white band's
-             own 0.5 to the same quiet 0.06 every other confined dark panel on the site uses
-             (MilestoneTimeline's frosted panel, TemplateGrid's cards), since a bright inset line
-             reads as a lit edge on a light surface and as a glare on a dark one. The outer shadow
-             is the lift: against a field of cards that are themselves shaded, a flat panel with
-             no shadow reads as a hole cut in the field rather than as a surface laid on it. */
-          boxShadow:
-            'inset 1px 1px 0 rgba(255, 255, 255, 0.06), 0 26px 52px -30px rgba(7, 17, 31, 0.6)',
-        }}
-      />
-
-      {/* ── The words ─────────────────────────────────────────────────────────────────── */}
-      {/* `min-h` and not `h-full`, and this is the load-bearing line of the whole layout. The
-          two layers above are absolute and stretch to the screen; this one is the only thing in
-          flow, and it deliberately does NOT follow them. It claims 34rem in the middle and the
-          page centres it.
-
-          The reason is the lean. A skew costs `height x tan(angle)` of usable width, measured
-          across whatever the copy actually spans — so a block stretched to a 1200px screen would
-          have the band cross it by 84px instead of 38 and would eat the clearance `.nq-lean-copy`
-          was sized against, on exactly the tall monitors nobody tests. Fixed at 34rem, the copy
-          sees the same lean at every viewport height, and the band is free to run the full screen
-          and lean as far as it likes around it.
-
-          No horizontal padding, deliberately: the clearance between the copy and the band's
-          slanted edges is set once, on `.nq-lean-copy`. Padding here would be a second helping
-          of the same clearance, taken out of the copy rather than out of the field. */}
-      {/* `color: WHITE`, and no longer redundant with the page wrapper's own default — the two
-          grounds have gone opposite ways on this pass: the page is WHITE (wants dark ink) and
-          this band is OBSIDIAN (wants light ink), so this override is what actually keeps the
-          copy readable now, not a coincidence kept explicit out of caution. Every element in here
-          that already carries an explicit colour (INK_MUTED text, the error banner) sets its own
-          regardless. */}
+          `items-stretch` (the grid default) is doing real work: it is what makes the dark box in
+          the left panel run the full height of the taller of the two, so the pair reads as one
+          object split down the middle rather than as two cards that happen to be adjacent. */}
       <div
         dir={isAr ? 'rtl' : 'ltr'}
-        className="relative w-full flex flex-col min-h-[34rem] py-10 sm:py-12 lg:py-14"
-        style={{ color: WHITE }}
+        className="relative w-full max-w-5xl grid gap-4 sm:gap-5 lg:grid-cols-2 animate-fade-in"
       >
-        {/* flex-1 + centred, so the block sits in the middle of its 34rem and the copyright line
-            stays on its floor rather than being dragged up under the buttons. */}
-        <div className="flex-1 flex flex-col justify-center">
-          {/* Narrower than the 25rem it used to be, and the number is not a taste call — it
-              falls out of the lean. See `.nq-lean-copy`, where it is derived.
-
-              Centred on the card, which is also the band's centre at half height, so the
-              margin lost at the top-left is exactly the margin gained at the bottom-right.
-              That asymmetry is not a bug to tune out: an upright column in a leaning band
-              cannot be even at both ends, and the even-at-the-middle answer is the one that
-              keeps the same total clearance at both. */}
-          <div className="nq-lean-copy">
-            {/* ── The type scale ─────────────────────────────────────────────────────────────
-                Four sizes, and every one of them steps with the COLUMN rather than with the
-                viewport, because the column is what the line has to fit inside. 16rem holds
-                28 / 15 / 14 / 13; 25rem holds 34 / 16 / 13 / 13.
-
-                It replaces 28 / 13 / 12 / 11, which was not a scale so much as four separate
-                decisions to shave a pixel off something that would not fit. Three of those
-                four sat at or under the 12px floor, on a script that carries meaning in dot
-                clusters — ث against ت, ش against س, the two dots under ي — features one or two
-                pixels across at that size. Latin degrades into "small" there. Arabic degrades
-                into "ambiguous", which is a different problem and a worse one.
-
-                Nothing here is under 13px now, and the gaps between steps are wide enough to
-                read as deliberate: the old 13/12/11 ladder put three near-identical sizes in
-                one 240px column, which looks like drift rather than hierarchy.
-
-                Line height is 1.6-1.75 throughout, up from 1.25-1.33. Arabic needs more of it
-                than Latin at the same size: the ascenders (ل ك ا) and the marks above them
-                (the shadda in "سجّل") occupy space Latin leaves empty, so a leading that looks
-                airy in English is cramped here. */}
-            {/* At 16rem the ceiling is 1.75rem — "حسابك في NUVAIQ" sets at ~238px in a
-                256px column, and 2.1rem would wrap a two-word phrase across three lines. At
-                25rem there is room for the 2.1rem the desktop layout always ran. */}
-            <h1 className="text-[1.75rem] lg:text-[2.1rem] font-black leading-[1.35]">
+        {/* ── Panel one: the words ────────────────────────────────────────────────────── */}
+        {/* Thin padding on the glass, because here the glass is a FRAME: the dark box is the
+            surface and the frost is the mount it sits in. The action panel opposite uses the
+            same class with full padding, where the glass is the surface itself. */}
+        <section className="nq-glass p-4 sm:p-5">
+          <div
+            className="h-full rounded-[1.35rem] px-6 py-9 sm:px-8 sm:py-11 flex flex-col justify-center"
+            style={{ background: OBSIDIAN, color: WHITE }}
+          >
+            {/* Line height 1.35 and up, throughout. Arabic needs more of it than Latin at the
+                same size: the ascenders (ل ك ا) and the marks above them — the shadda in
+                "سجّل" — occupy space Latin leaves empty, so leading that looks airy in English
+                is cramped here. Nothing on this page sets below 13px, on a script that carries
+                meaning in dot clusters (ث against ت, ش against س) one or two pixels across. */}
+            <h1 className="text-[1.75rem] sm:text-[2rem] lg:text-[2.15rem] font-black leading-[1.35]">
               {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
               <br />
               {isAr ? 'حسابك في NUVAIQ' : 'NUVAIQ account'}
             </h1>
 
-            <p className="mt-3 lg:mt-4 text-[15px] lg:text-base leading-[1.75]" style={{ color: INK_MUTED }}>
+            <p
+              className="mt-3.5 text-[15px] sm:text-base leading-[1.75]"
+              style={{ color: INK_MUTED_ON_DARK }}
+            >
               {isAr
                 ? 'ادخل بحساب Google لمتابعة عقودك وقوالبك المحفوظة في مكان واحد.'
                 : 'Continue with Google to follow your contracts and saved templates in one place.'}
             </p>
 
             {/* Three, and three is the cap rather than the count that happened to fit: a list of
-                reasons long enough to need scanning is competing with the button underneath it.
-                The icons lost the filled chip they used to sit in — a 28px dark square each was
-                three more objects on a surface that now has a whole blue half beside it to carry
-                the visual weight. */}
-            <ul className="mt-5 lg:mt-7 space-y-3">
+                reasons long enough to need scanning is competing with the button opposite it. */}
+            <ul className="mt-6 sm:mt-7 space-y-3.5">
               {perks.map(({ icon: Icon, text }) => (
-                <li key={text} className="flex items-center gap-2.5 text-[14px] lg:text-[13px] font-medium leading-[1.6]">
-                  {/* `mt-px` rather than `items-start`: the icon is a 16px square whose artwork
-                      is centred in it, and Arabic sits low in its own line box, so optically
+                <li key={text} className="flex items-center gap-2.5 text-[14px] font-medium leading-[1.6]">
+                  {/* Plain ORANGE, not the `_ON_LIGHT` variant — this box is OBSIDIAN, where
+                      Orange measures 6.90:1 and has no legibility problem to fix. `mt-px`
+                      rather than `items-start`: the icon is a 16px square whose artwork is
+                      centred in it, and Arabic sits low in its own line box, so optically
                       centred and box-centred are one pixel apart here. */}
-                  {/* Plain ORANGE, not the `_ON_LIGHT` variant — the band is OBSIDIAN now, not
-                      WHITE, and Orange on a near-black ground has no legibility problem to fix;
-                      the darkened variant existed only for the light band this replaces. */}
                   <Icon className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" style={{ color: ORANGE }} />
                   <span>{text}</span>
                 </li>
               ))}
             </ul>
-
-            {/* `role="alert"` so a sign-in failure is announced rather than only drawn. A message
-                that appears silently under a button somebody just pressed is a message a screen
-                reader user never receives.
-
-                Recoloured for the dark band: the light-ground chip (dark red text on a barely-
-                tinted white) does not survive the band going Obsidian, so this is ERROR's own
-                small-chip pattern from ContactSection instead — a translucent tint of ERROR over
-                the panel's own dark fill (14% composites to `#281215`) with ERROR itself as the
-                text, 4.70:1 there. */}
-            {error && (
-              <div
-                role="alert"
-                className="mt-5 p-3 rounded-[0.375rem] text-[13px] font-medium leading-[1.6]"
-                style={{
-                  background: 'rgba(239, 68, 68, 0.14)',
-                  color: ERROR,
-                  boxShadow: 'inset 0 0 0 1px rgba(239, 68, 68, 0.35)',
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            {/* One button, because there is only one path: Firebase creates the account on a
-                first-time Google sign-in, so "log in" and "sign up" are the same click here and
-                offering both would be two doors into one room.
-
-                `chrome` is the tone now, not `signal` — the band this sits on is OBSIDIAN, the
-                exact dark chrome ground `chrome` was built for (navbar, login, cookie bar,
-                dialogs), so its own white focus ring is correct again rather than vanishing. That
-                was the one thing `signal` existed to fix, back when this button's real ground was
-                a bright Orange band; the band is dark now and the fix is no longer needed. */}
-            <NqButton
-              tone="chrome"
-              variant="solid"
-              size="lg"
-              radius="xl"
-              block
-              loading={isSubmitting}
-              onClick={handleGoogleSignIn}
-              className="mt-6 lg:mt-7"
-              icon={<GoogleIcon />}
-            >
-              {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
-            </NqButton>
-
-            {/* Browsing the catalogue, opening a demo and reading the timeline need no account,
-                and requiring one to look around turns a visitor away before they have seen
-                anything worth signing in for. The line underneath says where the wall actually
-                is, so choosing this does not feel like it might cost them something later on.
-
-                `obsidian`, not `white` — this button sits on the same dark band as the one above
-                it, and `obsidian`'s solid pair is exactly the light pill (WHITE fill, OBSIDIAN
-                text) that pops against a genuinely dark ground; `white`'s dark-Obsidian pill was
-                built for a light ground and would all but vanish here. */}
-            <NqButton
-              tone="obsidian"
-              variant="solid"
-              size="md"
-              radius="xl"
-              block
-              disabled={isSubmitting}
-              onClick={onContinueAsGuest}
-              className="mt-3"
-            >
-              {isAr ? 'أكمل كضيف' : 'Continue as guest'}
-            </NqButton>
-
-            {/* Aligned to the column's start edge, not centred, and neither is the copyright
-                below it. The block used to run three elements on the start edge and two on the
-                centre, which in a 256px column reads as two competing margins rather than as
-                one column. A single edge down the whole thing is the tidier read, and in RTL
-                that edge is the right-hand one, where the eye starts. */}
-            <p className="mt-3 text-[13px] font-medium leading-[1.6]" style={{ color: INK_MUTED }}>
-              {isAr
-                ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
-                : 'Browse and try the templates freely — an account is only needed to create a contract.'}
-            </p>
           </div>
-        </div>
+        </section>
 
-        {/* Same column as the copy above it. It sits at the band's narrowest point — the
-            bottom, where the lean has taken the band its full travel to the left — so a
-            full-width line is the one line that would hang off the edge. The column is what
-            keeps it inside; the alignment is the column's, for the reason given above. */}
-        <p className="nq-lean-copy shrink-0 mt-10 text-[13px] font-medium leading-[1.6]" style={{ color: INK_MUTED }}>
-          {isAr ? '© NUVAIQ — جميع الحقوق محفوظة' : '© NUVAIQ — All rights reserved'}
-        </p>
+        {/* ── Panel two: the action ───────────────────────────────────────────────────── */}
+        <section className="nq-glass px-6 py-9 sm:px-8 sm:py-11 flex flex-col justify-center">
+          {/* The mark, where the sketch drew a circle to mark the spot. No circle drawn: the
+              sketch's note says that shape was standing in for the logo, not asking to be one.
+
+              It DOES need the dark plate, and that is not decoration either. The asset is a
+              white mark with a hairline dark outline, built for the dark chrome it sits in
+              everywhere else on the site — on frosted white, all that would show is the
+              hairline. The plate gives it the ground it was drawn for, and echoes the dark box
+              in the panel opposite so the pair carries one dark element each. */}
+          <div
+            className="self-center inline-flex items-center rounded-2xl px-5 py-3"
+            style={{ background: OBSIDIAN }}
+          >
+            <NuvaiqLogo size={30} />
+          </div>
+
+          {/* `role="alert"` so a sign-in failure is announced rather than only drawn. A message
+              that appears silently under a button somebody just pressed is a message a screen
+              reader user never receives.
+
+              ERROR's own light-ground pattern, because the panel under this is light now: a
+              barely-tinted white fill with the darkened `ON_LIGHT` red as the ink. The dark-band
+              version this replaces (a translucent red over near-black) would be invisible here. */}
+          {error && (
+            <div
+              role="alert"
+              className="mt-6 p-3 rounded-[0.5rem] text-[13px] font-medium leading-[1.6]"
+              style={{
+                background: 'rgba(202, 59, 59, 0.10)',
+                color: '#CA3B3B',
+                boxShadow: 'inset 0 0 0 1px rgba(202, 59, 59, 0.30)',
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          {/* One button, because there is only one path: Firebase creates the account on a
+              first-time Google sign-in, so "log in" and "sign up" are the same click here and
+              offering both would be two doors into one room.
+
+              `signal`, which is Orange with OBSIDIAN text and a DARK focus ring. Both halves of
+              that matter on this panel: white on Signal Orange measures 2.87:1 and does not read
+              (Obsidian on it is 6.90:1), and `chrome`'s white ring — correct on the dark band
+              this page used to have — would vanish against frosted white.
+
+              `radius="xl"`, not the default pill: the sketch draws rounded rectangles, and a
+              full radius on a wide short button inside a rounded card reads as a capsule
+              floating in a box rather than as part of it. */}
+          <NqButton
+            tone="signal"
+            variant="solid"
+            size="lg"
+            radius="xl"
+            block
+            loading={isSubmitting}
+            onClick={handleGoogleSignIn}
+            className={error ? 'mt-4' : 'mt-8'}
+            icon={<GoogleIcon />}
+          >
+            {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
+          </NqButton>
+
+          {/* Browsing the catalogue, opening a demo and reading the timeline need no account, and
+              requiring one to look around turns a visitor away before they have seen anything
+              worth signing in for. The line underneath says where the wall actually is, so
+              choosing this does not feel like it might cost them something later.
+
+              `white` quiet, and the tone is chosen by the FOCUS RING rather than by the fill.
+              `glass` solid looks closer to the sketch — a near-opaque white pill — but its ring
+              is white, and nqSurface says why in as many words: darkRing is keyed to the page
+              behind the button, and `glass` is set for the hero's OBSIDIAN panel, where a dark
+              ring would vanish. This page is the mirror of that: light ground, frosted panel,
+              so a white ring is the one that disappears and a keyboard user loses the button.
+              `white` quiet is the light-ground pair — PAPER_DEEP fill, Obsidian label, dark ring
+              — which reads as the secondary next to the Orange without needing a new tone. */}
+          <NqButton
+            tone="white"
+            variant="quiet"
+            size="lg"
+            radius="xl"
+            block
+            disabled={isSubmitting}
+            onClick={onContinueAsGuest}
+            className="mt-3"
+          >
+            {isAr ? 'أكمل كضيف' : 'Continue as guest'}
+          </NqButton>
+
+          {/* Both lines under the buttons, per the sketch. Centred here and not start-aligned,
+              because everything above them in this panel is centred too — the mark, and two
+              block buttons whose own labels are centred. A start edge would be one element out
+              of five disagreeing with the other four. */}
+          <p
+            className="mt-6 text-[13px] font-medium leading-[1.65] text-center"
+            style={{ color: INK_MUTED_ON_GLASS }}
+          >
+            {isAr
+              ? 'تصفّح القوالب وجرّبها بحرية — تسجيل الدخول مطلوب فقط عند إنشاء عقد.'
+              : 'Browse and try the templates freely — an account is only needed to create a contract.'}
+          </p>
+
+          <p
+            className="mt-3 text-[12px] font-medium leading-[1.6] text-center"
+            style={{ color: INK_MUTED_ON_GLASS }}
+          >
+            {isAr ? '© NUVAIQ — جميع الحقوق محفوظة' : '© NUVAIQ — All rights reserved'}
+          </p>
+        </section>
       </div>
     </div>
   );

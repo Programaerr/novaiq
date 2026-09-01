@@ -914,76 +914,57 @@
    because "the sign-in page's flat ground" was still the right job for it, through four
    different colours of that ground now, just not the original shape.
 
-   WARM WHITE, the third client pass — matching the site's flat sections everywhere else. The
-   cards CardField draws over it carry the brand's Orange now, the same "flat ground, coloured
-   swell" split the site's own cube fields use; the leaning band above it is the confined dark
-   panel instead (see `.nq-lean`'s own background in LoginPage.tsx). */
+   WARM WHITE, matching the site's flat sections everywhere else. The cards CardField draws over
+   it carry the brand's Orange, the same "flat ground, coloured swell" split the site's own cube
+   fields use. What sits on top is no longer a leaning band but the two frosted panels below —
+   and this ground is what they are frosting, so the two are read together. */
 .nq-coast {
   position: absolute;
   inset: 0;
   background: #f7f7f5;
 }
 
-/* The sign-in card's sand band: the panel the copy sits on, leaning across the blue.
-   Geometry only — the fill, the glass and the lit edge are set where the colours live, on the
-   element itself in LoginPage.
+/* ═══ The sign-in page's frosted panels ═══════════════════════════════════
 
-   `skewX` and not `clip-path`, and the reason is the hairline. Both draw the same
-   parallelogram, but a transform carries the box-shadow with it, so the lit edge runs along
-   the two slanted sides the way it ran along the straight seam this replaced; `clip-path`
-   would draw the silhouette and then cut that edge off, because an inset shadow follows the
-   border box and knows nothing about the clip. The drop shadow gets the same treatment for
-   free, which is what lifts the band off the field rather than letting it read as a hole.
+   Two of them: the frame around the words and the panel holding the buttons. The owner's sketch
+   asks for "الاطار الابيض راح يصير شفاف ضبابي ابيض" — a white frame that turns transparent and hazy.
 
-   The copy is a SIBLING of this, never a child. Skewing the panel is a composition; skewing
-   the panel's text is nine degrees of leaning glyphs, which is a different request.
+   A class rather than an inline style for one reason: the fallback needs `@supports`, and an
+   inline style cannot have one. Without `backdrop-filter` the translucency is not merely less
+   pretty, it is wrong — what is behind these panels is a field of 3D cards, and a translucent
+   sheet over sharp card edges puts a headline on patterned ground. So the default is near-opaque
+   and the frost is the enhancement layered on where the browser can actually do it, the same
+   order the navbar and the milestone panel use.
 
-   ONE angle at every screen size, and TWO widths. The split is deliberate and so is the fact
-   that it falls on the width rather than on the lean: the angle is the band's identity, and a
-   panel that leans 4 degrees on a phone and 9 on a desktop is two different objects sharing a
-   class name. How WIDE it is is a different question, and it has a different answer at each
-   end because the card it sits in is three times the size.
+   ## Why 0.62 and not the 0.15-0.30 the glassmorphism recipe asks for
 
-   The lean is not free, and the cost is what sets both widths. A skew costs the panel
-   `height x tan(angle)` of usable width — the upright box that fits inside a leaning one is
-   narrower than the band by exactly the distance the band travels from its top edge to its
-   bottom. At 4 degrees over a 34rem card that travel is ~40px, and it comes off the copy at
-   both ends of the scale.
+   Because text sits on this one. Measured against the worst case the panel can composite to —
+   an Orange card directly behind it — 62% white resolves to `#FFC69E`, where OBSIDIAN measures
+   13.05:1 and the muted ink derived for it in LoginPage measures 5.90:1. At 0.30 the same panel
+   lands on `#FFA85E`, and the fine print goes with it. The blur is what keeps it reading as
+   glass at that opacity: `saturate(180%)` pulls the Orange through as colour even where the
+   white has taken most of the value.
 
-   21rem is set by the copy plus the lean, not by the screen. It used to be 19rem, chosen when
-   the band lived inside a 64rem card with page padding around it and the field either side of
-   it was a real margin. Full bleed there is no margin, the band is measured against the whole
-   phone, and 19rem left the copy 16px off the slanted edge — 21rem takes that to 29px and still
-   leaves a strip of field down both sides. The strip is thin, and that is what sets the size of
-   the cards rather than the other way round: see `unitFor` in CardField, which shrinks them to
-   42% on a phone so several fall inside it.
-
-   32rem is set by the card. It is exactly half of the 64rem card, which is what the sand half
-   of the two-column layout this replaced measured — so the copy gets its old 25rem column and
-   its old 2.1rem title back, and the difference between the old card and this one is the shape
-   of the boundary rather than how much room the words were given.
-
-   The angle stays at 4 for both. 9 degrees costs ~92px of travel, which 32rem could afford and
-   19rem could not, and a lean that changed with the viewport would be the one thing about this
-   panel that is supposed to be constant. */
-.nq-lean {
-  position: absolute;
-  /* Full bleed. It was briefly inset 12% top and bottom, to stop the panel covering the card
-     field behind it — reverted on the owner's call: the band is meant to run the full height of
-     the screen, and the field reads through the gaps beside it rather than above and below. */
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 21rem;
-  transform: translateX(-50%) skewX(-4deg);
+   `blur(18px)` is a little over the recipe's 10-20 ceiling on purpose. The cards behind are large
+   and high-contrast; at 12px their edges were still legible THROUGH the panel, which is the
+   patterned-ground problem the fallback exists to avoid, arriving by the other route. */
+.nq-glass {
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  /* The lift and the lit edge. Against a field of cards that are themselves shaded, a flat panel
+     with no shadow reads as a hole cut in the field rather than as a sheet laid over it. */
+  box-shadow: 0 18px 44px -20px rgba(7, 17, 31, 0.35), inset 1px 1px 0 rgba(255, 255, 255, 0.7);
 }
 
-@media (min-width: 1024px) {
-  /* Half the card, ~41px of travel at 4 degrees, ~36px clear of the slanted edge either side. */
-  .nq-lean {
-    width: 32rem;
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .nq-glass {
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(18px) saturate(180%);
   }
 }
+
 
 /* ═══ Frosted card ═════════════════════════════════════════════════════════════
 
@@ -1048,33 +1029,6 @@
   text-transform: none;
 }
 
-/* The copy column inside the band: the band, less the travel, less the clearance either side.
-   21rem - 38px - 2×21px = 16rem, and 32rem - 41px - 2×36px = 25rem.
-
-   16rem and not 15, and the extra rem is spent entirely on type. A 240px column could not hold
-   a 15px line without breaking every sentence into three, which is why the copy in it had drifted
-   down to 11, 12 and 13px — three sizes, all of them under the floor, chosen one at a time to
-   make things fit. 256px is what the band can give back without the clearance going under 21px,
-   and it is enough for a 15px lede to set in two lines. The type scale is derived from it, in
-   LoginPage.
-
-   Both widths are absolute rather than a percentage of the band, and that is what keeps the
-   clearance honest. A percentage would shrink the margin at the same rate as the band, so the
-   phone case — the one with no room to spare — would be the one that lost it.
-
-   The block this sits in carries no horizontal padding of its own. Padding there would be a
-   second helping of the same clearance, taken out of the copy rather than out of the field. */
-.nq-lean-copy {
-  width: 16rem;
-  max-width: 100%;
-  margin-inline: auto;
-}
-
-@media (min-width: 1024px) {
-  .nq-lean-copy {
-    width: 25rem;
-  }
-}
 
 
 /* Both axes travel exactly one tile (380px, matching background-size), so the layer at the end
