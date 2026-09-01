@@ -267,7 +267,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // Shown to the customer in step 3 and printed as section 4 of their PDF, from one module so
   // the two can never disagree. The week count must match what handleSubmit writes into the
   // contract below, which is why it is derived the same way rather than typed out again.
-  const deliveryTimelineWeeks = isCustomProject ? 8 : template.deliveryWeeks;
+  /* صفر = "لم تُحدَّد بعد"، لا "تُسلَّم فوراً".
+     كانت 8 أسابيع تُكتب لكل مشروع مخصص أياً كان حجمه، فتُطبع في وثيقة يوقّعها العميل كالتزام
+     بمدة لم يقدّرها أحد. المدة الحقيقية تُعتمد من لوحة التحكم مع السعر، وحتى ذلك الحين تقول
+     الوثيقة "تُحدَّد بالاتفاق" (انظر ContractPrintDocument). */
+  const deliveryTimelineWeeks = isCustomProject ? 0 : template.deliveryWeeks;
   const terms = contractTerms(lang, deliveryTimelineWeeks);
 
   // Live verdict on the phone field, so a wrong number is caught as it is typed rather than
@@ -1001,7 +1005,15 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </div>
                   <div className="flex flex-col">
                     <dt className="text-white/55">{isAr ? 'مدة التنفيذ' : 'Delivery'}</dt>
-                    <dd className="font-bold text-white">{isAr ? arCount(deliveryTimelineWeeks, 'أسبوع واحد', 'أسبوعان', 'أسابيع', 'أسبوعاً') : `${deliveryTimelineWeeks} wks`}</dd>
+                    <dd className="font-bold text-white">
+                      {deliveryTimelineWeeks > 0
+                        ? isAr
+                          ? arCount(deliveryTimelineWeeks, 'أسبوع واحد', 'أسبوعان', 'أسابيع', 'أسبوعاً')
+                          : `${deliveryTimelineWeeks} wks`
+                        : isAr
+                          ? 'تُحدَّد بالاتفاق'
+                          : 'To be agreed'}
+                    </dd>
                   </div>
                   <div className="flex flex-col">
                     <dt className="text-white/55">{isAr ? 'السعر' : 'Price'}</dt>
