@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { createPortal } from 'react-dom';
+import { Settings } from 'lucide-react';
 import { ContractData } from '../../types';
 
 export const STATUS_FLOW: ContractData['status'][] = ['submitted', 'under_review', 'in_development', 'completed'];
@@ -211,10 +212,13 @@ export function BottomTabBar({
           onClick={onMore}
           className="flex flex-col items-center gap-0.5 py-1.5 rounded-xl cursor-pointer transition-colors"
         >
+          {/* "الإعدادات" لا "المزيد": الورقة التي يفتحها هذا الزرّ تحمل كل ما تبقّى من الأقسام
+              وفيها قسم الإعدادات نفسه، فتسميتها باسمه تقول للمستخدم ماذا خلف الزرّ بدل اسم
+              عامّ لا يدل على شيء. الأيقونة تروس بدل ثلاث نقاط، للسبب ذاته. */}
           <span className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${moreActive ? 'bg-white border border-ink text-ink ring-2 ring-ink/15' : 'text-ink/50'}`}>
-            <MoreDotsIcon className="w-4.5 h-4.5" />
+            <Settings className="w-4.5 h-4.5" />
           </span>
-          <span className={`text-[9px] font-bold ${moreActive ? 'text-ink' : 'text-ink/50'}`}>{isAr ? 'المزيد' : 'More'}</span>
+          <span className={`text-[9px] font-bold ${moreActive ? 'text-ink' : 'text-ink/50'}`}>{isAr ? 'الإعدادات' : 'Settings'}</span>
         </button>
       </div>
     </nav>,
@@ -222,15 +226,6 @@ export function BottomTabBar({
   );
 }
 
-function MoreDotsIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <circle cx="5" cy="12" r="1.6" fill="currentColor" />
-      <circle cx="12" cy="12" r="1.6" fill="currentColor" />
-      <circle cx="19" cy="12" r="1.6" fill="currentColor" />
-    </svg>
-  );
-}
 
 /**
  * Where the bottom bar's "More" button opens: a sheet sliding up from the bottom, holding every
