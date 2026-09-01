@@ -1949,3 +1949,27 @@ html[data-demo] .nq-navbar {
   0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
   50% { transform: translateY(-18px) scale(1.06); opacity: 1; }
 }
+
+
+/* ── شريط "أعمالنا" المتحرك (ClientsStrip.tsx) ──────────────────────────────────────────
+   حركة واحدة على `transform` فقط: تُنفَّذ على مركّب الطبقات خارج الخيط الرئيسي، فلا يقطّعها
+   انشغال جافاسكربت ولا تُجبر المتصفح على إعادة تخطيط أي شيء. -50% لأن المسار نسختان
+   متطابقتان جنباً إلى جنب، فنهاية الشوط تقع على بداية النسخة الثانية بالضبط ولا تُرى قفزة.
+   المدة تأتي من لوحة التحكم عبر متغيّر مضمَّن على العنصر. */
+@keyframes nq-marquee-slide {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.nq-marquee {
+  animation: nq-marquee-slide var(--nq-marquee-duration, 32s) linear infinite;
+  will-change: transform;
+}
+
+/* توقّف عند المرور بالمؤشر: الزائر الذي يريد قراءة اسم شركة لا يجب أن يطارده. */
+.nq-marquee:hover { animation-play-state: paused; }
+
+/* من يطلب تقليل الحركة من نظامه لا يُعرَض عليه حزام يمشي؛ الأسماء تبقى ظاهرة ساكنة. */
+@media (prefers-reduced-motion: reduce) {
+  .nq-marquee { animation: none; }
+}

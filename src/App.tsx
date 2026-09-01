@@ -44,6 +44,7 @@ const HomeHero = lazy(() => trackLoad(import('./components/HomeHero').then((m) =
 // solid blocks in the incoming section's colour, so a chunk that finishes mid-scroll simply
 // replaces a block of the same colour — nothing flashes at all.
 const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
+const ClientsStrip = lazy(() => import('./components/ClientsStrip').then((m) => ({ default: m.ClientsStrip })));
 const ContactSection = lazy(() => import('./components/ContactSection').then((m) => ({ default: m.ContactSection })));
 const Footer = lazy(() => import('./components/Footer').then((m) => ({ default: m.Footer })));
 
@@ -600,6 +601,14 @@ export default function App() {
                 onStart={() => navigateTo('templates')}
                 onRequestProject={startProject}
               />
+            </Suspense>
+
+            {/* شريط "أعمالنا" — مباشرة تحت الهيرو، ويتحكّم به الأدمن من الإعدادات (تشغيل/إيقاف،
+                العنوان، السرعة، العناصر). لا LazyOnView هنا: القسم ملاصق للهيرو أي داخل أول
+                شاشة تقريباً، فتأخير تحميله يعني ظهوره متأخراً أمام العين مباشرة. ومع ذلك هو
+                lazy مثل بقية الأقسام، ولا يرسم شيئاً إطلاقاً وهو مطفأ. */}
+            <Suspense fallback={null}>
+              <ClientsStrip language={language} />
             </Suspense>
 
             <LazyOnView
