@@ -229,6 +229,31 @@ export default function App() {
     };
   }, []);
 
+  /* تحميل مسبق هادئ لحزمة لوحة التحكم بمجرد معرفة أن هناك حساباً موقّعاً.
+   *
+   * الحزمة تُحمَّل كسولاً (lazy أعلى الملف)، فأول ضغطة على "لوحة التحكم" كانت تنتظر تنزيلها
+   * ومعها شاشة SmartPageLoader. التحميل هنا يتم في وقت خمول المتصفح وخارج عدّاد التحميل
+   * (بلا trackLoad عمداً)، فلا يُظهر أي شاشة انتظار ولا يزاحم رسم الصفحة الحالية — وحين
+   * يُضغط الزر تكون الوحدة في الذاكرة أصلاً وتفتح اللوحة في نفس الإطار.
+   *
+   * requestIdleCallback غير موجود في Safari، فيسقط إلى setTimeout قصير. */
+  useEffect(() => {
+    if (!currentUser) return;
+    const preload = () => {
+      import('./components/AdminPage');
+    };
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback === 'function') {
+      const id = w.requestIdleCallback(preload, { timeout: 3000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(preload, 1200);
+    return () => clearTimeout(t);
+  }, [currentUser]);
+
   // Google Analytics — لا يحمّل شيئاً قبل موافقة الزائر على الكوكيز، ويلتقط تغيّر قراره
   // لاحقاً (انظر lib/analytics.ts). مرة واحدة لعمر التطبيق.
   useEffect(() => initAnalytics(), []);
