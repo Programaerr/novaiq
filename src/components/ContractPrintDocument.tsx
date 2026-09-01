@@ -35,7 +35,12 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       date: isAr ? 'تاريخ الإصدار' : 'Issue Date',
       status: isAr ? 'الحالة' : 'Status',
       // "موثّق" reads in Arabic as notarised by an authority — see the seal/footer note below.
-      statusValue: isAr ? 'موقّع من الطرفين' : 'Signed by both parties',
+      //
+      // وحالتان لا واحدة: كانت الوثيقة تقول "موقّع من الطرفين" منذ اللحظة التي يوقّع فيها
+      // العميل وحده — أي قبل أن نوقّعها نحن بيوم أو أسبوع. عبارة غير صحيحة على وثيقة تعاقدية،
+      // ويكفي أن يقرأها طرف ثالث ليأخذها على ظاهرها.
+      statusSigned: isAr ? 'موقّع من الطرفين' : 'Signed by both parties',
+      statusAwaiting: isAr ? 'موقّع من العميل — بانتظار اعتماد NUVAIQ' : 'Signed by the client — awaiting NUVAIQ approval',
 
       s1: isAr ? '1. بيانات الشركة والممثل القانوني' : '1. COMPANY & LEGAL REPRESENTATIVE',
       companyName: isAr ? 'اسم الشركة' : 'Company Name',
@@ -45,8 +50,10 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       phone: isAr ? 'رقم الهاتف' : 'Phone',
       location: isAr ? 'المقر' : 'Location',
 
-      s2: isAr ? '2. القالب المعتمد والمواصفات الفنية' : '2. APPROVED TEMPLATE & TECHNICAL SPECIFICATIONS',
-      template: isAr ? 'القالب المعتمد' : 'Approved Template',
+      /* "القالب المعتمد" كان مسمّى موروثاً من زمن كتالوج القوالب. لم يعد صحيحاً: القيمة
+         المطبوعة هنا هي اسم المشروع الذي كتبه العميل بنفسه، والتنفيذ مخصص بالكامل. */
+      s2: isAr ? '2. المشروع المطلوب ومواصفاته' : '2. THE REQUESTED PROJECT & ITS SPECIFICATIONS',
+      template: isAr ? 'المشروع' : 'Project',
       projectType: isAr ? 'نوع المشروع' : 'Project Type',
       notes: isAr ? 'ملاحظات ومتطلبات خاصة' : 'Custom Notes & Requirements',
       agreedTerms: isAr ? 'الشروط المتفق عليها بعد المراجعة' : 'Agreed Terms After Review',
@@ -60,6 +67,11 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       weeks: isAr ? 'أسابيع' : 'weeks',
       payment: isAr ? 'آلية السداد' : 'Payment Structure',
 
+      pricePending: isAr ? 'القيمة المالية: تُحدَّد بالاتفاق' : 'CONTRACT VALUE: TO BE AGREED',
+      pricePendingNote: isAr
+        ? 'يُبنى هذا المشروع على ما طلبه العميل ووُصف في القسم الثاني أعلاه. تُحدَّد قيمته ومدة تنفيذه وآلية سدادها باتفاق الطرفين بعد مراجعة الطلب، وتُثبَّت في هذه الوثيقة فور اعتمادها من NUVAIQ، ولا يُلزَم أي طرف بقيمة قبل ذلك.'
+        : 'This project is built to what the client requested, as described in Section Two above. Its value, delivery time and payment terms are set by agreement between the two parties after the request is reviewed, and are recorded in this document once approved by NUVAIQ. Neither party is bound to any figure before then.',
+      toBeAgreed: isAr ? 'تُحدَّد بالاتفاق' : 'To be agreed',
       s4: isAr ? '4. الشروط والأحكام والضمانات' : '4. TERMS, CONDITIONS & GUARANTEES',
       s5: isAr ? '5. التواقيع والاعتماد' : '5. SIGNATURES & AUTHORIZATION',
       clientSig: isAr ? 'توقيع ممثل الشركة' : 'Client Representative Signature',
@@ -76,6 +88,11 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
         ? 'NUVAIQ — صدرت هذه الوثيقة إلكترونياً عبر منصة NUVAIQ، وهي اتفاق خاص بين الطرفين الموقّعَين عليها.'
         : 'NUVAIQ — Issued electronically via the NUVAIQ platform; a private agreement between its two signatories.',
     };
+
+    /* "هل اتُّفق على السعر؟" مشتقّة لا مخزَّنة: عقد بقيمة صفر هو بالتعريف عقد لم يُسعَّر بعد،
+       وإضافة حقل حالة ثانٍ يعني احتمال أن يتناقض الحقلان (سعر موجود وحالة "بانتظار"، أو
+       العكس) — وهذا في وثيقة تعاقدية أسوأ من عدم وجود الحالة أصلاً. */
+    const hasAgreedPrice = (contract.totalPriceIQD || 0) > 0;
 
     const paymentPlanLabel = (() => {
       switch (contract.paymentPlan) {
@@ -202,7 +219,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                 {t.date}: {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}
               </div>
               <div style={{ marginTop: 2 }}>
-                {t.status}: {t.statusValue}
+                {t.status}: {contract.companySignatureDataUrl ? t.statusSigned : t.statusAwaiting}
               </div>
             </div>
           </div>
@@ -317,35 +334,54 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           {/* Section 3 */}
           <div style={{ marginBottom: 14 }}>
             <SectionTitle>{t.s3}</SectionTitle>
-            <div
-              style={{
-                border: '1px solid #E6E7E7',
-                borderRadius: 6,
-                overflow: 'hidden',
-              }}
-            >
-              {/* One figure, not a breakdown. With the priced add-on list gone the base price
-                  and the total are by definition the same number, and printing it twice under
-                  two different headings invites the question of why they differ — they cannot. */}
+            {hasAgreedPrice ? (
+              <div style={{ border: '1px solid #E6E7E7', borderRadius: 6, overflow: 'hidden' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 14px',
+                    backgroundColor: '#080A0D',
+                    color: '#ffffff',
+                  }}
+                >
+                  <span style={{ fontSize: 12, fontWeight: 700 }}>{t.total}</span>
+                  <strong style={{ fontSize: 17, fontWeight: 900 }}>
+                    {formatPrice(contract.totalPriceIQD || 0, language)}
+                  </strong>
+                </div>
+              </div>
+            ) : (
+              /* لا رقم قبل أن يوجد رقم.
+                 كانت هذه الخانة تطبع "0 د.ع" فوق توقيع العميل مباشرة لأن المشروع المخصص يبدأ
+                 بلا سعر — أي وثيقة موقَّعة تُثبت اتفاقاً بصفر دينار، وأي نزاع يقرؤها حرفياً.
+                 وما يُطبع الآن هو الحقيقة نفسها: القيمة تُحدَّد باتفاق الطرفين على ما طلبه
+                 العميل، وتظهر هنا فور اعتمادها من لوحة التحكم. */
               <div
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  border: '1px dashed #B5B6B6',
+                  borderRadius: 6,
                   padding: '12px 14px',
-                  backgroundColor: '#080A0D',
-                  color: '#ffffff',
+                  backgroundColor: '#F7F7F5',
                 }}
               >
-                <span style={{ fontSize: 12, fontWeight: 700 }}>{t.total}</span>
-                <strong style={{ fontSize: 17, fontWeight: 900 }}>
-                  {formatPrice(contract.totalPriceIQD || 0, language)}
-                </strong>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#080A0D' }}>{t.pricePending}</div>
+                <div style={{ fontSize: 11, color: '#666769', marginTop: 4, lineHeight: 1.5 }}>
+                  {t.pricePendingNote}
+                </div>
               </div>
-            </div>
+            )}
             <div style={{ marginTop: 7 }}>
-              <Field label={t.timeline} value={`${contract.deliveryTimelineWeeks} ${t.weeks}`} />
-              <Field label={t.payment} value={paymentPlanLabel} />
+              <Field
+                label={t.timeline}
+                value={
+                  contract.deliveryTimelineWeeks && hasAgreedPrice
+                    ? `${contract.deliveryTimelineWeeks} ${t.weeks}`
+                    : t.toBeAgreed
+                }
+              />
+              <Field label={t.payment} value={hasAgreedPrice ? paymentPlanLabel : t.toBeAgreed} />
             </div>
           </div>
 
@@ -435,7 +471,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                 </div>
                 <div style={{ fontSize: 9, color: '#666769', marginTop: 4, letterSpacing: 0.5 }}>{t.verified}</div>
                 <div style={{ fontSize: 9, color: '#666769', marginTop: 6, fontFamily: 'monospace' }}>
-                  {t.authCode}: NVQ-{contract.contractNumber.slice(-6)}
+                  {t.authCode}: {contract.contractNumber}
                 </div>
               </div>
             </div>

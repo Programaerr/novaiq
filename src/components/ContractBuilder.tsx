@@ -358,7 +358,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       signatureDataUrl = canvasRef.current.toDataURL('image/png');
     }
 
-    const contractNumber = `NVQ-CTR-${Date.now().toString().slice(-6)}`;
+    /* رقم العقد هو نفسه مُعرِّف المستند في Firestore، فتكراره ليس تشابه أسماء بل اصطدام
+       مستندين. الصيغة السابقة `Date.now().slice(-6)` تأخذ آخر ست خانات من الوقت بالملّي ثانية،
+       أي أنها تعود إلى نفسها كل 10^6 ملّي ثانية = 16 دقيقة و40 ثانية بالضبط. عقدان يُنشآن على
+       مسافة تلك الدورة يحملان الرقم ذاته: إمّا يُدمج عميلان في مستند واحد، أو تُرفض الكتابة
+       الثانية (القاعدة تسمح بالإنشاء لا بالتعديل) فيبقى عقد موقَّع على جهاز صاحبه وحده ويظن
+       الجميع أنه محفوظ.
+
+       التاريخ يجعل الأرقام غير قابلة للتكرار عبر الأيام، والجزء العشوائي (36^5 ≈ 60 مليون
+       احتمال داخل اليوم الواحد) يجعل التصادم داخل اليوم نفسه احتمالاً نظرياً لا تشغيلياً. */
+    const today = new Date();
+    const stamp = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+    const suffix = Math.random().toString(36).slice(2, 7).toUpperCase();
+    const contractNumber = `NVQ-${stamp}-${suffix}`;
 
     const contractData: ContractData = {
       // Conditionally spread (not `uid: accountUid || undefined`) — Firestore's setDoc
