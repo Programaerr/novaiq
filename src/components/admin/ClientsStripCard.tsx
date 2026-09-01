@@ -132,17 +132,37 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
       </div>
 
       <div className="p-4 rounded-2xl bg-paper border border-ink/10 space-y-4">
-        <label className="flex items-center justify-between gap-3 cursor-pointer">
-          <span className="text-[12px] font-bold text-ink">
-            {isAr ? 'إظهار القسم للزوار' : 'Show the section to visitors'}
+        {/* مفتاح تشغيل حقيقي، لا مربّع صح: هذه ليست موافقة على شرط بل حالة تشغيل/إيقاف لقسم
+            كامل يراه الزوار، والمفتاح يقول ذلك بشكله وبموضع الزرّ فيه. `role="switch"` مع
+            `aria-checked` حتى يقرأه قارئ الشاشة مفتاحاً أيضاً لا مربّع اختيار. */}
+        <div className="flex items-center justify-between gap-3">
+          <span className="min-w-0">
+            <span className="block text-[12px] font-bold text-ink">
+              {isAr ? 'إظهار القسم للزوار' : 'Show the section to visitors'}
+            </span>
+            <span className="block text-[10.5px] font-bold text-ink/50 mt-0.5">
+              {draft.enabled
+                ? (isAr ? 'يعمل — القسم ظاهر في الصفحة الرئيسية' : 'On — the section is live on the home page')
+                : (isAr ? 'متوقف — لا يظهر شيء للزوار' : 'Off — visitors see nothing')}
+            </span>
           </span>
-          <input
-            type="checkbox"
-            checked={draft.enabled}
-            onChange={(e) => patch({ enabled: e.target.checked })}
-            className="w-4 h-4 cursor-pointer"
-          />
-        </label>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={draft.enabled}
+            aria-label={isAr ? 'إظهار القسم للزوار' : 'Show the section to visitors'}
+            onClick={() => patch({ enabled: !draft.enabled })}
+            className={`relative shrink-0 w-14 h-8 rounded-full border transition-colors cursor-pointer ${
+              draft.enabled ? 'bg-ink border-ink' : 'bg-white border-ink/25'
+            }`}
+          >
+            <span
+              className={`absolute top-1/2 -translate-y-1/2 w-6 h-6 rounded-full shadow-sm transition-all ${
+                draft.enabled ? 'start-auto end-1 bg-paper' : 'start-1 end-auto bg-ink/30'
+              }`}
+            />
+          </button>
+        </div>
 
         <label className="block space-y-1.5">
           <span className="text-[11px] font-bold text-ink/75">

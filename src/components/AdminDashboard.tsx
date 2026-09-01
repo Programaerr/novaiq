@@ -106,7 +106,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
     };
   }, [contracts]);
 
-  // Grouped, not a flat list of six. "Contracts, Pricing, Team, Subscribers, Social Links" in one
+  // Grouped, not a flat list of six. "Contracts, Pricing, Team, Subscribers, Settings" in one
   // column gives every destination the same weight and makes the reader scan all six to find the
   // one they came for. Money, people and configuration are three different jobs, visited at three
   // different rhythms, and saying so in the nav is most of what makes a panel this size navigable.
@@ -135,7 +135,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
     {
       heading: isAr ? 'الإعداد' : 'Configuration',
       items: [
-        { id: 'settings', label: isAr ? 'التواصل الاجتماعي' : 'Social Links', icon: Settings },
+        { id: 'settings', label: isAr ? 'الإعدادات' : 'Settings', icon: Settings },
       ],
     },
   ];
