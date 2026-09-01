@@ -167,7 +167,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               card's own corner family instead. */}
           <div
             dir={isAr ? 'rtl' : 'ltr'}
-            className="md:w-[41.7%] md:shrink-0 rounded-2xl px-6 py-9 md:px-6 md:py-9 lg:px-7 lg:py-10 flex flex-col justify-center text-center"
+            className="md:w-[41.7%] md:shrink-0 rounded-2xl shadow-[0_4px_10px_-2px_rgba(8,10,13,0.12),0_20px_44px_-18px_rgba(8,10,13,0.40)] px-6 py-9 md:px-6 md:py-9 lg:px-7 lg:py-10 flex flex-col justify-center text-center"
             style={{ background: OBSIDIAN, color: WHITE }}
           >
             {/* Line height 1.35 and up, throughout. Arabic needs more of it than Latin at the
@@ -306,7 +306,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 block
                 loading={isSubmitting}
                 onClick={handleGoogleSignIn}
-                className={error ? 'mt-4' : 'mt-[28px]'}
+                className={`${error ? 'mt-4' : 'mt-[28px]'} shadow-[0_2px_6px_-1px_rgba(8,10,13,0.10),0_10px_22px_-10px_rgba(8,10,13,0.28)]`}
                 icon={<GoogleIcon />}
               >
                 {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
@@ -317,23 +317,33 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                   anything worth signing in for. The line underneath says where the wall actually
                   is, so choosing this does not feel like it might cost them something later.
 
-                  `white` quiet, and the tone is chosen by the FOCUS RING rather than by the fill.
-                  `glass` solid looks closer to the drawing — a near-opaque white pill — but its
-                  ring is white, and nqSurface says why in as many words: darkRing is keyed to the
-                  page behind the button, and `glass` is set for the hero's OBSIDIAN panel, where a
-                  dark ring would vanish. This page is the mirror of that: light ground, frosted
-                  card, so a white ring is the one that disappears and a keyboard user loses the
-                  button. `white` quiet is the light-ground pair — PAPER_DEEP fill, Obsidian
-                  label, dark ring. */}
+                  WHITE, on the owner's call, where this was the warm grey `white` quiet gives.
+                  It took a new tone to do it honestly rather than a class at the call site.
+
+                  `glass` solid has the fill but the wrong ring: darkRing is keyed to the PAGE
+                  behind the button, and `glass` is set for the hero's Obsidian panel, so on this
+                  light card its white ring vanishes and a keyboard user loses the button. `frost`
+                  is `glass` with that one thing flipped — the same move `signal` already makes for
+                  Orange on a light ground.
+
+                  White and filled, with a soft shadow under it rather than a line around it.
+                  That distinction is the whole history of this button: a white fill measures
+                  1.06:1 against this card and has no silhouette of its own, a 1px outline fixed
+                  that and read as a frame, and the shadow does the same job by lifting the fill
+                  above the card instead of drawing a border on it.
+
+                  The shadow is set here rather than in the tone, because it belongs to this
+                  page's composition and not to `frost`: the card lost its own shadow in the same
+                  pass, and what moved is where the depth lives, not how much of it there is. */}
               <NqButton
-                tone="white"
-                variant="quiet"
+                tone="frost"
+                variant="solid"
                 size="lg"
                 radius="xl"
                 block
                 disabled={isSubmitting}
                 onClick={onContinueAsGuest}
-                className="mt-[22px]"
+                className="mt-[22px] shadow-[0_2px_6px_-1px_rgba(8,10,13,0.10),0_10px_22px_-10px_rgba(8,10,13,0.28)]"
               >
                 {isAr ? 'أكمل كضيف' : 'Continue as guest'}
               </NqButton>

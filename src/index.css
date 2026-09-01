@@ -957,9 +957,14 @@
   border-radius: 1.75rem;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.75);
-  /* The lift and the lit edge. Against a field of cards that are themselves shaded, a flat panel
-     with no shadow reads as a hole cut in the field rather than as a sheet laid over it. */
-  box-shadow: 0 18px 44px -20px rgba(7, 17, 31, 0.35), inset 1px 1px 0 rgba(255, 255, 255, 0.7);
+  /* The lit edge, and only that. The drop shadow that used to sit beside it has moved INSIDE the
+     card, onto the dark block and the two buttons — the owner's call, and it reads better: the
+     card is now a flat sheet with three things standing on it rather than a raised slab carrying
+     three flat ones, which is the shallower of the two readings.
+
+     The inset hairline stays. It is a 1px white highlight along the top-left, the lit edge of a
+     pane of glass, and it is not what anyone means by the card's shadow. */
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {

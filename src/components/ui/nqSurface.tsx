@@ -19,7 +19,7 @@ import { ButtonTiles, newDrive } from './ButtonTiles';
 
 /* ── Tones ──────────────────────────────────────────────────────────────────────────────── */
 
-export type NqTone = 'chrome' | 'paper' | 'white' | 'obsidian' | 'glass' | 'footer' | 'signal';
+export type NqTone = 'chrome' | 'paper' | 'white' | 'obsidian' | 'glass' | 'frost' | 'footer' | 'signal';
 export type NqVariant = 'solid' | 'quiet' | 'ghost';
 export type NqSize = 'sm' | 'md' | 'lg';
 /** Pill everywhere by default. `xl` exists for the two places a pill would be wrong — a row of
@@ -170,6 +170,27 @@ export const TONES: Record<NqTone, ToneSpec> = {
     ghost: { bg: 'transparent', fg: '#FFFFFF', tile: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
     accent: ORANGE,
     darkRing: false,
+  },
+  /* `glass` again, on a LIGHT page instead of a dark one — the sign-in card, which is frosted
+     white over the card field. Exactly the move `signal` makes below for Orange: the same fill,
+     the opposite ring, because `darkRing` is keyed to the PAGE and not to the button. `glass`'s
+     white ring is correct on the hero's Obsidian panel and vanishes here.
+
+     `ghost` also flips its label to Obsidian for the same reason: this button is genuinely
+     transparent, so its text sits on the frosted card, where white would be invisible.
+
+     Nothing drawn around it, and that is the owner's call twice over: a 1px outline read as a
+     frame, and a soft shadow after it was not wanted either. So the fill is on its own, and it
+     is fully opaque #FFFFFF rather than the 92% `glass` uses — the most separation a white
+     button can have from a white card without drawing anything at all. Measured, that is 1.06:1
+     where the card is neutral, and a little more wherever the Orange behind the glass warms it.
+     The label is what identifies this control; the fill is not doing that work. */
+  frost: {
+    solid: { bg: '#FFFFFF', fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    quiet: { bg: 'rgba(255,255,255,0.55)', fg: OBSIDIAN, tile: '#8B8C8D', badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
+    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: WHITE, badgeBg: OBSIDIAN, badgeFg: PAPER },
+    accent: ORANGE,
+    darkRing: true,
   },
   /* Same fill as `chrome` (Orange, Obsidian text) but with a dark ring instead of white — for a
    * button that has to match a full-bleed Orange ground while sitting on a LIGHT surface next to
