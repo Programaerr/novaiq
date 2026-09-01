@@ -7,7 +7,6 @@ import { LoginPage } from './LoginPage';
 import { AdminDashboard } from './AdminDashboard';
 import { CustomerDashboard } from './CustomerDashboard';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
-import { PageLoader } from './PageLoader';
 
 interface AdminPageProps {
   language: Language;
@@ -31,13 +30,45 @@ interface AdminPageProps {
 // instead of flashing the loader again; the cache is keyed by email, so switching accounts
 // (or signing out/in) naturally gets a fresh check.
 //
-// في الذاكرة فقط، عمداً — لا localStorage ولا كوكي. قيمة "أنا أدمن" مخزَّنة في مكان يقدر
-// صاحب المتصفح تعديله هي دعوة مفتوحة لانتحال الصفة بسطر واحد في أدوات المطوّر؛ هذه الخريطة
-// تموت مع إغلاق التبويب ولا تُقرأ من أي مكان يمكن الكتابة فيه.
+// خريطة الجلسة هذه هي المصدر الأول للسرعة داخل التبويب الواحد؛ التلميح المحفوظ أدناه يغطّي
+// أول دخول في تبويب جديد. لا أحدهما يمنح صلاحية — انظر التعليق على HINT_KEY.
 const adminCache = new Map<string, boolean>();
 
 /** كل كم يُعاد التحقق أثناء بقاء اللوحة مفتوحة — سحب الصلاحية يجب أن يُطبَّق بلا انتظار خروج. */
 const REVALIDATE_MS = 5 * 60 * 1000;
+
+/**
+ * تلميح "هذا الحساب كان أدمن آخر مرة"، محفوظ لكل uid على حدة.
+ *
+ * هذا ليس تراجعاً عن قاعدة "لا تُخزَّن الصلاحية في مكان يقدر صاحب المتصفح تعديله". الفرق أن
+ * هذه القيمة لا تفتح شيئاً: كل ما تفعله هو اختيار أي هيكل يُرسَم في أول إطار بدل شاشة انتظار.
+ * خلفها بوابة ثانية تسأل الخادم (AdminDashboard)، ولا يُشترَك بأي بيانات قبل جوابها، وقاعدة
+ * Firestore ترفض كل قراءة لغير الأدمن على أي حال. من يزوّر التلميح يحصل على هيكل فارغ لجزء
+ * من ثانية ثم شاشة "غير مصرّح" — أي لا شيء لم يكن يقدر على رسمه بتعديل الجافاسكربت أصلاً.
+ */
+const HINT_KEY = 'nuvaiq_admin_hint';
+
+function readAdminHint(uid: string): boolean | undefined {
+  try {
+    const raw = localStorage.getItem(HINT_KEY);
+    if (!raw) return undefined;
+    const map = JSON.parse(raw) as Record<string, boolean>;
+    return typeof map[uid] === 'boolean' ? map[uid] : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function writeAdminHint(uid: string, value: boolean) {
+  try {
+    const raw = localStorage.getItem(HINT_KEY);
+    const map = raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
+    map[uid] = value;
+    localStorage.setItem(HINT_KEY, JSON.stringify(map));
+  } catch {
+    // التخزين غير متاح — يعود الفتح إلى انتظار جواب الخادم، لا أكثر.
+  }
+}
 
 // The single entry point for "my account" — reached from the navbar by everyone, customers
 // and the owner/partner alike. Login/sign-up is identical for both; what happens after
@@ -48,10 +79,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
 
   // Declare the light page ground HERE, on the entry component, not on the dashboards it
-  // renders. Otherwise the loader below — which shows while auth and the admin check are still
-  // running — would sit on the site's black ground, a black panel with a spinner in it. The
-  // account pages paint their own ground, so the ground must already be light before the first
-  // pixel of the first dashboard (or of the loader) is drawn.
+  // renders. The account pages paint their own ground, so the ground must already be light
+  // before the first pixel of the first dashboard is drawn — وهو أيضاً ما يجعل إرجاع `null`
+  // أثناء التحقق صفحةً فارغة بلون الحساب، لا فجوة سوداء بلون الموقع.
   useDocumentFlag('flat');
   useDocumentFlag('account');
 
@@ -73,7 +103,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
   // Reading the cache here collapses that: when the answer is known the very first render has
   // it, the guard below is false, and nothing loads. The effect still owns the uncached path.
   const cachedIsAdmin = effectiveUser ? adminCache.get(effectiveUser.email ?? '') : undefined;
-  const resolvedIsAdmin = isAdmin ?? cachedIsAdmin;
+  const hintedIsAdmin = effectiveUser ? readAdminHint(effectiveUser.uid) : undefined;
+  const resolvedIsAdmin = isAdmin ?? cachedIsAdmin ?? hintedIsAdmin;
 
   useEffect(() => {
     if (!effectiveUser) {
@@ -89,18 +120,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
        فقط، ولا يجوز أن تكون هي المصدر النهائي للحقيقة. أدمن حُذف من القائمة، أو حساب عُطِّل،
        أو رمز دخول سُحب — كل ذلك يجب أن يُخرجه من اللوحة في هذه الجلسة نفسها، لا في الجلسة
        القادمة. والنتيجة تُطبَّق في الاتجاهين: صعوداً وهبوطاً. */
-    const verify = () => {
-      isCurrentUserAdmin().then((result) => {
+    const verify = (forceTokenRefresh: boolean) => {
+      isCurrentUserAdmin(forceTokenRefresh).then((result) => {
         if (cancelled) return;
         adminCache.set(email, result);
+        writeAdminHint(effectiveUser.uid, result);
         setIsAdmin(result);
       });
     };
 
-    verify();
-    const timer = setInterval(verify, REVALIDATE_MS);
+    // الفحص الأول بلا تحديث رمز إجباري — هو أبطأ رحلة شبكة في المسار، ولا يضيف أماناً هنا
+    // لأن الخادم يتحقق من الرمز في كل الأحوال. إعادة التحقق الدورية تُجبره.
+    verify(false);
+    const timer = setInterval(() => verify(true), REVALIDATE_MS);
     // العودة إلى التبويب بعد غياب طويل هي أكثر لحظة يكون فيها ما على الشاشة قديماً.
-    const onFocus = () => verify();
+    const onFocus = () => verify(true);
     window.addEventListener('focus', onFocus);
 
     return () => {
@@ -110,8 +144,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
     };
   }, [effectiveUser]);
 
+  /* لا شاشة تحميل هنا إطلاقاً.
+   *
+   * كانت تظهر مرتين لكل دخول: مرة بانتظار Firebase وهو يستعيد الجلسة، ومرة بانتظار جواب
+   * قائمة المشرفين — وكلاهما جزء من ثانية على اتصال جيد، أي وميض شاشة كاملة مقابل انتظار لا
+   * يكاد يُلاحَظ. أرضية الصفحة مرسومة أصلاً (useDocumentFlag أعلاه)، فإرجاع لا شيء يعني صفحة
+   * فارغة هادئة للحظة بدل دوّارة تقول "انتظر" ثم تختفي فوراً.
+   *
+   * ومع التلميح المحفوظ أعلاه، الأدمن العائد لا يمرّ من هنا أساساً: أول إطار يرسم اللوحة. */
   if (effectiveUser === undefined || (effectiveUser && resolvedIsAdmin === undefined)) {
-    return <PageLoader />;
+    return null;
   }
 
   if (!effectiveUser) {

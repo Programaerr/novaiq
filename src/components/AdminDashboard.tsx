@@ -147,16 +147,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   const moreGroups: TabGroup[] = groups.slice(1);
   const isMoreTab = !primaryTabs.some((t) => t.id === tab);
 
-  // لا شيء من اللوحة يُرسَم قبل جواب الخادم (انظر البوابة الثانية أعلاه).
-  if (verified === undefined) {
-    return (
-      <div className="max-w-screen-2xl mx-auto px-4 py-24 text-center text-ink/60 text-xs">
-        {isAr ? 'جارٍ التحقق من الصلاحية…' : 'Verifying access…'}
-      </div>
-    );
-  }
-
-  if (!verified) {
+  /* اللوحة تُرسَم فوراً بلا انتظار جواب الخادم، والرفض يظهر متى وصل الجواب سلباً.
+   *
+   * الانتظار هنا كان يعني رسالة "جارٍ التحقق من الصلاحية…" في كل دخول — بينما ما يحميه
+   * الانتظار لا شيء: الاشتراك بالعقود أدناه ما زال محبوساً على verified === true، وقاعدة
+   * Firestore ترفض كل قراءة لغير الأدمن. أسوأ ما يراه غير المصرَّح له هو هيكل فارغ بلا رقم
+   * واحد، ثم شاشة الرفض. */
+  if (verified === false) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center space-y-4">
         <ShieldCheck className="w-10 h-10 mx-auto text-ink/30" />

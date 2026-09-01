@@ -106,19 +106,24 @@ export async function isAdminEmail(email: string | null | undefined): Promise<bo
  *    خاصية أو حالة أو تخزين محلي يقدر أحد يعدّلها. لا يوجد مدخل يمكن "حقنه" هنا أصلاً.
  *  · تتحقق من emailVerified أولاً، بنفس شرط قاعدة isAdmin() في firestore.rules، فلا تُظهر
  *    الواجهة صلاحية سترفضها القاعدة لاحقاً.
- *  · getIdToken(true) يجبر تحديث الرمز من خوادم Google: حساب عُطِّل أو حُذف أو سُحبت جلسته
- *    يفشل هنا فوراً بدل أن يبقى رمزه القديم صالحاً في المتصفح حتى ينتهي وحده.
+ *  · مع forceTokenRefresh تُجبر تحديث الرمز من خوادم Google: حساب عُطِّل أو حُذف أو سُحبت
+ *    جلسته يفشل هنا فوراً بدل أن يبقى رمزه القديم صالحاً في المتصفح حتى ينتهي وحده. تُمرَّر
+ *    في إعادة التحقق الدورية فقط، لا في الفحص الأول (انظر التعليق داخل الدالة).
  *  · أي خطأ = ليس أدمن. الفشل يُغلق الباب لا يفتحه.
  *
  * ويبقى الأهم: هذه الدالة تقرر ما يُرسَم على الشاشة فقط. الحاجز الحقيقي هو firestore.rules —
  * من يعدّل جافاسكربت في متصفحه ليجبر ظهور اللوحة يحصل على هيكل فارغ: كل قراءة عقود أو
  * حسابات أو كتابة سعر تُرفض من الخادم، لأن الخادم لا يسأل المتصفح من هو.
  */
-export async function isCurrentUserAdmin(): Promise<boolean> {
+export async function isCurrentUserAdmin(forceTokenRefresh = false): Promise<boolean> {
   const user = auth.currentUser;
   if (!user || !user.email) return false;
   try {
-    await user.getIdToken(true);
+    /* تحديث الرمز إجبارياً رحلة شبكة كاملة إلى خوادم Google، وهي أبطأ خطوة في فتح اللوحة.
+       الفحص الأول لا يحتاجها: قاعدة Firestore تتحقق من الرمز على الخادم مهما كان عمره، وأي
+       رمز مسحوب يُرفض هناك لا هنا. تبقى إجبارية في إعادة التحقق الدورية (AdminPage)، حيث
+       الهدف بالضبط هو التقاط حساب عُطِّل أو حُذف أثناء الجلسة. */
+    if (forceTokenRefresh) await user.getIdToken(true);
     if (!user.emailVerified) return false;
     const snap = await getDoc(doc(db, 'admins', normalizeEmail(user.email)));
     return snap.exists();
