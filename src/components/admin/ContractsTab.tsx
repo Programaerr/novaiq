@@ -245,6 +245,12 @@ function ContractRow({
   const [payments, setPayments] = useState<PaymentRecord[]>(() => baselinePayments(contract));
   const [installmentsPlanned, setInstallmentsPlanned] = useState(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
   const [adminNotes, setAdminNotes] = useState(contract.adminNotes || '');
+  /* المدة وآلية السداد صارتا تُعتمدان من هنا لا من الباني.
+     المشروع مخصص، فلا الباني يعرف مدته (كان يكتب 8 أسابيع لكل مشروع مهما كان حجمه) ولا العميل
+     اختار خطة سداد (كانت مثبَّتة على 50/50 بلا أن تُعرَض عليه). كلاهما الآن يُترك فارغاً في
+     الوثيقة حتى تعتمده أنت مع السعر، فيظهر للعميل عندها. */
+  const [deliveryWeeks, setDeliveryWeeks] = useState(String(contract.deliveryTimelineWeeks || ''));
+  const [paymentPlan, setPaymentPlan] = useState<ContractData['paymentPlan']>(contract.paymentPlan || '50_50');
   /** رابط المعاينة الخاص الذي يتابع منه العميل موقعه أثناء التنفيذ. */
   const [previewUrl, setPreviewUrl] = useState(contract.previewUrl || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -261,6 +267,8 @@ function ContractRow({
     setPayments(baselinePayments(contract));
     setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
     setAdminNotes(contract.adminNotes || '');
+    setDeliveryWeeks(String(contract.deliveryTimelineWeeks || ''));
+    setPaymentPlan(contract.paymentPlan || '50_50');
     setPreviewUrl(contract.previewUrl || '');
     setSignatureDirty(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -288,6 +296,8 @@ function ContractRow({
     JSON.stringify(payments) !== JSON.stringify(baselinePayments(contract)) ||
     installmentsPlannedNum !== (contract.installmentsPlanned || 0) ||
     adminNotes !== (contract.adminNotes || '') ||
+    Number(deliveryWeeks || 0) !== (contract.deliveryTimelineWeeks || 0) ||
+    paymentPlan !== (contract.paymentPlan || '50_50') ||
     previewUrl.trim() !== (contract.previewUrl || '') ||
     signatureDirty;
 
@@ -319,6 +329,8 @@ function ContractRow({
         // sending `undefined` under merge:true could not do.
         installmentsPlanned: installmentsPlannedNum,
         adminNotes: adminNotes.trim(),
+        deliveryTimelineWeeks: Number(deliveryWeeks) || 0,
+        paymentPlan,
         previewUrl: previewUrl.trim(),
         // علامة الحبر الداكن تُكتب مع التوقيع نفسه وفي نفس الحفظ — لو كُتبت لاحقاً لظهر
         // التوقيع مقلوباً (أبيض على أبيض) في الفترة بينهما.
@@ -528,6 +540,29 @@ function ContractRow({
                   onChange={setCost}
                   className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs font-mono"
                 />
+              </div>
+              <div className="min-w-0">
+                <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'مدة التنفيذ (أسابيع)' : 'Delivery (weeks)'}</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={deliveryWeeks}
+                  onChange={(e) => setDeliveryWeeks(e.target.value)}
+                  placeholder={isAr ? 'تُحدَّد بالاتفاق' : 'to be agreed'}
+                  className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs font-mono"
+                />
+              </div>
+              <div className="min-w-0">
+                <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'آلية السداد' : 'Payment plan'}</label>
+                <select
+                  value={paymentPlan}
+                  onChange={(e) => setPaymentPlan(e.target.value as ContractData['paymentPlan'])}
+                  className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs font-bold cursor-pointer"
+                >
+                  <option value="50_50">{isAr ? '50% عند التعاقد و50% عند التسليم' : '50% on signing, 50% on delivery'}</option>
+                  <option value="100_upfront">{isAr ? 'دفعة كاملة مسبقة' : 'Full upfront'}</option>
+                  <option value="3_milestones">{isAr ? '3 دفعات على مراحل' : '3 milestones'}</option>
+                </select>
               </div>
               <div className="min-w-0">
                 <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'عدد الدفعات المتفق عليها' : 'Agreed installments'}</label>

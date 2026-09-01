@@ -328,6 +328,8 @@ function CustomerContractRow({
   // exactly what's been paid and what's left, instead of only NUVAIQ having a record of it.
   const paidAmountIQD = contract.payments ? sumPayments(contract.payments) : contract.paidAmountIQD || 0;
   const remainingIQD = Math.max((contract.totalPriceIQD || 0) - paidAmountIQD, 0);
+  /** عقد بقيمة صفر = لم يُسعَّر بعد. نفس الاشتقاق المستعمل في الوثيقة المطبوعة. */
+  const hasAgreedPrice = (contract.totalPriceIQD || 0) > 0;
   const installmentsPlanned = contract.installmentsPlanned || 0;
 
   const handleDownload = async () => {
@@ -360,7 +362,9 @@ function CustomerContractRow({
           <div className="text-[10px] text-ink/50 font-mono truncate">{contract.contractNumber}</div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs font-mono text-ink/75 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
+          <span className="text-xs font-mono text-ink/75 hidden sm:inline">
+            {hasAgreedPrice ? formatPrice(contract.totalPriceIQD || 0, language, currency) : (isAr ? 'بانتظار التسعير' : 'Awaiting quote')}
+          </span>
           {/* النسبة في السطر المطوي أيضاً: أهم رقم يبحث عنه العميل، ولا يجب أن يضطر لفتح
               البطاقة ليراه. تظهر أثناء التنفيذ فقط — قبله هي رقم مرحلة ثابت لا خبر فيه. */}
           {contract.status === 'in_development' && (
@@ -406,14 +410,23 @@ function CustomerContractRow({
               {isAr ? 'تفاصيل العقد' : 'Contract Details'}
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
+              {/* نفس قاعدة الوثيقة المطبوعة (ContractPrintDocument): لا رقم قبل أن يوجد رقم.
+                  المشروع مخصص، فالسعر والمدة وآلية السداد تُعتمد بعد مراجعة طلب العميل — وعرضها
+                  أصفاراً هنا كان يقول للعميل إن مشروعه بلا قيمة وبمدة صفر. */}
               <div>
                 <span className="text-ink/50 block">{isAr ? 'إجمالي السعر' : 'Total Price'}</span>
-                <strong className="text-ink font-mono text-sm">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</strong>
+                {hasAgreedPrice ? (
+                  <strong className="text-ink font-mono text-sm">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</strong>
+                ) : (
+                  <strong className="text-ink/70">{isAr ? 'يُتفق عليه حسب طلبك' : 'To be agreed on your request'}</strong>
+                )}
               </div>
               <div>
                 <span className="text-ink/50 block">{isAr ? 'خطة الدفع' : 'Payment Plan'}</span>
                 <strong className="text-ink/90">
-                  {contract.paymentPlan === '100_upfront'
+                  {!hasAgreedPrice
+                    ? (isAr ? 'تُحدَّد بالاتفاق' : 'To be agreed')
+                    : contract.paymentPlan === '100_upfront'
                     ? (isAr ? 'دفعة واحدة عند التوقيع' : '100% Upfront')
                     : contract.paymentPlan === '3_milestones'
                     ? (isAr ? '3 دفعات مرتبطة بالمراحل' : '3 Milestones')
@@ -423,7 +436,13 @@ function CustomerContractRow({
               <div>
                 <span className="text-ink/50 block">{isAr ? 'مدة التسليم' : 'Delivery'}</span>
                 <strong className="text-ink/90">
-                  {isAr ? `${contract.deliveryTimelineWeeks || 0} أسبوع` : `${contract.deliveryTimelineWeeks || 0} weeks`}
+                  {hasAgreedPrice && contract.deliveryTimelineWeeks
+                    ? isAr
+                      ? `${contract.deliveryTimelineWeeks} أسبوع`
+                      : `${contract.deliveryTimelineWeeks} weeks`
+                    : isAr
+                      ? 'تُحدَّد بالاتفاق'
+                      : 'To be agreed'}
                 </strong>
               </div>
               <div>
