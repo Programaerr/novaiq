@@ -56,7 +56,13 @@ function normalize(raw: unknown): ClientsStrip {
     items: Array.isArray(data.items)
       ? data.items
           .filter((i): i is ClientItem => !!i && typeof i.id === 'string')
-          .map((i) => ({ id: i.id, name: String(i.name || ''), logoDataUrl: i.logoDataUrl || undefined }))
+          // المفتاح يُحذف حين لا شعار، ولا يُوضَع بقيمة undefined: تلك القيمة كانت تنتقل من
+          // هنا إلى المسوّدة ثم إلى الكتابة، وFirestore يرفض undefined ويُفشل الحفظ كاملاً.
+          .map((i) => ({
+            id: i.id,
+            name: String(i.name || ''),
+            ...(i.logoDataUrl ? { logoDataUrl: i.logoDataUrl } : {}),
+          }))
       : [],
   };
 }
@@ -107,7 +113,26 @@ export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
     import('firebase/firestore'),
     import('./firebase'),
   ]);
-  await setDoc(doc(db, SETTINGS_DOC), value);
+
+  /* المستند يُكتب كاملاً بلا merge، وهذا مقصود: الحفظ استبدال لا إضافة، فأي شعار حُذف أو
+     عنصر أُزيل يختفي فعلياً من قاعدة البيانات ولا يبقى محجوزاً للمساحة. merge كان سيُبقي كل
+     حقل لم يُذكر في هذه الكتابة على حاله.
+     
+     والمفتاح يُحذف حذفاً لا يُرسَل `undefined`: Firestore يرفض القيمة undefined ويُفشل
+     الكتابة كاملة برسالة "Unsupported field value" — أي أن إزالة شعار واحد كانت ستُسقط حفظ
+     القسم كله. */
+  const payload: ClientsStrip = {
+    enabled: value.enabled,
+    title: value.title,
+    speedSeconds: value.speedSeconds,
+    items: value.items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      ...(item.logoDataUrl ? { logoDataUrl: item.logoDataUrl } : {}),
+    })),
+  };
+
+  await setDoc(doc(db, SETTINGS_DOC), payload);
 }
 
 /** الهوك الوحيد الذي يقرأ منه كل من يعرض الشريط. */

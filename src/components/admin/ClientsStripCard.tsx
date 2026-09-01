@@ -131,8 +131,23 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
       cosmicAudio.playPing();
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 2000);
-    } catch {
-      showToast(isAr ? 'تعذر الحفظ، حاول مجدداً' : 'Could not save — please try again', 'error');
+    } catch (e) {
+      /* السبب يُطبع ويُذكر في الرسالة، لا "حاول مجدداً" وحدها: الفشل هنا له سببان مختلفان
+         تماماً وعلاجهما مختلف — رفض من قواعد Firestore (الحساب ليس أدمن، أو القواعد لم
+         تُنشَر)، أو مستند تجاوز الحد. رسالة واحدة عامة تجعل الاثنين يبدوان عطلاً مبهماً. */
+      console.error('Failed to save the clients strip:', e);
+      const code = (e as { code?: string })?.code || '';
+      const denied = code.includes('permission-denied');
+      showToast(
+        denied
+          ? isAr
+            ? 'الحفظ مرفوض من قاعدة البيانات — تأكد أن حسابك ضمن المشرفين وأن قواعد Firestore منشورة'
+            : 'The database refused the write — check that your account is an admin and the Firestore rules are published'
+          : isAr
+            ? `تعذر الحفظ${code ? ` (${code})` : ''}، حاول مجدداً`
+            : `Could not save${code ? ` (${code})` : ''} — please try again`,
+        'error'
+      );
     } finally {
       setIsSaving(false);
     }
