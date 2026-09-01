@@ -56,6 +56,10 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
   const [isSaving, setIsSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const [busyItem, setBusyItem] = useState<string | null>(null);
+  /* الحذف بخطوتين: أول ضغطة تطلب التأكيد، والثانية تحذف فعلاً. شركة بشعار مرفوع تُفقَد بضغطة
+     واحدة خاطئة بلا أي طريق للرجوع (الصورة نفسها ذهبت مع الحذف)، وnافذة confirm للمتصفح تقطع
+     الشاشة كلها لأجل سطر واحد. */
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
   /* المزامنة من Firestore تتوقف بمجرد أن يلمس الأدمن أي حقل.
@@ -83,7 +87,10 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
   };
 
   const addItem = () => patch({ items: [...draft.items, { id: newId(), name: '' }] });
-  const removeItem = (id: string) => patch({ items: draft.items.filter((i) => i.id !== id) });
+  const removeItem = (id: string) => {
+    patch({ items: draft.items.filter((i) => i.id !== id) });
+    setPendingDelete(null);
+  };
 
   const move = (id: string, dir: -1 | 1) => {
     const idx = draft.items.findIndex((i) => i.id === id);
@@ -311,14 +318,34 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
               </button>
             )}
 
-            <button
-              type="button"
-              onClick={() => removeItem(item.id)}
-              aria-label={isAr ? 'حذف' : 'Delete'}
-              className="shrink-0 w-9 h-9 grid place-items-center rounded-xl text-red-600/70 hover:text-red-600 cursor-pointer"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
+            {pendingDelete === item.id ? (
+              <span className="shrink-0 flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.id)}
+                  className="px-2.5 h-9 rounded-xl bg-red-600 text-white text-[11px] font-bold cursor-pointer"
+                >
+                  {isAr ? 'تأكيد الحذف' : 'Confirm'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPendingDelete(null)}
+                  className="px-2.5 h-9 rounded-xl bg-white border border-ink/15 text-ink/70 text-[11px] font-bold cursor-pointer"
+                >
+                  {isAr ? 'تراجع' : 'Cancel'}
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setPendingDelete(item.id)}
+                aria-label={isAr ? 'حذف' : 'Delete'}
+                title={isAr ? 'حذف الشركة' : 'Delete company'}
+                className="shrink-0 w-9 h-9 grid place-items-center rounded-xl text-red-600/70 hover:text-red-600 cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
           </div>
         ))}
 

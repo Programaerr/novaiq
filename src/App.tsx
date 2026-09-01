@@ -549,7 +549,11 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen text-zinc-100 flex flex-col font-['Cairo'] relative selection:bg-zinc-100 selection:text-black overflow-x-hidden">
+    /* overflow-x-clip لا hidden: الاثنان يمنعان التمرير الأفقي، لكن `hidden` يحوّل العنصر إلى
+       حاوية تمرير — وحاوية التمرير تكسر كل `position: sticky` بداخلها (يصير الالتصاق منسوباً
+       إليها وهي لا تتمرّر أصلاً، فلا يلتصق شيء). `clip` يقصّ الفائض بلا إنشاء حاوية تمرير،
+       فيبقى الشريط العلوي في لوحة التحكم ملتصقاً كما يجب. */
+    <div className="min-h-screen text-zinc-100 flex flex-col font-['Cairo'] relative selection:bg-zinc-100 selection:text-black overflow-x-clip">
       
       {/* Supernova Atmospheric Background */}
 

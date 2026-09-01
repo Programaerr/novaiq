@@ -179,7 +179,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   return (
     // pb-24 clears the fixed bottom tab bar on mobile; lg:pb-12 is the panel's own original
     // breathing room once the bar disappears at the desktop sidebar breakpoint.
-    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-24 lg:pb-12">
+    /* بلا pt هنا: الشريط العلوي ملتصق (sticky) ويحمل حشوته العلوية بنفسه. أي حشوة على هذه
+       الحاوية تظهر كفراغ فوق الشريط وهو في وضع الراحة، ثم تختفي بمجرد أن يلتصق بالحافة —
+       فيبدو وكأن فراغاً يظهر ويغيب مع التمرير. */
+    <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 lg:pb-12">
       {showLogoutConfirm && (
         <LogoutConfirmDialog
           isAr={isAr}
