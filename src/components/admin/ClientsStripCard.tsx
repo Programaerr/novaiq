@@ -201,11 +201,12 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
           <span className="text-[11px] font-bold text-ink/75 flex items-center justify-between">
             <span>{isAr ? 'سرعة الحركة' : 'Motion speed'}</span>
             <span className="font-mono text-ink/50">
-              {draft.speedSeconds}s {isAr ? '/ دورة' : '/ loop'}
+              {draft.speedSeconds}s {isAr ? '/ عرض شاشة' : '/ screen width'}
             </span>
           </span>
-          {/* الرقم ثوانٍ للدورة الكاملة لا "سرعة": أكبر = أبطأ. الطرفان مكتوبان تحته حتى لا
-              يحتاج أحد أن يتذكّر أي اتجاه يعني ماذا. */}
+          {/* الرقم ثوانٍ لعبور عرض شاشة واحد لا للدورة كاملة: طول الدورة يتغيّر بعدد الشعارات
+              وبعرض الجهاز، فلو كان الرقم للدورة لصارت السرعة المرئية مختلفة عند كل زائر ومع كل
+              شعار يُضاف. بهذا المعنى تبقى السرعة كما ضبطتَها مهما تغيّر الباقي. */}
           <input
             type="range"
             min={8}

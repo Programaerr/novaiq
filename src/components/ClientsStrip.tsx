@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useClientsStrip } from '../lib/clientsStrip';
-import { OBSIDIAN, PAPER, ORANGE_ON_LIGHT } from '../lib/homePalette';
+import { OBSIDIAN, PAPER } from '../lib/homePalette';
 import { Language } from '../lib/i18n';
 
 /**
@@ -34,6 +34,11 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const laneRef = useRef<HTMLUListElement | null>(null);
   const [repeats, setRepeats] = useState(1);
+  /* مدة الدورة محسوبة لا مأخوذة كما هي من الإعدادات.
+     `speedSeconds` معناه "ثوانٍ لعبور عرض شاشة واحد"، والمسافة الفعلية للدورة هي عرض المسار
+     الذي يتغيّر بعدد الشعارات وبعرض الجهاز. لو استُعملت القيمة مدةً مباشرة لصار الشريط أسرع
+     كلما زادت الشعارات وأبطأ على الشاشة الصغيرة — أي سرعة مختلفة عند كل زائر. */
+  const [durationSeconds, setDurationSeconds] = useState(strip.speedSeconds);
 
   const measure = useCallback(() => {
     const viewport = viewportRef.current;
@@ -51,7 +56,10 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
     // سقف يمنع أي احتمال لحلقة لا تنتهي لو أعاد القياس صفراً أو قيمة شاذة أثناء التخطيط.
     const next = Math.min(24, Math.max(1, needed));
     if (next !== repeats) setRepeats(next);
-  }, [repeats]);
+
+    const seconds = Math.max(4, strip.speedSeconds * (laneWidth / viewportWidth));
+    setDurationSeconds((prev) => (Math.abs(prev - seconds) > 0.25 ? seconds : prev));
+  }, [repeats, strip.speedSeconds]);
 
   useEffect(() => {
     measure();
@@ -81,7 +89,7 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
           decoding="async"
           /* ارتفاع موحّد وعرض حر: الشعارات تصل بنسب مختلفة وتثبيت الاثنين يشوّهها. التدرّج
              الرمادي يجعل شعارات بألوان متضاربة تُقرأ كصفّ واحد مرتّب لا لافتات متنافسة. */
-          className="h-9 sm:h-11 w-auto max-w-[160px] object-contain opacity-80 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0"
+          className="h-9 sm:h-11 w-auto max-w-[160px] object-contain opacity-85 grayscale"
         />
       ) : (
         <span className="text-base sm:text-xl font-black whitespace-nowrap" style={{ color: OBSIDIAN, opacity: 0.72 }}>
@@ -93,9 +101,11 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
 
   return (
     <section aria-label={strip.title} className="relative overflow-hidden py-8 sm:py-10" style={{ background: PAPER }}>
+      {/* بمقاس عناوين الأقسام في هذا الموقع (قارن PhasesSection)، لا كلمة صغيرة فوق شريط:
+          كان سطراً بحجم 0.7rem بتباعد حروف واسع، وهو مقاس "لصيقة" لا مقاس عنوان قسم. */}
       <h2
-        className="nq-container text-center text-[0.7rem] sm:text-xs font-black tracking-[0.28em] uppercase mb-6"
-        style={{ color: ORANGE_ON_LIGHT }}
+        className="nq-container text-center text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight mb-8 sm:mb-10"
+        style={{ color: OBSIDIAN }}
       >
         {strip.title}
       </h2>
@@ -110,9 +120,20 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
           WebkitMaskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
         }}
       >
+        {/* dir="ltr" على المسار، وهذا هو أصل "الفراغ الكبير ثم يظهر من العدم".
+            الصفحة عربية (rtl)، فالنسختان تُصفّان من اليمين إلى اليسار: النسخة الأصلية تحتل
+            النصف الأيمن والمكرّرة النصف الأيسر. والحركة `-50%` تدفع المسار يساراً — أي نحو
+            النسخة التي تُغادر، بينما الجهة التي تُفرَّغ (اليمين) لا يوجد خلفها شيء. النتيجة
+            بالضبط: الشعارات تخرج، يبقى فراغ بعرض المسار، ثم تعود دفعة واحدة عند إعادة الدورة.
+            بترتيب ltr تقع النسخة المكرّرة خلف الأصلية في اتجاه الحركة، فما يخرج من جهة يدخل
+            من الأخرى بلا أي فراغ. الشعارات والأسماء محايدة الاتجاه فلا يغيّرها هذا بصرياً.
+
+            pointer-events-none: الحزام عرض لا عنصر تفاعلي — لا يتوقّف بالمرور عليه ولا
+            يستجيب لضغطة، كما طُلب. */}
         <div
-          className="nq-marquee flex w-max"
-          style={{ ['--nq-marquee-duration' as string]: `${strip.speedSeconds}s` }}
+          dir="ltr"
+          className="nq-marquee flex w-max pointer-events-none"
+          style={{ ['--nq-marquee-duration' as string]: `${durationSeconds}s` }}
         >
           <ul ref={laneRef} className="flex items-center">
             {lane.map((item, i) => (
