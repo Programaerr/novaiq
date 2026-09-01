@@ -939,15 +939,20 @@
    ## Why 0.62 and not the 0.15-0.30 the glassmorphism recipe asks for
 
    Because text sits on this one. Measured against the worst case the panel can composite to —
-   an Orange card directly behind it — 62% white resolves to `#FFC69E`, where OBSIDIAN measures
-   13.05:1 and the muted ink derived for it in LoginPage measures 5.90:1. At 0.30 the same panel
-   lands on `#FFA85E`, and the fine print goes with it. The blur is what keeps it reading as
-   glass at that opacity: `saturate(180%)` pulls the Orange through as colour even where the
-   white has taken most of the value.
+   an Orange card directly behind it — 68% white resolves to `#FFCFAD`, where OBSIDIAN measures
+   13.71:1 and the muted ink derived for it in LoginPage clears the 4.5 floor comfortably. At
+   the recipe's 0.30 the same panel lands on `#FFA85E`, and the fine print goes with it.
 
-   `blur(18px)` is a little over the recipe's 10-20 ceiling on purpose. The cards behind are large
-   and high-contrast; at 12px their edges were still legible THROUGH the panel, which is the
-   patterned-ground problem the fallback exists to avoid, arriving by the other route. */
+   ## Why the blur is over the recipe's ceiling and the saturation under it
+
+   `blur(22px)`, past the 10-20 the recipe asks for, because the cards behind are large and
+   high-contrast: at 12px their edges were still legible THROUGH the panel, which is the
+   patterned-ground problem the opaque fallback exists to avoid, arriving by the other route.
+
+   `saturate(150%)` rather than 180 for the opposite reason. Saturation is what keeps a white
+   sheet reading as glass rather than as a lighter flat colour, but at 180 the Orange came
+   through the panel in blotches — legible, and still busier than a panel with a paragraph on it
+   should be. 150 keeps the warmth and loses the mottling. */
 .nq-glass {
   border-radius: 1.75rem;
   background: rgba(255, 255, 255, 0.9);
@@ -959,9 +964,58 @@
 
 @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
   .nq-glass {
-    background: rgba(255, 255, 255, 0.62);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    backdrop-filter: blur(18px) saturate(180%);
+    background: rgba(255, 255, 255, 0.68);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    backdrop-filter: blur(22px) saturate(150%);
+  }
+}
+
+/* The circular logo area on the sign-in form, and the entrance the two panels arrive on.
+
+   ## The circle
+
+   A circle because the reference draws one, and DARK because of what goes in it: the mark is a
+   white glyph with a hairline outline, built for the dark chrome it sits in everywhere else on
+   the site. On frosted white all that would show is the hairline.
+
+   The interaction is one step of scale and a ring that warms to the brand Orange — enough to
+   answer a pointer without becoming a thing that moves on its own. It is on a `:hover` and a
+   `:focus-within` so it answers a finger and a keyboard alike, and the whole of it is a
+   `transform` and a `box-shadow`, neither of which lays anything out again.
+
+   ## The entrance
+
+   0.55s on Expo-out (0.16, 1, 0.3, 1) rather than the site's shared 0.24s ease-out fade: this is
+   the first screen a visitor sees and the panels are large, and a curve that decelerates hard is
+   what makes a big object look like it has weight rather than like it snapped into place. The
+   second panel is staggered off the first by the caller, so the eye is led from the words to
+   the buttons in the order they are meant to be read.
+
+   `both` fill mode matters: without it the panels are painted at their final position for the
+   frame before the animation starts, which is a flash of the finished layout. */
+.nq-logo-orb {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 0 0 rgba(255, 106, 0, 0);
+}
+
+.nq-logo-orb:hover,
+.nq-logo-orb:focus-within {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 6px rgba(255, 106, 0, 0.22);
+}
+
+.nq-rise {
+  animation: nq-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes nq-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

@@ -130,26 +130,37 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
         <CardField />
       </div>
 
-      {/* ── The two panels ────────────────────────────────────────────────────────────── */}
-      {/* Words first, action second, in READING order rather than in fixed screen positions —
-          so in Arabic the pitch starts at the right edge where the eye does and the buttons
-          land at the left, and in English the pair mirrors. A sign-in screen is read before it
-          is used; the panel that argues for an account belongs where reading starts.
+      {/* ── The two panels ────────────────────────────────────────────────────── */}
+      {/* Dark panel LEFT, form RIGHT, physically, in both languages — the reference's own
+          geometry, and the composition is the thing being reproduced here rather than a reading
+          convention. This ordered itself by reading direction for one revision, which put the
+          dark panel on the right in Arabic: the mirror of the reference.
 
-          `items-stretch` (the grid default) is doing real work: it is what makes the dark box in
-          the left panel run the full height of the taller of the two, so the pair reads as one
-          object split down the middle rather than as two cards that happen to be adjacent. */}
+          `direction: ltr` on the GRID and `dir` handed back to each panel is what does it. The
+          grid resolves its columns left-to-right so column one is the left column whatever the
+          page reads like, and the words inside each panel still set right-to-left in Arabic.
+          Ordering with `order-*` utilities would have needed a pair of them per breakpoint and
+          would still leave the columns themselves mirrored.
+
+          `items-stretch` (the grid default) is doing real work: it makes the dark box run the
+          full height of the taller panel, so the pair reads as one object split down the middle
+          rather than as two cards that happen to be adjacent.
+
+          Two columns from `md`, not `lg`: a tablet has the width for the reference's own
+          composition, and what it cannot afford is the desktop's spacing — so the gap and the
+          panels' padding step down there instead of the layout changing shape. Below `md` it is
+          one column, dark panel first. */}
       <div
-        dir={isAr ? 'rtl' : 'ltr'}
-        className="relative w-full max-w-5xl grid gap-4 sm:gap-5 lg:grid-cols-2 animate-fade-in"
+        style={{ direction: 'ltr' }}
+        className="relative w-full max-w-5xl grid gap-4 md:gap-4 lg:gap-5 md:grid-cols-2"
       >
         {/* ── Panel one: the words ────────────────────────────────────────────────────── */}
         {/* Thin padding on the glass, because here the glass is a FRAME: the dark box is the
             surface and the frost is the mount it sits in. The action panel opposite uses the
             same class with full padding, where the glass is the surface itself. */}
-        <section className="nq-glass p-4 sm:p-5">
+        <section dir={isAr ? 'rtl' : 'ltr'} className="nq-glass nq-rise p-4 md:p-4 lg:p-5">
           <div
-            className="h-full rounded-[1.35rem] px-6 py-9 sm:px-8 sm:py-11 flex flex-col justify-center"
+            className="h-full rounded-[1.35rem] px-6 py-9 md:px-6 md:py-9 lg:px-8 lg:py-11 flex flex-col justify-center"
             style={{ background: OBSIDIAN, color: WHITE }}
           >
             {/* Line height 1.35 and up, throughout. Arabic needs more of it than Latin at the
@@ -157,7 +168,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 "سجّل" — occupy space Latin leaves empty, so leading that looks airy in English
                 is cramped here. Nothing on this page sets below 13px, on a script that carries
                 meaning in dot clusters (ث against ت, ش against س) one or two pixels across. */}
-            <h1 className="text-[1.75rem] sm:text-[2rem] lg:text-[2.15rem] font-black leading-[1.35]">
+            {/* Smaller at `md` than at `sm`, which looks backwards and is not. `sm` is still one
+                column at full page width; `md` is where the two columns start and the heading
+                gets the narrowest measure it will ever have — 352px at the breakpoint itself,
+                where 2rem pushed "حسابك في NUVAIQ" onto a third line. The size steps with the
+                COLUMN, not with the viewport, because the column is what the line has to fit. */}
+            <h1 className="text-[1.75rem] sm:text-[2rem] md:text-[1.6rem] lg:text-[2.15rem] font-black leading-[1.35]">
               {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
               <br />
               {isAr ? 'حسابك في NUVAIQ' : 'NUVAIQ account'}
@@ -191,20 +207,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
         </section>
 
         {/* ── Panel two: the action ───────────────────────────────────────────────────── */}
-        <section className="nq-glass px-6 py-9 sm:px-8 sm:py-11 flex flex-col justify-center">
-          {/* The mark, where the sketch drew a circle to mark the spot. No circle drawn: the
-              sketch's note says that shape was standing in for the logo, not asking to be one.
+        {/* 90ms behind the panel beside it. Enough to read as an order — words, then buttons —
+            without becoming a queue the visitor waits through. */}
+        <section
+          dir={isAr ? 'rtl' : 'ltr'}
+          style={{ animationDelay: '90ms' }}
+          className="nq-glass nq-rise px-6 py-9 md:px-6 md:py-9 lg:px-8 lg:py-11 flex flex-col justify-center"
+        >
+          {/* The circular logo area the reference draws at the top of this panel.
 
-              It DOES need the dark plate, and that is not decoration either. The asset is a
-              white mark with a hairline dark outline, built for the dark chrome it sits in
-              everywhere else on the site — on frosted white, all that would show is the
-              hairline. The plate gives it the ground it was drawn for, and echoes the dark box
-              in the panel opposite so the pair carries one dark element each. */}
+              Dark, and that is not decoration: the mark is a white glyph with a hairline outline,
+              built for the dark chrome it sits in everywhere else on the site — on frosted white
+              all that would show is the hairline. It also echoes the box in the panel opposite,
+              so each half carries one dark element.
+
+              Mark only, no wordmark: the lockup is a horizontal NAME + MARK pair and a circle is
+              the one shape that cannot hold it. The name is already the first line of the
+              heading opposite, so nothing is lost.
+
+              `.nq-logo-orb` carries the interaction — see index.css. */}
           <div
-            className="self-center inline-flex items-center rounded-2xl px-5 py-3"
+            className="nq-logo-orb self-center grid place-items-center rounded-full w-[5.5rem] h-[5.5rem] lg:w-24 lg:h-24"
             style={{ background: OBSIDIAN }}
           >
-            <NuvaiqLogo size={30} />
+            <NuvaiqLogo size={42} showText={false} />
           </div>
 
           {/* `role="alert"` so a sign-in failure is announced rather than only drawn. A message
