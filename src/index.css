@@ -970,18 +970,29 @@
   }
 }
 
-/* The circular logo area on the sign-in form, and the entrance the two panels arrive on.
+/* The logo area on the sign-in card, and the entrance the card arrives on.
 
-   ## The circle
+   ## The mark, and why it is inverted
 
-   A circle because the reference draws one, and DARK because of what goes in it: the mark is a
-   white glyph with a hairline outline, built for the dark chrome it sits in everywhere else on
-   the site. On frosted white all that would show is the hairline.
+   No disc behind it: the drawing's circle was standing in for the logo, and the owner asked for
+   the logo alone. That leaves a problem to solve rather than to draw around. The asset is WHITE
+   artwork with a hairline dark outline, made for the dark chrome it sits in everywhere else on
+   this site; on a frosted white card the only part of it that would show is the hairline.
+   `invert(1)` turns the white glyph dark and the hairline light, so what survives on a light
+   ground is the glyph and what disappears is the outline — the exact reverse of leaving it be.
 
-   The interaction is one step of scale and a ring that warms to the brand Orange — enough to
-   answer a pointer without becoming a thing that moves on its own. It is on a `:hover` and a
-   `:focus-within` so it answers a finger and a keyboard alike, and the whole of it is a
-   `transform` and a `box-shadow`, neither of which lays anything out again.
+   It lands on #000 rather than the brand's #080A0D, because inverting white can only give pure
+   black. Thirteen values apart at the widest channel, which is under what a screen resolves;
+   worth knowing rather than worth a second asset.
+
+   `!important` is what a proportional size costs here: NuvaiqLogo writes width and height inline
+   and a drop-shadow by class on the same img, and this has to beat both — the drop-shadow in
+   particular is a white glow, which after inversion would be a dark halo.
+
+   The interaction is one step of scale — enough to answer a pointer without becoming a thing
+   that moves on its own. It is on a `:hover` and a `:focus-within` so it answers a finger and a
+   keyboard alike, and it is a `transform`, which lays nothing out again. The Orange ring that
+   went with it went with the disc: a glow around a bare glyph reads as a smudge.
 
    ## The entrance
 
@@ -994,14 +1005,25 @@
    `both` fill mode matters: without it the panels are painted at their final position for the
    frame before the animation starts, which is a flash of the finished layout. */
 .nq-logo-orb {
-  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 0 0 rgba(255, 106, 0, 0);
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nq-logo-orb:hover,
 .nq-logo-orb:focus-within {
   transform: scale(1.05);
-  box-shadow: 0 0 0 6px rgba(255, 106, 0, 0.22);
+}
+
+/* The mark inside the circle, as a SHARE of it rather than a fixed pixel size.
+
+   NuvaiqLogo writes width and height as an inline style, so a class on it loses; this is the
+   only place a proportional size can be expressed, and `!important` is what it costs. Worth it:
+   the circle steps 112 -> 128 -> 160px across the breakpoints, and a single number cannot be
+   right in all three — 54px was 48% of the small one and 34% of the large, which is why the
+   mark read as small on a desktop. 54% holds the same badge proportion at every size. */
+.nq-logo-orb img {
+  width: 100% !important;
+  height: 100% !important;
+  filter: invert(1) !important;
 }
 
 .nq-rise {
