@@ -3,8 +3,9 @@
 import { ContractData } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { STATUS_FLOW, PAYMENT_STATUS_FLOW, BarRow, StatTile, statusArabic, paymentStatusArabic, AdminStats } from './shared';
+import { STATUS_FLOW, PAYMENT_STATUS_FLOW, BarRow, statusArabic, paymentStatusArabic, AdminStats } from './shared';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { OBSIDIAN, ORANGE, PAPER_DEEP, STEEL_LIGHT, SUCCESS_ON_LIGHT, ERROR_ON_LIGHT } from '../../lib/homePalette';
 
 export function OverviewTab({
   isAr,
@@ -30,28 +31,68 @@ export function OverviewTab({
 
   return (
     <div className="space-y-4">
-      {/* Only what the permanent strip above does not already carry.
-          Collected, outstanding and realized profit are in view on every screen now, so repeating
-          them here as four big tiles said the same thing twice on the one page where there was
-          most competition for attention. What is left is the pair that genuinely belongs to
-          analysis rather than to the running scoreboard: what the work cost, and what the profit
-          becomes if every outstanding balance is eventually collected. */}
-      <div className="p-5 rounded-2xl bg-paper border border-ink/10 space-y-3">
-        <h3 className="text-sm font-bold text-ink">{isAr ? 'التكلفة والربح المتوقع' : 'Cost & Projected Profit'}</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <StatTile
-            icon={TrendingDown}
-            label={isAr ? 'إجمالي التكلفة' : 'Total Cost'}
-            value={formatPrice(stats.totalCostIQD, language, currency)}
-            accent="text-red-600"
-          />
-          <StatTile
-            icon={TrendingUp}
-            label={isAr ? 'الربح لو تحصّل كل المستحق' : 'Profit if all outstanding is collected'}
-            value={formatPrice(stats.projectedProfitIQD, language, currency)}
-            accent={stats.projectedProfitIQD >= 0 ? 'text-emerald-700' : 'text-red-600'}
-          />
+      {/* التكلفة والربح — أُعيد بناؤها.
+          كانت بطاقتين بلون PAPER داخل بطاقة بلون PAPER: ثلاث طبقات بنفس اللون بلا أي تدرّج،
+          فلا شيء يبدو أمام شيء. وكان الرقمان يستعملان `text-red-600` و`text-emerald-700` —
+          لونين من لوحة Tailwind الجاهزة لا وجود لهما في هوية الموقع.
+
+          الآن: سطح واحد أغمق درجة (PAPER_DEEP) داخل البطاقة، وفاصل بينهما بدل حدّين، وكل لون
+          مأخوذ من homePalette حصراً. التكلفة بلون الحبر لا بالأحمر — التكلفة ليست خطأً لتُصبَغ
+          بلون الخطر؛ الأحمر محجوز للربح حين يكون سالباً، وهو الحالة الوحيدة التي تستحق تنبيهاً.
+          والشريط أسفلهما يقول نسبة التكلفة من القيمة المتعاقد عليها: رقمان بلا نسبة لا يقولان
+          إن كانت 12% أم 80%. */}
+      <div className="p-5 rounded-2xl bg-paper border border-ink/10 space-y-4">
+        <h3 className="text-sm font-bold flex items-center gap-2" style={{ color: OBSIDIAN }}>
+          <span className="h-1.5 w-6 rounded-full" style={{ background: ORANGE }} aria-hidden="true" />
+          {isAr ? 'التكلفة والربح المتوقع' : 'Cost & Projected Profit'}
+        </h3>
+
+        <div
+          className="rounded-2xl overflow-hidden grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x rtl:sm:divide-x-reverse"
+          style={{ background: PAPER_DEEP, borderColor: `${OBSIDIAN}1a`, ['--tw-divide-opacity' as string]: '1' }}
+        >
+          <div className="p-4 space-y-1.5">
+            <span className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: STEEL_LIGHT }}>
+              <TrendingDown className="w-3.5 h-3.5" />
+              {isAr ? 'إجمالي التكلفة' : 'Total cost'}
+            </span>
+            <div className="text-lg lg:text-xl font-extrabold font-mono leading-tight wrap-break-word" style={{ color: OBSIDIAN }}>
+              {formatPrice(stats.totalCostIQD, language, currency)}
+            </div>
+          </div>
+
+          <div className="p-4 space-y-1.5">
+            <span className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: STEEL_LIGHT }}>
+              <TrendingUp className="w-3.5 h-3.5" />
+              {isAr ? 'الربح لو تحصّل كل المستحق' : 'Profit if all outstanding is collected'}
+            </span>
+            <div
+              className="text-lg lg:text-xl font-extrabold font-mono leading-tight wrap-break-word"
+              style={{ color: stats.projectedProfitIQD >= 0 ? SUCCESS_ON_LIGHT : ERROR_ON_LIGHT }}
+            >
+              {formatPrice(stats.projectedProfitIQD, language, currency)}
+            </div>
+          </div>
         </div>
+
+        {stats.totalIQD > 0 && (
+          <div className="space-y-1.5">
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: `${OBSIDIAN}14` }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${Math.min(100, Math.round((stats.totalCostIQD / stats.totalIQD) * 100))}%`,
+                  background: ORANGE,
+                }}
+              />
+            </div>
+            <p className="text-[11px] font-bold" style={{ color: STEEL_LIGHT }}>
+              {isAr
+                ? `التكلفة تعادل ${Math.round((stats.totalCostIQD / stats.totalIQD) * 100)}% من قيمة العقود المتعاقد عليها`
+                : `Cost is ${Math.round((stats.totalCostIQD / stats.totalIQD) * 100)}% of the total agreed contract value`}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
