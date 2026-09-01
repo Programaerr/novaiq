@@ -9,6 +9,7 @@ import {
   setDoc,
   deleteDoc,
   serverTimestamp,
+  deleteField,
   query,
   where
 } from 'firebase/firestore';
@@ -28,6 +29,8 @@ export const db: Firestore = getFirestore(app, firebaseConfig.firestoreDatabaseI
 export const auth: Auth = getAuth(app);
 
 const CONTRACTS_COLLECTION = 'contracts';
+/** التكلفة الداخلية لكل عقد، بعيداً عن مستند العقد الذي يقرؤه صاحبه — انظر firestore.rules. */
+const CONTRACT_FINANCE_COLLECTION = 'contract_finance';
 
 // Helper to track deleted identifiers so Firestore snapshot listeners never resurrect deleted contracts
 function getDeletedIdentifiers(): Set<string> {
@@ -189,7 +192,23 @@ export async function updateContractFields(
     Object.entries(updatePayload).filter(([, value]) => value !== undefined)
   );
 
-  await setDoc(doc(db, CONTRACTS_COLLECTION, docId), cleanPayload, { merge: true });
+  /* التكلفة لا تُكتب داخل مستند العقد.
+     قاعدة العقود تسمح لصاحب العقد بقراءة مستنده، وقراءة Firestore كلٌّ لا يتجزأ — فحقل
+     `costIQD` داخل العقد كان مقروءاً لكل عميل مهما أخفته الواجهة، أي أن كل زبون يعرف تكلفتنا
+     وهامش ربحنا من مشروعه. تُكتب هنا في مجموعة أدمن-فقط، ويُمحى الحقل القديم من مستند العقد
+     في نفس الحفظة (deleteField) فتُرحَّل العقود السابقة تلقائياً أول مرة تُعدَّل. */
+  const { costIQD, ...contractOnlyPayload } = cleanPayload as Record<string, unknown> & { costIQD?: number };
+
+  if (costIQD !== undefined) {
+    await setDoc(
+      doc(db, CONTRACT_FINANCE_COLLECTION, docId),
+      { costIQD, contractNumber: docId, updatedAt: new Date().toISOString() },
+      { merge: true }
+    );
+    contractOnlyPayload.costIQD = deleteField();
+  }
+
+  await setDoc(doc(db, CONTRACTS_COLLECTION, docId), contractOnlyPayload, { merge: true });
 
   // Keep the local cache in sync so the admin list doesn't flash back to the old value
   // before Firestore's onSnapshot round-trip completes. Matched on either identifier, for the
@@ -249,6 +268,32 @@ export async function fetchContractsFromFirebase(): Promise<ContractData[]> {
 }
 
 // Real-time listener for Contracts with silent offline fallback
+/**
+ * تكاليف العقود، مفتاحها رقم العقد. للأدمن وحده (القاعدة ترفض غيره)، ويُدمج ناتجها في قائمة
+ * العقود داخل لوحة التحكم فقط — فيبقى كل قارئ لاحق يقرأ `contract.costIQD` كما كان.
+ */
+export function subscribeToContractCosts(callback: (costs: Record<string, number>) => void) {
+  try {
+    return onSnapshot(
+      collection(db, CONTRACT_FINANCE_COLLECTION),
+      (snap) => {
+        const costs: Record<string, number> = {};
+        snap.forEach((d) => {
+          const value = (d.data() as { costIQD?: number }).costIQD;
+          if (typeof value === 'number') costs[d.id] = value;
+        });
+        callback(costs);
+      },
+      // غير أدمن = رفض متوقَّع لا عطل: لوحة العميل لا تستدعي هذه أصلاً، والرفض هنا يعني ببساطة
+      // أن التكاليف لا تُعرض — لا أن الصفحة تتعطّل.
+      (error) => console.error('contract costs subscription error:', error)
+    );
+  } catch (error) {
+    console.error('contract costs subscription error:', error);
+    return () => {};
+  }
+}
+
 export function subscribeToContracts(callback: (contracts: ContractData[]) => void) {
   const getLocalData = (): ContractData[] => {
     try {

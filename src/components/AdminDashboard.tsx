@@ -3,7 +3,7 @@ import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Setti
 import { ContractData } from '../types';
 import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
-import { subscribeToContracts } from '../lib/firebase';
+import { subscribeToContracts, subscribeToContractCosts } from '../lib/firebase';
 import { logoutAccount, isCurrentUserAdmin } from '../lib/auth';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
@@ -32,7 +32,9 @@ type Tab = 'overview' | 'contracts' | 'pricing' | 'currency' | 'team' | 'members
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, currency = 'IQD', onBackToSite }) => {
   const isAr = language === 'ar';
   const [tab, setTab] = useState<Tab>('overview');
-  const [contracts, setContracts] = useState<ContractData[]>([]);
+  const [rawContracts, setRawContracts] = useState<ContractData[]>([]);
+  /** التكاليف تعيش في مجموعة أدمن-فقط منفصلة (انظر firestore.rules) وتُدمج هنا. */
+  const [costs, setCosts] = useState<Record<string, number>>({});
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showMore, setShowMore] = useState(false);
 
@@ -69,9 +71,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
 
   useEffect(() => {
     if (verified !== true) return;
-    const unsub = subscribeToContracts(setContracts);
-    return unsub;
+    const unsubContracts = subscribeToContracts(setRawContracts);
+    const unsubCosts = subscribeToContractCosts(setCosts);
+    return () => {
+      unsubContracts();
+      unsubCosts();
+    };
   }, [verified]);
+
+  /* الدمج يحدث هنا مرة واحدة، فيبقى كل ما تحت هذه النقطة (الإحصاءات، تبويب العقود، البطاقات)
+     يقرأ `contract.costIQD` كما كان يقرؤه حين كانت التكلفة داخل مستند العقد. القيمة الجديدة
+     تسبق القديمة: عقد لم يُعدَّل بعد الترحيل ما زال يحمل الحقل القديم، وعقد عُدِّل صار حقله
+     ممحوّاً وقيمته هنا. */
+  const contracts = useMemo(
+    () => rawContracts.map((c) => ({ ...c, costIQD: costs[(c.contractNumber || '').trim()] ?? c.costIQD })),
+    [rawContracts, costs]
+  );
 
   const stats = useMemo(() => {
     const totalIQD = contracts.reduce((s, c) => s + (c.totalPriceIQD || 0), 0);
