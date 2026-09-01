@@ -18,8 +18,8 @@ const PRIVACY_SECTIONS: Section[] = [
     icon: Database,
     title: { ar: 'البيانات التي نجمعها', en: 'Data We Collect' },
     body: {
-      ar: 'عند تعبئة طلب مشروع أو عقد إلكتروني، نجمع فقط ما تدخله بنفسك: اسم الشركة، رقم السجل التجاري، اسم الممثل المخول، البريد الإلكتروني، رقم الهاتف، الدولة والمدينة، القالب والمواصفات المختارة، وصورة توقيعك الرقمي. لا نجمع أي بيانات مالية أو بيانات دفع مباشرة عبر المنصة.',
-      en: "When you submit a project request or digital contract, we only collect what you enter yourself: company name, commercial register number, authorized representative name, email, phone, country/city, selected template and specifications, and your digital signature image. We do not collect payment card data directly through the platform.",
+      ar: 'عند تعبئة طلب مشروع أو عقد إلكتروني، نجمع فقط ما تدخله بنفسك: اسم الشركة، رقم السجل التجاري، اسم الممثل المخول، البريد الإلكتروني، رقم الهاتف، المدينة، نوع المشروع والمواصفات التي تكتبها بنفسك، وصورة توقيعك الرقمي. وإذا راسلتنا عبر نموذج التواصل، نحفظ ما كتبته فيه: اسمك، رقم هاتفك، ونص رسالتك. لا نجمع أي بيانات بطاقة أو دفع إطلاقاً — لا توجد بوابة دفع في هذا الموقع، وكل تحويل مالي يتم خارجه بالاتفاق المباشر بين الطرفين.',
+      en: "When you submit a project request or digital contract, we only collect what you enter yourself: company name, commercial register number, authorized representative name, email, phone, city, the project type and the specifications you write yourself, and your digital signature image. If you write to us through the contact form, we keep what you entered there: your name, your phone number and your message. We never collect card or payment data — there is no payment gateway on this site, and every transfer happens outside it by direct agreement between the parties.",
     },
   },
   {
@@ -46,8 +46,8 @@ const PRIVACY_SECTIONS: Section[] = [
     icon: Database,
     title: { ar: 'أين تُحفظ بياناتك', en: 'Where Your Data Is Stored' },
     body: {
-      ar: 'تُحفظ طلبات العقود على خوادم Firebase (منصة Google السحابية) بالإضافة إلى نسخة احتياطية محلية في متصفحك (localStorage) لضمان عدم فقدان عملك أثناء التعبئة. يمكنك حذف أي طلب نهائياً في أي وقت من صفحة "طلباتي المحفوظة".',
-      en: 'Contract requests are stored on Firebase (Google Cloud) servers, plus a local backup in your browser (localStorage) so your work isn\'t lost while filling the form. You can permanently delete any request at any time from the "Saved Requests" page.',
+      ar: 'تُحفظ طلبات العقود على خوادم Firebase (منصة Google السحابية) بالإضافة إلى نسخة احتياطية محلية في متصفحك (localStorage) لضمان عدم فقدان عملك أثناء التعبئة. ولأن العقد وثيقة بين طرفين، لا يُحذف من طرف واحد: يمكنك طلب حذف أي عقد أو حسابك بالكامل عبر قنوات التواصل أسفل الموقع، ويُنفَّذ الطلب ما لم يمنعه التزام تعاقدي قائم بين الطرفين.',
+      en: 'Contract requests are stored on Firebase (Google Cloud) servers, plus a local backup in your browser (localStorage) so your work isn\'t lost while filling the form. Because a contract is a document between two parties, it is not deleted unilaterally: you may request deletion of any contract, or of your whole account, through the contact channels in the site footer, and the request is carried out unless an existing contractual obligation prevents it.',
     },
   },
   {
@@ -75,16 +75,16 @@ const TERMS_SECTIONS: Section[] = [
     icon: FileText,
     title: { ar: 'طبيعة الخدمة', en: 'Nature of the Service' },
     body: {
-      ar: 'توفر NUVAIQ قوالب برمجية جاهزة قابلة للتخصيص، بالإضافة إلى خدمات تطوير مخصص للمواقع والتطبيقات. تُعتبر الأسعار المعروضة تقديرية حتى يتم تأكيد المواصفات النهائية وتوقيع العقد الإلكتروني.',
-      en: 'NUVAIQ provides customizable ready-made software templates as well as custom web and application development services. Displayed prices are estimates until final specifications are confirmed and the digital contract is signed.',
+      ar: 'تبني NUVAIQ مواقع إلكترونية وتطبيقات هاتف مخصّصة لكل عميل حسب ما يطلبه هو. وما يُعرض على الموقع من نماذج حيّة هو أمثلة على ما ننفّذه، لا منتجات تُباع كما هي. ولا تُعرض أسعار على الموقع: تُحدَّد قيمة كل مشروع ومدته وآلية سداده بالاتفاق بعد مراجعة الطلب، وتُثبَّت في وثيقة العقد.',
+      en: 'NUVAIQ builds websites and mobile apps custom-made for each client, to what that client asks for. The live demos shown on the site are examples of what we build, not products sold as they are. No prices are displayed on the site: each project value, timeline and payment terms are set by agreement after the request is reviewed, and recorded in the contract document.',
     },
   },
   {
     icon: Scale,
     title: { ar: 'الدفع ومدة التسليم', en: 'Payment & Delivery Timeline' },
     body: {
-      ar: 'تُحدَّد خطة الدفع (50% مقدماً و50% عند التسليم، أو دفعة كاملة مع خصم خاص، أو 3 دفعات على مراحل موثقة) عند إنشاء العقد. تختلف مدة التسليم التقديرية باختلاف القالب أو نطاق المشروع المخصص، وتُذكر بوضوح في وثيقة العقد قبل توقيعه.',
-      en: 'The payment plan (50% upfront and 50% on delivery, full upfront payment with a special discount, or 3 documented milestone payments) is set when the contract is created. The estimated delivery timeline varies by template or custom project scope, and is clearly stated in the contract document before signing.',
+      ar: 'تُعتمد آلية السداد ومدة التنفيذ مع قيمة المشروع بعد مراجعة الطلب، وتُثبَّت في وثيقة العقد فتظهر لك في حسابك. الخيارات المتاحة عادةً: 50% عند التعاقد و50% عند التسليم، أو دفعة كاملة مقدَّماً، أو دفعات على مراحل موثّقة — ويُتفق على الأنسب لكل مشروع على حدة.',
+      en: 'Payment terms and the delivery timeline are approved together with the project value after the request is reviewed, recorded in the contract document, and shown to you in your account. The options normally available are: 50% on signing and 50% on delivery, full payment upfront, or documented milestone payments — the right one is agreed per project.',
     },
   },
   {
