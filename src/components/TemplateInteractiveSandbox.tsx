@@ -860,7 +860,10 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
       {/* The stage. Flat black deliberately: a customer deciding whether they like a product
           should see it on a neutral ground, not floating over a drifting starfield that is
           competing for their eye and tinting their impression of the design. */}
-      <div className="relative flex-1 min-h-0 w-full overflow-hidden bg-black">
+      {/* data-demo-stage: هذا الصندوق هو "شاشة" القالب المرئية — مقاسه ثابت، `relative`،
+          ويقصّ ما يخرج عنه. النوافذ المنبثقة داخل العرض التجريبي تُنقل إليه ببوابة (portal)
+          بدل <body>، فتطفو فوق القالب وحده ولا تغطّي موقعنا من حوله. انظر RentalSiteDemo. */}
+      <div data-demo-stage className="relative flex-1 min-h-0 w-full overflow-hidden bg-black">
         <div
           data-lenis-prevent
           className={`relative z-10 h-full w-full flex flex-col items-center justify-start p-2 sm:p-4 ${

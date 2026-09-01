@@ -686,6 +686,26 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
 
   const quote = detail ? quoteFor(detail, term, duration) : null;
 
+  /* أين تُرسَم النوافذ المنبثقة.
+   *
+   * ليس في مكانها من الشجرة: لوحة المعاينة التي يعيش داخلها هذا العرض تحمل `backdrop-blur`،
+   * وأي عنصر بـ backdrop-filter يصير containing block لكل `position: fixed` بداخله — فتقيس
+   * الطبقة الغامرة من المحتوى القابل للتمرير كاملاً بدل الشاشة، فتنزل النافذة إلى منتصف صفحة
+   * طويلة وتبدو ملتصقة بالأعلى.
+   *
+   * وليس في <body> أيضاً: هناك تطفو فوق موقع NUVAIQ نفسه وتغطّيه، وهي نافذة تخصّ القالب لا
+   * الموقع الذي يعرضه.
+   *
+   * الصحيح بينهما: "شاشة" القالب نفسها (data-demo-stage في TemplateInteractiveSandbox) —
+   * صندوق `relative` بمقاس ثابت يقصّ ما يخرج عنه، فتطفو النافذة فوق القالب وحده وتتوسّطه
+   * فعلاً. وفي صفحة المعاينة المستقلة (?live=) لا وجود لذلك الصندوق، والعرض هو الصفحة كلها،
+   * فيسقط الأمر إلى <body> مع `fixed` وهو الصحيح هناك. */
+  const modalOpen = !!(detail && quote) || !!done;
+  // يُستعلَم عن الصندوق فقط حين تكون هناك نافذة فعلاً — لا استعلام DOM في كل رسم بلا سبب.
+  const stage = modalOpen && typeof document !== 'undefined' ? document.querySelector('[data-demo-stage]') : null;
+  const portalTarget: Element | null = !modalOpen || typeof document === 'undefined' ? null : stage ?? document.body;
+  const overlayPos = stage ? 'absolute' : 'fixed';
+
   return (
     <div className="space-y-5 sm:space-y-6">
       {renderTopBar()}
@@ -701,7 +721,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
       {tab === 'app' && app}
       {tab === 'owner' && <RentalOwnerPage ctx={ctx} />}
 
-      {detail && quote && createPortal(
+      {detail && quote && portalTarget && createPortal(
         /* يُنقل إلى <body> عبر بوابة (portal)، وهذا هو أصل المشكلة لا مجرد ترتيب.
            لوحة المعاينة التي يعيش داخلها هذا العرض تحمل `backdrop-blur` (انظر
            TemplateInteractiveSandbox)، وأي عنصر بـ backdrop-filter يصبح "containing block"
@@ -717,7 +737,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
            بدل أن يتوسّط. `max-h-full` يقيس من الطبقة الغامرة نفسها، فيصحّ داخل الإطار وفي
            الصفحة المستقلة معاً. و`items-center` على كل المقاسات: كان يفتح كورقة ملتصقة بالأسفل
            على الهاتف، وهو ما ضاعف الإحساس بالالتصاق حين يزيد الارتفاع عن الحاوية. */
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-6">
+        <div className={`${overlayPos} inset-0 z-[70] flex items-center justify-center p-3 sm:p-6`}>
           <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setDetail(null)} />
           <div
             data-lenis-prevent
@@ -884,11 +904,11 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
             </div>
           </div>
         </div>,
-        document.body
+        portalTarget!
       )}
 
-      {done && createPortal(
-        <div className="fixed inset-0 z-[71] grid place-items-center p-6">
+      {done && portalTarget && createPortal(
+        <div className={`${overlayPos} inset-0 z-[71] grid place-items-center p-6`}>
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDone(null)} />
           <div className="relative w-full max-w-sm max-h-full overflow-y-auto rounded-3xl bg-slate-950 border border-slate-800 p-7 text-center space-y-3.5 animate-fade-in">
             <span
@@ -923,7 +943,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
             </div>
           </div>
         </div>,
-        document.body
+        portalTarget!
       )}
     </div>
   );
