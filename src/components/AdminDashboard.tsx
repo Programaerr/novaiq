@@ -207,8 +207,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         moreActive={isMoreTab || showMore}
         isAr={isAr}
       />
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-ink/15">
+      {/* Header — ملتصق بأعلى الشاشة مهما نزلت.
+          العودة للموقع وتسجيل الخروج كانا يختفيان بمجرد التمرير في جدول عقود طويل، فيصير
+          الوصول إليهما رحلة صعود كاملة. `sticky` مع خلفية معتمة (لا شفافة) وحدّ سفلي، حتى لا
+          يمرّ المحتوى من خلفه ويصير غير مقروء. z-30 يبقيه تحت النوافذ المنبثقة وفوق الجداول. */}
+      <div className="sticky top-0 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 pt-4 bg-paper/95 backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-ink/15">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-white/80 border border-ink/15 flex items-center justify-center text-ink shadow-md">
             <ShieldCheck className="w-5 h-5" />
