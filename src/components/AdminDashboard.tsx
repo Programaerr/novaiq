@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Settings, ArrowLeftRight, Home } from 'lucide-react';
+import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Settings, ArrowLeftRight, ArrowRight, ArrowLeft } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
@@ -145,9 +145,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   // The bottom bar's own four slots: the "Business" group's three tabs (what actually gets
   // opened every day) plus a fourth "More" slot for everything else. Everything past that
   // slot lives in the sheet, grouped exactly like the desktop sidebar's own groups.
-  const primaryTabs = groups[0].items;
-  const moreGroups: TabGroup[] = groups.slice(1);
-  const isMoreTab = !primaryTabs.some((t) => t.id === tab);
+  /* ثلاث خانات في شريط الهاتف السفلي + خانة "المزيد".
+   *
+   * كانت الثلاث هي مجموعة "الأعمال" حرفياً (نظرة عامة، العقود، الأسعار)، فبقيت "الإعدادات"
+   * مدفونة خلف المزيد رغم أنها القسم الأكثر تعديلاً الآن (شريط أعمالنا، روابط التواصل).
+   * محلّها هنا صار خانة ثابتة على الهاتف، والعقود انتقلت إلى ورقة "المزيد" — على بُعد ضغطة.
+   *
+   * القوائم مشتقّة من `groups` لا مكتوبة يدوياً مرتين: ما يظهر في الشريط يُستبعَد من الورقة
+   * تلقائياً، فلا يمكن أن يتكرّر قسم في الاثنين ولا أن يسقط قسم من الاثنين معاً — وهو ما كان
+   * سيحدث مع أي قائمة ثانية تُكتب بالأسماء. */
+  const mobilePrimaryIds: Tab[] = ['overview', 'settings', 'pricing'];
+  const primaryTabs = mobilePrimaryIds
+    .map((id) => tabs.find((t) => t.id === id))
+    .filter((t): t is (typeof tabs)[number] => !!t);
+  const moreGroups: TabGroup[] = groups
+    .map((g) => ({ heading: g.heading, items: g.items.filter((i) => !mobilePrimaryIds.includes(i.id)) }))
+    .filter((g) => g.items.length > 0);
+  const isMoreTab = !mobilePrimaryIds.includes(tab);
 
   /* اللوحة تُرسَم فوراً بلا انتظار جواب الخادم، والرفض يظهر متى وصل الجواب سلباً.
    *
@@ -210,42 +224,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         moreActive={isMoreTab || showMore}
         isAr={isAr}
       />
-      {/* Header — ملتصق بأعلى الشاشة مهما نزلت.
-          العودة للموقع وتسجيل الخروج كانا يختفيان بمجرد التمرير في جدول عقود طويل، فيصير
-          الوصول إليهما رحلة صعود كاملة. `sticky` مع خلفية معتمة (لا شفافة) وحدّ سفلي، حتى لا
-          يمرّ المحتوى من خلفه ويصير غير مقروء. z-30 يبقيه تحت النوافذ المنبثقة وفوق الجداول. */}
-      <div className="sticky top-0 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 pt-4 bg-paper/95 backdrop-blur-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 mb-6 border-b border-ink/15">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-white/80 border border-ink/15 flex items-center justify-center text-ink shadow-md">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-ink">
-              {isAr ? 'لوحة تحكم NUVAIQ' : 'NUVAIQ Control Panel'}
-            </h1>
-            <p className="text-xs text-ink/55">
-              {isAr ? 'كل شيء عن أعمالك في مكان واحد' : 'Everything about your business, in one place'}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {/* لا يوجد Navbar فوق هذه الصفحة (مخفي عمداً — انظر App.tsx) ولا Footer تحتها،
-              فالعودة للموقع كانت تعتمد فقط على زر الرجوع في المتصفح قبل هذا الزر. */}
-          <button
-            onClick={onBackToSite}
-            className="px-4 py-2 rounded-xl bg-white/80 hover:bg-sand-light border border-ink/15 text-ink/75 hover:text-ink text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            <span>{isAr ? 'العودة للموقع' : 'Back to site'}</span>
-          </button>
-          <button
-            onClick={() => setShowLogoutConfirm(true)}
-            className="px-4 py-2 rounded-xl bg-white/80 hover:bg-sand-light border border-ink/15 text-ink/75 hover:text-ink text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
-          </button>
-        </div>
+      {/* زرّان عائمان فقط، بلا شريط ولا عنوان.
+          العنوان الذي كان هنا ("لوحة تحكم NUVAIQ" وسطره التعريفي) لم يكن يقول لصاحب اللوحة
+          شيئاً لا يعرفه، وكان يأكل أول 80 بكسل من كل شاشة في أداة تُستعمل يومياً.
+          
+          لا خلفية للشريط ولا حدّ سفلي بعد أن خلا من المحتوى: الحاوية `pointer-events-none`
+          فيمرّ المؤشر من خلالها إلى الجدول تحتها، وكل زرّ يعيد تفعيل الأحداث لنفسه فقط. كل
+          واحد في جهة (justify-between)، فلا يزاحمان بعضهما ولا يُضغط أحدهما بدل الآخر —
+          وهذا ما يجعلهما مريحين على الهاتف تحديداً، حيث الإبهام يصل الزوايا لا الوسط.
+          
+          دائريان بحجم 44/48 بكسل: الحد الأدنى الموصى به لمساحة اللمس، ومعهما خلفية معتمة
+          وحدّ وظل — بدونها يذوب الزرّ في أي محتوى فاتح يمرّ تحته أثناء التمرير. */}
+      <div className="sticky top-0 z-30 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 pt-4 pb-3 mb-3 flex items-center justify-between pointer-events-none">
+        <button
+          onClick={onBackToSite}
+          aria-label={isAr ? 'العودة للموقع' : 'Back to site'}
+          title={isAr ? 'العودة للموقع' : 'Back to site'}
+          className="pointer-events-auto w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border border-ink/15 text-ink/70 hover:text-ink hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
+        >
+          {/* سهم رجوع، ويتبع اتجاه اللغة: في العربية يشير يميناً (جهة "الخلف" في تخطيط rtl)
+              وفي الإنجليزية يساراً. سهم ثابت الاتجاه يعني في إحدى اللغتين سهماً يشير إلى
+              الأمام على زرّ يعود للخلف. */}
+          {isAr ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+        </button>
+
+        <button
+          onClick={() => setShowLogoutConfirm(true)}
+          aria-label={isAr ? 'تسجيل الخروج' : 'Sign out'}
+          title={isAr ? 'تسجيل الخروج' : 'Sign out'}
+          className="pointer-events-auto w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border border-red-600/25 text-red-600/80 hover:text-red-600 hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
 
       {/* The money, above everything, on every screen.
