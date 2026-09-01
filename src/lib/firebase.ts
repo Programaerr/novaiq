@@ -28,6 +28,32 @@ if (!getApps().length) {
 export const db: Firestore = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
 export const auth: Auth = getAuth(app);
 
+/* مفاتيح النسخة المحلية. كانت مكتوبة حرفياً كـ'novaq_…' — بلا حرف الياء، بقية من الاسم
+   القديم قبل NUVAIQ، ومخالفة لكل مفاتيح التطبيق الأخرى ('nuvaiq_…'). الاسم الجديد هو
+   المستعمل، والقديم يُقرأ مرة واحدة عند أول تشغيل وتُنقل بياناته إليه (migrateLegacyKeys
+   أدناه) حتى لا يفقد أحد عقوداً محفوظة على جهازه أثناء مزامنة فاشلة. */
+const LOCAL_CONTRACTS_KEY = 'nuvaiq_contracts';
+const LOCAL_DELETED_KEY = 'nuvaiq_deleted_contracts';
+const LOCAL_UPDATED_EVENT = 'nuvaiq_contracts_updated';
+
+(function migrateLegacyKeys() {
+  try {
+    const pairs: [string, string][] = [
+      ['novaq_contracts', LOCAL_CONTRACTS_KEY],
+      ['novaq_deleted_contracts', LOCAL_DELETED_KEY],
+    ];
+    for (const [oldKey, newKey] of pairs) {
+      const legacy = localStorage.getItem(oldKey);
+      if (legacy !== null && localStorage.getItem(newKey) === null) {
+        localStorage.setItem(newKey, legacy);
+      }
+      if (legacy !== null) localStorage.removeItem(oldKey);
+    }
+  } catch {
+    // تخزين غير متاح — لا شيء لتُرحّله، والتطبيق يعمل من Firestore على أي حال.
+  }
+})();
+
 const CONTRACTS_COLLECTION = 'contracts';
 /** التكلفة الداخلية لكل عقد، بعيداً عن مستند العقد الذي يقرؤه صاحبه — انظر firestore.rules. */
 const CONTRACT_FINANCE_COLLECTION = 'contract_finance';
@@ -35,7 +61,7 @@ const CONTRACT_FINANCE_COLLECTION = 'contract_finance';
 // Helper to track deleted identifiers so Firestore snapshot listeners never resurrect deleted contracts
 function getDeletedIdentifiers(): Set<string> {
   try {
-    const list: string[] = JSON.parse(localStorage.getItem('novaq_deleted_contracts') || '[]');
+    const list: string[] = JSON.parse(localStorage.getItem(LOCAL_DELETED_KEY) || '[]');
     return new Set(list.map(s => s.trim()).filter(Boolean));
   } catch {
     return new Set();
@@ -47,7 +73,7 @@ function markAsDeleted(id?: string, contractNumber?: string) {
     const current = Array.from(getDeletedIdentifiers());
     if (id && id.trim()) current.push(id.trim());
     if (contractNumber && contractNumber.trim()) current.push(contractNumber.trim());
-    localStorage.setItem('novaq_deleted_contracts', JSON.stringify(current));
+    localStorage.setItem(LOCAL_DELETED_KEY, JSON.stringify(current));
   } catch (e) {
     console.warn('Error saving deleted identifiers:', e);
   }
@@ -58,7 +84,7 @@ function unmarkDeleted(id?: string, contractNumber?: string) {
     const deleted = getDeletedIdentifiers();
     if (id) deleted.delete(id.trim());
     if (contractNumber) deleted.delete(contractNumber.trim());
-    localStorage.setItem('novaq_deleted_contracts', JSON.stringify(Array.from(deleted)));
+    localStorage.setItem(LOCAL_DELETED_KEY, JSON.stringify(Array.from(deleted)));
   } catch (e) {
     console.warn('Error unmarking deleted identifier:', e);
   }
@@ -71,15 +97,15 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
 
   // 1. Instant local persistence guarantee
   try {
-    const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+    const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
     const existingIndex = localContracts.findIndex((c) => (c.contractNumber || '').trim() === contractNum);
     if (existingIndex >= 0) {
       localContracts[existingIndex] = { ...localContracts[existingIndex], ...contract };
     } else {
       localContracts.unshift(contract);
     }
-    localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
-    window.dispatchEvent(new Event('novaq_contracts_updated'));
+    localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(localContracts));
+    window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
   } catch (e) {
     console.warn('LocalStorage save error:', e);
   }
@@ -113,11 +139,11 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
 
     // Update local storage item with the Firestore ID
     try {
-      const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+      const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
       const idx = localContracts.findIndex(c => (c.contractNumber || '').trim() === contractNum);
       if (idx >= 0) {
         localContracts[idx].id = docRef.id;
-        localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
+        localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(localContracts));
       }
     } catch (err) {
       console.warn('Local storage id sync error:', err);
@@ -214,7 +240,7 @@ export async function updateContractFields(
   // before Firestore's onSnapshot round-trip completes. Matched on either identifier, for the
   // same reason the document is: the two are not always the same string.
   try {
-    const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+    const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
     const idx = localContracts.findIndex(
       (c) =>
         (contract.id && c.id === contract.id) ||
@@ -222,10 +248,10 @@ export async function updateContractFields(
     );
     if (idx >= 0) {
       localContracts[idx] = { ...localContracts[idx], ...updatePayload };
-      localStorage.setItem('novaq_contracts', JSON.stringify(localContracts));
+      localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(localContracts));
       // Tells subscribeToContracts' local-update listener to re-read, so an edit made while
       // the cloud is unreachable still shows up in the list instead of appearing to do nothing.
-      window.dispatchEvent(new Event('novaq_contracts_updated'));
+      window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
     }
   } catch {
     // non-critical
@@ -241,7 +267,7 @@ export async function fetchContractsFromFirebase(): Promise<ContractData[]> {
     return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
   });
 
-  const localContracts: ContractData[] = filterDeleted(JSON.parse(localStorage.getItem('novaq_contracts') || '[]'));
+  const localContracts: ContractData[] = filterDeleted(JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]'));
   try {
     const contractsRef = collection(db, CONTRACTS_COLLECTION);
     const querySnapshot = await getDocs(contractsRef);
@@ -298,7 +324,7 @@ export function subscribeToContracts(callback: (contracts: ContractData[]) => vo
   const getLocalData = (): ContractData[] => {
     try {
       const deletedSet = getDeletedIdentifiers();
-      const list: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+      const list: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
       return list.filter(c => {
         const cId = (c.id || '').trim();
         const cNum = (c.contractNumber || '').trim();
@@ -323,7 +349,7 @@ export function subscribeToContracts(callback: (contracts: ContractData[]) => vo
   const handleLocalUpdate = () => {
     fetchContractsFromFirebase().then(notify).catch(() => notify(getLocalData()));
   };
-  window.addEventListener('novaq_contracts_updated', handleLocalUpdate);
+  window.addEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
 
   try {
     const contractsRef = collection(db, CONTRACTS_COLLECTION);
@@ -359,7 +385,7 @@ export function subscribeToContracts(callback: (contracts: ContractData[]) => vo
     );
 
     return () => {
-      window.removeEventListener('novaq_contracts_updated', handleLocalUpdate);
+      window.removeEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
       if (unsubscribeSnapshot) {
         unsubscribeSnapshot();
       }
@@ -367,7 +393,7 @@ export function subscribeToContracts(callback: (contracts: ContractData[]) => vo
   } catch (_error) {
     notify(getLocalData());
     return () => {
-      window.removeEventListener('novaq_contracts_updated', handleLocalUpdate);
+      window.removeEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
     };
   }
 }
@@ -415,7 +441,7 @@ export function subscribeToMyContracts(
     const getLocalData = (): ContractData[] => {
       try {
         const deletedSet = getDeletedIdentifiers();
-        return (JSON.parse(localStorage.getItem('novaq_contracts') || '[]') as ContractData[]).filter((c) => {
+        return (JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]') as ContractData[]).filter((c) => {
           const cId = (c.id || '').trim();
           const cNum = (c.contractNumber || '').trim();
           return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
@@ -428,7 +454,7 @@ export function subscribeToMyContracts(
     const handleLocalUpdate = () => {
       notify(getLocalData());
     };
-    window.addEventListener('novaq_contracts_updated', handleLocalUpdate);
+    window.addEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
 
     const unsubscribeSnapshot = onSnapshot(
       q,
@@ -449,7 +475,7 @@ export function subscribeToMyContracts(
     );
 
     return () => {
-      window.removeEventListener('novaq_contracts_updated', handleLocalUpdate);
+      window.removeEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
       unsubscribeSnapshot();
     };
   } catch (_error) {
@@ -467,7 +493,7 @@ export async function deleteContractFromFirebase(contractId?: string, contractNu
 
   // 2. Instantly purge from LocalStorage
   try {
-    const localContracts: ContractData[] = JSON.parse(localStorage.getItem('novaq_contracts') || '[]');
+    const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
     const filtered = localContracts.filter(c => {
       const cId = (c.id || '').trim();
       const cNum = (c.contractNumber || '').trim();
@@ -476,13 +502,13 @@ export async function deleteContractFromFirebase(contractId?: string, contractNu
       if (targetNum && (cNum === targetNum || cId === targetNum)) return false;
       return true;
     });
-    localStorage.setItem('novaq_contracts', JSON.stringify(filtered));
+    localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(filtered));
   } catch (e) {
     console.warn('LocalStorage delete error:', e);
   }
 
   // 3. Dispatch local update event immediately
-  window.dispatchEvent(new Event('novaq_contracts_updated'));
+  window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
 
   // 4. Delete from Firestore asynchronously
   try {

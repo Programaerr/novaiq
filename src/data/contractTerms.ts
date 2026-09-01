@@ -37,7 +37,11 @@ import { Language } from '../lib/i18n';
 export function contractTerms(language: Language, _deliveryTimelineWeeks: number): string[] {
   return language === 'ar'
     ? [
-        'نطاق العمل والتسليم: يشمل التنفيذ التقني المتطلبات المحدَّدة والمتفق عليها مسبقاً في القسم الأول فقط. يُسلم المشروع على مراحل، ولا يُسلم الكود التشغيلي النهائي أو صلاحيات الإدارة إلا بعد سداد كامل قيمة العقد.',
+        /* بند أول جديد، وهو أهم بند في هذا النموذج تحديداً: العميل يوقّع على وصف مشروعه لا
+           على رقم، والرقم يُعتمد بعده. بلا هذا البند تبقى الوثيقة صامتة عن اللحظة التي تصبح
+           فيها القيمة مُلزِمة — وصمت وثيقة تعاقدية عن ذلك هو بالضبط ما يتحوّل إلى نزاع. */
+        'تحديد القيمة والاعتماد: يوقّع العميل على وصف مشروعه ومواصفاته كما وردت في القسم الثاني، وتُحدَّد قيمة المشروع ومدة تنفيذه وآلية سداده بالاتفاق بين الطرفين بعد مراجعة الطلب. تصبح هذه البنود مُلزِمة عند إثباتها في هذه الوثيقة واعتمادها من NUVAIQ وظهورها في حساب العميل، ولا يُلزَم أي طرف بأي قيمة قبل ذلك. وأي طلب إضافي بعد الاعتماد يُسعَّر ويُتفق عليه كملحق منفصل.',
+        'نطاق العمل والتسليم: يشمل التنفيذ التقني المتطلبات المحدَّدة والمتفق عليها مسبقاً في القسم الثاني من هذه الوثيقة فقط. يُسلم المشروع على مراحل، ولا يُسلم الكود التشغيلي النهائي أو صلاحيات الإدارة إلا بعد سداد كامل قيمة العقد.',
         'المراجعات والاعتماد: يحق للعميل جولتا تعديل مجانيتان قبل الاعتماد النهائي (على ألا تشمل تغييراً جذرياً في المفهوم الأساسي أو إضافة ميزات جديدة). أي متطلبات خارج النطاق تُسعّر كملحق منفصل.',
         'التزامات العميل والموافقة الضمنية: يلتزم العميل بتوفير المحتوى خلال 7 أيام عمل. عند تسليم أي مرحلة للعميل، وفي حال عدم إبدائه أي ملاحظات خلال 7 أيام، تُعتبر المرحلة معتمدة تلقائياً وتُستحق الدفعة الخاصة بها.',
         'الدفع والتأخير: تُدفع المستحقات على مراحل. يحق للشركة تعليق العمل إذا تأخر السداد 14 يوماً. وفي حال تجاوز تأخير العميل (سواء في الدفع أو توفير المحتوى) مدة 30 يوماً متواصلة، يحق للشركة إنهاء العقد أو إعادة جدولة المشروع بتسعيرة جديدة.',
@@ -49,7 +53,8 @@ export function contractTerms(language: Language, _deliveryTimelineWeeks: number
         'الإلغاء والقانون الحاكم: يخضع العقد لقوانين جمهورية العراق. عند الإلغاء لأي سبب أو لظرف قاهر، يلتزم العميل بتسديد قيمة ما أُنجز فعلياً من العمل حتى تاريخ الإلغاء.',
       ]
     : [
-        'Scope of Work & Delivery: Technical delivery covers only the specific, pre-agreed requirements set out in Section One. The project is delivered in phases, and the final working code and administrative access are handed over only after the contract value is fully settled.',
+        'Determining the Value & Approval: The client signs off on the description and specifications of their project as set out in Section Two. The project value, its delivery time and its payment terms are set by agreement between the two parties after the request is reviewed. These become binding once recorded in this document, approved by NUVAIQ and visible in the client account; neither party is bound to any figure before that. Any additional request after approval is priced and agreed as a separate annex.',
+        'Scope of Work & Delivery: Technical delivery covers only the specific, pre-agreed requirements set out in Section Two of this document. The project is delivered in phases, and the final working code and administrative access are handed over only after the contract value is fully settled.',
         'Revisions & Approval: The client is entitled to two free revision rounds before final approval, provided they do not involve a fundamental change of concept or the addition of new features. Any out-of-scope requirements are priced as a separate annex.',
         'Client Obligations & Implied Approval: The client must provide the required content within 7 business days. Once any phase is delivered to the client, if no comments are raised within 7 days, that phase is deemed automatically approved and its payment becomes due.',
         'Payment & Delay: Payments fall due in stages. The company may suspend work if settlement is delayed by 14 days. If the client’s delay (whether in payment or in providing content) exceeds 30 consecutive days, the company may terminate the contract or reschedule the project at a new rate.',
