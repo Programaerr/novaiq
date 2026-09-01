@@ -75,10 +75,14 @@ export function TabButton({
   return (
     <button
       onClick={onClick}
+      /* المختار محاط بإطار داكن حقيقي، لا بتعبئة بيضاء وحدها.
+         كان `bg-white/90 border-white` على أرضية ورقية فاتحة: الفرق بين المختار وجاره درجة
+         بيضاء واحدة تقريباً، فلا يُرى أي منهما مختاراً. الإطار بلون الحبر + حلقة خفيفة حوله
+         يجعل الاختيار مقروءاً من طرف الشاشة، ويبقى داخل نفس لوحة الألوان بلا لون جديد. */
       className={`${full ? 'w-full' : ''} px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all border ${
         active
-          ? 'bg-white/90 border-white text-ink'
-          : 'bg-paper border-ink/10 text-ink/60 hover:text-ink'
+          ? 'bg-white border-ink text-ink ring-2 ring-ink/15 shadow-sm'
+          : 'bg-paper border-ink/10 text-ink/60 hover:text-ink hover:border-ink/30'
       }`}
     >
       <Icon className="w-4 h-4 shrink-0" />
@@ -195,7 +199,8 @@ export function BottomTabBar({
               onClick={() => onSelect(t.id)}
               className="flex flex-col items-center gap-0.5 py-1.5 rounded-xl cursor-pointer transition-colors"
             >
-              <span className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${isActive ? 'bg-periwinkle/15 text-periwinkle' : 'text-ink/50'}`}>
+              {/* نفس السبب: تظليل خفيف وحده لا يُقرأ كاختيار على شريط أبيض. */}
+              <span className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${isActive ? 'bg-white border border-ink text-ink ring-2 ring-ink/15' : 'text-ink/50'}`}>
                 <Icon className="w-4.5 h-4.5" />
               </span>
               <span className={`text-[9px] font-bold truncate max-w-full ${isActive ? 'text-ink' : 'text-ink/50'}`}>{t.label}</span>
@@ -206,7 +211,7 @@ export function BottomTabBar({
           onClick={onMore}
           className="flex flex-col items-center gap-0.5 py-1.5 rounded-xl cursor-pointer transition-colors"
         >
-          <span className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${moreActive ? 'bg-periwinkle/15 text-periwinkle' : 'text-ink/50'}`}>
+          <span className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${moreActive ? 'bg-white border border-ink text-ink ring-2 ring-ink/15' : 'text-ink/50'}`}>
             <MoreDotsIcon className="w-4.5 h-4.5" />
           </span>
           <span className={`text-[9px] font-bold ${moreActive ? 'text-ink' : 'text-ink/50'}`}>{isAr ? 'المزيد' : 'More'}</span>

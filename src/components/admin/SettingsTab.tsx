@@ -13,6 +13,7 @@ import {
 import { useSocialLinks, saveSocialLinks, SocialLinks } from '../../lib/socialLinks';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
+import { ClientsStripCard } from './ClientsStripCard';
 
 const SOCIAL_FIELDS: Array<{
   id: keyof SocialLinks;
@@ -52,7 +53,11 @@ export function SettingsTab({ isAr }: { isAr: boolean }) {
   };
 
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="space-y-10">
+      {/* شريط "أعمالنا" أولاً: هو الأحدث والأكثر تعديلاً، وروابط التواصل تُضبط مرة وتُنسى. */}
+      <ClientsStripCard isAr={isAr} />
+
+      <div className="space-y-4 max-w-2xl">
       <div className="space-y-1">
         <h3 className="text-sm font-bold text-ink flex items-center gap-2">
           <Settings className="w-4 h-4 text-ink/60" />
@@ -117,6 +122,7 @@ export function SettingsTab({ isAr }: { isAr: boolean }) {
           </span>
         </button>
       </div>
+    </div>
     </div>
   );
 }
