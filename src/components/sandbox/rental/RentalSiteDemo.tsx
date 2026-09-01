@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useMemo, useState } from 'react';
 import {
   Bath,
@@ -700,8 +701,16 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
       {tab === 'app' && app}
       {tab === 'owner' && <RentalOwnerPage ctx={ctx} />}
 
-      {detail && quote && (
-        /* في وسط الشاشة، وبارتفاع مقيَّد بالحاوية لا بالنافذة.
+      {detail && quote && createPortal(
+        /* يُنقل إلى <body> عبر بوابة (portal)، وهذا هو أصل المشكلة لا مجرد ترتيب.
+           لوحة المعاينة التي يعيش داخلها هذا العرض تحمل `backdrop-blur` (انظر
+           TemplateInteractiveSandbox)، وأي عنصر بـ backdrop-filter يصبح "containing block"
+           لكل `position: fixed` داخله — فتتوقف الطبقة الغامرة عن القياس من نافذة المتصفح
+           وتقيس من تلك اللوحة، وارتفاعها هو ارتفاع المحتوى القابل للتمرير كاملاً. النتيجة أن
+           "منتصف الشاشة" صار منتصف الصفحة الطويلة، أي أسفل ما يراه الزائر بكثير، فتبدو
+           النافذة ملتصقة بالأعلى. نفس العلاج المستعمل أصلاً في شريط أدوات المعاينة.
+
+           وبعد النقل يصحّ الباقي: توسيط حقيقي، ارتفاع مقيَّد بالشاشة لا بالحاوية.
            كان `max-h-[92dvh]` يُحسَب من نافذة المتصفح كاملة، بينما هذه النافذة المنبثقة تُرسَم
            داخل إطار المعاينة (حاوية أصغر من النافذة، ولها containing block خاص بها) — فيخرج
            لوح المحتوى أطول من الحاوية التي يُفترض أن يتوسّطها، فيُقصّ من الأسفل ويلتصق بالأعلى
@@ -874,10 +883,11 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {done && (
+      {done && createPortal(
         <div className="fixed inset-0 z-[71] grid place-items-center p-6">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDone(null)} />
           <div className="relative w-full max-w-sm max-h-full overflow-y-auto rounded-3xl bg-slate-950 border border-slate-800 p-7 text-center space-y-3.5 animate-fade-in">
@@ -912,7 +922,8 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
