@@ -142,25 +142,46 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           Ordering with `order-*` utilities would have needed a pair of them per breakpoint and
           would still leave the columns themselves mirrored.
 
-          `items-stretch` (the grid default) is doing real work: it makes the dark box run the
-          full height of the taller panel, so the pair reads as one object split down the middle
-          rather than as two cards that happen to be adjacent.
+          The proportions are the reference's, measured off the drawing rather than eyeballed:
 
-          Two columns from `md`, not `lg`: a tablet has the width for the reference's own
-          composition, and what it cannot afford is the desktop's spacing — so the gap and the
-          panels' padding step down there instead of the layout changing shape. Below `md` it is
-          one column, dark panel first. */}
+            45 / 55        the left card is the narrower of the two
+            no gap         they touch, the left one drawn over the right
+            centred        the left card is 1.23x the height of the right and the two share a
+                           centre line, which is why this is `items-center` and not the grid's
+                           default stretch — stretched, both cards take the taller one's height
+                           and the difference the drawing is built on disappears.
+
+          The overlap is 8px and the left card carries `z-10` so it is the one on top, the way
+          the drawing has it. Kept small on purpose: these are translucent panels, and where they
+          cross, one sheet of frost sits over another.
+
+          Two columns from `md`, not `lg`: a tablet has the width for this composition, and what
+          it cannot afford is the desktop's spacing — so the padding steps down there instead of
+          the layout changing shape. Below `md` it is one column, dark panel first, and the cards
+          go back to full width with a normal gap between them. */}
       <div
         style={{ direction: 'ltr' }}
-        className="relative w-full max-w-5xl grid gap-4 md:gap-4 lg:gap-5 md:grid-cols-2"
+        className="relative w-full max-w-5xl grid gap-4 md:gap-0 md:grid-cols-[45fr_55fr] md:items-center"
       >
         {/* ── Panel one: the words ────────────────────────────────────────────────────── */}
         {/* Thin padding on the glass, because here the glass is a FRAME: the dark box is the
             surface and the frost is the mount it sits in. The action panel opposite uses the
             same class with full padding, where the glass is the surface itself. */}
-        <section dir={isAr ? 'rtl' : 'ltr'} className="nq-glass nq-rise p-4 md:p-4 lg:p-5">
+        {/* The frame, and it is mostly frame. The drawing gives the black box 60% of the card's
+            width and spends the other 40% on white — 19% of the card either side, 12% top and
+            bottom — which is what makes this read as something mounted rather than as a dark
+            card with a hairline around it.
+
+            The horizontal figure is the one place the drawing is not followed exactly. At 19% the
+            box would have about 220px of measure on a 1440 screen, and the heading does not fit
+            in it at 2rem; it lands at 15%, the closest the largest line on the page allows. The
+            vertical 12% is taken as drawn. */}
+        <section
+          dir={isAr ? 'rtl' : 'ltr'}
+          className="nq-glass nq-rise relative z-10 p-5 md:px-[10%] md:py-[12%] lg:px-[15%] lg:py-[14%]"
+        >
           <div
-            className="h-full rounded-[1.35rem] px-6 py-9 md:px-6 md:py-9 lg:px-8 lg:py-11 flex flex-col justify-center"
+            className="rounded-[1.35rem] px-6 py-9 md:px-5 md:py-8 lg:px-7 lg:py-10 flex flex-col justify-center"
             style={{ background: OBSIDIAN, color: WHITE }}
           >
             {/* Line height 1.35 and up, throughout. Arabic needs more of it than Latin at the
@@ -168,12 +189,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 "سجّل" — occupy space Latin leaves empty, so leading that looks airy in English
                 is cramped here. Nothing on this page sets below 13px, on a script that carries
                 meaning in dot clusters (ث against ت, ش against س) one or two pixels across. */}
-            {/* Smaller at `md` than at `sm`, which looks backwards and is not. `sm` is still one
-                column at full page width; `md` is where the two columns start and the heading
-                gets the narrowest measure it will ever have — 352px at the breakpoint itself,
-                where 2rem pushed "حسابك في NUVAIQ" onto a third line. The size steps with the
-                COLUMN, not with the viewport, because the column is what the line has to fit. */}
-            <h1 className="text-[1.75rem] sm:text-[2rem] md:text-[1.6rem] lg:text-[2.15rem] font-black leading-[1.35]">
+            {/* Five steps, and the one at `md` is smaller than the one at `sm`, which looks
+                backwards and is not. The size follows the MEASURE, and the measure is the box
+                inside the frame rather than the viewport: `sm` is still one column at full page
+                width, and `md` is where the two columns start AND the frame takes its share —
+                the narrowest line this heading ever has to fit.
+
+                Every step is the largest size that still sets "حسابك في NUVAIQ" on ONE line,
+                measured in the real face rather than estimated — the estimate was wrong twice,
+                both times optimistic. The measure the frame leaves is 217px at 768, 249px at
+                1024 and 265px from 1280 up; that longest line needs 204px at 24, 238px at 28 and
+                255px at 30, which is where these three land.
+
+                The desktop heading is 30px where it used to be 34. That is the price of the
+                frame the drawing asks for: 15% of the card either side leaves the box 265px, and
+                34px needs 289. A bigger heading here means a thinner frame, not both. */}
+            <h1 className="text-[1.75rem] sm:text-[2rem] md:text-[1.5rem] lg:text-[1.75rem] xl:text-[1.875rem] font-black leading-[1.35]">
               {isAr ? 'سجّل دخولك إلى' : 'Sign in to your'}
               <br />
               {isAr ? 'حسابك في NUVAIQ' : 'NUVAIQ account'}
@@ -208,11 +239,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
 
         {/* ── Panel two: the action ───────────────────────────────────────────────────── */}
         {/* 90ms behind the panel beside it. Enough to read as an order — words, then buttons —
-            without becoming a queue the visitor waits through. */}
+            without becoming a queue the visitor waits through.
+
+            `-ml-2` from `md` up is the overlap: this card slides 8px under the one on its left,
+            which has the higher stacking order. Physical `ml` rather than a logical margin, on
+            purpose — the grid around it is forced to `direction: ltr` so its columns keep the
+            drawing's sides in both languages, and this margin has to move in the same frame. */}
         <section
           dir={isAr ? 'rtl' : 'ltr'}
           style={{ animationDelay: '90ms' }}
-          className="nq-glass nq-rise px-6 py-9 md:px-6 md:py-9 lg:px-8 lg:py-11 flex flex-col justify-center"
+          className="nq-glass nq-rise px-6 py-10 md:-ml-2 md:px-6 md:py-12 lg:px-10 lg:py-14 flex flex-col justify-center"
         >
           {/* The circular logo area the reference draws at the top of this panel.
 
@@ -226,11 +262,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               heading opposite, so nothing is lost.
 
               `.nq-logo-orb` carries the interaction — see index.css. */}
+          {/* 30% of the card's width in the drawing, which is a much larger mark than a login
+              screen usually carries and is the thing that gives this one its shape. Stepped by
+              breakpoint rather than set in `%`, because a percentage of a flex column resolves
+              against the wrong axis and would leave it an oval. */}
           <div
-            className="nq-logo-orb self-center grid place-items-center rounded-full w-[5.5rem] h-[5.5rem] lg:w-24 lg:h-24"
+            className="nq-logo-orb self-center grid place-items-center rounded-full w-28 h-28 md:w-32 md:h-32 lg:w-40 lg:h-40"
             style={{ background: OBSIDIAN }}
           >
-            <NuvaiqLogo size={42} showText={false} />
+            <NuvaiqLogo size={54} showText={false} />
           </div>
 
           {/* `role="alert"` so a sign-in failure is announced rather than only drawn. A message
@@ -266,19 +306,29 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               `radius="xl"`, not the default pill: the sketch draws rounded rectangles, and a
               full radius on a wide short button inside a rounded card reads as a capsule
               floating in a box rather than as part of it. */}
-          <NqButton
-            tone="signal"
-            variant="solid"
-            size="lg"
-            radius="xl"
-            block
-            loading={isSubmitting}
-            onClick={handleGoogleSignIn}
-            className={error ? 'mt-4' : 'mt-8'}
-            icon={<GoogleIcon />}
-          >
-            {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
-          </NqButton>
+          {/* The drawing puts the buttons in a column 43% of the card's width, centred, with the
+              card's own padding well clear of them on both sides — not the full-width blocks a
+              login form usually reaches for. 15rem is that 43% at the desktop size, and it is a
+              max rather than a width so the column simply becomes the card on a phone, where
+              240px of button in a 343px card would read as a mistake.
+
+              `mt-[34px]` and `mt-[21px]` below are the gaps as drawn, not a rounded spacing step:
+              the space above the first button and the space between the two are different in the
+              reference, and rounding both to the same token is what would flatten it. */}
+          <div className="w-full max-w-[20rem] md:max-w-[16rem] mx-auto">
+            <NqButton
+              tone="signal"
+              variant="solid"
+              size="lg"
+              radius="xl"
+              block
+              loading={isSubmitting}
+              onClick={handleGoogleSignIn}
+              className={error ? 'mt-4' : 'mt-[34px]'}
+              icon={<GoogleIcon />}
+            >
+              {isAr ? 'المتابعة عبر Google' : 'Continue with Google'}
+            </NqButton>
 
           {/* Browsing the catalogue, opening a demo and reading the timeline need no account, and
               requiring one to look around turns a visitor away before they have seen anything
@@ -293,23 +343,27 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
               so a white ring is the one that disappears and a keyboard user loses the button.
               `white` quiet is the light-ground pair — PAPER_DEEP fill, Obsidian label, dark ring
               — which reads as the secondary next to the Orange without needing a new tone. */}
-          <NqButton
-            tone="white"
-            variant="quiet"
-            size="lg"
-            radius="xl"
-            block
-            disabled={isSubmitting}
-            onClick={onContinueAsGuest}
-            className="mt-3"
-          >
-            {isAr ? 'أكمل كضيف' : 'Continue as guest'}
-          </NqButton>
+            <NqButton
+              tone="white"
+              variant="quiet"
+              size="lg"
+              radius="xl"
+              block
+              disabled={isSubmitting}
+              onClick={onContinueAsGuest}
+              className="mt-[21px]"
+            >
+              {isAr ? 'أكمل كضيف' : 'Continue as guest'}
+            </NqButton>
+          </div>
 
-          {/* Both lines under the buttons, per the sketch. Centred here and not start-aligned,
-              because everything above them in this panel is centred too — the mark, and two
-              block buttons whose own labels are centred. A start edge would be one element out
-              of five disagreeing with the other four. */}
+          {/* Both lines under the buttons, from the first sketch's note. This wireframe draws
+              nothing below the second button, but a copyright line is not something to drop
+              because a later drawing left it out.
+
+              Outside the 15rem column deliberately: these are sentences, and in 240px the first
+              one sets in five lines. They take the card's own measure and stay centred, which is
+              what everything above them is. */}
           <p
             className="mt-6 text-[13px] font-medium leading-[1.65] text-center"
             style={{ color: INK_MUTED_ON_GLASS }}
