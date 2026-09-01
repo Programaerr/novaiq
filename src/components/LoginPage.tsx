@@ -246,8 +246,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 Stepped by breakpoint rather than set in `%`, because a percentage inside a flex
                 column resolves against the wrong axis and would leave it an oval. Smaller than
                 the disc it replaces (96/112/128 against 112/128/160): a bare glyph reads larger
-                than the same measurement filled. */}
-            <div className="nq-logo-orb grid place-items-center w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32">
+                than the same measurement filled.
+
+                It does not answer the pointer any more, on the owner's call. `.nq-logo-mark` is
+                down to two jobs: sizing the image to this box, and inverting it. */}
+            <div className="nq-logo-mark grid place-items-center w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32">
               <NuvaiqLogo size={54} showText={false} />
             </div>
 

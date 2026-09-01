@@ -970,7 +970,7 @@
   }
 }
 
-/* The logo area on the sign-in card, and the entrance the card arrives on.
+/* The logo mark on the sign-in card, and the entrance the card arrives on.
 
    ## The mark, and why it is inverted
 
@@ -989,10 +989,12 @@
    and a drop-shadow by class on the same img, and this has to beat both — the drop-shadow in
    particular is a white glow, which after inversion would be a dark halo.
 
-   The interaction is one step of scale — enough to answer a pointer without becoming a thing
-   that moves on its own. It is on a `:hover` and a `:focus-within` so it answers a finger and a
-   keyboard alike, and it is a `transform`, which lays nothing out again. The Orange ring that
-   went with it went with the disc: a glow around a bare glyph reads as a smudge.
+   ## No interaction on it
+
+   It had one for two revisions — an Orange ring, then a step of scale once the disc came off —
+   and the owner has taken it out. Nothing here answers a pointer now, which leaves this class
+   doing one job: sizing the mark to its box and inverting it. The page's only motion is the
+   entrance below, and the brightness lift every NqButton on the site shares.
 
    ## The entrance
 
@@ -1004,15 +1006,6 @@
 
    `both` fill mode matters: without it the panels are painted at their final position for the
    frame before the animation starts, which is a flash of the finished layout. */
-.nq-logo-orb {
-  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.nq-logo-orb:hover,
-.nq-logo-orb:focus-within {
-  transform: scale(1.05);
-}
-
 /* The mark inside the circle, as a SHARE of it rather than a fixed pixel size.
 
    NuvaiqLogo writes width and height as an inline style, so a class on it loses; this is the
@@ -1020,7 +1013,7 @@
    the circle steps 112 -> 128 -> 160px across the breakpoints, and a single number cannot be
    right in all three — 54px was 48% of the small one and 34% of the large, which is why the
    mark read as small on a desktop. 54% holds the same badge proportion at every size. */
-.nq-logo-orb img {
+.nq-logo-mark img {
   width: 100% !important;
   height: 100% !important;
   filter: invert(1) !important;
