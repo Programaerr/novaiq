@@ -7,6 +7,7 @@ import { LoginPage } from './LoginPage';
 import { AdminDashboard } from './AdminDashboard';
 import { CustomerDashboard } from './CustomerDashboard';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
+import { DeferredPageLoader } from './DeferredPageLoader';
 
 interface AdminPageProps {
   language: Language;
@@ -144,16 +145,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
     };
   }, [effectiveUser]);
 
-  /* لا شاشة تحميل هنا إطلاقاً.
+  /* شاشة التحميل صارت مؤجَّلة، لا محذوفة.
    *
-   * كانت تظهر مرتين لكل دخول: مرة بانتظار Firebase وهو يستعيد الجلسة، ومرة بانتظار جواب
-   * قائمة المشرفين — وكلاهما جزء من ثانية على اتصال جيد، أي وميض شاشة كاملة مقابل انتظار لا
-   * يكاد يُلاحَظ. أرضية الصفحة مرسومة أصلاً (useDocumentFlag أعلاه)، فإرجاع لا شيء يعني صفحة
-   * فارغة هادئة للحظة بدل دوّارة تقول "انتظر" ثم تختفي فوراً.
+   * كانت تظهر فوراً مرتين لكل دخول: بانتظار Firebase وهو يستعيد الجلسة، وبانتظار جواب قائمة
+   * المشرفين — وكلاهما جزء من ثانية على اتصال جيد، أي وميض شاشة كاملة مقابل انتظار لا يكاد
+   * يُلاحَظ. الآن لا يظهر شيء داخل العتبة الأولى (أرضية الحساب مرسومة أصلاً من useDocumentFlag
+   * أعلاه، فالصفحة هادئة لا سوداء)، وإن طال الانتظار فعلاً تظهر الدوّارة كما يجب.
    *
    * ومع التلميح المحفوظ أعلاه، الأدمن العائد لا يمرّ من هنا أساساً: أول إطار يرسم اللوحة. */
   if (effectiveUser === undefined || (effectiveUser && resolvedIsAdmin === undefined)) {
-    return null;
+    return <DeferredPageLoader />;
   }
 
   if (!effectiveUser) {

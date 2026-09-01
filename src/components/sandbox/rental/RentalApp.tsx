@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
   ArrowRight,
-  BatteryFull,
   Bath,
   Bed,
   Building2,
@@ -17,12 +16,10 @@ import {
   Minus,
   Plus,
   Search,
-  Signal,
   Sparkles,
   Star,
   Ticket,
   User,
-  Wifi,
   Wrench,
   X,
 } from 'lucide-react';
@@ -490,22 +487,9 @@ export const RentalApp: React.FC<{ ctx: RentalCtx }> = ({ ctx }) => {
 
   return (
     <div className="absolute inset-0 bg-[#0b0f17] text-slate-100 overflow-hidden" dir="rtl">
-      {/* Status bar. Fake, obviously — but an app screenshot without one reads as a web page,
-          and the whole point of this half of the demo is that it does not. */}
-      <div className="absolute inset-x-0 top-0 h-[52px] z-20 flex items-end justify-between px-6 pb-1.5 pointer-events-none">
-        <span className="text-[13px] font-black text-white font-mono" dir="ltr">
-          9:41
-        </span>
-        <span className="flex items-center gap-1.5 text-white">
-          <Signal className="w-3.5 h-3.5" />
-          <Wifi className="w-3.5 h-3.5" />
-          <BatteryFull className="w-5 h-5" />
-        </span>
-      </div>
-
       <div
         data-lenis-prevent
-        className="absolute inset-0 pt-[56px] pb-[84px] overflow-y-auto overflow-x-hidden no-scrollbar"
+        className="absolute inset-0 pt-3 pb-[84px] overflow-y-auto overflow-x-hidden no-scrollbar"
       >
         {tab === 'explore' && explore}
         {tab === 'building' && building}

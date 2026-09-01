@@ -276,62 +276,27 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
             بالشهر أو باليوم — من المتصفح أو من التطبيق، بنفس الحساب.
           </p>
 
-          {/* ── The hero search ──────────────────────────────────────────────────────────────
-              On a marketplace the search box IS the primary call to action — the visitor arrives
-              with a shape in mind ("مفروشة، غرفتين") rather than an intent to browse a catalogue,
-              and burying the field in the header chrome makes them scan a grid to find what one
-              word would have filtered.
-
-              It writes into the same state the header box uses, so the two are one control. The
-              chips below it exist because an empty search field is the biggest drop-off point on
-              a page like this: they turn a blank prompt into a single tap, and they double as a
-              statement of what can be searched at all. */}
-          <form
-            role="search"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setActiveTab('units');
-              cosmicAudio.playPing();
-            }}
-            className="space-y-2.5"
-          >
-            <div className="flex items-stretch gap-2 rounded-2xl bg-slate-900 border border-slate-700 p-1.5 focus-within:border-slate-500 transition-colors">
-              <span className="grid place-items-center ps-2.5 text-slate-500" aria-hidden="true">
-                <Search className="w-4 h-4" />
-              </span>
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                aria-label="ابحث عن شقة أو طابق أو منطقة"
-                placeholder="جرّب: مفروشة، غرفتين، الطابق 8"
-                className="flex-1 min-w-0 bg-transparent text-xs font-bold text-white placeholder:text-slate-500 outline-none"
-              />
+          {/* حقل البحث الذي كان هنا حُذف: نفس الحقل موجود في ترويسة الموقع ويكتب في نفس
+              الحالة — أي مربّعا بحث على شاشة واحدة يفعلان الشيء ذاته. ما بقي هو الاختصارات
+              وحدها، وهي ليست تكراراً لشيء: تحوّل حقلاً فارغاً إلى ضغطة واحدة، وتقول للزائر ما
+              الذي يمكن البحث عنه أصلاً. */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] font-bold text-slate-500">الأكثر بحثاً:</span>
+            {POPULAR_SEARCHES.map((p) => (
               <button
-                type="submit"
-                className={`shrink-0 min-h-11 px-5 rounded-xl text-xs font-black cursor-pointer transition-[filter] hover:brightness-110 ${theme.primaryBg} ${theme.onPrimary}`}
+                key={p}
+                type="button"
+                onClick={() => {
+                  setSearch(p);
+                  setActiveTab('units');
+                  cosmicAudio.playTick();
+                }}
+                className="rounded-lg bg-white/5 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-300 cursor-pointer hover:bg-white/10 hover:text-white transition-colors"
               >
-                ابحث
+                {p}
               </button>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[10px] font-bold text-slate-500">الأكثر بحثاً:</span>
-              {POPULAR_SEARCHES.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => {
-                    setSearch(p);
-                    setActiveTab('units');
-                    cosmicAudio.playTick();
-                  }}
-                  className="rounded-lg bg-white/5 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-300 cursor-pointer hover:bg-white/10 hover:text-white transition-colors"
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          </form>
+            ))}
+          </div>
 
           <div className="flex flex-wrap gap-2.5">
             <button

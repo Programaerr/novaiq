@@ -8,7 +8,7 @@ import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { AboutSection } from './components/AboutSection';
 import { CookieConsent } from './components/CookieConsent';
 import { ToastHost } from './components/ToastHost';
-import { PageLoader } from './components/PageLoader';
+import { DeferredPageLoader } from './components/DeferredPageLoader';
 import { SmartPageLoader } from './components/SmartPageLoader';
 import { ContractPreparingLoader } from './components/ContractPreparingLoader';
 import { trackLoad } from './lib/loadTracker';
@@ -502,12 +502,10 @@ export default function App() {
   // The `undefined` branch is the one that matters and is easy to get wrong. Firebase resolves
   // auth asynchronously — this is genuinely loading (not an error, not a decision), so it is the
   // one place the loader is shown for real work rather than for a chunk already in memory.
-  // ...إلا لوحة التحكم/حسابي. هي الوجهة التي يُفتح إليها الموقع مباشرة (رابط محفوظ، أو تحديث
-  // للصفحة وهو داخلها)، وشاشة انتظار كاملة قبل أن تبدأ حتى في الظهور كانت أول ما يراه صاحب
-  // الموقع في كل مرة. AdminPage يتعامل مع حالة "الجلسة لم تُحسم بعد" بنفسه بصفحة فارغة بلون
-  // الحساب، ولا Navbar فوقها أصلاً — فلا شيء يُرسَم خطأً أثناء ذلك.
-  if (currentUser === undefined && activePage !== 'orders') {
-    return <PageLoader />;
+  // مؤجَّلة: استعادة جلسة محفوظة على الجهاز تُحسم عادةً في أجزاء من الثانية، وشاشة كاملة
+  // تظهر وتختفي في تلك المدة وميض لا فائدة منه. تظهر فقط إن تجاوز الانتظار العتبة.
+  if (currentUser === undefined) {
+    return <DeferredPageLoader />;
   }
   // Either the visitor has not chosen yet (the gate), or a guest asked for the sign-in screen
   // from the navbar. Same screen, and both offer the way back out to browsing.
