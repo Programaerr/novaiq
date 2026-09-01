@@ -21,6 +21,13 @@ export function OverviewTab({
 }) {
   const recent = contracts.slice(0, 6);
 
+  // يُحسب هنا لا في AdminDashboard: لا يقرأه سوى هذه البطاقة، وحسابه ثلاث جمعات على مصفوفة
+  // موجودة أصلاً — تمريره عبر AdminStats كان سيوسّع عقداً مشتركاً لأجل مستهلك واحد.
+  const websiteCount = contracts.filter((c) => c.projectType === 'website').length;
+  const appCount = contracts.filter((c) => c.projectType === 'app').length;
+  const unspecifiedCount = contracts.length - websiteCount - appCount;
+  const projectTypeTotal = contracts.length;
+
   return (
     <div className="space-y-4">
       {/* Only what the permanent strip above does not already carry.
@@ -67,16 +74,38 @@ export function OverviewTab({
         </div>
       </div>
 
+      {/* "موقع أم تطبيق" محلّ "القوالب الأكثر طلباً".
+          القائمة القديمة كانت تعدّ `templateTitle`، وهو منذ صار كل مشروع مخصصاً = اسم المشروع
+          الذي يكتبه العميل بنفسه — أي قائمة أسماء فريدة كلٌّ منها بعقد واحد، لا "الأكثر طلباً"
+          بشيء. أما نوع المشروع فسؤال حقيقي له جواب يفيد التسعير والتخطيط. */}
       <div className="p-5 rounded-2xl bg-paper border border-ink/10 space-y-3">
-        <h3 className="text-sm font-bold text-ink">{isAr ? 'القوالب الأكثر طلباً' : 'Most Requested Templates'}</h3>
-        {stats.topTemplates.length === 0 ? (
+        <h3 className="text-sm font-bold text-ink">{isAr ? 'الأكثر طلباً: موقع أم تطبيق' : 'Most requested: website or app'}</h3>
+        {projectTypeTotal === 0 ? (
           <p className="text-xs text-ink/50">{isAr ? 'لا توجد بيانات بعد' : 'No data yet'}</p>
         ) : (
-          <div className="space-y-2.5">
-            {stats.topTemplates.map(([title, count]) => (
-              <BarRow key={title} isAr={isAr} label={translateText(title, language)} count={count} total={stats.count} />
-            ))}
-          </div>
+          <>
+            <p className="text-xs font-bold text-ink/70">
+              {websiteCount === appCount
+                ? isAr ? 'الطلب متساوٍ بين الاثنين.' : 'Demand is even between the two.'
+                : websiteCount > appCount
+                  ? isAr ? 'الموقع الإلكتروني هو الأكثر طلباً.' : 'The website is the more requested one.'
+                  : isAr ? 'تطبيق الهاتف هو الأكثر طلباً.' : 'The mobile app is the more requested one.'}
+            </p>
+            <div className="space-y-2.5">
+              <BarRow isAr={isAr} label={isAr ? 'موقع إلكتروني' : 'Website'} count={websiteCount} total={projectTypeTotal} />
+              <BarRow isAr={isAr} label={isAr ? 'تطبيق هاتف' : 'Mobile app'} count={appCount} total={projectTypeTotal} />
+              {/* عقود أُنشئت قبل وجود هذا الحقل. تُعرَض ولا تُخفى: إخفاؤها يجعل المجموع أقل من
+                  عدد العقود بلا تفسير، فيبدو الرقم خاطئاً. */}
+              {unspecifiedCount > 0 && (
+                <BarRow
+                  isAr={isAr}
+                  label={isAr ? 'غير محدَّد (عقود قديمة)' : 'Unspecified (older contracts)'}
+                  count={unspecifiedCount}
+                  total={projectTypeTotal}
+                />
+              )}
+            </div>
+          </>
         )}
       </div>
 
