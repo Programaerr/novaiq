@@ -701,11 +701,18 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
       {tab === 'owner' && <RentalOwnerPage ctx={ctx} />}
 
       {detail && quote && (
-        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-6">
+        /* في وسط الشاشة، وبارتفاع مقيَّد بالحاوية لا بالنافذة.
+           كان `max-h-[92dvh]` يُحسَب من نافذة المتصفح كاملة، بينما هذه النافذة المنبثقة تُرسَم
+           داخل إطار المعاينة (حاوية أصغر من النافذة، ولها containing block خاص بها) — فيخرج
+           لوح المحتوى أطول من الحاوية التي يُفترض أن يتوسّطها، فيُقصّ من الأسفل ويلتصق بالأعلى
+           بدل أن يتوسّط. `max-h-full` يقيس من الطبقة الغامرة نفسها، فيصحّ داخل الإطار وفي
+           الصفحة المستقلة معاً. و`items-center` على كل المقاسات: كان يفتح كورقة ملتصقة بالأسفل
+           على الهاتف، وهو ما ضاعف الإحساس بالالتصاق حين يزيد الارتفاع عن الحاوية. */
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-6">
           <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setDetail(null)} />
           <div
             data-lenis-prevent
-            className="relative w-full sm:max-w-4xl max-h-[92dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl animate-fade-in"
+            className="relative w-full sm:max-w-4xl max-h-full overflow-y-auto rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl animate-fade-in"
           >
             <button
               onClick={() => setDetail(null)}
@@ -873,7 +880,7 @@ export const RentalSiteDemo: React.FC<RentalSiteDemoProps> = ({
       {done && (
         <div className="fixed inset-0 z-[71] grid place-items-center p-6">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setDone(null)} />
-          <div className="relative w-full max-w-sm rounded-3xl bg-slate-950 border border-slate-800 p-7 text-center space-y-3.5 animate-fade-in">
+          <div className="relative w-full max-w-sm max-h-full overflow-y-auto rounded-3xl bg-slate-950 border border-slate-800 p-7 text-center space-y-3.5 animate-fade-in">
             <span
               className="w-16 h-16 mx-auto rounded-full grid place-items-center"
               style={{ background: `${accentHex}22` }}
