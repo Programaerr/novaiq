@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home } from 'lucide-react';
+import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -14,6 +14,7 @@ import { sumPayments } from '../lib/payments';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { contractTerms } from '../data/contractTerms';
 import { STAGE_COLORS } from '../lib/statusColors';
+import { contractProgress, safeExternalUrl } from '../lib/contractProgress';
 import { NqButton } from './ui/NqButton';
 
 interface CustomerDashboardProps {
@@ -46,6 +47,81 @@ function formatDate(iso: string | undefined, isAr: boolean): string {
     month: 'short',
     day: 'numeric',
   });
+}
+
+/**
+ * نسبة الإنجاز ورابط المعاينة — إجابة العميل على سؤال "وين وصل مشروعي؟" بلا أن يسأل أحداً.
+ *
+ * النسبة محسوبة لا مكتوبة: تبدأ بالزحف من لحظة وضع العقد في "قيد التنفيذ"، بحسب مدة التسليم
+ * المتفق عليها في العقد نفسه (انظر lib/contractProgress.ts). المؤقّت أدناه ليس تجميلاً: تبويب
+ * يبقى مفتوحاً ساعات كان سيُظهر نسبة لحظة الفتح إلى الأبد.
+ */
+function ProgressPanel({ contract, isAr }: { contract: ContractData; isAr: boolean }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 5 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const { percent, isLive } = contractProgress(contract, now);
+  const preview = safeExternalUrl(contract.previewUrl);
+  const color = STAGE_COLORS[contract.status].fill;
+
+  return (
+    <div className="p-3 rounded-xl bg-white/70 border border-ink/10 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[11px] font-bold text-ink/60">
+          {isAr ? 'نسبة الإنجاز' : 'Progress'}
+        </span>
+        <strong className="text-sm font-mono text-ink tabular-nums" dir="ltr">{percent}%</strong>
+      </div>
+
+      <div className="h-2 rounded-full bg-ink/10 overflow-hidden">
+        <div
+          className="h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{ width: `${percent}%`, background: color }}
+          role="progressbar"
+          aria-valuenow={percent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        />
+      </div>
+
+      <p className="text-[10px] text-ink/50 leading-relaxed">
+        {contract.status === 'completed'
+          ? (isAr ? 'اكتمل المشروع وسُلِّم بالكامل.' : 'The project is complete and fully delivered.')
+          : isLive
+          ? (isAr
+              ? 'المشروع قيد التنفيذ الآن، والنسبة تتقدّم تلقائياً مع مدة التسليم المتفق عليها. آخر 10% تُسجَّل عند التسليم النهائي.'
+              : 'Development is underway; the percentage advances automatically along the agreed delivery window. The final 10% is recorded on delivery.')
+          : (isAr
+              ? 'ستبدأ النسبة بالتقدّم تلقائياً فور دخول المشروع مرحلة التنفيذ.'
+              : 'The percentage starts advancing automatically once the project enters development.')}
+      </p>
+
+      {/* رابط المعاينة: rel="noopener" ضروري — بدونه تحصل الصفحة المفتوحة على window.opener
+          وتقدر توجّه تبويب حساب العميل إلى أي مكان. */}
+      {preview ? (
+        <a
+          href={preview}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-ink text-paper text-xs font-bold hover:opacity-90 transition-opacity"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span>{isAr ? 'شاهد موقعك قيد التنفيذ' : 'View your site in progress'}</span>
+        </a>
+      ) : (
+        contract.status === 'in_development' && (
+          <p className="text-[10px] text-ink/40">
+            {isAr
+              ? 'سيظهر هنا رابط معاينة موقعك بمجرد أن نرفعه لك.'
+              : 'A preview link for your site will appear here as soon as we publish one.'}
+          </p>
+        )
+      )}
+    </div>
+  );
 }
 
 // The four stages a contract passes through, as a rail. The step the contract has reached is
@@ -285,6 +361,13 @@ function CustomerContractRow({
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs font-mono text-ink/75 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
+          {/* النسبة في السطر المطوي أيضاً: أهم رقم يبحث عنه العميل، ولا يجب أن يضطر لفتح
+              البطاقة ليراه. تظهر أثناء التنفيذ فقط — قبله هي رقم مرحلة ثابت لا خبر فيه. */}
+          {contract.status === 'in_development' && (
+            <span className="text-[11px] font-mono font-bold text-ink/70 tabular-nums" dir="ltr">
+              {contractProgress(contract).percent}%
+            </span>
+          )}
           <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${STAGE_COLORS[contract.status].badge}`}>
             {translateText(STATUS_LABEL_AR[contract.status], language)}
           </span>
@@ -312,6 +395,8 @@ function CustomerContractRow({
               kept above every detail so the answer to "what's the status" never requires
               reading the badge in the header. */}
           <StatusRail status={contract.status} isAr={isAr} />
+
+          <ProgressPanel contract={contract} isAr={isAr} />
 
           {/* The contract itself — everything the customer entered and agreed to, exactly as
               printed: the price, the payment plan, the delivery window, and the details they
@@ -410,7 +495,9 @@ function CustomerContractRow({
                     src={contract.signatureDataUrl}
                     alt={isAr ? 'توقيعك' : 'Your signature'}
                     className="max-h-full max-w-full object-contain"
-                    style={{ filter: 'invert(1)' }}
+                    /* القلب للتواقيع القديمة ذات الحبر الأبيض فقط — الجديدة داكنة أصلاً
+                       (انظر signatureInk في types.ts). */
+                    style={{ filter: contract.signatureInk === 'dark' ? undefined : 'invert(1)' }}
                   />
                 </div>
               </div>
@@ -433,7 +520,7 @@ function CustomerContractRow({
                     src={contract.companySignatureDataUrl}
                     alt={isAr ? 'توقيع NUVAIQ' : 'NUVAIQ signature'}
                     className="max-h-full max-w-full object-contain"
-                    style={{ filter: 'invert(1)' }}
+                    style={{ filter: contract.companySignatureInk === 'dark' ? undefined : 'invert(1)' }}
                   />
                 </div>
               </div>

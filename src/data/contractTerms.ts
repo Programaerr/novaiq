@@ -42,7 +42,9 @@ export function contractTerms(language: Language, _deliveryTimelineWeeks: number
         'التزامات العميل والموافقة الضمنية: يلتزم العميل بتوفير المحتوى خلال 7 أيام عمل. عند تسليم أي مرحلة للعميل، وفي حال عدم إبدائه أي ملاحظات خلال 7 أيام، تُعتبر المرحلة معتمدة تلقائياً وتُستحق الدفعة الخاصة بها.',
         'الدفع والتأخير: تُدفع المستحقات على مراحل. يحق للشركة تعليق العمل إذا تأخر السداد 14 يوماً. وفي حال تجاوز تأخير العميل (سواء في الدفع أو توفير المحتوى) مدة 30 يوماً متواصلة، يحق للشركة إنهاء العقد أو إعادة جدولة المشروع بتسعيرة جديدة.',
         'الملكية الفكرية: يتحمل العميل المسؤولية القانونية الكاملة عن المحتوى الذي يزودنا به. تنتقل ملكية الكود للعميل بعد السداد النهائي، مع احتفاظ الشركة بحق عرض المشروع في معرض أعمالها دون كشف بياناته السرية.',
-        'الضمان والصيانة: تلتزم الشركة بإصلاح الأخطاء البرمجية (التي تخالف المتطلبات المتفق عليها فقط) مجاناً لمدة 30 يوماً من التسليم. طلبات إضافة ميزات أو الصيانة اللاحقة تتطلب عقداً مستقلاً.',
+        /* 15 يوماً، لا 30. كان بند العقد يقول 30 بينما صفحة مراحل العمل (MilestoneTimeline.tsx)
+           تَعِد بـ15 — رقمان متناقضان يراهما العميل نفسه، وأيّهما يُعتمد يصبح خلافاً لاحقاً. */
+        'الضمان والصيانة: تلتزم الشركة بإصلاح الأخطاء البرمجية (التي تخالف المتطلبات المتفق عليها فقط) مجاناً لمدة 15 يوماً من التسليم. طلبات إضافة ميزات أو الصيانة اللاحقة تتطلب عقداً مستقلاً.',
         'المسؤولية والسرية: يلتزم الطرفان بالسرية التامة. ولا تتجاوز مسؤولية الشركة التعاقدية أو التعويضية عن أي أضرار (مباشرة أو غير مباشرة) قيمة العقد المدفوعة فعلياً بأي حال من الأحوال.',
         'الإلغاء والقانون الحاكم: يخضع العقد لقوانين جمهورية العراق. عند الإلغاء لأي سبب أو لظرف قاهر، يلتزم العميل بتسديد قيمة ما أُنجز فعلياً من العمل حتى تاريخ الإلغاء.',
       ]
@@ -52,7 +54,7 @@ export function contractTerms(language: Language, _deliveryTimelineWeeks: number
         'Client Obligations & Implied Approval: The client must provide the required content within 7 business days. Once any phase is delivered to the client, if no comments are raised within 7 days, that phase is deemed automatically approved and its payment becomes due.',
         'Payment & Delay: Payments fall due in stages. The company may suspend work if settlement is delayed by 14 days. If the client’s delay (whether in payment or in providing content) exceeds 30 consecutive days, the company may terminate the contract or reschedule the project at a new rate.',
         'Intellectual Property: The client bears full legal responsibility for the content they provide us. Code ownership transfers to the client after final settlement, with the company retaining the right to showcase the project in its portfolio without disclosing its confidential data.',
-        'Warranty & Maintenance: The company commits to fixing software defects (those that violate the agreed requirements only) free of charge for 30 days from delivery. Requests to add features or for subsequent maintenance require a separate contract.',
+        'Warranty & Maintenance: The company commits to fixing software defects (those that violate the agreed requirements only) free of charge for 15 days from delivery. Requests to add features or for subsequent maintenance require a separate contract.',
         'Liability & Confidentiality: Both parties are bound by strict confidentiality. The company’s contractual or compensatory liability for any damages (direct or indirect) shall in no case exceed the contract value actually paid.',
         'Cancellation & Governing Law: The contract is governed by the laws of the Republic of Iraq. Upon cancellation for any reason or due to force majeure, the client is obliged to settle the value of the work actually completed up to the cancellation date.',
       ];

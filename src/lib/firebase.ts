@@ -131,8 +131,8 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
 // from the admin dashboard, which is gated behind Firebase Auth login. Covers status
 // changes and the post-negotiation edits (final agreed price, admin notes) in one call.
 export async function updateContractFields(
-  contract: Pick<ContractData, 'id' | 'contractNumber'>,
-  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned'>>
+  contract: Pick<ContractData, 'id' | 'contractNumber' | 'developmentStartedAt'>,
+  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'companySignatureInk' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned' | 'previewUrl'>>
 ): Promise<void> {
   // Identified by contractNumber first, because that IS the document ID that
   // saveContractToFirebase writes to. `id` only equals it for contracts that came back from a
@@ -164,6 +164,14 @@ export async function updateContractFields(
   // silently drag it backwards into `in_development`.
   if (fields.companySignatureDataUrl && !fields.status) {
     updatePayload.status = 'in_development';
+  }
+
+  // ساعة بدء التنفيذ — تُضبط مرة واحدة فقط، أول مرة يصل العقد إلى "قيد التنفيذ" (سواء
+  // اختارها الأدمن صراحةً أو وصلها تلقائياً بالتوقيع أعلاه). هي نقطة الصفر التي تزحف منها
+  // نسبة الإنجاز في حساب العميل (lib/contractProgress.ts)؛ إعادة ضبطها مع كل حفظ لاحق كانت
+  // ستُرجِع النسبة إلى الوراء أمام العميل كلما عدّل الأدمن أي حقل آخر.
+  if (updatePayload.status === 'in_development' && !contract.developmentStartedAt) {
+    updatePayload.developmentStartedAt = new Date().toISOString();
   }
 
   // setDoc+merge rather than updateDoc: updateDoc requires the document to already exist and

@@ -5,6 +5,7 @@ import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
+import { trackEvent } from '../lib/analytics';
 import { ERROR, OBSIDIAN, PAPER, PAPER_DEEP, SUCCESS, WHITE } from '../lib/homePalette';
 import { BAND_FADE, SIGNAL_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
@@ -145,6 +146,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
         setSent(true);
         setValues(EMPTY);
         setTouched({});
+        // بلا اسم ولا رقم ولا نص الرسالة — الحدث نفسه فقط (رسالة وصلت)، انظر lib/analytics.ts.
+        trackEvent('contact_message_sent', { language });
       } catch {
         /* The message did not go. Say so plainly and keep what they typed — clearing the form on a
            failed send loses their words as well as their time. */

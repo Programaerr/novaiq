@@ -112,16 +112,41 @@ export interface ContractData {
   
   // Legal & Digital Signature
   signatureDataUrl: string;
+  /**
+   * بأي لون رُسم هذا التوقيع.
+   *
+   * كانت لوحة التوقيع ترسم بحبر أبيض تقريباً (#f4f4f5)، فكان كل عارض يقلب ألوان الصورة
+   * (filter: invert(1)) ليقرأها على ورق أبيض. هذا كان يعمل حتى وُضعت لوحة اعتماد الأدمن على
+   * سطح فاتح: حبر أبيض على أبيض = توقيع غير مرئي أثناء الرسم أصلاً. الحبر صار داكناً، وهذا
+   * الحقل يميّز الجديد عن القديم: توقيع بلا هذه العلامة = حبر أبيض قديم، يُقلب كما كان، فلا
+   * يختفي توقيع على عقد مُوقَّع سابقاً.
+   */
+  signatureInk?: 'dark';
   agreedToTerms: boolean;
   // Set only by the admin dashboard — NUVAIQ's own sign-off, shown on the printed contract
   // next to the client's signature so the client can see the work was actually approved.
   companySignatureDataUrl?: string;
+  /** نفس معنى `signatureInk` أعلاه، لتوقيع NUVAIQ — مستقل عنه لأن عقداً قديماً قد يُعتمد
+   *  اليوم بحبر داكن بينما توقيع عميله القديم لا يزال أبيض. */
+  companySignatureInk?: 'dark';
   
   // Status
   status: 'draft' | 'submitted' | 'under_review' | 'in_development' | 'completed';
   createdAt: string;
   updatedAt?: string;
   completedAt?: string;
+  /** لحظة دخول العقد فعلياً في "قيد التنفيذ" — تُضبط تلقائياً أول مرة يصل فيها إلى هذه
+   *  الحالة (lib/firebase.ts)، وهي نقطة الصفر التي تُحسب منها نسبة التقدّم في حساب العميل
+   *  (lib/contractProgress.ts). بدونها كانت النسبة ستقفز أو تعود للوراء كلما عدّل الأدمن
+   *  أي حقل آخر، لأن لا شيء يقول متى بدأ العمل. */
+  developmentStartedAt?: string;
+  /**
+   * رابط معاينة خاص يرفعه الأدمن ليتابع العميل موقعه أثناء التطوير (رابط Netlify/staging
+   * مثلاً). يظهر في حساب العميل فقط عند وجوده — ولا يُعرض إلا إذا كان http/https (انظر
+   * safeExternalUrl في lib/contractProgress.ts): رابط يبدأ بـjavascript: كان سيصبح ثغرة
+   * تنفيذ كود بضغطة واحدة من العميل.
+   */
+  previewUrl?: string;
 
   // Set only by the admin dashboard, after negotiating with the client — appears on the
   // final printed contract as agreed terms, distinct from the client's own original request.

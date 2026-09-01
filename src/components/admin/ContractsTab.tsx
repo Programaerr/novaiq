@@ -245,6 +245,8 @@ function ContractRow({
   const [payments, setPayments] = useState<PaymentRecord[]>(() => baselinePayments(contract));
   const [installmentsPlanned, setInstallmentsPlanned] = useState(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
   const [adminNotes, setAdminNotes] = useState(contract.adminNotes || '');
+  /** رابط المعاينة الخاص الذي يتابع منه العميل موقعه أثناء التنفيذ. */
+  const [previewUrl, setPreviewUrl] = useState(contract.previewUrl || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -259,9 +261,10 @@ function ContractRow({
     setPayments(baselinePayments(contract));
     setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
     setAdminNotes(contract.adminNotes || '');
+    setPreviewUrl(contract.previewUrl || '');
     setSignatureDirty(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contract.status, contract.totalPriceIQD, contract.costIQD, contract.payments, contract.paidAmountIQD, contract.installmentsPlanned, contract.adminNotes, contract.companySignatureDataUrl]);
+  }, [contract.status, contract.totalPriceIQD, contract.costIQD, contract.payments, contract.paidAmountIQD, contract.installmentsPlanned, contract.adminNotes, contract.previewUrl, contract.companySignatureDataUrl]);
 
   const addPayment = () => {
     setPayments((prev) => [...prev, { id: newPaymentId(), amountIQD: 0, date: todayIsoDate(), note: '' }]);
@@ -285,6 +288,7 @@ function ContractRow({
     JSON.stringify(payments) !== JSON.stringify(baselinePayments(contract)) ||
     installmentsPlannedNum !== (contract.installmentsPlanned || 0) ||
     adminNotes !== (contract.adminNotes || '') ||
+    previewUrl.trim() !== (contract.previewUrl || '') ||
     signatureDirty;
 
   const rowProfit = paidAmountIQD - Number(cost || 0);
@@ -315,7 +319,12 @@ function ContractRow({
         // sending `undefined` under merge:true could not do.
         installmentsPlanned: installmentsPlannedNum,
         adminNotes: adminNotes.trim(),
-        ...(companySignatureDataUrl !== undefined ? { companySignatureDataUrl } : {}),
+        previewUrl: previewUrl.trim(),
+        // علامة الحبر الداكن تُكتب مع التوقيع نفسه وفي نفس الحفظ — لو كُتبت لاحقاً لظهر
+        // التوقيع مقلوباً (أبيض على أبيض) في الفترة بينهما.
+        ...(companySignatureDataUrl !== undefined
+          ? { companySignatureDataUrl, companySignatureInk: 'dark' as const }
+          : {}),
       });
       cosmicAudio.playPing();
       showToast(isAr ? 'تم حفظ التعديلات بنجاح' : 'Changes saved successfully', 'success');
@@ -620,6 +629,30 @@ function ContractRow({
               placeholder={isAr ? 'مثال: تم الاتفاق على تخفيض السعر مقابل الدفع الكامل مسبقاً...' : 'e.g. Agreed on a reduced price in exchange for full upfront payment...'}
               className="w-full p-3 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs"
             />
+          </div>
+
+          {/* رابط المعاينة الخاص — المكان الذي يرفع فيه الأدمن رابط نسخة العميل الجارية
+              (Netlify preview / staging) ليتابع منه تعديلات موقعه لحظة بلحظة. يظهر في حساب
+              العميل فقط عند وجوده، ولا يُعرض إلا إن كان http/https (safeExternalUrl). */}
+          <div>
+            <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
+              {isAr
+                ? 'رابط معاينة المشروع (يظهر في حساب العميل ليتابع التعديلات)'
+                : "Project preview link (shown in the client's account to follow progress)"}
+            </label>
+            <input
+              type="url"
+              dir="ltr"
+              value={previewUrl}
+              onChange={(e) => setPreviewUrl(e.target.value)}
+              placeholder="https://preview.example.com"
+              className="w-full p-3 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs font-mono"
+            />
+            <p className="mt-1.5 text-[10px] text-ink/50">
+              {isAr
+                ? 'اتركه فارغاً لإخفاء زر المعاينة من حساب العميل. يجب أن يبدأ بـ https://'
+                : 'Leave empty to hide the preview button from the client. Must start with https://'}
+            </p>
           </div>
 
           <div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
-import { subscribeToAuthState, isAdminEmail } from '../lib/auth';
+import { subscribeToAuthState, isCurrentUserAdmin } from '../lib/auth';
 import { LoginPage } from './LoginPage';
 import { AdminDashboard } from './AdminDashboard';
 import { CustomerDashboard } from './CustomerDashboard';
@@ -30,7 +30,14 @@ interface AdminPageProps {
 // the same answer every time. Cache it per email so revisiting "my account" renders instantly
 // instead of flashing the loader again; the cache is keyed by email, so switching accounts
 // (or signing out/in) naturally gets a fresh check.
+//
+// في الذاكرة فقط، عمداً — لا localStorage ولا كوكي. قيمة "أنا أدمن" مخزَّنة في مكان يقدر
+// صاحب المتصفح تعديله هي دعوة مفتوحة لانتحال الصفة بسطر واحد في أدوات المطوّر؛ هذه الخريطة
+// تموت مع إغلاق التبويب ولا تُقرأ من أي مكان يمكن الكتابة فيه.
 const adminCache = new Map<string, boolean>();
+
+/** كل كم يُعاد التحقق أثناء بقاء اللوحة مفتوحة — سحب الصلاحية يجب أن يُطبَّق بلا انتظار خروج. */
+const REVALIDATE_MS = 5 * 60 * 1000;
 
 // The single entry point for "my account" — reached from the navbar by everyone, customers
 // and the owner/partner alike. Login/sign-up is identical for both; what happens after
@@ -75,18 +82,31 @@ export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD'
     }
     const email = effectiveUser.email ?? '';
     const cached = adminCache.get(email);
-    if (cached !== undefined) {
-      setIsAdmin(cached);
-      return;
-    }
+    if (cached !== undefined) setIsAdmin(cached);
+
     let cancelled = false;
-    isAdminEmail(email).then((result) => {
-      if (cancelled) return;
-      adminCache.set(email, result);
-      setIsAdmin(result);
-    });
+    /* يُعاد التحقق دائماً حتى مع وجود إجابة مخزَّنة: النسخة المخزَّنة تمنع وميض شاشة التحميل
+       فقط، ولا يجوز أن تكون هي المصدر النهائي للحقيقة. أدمن حُذف من القائمة، أو حساب عُطِّل،
+       أو رمز دخول سُحب — كل ذلك يجب أن يُخرجه من اللوحة في هذه الجلسة نفسها، لا في الجلسة
+       القادمة. والنتيجة تُطبَّق في الاتجاهين: صعوداً وهبوطاً. */
+    const verify = () => {
+      isCurrentUserAdmin().then((result) => {
+        if (cancelled) return;
+        adminCache.set(email, result);
+        setIsAdmin(result);
+      });
+    };
+
+    verify();
+    const timer = setInterval(verify, REVALIDATE_MS);
+    // العودة إلى التبويب بعد غياب طويل هي أكثر لحظة يكون فيها ما على الشاشة قديماً.
+    const onFocus = () => verify();
+    window.addEventListener('focus', onFocus);
+
     return () => {
       cancelled = true;
+      clearInterval(timer);
+      window.removeEventListener('focus', onFocus);
     };
   }, [effectiveUser]);
 

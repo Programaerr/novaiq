@@ -14,8 +14,13 @@ service cloud.firestore {
     // (فقط admins/ahmed@gmail.com موجود)، فكانت هذه دائماً تُقيَّم إلى false وكانت كل
     // كتابة أدمن تفشل بصمت لذلك الحساب بينما كان الفحص من جهة العميل (الذي يُحوّل فعلاً)
     // لا يزال يُظهر له لوحة التحكم الكاملة كأدمن.
+    // email_verified شرط ثانٍ مقصود: القائمة مفتاحها البريد الإلكتروني، فمن يقدر يُنشئ حساباً
+    // ببريد أدمن دون إثبات ملكيته يصبح أدمن. مزوّد Google يضبط هذه العلامة دائماً (وهو
+    // المزوّد الوحيد المفعَّل الآن)، لكن لحظة تفعيل أي مزوّد بكلمة مرور تتحوّل هذه من احتياط
+    // إلى الفرق بين نظام آمن ونظام مخترق ببريد منتحَل.
     function isAdmin() {
       return request.auth != null &&
+        request.auth.token.email_verified == true &&
         exists(/databases/$(database)/documents/admins/$(request.auth.token.email.lower()));
     }
 
@@ -65,6 +70,11 @@ service cloud.firestore {
           && (!('projectType' in d) || d.projectType in ['website', 'app'])
           && !('companySignatureDataUrl' in d)
           && !('completedAt' in d)
+          // حقلان يكتبهما الأدمن وحده: رابط المعاينة (يظهر للعميل كزر قابل للضغط) وساعة بدء
+          // التنفيذ (أساس حساب نسبة الإنجاز). عميل يقدر يكتبهما بنفسه كان يقدر يزرع رابطاً
+          // في حسابه أو يزوّر نسبة تقدّم مشروعه.
+          && !('previewUrl' in d)
+          && !('developmentStartedAt' in d)
           && !('adminNotes' in d)
           && !('costIQD' in d)
           && !('paymentStatus' in d)
@@ -86,8 +96,14 @@ service cloud.firestore {
     // يتحقق "هل أنا أدمن؟"؛ `list` ممنوعة بحيث لا يمكن أبداً اكتشاف مجموعة بريدات الأدمن
     // عبر مسح القائمة. فقط أدمن موجود يقدر يضيف آخر — الأدمن الأول الوحيد يُنشأ مرة واحدة،
     // يدوياً، من Firebase Console.
+    // `get` لم تعد مفتوحة لكل مسجّل دخول: كانت تسمح لأي حساب أن يسأل "هل بريد فلان أدمن؟"
+    // لأي بريد يخطر له، أي كشف عضوية القائمة بالتخمين رغم أن `list` ممنوعة. الآن: المستخدم
+    // العادي يسأل عن بريده هو فقط (وهذا كل ما يفعله التطبيق — انظر isCurrentUserAdmin في
+    // src/lib/auth.ts)، والأدمن وحده يقدر يسأل عن غيره لأن لوحته تعرض من هو أدمن في قائمة
+    // الأعضاء (src/lib/adminUsers.ts).
     match /admins/{email} {
-      allow get: if request.auth != null;
+      allow get: if request.auth != null &&
+        (request.auth.token.email.lower() == email || isAdmin());
       allow list: if false;
       allow write: if isAdmin();
     }

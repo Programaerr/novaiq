@@ -31,6 +31,18 @@ const PRIVACY_SECTIONS: Section[] = [
     },
   },
   {
+    /* قسم مستقل لبيانات حساب Google تحديداً، وليس مذاباً في "البيانات التي نجمعها" أعلاه:
+       تحقّق Google من شاشة الموافقة (OAuth branding verification) يبحث صراحةً عن إفصاح عن
+       بيانات مستخدم Google — ماذا يُقرأ منها، لأي غرض، أين يُحفظ، مع من يُشارَك، وكيف تُحذف —
+       وعن التزام Limited Use. غياب هذا القسم وحده سبب شائع لتأخير الموافقة أو رفضها. */
+    icon: ShieldCheck,
+    title: { ar: 'تسجيل الدخول عبر حساب Google', en: 'Signing In With Your Google Account' },
+    body: {
+      ar: 'عند اختيارك تسجيل الدخول بحساب Google، نستلم من Google ثلاثة عناصر فقط: اسمك المعروض، بريدك الإلكتروني، وصورة حسابك. تُستخدم حصراً لإنشاء حسابك على المنصة، وربط عقودك وطلباتك به، وعرض اسمك وصورتك داخل حسابك — لا أكثر. لا نطلب أي صلاحية أخرى على حساب Google: لا بريدك، ولا ملفاتك، ولا جهات اتصالك. لا نشارك هذه البيانات مع أي طرف ثالث، ولا نستخدمها في أي إعلانات، ولا نبيعها. تُحفظ في Firebase Authentication وFirestore (خدمات Google السحابية)، ويمكنك طلب حذف حسابك وكل بياناته نهائياً في أي وقت عبر قنوات التواصل أسفل الموقع. يلتزم استخدامنا لبيانات Google بسياسة Google API Services User Data Policy، بما فيها متطلبات الاستخدام المحدود (Limited Use).',
+      en: 'When you choose to sign in with Google, we receive only three items from Google: your display name, your email address, and your profile picture. They are used solely to create your account on the platform, tie your contracts and requests to it, and show your name and picture inside your own account — nothing more. We request no other access to your Google account: not your mail, not your files, not your contacts. We do not share this data with any third party, do not use it for any advertising, and never sell it. It is stored in Firebase Authentication and Firestore (Google Cloud services), and you may request permanent deletion of your account and all its data at any time through the contact channels in the site footer. Our use of Google user data complies with the Google API Services User Data Policy, including the Limited Use requirements.',
+    },
+  },
+  {
     icon: Database,
     title: { ar: 'أين تُحفظ بياناتك', en: 'Where Your Data Is Stored' },
     body: {
@@ -42,8 +54,8 @@ const PRIVACY_SECTIONS: Section[] = [
     icon: Cookie,
     title: { ar: 'الكوكيز والتخزين المحلي', en: 'Cookies & Local Storage' },
     body: {
-      ar: 'نستخدم التخزين المحلي في متصفحك لحفظ تفضيلاتك (اللغة، ألوان معاينة القوالب) وقرارك بشأن الموافقة على التتبع. بعض معاينات القوالب التفاعلية (مثل نموذج متجر إلكتروني تجريبي) تحفظ تفاعلك التجريبي محلياً في متصفحك فقط لغرض التوضيح — لا تتم أي عملية شراء أو دفع حقيقية عبر هذه المعاينات، ولا تُرسل هذه البيانات التجريبية إلى خوادمنا. إذا وافقت على التتبع، نسجل زيارات مجهولة الهوية للصفحات لفهم استخدام المنصة وتحسينها فقط؛ وإذا رفضت، يتوقف أي تسجيل فوراً ولا يتم إرسال أي بيانات استخدام.',
-      en: "We use browser local storage to remember your preferences (language, template preview colors) and your tracking consent choice. Some interactive template previews (such as a demo online store) save your trial interactions locally in your browser purely for demonstration purposes — no real purchase or payment ever occurs through these previews, and this demo data is never sent to our servers. If you accept tracking, we log anonymous page visits solely to understand and improve platform usage; if you reject it, logging stops immediately and no usage data is sent.",
+      ar: 'نستخدم التخزين المحلي في متصفحك لحفظ تفضيلاتك (اللغة، ألوان معاينة القوالب) وقرارك بشأن التتبع. بعض معاينات القوالب التفاعلية (مثل نموذج متجر إلكتروني تجريبي) تحفظ تفاعلك التجريبي محلياً في متصفحك فقط لغرض التوضيح — لا تتم أي عملية شراء أو دفع حقيقية عبر هذه المعاينات، ولا تُرسل هذه البيانات التجريبية إلى خوادمنا. نستخدم كذلك Google Analytics لقياس زيارات الصفحات وخطوات التصفح داخل الموقع بشكل مجهول الهوية — بلا اسمك أو بريدك أو رقم هاتفك أو أي محتوى تكتبه في العقد — وذلك لفهم استخدام المنصة وتحسينها فقط. القياس يبدأ مع فتح الموقع، وإذا ضغطت "رفض" في شريط الكوكيز يتوقف الإرسال فوراً ونهائياً على هذا المتصفح.',
+      en: 'We use browser local storage to remember your preferences (language, template preview colors) and your tracking choice. Some interactive template previews (such as a demo online store) save your trial interactions locally in your browser purely for demonstration purposes — no real purchase or payment ever occurs through these previews, and this demo data is never sent to our servers. We also use Google Analytics to measure page visits and navigation steps anonymously — without your name, email, phone, or anything you type into a contract — solely to understand and improve platform usage. Measurement starts when the site opens, and if you press "Reject" in the cookie bar it stops immediately and permanently in that browser.',
     },
   },
   {
@@ -116,8 +128,8 @@ export const PolicyPage: React.FC<PolicyPageProps> = ({ type, language }) => {
           </h2>
           <p className="text-steel-light text-xs sm:text-sm">
             {isAr
-              ? 'آخر تحديث: أغسطس 2026 — منصة NUVAIQ البرمجية'
-              : 'Last updated: August 2026 — NUVAIQ Software Platform'}
+              ? 'آخر تحديث: سبتمبر 2026 — منصة NUVAIQ البرمجية'
+              : 'Last updated: September 2026 — NUVAIQ Software Platform'}
           </p>
         </div>
 

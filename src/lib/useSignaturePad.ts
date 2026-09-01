@@ -108,7 +108,17 @@ export function useSignaturePad({ initialDataUrl, onStrokeStart, onClear }: UseS
     const point = pointFrom(canvas, x, y);
     ctx.lineWidth = 2.5;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = '#f4f4f5';
+    /* حبر داكن، لا أبيض.
+
+       كان `#f4f4f5`: يُقرأ على لوحة العميل الداكنة فقط، بينما لوحة اعتماد الأدمن تجلس على
+       سطح فاتح (bg-white/70 في ContractsTab) — أي أن الأدمن كان يوقّع بحبر أبيض على أبيض
+       ولا يرى شيئاً أثناء الرسم إطلاقاً. وكل عارض كان مضطراً لقلب ألوان الصورة
+       (filter: invert(1)) لطباعتها على ورق أبيض، وهو ما يجعل ظهور التوقيع في PDF معتمداً
+       على دعم أداة الالتقاط لمرشّحات CSS بدل أن يكون خاصية في الصورة نفسها.
+
+       حبر داكن يحلّ الاثنين معاً: مرئي أثناء التوقيع على أي لوحة، ويُطبع كما هو بلا أي
+       مرشّح. `signatureInk: 'dark'` على العقد هو ما يميّز هذه التواقيع عن القديمة (types.ts). */
+    ctx.strokeStyle = '#0B0D10';
     ctx.lineTo(point.x, point.y);
     ctx.stroke();
   };

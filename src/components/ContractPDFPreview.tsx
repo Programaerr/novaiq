@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { ContractData } from '../types';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { Language, translateText } from '../lib/i18n';
-import { useAutoTranslate } from '../lib/autoTranslate';
 import { formatPrice, Currency } from '../lib/currency';
 import { ContractPrintDocument } from './ContractPrintDocument';
 import { showToast } from '../lib/toast';
@@ -36,11 +35,12 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   const printRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  // Spec labels and the client's free-text notes come straight from template data / user
-  // input and have no static dictionary entry, so they resolve through the translation
-  // service and are cached after the first lookup.
-  const customNotes = useAutoTranslate(contract.customFeaturesText, language);
-  const translatedAdminNotes = useAutoTranslate(contract.adminNotes, language);
+  /* نصّ العميل وملاحظات الأدمن يُعرضان كما كُتبا حرفياً.
+     كانا يمرّان على خدمة ترجمة آلية وقت العرض؛ أُلغيت الخدمة بالكامل، وهذا هو الصواب هنا
+     تحديداً لا مجرد نتيجة للإلغاء: ما وقّع عليه العميل هو النص الذي كتبه، وإعادة صياغته آلياً
+     في وثيقة تعاقدية تغيّر معناه بلا أن يوافق أحد على الصياغة الجديدة. */
+  const customNotes = contract.customFeaturesText;
+  const translatedAdminNotes = contract.adminNotes;
   const templateTitle = translateText(contract.templateTitle, language);
   const city = translateText(contract.city, language);
 

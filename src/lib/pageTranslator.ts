@@ -22,10 +22,12 @@ const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'CODE', 'PRE', 'TEXTAR
 
 const originals = new Map<Text, string>();
 
-// Seeded from the pre-built dictionary (npm run translations), so almost everything
-// resolves with no network call at all. Anything genuinely new — a client's typed notes, or
-// content added since the dictionary was last built — falls through to /api/translate and
-// gets remembered here for the rest of the session.
+// القاموس المبنيّ مسبقاً (npm run translations)، وهو المصدر الوحيد الآن.
+//
+// كان أي نص غير موجود فيه يذهب إلى /api/translate وقت التصفّح. أُلغي ذلك بالكامل: المسار لا
+// وجود له أصلاً على الاستضافة (Netlify ملفات ثابتة، لا Express)، وكان يعني نداء شبكة لكل نص
+// جديد يراه أي زائر إنجليزي — كلفة مستمرة مقابل ترجمة آلية أسوأ من ترجمة مكتوبة بيد. النص
+// غير الموجود في القاموس يبقى عربياً كما هو، وإضافته إلى القاموس هي الحل الصحيح.
 const translations = new Map<string, string>(Object.entries(bundledTranslations as Record<string, string>));
 
 let observer: MutationObserver | null = null;
@@ -58,17 +60,6 @@ function collectArabicTextNodes(root: Node): Text[] {
   return found;
 }
 
-async function fetchTranslations(texts: string[]): Promise<string[]> {
-  const res = await fetch('/api/translate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ texts, source: 'ar', target: 'en' }),
-  });
-  if (!res.ok) throw new Error('translate request failed');
-  const data = await res.json();
-  return data.translations || [];
-}
-
 function applyText(node: Text, value: string) {
   applying = true;
   node.nodeValue = value;
@@ -79,35 +70,13 @@ function applyText(node: Text, value: string) {
   });
 }
 
-async function translateNodes(nodes: Text[]) {
+function translateNodes(nodes: Text[]) {
   if (nodes.length === 0) return;
-
-  const needed: string[] = [];
-  const seen = new Set<string>();
+  if (!active) return;
 
   for (const node of nodes) {
-    const raw = (node.nodeValue || '').trim();
     if (!originals.has(node)) originals.set(node, node.nodeValue || '');
-    if (!translations.has(raw) && !seen.has(raw)) {
-      seen.add(raw);
-      needed.push(raw);
-    }
   }
-
-  if (needed.length > 0) {
-    try {
-      const results = await fetchTranslations(needed);
-      needed.forEach((text, i) => {
-        const translated = (results[i] || '').trim();
-        if (translated) translations.set(text, translated);
-      });
-    } catch {
-      // Service unreachable — leave the Arabic text as-is rather than blanking the page.
-      return;
-    }
-  }
-
-  if (!active) return;
 
   for (const node of nodes) {
     const original = originals.get(node) ?? node.nodeValue ?? '';
