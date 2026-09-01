@@ -58,13 +58,29 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
   const [busyItem, setBusyItem] = useState<string | null>(null);
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
+  /* المزامنة من Firestore تتوقف بمجرد أن يلمس الأدمن أي حقل.
+   *
+   * `useClientsStrip` يعيد كائناً جديداً مع كل لقطة (snapshot) — أولها من الذاكرة المحلية ثم
+   * أخرى من الخادم بعدها بأجزاء من الثانية، ومثلها كلما حُفظ القسم من أي تبويب آخر. بدون هذا
+   * الحارس كانت كل لقطة تعيد كتابة المسوّدة فوق ما يكتبه الأدمن الآن: يبدأ بكتابة اسم شركة،
+   * تصل لقطة، فيختفي ما كتبه بلا سبب ظاهر — وهو تحديداً شكل "لا يحفظ كل شيء".
+   *
+   * يُرفع الحارس بعد حفظ ناجح، فتعود اللقطات مصدرَ الحقيقة من جديد. */
+  const dirty = useRef(false);
+
   useEffect(() => {
+    if (dirty.current) return;
     setDraft(saved);
   }, [saved]);
 
-  const patch = (next: Partial<ClientsStrip>) => setDraft((prev) => ({ ...prev, ...next }));
-  const patchItem = (id: string, next: Partial<ClientItem>) =>
+  const patch = (next: Partial<ClientsStrip>) => {
+    dirty.current = true;
+    setDraft((prev) => ({ ...prev, ...next }));
+  };
+  const patchItem = (id: string, next: Partial<ClientItem>) => {
+    dirty.current = true;
     setDraft((prev) => ({ ...prev, items: prev.items.map((i) => (i.id === id ? { ...i, ...next } : i)) }));
+  };
 
   const addItem = () => patch({ items: [...draft.items, { id: newId(), name: '' }] });
   const removeItem = (id: string) => patch({ items: draft.items.filter((i) => i.id !== id) });
@@ -106,7 +122,12 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
     }
     setIsSaving(true);
     try {
-      await saveClientsStrip({ ...draft, items: draft.items.filter((i) => i.name.trim() || i.logoDataUrl) });
+      const cleaned = { ...draft, items: draft.items.filter((i) => i.name.trim() || i.logoDataUrl) };
+      await saveClientsStrip(cleaned);
+      // بعد نجاح الكتابة فقط: لو فشلت، تبقى المسوّدة "متسخة" فلا تمسحها لقطة قادمة قبل أن
+      // يحاول الأدمن الحفظ مجدداً.
+      dirty.current = false;
+      setDraft(cleaned);
       cosmicAudio.playPing();
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 2000);
