@@ -30,15 +30,27 @@ export default defineConfig(() => {
       // مشكلة فعلية — رفع السقف هنا بدل تجاهل تحذير حقيقي مستقبلاً لو ظهرت حزمة كبيرة جديدة
       // فعلاً غير معالَجة.
       chunkSizeWarningLimit: 1400,
-      modulePreload: {
-        // Vite's default preloads every dependency of every lazy route up front to avoid
-        // request waterfalls once a dynamic import fires — but that silently forces heavy,
-        // rarely-needed libraries (jsPDF here, ~340KB) to download on every single page
-        // view. Excluding it keeps the true "only pay for it when you click into a
-        // contract PDF" behavior that React.lazy() is supposed to provide.
-        resolveDependencies: (_filename, deps) =>
-          deps.filter((dep) => !dep.includes('vendor-pdf')),
-      },
+      /* مُطفأ بالكامل، بسبب عامل الخدمة.
+       *
+       * ## ما كان يحدث
+       * Vite يضع <link rel="modulepreload"> لكل اعتماديات المسارات. وهذا يعمل جيداً على موقع
+       * بلا service worker. لكن موقعنا يسجّل واحداً (public/sw.js) يعترض كل طلب same-origin
+       * ويردّ عليه من الكاش. فيقع التعارض التالي على كل زيارة بعد الأولى: المتصفح يبدأ
+       * التحميل المسبق في "عالمه" هو، ثم يصل الطلب الحقيقي فيردّ عليه عامل الخدمة من عالم
+       * آخر — فيُهمَل التحميل المسبق كلّه. وهذا نصّ التحذير حرفياً:
+       * "A preload ... is not used because it is a cross-world service worker resource
+       * mismatch"، ثمانِ مرّات، أي ثمانية ملفات تُحمَّل مرّتين على كل زيارة متكرّرة.
+       *
+       * ## ولماذا الإطفاء لا الإصلاح
+       * لا توجد طريقة يقرّر بها عامل الخدمة "لا أعترض هذا الطلب" بعد فحص الكاش — القرار
+       * متزامن والفحص غير متزامن. فإمّا أن نُلغي التحميل المسبق، وإمّا أن نُخرج ملفات البناء
+       * من عامل الخدمة ونخسر عمل الموقع بلا إنترنت. الأوّل أرخص: المتصفح يكتشف الاعتماديات
+       * من الوحدة الأولى فوراً على أي حال، والتحميل المسبق كان يقدّمها جولة واحدة لا أكثر —
+       * وهي جولة نخسرها مرّة على أوّل زيارة، مقابل تحميل مزدوج نخسره في كل زيارة بعدها.
+       *
+       * (وهذا يُبقي أيضاً الأثر المقصود من الإعداد السابق: vendor-pdf لا يُحمَّل إلا عند فتح
+       * وثيقة عقد فعلاً.) */
+      modulePreload: false,
       rollupOptions: {
         output: {
           // Group third-party code by library so the browser can cache these large,

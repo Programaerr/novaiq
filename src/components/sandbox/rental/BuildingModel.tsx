@@ -848,7 +848,11 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
         {/* Built from Lightformers rather than an HDR file: an environment map is what gives the
             glass and the wet concrete something to reflect, and this one costs no request, no
             decode and no CDN. Rendered once into a 128px cube, not per frame. */}
-        <Environment resolution={128} frames={1}>
+        {/* 64 بدل 128. هذه خريطة انعكاس تُرسَم مرّة واحدة في مكعب من ست وجوه — أي أن
+            الرقم يُربَّع ثم يُضرب في ستة: 128 تعني نحو مئة ألف بكسل تُرسَم دفعةً واحدة على
+            الخيط الرئيسي عند فتح المعاينة، و64 تعني ربعها. وما يُقرأ منها زجاجٌ وخرسانة
+            مبلّلة — انعكاس ضبابي أصلاً، لا مرآة تُظهر فرق الحدّة. */}
+        <Environment resolution={64} frames={1}>
           <color attach="background" args={['#05070c']} />
           {/* Sky band — the cool wash down the top of the mass. */}
           <Lightformer intensity={1.2} color="#8fa8dc" position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 12, 1]} />
