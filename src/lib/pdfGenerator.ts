@@ -48,61 +48,86 @@ async function buildContractPdf(element: HTMLElement, _contract: ContractData): 
   // this length genuinely is. Short contracts are unaffected: they still finish inside the
   // first page and no second one is ever added.
   const scale = pageWidth / canvas.width; // mm per canvas pixel
-  const sliceHeightPx = Math.max(1, Math.floor(pageHeight / scale)); // canvas px that fill a page
 
-  /* حدود الكتل التي لا يجوز قصّها.
-   *
-   * الترقيم هنا يقصّ اللوحة عند ارتفاع الصفحة بالضبط، بلا علم بما تحت المقصّ. فكان قسم
-   * التواقيع — وهو آخر ما في الوثيقة وأهمّها — يُقطع نصفين حين يصادف الحدّ: توقيع في أسفل
-   * صفحة وسطر الاسم في أعلى التي تليها.
-   *
-   * الحل ليس هامشاً يُجرَّب بالعين، لأنه يتغيّر مع طول بنود العقد وعدد دفعاته. الكتل التي يجب
-   * أن تبقى كاملة موسومة في الوثيقة بـ`data-pdf-keep`، وتُقاس هنا بإحداثيات اللوحة نفسها؛ فإن
-   * وقع المقصّ داخل واحدة رُفع إلى أعلاها، فتبدأ الكتلة في الصفحة التالية كاملة.
-   *
-   * `element.getBoundingClientRect()` هو الأصل: html2canvas يلتقط هذا العنصر بمضاعف معلوم،
-   * فالفرق بين أعلى الكتلة وأعلاه مضروباً بالمضاعف هو موضعها بالبكسل داخل اللوحة. */
-  const rootTop = element.getBoundingClientRect().top;
-  const captureScale = canvas.width / element.getBoundingClientRect().width;
+  /* شريط رقم الصفحة أسفل كل ورقة. يُحجَز مكانه قبل التقسيم لا بعده — وإلا طُبع الرقم فوق
+     آخر سطر من المحتوى. */
+  const footerMm = 9;
+  const usableHeightMm = pageHeight - footerMm;
+
+  /* ── ترويسة تتكرّر في كل صفحة ────────────────────────────────────────────────────────
+     صفحة ثانية بلا ترويسة هي ورقة بلا هوية: لا اسم، ولا رقم عقد، ولا تاريخ. ومن يطبع
+     الوثيقة ويفصل أوراقها يبقى معه نصّ لا يُنسب إلى شيء. الترويسة موسومة في الوثيقة
+     بـ`data-pdf-header` وتُعاد رسمها أعلى كل صفحة بعد الأولى، والمحتوى يبدأ تحتها. */
+  const rootRect = element.getBoundingClientRect();
+  const captureScale = canvas.width / rootRect.width;
+  const headerEl = element.querySelector<HTMLElement>('[data-pdf-header]');
+  const headerPx = headerEl
+    ? Math.round((headerEl.getBoundingClientRect().bottom - rootRect.top) * captureScale)
+    : 0;
+  const headerMm = headerPx * scale;
+
+  /* ── كتل لا تُقصّ ────────────────────────────────────────────────────────────────────
+     كان التقسيم يقطع عند ارتفاع الصفحة بالضبط بلا علم بما تحت المقصّ، فيُقطع بند في منتصف
+     جملته أو قسم التواقيع نصفين. الكتل الموسومة بـ`data-pdf-keep` تُقاس هنا بإحداثيات
+     اللوحة؛ فإن وقع المقصّ داخل واحدة رُفع إلى أعلاها فتبدأ كاملة في الصفحة التالية. */
   const keepBlocks = Array.from(element.querySelectorAll<HTMLElement>('[data-pdf-keep]'))
     .map((node) => {
       const r = node.getBoundingClientRect();
-      return { top: (r.top - rootTop) * captureScale, bottom: (r.bottom - rootTop) * captureScale };
+      return {
+        top: (r.top - rootRect.top) * captureScale,
+        bottom: (r.bottom - rootRect.top) * captureScale,
+      };
     })
     .filter((b) => b.bottom > b.top);
 
-  /** أين ينتهي هذا الصفحة فعلاً: عند ارتفاعها، أو عند أعلى كتلة يقطعها. */
-  const cutAfter = (offsetPx: number): number => {
-    const wanted = offsetPx + sliceHeightPx;
-    if (wanted >= canvas.height) return canvas.height;
-    let cut = wanted;
-    for (const b of keepBlocks) {
-      // تقطعها الصفحة، وتبدأ بعد أوّل هذه الصفحة (أي يمكن دفعها كاملةً إلى التالية).
-      if (b.top > offsetPx && b.top < cut && b.bottom > cut) cut = b.top;
+  let offsetPx = headerPx; // المحتوى يبدأ بعد الترويسة؛ الأولى تحملها ضمن التقاطها.
+  let page = 0;
+
+  while (offsetPx < canvas.height) {
+    // مساحة المحتوى: الصفحة كاملة ناقص التذييل، وناقص الترويسة المعادة في الصفحات التالية.
+    const contentMm = usableHeightMm - (page === 0 ? headerMm : headerMm);
+    const maxContentPx = Math.max(1, Math.floor(contentMm / scale));
+
+    let cut = Math.min(offsetPx + maxContentPx, canvas.height);
+    if (cut < canvas.height) {
+      for (const b of keepBlocks) {
+        if (b.top > offsetPx && b.top < cut && b.bottom > cut) cut = b.top;
+      }
+      // كتلة أطول من صفحة كاملة لا تُنقَذ بالدفع — دفعها يعني صفحة فارغة ثم قصّها على أي حال.
+      if (cut <= offsetPx) cut = Math.min(offsetPx + maxContentPx, canvas.height);
     }
-    /* كتلة أطول من صفحة كاملة لا يمكن إنقاذها بالدفع — دفعها يعني صفحة فارغة ثم قصّها على أي
-       حال. عندها يُترك المقصّ حيث كان. */
-    return cut > offsetPx ? cut : wanted;
-  };
+    const contentPx = cut - offsetPx;
 
-  for (let offsetPx = 0, page = 0; offsetPx < canvas.height; page++) {
-    const height = Math.min(cutAfter(offsetPx) - offsetPx, canvas.height - offsetPx);
-
-    const slice = document.createElement('canvas');
-    slice.width = canvas.width;
-    slice.height = height;
-    const ctx = slice.getContext('2d');
+    const sheet = document.createElement('canvas');
+    sheet.width = canvas.width;
+    sheet.height = headerPx + contentPx;
+    const ctx = sheet.getContext('2d');
     if (!ctx) break;
-    // The captured canvas is already opaque white, but the final slice is usually shorter
-    // than a full page; without this its remainder stays transparent, which some PDF viewers
-    // render as black rather than as paper.
+    /* اللوحة الملتقَطة بيضاء معتمة، لكن الورقة الأخيرة أقصر من صفحة كاملة؛ بدون هذه يبقى
+       باقيها شفافاً، وبعض العارضات ترسم الشفاف أسود لا ورقاً. */
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, slice.width, slice.height);
-    ctx.drawImage(canvas, 0, offsetPx, canvas.width, height, 0, 0, canvas.width, height);
+    ctx.fillRect(0, 0, sheet.width, sheet.height);
+    if (headerPx > 0) {
+      ctx.drawImage(canvas, 0, 0, canvas.width, headerPx, 0, 0, canvas.width, headerPx);
+    }
+    ctx.drawImage(canvas, 0, offsetPx, canvas.width, contentPx, 0, headerPx, canvas.width, contentPx);
 
     if (page > 0) doc.addPage();
-    doc.addImage(slice.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, height * scale);
-    offsetPx += height;
+    doc.addImage(sheet.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, sheet.height * scale);
+
+    offsetPx = cut;
+    page += 1;
+  }
+
+  /* الترقيم بعد اكتمال الصفحات، لأن العدد الكلي لا يُعرف قبل ذلك.
+     أرقام لاتينية بلا نصّ عربي: خطوط jsPDF المدمجة بلا حروف عربية، وأي كلمة عربية تُرسم بها
+     تخرج مربّعات فارغة — وهذا سبب كون الوثيقة كلها صورة أصلاً. */
+  const total = doc.getNumberOfPages();
+  doc.setFontSize(9);
+  doc.setTextColor(107, 113, 121);
+  for (let i = 1; i <= total; i++) {
+    doc.setPage(i);
+    doc.text(`${i} / ${total}`, pageWidth / 2, pageHeight - 4, { align: 'center' });
   }
 
   return doc;
