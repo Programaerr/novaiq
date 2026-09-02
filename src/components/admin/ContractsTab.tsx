@@ -780,6 +780,15 @@ function ContractRow({
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               <span>{isAr ? 'تنزيل PDF' : 'Download PDF'}</span>
             </button>
+            {/* سجل التعديلات — بجوار زر الحفظ لأنه سجلّ ما حُفظ. */}
+            <button
+              onClick={() => (auditRows ? setAuditRows(null) : loadAudit())}
+              disabled={auditLoading}
+              className="px-4 py-2.5 rounded-xl bg-white/70 hover:bg-sand-light disabled:opacity-60 text-ink border border-ink/15 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+            >
+              {auditLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <History className="w-4 h-4" />}
+              <span>{isAr ? 'سجل التعديلات' : 'Change log'}</span>
+            </button>
             <button
               onClick={handleSave}
               disabled={!dirty || isSaving}
@@ -789,6 +798,39 @@ function ContractRow({
               <span>{isAr ? 'حفظ التغييرات' : 'Save Changes'}</span>
             </button>
           </div>
+
+          {auditRows && (
+            <div className="mt-3 p-3 rounded-2xl bg-paper border border-ink/10 space-y-2">
+              <span className="text-[11px] font-bold text-ink/60 block">
+                {isAr ? 'من غيّر ماذا ومتى' : 'Who changed what, and when'}
+              </span>
+              {auditRows.length === 0 ? (
+                <p className="text-[11px] text-ink/50">
+                  {isAr ? 'لا توجد تعديلات مسجّلة على هذا العقد بعد.' : 'No recorded changes on this contract yet.'}
+                </p>
+              ) : (
+                auditRows.map((row, i) => (
+                  <div key={`${row.at}-${i}`} className="p-2.5 rounded-xl bg-white/70 border border-ink/10">
+                    <div className="flex items-center justify-between gap-2 text-[10.5px] text-ink/55">
+                      <span className="font-bold text-ink/75 truncate" dir="ltr">{row.actorEmail}</span>
+                      <span dir="ltr">{new Date(row.at).toLocaleString(isAr ? 'ar-IQ' : 'en-GB')}</span>
+                    </div>
+                    <ul className="mt-1.5 space-y-0.5">
+                      {Object.entries(row.changes).map(([field, change]) => (
+                        <li key={field} className="text-[11px] text-ink/80" dir="ltr">
+                          <span className="font-mono font-bold">{field}</span>
+                          {': '}
+                          <span className="text-ink/50">{String(change.from ?? '—')}</span>
+                          {' → '}
+                          <span className="text-ink">{String(change.to ?? '—')}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       )}
 
