@@ -637,6 +637,68 @@ const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> 
   );
 };
 
+/* ── طابور البناء ───────────────────────────────────────────────────────── */
+
+/**
+ * One field at a time, and every field on the page in the same load.
+ *
+ * What was worth protecting against was never "a field nobody is looking at" -- it was three
+ * WebGL contexts and three GLSL compiles landing in the SAME FRAME, which is what used to print
+ * "[Violation] requestAnimationFrame handler took 124ms" at load. That is a collision, not a
+ * budget, and a queue answers it exactly: the compiles all still happen at load, they just happen
+ * one after another with an idle slot between them, so no single frame carries more than one.
+ *
+ * Gating them on visibility answered it too, but charged the bill to the wrong moment. The band in
+ * the contact section began its work when the reader scrolled to it, and so finished assembling
+ * itself while it was being looked at. Now it is finished before they get there.
+ *
+ * `timeout` on the idle request is a ceiling, not a target: a page that never goes idle -- which a
+ * page still loading rarely is -- would otherwise hold the second and third fields indefinitely.
+ */
+type IdleWindow = Window &
+  typeof globalThis & {
+    requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+  };
+
+const buildQueue: Array<() => void> = [];
+let draining = false;
+
+/** Yield to the browser, but never for longer than a beat. Safari still has no rIC. */
+function afterAGap(fn: () => void) {
+  const w = window as IdleWindow;
+  if (w.requestIdleCallback) w.requestIdleCallback(fn, { timeout: 180 });
+  else window.setTimeout(fn, 32);
+}
+
+function drainBuildQueue() {
+  const next = buildQueue.shift();
+  if (!next) {
+    draining = false;
+    return;
+  }
+  next();
+  if (buildQueue.length) afterAGap(drainBuildQueue);
+  else draining = false;
+}
+
+/**
+ * Register a field to be built. Returns a canceller, for a field that unmounts -- or that jumped
+ * the queue by being on screen already -- before its turn comes up.
+ */
+function queueFieldBuild(build: () => void): () => void {
+  let cancelled = false;
+  buildQueue.push(() => {
+    if (!cancelled) build();
+  });
+  if (!draining) {
+    draining = true;
+    afterAGap(drainBuildQueue);
+  }
+  return () => {
+    cancelled = true;
+  };
+}
+
 /* ── المُضيف (host) ─────────────────────────────────────────────────────────────────────── */
 
 export interface TileFieldProps {
@@ -658,7 +720,7 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
   const [idle, setIdle] = useState(false);
   const [reduced, setReduced] = useState(false);
 
-  /* لا يُنشأ سياق WebGL لحقل لم يقترب من الشاشة بعد.
+  /* متى يُنشأ سياق WebGL لهذا الحقل.
    *
    * الصفحة الرئيسية تحمل ثلاثة من هذه: الهيرو، وحزام التواصل، وحزام الفوتر. كان الكانفاس
    * يُركَّب للثلاثة عند أول رسم — ثلاثة سياقات، وثلاث ترجمات GLSL على الخيط الرئيسي، دفعة
@@ -666,7 +728,12 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
    * لحظة في عمر الكانفاس؛ ثلاثتها معاً هي ما يظهر في الكونسول كـ
    * "[Violation] requestAnimationFrame handler took 124ms" عند التحميل.
    *
-   * الآن يُنشأ الكانفاس عند أول اقتراب من الشاشة فقط. `everActive` لا تعود إلى false أبداً
+   * والجواب صار "مع التحميل"، لا "عند الاقتراب من الشاشة": يسجّل الحقل نفسه في
+   * `queueFieldBuild` أعلاه عند التركيب، ويُبنى في دوره وحده. المطلوب أصلاً ما كان "لا
+   * تبنِ ما لا يُرى"، بل "لا تبنِ اثنين في نفس الإطار" — والطابور يحقق ذاك بالضبط، دون
+   * أن يدفع ثمنه الحقل الذي ينظر إليه القارئ هذه اللحظة.
+   *
+   * و`everActive` لا تعود إلى false أبداً
    * عن قصد: بعد الإنشاء يبقى مركوناً على frameloop='never' خارج الشاشة بدل أن يُهدَم — هدم
    * الكانفاس يتلف السياق، وإعادة بنائه تكلّف الترجمة من جديد في كل مرّة يعود فيها القسم. */
   const [everActive, setEverActive] = useState(false);
@@ -691,11 +758,8 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
         io = new IntersectionObserver(([entry]) => {
           setActive(entry.isIntersecting);
           /* A field already on screen when the observer first speaks is one the reader is
-             looking at RIGHT NOW, so it skips the idle queue below and is built in this
-             frame. Measured, that queue was costing 623ms of empty hero on every reload:
-             page load is the moment a browser is least likely to be idle, so the deferral
-             was longest exactly where it hurt most. Fields that arrive later by scrolling
-             still go through it -- that is where a compile hitch is actually felt. */
+             looking at RIGHT NOW, so it jumps the build queue and is built in this frame
+             rather than taking its turn behind anything else on the page. */
           if (!answered.current) {
             answered.current = true;
             if (entry.isIntersecting) setEverActive(true);
@@ -712,26 +776,16 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
     };
   }, []);
 
-  /* والإنشاء نفسه يقع في وقت خمول المتصفح، لا في الإطار الذي طُلب فيه.
+  /* والإنشاء يطلب دوره في الطابور عند التركيب مباشرة — ماكو شرط رؤية هنا إطلاقاً.
    *
    * إنشاء سياق WebGL وترجمة الـshader عملٌ متزامن على الخيط الرئيسي يقيس عشرات
-   * الميلي‑ثانية — وهو ما يظهر في الكونسول كـ"[Violation] requestAnimationFrame took 86ms".
-   * وقوعه أثناء التحميل أو أثناء التمرير يعني إطاراً ضائعاً في اللحظة التي يراها المستخدم.
-   * requestIdleCallback يؤجّله إلى أوّل فراغ حقيقي، فلا يزاحم رسماً ولا تمريراً. */
+   * الميلي‑ثانية، وثلاثتها في إطار واحد هي ما كان يطبع
+   * "[Violation] requestAnimationFrame handler took 124ms". الطابور يفرّقها على إطارات
+   * متتالية، بدل ما يؤجّلها إلى أن يوصل القارئ إليها. */
   useEffect(() => {
-    if (!active || everActive) return;
-    const w = window as Window &
-      typeof globalThis & {
-        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-        cancelIdleCallback?: (id: number) => void;
-      };
-    // Safari لا يملك requestIdleCallback حتى الآن؛ مهلة قصيرة تؤدّي نفس الغرض هناك.
-    const schedule = w.requestIdleCallback ?? ((cb: () => void) => w.setTimeout(cb, 200));
-    const cancel = w.cancelIdleCallback ?? w.clearTimeout;
-    // timeout سقف: لا يبقى الحقل غائباً إلى الأبد على صفحة لا تخمد أبداً.
-    const id = schedule(() => setEverActive(true), { timeout: 1200 });
-    return () => cancel(id);
-  }, [active, everActive]);
+    if (everActive) return;
+    return queueFieldBuild(() => setEverActive(true));
+  }, [everActive]);
 
   /* تُضبط `data-idle` على <html> بواسطة usePauseOffscreenWork() عندما تُنقل التبويب للخلفية، أو
      تُصغَّر النافذة، أو تأخذ نافذة أخرى التركيز. تتوقف كل حركة CSS في الموقع عليها؛ حلقة WebGL هي
