@@ -497,6 +497,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   cosmicAudio.playPing();
                 }}
                 aria-current={isCurrent ? 'step' : undefined}
+                data-incomplete={missingForStep(s.step).length > 0 ? 'true' : undefined}
                 className={`text-start p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-2.5 cursor-pointer ${
         isCurrent
           ? 'bg-orange border-orange text-obsidian shadow-lg shadow-orange/25'
@@ -515,7 +516,18 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
                 <div className="min-w-0">
-                  <span className="block text-xs opacity-70">{s.phase}</span>
+                  <span className="block text-xs opacity-70 flex items-center gap-1.5">
+                    {s.phase}
+                    {/* علامة النقص على الخطوة نفسها: يراها المستخدم قبل أن يفتحها، فيعرف أين
+                        بقي شيء بلا أن يتنقّل بين الخطوات ليكتشفه. */}
+                    {missingForStep(s.step).length > 0 && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ background: ERROR }}
+                        aria-label={isAr ? 'خطوة غير مكتملة' : 'Incomplete step'}
+                      />
+                    )}
+                  </span>
                   {/* No `truncate`. It was hiding the overflow rather than fixing it, and now
                       that the cards are sized to hold their text there is nothing to hide: at
                       the sm breakpoint, where the longest title is still 14px over its column,
@@ -1197,6 +1209,44 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             </div>
           )}
 
+          {/* ما ينقص، مرئياً قبل الضغط لا بعده.
+              زرّ معطَّل يقول "لا تستطيع" ولا يقول "لماذا"، فيبقى المستخدم يبحث عن السبب في ثلاث
+              خطوات. هذه القائمة تسمّي كل ناقص ومعه رقم خطوته، وكل سطر فيها زرّ ينقلك إليه. */}
+          {currentStep === 3 && missingItems.length > 0 && (
+            <div
+              className="p-4 rounded-2xl border"
+              style={{ background: 'rgba(239,68,68,0.06)', borderColor: 'rgba(239,68,68,0.35)' }}
+            >
+              <span className="flex items-center gap-2 text-sm font-bold" style={{ color: ERROR }}>
+                <AlertCircle className="w-4 h-4" />
+                {isAr ? 'لا يمكن إتمام العقد قبل إكمال:' : 'The contract cannot be completed until you finish:'}
+              </span>
+              <ul className="mt-2.5 space-y-1.5">
+                {missingItems.map((item) => (
+                  <li key={`${item.step}-${item.field}`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCurrentStep(item.step);
+                        setFieldErrors(new Set([item.field]));
+                        if (item.field === 'signature') setSignatureMissing(true);
+                      }}
+                      className="text-xs font-bold text-white/85 hover:text-white cursor-pointer flex items-center gap-2"
+                    >
+                      <span
+                        className="w-5 h-5 rounded-md grid place-items-center text-[10px] shrink-0"
+                        style={{ background: 'rgba(255,255,255,0.12)' }}
+                      >
+                        {item.step}
+                      </span>
+                      <span className="underline decoration-white/30">{item.label}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Form Navigation Buttons */}
           <div className="pt-4 border-t border-white/10 flex items-center justify-between">
             {currentStep > 1 ? (
@@ -1251,9 +1301,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 title={
                   canSubmit
                     ? undefined
-                    : isAr
-                      ? 'أكمل رقم الهاتف والموافقة والتوقيع أولاً'
-                      : 'Complete the signature, approval and phone number first'
+                    : `${isAr ? 'ينقص: ' : 'Missing: '}${missingItems.map((m) => m.label).join(' · ')}`
                 }
                 className="sm:text-sm"
                 icon={<FileCheck className="w-4 h-4" />}
