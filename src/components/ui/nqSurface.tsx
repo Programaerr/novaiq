@@ -302,14 +302,14 @@ export const SIZES: Record<NqSize, SizeSpec> = {
  * the next hover. Past it a surface simply goes without: it still presses, still rings its focus,
  * and the only thing missing is an ornament.
  */
-const MAX_LIVE_FIELDS = 1;
+const MAX_LIVE_FIELDS = 2;
 let liveFields = 0;
 
-/* خُفِّض من 4 إلى 1.
+/* خُفِّض من 4 إلى 2.
    كانت 4 "هامشاً" لتداخل بقاء حقل مع بدء الذي يليه — أي أن أربعة سياقات WebGL قد تكون حيّة
-   معاً مقابل زخرفة يراها المؤشّر في مكان واحد فقط. وكل سياق منها تخصيصٌ على بطاقة الرسوميات
-   وترجمة shader على الخيط الرئيسي. واحد يكفي لما يمكن أن يراه أحد فعلاً، ويجعل السقف حقيقياً
-   لا اسمياً: مهما أسرع المؤشّر، لا يوجد أكثر من سياق زرّ واحد في أي لحظة. */
+   معاً مقابل زخرفة تُرى في مكان واحد. وكل سياق منها تخصيصٌ على بطاقة الرسوميات وترجمة shader
+   على الخيط الرئيسي. اثنان يكفيان لما يمكن أن يُرى فعلاً — مؤشّر في مكان، وتركيز لوحة مفاتيح
+   في مكان ثانٍ — ويجعلان السقف حقيقياً لا اسمياً: مهما أسرع المؤشّر، لا يتجاوز العدد اثنين. */
 
 /** How long the field stays mounted after the pointer leaves, so it can settle out rather than
     vanish mid-fall. Matched to the ease-out in ButtonTiles. */
@@ -449,27 +449,28 @@ export function useNqSurface(
   }, [claim]);
 
   /** `immediate` للضغط والتركيز؛ المرور بالمؤشّر ينتظر WAKE_DELAY_MS. */
-  const wake = useCallback(
-    (immediate = false) => {
-      if (!wantsTiles) return;
-      window.clearTimeout(lingerTimer.current);
-      /* الحركة تبدأ فوراً في الحالتين: `drive` مجرّد ref يقرؤه الحقل حين يوجد، فضبطه مبكراً
-         يعني أن الحقل يظهر وهو في منتصف حركته لا من الصفر. */
-      drive.current.target = 1;
-      if (immediate) {
-        window.clearTimeout(wakeTimer.current);
-        wakeTimer.current = undefined;
-        mount();
-        return;
-      }
-      if (mountedRef.current || wakeTimer.current !== undefined) return;
-      wakeTimer.current = window.setTimeout(() => {
-        wakeTimer.current = undefined;
-        mount();
-      }, WAKE_DELAY_MS);
-    },
-    [wantsTiles, mount],
-  );
+  /* التركيب مؤجَّل دائماً، بلا استثناء "فوري".
+   *
+   * كان للضغط والتركيز مسار يركّب الحقل في نفس اللحظة، بحجّة أن كليهما نيّة صريحة لا تحتمل
+   * تأخيراً. والنيّة صحيحة، لكن ما يقع في تلك اللحظة ليس رسم زخرفة: هو إنشاء WebGLRenderer
+   * وترجمة shader، متزامنَين، داخل معالج الضغطة — أي أن الموقع يتوقّف عند كل نقرة ليجهّز
+   * مكعّبات. وهذا ما كان يظهر في الكونسول كـ"[Violation] 'click' handler took Nms" عشر مرّات
+   * متتالية.
+   *
+   * الآن مسار واحد: مؤقّت قصير ثم تركيب. من ينوي الضغط يكون قد مرّ بالمؤشّر أوّلاً فالحقل
+   * جاهز قبل يده؛ ومن ضغط مباشرة يرى المكعّبات بعد جزء من الثانية — بلا أن تتوقّف الصفحة
+   * لحظة الضغط. والحركة تبدأ فوراً في الحالتين لأن `drive` مجرّد ref يقرؤه الحقل حين يوجد،
+   * فيظهر في منتصف حركته لا من الصفر. */
+  const wake = useCallback(() => {
+    if (!wantsTiles) return;
+    window.clearTimeout(lingerTimer.current);
+    drive.current.target = 1;
+    if (mountedRef.current || wakeTimer.current !== undefined) return;
+    wakeTimer.current = window.setTimeout(() => {
+      wakeTimer.current = undefined;
+      mount();
+    }, WAKE_DELAY_MS);
+  }, [wantsTiles, mount]);
 
   const sleep = useCallback(() => {
     drive.current.target = 0;
@@ -545,7 +546,7 @@ export function useNqSurface(
       drive.current.px = p.x;
       drive.current.py = p.y;
       drive.current.pressAt = performance.now();
-      wake(true);
+      wake();
     },
     // On a touch screen the press IS the whole interaction — there is no hover to hold the field
     // open afterwards, so it is released here and the linger carries the ring to its end.
@@ -561,7 +562,7 @@ export function useNqSurface(
       if (!(e.currentTarget as HTMLElement).matches(':focus-visible')) return;
       drive.current.px = 0.5;
       drive.current.py = 0.5;
-      wake(true);
+      wake();
     },
     onBlur: () => sleep(),
   };
