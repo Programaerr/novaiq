@@ -100,6 +100,17 @@ export interface ContractData {
   thirdColor?: string;
   themePreference: 'dark' | 'light' | 'both';
   languageSupport: 'ar' | 'en' | 'ar_en';
+  /**
+   * شعار العميل كما رفعه، data URL (WebP غالباً) مصغَّراً في المتصفح قبل الحفظ.
+   *
+   * مخزَّن داخل مستند العقد نفسه لا في خدمة ملفات: Firebase Storage يتطلب خطة مدفوعة، ونفس
+   * السبب الذي جعل لقطة العقد نصّاً لا PDF (انظر lib/contractSnapshot.ts). السقف في
+   * lib/logoFile.ts، وقاعدة Firestore تفرضه على الخادم أيضاً — مستند العقد يحمل معه توقيعين
+   * ونصوص العميل، فلا يجوز لصورة أن تأكل الميغابايت وحدها.
+   *
+   * يُطبع في العقد كما هو بلا قصّ ولا إعادة تلوين: هو علامة صاحبه، لا عنصر تصميم لدينا.
+   */
+  clientLogoDataUrl?: string;
   
   // Terms & Financial
   basePriceIQD: number;

@@ -16,6 +16,7 @@ import {
   Smartphone,
   FileText,
   ChevronDown,
+  ImagePlus,
   X
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
@@ -27,6 +28,7 @@ import { ColorWheel } from './ui/ColorWheel';
 import { loadContractDraft, saveContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
 import { contractTerms } from '../data/contractTerms';
+import { compressLogoFile, CONTRACT_LOGO_MAX_WIDTH, LOGO_MAX_DATA_URL } from '../lib/logoFile';
 import { trackEvent } from '../lib/analytics';
 import { ERROR, OBSIDIAN, SUCCESS } from '../lib/homePalette';
 
@@ -189,6 +191,44 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     { value: secondColor, set: setSecondColor },
     { value: thirdColor, set: setThirdColor },
   ];
+  /* شعار العميل.
+   *
+   * اختياري، ويُطبع في عقده كما رفعه بالضبط — بلا قصّ ولا إعادة تلوين ولا وضعه في إطار من
+   * ألواننا: هو علامته هو، والعقد وثيقة الطرفين لا لوحة إعلانية لنا.
+   *
+   * يُصغَّر ويُضغَط في المتصفح قبل الحفظ (lib/logoFile.ts). صورة هاتف بحجم أربعة ميغابايت
+   * تتجاوز وحدها سقف مستند Firestore، والرفض حينها كان سيقع بعد أن يوقّع العميل — أي بعد أن
+   * يظنّ أنه أنهى كل شيء. */
+  const [clientLogoDataUrl, setClientLogoDataUrl] = useState(draft?.clientLogoDataUrl || '');
+  const [logoBusy, setLogoBusy] = useState(false);
+
+  const pickClientLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // يُفرَّغ فوراً: بدونه لا يُطلق اختيار نفس الملف مرّة ثانية حدث change إطلاقاً.
+    event.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast(isAr ? 'اختر ملف صورة' : 'Pick an image file', 'error');
+      return;
+    }
+    setLogoBusy(true);
+    try {
+      const dataUrl = await compressLogoFile(file, CONTRACT_LOGO_MAX_WIDTH);
+      if (dataUrl.length > LOGO_MAX_DATA_URL) {
+        showToast(
+          isAr ? 'الصورة كبيرة جداً حتى بعد الضغط — جرّب صورة أبسط' : 'Still too large after compression — try a simpler image',
+          'error',
+        );
+        return;
+      }
+      setClientLogoDataUrl(dataUrl);
+    } catch {
+      showToast(isAr ? 'تعذّرت قراءة الصورة' : 'Could not read that image', 'error');
+    } finally {
+      setLogoBusy(false);
+    }
+  };
+
   const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'both'>(draft?.themePreference || 'dark');
   const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>(draft?.languageSupport || 'ar_en');
   const [paymentPlan] = useState<'50_50' | '100_upfront' | '3_milestones'>('50_50');
@@ -269,6 +309,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       isCustomProject,
       customProjectName,
       projectType,
+      clientLogoDataUrl,
     });
   }, [
     companyName,
@@ -286,6 +327,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     isCustomProject,
     customProjectName,
     projectType,
+    clientLogoDataUrl,
   ]);
 
 
@@ -494,6 +536,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       thirdColor,
       themePreference,
       languageSupport,
+      // مفتاح غائب لا مفتاح بقيمة undefined — Firestore يرفض الثاني ويسقط الكتابة كلها.
+      ...(clientLogoDataUrl ? { clientLogoDataUrl } : {}),
       basePriceIQD,
       totalPriceIQD,
       basePriceSAR: basePriceIQD,
@@ -944,6 +988,63 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     ? 'اضغط على أي مستطيل واختار لونه، ويظهر كوده داخل المستطيل، وعلامة × ترجّعه فارغ. الألوان اللي تختارها راح نستخدمها بالضبط في تصميم موقعك، وتنطبع أكوادها في عقدك.'
                     : 'Tap any rectangle to pick its colour and its code appears inside it; the × empties it again. The colours you pick are the exact ones we use in your design, and their codes are printed in your contract.'}
                 </p>
+
+                {/* شعار العميل — يُطبع في العقد كما رُفع.
+                    تحت الألوان مباشرة لأنه نفس السؤال: ما هي هوية هذا المشروع البصرية. */}
+                <div className="mt-5 pt-4 border-t border-white/10">
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
+                    {isAr ? 'شعار شركتك (اختياري)' : 'Your company logo (optional)'}
+                  </label>
+
+                  <div className="flex items-center gap-3">
+                    {/* أرضية بيضاء خلف المعاينة: أغلب الشعارات تُصمَّم على أبيض، وشعار داكن على
+                        بطاقتنا السوداء يختفي — فيظنّ صاحبه أن الرفع فشل. */}
+                    {clientLogoDataUrl ? (
+                      <span className="w-16 h-16 rounded-xl bg-white grid place-items-center shrink-0 overflow-hidden p-1.5">
+                        <img
+                          src={clientLogoDataUrl}
+                          alt={isAr ? 'شعار شركتك' : 'Your company logo'}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </span>
+                    ) : (
+                      <span className="w-16 h-16 rounded-xl border border-dashed border-steel/60 grid place-items-center shrink-0 text-white/45">
+                        <ImagePlus className="w-5 h-5" />
+                      </span>
+                    )}
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <label
+                        className={`px-3.5 py-2 rounded-xl border border-steel/60 hover:border-orange text-xs font-bold text-white transition-colors ${
+                          logoBusy ? 'opacity-60 cursor-wait' : 'cursor-pointer'
+                        }`}
+                      >
+                        <input type="file" accept="image/*" className="hidden" onChange={pickClientLogo} disabled={logoBusy} />
+                        {logoBusy
+                          ? (isAr ? 'جارٍ التجهيز…' : 'Preparing…')
+                          : clientLogoDataUrl
+                            ? (isAr ? 'تغيير الشعار' : 'Change logo')
+                            : (isAr ? 'رفع الشعار' : 'Upload logo')}
+                      </label>
+
+                      {clientLogoDataUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setClientLogoDataUrl('')}
+                          className="px-3 py-2 rounded-xl text-xs font-bold text-white/60 hover:text-white cursor-pointer transition-colors"
+                        >
+                          {isAr ? 'إزالة' : 'Remove'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-white/60 leading-relaxed mt-2.5">
+                    {isAr
+                      ? 'يظهر داخل عقدك كما رفعته بالضبط، بلا أي تعديل عليه. PNG أو SVG أو JPG.'
+                      : 'It appears inside your contract exactly as you uploaded it, unaltered. PNG, SVG or JPG.'}
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-10 p-4 rounded-2xl bg-obsidian border border-white/10">

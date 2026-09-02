@@ -68,6 +68,13 @@ service cloud.firestore {
           // موقع إلكتروني أو تطبيق هاتف حصراً. مكتوبة كـ"إن وُجد" لأن عقداً أنشأه متصفح
           // يحمل نسخة قديمة من الكود (قبل وجود الحقل) يجب أن يبقى قابلاً للإنشاء.
           && (!('projectType' in d) || d.projectType in ['website', 'app'])
+          // شعار العميل: data URL داخل المستند نفسه. السقف هنا ليس تجميلاً — مستند Firestore
+          // محدود بميغابايت واحد يحمل معه توقيعين ونصوص العميل، وصورة بلا سقف تعني عقداً
+          // يُرفض عند الحفظ بعد أن وقّعه صاحبه. الواجهة تصغّر أصلاً (lib/logoFile.ts)، وهذه
+          // هي نفس القاعدة مكتوبة حيث لا يمكن تجاوزها من الكونسول.
+          && (!('clientLogoDataUrl' in d) || (d.clientLogoDataUrl is string
+              && d.clientLogoDataUrl.size() < 400000
+              && d.clientLogoDataUrl.matches('^data:image/.*')))
           && !('companySignatureDataUrl' in d)
           && !('completedAt' in d)
           // حقلان يكتبهما الأدمن وحده: رابط المعاينة (يظهر للعميل كزر قابل للضغط) وساعة بدء
