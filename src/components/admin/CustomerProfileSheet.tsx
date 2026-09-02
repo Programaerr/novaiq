@@ -31,9 +31,6 @@ interface CustomerProfileSheetProps {
    *  سيعني اشتراكاً حياً ثانياً على نفس البيانات لسبب واحد فقط. */
   contracts: ContractData[];
   onClose: () => void;
-  /** Leaves the control panel for the public site directly from the sheet, without closing it
-   *  first — the same control the dashboard behind it carries, reachable one tap earlier. */
-  onBackToSite: () => void;
 }
 
 function formatDate(iso: string | undefined, isAr: boolean): string {
@@ -54,7 +51,6 @@ export function CustomerProfileSheet({
   disabled,
   contracts,
   onClose,
-  onBackToSite,
 }: CustomerProfileSheetProps) {
   // نفس منطق الملكية المستخدم في firestore.rules وCustomerDashboard: uid أولاً، والبريد
   // احتياطاً لعقد أقدم من وجود هذا الحقل.
@@ -147,13 +143,8 @@ export function CustomerProfileSheet({
             </div>
             <span className="text-[11px] text-ink/50 font-mono truncate block" dir="ltr">{email}</span>
           </div>
-          <button
-            onClick={onBackToSite}
-            title={isAr ? 'العودة للموقع' : 'Back to site'}
-            className="p-2 rounded-xl bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors shrink-0"
-          >
-            <Home className="w-4 h-4" />
-          </button>
+          {/* زرّ "العودة للموقع" حُذف: نفس الزرّ موجود في رأس لوحة التحكم خلف هذه الورقة،
+              وورقة تُفتح فوق شاشة تحمل الزرّ نفسه لا تحتاج نسخة ثانية منه — الإغلاق يكشفه. */}
           <button
             onClick={onClose}
             className="p-2 rounded-xl bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors shrink-0"

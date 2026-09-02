@@ -18,6 +18,13 @@ interface ContractPrintDocumentProps {
   /** بنود العقد كما كانت يوم الاعتماد (من lib/contractSnapshot.ts). حين تصل، تُطبع هي لا
    *  البنود الحالية: عقد وُقّع قبل تعديل بند يجب أن يبقى محمولاً على نصّه هو. */
   frozenTerms?: string[];
+  /** يُعرَض داخل الصفحة بدل أن يُخبَّأ خارجها.
+   *
+   *  الوثيقة تُرسم أصلاً خارج الشاشة (`left: -20000px`) لأن html2canvas يحتاج عنصراً مُخطَّطاً
+   *  فعلاً لا مخفياً بـdisplay:none. ومع `inline` تُرسم في مكانها: نفس المكوّن، نفس البيانات،
+   *  نفس الترتيب — فما يراه العميل في المعاينة هو الملف الذي سينزّله حرفياً، لا نسخة ثانية
+   *  تُكتب بيدٍ أخرى وتفترق عنه عند أوّل تعديل. */
+  inline?: boolean;
 }
 
 // A print-optimized rendering of the contract, separate from the on-screen preview.
@@ -30,7 +37,10 @@ interface ContractPrintDocumentProps {
 // Letting the browser lay out the text and photographing the result is what makes a genuine
 // Arabic PDF possible at all.
 export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPrintDocumentProps>(
-  ({ contract, language, translatedNotes, translatedAdminNotes, templateTitle, city, frozenTerms }, ref) => {
+  (
+    { contract, language, translatedNotes, translatedAdminNotes, templateTitle, city, frozenTerms, inline = false },
+    ref,
+  ) => {
     const isAr = language === 'ar';
 
     const t = {
@@ -279,10 +289,9 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
         style={{
           // Rendered off-screen: html2canvas needs a genuinely laid-out element, so this
           // can't use display:none. Fixed 794px is A4 width at 96dpi.
-          position: 'fixed',
-          top: 0,
-          left: -20000,
-          width: 794,
+          ...(inline
+            ? { position: 'relative' as const, width: '100%', maxWidth: 794, margin: '0 auto' }
+            : { position: 'fixed' as const, top: 0, left: -20000, width: 794 }),
           backgroundColor: '#ffffff',
           color: '#080A0D',
           fontFamily: isAr ? "'Cairo', 'Tajawal', sans-serif" : "'Helvetica Neue', Arial, sans-serif",
@@ -299,7 +308,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             والتوسيط ليس ذوقاً وحده: ترويسة تُقرأ يميناً في العربية ويساراً في الإنجليزية كانت
             تضع العلامة في مكانين مختلفين حسب لغة النسخة، فتبدو نسختا العقد الواحد وكأنهما من
             جهتين. المنتصف هو الموضع الوحيد الذي لا يتحرّك. */}
-        <div style={{ backgroundColor: '#080A0D', color: '#ffffff', padding: '18px 28px 14px' }}>
+        <div data-pdf-header style={{ backgroundColor: '#080A0D', color: '#ffffff', padding: '18px 28px 14px' }}>
           <div style={{ textAlign: 'center' }}>
             <img
               src={nuvaiqMark}
@@ -350,7 +359,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
         <div style={{ padding: '12px 28px 18px' }}>
           {/* Section 1 */}
-          <div style={{ marginBottom: 14 }}>
+          <div data-pdf-keep style={{ marginBottom: 14 }}>
             <SectionTitle>{t.s1}</SectionTitle>
             <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
               <div style={{ flex: 1 }}>
@@ -395,7 +404,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           </div>
 
           {/* Section 2 */}
-          <div style={{ marginBottom: 14 }}>
+          <div data-pdf-keep style={{ marginBottom: 14 }}>
             <SectionTitle>{t.s2}</SectionTitle>
             <Field label={t.template} value={templateTitle} />
             {projectTypeLabel && <Field label={t.projectType} value={projectTypeLabel} />}
@@ -606,7 +615,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             <SectionTitle>{t.s4}</SectionTitle>
             <ol style={{ margin: 0, paddingInlineStart: 18 }}>
               {terms.map((term, i) => (
-                <li key={i} style={{ fontSize: 10, color: '#434547', marginBottom: 3, lineHeight: 1.45 }}>
+                <li key={i} data-pdf-keep style={{ fontSize: 10, color: '#434547', marginBottom: 3, lineHeight: 1.45 }}>
                   {term}
                 </li>
               ))}

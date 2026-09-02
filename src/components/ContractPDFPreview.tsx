@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { OBSIDIAN } from '../lib/homePalette';
 import { ContractData } from '../types';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { Language, translateText } from '../lib/i18n';
@@ -132,105 +133,33 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
         </div>
 
         {/* On-screen contract preview */}
-        <div data-lenis-prevent className="p-6 sm:p-8 overflow-y-auto space-y-6 text-white bg-black">
+        {/* المعاينة هي الوثيقة نفسها، لا نسخة ثانية منها.
+            كان هنا بناء موازٍ داكن يعيد كتابة العقد بيده — وقد افترق عن المطبوع فعلاً: يعلن
+            "موقّع من الطرفين" دائماً ولو كان بانتظار الاعتماد، ويطبع "0 د.ع" و"0 أسابيع"
+            لمشروع لم يُسعَّر بعد، ولا يعرف حالة العقد ولا جدول الدفعات. أي أن العميل كان يقرأ
+            شيئاً وينزّل شيئاً آخر.
 
-          {/* Document Header Box */}
-          <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            {/* نفس حذف الوثيقة المطبوعة: الجملة كانت تصف موقعاً لا التزاماً، وتقول "قوالب"
-                عن عقد صار مخصصاً بالكامل. نسخة المعاينة يجب أن تطابق ما يُطبع حرفياً — وإلا
-                فالمعاينة تعِد بشيء والملف يسلّم غيره. */}
-            <span className="text-2xl font-black text-white tracking-widest font-['Cairo'] block">NUVAIQ</span>
-            <div className={`text-xs font-mono text-white/75 ${isAr ? 'text-right sm:text-left' : 'text-left sm:text-right'}`}>
-              <div>{isAr ? 'تاريخ الإصدار:' : 'Issue Date:'} {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}</div>
-              <div>{isAr ? 'حالة العقد:' : 'Contract Status:'} <span className="text-white font-bold">{isAr ? 'موقّع من الطرفين' : 'Signed by both parties'}</span></div>
-            </div>
+            الآن تُعرض `ContractPrintDocument` نفسها بوضع inline: نفس المكوّن ونفس البيانات
+            التي يلتقطها مولّد الـPDF — فالمعاينة والملف لا يمكن أن يفترقا، والتوقيع يظهر على
+            الورق الأبيض كما سيُطبع بالضبط لا على أرضية داكنة تبتلعه. */}
+        <div
+          data-lenis-prevent
+          className="nq-scroll-dark overflow-y-auto p-4 sm:p-6"
+          style={{ background: OBSIDIAN }}
+        >
+          <div className="mx-auto shadow-2xl" style={{ maxWidth: 794 }}>
+            <ContractPrintDocument
+              inline
+              contract={contract}
+              language={language}
+              translatedNotes={customNotes}
+              translatedAdminNotes={translatedAdminNotes}
+              templateTitle={templateTitle}
+              city={city}
+            />
           </div>
-
-          {/* Section 1: Company Info */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3 text-xs">
-            <h4 className="font-bold text-white text-sm border-b border-zinc-800 pb-2">
-              {isAr ? '1. بيانات الشركة والممثل القانوني:' : '1. Company & Legal Representative Information:'}
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>{isAr ? 'اسم الشركة:' : 'Company Name:'} <strong className="text-white">{contract.companyName}</strong></div>
-              <div>{isAr ? 'رقم السجل التجاري:' : 'CR / ID Number:'} <strong className="text-white font-mono">{contract.crNumber || 'N/A'}</strong></div>
-              <div>{isAr ? 'الممثل المخول:' : 'Authorized Representative:'} <strong className="text-white">{contract.repName}</strong></div>
-              <div>{isAr ? 'البريد الإلكتروني:' : 'Email:'} <strong className="text-white font-mono">{contract.email}</strong></div>
-              <div>{isAr ? 'الهاتف / الجوال:' : 'Phone / Mobile:'} <strong className="text-white font-mono">{contract.phone}</strong></div>
-              <div>{isAr ? 'المدينة:' : 'City:'} <strong className="text-white">{city}</strong></div>
-            </div>
-          </div>
-
-          {/* Section 2: Template Specs */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3 text-xs">
-            <h4 className="font-bold text-white text-sm border-b border-zinc-800 pb-2">
-              {isAr ? '2. القالب المختار والمواصفات الفنية:' : '2. Selected Template & Technical Specifications:'}
-            </h4>
-            <div className="space-y-2">
-              <div>{isAr ? 'القالب المعتمد:' : 'Approved Template:'} <strong className="text-white text-sm font-bold">{templateTitle}</strong></div>
-              {/* نوع المشروع كما اختاره العميل — غائب تماماً في عقد وُقّع قبل وجود الحقل بدل
-                  طباعة نوع مفترض (نفس سلوك ContractPrintDocument). */}
-              {contract.projectType && (
-                <div>
-                  {isAr ? 'نوع المشروع:' : 'Project Type:'}{' '}
-                  <strong className="text-white text-sm font-bold">
-                    {contract.projectType === 'app'
-                      ? (isAr ? 'تطبيق هاتف (iOS و Android)' : 'Mobile App (iOS & Android)')
-                      : (isAr ? 'موقع إلكتروني' : 'Website')}
-                  </strong>
-                </div>
-              )}
-              {contract.customFeaturesText && (
-                <div className="pt-2 text-white/90">
-                  {isAr ? 'ملاحظات الشركة الخاصة:' : "Company's Custom Notes:"} <p className="text-white/75 text-[11px] bg-black p-2.5 rounded-lg border border-zinc-800 mt-1">{customNotes}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Section 3: Financial Structure */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2 text-xs">
-            <h4 className="font-bold text-white text-sm border-b border-zinc-800 pb-2">
-              {isAr ? '3. القيمة المالية ومدة التسليم:' : '3. Financial Value & Delivery Timeline:'}
-            </h4>
-            <div className="flex justify-between items-center font-mono text-sm pt-1">
-              <span>{isAr ? 'الإجمالي الكلي المعتمد للعقد:' : 'Total Approved Contract Value:'}</span>
-              <strong className="text-xl text-white font-extrabold">
-                {formatPrice(contract.totalPriceIQD || 0, language, currency)}
-              </strong>
-            </div>
-            <div className="text-[11px] text-white/75">
-              {isAr ? 'خطة التسليم المضمنة:' : 'Included Delivery Plan:'} <strong>{contract.deliveryTimelineWeeks} {isAr ? 'أسابيع' : 'weeks'}</strong> | {isAr ? 'آلية السداد:' : 'Payment Method:'} <strong>{paymentPlanLabel}</strong>
-            </div>
-          </div>
-
-          {/* Signature Preview & Stamp */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className={`text-xs space-y-2 text-center ${isAr ? 'sm:text-right' : 'sm:text-left'}`}>
-              <span className="font-bold text-white/90 block">{isAr ? 'توقيع الممثل القانوني:' : 'Legal Representative Signature:'}</span>
-              {contract.signatureDataUrl ? (
-                <img
-                  src={contract.signatureDataUrl}
-                  alt={isAr ? 'التوقيع الرقمي' : 'Digital Signature'}
-                  className="h-14 max-w-[200px] object-contain border border-zinc-800 rounded-lg p-1 bg-black"
-                />
-              ) : (
-                <div className="text-white/60 italic">{isAr ? '[تم التوقيع إلكترونياً]' : '[Signed Electronically]'}</div>
-              )}
-              <div className="text-[10px] text-white/75">{contract.repName}</div>
-            </div>
-
-            {/* NUVAIQ Stamp Seal */}
-            <div className="p-3 rounded-2xl border border-zinc-700 bg-zinc-900 text-center space-y-1 w-48">
-              <ShieldCheck className="w-5 h-5 text-white mx-auto" />
-              <div className="text-xs font-black text-white font-mono">{isAr ? 'ختم NUVAIQ الرسمي' : 'NUVAIQ Official Seal'}</div>
-              <div className="text-[9px] text-white/75">VERIFIED CONTRACT</div>
-            </div>
-          </div>
-
         </div>
 
-        {/* Modal Actions Footer */}
         <div className="p-4 sm:p-6 bg-zinc-950 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs text-white/75 font-mono hidden sm:block">
             {isAr ? 'سيتم طباعة سند العقد الرسمي الموثق' : 'The official verified contract deed will be printed'}

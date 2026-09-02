@@ -345,7 +345,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           {tab === 'overview' && (
             <OverviewTab isAr={isAr} stats={stats} contracts={contracts} language={language} currency={currency} />
           )}
-          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} currency={currency} contracts={contracts} stats={stats} onBackToSite={onBackToSite} />}
+          {tab === 'contracts' && <ContractsTab isAr={isAr} language={language} currency={currency} contracts={contracts} />}
           {tab === 'pricing' && <PricingTab isAr={isAr} language={language} currency={currency} />}
           {tab === 'currency' && (
             <div className="max-w-2xl">

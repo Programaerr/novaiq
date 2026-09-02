@@ -255,7 +255,6 @@ export function MembersTab({
           disabled={profileUser.disabled}
           contracts={contracts}
           onClose={() => setProfileUser(null)}
-          onBackToSite={onBackToSite}
         />
       )}
     </div>

@@ -31,7 +31,7 @@ import { createContractSnapshot } from '../../lib/contractSnapshot';
 import { useSignaturePad } from '../../lib/useSignaturePad';
 import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '../../lib/payments';
 import { PriceInput } from '../PriceInput';
-import { STATUS_FLOW, StatTile, statusArabic, paymentStatusArabic, CollectionBar, AdminStats } from './shared';
+import { STATUS_FLOW, statusArabic, paymentStatusArabic, CollectionBar } from './shared';
 import { STAGE_COLORS } from '../../lib/statusColors';
 import { CustomerProfileSheet } from './CustomerProfileSheet';
 
@@ -40,15 +40,11 @@ export function ContractsTab({
   language,
   currency,
   contracts,
-  stats,
-  onBackToSite,
 }: {
   isAr: boolean;
   language: Language;
   currency: Currency;
   contracts: ContractData[];
-  stats: AdminStats;
-  onBackToSite: () => void;
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ContractData['status']>('all');
@@ -68,32 +64,9 @@ export function ContractsTab({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <StatTile icon={FileCheck} label={isAr ? 'إجمالي العقود' : 'Total Contracts'} value={String(stats.count)} />
-        <StatTile
-          icon={DollarSign}
-          label={isAr ? 'إجمالي القيمة' : 'Total Value'}
-          value={formatPrice(stats.totalIQD, language, currency)}
-          accent="text-emerald-700"
-        />
-        <StatTile
-          icon={TrendingUp}
-          label={isAr ? 'متوسط قيمة العقد' : 'Avg. Contract Value'}
-          value={formatPrice(stats.avgIQD, language, currency)}
-        />
-        <StatTile
-          icon={TrendingDown}
-          label={isAr ? 'إجمالي التكلفة' : 'Total Cost'}
-          value={formatPrice(stats.totalCostIQD, language, currency)}
-          accent="text-red-600"
-        />
-        <StatTile
-          icon={TrendingUp}
-          label={isAr ? 'صافي الربح (محقق)' : 'Net Profit (Realized)'}
-          value={formatPrice(stats.netProfitIQD, language, currency)}
-          accent={stats.netProfitIQD >= 0 ? 'text-emerald-700' : 'text-red-600'}
-        />
-      </div>
+      {/* شبكة الإحصاءات حُذفت من هنا: نفس الأرقام معروضة أصلاً في أعلى لوحة التحكم
+          (تبويب النظرة العامة). عرضها مرّتين لا يضيف معلومة، ويضيف موضعاً ثانياً يجب أن يبقى
+          متوافقاً مع الأوّل عند كل تغيير في طريقة الحساب. */}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -136,7 +109,6 @@ export function ContractsTab({
               currency={currency}
               expanded={expandedId === (c.id || c.contractNumber)}
               onToggle={() => setExpandedId((prev) => (prev === (c.id || c.contractNumber) ? null : c.id || c.contractNumber || null))}
-              onBackToSite={onBackToSite}
             />
           ))}
         </div>
@@ -209,7 +181,6 @@ function ContractRow({
   currency,
   expanded,
   onToggle,
-  onBackToSite,
 }: {
   contract: ContractData;
   /** كل عقود الموقع (غير مُصفّاة) — تُمرَّر للملف الشخصي بحيث يقدر يجمع كل عقود نفس الشخص،
@@ -220,7 +191,6 @@ function ContractRow({
   currency: Currency;
   expanded: boolean;
   onToggle: () => void;
-  onBackToSite: () => void;
 }) {
   const [showProfile, setShowProfile] = useState(false);
   // Legacy contracts saved before the payment ledger existed only have a lump `paidAmountIQD`
@@ -1074,7 +1044,6 @@ function ContractRow({
           photoURL=""
           contracts={allContracts}
           onClose={() => setShowProfile(false)}
-          onBackToSite={onBackToSite}
         />
       )}
     </div>
