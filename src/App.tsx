@@ -4,6 +4,14 @@ import { usePauseOffscreenWork } from './lib/usePauseOffscreenWork';
 import { useScrollingFlag } from './lib/useScrollingFlag';
 import { Navbar } from './components/Navbar';
 import { LazyOnView } from './components/LazyOnView';
+/* Static, unlike every other page-level section, because this one is on screen before the
+   visitor does anything. As a lazy chunk it measured 320ms of empty page on a warm reload:
+   React mounted at 179ms with HomeHero.tsx and TileField.tsx already downloaded by 185ms,
+   and the hero still did not appear until 499ms -- no request outstanding, no long task,
+   just a Suspense boundary waiting to be retried. Splitting it also bought nothing: three
+   and @react-three/fiber are already in the eager graph via NqButton -> ButtonTiles, so the
+   hero's chunk was never what was carrying them. */
+import { HomeHero } from './components/HomeHero';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { AboutSection } from './components/AboutSection';
 import { CookieConsent } from './components/CookieConsent';
@@ -37,7 +45,6 @@ const EcontractsPage = lazy(() => trackLoad(import('./components/EcontractsPage'
 const TemplateInteractiveSandbox = lazy(() => trackLoad(import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))));
 const AdminPage = lazy(() => trackLoad(import('./components/AdminPage').then((m) => ({ default: m.AdminPage }))));
 const LoginPage = lazy(() => trackLoad(import('./components/LoginPage').then((m) => ({ default: m.LoginPage }))));
-const HomeHero = lazy(() => trackLoad(import('./components/HomeHero').then((m) => ({ default: m.HomeHero }))));
 // The sections below the fold and the footer load on scroll (LazyOnView), so they are deliberately
 // NOT tracked: when one of them downloads while the visitor is already reading, a full-screen
 // loader popping up would be exactly the "annoying" flash we are removing. Their placeholders are
@@ -557,13 +564,14 @@ export default function App() {
                 Sections below the fold load lazily (LazyOnView + React.lazy): the browser
                 downloads and parses each section's code only when it approaches the viewport,
                 so a visitor pays for the part they actually see, not the whole page at once. */}
-            <Suspense fallback={null}>
-              <HomeHero
-                language={language}
-                onStart={() => navigateTo('templates')}
-                onRequestProject={startProject}
-              />
-            </Suspense>
+            {/* No <Suspense> around it any more: it is a static import, so there is nothing
+                left to suspend on and a boundary here would only add a retry step between
+                React mounting and the first section painting. */}
+            <HomeHero
+              language={language}
+              onStart={() => navigateTo('templates')}
+              onRequestProject={startProject}
+            />
 
             {/* شريط "أعمالنا" — مباشرة تحت الهيرو، ويتحكّم به الأدمن من الإعدادات (تشغيل/إيقاف،
                 العنوان، السرعة، العناصر). لا LazyOnView هنا: القسم ملاصق للهيرو أي داخل أول
