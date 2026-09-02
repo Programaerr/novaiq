@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Calendar,
   Layers,
@@ -13,6 +13,7 @@ import { NqButton } from './ui/NqButton';
 import { NqLink } from './ui/NqLink';
 import { useFloatingBarBottom } from '../lib/useFloatingBarBottom';
 import { NuvaiqLogo } from './NuvaiqLogo';
+import { NavCubeFlight, type FlightRect } from './ui/NavCubeFlight';
 // نوع فقط (import type) — يُحذف بالكامل عند الترجمة، لا يسحب Firebase SDK فعلياً وقت التشغيل.
 // من يملك حالة الدخول فعلياً هو App.tsx (useCurrentUser، مطلوبة هناك أصلاً لتوجيه الصفحات)،
 // وهذا الملف يستقبلها كخاصية بدل الاشتراك بنفسه بشكل مكرر — انظر تعليق currentUser أدناه.
@@ -76,6 +77,51 @@ export const Navbar: React.FC<NavbarProps> = ({
   // measuring the header would make everything below the navbar jump down whenever the menu
   // is opened. The pill is the actual bar, and the drawer is its sibling.
   const barRef = useRef<HTMLDivElement | null>(null);
+
+  /* ── The active pill's crossing ─────────────────────────────────────────────────────────
+     The three nav items are three separate elements, so the pill could never animate: its
+     white fill vanished from one <a> and appeared on another in the same frame, with no
+     shared object in between. `NavCubeFlight` is that object, and these four refs are what
+     let it be told where to start. See that file for why its canvas only exists while it
+     runs. */
+  const navStripRef = useRef<HTMLElement | null>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  /* The page as of the LAST commit. By the time an effect runs React has already painted
+     the pill onto the new item, so the DOM can no longer answer "where was it before" --
+     it has to be remembered rather than measured. Seeded with the initial page so landing
+     straight on ?page=templates does not fire a flight from nowhere. */
+  const prevPage = useRef(activePage);
+  const [flight, setFlight] = useState<
+    { from: FlightRect; to: FlightRect; width: number; height: number } | null
+  >(null);
+
+  useLayoutEffect(() => {
+    const was = prevPage.current;
+    prevPage.current = activePage;
+    if (was === activePage) return;
+
+    /* Decorative motion over a long distance is precisely what this setting is for, so it
+       is skipped outright rather than shortened: no canvas, no measurement, the pill just
+       appears where it always did. */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const strip = navStripRef.current;
+    const a = linkRefs.current[was];
+    const b = linkRefs.current[activePage];
+    /* Below `lg` the inline nav is not rendered at all (the drawer is), so there is nothing
+       to measure and nothing to fly. */
+    if (!strip || !a || !b) return;
+
+    /* Relative to the strip, not the viewport: the canvas covers the strip, so measuring in
+       its coordinates means the two spaces are the same one. The bar is `fixed` and moves
+       on scroll, which viewport coordinates would have to keep chasing. */
+    const s = strip.getBoundingClientRect();
+    const rect = (el: HTMLElement): FlightRect => {
+      const r = el.getBoundingClientRect();
+      return { x: r.x - s.x, y: r.y - s.y, w: r.width, h: r.height };
+    };
+    setFlight({ from: rect(a), to: rect(b), width: s.width, height: s.height });
+  }, [activePage]);
   // مشتقة من خاصية currentUser (انظر تعليقها بالأعلى)، لا من اشتراك خاص بهذا الملف —
   // undefined = لم يُحسم فحص الدخول الأولي بعد، وهذا ما يمنع "Login" من الوميض للحظة قبل أن
   // ينقلب "حسابي" لزائر داخل بالفعل، بالضبط كما كان الاشتراك المحلي القديم يفعل.
@@ -240,16 +286,30 @@ export const Navbar: React.FC<NavbarProps> = ({
             full-width bar; the bar now hugs its contents below `lg`, and `justify-between`
             does the same job from `lg` up without a margin fighting it. */}
         <div className="navbar-glass flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl relative z-10">
-          <nav className="hidden lg:flex items-center gap-2" aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}>
+          {/* `relative` so the flight's canvas can cover exactly this strip and nothing else. */}
+          <nav
+            ref={navStripRef}
+            className="hidden lg:flex items-center gap-2 relative"
+            aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}
+          >
             {navItems.map((item) => {
               const isActive = activePage === item.id;
+              /* While the cubes are crossing they ARE the pill, so the real one is held back
+                 until they land. Without this there are two pills on screen and the DOM one is
+                 already sitting at the destination before the swarm gets there. The label keeps
+                 its inactive colour for those 420ms and flips with the fill, in the same frame
+                 the cubes are removed. */
+              const wearsPill = isActive && !flight;
               return (
                 <a
                   key={item.id}
+                  ref={(el) => {
+                    linkRefs.current[item.id] = el;
+                  }}
                   href={item.href}
                   onClick={(e) => handleNavClick(item.id, e)}
                   className={`px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    isActive
+                    wearsPill
                       ? 'bg-white text-black shadow-lg'
                       : 'text-white/90 hover:text-white hover:bg-white/5'
                   }`}
@@ -258,6 +318,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </a>
               );
             })}
+            {flight && (
+              <NavCubeFlight
+                from={flight.from}
+                to={flight.to}
+                width={flight.width}
+                height={flight.height}
+                onDone={() => setFlight(null)}
+              />
+            )}
           </nav>
 
           {/* Account/login — lives in the navigation half on desktop, and moves INSIDE the

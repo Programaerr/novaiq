@@ -122,8 +122,20 @@ export const TONES: Record<NqTone, ToneSpec> = {
   },
   /* WHITE grounds — the light surfaces earlier tables called "sand" then "ice". */
   white: {
-    /* The badge is ON the Obsidian pill, not on the white page — so it takes the light twin. */
-    solid: { bg: OBSIDIAN, fg: PAPER, badgeBg: ORANGE_ON_DARK, badgeFg: OBSIDIAN },
+    /* `solid` is the ACCENT, not the black pill it was. A page sweep found that pill was one of
+       only two near-black fills left on the site, and a primary control on a light ground is what
+       the accent is FOR in this identity — this is the same pair `signal` already uses on the
+       sign-in card, down to the white badge disc.
+
+       Deliberately not white, which is what the footer's CTA became in the same breath: that one
+       sits INSIDE the #273036 card, where white is 13.44:1. This one stands on the warm-white
+       section, where a white fill measures 1.07:1 and the button would be a label floating in the
+       page. Same instruction, opposite ground, opposite answer.
+
+       Measured: accent on warm white 12.53:1, its white label 13.44:1, the disc 13.44:1 both
+       ways. `darkRing` is unaffected — the ring is drawn outside the button with an offset, so it
+       is measured against the page (18.48:1) and not against the fill. */
+    solid: { bg: ORANGE, fg: '#FFFFFF', badgeBg: '#FFFFFF', badgeFg: ORANGE },
     quiet: { bg: PAPER_DEEP, fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: PAPER },
     ghost: { bg: 'transparent', fg: OBSIDIAN, tile: WHITE, badgeBg: OBSIDIAN, badgeFg: PAPER },
     accent: ORANGE,
@@ -161,11 +173,18 @@ export const TONES: Record<NqTone, ToneSpec> = {
      rather than borrowing `paper` (whose solid is Obsidian, and Obsidian is not what the footer's
      `--ft-accent` means) or `chrome` (whose ring is white, and white on paper is no ring at all).
 
-     `solid`'s badge is the light twin because that disc sits on this tone's OBSIDIAN pill; the
-     other two badges sit on paper and keep the dark accent with white glyphs. Same three lines,
-     three different grounds. */
+     `solid` is WHITE, on the owner's call, and that also repairs something the card's move to
+     the accent quietly broke: this pill was OBSIDIAN, which is 1.47:1 against a #273036 card — a
+     black button on a slate card with no edge between them. White is 13.44:1, and its Obsidian
+     label 19.82:1. The badge inverts with the fill or it vanishes the other way: the light twin
+     was right on a black pill and measures 1.60:1 on a white one.
+
+     The other two badges sit on paper and keep the dark accent with white glyphs. Three lines,
+     three different grounds, three answers.
+
+     `darkRing` was already correct and stays: the ring is #080A0D, 19.82:1 on the new fill. */
   footer: {
-    solid: { bg: OBSIDIAN, fg: '#FFFFFF', badgeBg: ORANGE_ON_DARK, badgeFg: OBSIDIAN },
+    solid: { bg: '#FFFFFF', fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
     quiet: { bg: 'rgba(39,48,54,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
     ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
     accent: ORANGE,
