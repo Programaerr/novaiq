@@ -50,8 +50,43 @@ async function buildContractPdf(element: HTMLElement, _contract: ContractData): 
   const scale = pageWidth / canvas.width; // mm per canvas pixel
   const sliceHeightPx = Math.max(1, Math.floor(pageHeight / scale)); // canvas px that fill a page
 
-  for (let offsetPx = 0, page = 0; offsetPx < canvas.height; offsetPx += sliceHeightPx, page++) {
-    const height = Math.min(sliceHeightPx, canvas.height - offsetPx);
+  /* حدود الكتل التي لا يجوز قصّها.
+   *
+   * الترقيم هنا يقصّ اللوحة عند ارتفاع الصفحة بالضبط، بلا علم بما تحت المقصّ. فكان قسم
+   * التواقيع — وهو آخر ما في الوثيقة وأهمّها — يُقطع نصفين حين يصادف الحدّ: توقيع في أسفل
+   * صفحة وسطر الاسم في أعلى التي تليها.
+   *
+   * الحل ليس هامشاً يُجرَّب بالعين، لأنه يتغيّر مع طول بنود العقد وعدد دفعاته. الكتل التي يجب
+   * أن تبقى كاملة موسومة في الوثيقة بـ`data-pdf-keep`، وتُقاس هنا بإحداثيات اللوحة نفسها؛ فإن
+   * وقع المقصّ داخل واحدة رُفع إلى أعلاها، فتبدأ الكتلة في الصفحة التالية كاملة.
+   *
+   * `element.getBoundingClientRect()` هو الأصل: html2canvas يلتقط هذا العنصر بمضاعف معلوم،
+   * فالفرق بين أعلى الكتلة وأعلاه مضروباً بالمضاعف هو موضعها بالبكسل داخل اللوحة. */
+  const rootTop = element.getBoundingClientRect().top;
+  const captureScale = canvas.width / element.getBoundingClientRect().width;
+  const keepBlocks = Array.from(element.querySelectorAll<HTMLElement>('[data-pdf-keep]'))
+    .map((node) => {
+      const r = node.getBoundingClientRect();
+      return { top: (r.top - rootTop) * captureScale, bottom: (r.bottom - rootTop) * captureScale };
+    })
+    .filter((b) => b.bottom > b.top);
+
+  /** أين ينتهي هذا الصفحة فعلاً: عند ارتفاعها، أو عند أعلى كتلة يقطعها. */
+  const cutAfter = (offsetPx: number): number => {
+    const wanted = offsetPx + sliceHeightPx;
+    if (wanted >= canvas.height) return canvas.height;
+    let cut = wanted;
+    for (const b of keepBlocks) {
+      // تقطعها الصفحة، وتبدأ بعد أوّل هذه الصفحة (أي يمكن دفعها كاملةً إلى التالية).
+      if (b.top > offsetPx && b.top < cut && b.bottom > cut) cut = b.top;
+    }
+    /* كتلة أطول من صفحة كاملة لا يمكن إنقاذها بالدفع — دفعها يعني صفحة فارغة ثم قصّها على أي
+       حال. عندها يُترك المقصّ حيث كان. */
+    return cut > offsetPx ? cut : wanted;
+  };
+
+  for (let offsetPx = 0, page = 0; offsetPx < canvas.height; page++) {
+    const height = Math.min(cutAfter(offsetPx) - offsetPx, canvas.height - offsetPx);
 
     const slice = document.createElement('canvas');
     slice.width = canvas.width;
@@ -67,6 +102,7 @@ async function buildContractPdf(element: HTMLElement, _contract: ContractData): 
 
     if (page > 0) doc.addPage();
     doc.addImage(slice.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, height * scale);
+    offsetPx += height;
   }
 
   return doc;
