@@ -6,6 +6,7 @@ import { useSeen } from '../lib/useSeen';
 import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
+import { IRAQI_PHONE_LENGTH, IRAQI_PHONE_RULE, isValidIraqiPhone, sanitizeIraqiPhone } from '../lib/iraqiPhone';
 import { trackEvent } from '../lib/analytics';
 import { ERROR, OBSIDIAN, PAPER, PAPER_DEEP, SUCCESS, WHITE } from '../lib/homePalette';
 import { BAND_FADE, SIGNAL_TONES, TileField } from './TileField';
@@ -66,10 +67,7 @@ const FIELDS: Field[] = [
     en: 'Your phone',
     type: 'tel',
     autoComplete: 'tel',
-    hint: {
-      ar: 'رقم عراقي يبدأ بـ 07 ويتكوّن من 11 رقماً — أو بصيغة 964+.',
-      en: 'An Iraqi number starting 07, 11 digits — or in +964 form.',
-    },
+    hint: IRAQI_PHONE_RULE,
   },
   { key: 'message', ar: 'رسالتك', en: 'Your message', type: 'textarea', autoComplete: 'off' },
 ];
@@ -79,21 +77,18 @@ type Errors = Partial<Record<Field['key'], string>>;
 
 const EMPTY: Values = { name: '', phone: '', message: '' };
 
-/**
- * Iraqi mobile numbers start with 07 and run to 11 digits; a leading +964 is also accepted.
- * Looser than the strict contract check on purpose — this is a first-touch message, not a signed
- * document, so a friendly nudge beats a hard wall.
- */
-const PHONE = /^(?:\+964|0)?7\d{9}$/;
+/* القانون نفسه الذي يفرضه منشئ العقود، من نفس الوحدة (lib/iraqiPhone.ts).
+   كان هنا تعبيراً أوسع يقبل `+964` بحجّة أن هذه "لمسة أولى لا وثيقة موقّعة" — والنتيجة أن رقماً
+   يُقبل هنا ويُرفض في العقد، فيصطدم به صاحبه في أسوأ لحظة: وهو يوقّع. قاعدة واحدة، في الشاشتين. */
 
 function validate(values: Values, isAr: boolean): Errors {
   const errors: Errors = {};
   if (!values.name.trim()) errors.name = isAr ? 'اكتب اسمك.' : 'Please enter your name.';
   if (!values.phone.trim()) errors.phone = isAr ? 'اكتب رقم هاتفك.' : 'Please enter your phone.';
-  else if (!PHONE.test(values.phone.replace(/\s+/g, '')))
+  else if (!isValidIraqiPhone(values.phone))
     errors.phone = isAr
-      ? 'الرقم مو صحيح — لازم يبدأ بـ 07 ويكون 11 رقم (أو بصيغة 964+).'
-      : 'That number does not look right — it must start 07 and be 11 digits (or in +964 form).';
+      ? `الرقم مو صحيح — ${IRAQI_PHONE_RULE.ar}`
+      : `That number does not look right — ${IRAQI_PHONE_RULE.en.toLowerCase()}`;
   if (!values.message.trim()) errors.message = isAr ? 'اكتب رسالتك.' : 'Please enter a message.';
   return errors;
 }
@@ -125,7 +120,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
   const [sent, setSent] = useState(false);
 
   const set = useCallback((key: Field['key'], v: string) => {
-    setValues((prev) => ({ ...prev, [key]: v }));
+    /* القانون يُفرَض هنا لا عند الإرسال: حرف مكتوب في خانة رقم لا يدخل أصلاً، والرقم الثاني
+       عشر لا يُكتب. حقل خاطئ مستحيل أهدأ من حقل خاطئ مرفوض. */
+    setValues((prev) => ({ ...prev, [key]: key === 'phone' ? sanitizeIraqiPhone(v) : v }));
     /* Clear the error as the field changes rather than re-validating on every keystroke: a message
        that is still wrong the instant you start fixing it is worse than no message. */
     setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
@@ -347,6 +344,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                           name={field.key}
                           type={field.type}
                           autoComplete={field.autoComplete}
+                          {...(field.key === 'phone'
+                            ? { inputMode: 'numeric' as const, maxLength: IRAQI_PHONE_LENGTH, dir: 'ltr' as const }
+                            : {})}
                           value={values[field.key]}
                           onChange={(e) => set(field.key, e.target.value)}
                           onBlur={() => blur(field.key)}

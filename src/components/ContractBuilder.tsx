@@ -29,6 +29,7 @@ import { loadContractDraft, saveContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
 import { contractTerms } from '../data/contractTerms';
 import { compressLogoFile, CONTRACT_LOGO_MAX_WIDTH, LOGO_MAX_DATA_URL } from '../lib/logoFile';
+import { IRAQI_PHONE_LENGTH, IRAQI_PHONE_RULE, isValidIraqiPhone, sanitizeIraqiPhone } from '../lib/iraqiPhone';
 import { trackEvent } from '../lib/analytics';
 import { ERROR, OBSIDIAN, SUCCESS } from '../lib/homePalette';
 
@@ -148,11 +149,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     });
   };
 
-  // Phone Validation helper (Must start with 07 and be 11 digits)
-  const isValidIraqiPhone = (num: string) => {
-    const clean = num.replace(/[\s\-\+\(\)]/g, '');
-    return /^07\d{9}$/.test(clean);
-  };
+  /* التحقق من الرقم انتقل إلى lib/iraqiPhone.ts حين تبيّن أن نموذج التواصل يحمل نسخة أخرى
+     منه بقاعدة مختلفة. نفس الدالة الآن في الشاشتين. */
 
   // Customizations. There is no add-on checklist any more: a priced list of options asked the
   // customer to make a dozen small purchasing decisions about things they could not evaluate,
@@ -390,7 +388,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     missingItems.push({
       step: 1,
       field: 'phone',
-      label: isAr ? 'رقم هاتف صحيح (يبدأ بـ07 و11 رقماً)' : 'A valid phone (starts with 07, 11 digits)',
+      // نصّ القانون من مصدره لا مكتوباً هنا مرّة ثانية (lib/iraqiPhone.ts).
+      label: isAr ? `رقم هاتف صحيح — ${IRAQI_PHONE_RULE.ar}` : `A valid phone — ${IRAQI_PHONE_RULE.en.toLowerCase()}`,
     });
   }
   if (isCustomProject && !customProjectName.trim()) {
@@ -744,10 +743,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     type="tel"
                     required
                     value={phone}
-                    maxLength={11}
+                    maxLength={IRAQI_PHONE_LENGTH}
+                    inputMode="numeric"
+                    dir="ltr"
+                    title={IRAQI_PHONE_RULE.ar}
                     onChange={(e) => {
-                      const cleanDigits = e.target.value.replace(/\D/g, '').slice(0, 11);
-                      setPhone(cleanDigits);
+                      setPhone(sanitizeIraqiPhone(e.target.value));
                       clearFieldError('phone');
                     }}
                     placeholder={getTranslation('phonePlaceholder', lang)}
