@@ -48,11 +48,15 @@ const INK_MUTED_ON_DARK = 'rgba(255, 255, 255, 0.62)';
  * showing through 62% white.
  *
  * The old page's trick of dropping a grey in for "quiet" does not survive that. Measured against
- * the worst case the glass can composite to — an Orange card directly behind it, `#FFC69E` — the
- * site's own muted grey STEEL_LIGHT lands at 3.24:1 and fails, and it still fails at every glass
- * opacity up to 0.86 (4.23:1). Quiet has to be made out of the ink that passes rather than out of
- * a lighter colour: OBSIDIAN at 0.68 measures 5.90:1 over that same worst case and 7.05:1 over
- * the plain ground, so the fine print is dimmed without ever going under the floor.
+ * the worst case the glass can composite to, the site's own muted grey STEEL_LIGHT failed at
+ * every glass opacity up to 0.86. Quiet has to be made out of the ink that passes rather than
+ * out of a lighter colour, and OBSIDIAN at 0.68 is that ink.
+ *
+ * The worst case itself moved when the accent stopped being orange. It used to be a bright
+ * Orange card compositing to `#FFC69E`; the cards are dark now, so 68% white over a lit card
+ * face resolves to `#C1C3C5` instead — a DARKER worst case, which costs some of the margin. Both
+ * still clear the floor and nothing here had to move: the muted ink goes 6.32:1 —> 5.43:1 and
+ * full-strength ink 15.23:1 —> 11.25:1, against 7.02:1 and 19.38:1 over the plain ground.
  */
 const INK_MUTED_ON_GLASS = 'rgba(8, 10, 13, 0.68)';
 

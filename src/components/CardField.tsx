@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import { ORANGE } from '../lib/homePalette';
+import { shadeColor } from '../lib/tone';
 import { attachWebGLContextRecovery } from '../lib/webglContextRecovery';
 
 /**
@@ -40,16 +42,30 @@ const TILE_H = 196;
 /**
  * The card's own colour, before the light touches it.
  *
- * The crest of Signal Orange (`shadeColor(ORANGE, 0.14)` — see `SIGNAL_TONES` in TileField.tsx),
- * matching the third pass: the ground behind these cards is WARM WHITE now (`.nq-coast`), and the
- * cards are this page's own version of the site's cube swell — the flat ground is white
- * everywhere, and the raised geometry standing on it carries the brand's Orange, here as much as
- * on every cube field elsewhere. A Lambert material multiplies its base by the light, so whatever
- * number goes in here comes out darker once lit; lit at the crest tone the cards land ABOVE the
- * crest and the shaded sides fall to about the trough, which is the same range the site's cube
- * field paints and the reason the two look related.
+ * The crest of the brand accent (`shadeColor(ORANGE, 0.14)` — the same step `SIGNAL_TONES` takes in
+ * TileField.tsx): the ground behind these cards is WARM WHITE (`.nq-coast`), and the cards are this
+ * page's version of the site's cube swell — flat white ground, and the raised geometry standing on
+ * it carrying the accent, here as much as on every cube field elsewhere.
+ *
+ * A Lambert material MULTIPLIES its base by the light rather than fading it, so the base has to sit
+ * above the colour you want to see. Lit at the crest, the face lands just under it and the shaded
+ * sides fall to about the trough — the same range the site's cube field paints, which is why the
+ * two read as the same object. With the accent at `#273036` that is a `#454D52` base, a `#3D4549`
+ * lit face and `#262A2D` sides, so the card's shadow side sits on the accent itself.
+ *
+ * ## This line was a literal until now, and it had missed two changes
+ *
+ * The sentence above has always described a derivation. The value underneath it was typed out as
+ * `#FF7F24`, which is `shadeColor('#FF6A00', 0.14)` — the crest of the ORIGINAL orange, from before
+ * it was lightened. So this canvas sat out both of the last two accent changes and was still
+ * painting the first identity while every other surface on the site had moved twice.
+ *
+ * Third instance of the same bug in three commits (the footer's `--ft-accent` as a channel triple,
+ * the print document's fallback, this): a comment describing a derivation with a hand-written
+ * constant beneath it. Derived now, so the next accent change carries it without anyone
+ * remembering that this file exists.
  */
-const CARD_TINT = '#FF7F24';
+const CARD_TINT = shadeColor(ORANGE, 0.14);
 
 /**
  * The diagonal, and the two small angles that make a flat grid look like objects.

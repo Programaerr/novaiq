@@ -944,10 +944,14 @@
 
    ## Why 0.62 and not the 0.15-0.30 the glassmorphism recipe asks for
 
-   Because text sits on this one. Measured against the worst case the panel can composite to —
-   an Orange card directly behind it — 68% white resolves to `#FFCFAD`, where OBSIDIAN measures
-   13.71:1 and the muted ink derived for it in LoginPage clears the 4.5 floor comfortably. At
-   the recipe's 0.30 the same panel lands on `#FFA85E`, and the fine print goes with it.
+   Because text sits on this one. Measured against the worst case the panel can composite to — a
+   card directly behind it — 68% white resolves to `#C1C3C5`, where OBSIDIAN measures 11.25:1 and
+   the muted ink derived for it in LoginPage clears the 4.5 floor at 5.43:1. At the recipe's 0.30
+   the same panel lands far darker still, and the fine print goes with it.
+
+   Those numbers are lower than the ones this note used to carry (13.71:1 and 6.32:1), and that
+   is not drift: the worst case behind the panel used to be a BRIGHT orange card and is now a
+   dark one, so the glass composites down instead of up. The opacity did not need to change.
 
    ## Why the blur is over the recipe's ceiling and the saturation under it
 
