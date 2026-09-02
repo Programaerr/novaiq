@@ -627,21 +627,62 @@ export function subscribeToMyContracts(
   }
 }
 
-// Delete Contract from Local Storage and Firestore completely
+/**
+ * حذف العقد — من الخادم أوّلاً، ثم من هذا المتصفح.
+ *
+ * ## العطل الذي كان هنا
+ *
+ * كان الترتيب معكوساً: يُسجَّل المُعرِّف في سجلّ "المحذوفات" المحلّي، ثم يُمسح من التخزين
+ * المحلّي، ثم — أخيراً — تُحاوَل الكتابة على Firestore داخل `try` لا يفعل عند الفشل سوى
+ * `console.warn`، ومعه `deleteDoc(...).catch(() => {})` يبتلع الخطأ حرفياً.
+ *
+ * فإذا رفض الخادم الحذف (القواعد غير منشورة، أو `isAdmin()` تُقيَّم false لأي سبب) كانت
+ * النتيجة أسوأ ما يمكن: **المستند باقٍ في Firestore، ومخفيّ عن الأدمن وحده.** لوحة التحكم
+ * تُصفّي بسجلّ المحذوفات المحلّي فتُظهر الحذف ناجحاً، بينما العقد ما زال في حساب العميل —
+ * وسجلّ المحذوفات يعيش في localStorage، أي في متصفّح الأدمن وحده ولا يصل إلى العميل أبداً.
+ *
+ * ## الترتيب الصحيح
+ *
+ * الخادم أوّلاً. إن فشل، يُرمى الخطأ ولا يُخفى شيء محلّياً — فيبقى العقد ظاهراً عندنا كما هو
+ * ظاهر عنده، وتظهر رسالة الفشل. الإخفاء المحلّي لا يقع إلا بعد نجاح الحذف فعلاً، وحينها هو
+ * مجرّد تسريع للواجهة قبل وصول لقطة Firestore التالية.
+ */
 export async function deleteContractFromFirebase(contractId?: string, contractNumber?: string): Promise<void> {
   const targetId = (contractId || '').trim();
   const targetNum = (contractNumber || '').trim();
 
-  // 1. Instantly record in deleted identifiers registry
+  /* عقد لم يصل الخادم أصلاً (مُعرِّف محلّي وبلا رقم يطابقه هناك): لا شيء يُحذف بعيداً، والحذف
+     المحلّي هو كلّ الحذف الممكن. */
+  const localOnly = targetId.startsWith('LOCAL_') && !targetNum;
+
+  if (!localOnly) {
+    // الحذف بالمُعرِّف حين يوجد، وبمسح المجموعة بحثاً عن الرقم حين لا يوجد — عقد يُعرَف
+    // برقمه وحده كان يُترك على الخادم بلا أي محاولة.
+    const contractsRef = collection(db, CONTRACTS_COLLECTION);
+    const snapshot = await getDocs(contractsRef);
+    const targets: string[] = [];
+    snapshot.forEach((docSnap) => {
+      const docId = docSnap.id;
+      const docNum = ((docSnap.data() as ContractData).contractNumber || '').trim();
+      const matches =
+        (targetId && (docId === targetId || docNum === targetId)) ||
+        (targetNum && (docNum === targetNum || docId === targetNum));
+      if (matches) targets.push(docId);
+    });
+
+    /* الرمي مقصود: لو ابتلعنا الخطأ هنا لعاد العطل نفسه — واجهة تقول "حُذف" وخادم لم يحذف.
+       موضع الاستدعاء يعرض الفشل، والعقد يبقى ظاهراً للطرفين. */
+    await Promise.all(targets.map((id) => deleteDoc(doc(db, CONTRACTS_COLLECTION, id))));
+  }
+
+  // نجح الحذف على الخادم (أو لم يكن هناك ما يُحذف): الآن يُخفى محلّياً.
   markAsDeleted(targetId, targetNum);
 
-  // 2. Instantly purge from LocalStorage
   try {
     const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-    const filtered = localContracts.filter(c => {
+    const filtered = localContracts.filter((c) => {
       const cId = (c.id || '').trim();
       const cNum = (c.contractNumber || '').trim();
-
       if (targetId && (cId === targetId || cNum === targetId)) return false;
       if (targetNum && (cNum === targetNum || cId === targetNum)) return false;
       return true;
@@ -651,33 +692,34 @@ export async function deleteContractFromFirebase(contractId?: string, contractNu
     console.warn('LocalStorage delete error:', e);
   }
 
-  // 3. Dispatch local update event immediately
   window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
-
-  // 4. Delete from Firestore asynchronously
-  try {
-    if (targetId && !targetId.startsWith('LOCAL_')) {
-      await deleteDoc(doc(db, CONTRACTS_COLLECTION, targetId)).catch(() => {});
-    }
-
-    const contractsRef = collection(db, CONTRACTS_COLLECTION);
-    const querySnapshot = await getDocs(contractsRef);
-    const deletePromises: Promise<void>[] = [];
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      const docId = docSnap.id;
-      const docNum = (data.contractNumber || '').trim();
-
-      if (
-        (targetId && (docId === targetId || docNum === targetId)) ||
-        (targetNum && (docNum === targetNum || docId === targetNum))
-      ) {
-        deletePromises.push(deleteDoc(doc(db, CONTRACTS_COLLECTION, docId)));
-      }
-    });
-    await Promise.all(deletePromises);
-  } catch (error) {
-    console.warn('Firestore delete warning:', error);
-  }
 }
+
+/**
+ * العقود الحيّة على الخادم والمخفيّة في هذا المتصفح وحده.
+ *
+ * هذه هي حصيلة العطل أعلاه: كل عقد سُجِّل في سجلّ المحذوفات المحلّي بينما فشل حذفه فعلياً.
+ * العميل ما زال يراه في حسابه، ونحن لا نراه إطلاقاً — فلا نعرف بوجوده لنحذفه من جديد.
+ * تقرأ Firestore مباشرة بلا تصفية بالسجلّ، وتُعيد ما يطابقه.
+ */
+export async function fetchSuppressedContracts(): Promise<ContractData[]> {
+  const deletedSet = getDeletedIdentifiers();
+  if (deletedSet.size === 0) return [];
+  const snapshot = await getDocs(collection(db, CONTRACTS_COLLECTION));
+  const found: ContractData[] = [];
+  snapshot.forEach((docSnap) => {
+    const data = { ...(docSnap.data() as ContractData), id: docSnap.id };
+    const cId = (data.id || '').trim();
+    const cNum = (data.contractNumber || '').trim();
+    if ((cId && deletedSet.has(cId)) || (cNum && deletedSet.has(cNum))) found.push(data);
+  });
+  return found;
+}
+
+/** يرفع الإخفاء المحلّي عن عقد، فيعود ظاهراً في لوحة التحكم كما هو ظاهر عند صاحبه. */
+export function restoreSuppressedContract(contractId?: string, contractNumber?: string): void {
+  unmarkDeleted(contractId, contractNumber);
+  window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
+}
+
 

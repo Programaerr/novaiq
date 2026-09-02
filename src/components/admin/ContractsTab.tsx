@@ -1,6 +1,6 @@
 // Contract administration: the searchable list, the per-contract editor row, and the
 // company-signature pad the admin signs with.
-import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef, useCallback} from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -17,11 +17,19 @@ import {
   Plus,
   X,
   IdCard,
+  AlertTriangle,
 } from 'lucide-react';
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { deleteContractFromFirebase, updateContractFields, fetchContractAudit, auth } from '../../lib/firebase';
+import {
+  deleteContractFromFirebase,
+  updateContractFields,
+  fetchContractAudit,
+  fetchSuppressedContracts,
+  restoreSuppressedContract,
+  auth,
+} from '../../lib/firebase';
 import { generateContractPDF } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { cosmicAudio } from '../../lib/audio';
@@ -64,6 +72,8 @@ export function ContractsTab({
 
   return (
     <div className="space-y-4">
+      <SuppressedContractsPanel isAr={isAr} language={language} />
+
       {/* شبكة الإحصاءات حُذفت من هنا: نفس الأرقام معروضة أصلاً في أعلى لوحة التحكم
           (تبويب النظرة العامة). عرضها مرّتين لا يضيف معلومة، ويضيف موضعاً ثانياً يجب أن يبقى
           متوافقاً مع الأوّل عند كل تغيير في طريقة الحساب. */}
@@ -405,8 +415,17 @@ function ContractRow({
     try {
       await deleteContractFromFirebase(contract.id, contract.contractNumber);
       showToast(isAr ? 'تم حذف العقد' : 'Contract deleted', 'success');
-    } catch {
-      showToast(isAr ? 'تعذر حذف العقد، حاول مجدداً' : 'Failed to delete the contract — please try again', 'error');
+    } catch (error) {
+      /* الرسالة تسمّي الخطأ لا تخفيه: أشهر أسباب الفشل هنا هو رفض القواعد (permission-denied)
+         حين لا تكون firestore.rules منشورة أو لا يُقيَّم الحساب أدمناً — ورسالة عامة كانت
+         تُقرأ كعُطل عابر يُعاد المحاولة بعده، فيُعاد إلى ما لا نهاية. */
+      const code = (error as { code?: string })?.code || '';
+      showToast(
+        isAr
+          ? `تعذر حذف العقد من الخادم${code ? ` (${code})` : ''} — العقد ما زال ظاهراً لدى العميل.`
+          : `The server refused to delete the contract${code ? ` (${code})` : ''} — it is still visible to the client.`,
+        'error',
+      );
     } finally {
       setIsDeleting(false);
     }
@@ -1046,6 +1065,104 @@ function ContractRow({
           onClose={() => setShowProfile(false)}
         />
       )}
+    </div>
+  );
+}
+
+/**
+ * عقود حيّة على الخادم ومخفيّة في هذا المتصفح وحده.
+ *
+ * حصيلة عطل قديم في ترتيب الحذف: كان المُعرِّف يُسجَّل في سجلّ المحذوفات المحلّي قبل محاولة
+ * الحذف على الخادم، والفشل يُبتلع بصمت. فيختفي العقد من لوحة التحكم ويبقى في حساب العميل —
+ * ولا يظهر في أي قائمة عندنا لنعرف بوجوده أصلاً.
+ *
+ * الترتيب صار صحيحاً (انظر deleteContractFromFirebase)، لكن ما وقع قبله لا يُصلح نفسه:
+ * السجلّ ما زال يحمل تلك المُعرِّفات. هذه اللوحة تُحضرها من Firestore متجاوزةً السجلّ، وتترك
+ * القرار: إظهاره من جديد، أو محاولة حذفه فعلاً هذه المرّة.
+ *
+ * لا تظهر إطلاقاً حين لا يوجد شيء — لوحة فارغة دائمة تعلّم القارئ تجاهل مكانها.
+ */
+function SuppressedContractsPanel({ isAr, language }: { isAr: boolean; language: Language }) {
+  const [items, setItems] = useState<ContractData[]>([]);
+  const [busy, setBusy] = useState('');
+
+  const reload = useCallback(() => {
+    fetchSuppressedContracts()
+      .then(setItems)
+      .catch(() => setItems([]));
+  }, []);
+
+  useEffect(reload, [reload]);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="p-3.5 rounded-2xl border" style={{ background: 'rgba(202,59,59,0.06)', borderColor: 'rgba(202,59,59,0.35)' }}>
+      <span className="flex items-center gap-2 text-xs font-bold" style={{ color: ERROR_ON_LIGHT }}>
+        <AlertTriangle className="w-4 h-4 shrink-0" />
+        {isAr
+          ? `${items.length} عقد مخفيّ عندك وما زال ظاهراً لدى صاحبه`
+          : `${items.length} contract(s) hidden here but still visible to their owner`}
+      </span>
+      <p className="text-[11px] text-ink/75 leading-relaxed mt-1.5">
+        {isAr
+          ? 'حُذفت من لوحتك ولم تُحذف من الخادم — الأرجح أن قواعد Firestore لم تكن منشورة وقت الحذف. أظهرها لتعود إلى القائمة، أو احذفها الآن حذفاً حقيقياً.'
+          : 'They were hidden in your panel but never deleted on the server — most likely the Firestore rules were unpublished at the time. Restore them to the list, or delete them for real now.'}
+      </p>
+
+      <ul className="mt-2.5 space-y-1.5">
+        {items.map((c) => (
+          <li
+            key={c.id || c.contractNumber}
+            className="flex items-center justify-between gap-2 flex-wrap p-2 rounded-xl bg-white/70 border border-ink/10"
+          >
+            <span className="min-w-0">
+              <strong className="text-xs text-ink block truncate">{translateText(c.companyName, language)}</strong>
+              <span className="text-[10px] text-ink/70 font-mono block truncate" dir="ltr">
+                {c.contractNumber}
+              </span>
+            </span>
+            <span className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  restoreSuppressedContract(c.id, c.contractNumber);
+                  reload();
+                }}
+                className="px-2.5 py-1.5 rounded-lg bg-white border border-ink/15 text-ink/80 hover:text-ink text-[11px] font-bold cursor-pointer"
+              >
+                {isAr ? 'إظهاره' : 'Restore'}
+              </button>
+              <button
+                type="button"
+                disabled={busy === (c.id || c.contractNumber)}
+                onClick={async () => {
+                  setBusy(c.id || c.contractNumber || '');
+                  try {
+                    await deleteContractFromFirebase(c.id, c.contractNumber);
+                    showToast(isAr ? 'حُذف العقد من الخادم' : 'Deleted on the server', 'success');
+                    reload();
+                  } catch (error) {
+                    const code = (error as { code?: string })?.code || '';
+                    showToast(
+                      isAr
+                        ? `ما زال الخادم يرفض الحذف${code ? ` (${code})` : ''} — انشر firestore.rules ثم أعد المحاولة.`
+                        : `The server still refuses${code ? ` (${code})` : ''} — publish firestore.rules and retry.`,
+                      'error',
+                    );
+                  } finally {
+                    setBusy('');
+                  }
+                }}
+                className="px-2.5 py-1.5 rounded-lg text-white text-[11px] font-bold cursor-pointer disabled:opacity-60"
+                style={{ background: ERROR_ON_LIGHT }}
+              >
+                {isAr ? 'حذف حقيقي' : 'Delete for real'}
+              </button>
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
