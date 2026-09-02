@@ -1082,11 +1082,14 @@
    reads `#202224`; WHITE text on it measures 15.96:1. Translucent-over-dark rather than
    translucent-over-light, so browsers that get the real blur see dark glass instead of light. */
 .nq-card-glass {
-  background: #202224;
+  /* SLATE (#273036) باختيار المالك، بدل مركّب Obsidian السابق (#202224).
+     والاحتياطي هنا هو ما يُركِّب إليه الزجاج فعلاً فوق أرضية القسم البيضاء عند 0.92 — لا
+     اللون الصافي: متصفّح بلا backdrop-filter يجب أن يرى نفس السطح لا سطحاً أغمق منه. */
+  background: #384045;
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nq-card-glass {
-    background: rgba(8, 10, 13, 0.88);
+    background: rgba(39, 48, 54, 0.92);
   }
 }
 

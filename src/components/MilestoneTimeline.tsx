@@ -134,7 +134,10 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
           <div
             className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/10 backdrop-blur-2xl"
             style={{
-              background: 'rgba(8, 10, 13, 0.9)',
+              /* نفس زجاج بطاقتَي القوالب: SLATE شفّافاً فوق أرضية القسم، مع الضبابية التي
+                 يحملها الصنف أعلاه (backdrop-blur-2xl) — فتُقرأ الثلاثة كسطح واحد في الموقع
+                 لا كثلاثة أسطح متقاربة. */
+              background: 'rgba(39, 48, 54, 0.92)',
               /* A clear drop shadow so the panel reads as floating above the cube field rather
                  than sitting flat on it — the field is busy, and without the shadow the two
                  planes fight for the same depth. */

@@ -37,6 +37,17 @@ export function loginWithGoogle() {
   });
 }
 
+/**
+ * هل توجد جلسة قائمة الآن؟
+ *
+ * تُقرأ لحظياً من الـSDK لا من اشتراك: يستعملها مراقب الإلغاء في شاشة الدخول ليفرّق بين
+ * "أُغلقت النافذة بلا دخول" و"نجح الدخول ولم تصل الإشارة بعد" — والفرق بينهما هو الفرق بين
+ * رسالة صحيحة ورسالة تكذّب ما حدث.
+ */
+export function hasActiveSession(): boolean {
+  return auth.currentUser !== null;
+}
+
 export function logoutAccount() {
   return signOut(auth);
 }
@@ -152,7 +163,7 @@ export function authErrorMessage(error: unknown, isAr: boolean): string {
   switch (code) {
     case 'auth/popup-closed-by-user':
     case 'auth/cancelled-popup-request':
-      return isAr ? 'تم إغلاق نافذة تسجيل الدخول قبل الإكمال' : 'The sign-in window was closed before finishing';
+      return isAr ? 'تم إلغاء تسجيل الدخول' : 'Sign-in was cancelled';
     case 'auth/popup-blocked':
       return isAr ? 'المتصفح منع النافذة المنبثقة، اسمح بها وحاول مجدداً' : 'Your browser blocked the popup — allow it and try again';
     case 'auth/too-many-requests':

@@ -421,8 +421,11 @@ export default function App() {
       console.error('Failed to save the contract:', e);
       showToast(
         isAr
-          ? 'تعذر حفظ العقد على الخادم — نسخة محفوظة على جهازك، ويمكنك تنزيل PDF الآن'
-          : 'Could not save the contract to the server — a copy is kept on this device and you can download a PDF now',
+          /* الجملة تغيّرت مع زوال التخزين المحلّي: كانت تَعِد بـ"نسخة محفوظة على جهازك"، ولم
+             تعد هناك نسخة. ووعدٌ كاذب هنا أسوأ من الفشل نفسه — من صدّقه يغلق الصفحة ويظنّ عقده
+             محفوظاً. ما يبقى فعلاً هو مسودّة النموذج، فيُقال ذلك بالضبط. */
+          ? 'تعذر حفظ العقد على الخادم. بياناتك ما زالت في النموذج — تحقّق من الإنترنت واضغط إتمام العقد مجدداً.'
+          : 'Could not save the contract to the server. Your details are still in the form — check your connection and press Complete again.',
         'error'
       );
     } finally {

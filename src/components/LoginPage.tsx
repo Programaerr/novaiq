@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { loginWithGoogle, authErrorMessage } from '../lib/auth';
+import { loginWithGoogle, authErrorMessage, hasActiveSession } from '../lib/auth';
 import { ERROR, OBSIDIAN, ORANGE, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { CardField } from './CardField';
 import { NuvaiqLogo } from './NuvaiqLogo';
@@ -99,18 +99,58 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  /* مؤقّت مراقب الإلغاء — يُلغى عند تفكيك الشاشة فلا يضبط حالة على مكوّن غادر. */
+  const cancelWatch = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(cancelWatch.current), []);
+
   const handleGoogleSignIn = async () => {
     if (isSubmitting) return;
     setError('');
     setIsSubmitting(true);
+
+    /* ── مراقب الإلغاء ──────────────────────────────────────────────────────────────────
+       العطل: إغلاق نافذة Google دون دخول كان يترك الزرّ يدور إلى الأبد.
+
+       والسبب ليس في هذا الملف: Firebase يكتشف إغلاق النافذة باستفتاء `popup.closed` كل بضع
+       ميلي‑ثانية (`pollUserCancellation`)، وصفحة حساب Google تحمل ترويسة
+       Cross-Origin-Opener-Policy خاصة بها تقطع صلة النافذة بفاتحها — فيُحجب ذلك الاستفتاء
+       ولا يعرف Firebase أن النافذة أُغلقت. فلا يرفض الوعد ولا يُنجزه: يبقى معلّقاً، ومعه
+       `finally` الذي كان سيوقف الدوران. (هذا ما ظهر في الكونسول:
+       "Cross-Origin-Opener-Policy policy would block the window.closed call".)
+
+       ولأن الاعتماد على الطرف الآخر ليخبرنا فشل، نراقب ما نملكه نحن: عودة التركيز إلى
+       نافذتنا. من أغلق نافذة Google يعود إلينا فوراً.
+
+       والمهلة قبل الحكم ليست تجميلاً: الدخول الناجح يعيد التركيز أيضاً، وإشارة الجلسة تصل
+       بعده بلحظة. فنمهل ثم نسأل `hasActiveSession()` — فإن وُجدت جلسة فقد نجح الدخول ولا
+       شيء يُقال، وإن لم توجد فقد أُلغي فعلاً. */
+    const watchFocus = () => {
+      window.clearTimeout(cancelWatch.current);
+      cancelWatch.current = window.setTimeout(() => {
+        if (hasActiveSession()) return;
+        setIsSubmitting(false);
+        setError(isAr ? 'تم إلغاء تسجيل الدخول' : 'Sign-in was cancelled');
+      }, 1500);
+    };
+    window.addEventListener('focus', watchFocus, { once: true });
+
+    const stopWatching = () => {
+      window.removeEventListener('focus', watchFocus);
+      window.clearTimeout(cancelWatch.current);
+    };
+
     try {
       await loginWithGoogle();
       // The auth subscription upstream picks up the new session and routes away from here.
+      stopWatching();
     } catch (err) {
+      stopWatching();
       setError(authErrorMessage(err, isAr));
-    } finally {
       setIsSubmitting(false);
     }
+    /* لا `finally` هنا عمداً: الوعد قد لا يُحسم إطلاقاً (وهو أصل العطل)، ونجاح الدخول يغادر
+       هذه الشاشة أصلاً. إيقاف الدوران مسؤولية المسارين اللذين يقعان فعلاً: الفشل أعلاه،
+       والإلغاء في المراقب. */
   };
 
   const perks = [

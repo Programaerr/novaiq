@@ -12,7 +12,8 @@ import {
   serverTimestamp,
   deleteField,
   query,
-  where
+  where,
+  getDoc,
 } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
 import firebaseConfig from '../../firebase-applet-config.json';
@@ -36,29 +37,32 @@ export const auth: Auth = getAuth(app);
    القديم قبل NUVAIQ، ومخالفة لكل مفاتيح التطبيق الأخرى ('nuvaiq_…'). الاسم الجديد هو
    المستعمل، والقديم يُقرأ مرة واحدة عند أول تشغيل وتُنقل بياناته إليه (migrateLegacyKeys
    أدناه) حتى لا يفقد أحد عقوداً محفوظة على جهازه أثناء مزامنة فاشلة. */
-const LOCAL_CONTRACTS_KEY = 'nuvaiq_contracts';
+/* ── لا عقد يُخزَّن في المتصفح ───────────────────────────────────────────────────────────
+   كان لكل عقد نسخة في localStorage: تُكتب عند الإنشاء، وتُدمج مع لقطة Firestore عند العرض،
+   ومعها سجلّ "محذوفات" ثانٍ يخفي ما حُذف. الفكرة كانت شبكة أمان لحفظة فاشلة، والثمن أكبر
+   منها بكثير:
 
-/** النسخة المحلّية من العقد، ومعها لحظة وصولها إلى الخادم إن وصلت. الحقل محلّي بحت ولا
- *  يُكتب في Firestore — انظر استعماله في saveContractToFirebase والاشتراكين أدناه. */
-type LocalContract = ContractData & { syncedAt?: string };
-const LOCAL_DELETED_KEY = 'nuvaiq_deleted_contracts';
-const LOCAL_UPDATED_EVENT = 'nuvaiq_contracts_updated';
+   · العقد يبقى على الجهاز بعد حذفه من الخادم — بيانات عميل حقيقية في متصفّح قد يشاركه غيره،
+     وبلا أي أثر في قاعدة البيانات يقول إنها هناك.
+   · وسجلّ المحذوفات محلّي أيضاً، فحذفٌ يقع في متصفّح الأدمن لا يصل إلى العميل أبداً.
+   · وكل شاشة صارت تدمج مصدرين قد يتناقضان، والتوفيق بينهما منطق إضافي يُخطئ.
 
-(function migrateLegacyKeys() {
+   المصدر الآن واحد: Firestore. الحذف يقع هناك وينتشر لحظياً عبر `onSnapshot` إلى كل جهاز
+   مفتوح، بلا نسخة ثانية تقاومه.
+
+   وما يبقى محلّياً هو **مسودّة النموذج** وحدها (lib/contractDraft.ts): نصّ لم يُوقَّع بعد،
+   يخصّ كاتبه، ويُمسح لحظة نجاح الحفظ. */
+
+/* تنظيف لمرّة واحدة على كل جهاز.
+   إزالة الكتابة لا تمسح ما كُتب من قبل: العقود المخزَّنة سابقاً تبقى في متصفّح كل من زار
+   الموقع حتى تُمسح صراحةً. هذه تمسحها عند أوّل تحميل بعد هذا التحديث. */
+(function purgeStoredContracts() {
   try {
-    const pairs: [string, string][] = [
-      ['novaq_contracts', LOCAL_CONTRACTS_KEY],
-      ['novaq_deleted_contracts', LOCAL_DELETED_KEY],
-    ];
-    for (const [oldKey, newKey] of pairs) {
-      const legacy = localStorage.getItem(oldKey);
-      if (legacy !== null && localStorage.getItem(newKey) === null) {
-        localStorage.setItem(newKey, legacy);
-      }
-      if (legacy !== null) localStorage.removeItem(oldKey);
+    for (const key of ['nuvaiq_contracts', 'nuvaiq_deleted_contracts', 'novaq_contracts', 'novaq_deleted_contracts']) {
+      localStorage.removeItem(key);
     }
   } catch {
-    // تخزين غير متاح — لا شيء لتُرحّله، والتطبيق يعمل من Firestore على أي حال.
+    // تخزين غير متاح — لا شيء يُمسح، والتطبيق يعمل من Firestore على أي حال.
   }
 })();
 
@@ -70,142 +74,36 @@ const CONTRACT_AUDIT_COLLECTION = 'contract_audit';
 
 // Helper to track deleted identifiers so Firestore snapshot listeners never resurrect deleted contracts
 /**
- * يوفّق النسخ المحلّية مع لقطة الخادم.
+ * حفظ العقد في Firestore.
  *
- * يعيد ما يستحق العرض من المحلّي فقط — أي ما لم يصل الخادم بعد — ويمسح من التخزين كل نسخة
- * سبق أن وصلته ثم غابت عن لقطته: غيابها بعد وصولها يعني حذفاً وقع هناك، وإعادة إظهارها هي
- * بالضبط ما كان يُبقي عقداً محذوفاً في حساب صاحبه إلى الأبد.
+ * `contractNumber` هو مُعرِّف المستند — لا `addDoc` ولا فحص "هل هو موجود؟" قبل الكتابة. ذلك
+ * الفحص كان يتسابق مع نفسه: حفظتان متقاربتان لنفس العقد تسألان كلتاهما قبل أن تصل أي كتابة،
+ * فتستنتجان "غير موجود" وتُنشئان مستندين. الكتابة على مُعرِّف حتمي تجعل الحفظ فكرة واحدة مهما
+ * تكرّر النداء.
+ *
+ * ولا نسخة محلّية: الفشل يُرمى ويُقال للمستخدم (App.handleContractGenerated)، وما كتبه محفوظ
+ * في المسودّة حتى ينجح الحفظ فعلاً.
  */
-function reconcileLocalWithCloud(cloudNumbers: Set<string>): ContractData[] {
-  try {
-    const local: LocalContract[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-    const keep: LocalContract[] = [];
-    const pending: LocalContract[] = [];
-    for (const item of local) {
-      const num = (item.contractNumber || '').trim();
-      if (cloudNumbers.has(num)) {
-        keep.push(item); // موجود على الخادم: تبقى النسخة المحلّية كنسخة احتياطية بلا عرض مستقل.
-      } else if (item.syncedAt) {
-        // وصل الخادم ثم غاب عنه = حُذف هناك. لا يُحفظ ولا يُعرض.
-      } else {
-        keep.push(item);
-        pending.push(item); // لم يصل بعد: يستحق الظهور حتى تنجح المزامنة.
-      }
-    }
-    if (keep.length !== local.length) {
-      localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(keep));
-    }
-    return pending;
-  } catch {
-    return [];
-  }
-}
-
-function getDeletedIdentifiers(): Set<string> {
-  try {
-    const list: string[] = JSON.parse(localStorage.getItem(LOCAL_DELETED_KEY) || '[]');
-    return new Set(list.map(s => s.trim()).filter(Boolean));
-  } catch {
-    return new Set();
-  }
-}
-
-function markAsDeleted(id?: string, contractNumber?: string) {
-  try {
-    const current = Array.from(getDeletedIdentifiers());
-    if (id && id.trim()) current.push(id.trim());
-    if (contractNumber && contractNumber.trim()) current.push(contractNumber.trim());
-    localStorage.setItem(LOCAL_DELETED_KEY, JSON.stringify(current));
-  } catch (e) {
-    console.warn('Error saving deleted identifiers:', e);
-  }
-}
-
-function unmarkDeleted(id?: string, contractNumber?: string) {
-  try {
-    const deleted = getDeletedIdentifiers();
-    if (id) deleted.delete(id.trim());
-    if (contractNumber) deleted.delete(contractNumber.trim());
-    localStorage.setItem(LOCAL_DELETED_KEY, JSON.stringify(Array.from(deleted)));
-  } catch (e) {
-    console.warn('Error unmarking deleted identifier:', e);
-  }
-}
-
-// Save Contract to Firebase Firestore & Local Storage with deduplication
 export async function saveContractToFirebase(contract: ContractData): Promise<string> {
   const contractNum = (contract.contractNumber || '').trim();
-  unmarkDeleted(contract.id, contractNum);
+  const { id: _dropped, ...cleanContract } = contract;
+  const docRef = doc(db, CONTRACTS_COLLECTION, contractNum || `NVQ-${Date.now()}`);
 
-  // 1. Instant local persistence guarantee
-  try {
-    const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-    const existingIndex = localContracts.findIndex((c) => (c.contractNumber || '').trim() === contractNum);
-    if (existingIndex >= 0) {
-      localContracts[existingIndex] = { ...localContracts[existingIndex], ...contract };
-    } else {
-      localContracts.unshift(contract);
-    }
-    localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(localContracts));
-    window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
-  } catch (e) {
-    console.warn('LocalStorage save error:', e);
-  }
+  /* تنظيف `undefined`: حقل واحد present-but-undefined يجعل Firestore يرفض المستند كلّه.
+     و`serverTimestamp()` كائن إشارة لا `undefined`، فينجو من المرشّح. */
+  const docData = Object.fromEntries(
+    Object.entries({
+      ...cleanContract,
+      createdAt: contract.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      serverCreatedAt: serverTimestamp(),
+    }).filter(([, value]) => value !== undefined)
+  );
 
-  // 2. Cloud Firestore sync — contractNumber IS the document ID (instead of querying every
-  // existing doc to decide addDoc-vs-updateDoc). That check-then-act pattern raced: two
-  // near-simultaneous saves for the same contract (e.g. React StrictMode deliberately
-  // double-invoking the auto-save effect in dev) could both run their "does this exist?"
-  // query before either write landed, so both concluded "no" and both created a document —
-  // the exact duplicate-contract bug this was rewritten to fix. Writing straight to a
-  // deterministic doc ID makes the save idempotent no matter how many times it's called.
-  try {
-    const { id, ...cleanContract } = contract;
-    const docId = contractNum || `LOCAL_${Date.now()}`;
-    const docRef = doc(db, CONTRACTS_COLLECTION, docId);
-
-    // Same undefined-stripping as updateContractFields, for the same reason: ContractData has
-    // a dozen optional fields, and a single one of them present-but-undefined makes Firestore
-    // reject the entire contract. `serverTimestamp()` is a sentinel object, not undefined, so
-    // it survives this untouched.
-    const docData = Object.fromEntries(
-      Object.entries({
-        ...cleanContract,
-        createdAt: contract.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        serverCreatedAt: serverTimestamp(),
-      }).filter(([, value]) => value !== undefined)
-    );
-
-    await setDoc(docRef, docData, { merge: true });
-
-    // Update local storage item with the Firestore ID
-    try {
-      const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-      const idx = localContracts.findIndex(c => (c.contractNumber || '').trim() === contractNum);
-      if (idx >= 0) {
-        localContracts[idx].id = docRef.id;
-        /* علامة "هذه النسخة وصلت الخادم".
-           بدونها لا تفرّق الواجهة بين عقد لم يصل السحابة بعد وعقد **حُذف منها** — وكلاهما
-           "محلّي وغير موجود في اللقطة". وهذا هو سبب بقاء العقد ظاهراً عند العميل بعد حذفه:
-           نسخته المحلّية كانت تُقرأ كعقد ينتظر المزامنة، فتُعاد إظهاره إلى الأبد. */
-        (localContracts[idx] as LocalContract).syncedAt = new Date().toISOString();
-        localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(localContracts));
-      }
-    } catch (err) {
-      console.warn('Local storage id sync error:', err);
-    }
-
-    return docRef.id;
-  } catch (error) {
-    console.warn('Firestore sync operating in offline mode (local data preserved):', error);
-    return contract.id || `LOCAL_${Date.now()}`;
-  }
+  await setDoc(docRef, docData, { merge: true });
+  return docRef.id;
 }
 
-// Admin-only in practice: any caller can invoke this client-side, but it only ever runs
-// from the admin dashboard, which is gated behind Firebase Auth login. Covers status
-// changes and the post-negotiation edits (final agreed price, admin notes) in one call.
 export async function updateContractFields(
   contract: Pick<ContractData, 'id' | 'contractNumber' | 'developmentStartedAt'>,
   fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'companySignatureInk' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned' | 'previewUrl' | 'deliveryTimelineWeeks' | 'deliveryTimelineText' | 'paymentPlan' | 'cancellationRequestedAt' | 'cancellationReason' | 'snapshotHash' | 'snapshotAt'>>
@@ -270,14 +168,14 @@ export async function updateContractFields(
      `costIQD` داخل العقد كان مقروءاً لكل عميل مهما أخفته الواجهة، أي أن كل زبون يعرف تكلفتنا
      وهامش ربحنا من مشروعه. تُكتب هنا في مجموعة أدمن-فقط، ويُمحى الحقل القديم من مستند العقد
      في نفس الحفظة (deleteField) فتُرحَّل العقود السابقة تلقائياً أول مرة تُعدَّل. */
-  /* الحالة "قبل" تُقرأ من النسخة المحلية التي تحملها اللوحة أصلاً (نفس المصدر الذي يعرض
-     الأرقام على الشاشة)، لا بقراءة إضافية من Firestore: قراءة ثانية لكل حفظة تكلفة بلا مقابل،
-     والفارق الوحيد حالة نادرة يكون فيها زميل قد عدّل العقد في نفس اللحظة — وحتى عندها يبقى
-     السطر صحيحاً في "إلى ماذا" وقد يخطئ في "من ماذا" فقط. */
+  /* الحالة "قبل" تُقرأ من الخادم.
+     كانت تُقرأ من النسخة المحلّية توفيراً لقراءة، ومع زوال التخزين المحلّي لم يعد ذلك ممكناً —
+     وهو الأصحّ على أي حال: نسخة محلّية قد تكون قديمة، وسجلّ حركات يقول "من ماذا" خطأً هو سجلّ
+     لا يُوثق به. قراءة واحدة عند كل حفظة أدمن ثمن مقبول لسطر صحيح. */
   let previousState: ContractData | undefined;
   try {
-    const local: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-    previousState = local.find((c) => (c.contractNumber || '').trim() === docId);
+    const before = await getDoc(doc(db, CONTRACTS_COLLECTION, docId));
+    previousState = before.exists() ? ({ ...(before.data() as ContractData), id: before.id }) : undefined;
   } catch {
     previousState = undefined;
   }
@@ -309,64 +207,27 @@ export async function updateContractFields(
   // بعد نجاح الكتابة لا قبلها: سجل يقول "غُيّر السعر" عن تعديل فشل هو تزوير للسجل لا حماية له.
   await writeAuditEntry(previousState, { ...fields }, docId);
 
-  // Keep the local cache in sync so the admin list doesn't flash back to the old value
-  // before Firestore's onSnapshot round-trip completes. Matched on either identifier, for the
-  // same reason the document is: the two are not always the same string.
-  try {
-    const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-    const idx = localContracts.findIndex(
-      (c) =>
-        (contract.id && c.id === contract.id) ||
-        (contract.contractNumber && (c.contractNumber || '').trim() === contract.contractNumber.trim())
-    );
-    if (idx >= 0) {
-      localContracts[idx] = { ...localContracts[idx], ...updatePayload };
-      localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(localContracts));
-      // Tells subscribeToContracts' local-update listener to re-read, so an edit made while
-      // the cloud is unreachable still shows up in the list instead of appearing to do nothing.
-      window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
-    }
-  } catch {
-    // non-critical
-  }
+  /* لا مرآة محلّية تُحدَّث بعد الكتابة.
+     كانت موجودة لتفادي "وميض" يعود فيه الرقم القديم قبل وصول لقطة Firestore. اللقطة تصل في
+     أجزاء من الثانية، وثمن ذلك الوميض المحتمل أرخص بكثير من نسخة ثانية للعقد تعيش على القرص
+     وتناقض الخادم عند أول حذف. */
 }
 
 // Fetch all Contracts from Firestore with local fallback & deletion filtering
+/** كل العقود، من Firestore وحده. لا مصدر ثانٍ يُدمج معه ولا سجلّ محذوفات يُصفّى به. */
 export async function fetchContractsFromFirebase(): Promise<ContractData[]> {
-  const deletedSet = getDeletedIdentifiers();
-  const filterDeleted = (list: ContractData[]) => list.filter(c => {
-    const cId = (c.id || '').trim();
-    const cNum = (c.contractNumber || '').trim();
-    return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
+  const snapshot = await getDocs(collection(db, CONTRACTS_COLLECTION));
+  const contracts: ContractData[] = [];
+  snapshot.forEach((docSnap) => {
+    contracts.push({ ...(docSnap.data() as ContractData), id: docSnap.id });
   });
-
-  const localContracts: ContractData[] = filterDeleted(JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]'));
-  try {
-    const contractsRef = collection(db, CONTRACTS_COLLECTION);
-    const querySnapshot = await getDocs(contractsRef);
-    let contracts: ContractData[] = [];
-    querySnapshot.forEach((docSnap) => {
-      contracts.push({ ...docSnap.data(), id: docSnap.id } as ContractData);
-    });
-    
-    contracts = filterDeleted(contracts);
-    contracts.sort((a, b) => {
-      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return dateB - dateA;
-    });
-    
-    const cloudNumbers = new Set(contracts.map(c => (c.contractNumber || '').trim()));
-    const pendingLocal = localContracts.filter(c => !cloudNumbers.has((c.contractNumber || '').trim()));
-    
-    return filterDeleted([...contracts, ...pendingLocal]);
-  } catch (error) {
-    console.warn('Firestore fetch notice (using local storage fallback):', error);
-    return localContracts;
-  }
+  contracts.sort(
+    (a, b) =>
+      (b.createdAt ? new Date(b.createdAt).getTime() : 0) - (a.createdAt ? new Date(a.createdAt).getTime() : 0)
+  );
+  return contracts;
 }
 
-// Real-time listener for Contracts with silent offline fallback
 /**
  * تكاليف العقود، مفتاحها رقم العقد. للأدمن وحده (القاعدة ترفض غيره)، ويُدمج ناتجها في قائمة
  * العقود داخل لوحة التحكم فقط — فيبقى كل قارئ لاحق يقرأ `contract.costIQD` كما كان.
@@ -470,17 +331,8 @@ export async function requestContractCancellation(
   // الموجود (diff) — وهي مقارنة لا معنى لها لو أنشأت هذه الدالة مستنداً جديداً.
   await updateDoc(doc(db, CONTRACTS_COLLECTION, docId), payload);
 
-  try {
-    const local: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-    const idx = local.findIndex((c) => (c.contractNumber || '').trim() === docId);
-    if (idx >= 0) {
-      local[idx] = { ...local[idx], ...(payload as Partial<ContractData>) };
-      localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(local));
-      window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
-    }
-  } catch {
-    // النسخة المحلية مرآة لا مصدر — فشلها لا يبطل طلباً وصل إلى Firestore.
-  }
+  /* الطلب وصل إلى Firestore، واللقطة تنشره إلى شاشة العميل وشاشتنا معاً. لا نسخة محلّية
+     تُحدَّث بعده — وجودها كان يعني عقداً على القرص يقول شيئاً والخادم يقول غيره. */
 }
 
 export function subscribeToContractCosts(callback: (costs: Record<string, number>) => void) {
@@ -505,94 +357,49 @@ export function subscribeToContractCosts(callback: (costs: Record<string, number
   }
 }
 
+/**
+ * كل العقود، لحظياً. للوحة التحكّم.
+ *
+ * مصدر واحد: لقطة Firestore. لا دمج مع تخزين محلّي ولا تصفية بسجلّ محذوفات — وهو ما يجعل
+ * الحذف ينتشر فوراً إلى كل جهاز مفتوح بدل أن تقاومه نسخة على القرص.
+ */
 export function subscribeToContracts(callback: (contracts: ContractData[]) => void) {
-  const getLocalData = (): ContractData[] => {
-    try {
-      const deletedSet = getDeletedIdentifiers();
-      const list: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-      return list.filter(c => {
-        const cId = (c.id || '').trim();
-        const cNum = (c.contractNumber || '').trim();
-        return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
-      });
-    } catch {
-      return [];
-    }
-  };
-
-  const notify = (contracts: ContractData[]) => {
-    const deletedSet = getDeletedIdentifiers();
-    const clean = contracts.filter(c => {
-      const cId = (c.id || '').trim();
-      const cNum = (c.contractNumber || '').trim();
-      return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
-    });
-    callback(clean);
-  };
-
-  // Event listener for local updates
-  const handleLocalUpdate = () => {
-    fetchContractsFromFirebase().then(notify).catch(() => notify(getLocalData()));
-  };
-  window.addEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
-
   try {
-    const contractsRef = collection(db, CONTRACTS_COLLECTION);
-    let unsubscribeSnapshot: (() => void) | null = null;
-    
-    unsubscribeSnapshot = onSnapshot(
-      contractsRef, 
+    return onSnapshot(
+      collection(db, CONTRACTS_COLLECTION),
       (snapshot) => {
-        try {
-          const contracts: ContractData[] = [];
-          snapshot.forEach((docSnap) => {
-            contracts.push({ ...docSnap.data(), id: docSnap.id } as ContractData);
-          });
-          
-          contracts.sort((a, b) => {
-            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            return dateB - dateA;
-          });
-
-          const cloudNumbers = new Set(contracts.map(c => (c.contractNumber || '').trim()));
-          /* نفس التوفيق الذي يجري في اشتراك العميل: نسخة محلّية وصلت الخادم ثم غابت عنه
-             محذوفة، لا "بانتظار المزامنة" — وإعادة إظهارها كانت تعيد عقوداً محذوفة. */
-          const pendingLocal = reconcileLocalWithCloud(cloudNumbers);
-          notify([...contracts, ...pendingLocal]);
-        } catch {
-          notify(getLocalData());
-        }
-      }, 
-      (_err) => {
-        console.warn('Firestore snapshot notice (falling back to local data):', _err?.message || 'Offline/Rate limit');
-        notify(getLocalData());
+        const contracts: ContractData[] = [];
+        snapshot.forEach((docSnap) => {
+          contracts.push({ ...(docSnap.data() as ContractData), id: docSnap.id });
+        });
+        contracts.sort(
+          (x, y) =>
+            (y.createdAt ? new Date(y.createdAt).getTime() : 0) -
+            (x.createdAt ? new Date(x.createdAt).getTime() : 0)
+        );
+        callback(contracts);
+      },
+      (error) => {
+        /* لا قائمة بديلة عند الفشل: قائمة قديمة معروضة كأنها حيّة أسوأ من قائمة فارغة —
+           الأدمن يتّخذ قرارات على ما يراه. */
+        console.error('Contracts snapshot failed:', error);
+        callback([]);
       }
     );
-
-    return () => {
-      window.removeEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-      }
-    };
-  } catch (_error) {
-    notify(getLocalData());
-    return () => {
-      window.removeEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
-    };
+  } catch {
+    return () => undefined;
   }
 }
 
-// Real-time listener for a single customer's own contracts.
-//
-// This is a SEPARATE subscription from subscribeToContracts (which reads every contract) for a
-// reason the admin and customer views share nothing on: the Firestore rules only let a customer
-// read documents they own (`ownsContract()` — see firestore.rules), and a collection query with
-// no filter is rejected by those rules even when the client would only ever display their own.
-// A `where('uid', '==', uid)` query is exactly the shape the rules accept, so the customer sees
-// real-time updates (status, NUVAIQ's signature, admin notes) the moment the admin saves them —
-// the same live subscription the admin dashboard uses, scoped to their own documents.
+/**
+ * عقود صاحب الحساب وحده، لحظياً.
+ *
+ * الاستعلام بـ`uid` حين يوجد؛ والبريد احتياط لعقد أقدم من وجود ذلك الحقل — نفس منطق الملكية
+ * في firestore.rules، فما ترفضه القاعدة لا تعرضه الواجهة.
+ *
+ * ولا نسخة محلّية تُدمج: كانت تُعيد إظهار عقد حُذف من الخادم إلى الأبد، لأن "محلّي وغير موجود
+ * في اللقطة" كان يُقرأ كـ"لم يصل السحابة بعد" لا كـ"حُذف".
+ */
 export function subscribeToMyContracts(
   uid: string | undefined,
   email: string | undefined,
@@ -606,66 +413,30 @@ export function subscribeToMyContracts(
     return !!accountEmail && !!cEmail && cEmail === accountEmail;
   };
 
-  const notify = (contracts: ContractData[]) => {
-    const deletedSet = getDeletedIdentifiers();
-    const clean = contracts.filter((c) => {
-      const cId = (c.id || '').trim();
-      const cNum = (c.contractNumber || '').trim();
-      const notDeleted = (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
-      return notDeleted && owns(c);
-    });
-    callback(clean);
-  };
-
   try {
     const contractsRef = collection(db, CONTRACTS_COLLECTION);
     const q = uid ? query(contractsRef, where('uid', '==', uid)) : contractsRef;
 
-    // Local storage carry-over: contracts saved while the cloud sync failed live here, and a
-    // customer should still see the contract they just created even if it has not reached
-    // Firestore yet. Merged under the snapshot, deduplicated by contractNumber.
-    const getLocalData = (): ContractData[] => {
-      try {
-        const deletedSet = getDeletedIdentifiers();
-        return (JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]') as ContractData[]).filter((c) => {
-          const cId = (c.id || '').trim();
-          const cNum = (c.contractNumber || '').trim();
-          return (!cId || !deletedSet.has(cId)) && (!cNum || !deletedSet.has(cNum));
-        });
-      } catch {
-        return [];
-      }
-    };
-
-    const handleLocalUpdate = () => {
-      notify(getLocalData());
-    };
-    window.addEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
-
-    const unsubscribeSnapshot = onSnapshot(
+    return onSnapshot(
       q,
       (snapshot) => {
         const contracts: ContractData[] = [];
         snapshot.forEach((docSnap) => {
-          contracts.push({ ...docSnap.data(), id: docSnap.id } as ContractData);
+          contracts.push({ ...(docSnap.data() as ContractData), id: docSnap.id });
         });
-        contracts.sort((a, b) => (b.createdAt ? new Date(b.createdAt).getTime() : 0) - (a.createdAt ? new Date(a.createdAt).getTime() : 0));
-        const cloudNumbers = new Set(contracts.map((c) => (c.contractNumber || '').trim()));
-        /* المحلّي لا يُعيد إحياء ما حُذف: `reconcileLocalWithCloud` تُعيد ما لم يصل الخادم
-           بعد فقط، وتمسح من التخزين كل نسخة وصلته ثم غابت عنه. */
-        notify([...contracts, ...reconcileLocalWithCloud(cloudNumbers)]);
+        contracts.sort(
+          (x, y) =>
+            (y.createdAt ? new Date(y.createdAt).getTime() : 0) -
+            (x.createdAt ? new Date(x.createdAt).getTime() : 0)
+        );
+        callback(contracts.filter(owns));
       },
-      (_err) => {
-        console.warn('Customer contract snapshot notice (falling back to local data):', _err?.message || 'Offline/Rate limit');
-        notify(getLocalData());
+      (error) => {
+        console.error('Customer contracts snapshot failed:', error);
+        callback([]);
       }
     );
-
-    return () => {
-      window.removeEventListener(LOCAL_UPDATED_EVENT, handleLocalUpdate);
-      unsubscribeSnapshot();
-    };
-  } catch (_error) {
+  } catch {
     return () => undefined;
   }
 }
@@ -733,51 +504,11 @@ export async function deleteContractFromFirebase(contractId?: string, contractNu
     }
   }
 
-  // نجح الحذف على الخادم (أو لم يكن هناك ما يُحذف): الآن يُخفى محلّياً.
-  markAsDeleted(targetId, targetNum);
-
-  try {
-    const localContracts: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
-    const filtered = localContracts.filter((c) => {
-      const cId = (c.id || '').trim();
-      const cNum = (c.contractNumber || '').trim();
-      if (targetId && (cId === targetId || cNum === targetId)) return false;
-      if (targetNum && (cNum === targetNum || cId === targetNum)) return false;
-      return true;
-    });
-    localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(filtered));
-  } catch (e) {
-    console.warn('LocalStorage delete error:', e);
-  }
-
-  window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
+  /* لا شيء يُفعَل محلّياً بعد النجاح: لا نسخة تُمسح ولا مُعرِّف يُسجَّل في سجلّ محذوفات.
+     لقطة Firestore تُسقط العقد من كل جهاز مفتوح خلال أجزاء من الثانية، وهي المصدر الوحيد —
+     ولهذا صار الحذف نهائياً فعلاً بدل أن يبقى محلّياً عند صاحبه. */
 }
 
-/**
- * العقود الحيّة على الخادم والمخفيّة في هذا المتصفح وحده.
- *
- * هذه هي حصيلة العطل أعلاه: كل عقد سُجِّل في سجلّ المحذوفات المحلّي بينما فشل حذفه فعلياً.
- * العميل ما زال يراه في حسابه، ونحن لا نراه إطلاقاً — فلا نعرف بوجوده لنحذفه من جديد.
- * تقرأ Firestore مباشرة بلا تصفية بالسجلّ، وتُعيد ما يطابقه.
- */
-export async function fetchSuppressedContracts(): Promise<ContractData[]> {
-  const deletedSet = getDeletedIdentifiers();
-  if (deletedSet.size === 0) return [];
-  const snapshot = await getDocs(collection(db, CONTRACTS_COLLECTION));
-  const found: ContractData[] = [];
-  snapshot.forEach((docSnap) => {
-    const data = { ...(docSnap.data() as ContractData), id: docSnap.id };
-    const cId = (data.id || '').trim();
-    const cNum = (data.contractNumber || '').trim();
-    if ((cId && deletedSet.has(cId)) || (cNum && deletedSet.has(cNum))) found.push(data);
-  });
-  return found;
-}
-
-/** يرفع الإخفاء المحلّي عن عقد، فيعود ظاهراً في لوحة التحكم كما هو ظاهر عند صاحبه. */
-export function restoreSuppressedContract(contractId?: string, contractNumber?: string): void {
-  unmarkDeleted(contractId, contractNumber);
-  window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
-}
-
-
+/* دالّتا `fetchSuppressedContracts` و`restoreSuppressedContract` حُذفتا مع سجلّ المحذوفات.
+   وُجدتا لعلاج أثره: عقود أُخفيت محلّياً ولم تُحذف من الخادم. ومع زوال السجلّ لا يمكن أن
+   تنشأ تلك الحالة أصلاً — ودالّة تُصلح عطلاً مستحيلاً هي كود ميت يُقرأ كميزة. */

@@ -3,9 +3,25 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+  const isProd = mode === 'production';
+
   return {
     plugins: [react(), tailwindcss()],
+
+    /* ── الكونسول فارغ في الإنتاج ────────────────────────────────────────────────────────
+       `drop` يحذف كل استدعاءات `console.*` و`debugger` من الحزمة عند البناء — لا يُسكتها في
+       وقت التشغيل بل يمسحها من الكود نفسه، فلا تصل إلى المتصفح أصلاً ولا يمكن إعادة تفعيلها
+       من طرف الزائر.
+
+       وهذا أمان قبل أن يكون نظافة: 35 استدعاء console في هذا المستودع، وبعضها يطبع نصّ
+       الأخطاء القادمة من Firestore — رموز القواعد، أسماء المجموعات، وأحياناً مُعرِّفات
+       مستندات. من يفتح الكونسول على موقع منشور يقرأ خريطة داخلية مجّانية عن مكان البيانات
+       وكيف تُرفض. أمّا في التطوير فتبقى كاملة، فالتشخيص هناك مطلوب. */
+    esbuild: {
+      drop: isProd ? (['console', 'debugger'] as const) : [],
+    },
+
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
@@ -66,8 +82,29 @@ export default defineConfig(() => {
        * (وهذا يُبقي أيضاً الأثر المقصود من الإعداد السابق: vendor-pdf لا يُحمَّل إلا عند فتح
        * وثيقة عقد فعلاً.) */
       modulePreload: false,
+      /* خرائط المصدر مطفأة صراحةً.
+         الافتراضي في Vite هو الإطفاء، لكن "الافتراضي" ليس قراراً: خريطة مصدر منشورة تعني أن
+         كل ملف TypeScript بأسمائه وتعليقاته يُعاد بناؤه في متصفح أي زائر. تُكتب هنا ليُقرأ
+         القرار، ولا يُقلَب بترقية إعدادات لاحقة بلا انتباه. */
+      sourcemap: false,
+
       rollupOptions: {
         output: {
+          /* أسماء ملفات مبهمة لحزم التطبيق.
+             كانت تُبنى بأسماء مكوّناتها: AdminPage، LoginPage، ContractBuilderGate،
+             ContractPrintDocument، TemplateInteractiveSandbox… أي أن قائمة الملفات في
+             `/assets` كانت **خريطة المشروع حرفياً**: من يفتحها يعرف أن هناك لوحة تحكّم،
+             وبوّابة عقود، ووثيقة مطبوعة، وأين يبحث عن كلٍّ منها — قبل أن يقرأ سطراً واحداً.
+             الآن الاسم بصمة المحتوى وحدها.
+
+             حزم المكتبات (`vendor-*`) تحتفظ بأسمائها عمداً: هي لا تكشف شيئاً عن بنيتنا —
+             وجود three أو firebase أو jspdf ظاهر من الكود نفسه على أي حال — بينما جدول أحجام
+             البناء يفقد كل معناه التشخيصي إن صارت كلّها بصمات. إخفاء ما يكشف، لا إخفاء كل
+             شيء. */
+          chunkFileNames: (info) =>
+            info.name?.startsWith('vendor') ? 'assets/[name]-[hash].js' : 'assets/[hash].js',
+          entryFileNames: 'assets/[hash].js',
+          assetFileNames: 'assets/[hash][extname]',
           // Group third-party code by library so the browser can cache these large,
           // rarely-changing chunks independently of frequently-changing app code.
           manualChunks(id) {
