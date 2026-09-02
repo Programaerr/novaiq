@@ -71,6 +71,11 @@ export function CustomerProfileSheet({
   const [city, setCity] = useState('');
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  /* المعلومات تُقرأ، لا تُكتب — إلا عند الطلب.
+     كانت تُعرَض دائماً كحقول إدخال فارغة الشكل، فتبدو كنموذج مطلوب تعبئته بينما هي أصلاً
+     معلومات كتبها العميل بنفسه في عقده ووصلتنا كاملة. الحقل يظهر الآن كقيمة مقروءة، والتعديل
+     زرّ يُضغط عند الحاجة إليه فعلاً — وهي حالة نادرة (رقم تغيّر، مدينة صُحّحت). */
+  const [editingInfo, setEditingInfo] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -109,7 +114,16 @@ export function CustomerProfileSheet({
   return createPortal(
     <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center bg-ink/40 backdrop-blur-sm p-0 sm:p-4" onClick={onClose}>
       <div
-        className="w-full sm:max-w-lg max-h-[90svh] overflow-y-auto bg-paper rounded-t-3xl sm:rounded-3xl border border-ink/10 shadow-2xl animate-fade-in"
+        /* `data-lenis-prevent` هي سبب عمل التمرير هنا أصلاً.
+           الموقع يمرّر بـLenis (تمرير ناعم يعترض عجلة الفأرة على مستوى النافذة)، وبدون هذه
+           العلامة تلتقط Lenis العجلة فوق هذه الورقة وتحرّك الصفحة خلفها بدلاً منها — فيبدو
+           للمستخدم أن التمرير "لا يعمل" بينما هو يعمل على العنصر الخطأ. نفس العلامة موجودة
+           على كل صندوق يمرّر داخلياً في الموقع (بنود العقد، معاينة الوثيقة).
+
+           `no-scrollbar` يُخفي الشريط بلا أن يُلغي التمرير — الورقة مؤطَّرة كبطاقة، وشريط
+           تمرير عبر حافتها المستديرة يكسر الشكل. */
+        data-lenis-prevent
+        className="w-full sm:max-w-lg max-h-[90svh] overflow-y-auto no-scrollbar overscroll-contain bg-paper rounded-t-3xl sm:rounded-3xl border border-ink/10 shadow-2xl animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* الرأس: الصورة، الاسم، وزر الإغلاق — ثابت أعلى الورقة أثناء التمرير لبقية المحتوى. */}
@@ -197,41 +211,62 @@ export function CustomerProfileSheet({
               <div className="py-4 text-center"><Loader2 className="w-4 h-4 text-ink/50 mx-auto animate-spin" /></div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="flex items-center gap-1.5 text-[10px] font-semibold text-ink/55 mb-1">
-                      <Phone className="w-3 h-3" />
-                      {isAr ? 'رقم الهاتف' : 'Phone'}
-                    </label>
-                    {/* نفس قانون رقم الهاتف في كل الموقع — هذا الحقل يحمل رقم نفس العميل الذي
-                        أدخله بنفسه في النموذج، فقاعدة أوسع هنا كانت تسمح لنا بأن نحفظ عنه رقماً
-                        ما كان ليقدر هو أن يكتبه. */}
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(sanitizeIraqiPhone(e.target.value))}
-                      inputMode="numeric"
-                      maxLength={IRAQI_PHONE_LENGTH}
-                      dir="ltr"
-                      title={isAr ? IRAQI_PHONE_RULE.ar : IRAQI_PHONE_RULE.en}
-                      placeholder={isAr ? 'مثال: 07701234567' : 'e.g. 07701234567'}
-                      className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs font-mono"
-                    />
+                {editingInfo ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="flex items-center gap-1.5 text-[10px] font-semibold text-ink/75 mb-1">
+                        <Phone className="w-3 h-3" />
+                        {isAr ? 'رقم الهاتف' : 'Phone'}
+                      </label>
+                      {/* نفس قانون رقم الهاتف في كل الموقع — هذا الحقل يحمل رقم نفس العميل الذي
+                          أدخله بنفسه في النموذج، فقاعدة أوسع هنا كانت تسمح لنا بأن نحفظ عنه رقماً
+                          ما كان ليقدر هو أن يكتبه. */}
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(sanitizeIraqiPhone(e.target.value))}
+                        inputMode="numeric"
+                        maxLength={IRAQI_PHONE_LENGTH}
+                        dir="ltr"
+                        title={isAr ? IRAQI_PHONE_RULE.ar : IRAQI_PHONE_RULE.en}
+                        placeholder={isAr ? 'مثال: 07701234567' : 'e.g. 07701234567'}
+                        className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-1.5 text-[10px] font-semibold text-ink/75 mb-1">
+                        <MapPin className="w-3 h-3" />
+                        {isAr ? 'المدينة' : 'City'}
+                      </label>
+                      <input
+                        type="text"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder={isAr ? 'مثال: بغداد' : 'e.g. Baghdad'}
+                        className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="flex items-center gap-1.5 text-[10px] font-semibold text-ink/55 mb-1">
-                      <MapPin className="w-3 h-3" />
-                      {isAr ? 'المدينة' : 'City'}
-                    </label>
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      placeholder={isAr ? 'مثال: بغداد' : 'e.g. Baghdad'}
-                      className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs"
-                    />
+                ) : (
+                  /* القراءة هي الوضع الطبيعي: هذه معلومات وصلتنا من العميل، لا خانات ننتظر
+                     أن نملأها. "—" حين لا يوجد شيء أصلاً، لا خانة فارغة توحي بأن أحداً نسي. */
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <span className="flex items-center gap-1.5 text-[10px] font-semibold text-ink/75 mb-1">
+                        <Phone className="w-3 h-3" />
+                        {isAr ? 'رقم الهاتف' : 'Phone'}
+                      </span>
+                      <strong className="block text-ink text-xs font-mono" dir="ltr">{phone || '—'}</strong>
+                    </div>
+                    <div>
+                      <span className="flex items-center gap-1.5 text-[10px] font-semibold text-ink/75 mb-1">
+                        <MapPin className="w-3 h-3" />
+                        {isAr ? 'المدينة' : 'City'}
+                      </span>
+                      <strong className="block text-ink text-xs">{city || '—'}</strong>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div>
                   <label className="block text-[10px] font-semibold text-ink/55 mb-1">
                     {isAr ? 'ملاحظة دائمة عن هذا العميل' : 'Ongoing note about this customer'}
@@ -244,7 +279,17 @@ export function CustomerProfileSheet({
                     className="w-full p-2.5 rounded-xl bg-paper border border-ink/10 text-ink text-xs"
                   />
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-end items-center gap-2">
+                  {/* التعديل فعل يُطلَب، لا حالة افتراضية. */}
+                  <button
+                    type="button"
+                    onClick={() => setEditingInfo((open) => !open)}
+                    className="px-3 py-2 rounded-xl text-[11px] font-bold text-ink/75 hover:text-ink cursor-pointer transition-colors"
+                  >
+                    {editingInfo
+                      ? (isAr ? 'إلغاء التعديل' : 'Cancel editing')
+                      : (isAr ? 'تعديل الهاتف والمدينة' : 'Edit phone & city')}
+                  </button>
                   <button
                     onClick={handleSave}
                     disabled={isSaving}
