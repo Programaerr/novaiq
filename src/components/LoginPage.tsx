@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { ERROR, OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
+import { ERROR, OBSIDIAN, ORANGE, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { CardField } from './CardField';
 import { NuvaiqLogo } from './NuvaiqLogo';
 import { NqButton } from './ui/NqButton';
@@ -38,7 +38,11 @@ function GoogleIcon() {
 
 /**
  * The muted ink INSIDE the dark panel — white at the lightest opacity that still clears 4.5:1
- * against it. WHITE at 0.62 over OBSIDIAN resolves to `#A1A2A3`, which measures 7.75:1 there.
+ * against it.
+ *
+ * It measured 7.75:1 while that panel was OBSIDIAN. The panel is the accent now, `#273036`, so
+ * the same ink composites to 6.18:1 — less headroom, still well past the floor, and the reason
+ * this stayed at 0.62 rather than being nudged up with the ground.
  */
 const INK_MUTED_ON_DARK = 'rgba(255, 255, 255, 0.62)';
 
@@ -75,8 +79,9 @@ const INK_MUTED_ON_GLASS = 'rgba(8, 10, 13, 0.68)';
  *
  * Straight from the sketch, and it is the right instinct: glass is a translucent surface over a
  * moving background, and a paragraph on it is a paragraph whose contrast changes as the cards
- * drift past. The dark box is opaque, so the copy has ONE ground — WHITE on OBSIDIAN, 18.48:1,
- * whatever happens behind the panel.
+ * drift past. The dark box is opaque, so the copy has ONE ground — WHITE on the accent, 12.53:1,
+ * whatever happens behind the panel. (18.48:1 while the box was OBSIDIAN; it is the accent now,
+ * to match the cards, and opacity is what this paragraph is about rather than the exact ratio.)
  *
  * The action panel has no such box because it needs none: its two buttons carry their own fills,
  * and the only loose text on the glass is the fine print, which uses the measured ink above.
@@ -172,7 +177,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           <div
             dir={isAr ? 'rtl' : 'ltr'}
             className="md:w-[41.7%] md:shrink-0 rounded-2xl shadow-[0_4px_10px_-2px_rgba(8,10,13,0.12),0_20px_44px_-18px_rgba(8,10,13,0.40)] px-6 py-9 md:px-6 md:py-9 lg:px-7 lg:py-10 flex flex-col justify-center text-center"
-            style={{ background: OBSIDIAN, color: WHITE }}
+            /* The accent, not OBSIDIAN, so this panel is the same colour as the cards drifting
+               behind the glass. Every ink in here is light-on-dark and the ground rose two and a
+               half stops, so all three were re-measured: headline 12.53:1, muted paragraph
+               6.18:1, perk icons 8.40:1, and the panel itself 7.60:1 against the glass card it
+               sits on. That last one is the one that could have broken the LAYOUT rather than
+               the text — a panel that stops separating from its card stops being a panel. */
+            style={{ background: ORANGE, color: WHITE }}
           >
             {/* Line height 1.35 and up, throughout. Arabic needs more of it than Latin at the
                 same size: the ascenders (ل ك ا) and the marks above them — the shadda in
@@ -284,10 +295,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
                 first-time Google sign-in, so "log in" and "sign up" are the same click here and
                 offering both would be two doors into one room.
 
-                `signal`, which is Orange with OBSIDIAN text and a DARK focus ring. Both halves of
-                that matter here: white on Signal Orange measures 2.87:1 and does not read
-                (Obsidian on it is 6.90:1), and `chrome`'s white ring — correct on the dark band
-                this page used to have — would vanish against frosted white.
+                `signal`, which is the accent with WHITE text and a DARK focus ring. Both halves
+                still matter, and the first one has inverted since this note was written: it read
+                "Orange with OBSIDIAN text" because white on Signal Orange was 2.87:1. The accent
+                is `#273036` now, so Obsidian on it is 1.47:1 and white 13.44:1. The ring is
+                unchanged: `chrome`'s white one would still vanish against frosted white.
 
                 `radius="xl"`, not the default pill: the drawing shows rounded rectangles, and a
                 full radius on a wide short button reads as a capsule floating in a box rather

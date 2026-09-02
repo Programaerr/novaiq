@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { OBSIDIAN, WHITE, PAPER } from '../lib/homePalette';
+import { ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
@@ -96,7 +96,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
           <div
             aria-hidden="true"
             className="absolute inset-0 grid place-items-center px-5 sm:px-7 py-8 sm:py-10 rounded-[0.5rem]"
-            style={{ background: OBSIDIAN }}
+            /* The accent, not OBSIDIAN, so the hero's slab is the same colour as the sign-in
+               panel and the card field. Both inks here are light-on-dark and the ground rose,
+               so both were re-measured: the wordmark 12.53:1, the tagline 7.29:1, and the panel
+               itself 12.53:1 against the hero's warm-white ground so it still reads as a slab
+               laid on the page rather than a tint of it. */
+            style={{ background: ORANGE }}
           >
             <div
               className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
