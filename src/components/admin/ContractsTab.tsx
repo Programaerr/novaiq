@@ -271,7 +271,7 @@ function ContractRow({
       setAuditRows(await fetchContractAudit(contract.contractNumber));
     } catch (e) {
       console.error('Failed to load the audit trail:', e);
-      showToast(isAr ? 'تعذّر جلب سجل التعديلات' : 'Could not load the change log', 'error');
+      showToast(isAr ? 'تعذّر جلب سجل الحركات' : 'Could not load the activity log', 'error');
     } finally {
       setAuditLoading(false);
     }
@@ -944,14 +944,14 @@ function ContractRow({
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               <span>{isAr ? 'تنزيل PDF' : 'Download PDF'}</span>
             </button>
-            {/* سجل التعديلات — بجوار زر الحفظ لأنه سجلّ ما حُفظ. */}
+            {/* سجل الحركات — بجوار زر الحفظ لأنه سجلّ ما حُفظ. */}
             <button
               onClick={() => (auditRows ? setAuditRows(null) : loadAudit())}
               disabled={auditLoading}
               className="px-4 py-2.5 rounded-xl bg-white/70 hover:bg-sand-light disabled:opacity-60 text-ink border border-ink/15 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
             >
               {auditLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <History className="w-4 h-4" />}
-              <span>{isAr ? 'سجل التعديلات' : 'Change log'}</span>
+              <span>{isAr ? 'سجل الحركات' : 'Activity log'}</span>
             </button>
             <button
               onClick={handleSave}
@@ -966,7 +966,7 @@ function ContractRow({
           {auditRows && (
             <div className="mt-3 p-3 rounded-2xl bg-paper border border-ink/10 space-y-2">
               <span className="text-[11px] font-bold text-ink/60 block">
-                {isAr ? 'من غيّر ماذا ومتى' : 'Who changed what, and when'}
+                {isAr ? 'سجل الحركات' : 'Activity log'}
               </span>
               {auditRows.length === 0 ? (
                 <p className="text-[11px] text-ink/50">
