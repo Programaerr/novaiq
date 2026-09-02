@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { OBSIDIAN, ORANGE, ORANGE_ON_DARK, PAPER, PAPER_DEEP, WHITE } from '../../lib/homePalette';
 import { buttonTones, contrastRatio, isLight } from '../../lib/tone';
-import { ButtonTiles, newDrive } from './ButtonTiles';
+
 
 /**
  * Everything a pressable surface on this site is made of, shared by NqButton and NqLink.
@@ -393,107 +393,13 @@ export function useNqSurface(
     [externalRef],
   );
 
-  const drive = useRef(newDrive());
-  const [mounted, setMounted] = useState(false);
-  const holdsSlot = useRef(false);
-  const lingerTimer = useRef<number | undefined>(undefined);
-  const wakeTimer = useRef<number | undefined>(undefined);
-  /* نسخة مرجعية من `mounted` ليقرأها المؤقّت: المؤقّت يعيش في إغلاق قد يكون قديماً، وقراءة
-     الحالة منه مباشرة كانت ستعني احتساب فتحة (slot) مرّتين. */
-  const mountedRef = useRef(false);
-
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const read = () => setReduced(mq.matches);
-    read();
-    mq.addEventListener('change', read);
-    return () => mq.removeEventListener('change', read);
-  }, []);
-
-  const wantsTiles = tiles && !inert && !reduced;
-
-  /* Claiming and releasing a slot in the site-wide budget. Both are idempotent — a pointer that
-     leaves and re-enters inside the linger must not decrement twice, which would let the counter
-     drift below zero and quietly raise the real ceiling. */
-  const claim = useCallback(() => {
-    if (holdsSlot.current) return true;
-    if (liveFields >= MAX_LIVE_FIELDS) return false;
-    liveFields += 1;
-    holdsSlot.current = true;
-    return true;
-  }, []);
-
-  const release = useCallback(() => {
-    if (!holdsSlot.current) return;
-    liveFields -= 1;
-    holdsSlot.current = false;
-  }, []);
-
-  // Releasing on unmount matters more than it looks: a surface that is hovered when the page
-  // navigates away never sees a pointerleave, and without this the counter would only ever climb.
-  useEffect(
-    () => () => {
-      window.clearTimeout(lingerTimer.current);
-      window.clearTimeout(wakeTimer.current);
-      release();
-    },
-    [release],
-  );
-
-  const mount = useCallback(() => {
-    if (mountedRef.current) return;
-    if (!claim()) return;
-    mountedRef.current = true;
-    setMounted(true);
-  }, [claim]);
-
-  /** `immediate` للضغط والتركيز؛ المرور بالمؤشّر ينتظر WAKE_DELAY_MS. */
-  const wake = useCallback(
-    (immediate = false) => {
-      if (!wantsTiles) return;
-      window.clearTimeout(lingerTimer.current);
-      /* الحركة تبدأ فوراً في الحالتين: `drive` مجرّد ref يقرؤه الحقل حين يوجد، فضبطه مبكراً
-         يعني أن الحقل يظهر وهو في منتصف حركته لا من الصفر. */
-      drive.current.target = 1;
-      if (immediate) {
-        window.clearTimeout(wakeTimer.current);
-        wakeTimer.current = undefined;
-        mount();
-        return;
-      }
-      if (mountedRef.current || wakeTimer.current !== undefined) return;
-      wakeTimer.current = window.setTimeout(() => {
-        wakeTimer.current = undefined;
-        mount();
-      }, WAKE_DELAY_MS);
-    },
-    [wantsTiles, mount],
-  );
-
-  const sleep = useCallback(() => {
-    drive.current.target = 0;
-    rect.current = null;
-    // غادر المؤشّر قبل أن ينتهي التأخير: لا سياق يُنشأ إطلاقاً، وهذا هو كل المكسب.
-    window.clearTimeout(wakeTimer.current);
-    wakeTimer.current = undefined;
-    window.clearTimeout(lingerTimer.current);
-    lingerTimer.current = window.setTimeout(() => {
-      mountedRef.current = false;
-      setMounted(false);
-      release();
-    }, LINGER_MS);
-  }, [release]);
-
-  /* صندوق العنصر، مقيساً مرّة عند الدخول لا عند كل حركة.
+  /* موضع المؤشّر، ولا شيء غيره.
    *
-   * كانت `localise` تستدعي getBoundingClientRect() في كل حدث pointermove — وهذه قراءة تُجبر
-   * المتصفح على إعادة حساب التخطيط فوراً إن كان هناك أي تغيير معلّق (forced synchronous
-   * layout). أي أن مجرّد تحريك المؤشّر فوق زرّ كان يفرض دورة تخطيط لكل حدث، وهو ما يظهر في
-   * الكونسول كـ"[Violation] Forced reflow while executing JavaScript".
+   * ما كان هنا: مرجع `drive` يحمل حالة الضغط والهدف، وعدّاد فتحات عالمي بسقف، ومؤقّت مكوث
+   * ومؤقّت بقاء، وحالة `mounted` — كلّها آلة وُجدت لسبب واحد: أن مشهد WebGL لكل زرّ كان
+   * مورداً نادراً يجب ترشيده. الأثر صار CSS، والمورد لم يعد نادراً، فذهبت الآلة معه.
    *
-   * الصندوق لا يتغيّر أثناء المرور فوقه، فقياسه مرّة عند الدخول (وعند الضغط، تحسّباً لتمرير
-   * الصفحة بينهما) يكفي — والحركة بعدها حساب بلا لمس DOM. */
+   * الباقي سطران: قياس صندوق العنصر مرّة عند الدخول، وكتابة موضع المؤشّر كنسبة عليه. */
   const rect = useRef<DOMRect | null>(null);
 
   const measure = useCallback(() => {
@@ -501,7 +407,19 @@ export function useNqSurface(
     rect.current = node ? node.getBoundingClientRect() : null;
   }, []);
 
-  /** Pointer position as a fraction of the element's own box. */
+  /** يكتب موضع المؤشّر على العنصر كنسبة مئوية.
+   *
+   *  كتابة مباشرة في `style` لا حالة React: هذا يقع في كل حدث pointermove، وإعادة عرض عندها
+   *  تعني مئات الإعادات في الثانية مقابل قيمة لا يقرؤها إلا CSS. */
+  const paint = useCallback((x: number, y: number) => {
+    const node = el.current;
+    if (!node) return;
+    node.style.setProperty('--nq-mx', `${(x * 100).toFixed(2)}%`);
+    node.style.setProperty('--nq-my', `${(y * 100).toFixed(2)}%`);
+  }, []);
+
+  /* الصندوق يُقاس عند الدخول لا عند كل حركة: getBoundingClientRect قراءة تُجبر المتصفح على
+     إعادة حساب التخطيط فوراً، واستدعاؤها في كل pointermove كان يفرض دورة تخطيط لكل حدث. */
   const localise = useCallback((e: React.PointerEvent) => {
     const r = rect.current;
     if (!r || !r.width || !r.height) return { x: 0.5, y: 0.5 };
@@ -514,56 +432,40 @@ export function useNqSurface(
   const handlers = {
     ref: setRef,
     onPointerEnter: (e: React.PointerEvent) => {
-      // A touch fires enter/leave around the tap as well, and waking on it makes the field flash
-      // on and off around a press that already has its own ring. Press is the touch entry point.
+      // اللمس يُطلق enter/leave حول النقرة أيضاً؛ الضغط هو مدخل اللمس، لا المرور.
       if (e.pointerType === 'touch') return;
       measure();
       const p = localise(e);
-      drive.current.px = p.x;
-      drive.current.py = p.y;
-      wake();
+      paint(p.x, p.y);
     },
     onPointerMove: (e: React.PointerEvent) => {
-      if (!mounted) return;
+      if (!rect.current) return;
       const p = localise(e);
-      drive.current.px = p.x;
-      drive.current.py = p.y;
+      paint(p.x, p.y);
     },
     onPointerLeave: () => {
-      // Focus outlives the pointer: tabbing to a control and then brushing past it with the mouse
-      // must not put the field to sleep while it is still the focused one.
-      if (el.current?.matches(':focus-visible')) return;
-      sleep();
+      rect.current = null;
     },
     onPointerDown: (e: React.PointerEvent) => {
-      if (!wantsTiles) return;
       // قياس ثانٍ: قد تكون الصفحة مُرِّرت بين الدخول والضغط، فيصير الصندوق المخزَّن قديماً.
       measure();
       const p = localise(e);
-      drive.current.pressX = p.x;
-      drive.current.pressY = p.y;
-      drive.current.px = p.x;
-      drive.current.py = p.y;
-      drive.current.pressAt = performance.now();
-      wake(true);
+      paint(p.x, p.y);
     },
-    // On a touch screen the press IS the whole interaction — there is no hover to hold the field
-    // open afterwards, so it is released here and the linger carries the ring to its end.
     onPointerUp: (e: React.PointerEvent) => {
-      if (e.pointerType === 'touch') sleep();
+      if (e.pointerType === 'touch') rect.current = null;
     },
-    onPointerCancel: (e: React.PointerEvent) => {
-      if (e.pointerType === 'touch') sleep();
+    onPointerCancel: () => {
+      rect.current = null;
     },
     onFocus: (e: React.FocusEvent) => {
-      // Only a keyboard focus. A mouse press focuses too, and lighting the field from the centre
-      // on every click would fight the ring the press itself just started.
+      // تركيز لوحة المفاتيح وحده: ضغطة الفأرة تُركّز أيضاً، وإضاءة الوسط عندها تصارع الضغطة.
       if (!(e.currentTarget as HTMLElement).matches(':focus-visible')) return;
-      drive.current.px = 0.5;
-      drive.current.py = 0.5;
-      wake(true);
+      paint(0.5, 0.5);
     },
-    onBlur: () => sleep(),
+    onBlur: () => {
+      rect.current = null;
+    },
   };
 
   const surface = tileSurface ?? pair.tile ?? pair.bg;
@@ -595,7 +497,17 @@ export function useNqSurface(
     badgeBg: pair.badgeBg ?? (isLight(surface) ? OBSIDIAN : '#FFFFFF'),
     badgeFg: pair.badgeFg ?? (isLight(surface) ? PAPER : OBSIDIAN),
     handlers,
-    tiles: mounted && wantsTiles ? <ButtonTiles drive={drive} tones={tones} /> : null,
+    /* شبكة المربّعات، مرسومة بـCSS.
+     *
+     * كانت مشهد three.js لكل زرّ: سياق WebGL يُنشأ عند لمس المؤشّر ويُتلف بعده. الثمن لم يكن
+     * الزخرفة بل لحظة إنشائه — داخل معالج الضغطة نفسه، فيتجمّد الموقع عند كل نقرة (انظر
+     * ملاحظة `tiles` في NqButton). والسقف الذي فرضه ذلك — حقل واحد حيّ في كل الموقع — كان
+     * يعني أن أغلب الأزرار لا تحصل على الأثر أصلاً.
+     *
+     * النسخة الحالية شبكة مربّعات في `background-image` يكشفها قناع دائري يتبع المؤشّر: نفس
+     * الفكرة (مكعّبات تضيء تحت اليد)، بلا سياق ولا shader ولا سقف — فتعمل على **كل** زرّ
+     * ورابط في الموقع في آنٍ واحد، وتكلفتها صفر على الخيط الرئيسي. */
+    tiles: tiles && !inert ? <span aria-hidden="true" className="nq-tiles" /> : null,
     className: [
       // `relative` positions the field, `overflow-hidden` is what clips it to the pill — the
       // shader softens its outermost cubes but the actual rounded edge is this.
