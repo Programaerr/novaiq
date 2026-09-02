@@ -671,19 +671,52 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
    * الكانفاس يتلف السياق، وإعادة بنائه تكلّف الترجمة من جديد في كل مرّة يعود فيها القسم. */
   const [everActive, setEverActive] = useState(false);
 
+  /* المراقبة تبدأ بعد أول رسم، لا معه.
+   *
+   * IntersectionObserver يحسب أوّل جواب له فور المراقبة — وعند أوّل رسم لم تكن الصفحة قد
+   * اكتسبت ارتفاعها بعد (أقسام تُحمَّل بالكسل، صور بلا أبعاد، خطوط لم تصل). فيقع الفوتر
+   * وحزام التواصل فعلياً قرب أعلى النافذة في تلك اللحظة، فيجيب المراقب "ظاهر" عن الثلاثة —
+   * وهذا هو سبب بقاء الكانفاسات الثلاثة تُنشأ عند التحميل رغم البوّابة.
+   *
+   * إطاران عبر rAF يضعان المراقبة بعد أول رسم حقيقي، حيث صار للصفحة ارتفاعها. */
   useEffect(() => {
     const el = hostRef.current;
     if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), {
-      rootMargin: '150px 0px',
-    });
-    io.observe(el);
-    return () => io.disconnect();
+    let io: IntersectionObserver | undefined;
+    const frame = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        io = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), {
+          rootMargin: '150px 0px',
+        });
+        io.observe(el);
+      }),
+    );
+    return () => {
+      cancelAnimationFrame(frame);
+      io?.disconnect();
+    };
   }, []);
 
+  /* والإنشاء نفسه يقع في وقت خمول المتصفح، لا في الإطار الذي طُلب فيه.
+   *
+   * إنشاء سياق WebGL وترجمة الـshader عملٌ متزامن على الخيط الرئيسي يقيس عشرات
+   * الميلي‑ثانية — وهو ما يظهر في الكونسول كـ"[Violation] requestAnimationFrame took 86ms".
+   * وقوعه أثناء التحميل أو أثناء التمرير يعني إطاراً ضائعاً في اللحظة التي يراها المستخدم.
+   * requestIdleCallback يؤجّله إلى أوّل فراغ حقيقي، فلا يزاحم رسماً ولا تمريراً. */
   useEffect(() => {
-    if (active) setEverActive(true);
-  }, [active]);
+    if (!active || everActive) return;
+    const w = window as Window &
+      typeof globalThis & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+    // Safari لا يملك requestIdleCallback حتى الآن؛ مهلة قصيرة تؤدّي نفس الغرض هناك.
+    const schedule = w.requestIdleCallback ?? ((cb: () => void) => w.setTimeout(cb, 200));
+    const cancel = w.cancelIdleCallback ?? w.clearTimeout;
+    // timeout سقف: لا يبقى الحقل غائباً إلى الأبد على صفحة لا تخمد أبداً.
+    const id = schedule(() => setEverActive(true), { timeout: 1200 });
+    return () => cancel(id);
+  }, [active, everActive]);
 
   /* تُضبط `data-idle` على <html> بواسطة usePauseOffscreenWork() عندما تُنقل التبويب للخلفية، أو
      تُصغَّر النافذة، أو تأخذ نافذة أخرى التركيز. تتوقف كل حركة CSS في الموقع عليها؛ حلقة WebGL هي
