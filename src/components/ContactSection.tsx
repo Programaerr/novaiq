@@ -118,6 +118,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
   const [touched, setTouched] = useState<Partial<Record<Field['key'], boolean>>>({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  /* رابط واتساب حين يحجب المتصفح فتحه تلقائياً. يُعرَض عندها كزرّ يضغطه الزائر بنفسه — ضغطة
+     على رابط حقيقي لا تُحجب أبداً — بدل أن ننقل صفحة الموقع نفسها إلى واتساب. */
+  const [blockedUrl, setBlockedUrl] = useState('');
 
   const set = useCallback((key: Field['key'], v: string) => {
     /* القانون يُفرَض هنا لا عند الإرسال: حرف مكتوب في خانة رقم لا يدخل أصلاً، والرقم الثاني
@@ -192,9 +195,33 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
         return;
       }
 
+      /* تبويب جديد دائماً، وصفحة الموقع تبقى كما هي.
+       *
+       * كان هنا `window.open(url, '_blank', 'noopener,noreferrer')` يليه
+       * `if (!win) window.location.href = url` — وهذا هو سبب انتقال الموقع نفسه إلى واتساب:
+       * حين تُمرَّر `noopener` في قائمة الخصائص تُعيد `window.open` القيمة `null` **حتى عند
+       * النجاح** (سلوك موثَّق، لا عطل). فكان الشرط يقرأ نجاحاً على أنه حجب، فيُفتح التبويب
+       * الجديد وتُنقل الصفحة الحالية أيضاً — تبويبان على واتساب، ولا موقع يُرجَع إليه.
+       *
+       * الحلّ: فتح بلا `noopener` في القائمة (فتصير القيمة المُعادة صادقة)، ثم قطع `opener`
+       * يدوياً — نفس الحماية بلا فقدان الإشارة. وإن كان الحجب حقيقياً فلا انتقال إطلاقاً: يظهر
+       * زرّ يفتحه الزائر بنفسه. */
       const url = whatsappLink(waNumber, composeWhatsappText());
-      const win = window.open(url, '_blank', 'noopener,noreferrer');
-      if (!win) window.location.href = url;
+      const win = window.open(url, '_blank');
+      if (win) {
+        // يمنع صفحة واتساب من الوصول إلى نافذتنا عبر window.opener.
+        win.opener = null;
+        setBlockedUrl('');
+      } else {
+        setBlockedUrl(url);
+        showToast(
+          isAr
+            ? 'المتصفح منع فتح واتساب. اضغط زر «افتح واتساب» تحت النموذج.'
+            : 'Your browser blocked WhatsApp from opening. Use the "Open WhatsApp" button below the form.',
+          'error',
+        );
+        return;
+      }
 
       setSending(true);
       /* النسخة المحفوظة تبقى: سجلّ لدينا لا قناة تسليم. من راسلنا يبقى له أثر عندنا حتى لو
@@ -424,6 +451,22 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     brown-green rather than success). On Obsidian, SUCCESS stays itself at full
                     saturation (8.70:1) — exactly the case the brief's semantic system exists
                     for: Orange cannot also mean "this worked". */}
+                {/* الحجب لا يُنهي الطريق: رابط حقيقي يضغطه الزائر، ورسالته محفوظة فيه كما
+                    كتبها. `target="_blank"` هنا آمن بذاته — المتصفحات الحديثة تضمّن noopener
+                    لكل رابط بهذا الهدف، و`rel` يقولها صراحةً للقديمة. */}
+                {blockedUrl && !sent && (
+                  <a
+                    href={blockedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] font-extrabold"
+                    style={{ color: SUCCESS, background: OBSIDIAN }}
+                  >
+                    <MessageCircle className="w-4 h-4" strokeWidth={2.4} />
+                    {isAr ? 'افتح واتساب' : 'Open WhatsApp'}
+                  </a>
+                )}
+
                 {sent && (
                   <p role="status" className="inline-block px-2.5 py-1 rounded-lg text-[0.85rem] font-extrabold" style={{ color: SUCCESS, background: OBSIDIAN }}>
                     {isAr
