@@ -79,64 +79,92 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   /* ── الحبّة النشطة: جسم واحد يسيل بين البنود ──────────────────────────────────────
      البنود الثلاثة عناصر منفصلة، فالتعبئة البيضاء كانت تختفي من واحد وتظهر على آخر في نفس
-     الإطار — لا جسم مشترك بينهما، وهو بالضبط ما يوجد مؤشّر التبويب من أجله.
+     الإطار — لا جسم مشترك بينهما، وهو ما يوجد مؤشّر التبويب من أجله.
 
-     الجسم المشترك الآن عنصر DOM واحد يقف خلف النصّ ويتحرّك إليه، لا مشهد ثلاثي الأبعاد.
-     والحركة سائلة بمعنيين: منحنى Apple نفسه (`cubic-bezier(0.32, 0.72, 0, 1)`) الذي يبدأ
-     سريعاً ويستقرّ بلا ارتداد، وتمدّد أفقي لحظي أثناء العبور يجعل الحبّة تُقرأ كقطرة تُشدّ
-     نحو هدفها ثم ترتخي عليه — لا كمستطيل ينتقل.
+     ## لماذا لا انتقال CSS ولا حالة React أثناء الحركة
 
-     وهذا يُلغي آخر سياق WebGL كان يُنشأ لأجل التنقّل: العرض والحركة كلاهما CSS، فلا ترجمة
-     shader ولا تخصيص على بطاقة الرسوميات مقابل نصف ثانية من الحركة. */
+     النسخة الأولى حرّكت `transform` **و`width`** معاً بـtransition، وبدّلت حالة React في
+     منتصف الطريق لتشغيل التمدّد ثم إطفائه. وكلاهما خطأ:
+
+     · `width` خاصية تخطيط: كل إطار منها يعيد حساب التخطيط، بينما `transform` وحده يعيش على
+       مركّب الطبقات ولا يمسّ الخيط الرئيسي.
+     · وتبديل الحالة يعيد عرض الشريط كاملاً (الروابط، الدرج، زرّ الحساب) في منتصف الحركة —
+       والضغط على تبويب يشغّل أصلاً تركيب قسم جديد بالكامل. فتقع الحركة في أزحم لحظة ممكنة.
+
+     الآن: عرض الحبّة **ثابت** (أعرض بند)، والاتّساع يقع بـ`scaleX` — أي أن كل ما يتحرّك
+     هو `transform`. والحركة تُشغَّل بـWeb Animations API مباشرة على العنصر: لا transition،
+     ولا `setState`، ولا إعادة عرض واحدة بين بدايتها ونهايتها. تبقى ناعمة مهما انشغل الخيط
+     الرئيسي بتركيب الصفحة الجديدة.
+
+     والسيولة نفسها باقية: منحنى Apple (`cubic-bezier(0.32, 0.72, 0, 1)`) الذي يبدأ سريعاً
+     ويستقرّ بلا ارتداد، ومعه تمدّد أفقي لحظي في منتصف المسار يجعل الحبّة تُقرأ كقطرة تُشدّ
+     نحو هدفها ثم ترتخي عليه. */
   const navStripRef = useRef<HTMLElement | null>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
-  const [pill, setPill] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
-  /* أوّل قياس يقع بلا حركة: الحبّة تظهر على البند النشط مباشرة عند فتح الصفحة بدل أن تنزلق
-     إليه من الزاوية. */
-  const [settled, setSettled] = useState(false);
-  const [travelling, setTravelling] = useState(false);
+  const pillRef = useRef<HTMLSpanElement | null>(null);
+  /* آخر تحويل مطبَّق. الحركة تنطلق منه لا من قراءة جديدة للـDOM — قراءة الموضع أثناء حركة
+     جارية تجبر المتصفح على حسم التخطيط فوراً، وهو ما نتفاداه. */
+  const lastTransform = useRef<string>('');
+  const [pillBox, setPillBox] = useState<{ base: number; h: number } | null>(null);
 
-  /** يقيس البند النشط بإحداثيات الشريط نفسه — الشريط `fixed` ويتحرّك مع التمرير، فإحداثيات
-   *  النافذة كانت ستُلاحقه بلا داعٍ. */
-  const measurePill = useCallback(() => {
+  /** عرض ثابت للحبّة = أعرض بند، فيبقى `scaleX` بين 0.6 و1 ولا تنفلت استدارة الحواف. */
+  const measureBase = useCallback(() => {
     const strip = navStripRef.current;
-    const el = linkRefs.current[activePage];
-    // دون `lg` لا يُرسَم شريط التنقّل أصلاً (الدرج بدلاً منه) فلا شيء يُقاس.
-    if (!strip || !el) {
-      setPill(null);
-      return;
+    if (!strip) return;
+    let base = 0;
+    let h = 0;
+    for (const el of Object.values(linkRefs.current)) {
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      base = Math.max(base, r.width);
+      h = Math.max(h, r.height);
     }
-    const s = strip.getBoundingClientRect();
-    const r = el.getBoundingClientRect();
-    setPill({ x: r.x - s.x, y: r.y - s.y, w: r.width, h: r.height });
-  }, [activePage]);
+    if (base > 0 && h > 0) setPillBox({ base, h });
+  }, []);
 
-  // القياس بعد الرسم مباشرة: تغيّر الصفحة، وتغيّر اللغة (نصوص البنود تتغيّر فيتغيّر عرضها).
-  useLayoutEffect(measurePill, [measurePill, language]);
+  useLayoutEffect(measureBase, [measureBase, language]);
 
-  // وأي تغيّر في مقاس الشريط: تكبير النافذة، وصول خطّ، أو ظهور/اختفاء زرّ الحساب بجانبه.
   useEffect(() => {
     const strip = navStripRef.current;
     if (!strip) return;
-    const ro = new ResizeObserver(measurePill);
+    const ro = new ResizeObserver(measureBase);
     ro.observe(strip);
     return () => ro.disconnect();
-  }, [measurePill]);
+  }, [measureBase]);
 
-  /* نبضة التمدّد: تُشغَّل عند تغيّر الصفحة فقط، وتُطفأ قبل أن تنتهي الحركة بقليل فترتخي
-     الحبّة على هدفها بدل أن تصل ممدودة. متجاهَلة تماماً مع تقليل الحركة — حركة زخرفية عبر
-     مسافة طويلة هي بالضبط ما وُجد ذلك الإعداد لأجله. */
-  useEffect(() => {
-    if (!settled) {
-      setSettled(true);
-      return;
-    }
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    setTravelling(true);
-    const id = window.setTimeout(() => setTravelling(false), 300);
-    return () => window.clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activePage]);
+  /* وضع الحبّة على البند النشط. أوّل مرّة بلا حركة (تظهر مكانها لا تنزلق من الزاوية)، وبعدها
+     بحركة واحدة تُشغَّل على العنصر مباشرة. */
+  useLayoutEffect(() => {
+    const strip = navStripRef.current;
+    const node = pillRef.current;
+    const link = linkRefs.current[activePage];
+    if (!strip || !node || !link || !pillBox) return;
+
+    const s = strip.getBoundingClientRect();
+    const r = link.getBoundingClientRect();
+    const to = `translate3d(${r.left - s.left}px, ${r.top - s.top}px, 0) scaleX(${r.width / pillBox.base})`;
+    const from = lastTransform.current;
+    lastTransform.current = to;
+
+    node.style.transform = to;
+    if (!from || from === to) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || typeof node.animate !== 'function') return;
+
+    /* الإطار الأوسط هو التمدّد: نقطة بين المبدأ والمنتهى، بعرض أكبر قليلاً من الاثنين.
+       بلا هذا الإطار تنتقل الحبّة كمستطيل؛ به تُقرأ كقطرة. */
+    const midX = (parseFloat(from.slice(from.indexOf('(') + 1)) + (r.left - s.left)) / 2;
+    const midScale = (r.width / pillBox.base) * 1.16;
+    node.animate(
+      [
+        { transform: from },
+        { transform: `translate3d(${midX}px, ${r.top - s.top}px, 0) scaleX(${midScale})`, offset: 0.45 },
+        { transform: to },
+      ],
+      { duration: 520, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'both' },
+    );
+  }, [activePage, pillBox]);
 
   // مشتقة من خاصية currentUser (انظر تعليقها بالأعلى)، لا من اشتراك خاص بهذا الملف —
   // undefined = لم يُحسم فحص الدخول الأولي بعد، وهذا ما يمنع "Login" من الوميض للحظة قبل أن
@@ -308,16 +336,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="hidden lg:flex items-center gap-2 relative"
             aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}
           >
-            {/* الحبّة أولاً في ترتيب الرسم لتقع خلف النصوص، وz-0 مقابل z-10 عليها. */}
-            {pill && (
+            {/* الحبّة أولاً في ترتيب الرسم لتقع خلف النصوص، وz-0 مقابل z-10 عليها.
+                عرضها ثابت وموضعها واتّساعها في `transform` وحده — انظر الملاحظة أعلاه. */}
+            {pillBox && (
               <span
+                ref={pillRef}
                 aria-hidden="true"
-                className={`nq-nav-pill${settled ? '' : ' is-instant'}${travelling ? ' is-travelling' : ''}`}
-                style={{
-                  transform: `translate3d(${pill.x}px, ${pill.y}px, 0)`,
-                  width: pill.w,
-                  height: pill.h,
-                }}
+                className="nq-nav-pill"
+                style={{ width: pillBox.base, height: pillBox.h }}
               />
             )}
 
