@@ -4,7 +4,7 @@ import { useLiveTemplates, resolveVariant } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
-import { OBSIDIAN, ORANGE, WHITE } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { NqButton } from './ui/NqButton';
 import { trackLoad } from '../lib/loadTracker';
 import type { DemoMode } from './TemplateInteractiveSandbox';
@@ -179,15 +179,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 />
 
                 <div className="relative flex items-center gap-3">
-                  {/* Obsidian on Orange, not white — white on Signal Orange is 2.87:1, under
-                      even the 3:1 an icon needs; Obsidian measures 6.90:1. This is also the one
-                      Orange fill on the card — the dark card's own tint doesn't change this pair,
-                      since the tile is a small opaque fill, not a wash of whatever is behind it —
-                      exactly the "worth being a point of attraction" element the brief describes
-                      for an icon that matters. */}
+                  {/* The light twin, not the accent itself. Everywhere else on the site this tile
+                      is the plain accent, but this one stands on the card's `#202224`, and
+                      `#273036` against that is 1.3:1 — the tile would not exist. ORANGE_ON_DARK
+                      measures 12.39:1 there and takes an Obsidian glyph at the same ratio.
+                      Still the one accent fill on the card, and still exactly the "worth being a
+                      point of attraction" element the brief describes for an icon that matters. */}
                   <span
                     className="w-14 h-14 rounded-2xl grid place-items-center shrink-0"
-                    style={{ background: ORANGE, color: OBSIDIAN }}
+                    style={{ background: ORANGE_ON_DARK, color: OBSIDIAN }}
                   >
                     <Icon className="w-7 h-7" strokeWidth={2.2} />
                   </span>

@@ -8,14 +8,17 @@ interface EcontractsPageProps {
   language: Language;
 }
 
-// The palette this page draws from: ORANGE (#FF8E3D) is the primary — the accent every feature
-// on the dark site uses — and STEEL is the secondary, the token this identity already reserves
-// for metadata-weight text on a dark ground (measured 6.90:1 on Obsidian; see homePalette.ts).
-// Text is white on the dark ground. Keeping the accent values here (rather than raw hex
-// scattered across the cards) mirrors homePalette's reason for existing: one place to retune
-// the brand.
+// The palette this page draws from: ORANGE (`#273036`) is the primary, and STEEL the secondary.
+//
+// The line that used to be here called this "the dark site" and said the text is white on a dark
+// ground. It is not — this section renders obsidian text on `#E9E7E3`, and has for a while. That
+// mattered while checking the accent swap: on a dark ground the new accent would have needed the
+// light twin, and on this one it does not (13.44:1 as ink, 12.53:1 as a fill).
+//
+// Keeping the accent values here rather than raw hex scattered across the cards mirrors
+// homePalette's reason for existing: one place to retune the brand.
 const ACCENT = ORANGE;
-const ACCENT_SOFT = 'rgba(255, 142, 61, 0.14)';
+const ACCENT_SOFT = 'rgba(39, 48, 54, 0.14)';
 const SECONDARY = STEEL;
 
 // Shown in clause 3 (milestone delivery). This page presents the standard NUVAIQ agreement, and

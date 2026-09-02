@@ -44,16 +44,19 @@ export const STAGE_COLORS: Record<ContractData['status'], StageColor> = {
     softBg: 'rgba(154, 160, 166, 0.18)',
   },
   submitted: {
-    fill: '#FF8E3D',
+    fill: '#273036',
     // `border-periwinkle`/`bg-periwinkle` are Tailwind's own OLD token names, aliased in @theme
-    // onto `orange-on-light` now (see index.css) — they resolve correctly without being renamed
-    // here, and safely: plain Signal Orange is 2.13:1 on white, under even the 3:1 a border
-    // needs, which is exactly why that alias points at the darkened variant rather than the raw
-    // accent. `text-[#A14605]` is a literal, so it has to be re-derived directly: darkened from
-    // plain Orange until it clears 6.19:1 on white, matching the safety margin earlier stages on
-    // this badge have carried.
-    badge: 'bg-periwinkle/20 border-periwinkle text-[#A14605]',
-    softBg: 'rgba(255, 142, 61, 0.22)',
+    // onto `orange-on-light` (see index.css) — they resolve correctly without being renamed here.
+    // That alias existed because plain Signal Orange was 2.13:1 on white, under even the 3:1 a
+    // border needs. With a dark accent both ends of that alias are the same value now, and the
+    // literal that used to be `#A14605` (Orange darkened until it cleared 6.19:1) is simply the
+    // accent: 13.44:1 on white, past the margin the earlier stages on this badge carry.
+    //
+    // Worth knowing: `draft` is `#9AA0A6` and `cancelled` `#6B7179`, so this stage's dot is now
+    // the DARKEST step of a grey ramp rather than the one coloured mark in it. Legible, but it
+    // no longer separates itself by hue.
+    badge: 'bg-periwinkle/20 border-periwinkle text-[#273036]',
+    softBg: 'rgba(39, 48, 54, 0.22)',
   },
   under_review: {
     fill: '#D9A441',
