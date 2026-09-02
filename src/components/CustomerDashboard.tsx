@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink, XCircle, Loader2 } from 'lucide-react';
+import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink, XCircle, Loader2, FileText, ChevronDown } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -330,6 +330,10 @@ function CustomerContractRow({
      تُجلب مرة واحدة لكل عقد يحمل بصمة لقطة، وتُمرَّر إلى الوثيقة المطبوعة فتُطبع هي بدل البنود
      الحالية. بدون هذا يكون تجميد المضمون بلا أثر: نحفظ اللقطة ثم نطبع من كود اليوم. */
   const [frozenTerms, setFrozenTerms] = useState<string[] | undefined>(undefined);
+  /* البنود مطويّة افتراضياً هنا أيضاً، كما في نموذج الإنشاء: بطاقة العقد تعرض حالته وسعره
+     ومدّته ودفعاته، وقائمة بنود مفتوحة فوق ذلك كله كانت تدفن كل ما عداها. تبقى في مكانها
+     بزرّها، فيفتحها صاحبها متى شاء. */
+  const [termsOpen, setTermsOpen] = useState(false);
 
   useEffect(() => {
     if (!contract.snapshotHash) return;
@@ -622,22 +626,54 @@ function CustomerContractRow({
             </div>
           ) : null}
 
-          {/* The clauses the customer is actually bound by — the same numbered list printed in
-              the PDF and shown above the pad at signing. Showing them here, verbatim, means
-              the customer can re-read exactly what they agreed to without hunting through a
-              downloaded file, and it can never disagree with the printed copy. */}
-          <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
-            <span className="text-[11px] font-bold text-ink/60 block mb-3">
-              {isAr ? `بنود العقد (${contractTerms(language, contract.deliveryTimelineWeeks || 0).length})` : `Contract Clauses (${contractTerms(language, contract.deliveryTimelineWeeks || 0).length})`}
-            </span>
-            <ol className="space-y-2.5 list-decimal list-inside">
-              {contractTerms(language, contract.deliveryTimelineWeeks || 0).map((term, i) => (
-                <li key={i} className="text-ink/90 leading-relaxed">
-                  {term}
-                </li>
-              ))}
-            </ol>
-          </div>
+          {/* البنود التي يلتزم بها العميل فعلاً — نفس القائمة المرقّمة المطبوعة في الوثيقة
+              والمعروضة فوق لوحة التوقيع لحظة الإنشاء، حرفياً، فيراجع ما وافق عليه دون فتح ملف.
+
+              ومصدرها اللقطة المجمَّدة متى وُجدت لا بنود اليوم: كانت هذه القائمة تُبنى من كود
+              اليوم بينما الوثيقة المطبوعة تُبنى من اللقطة، فكان عميل وقّع قبل تعديل أي بند يقرأ
+              على الشاشة نصاً وفي ملفه نصاً آخر — والملف هو الذي وقّعه. الآن الاثنان مصدر واحد. */}
+          {(() => {
+            const shownTerms =
+              frozenTerms && frozenTerms.length > 0
+                ? frozenTerms
+                : contractTerms(language, contract.deliveryTimelineWeeks || 0);
+            const isFrozen = Boolean(frozenTerms && frozenTerms.length > 0);
+            return (
+              <div className="rounded-xl bg-white/70 border border-ink/10 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setTermsOpen((open) => !open)}
+                  aria-expanded={termsOpen}
+                  className="w-full flex items-center justify-between gap-3 p-3 text-start cursor-pointer hover:bg-white/50 transition-colors"
+                >
+                  <span className="flex items-center gap-2 min-w-0">
+                    <FileText className="w-3.5 h-3.5 text-ink/60 shrink-0" />
+                    <span className="text-[11px] font-bold text-ink/70">
+                      {isAr ? `بنود العقد (${shownTerms.length})` : `Contract Clauses (${shownTerms.length})`}
+                    </span>
+                    {isFrozen && (
+                      <span className="text-[10px] text-ink/50 truncate">
+                        {isAr ? '— كما جُمِّدت يوم الاعتماد' : '— frozen on approval'}
+                      </span>
+                    )}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-ink/60 shrink-0 transition-transform duration-200 ${termsOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {termsOpen && (
+                  <ol className="px-3 pb-3 space-y-2.5 list-decimal list-inside text-xs">
+                    {shownTerms.map((term, i) => (
+                      <li key={i} className="text-ink/90 leading-relaxed">
+                        {term}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
+            );
+          })()}
 
           {contract.adminNotes && (
             <div className="p-3 rounded-xl bg-amber-100/80 border border-amber-300/40 text-xs">

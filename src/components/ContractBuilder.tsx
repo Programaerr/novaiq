@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Globe,
   Smartphone,
+  FileText,
+  ChevronDown,
   X
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
@@ -192,6 +194,34 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [paymentPlan] = useState<'50_50' | '100_upfront' | '3_milestones'>('50_50');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
+  /* البنود خلف زرّ.
+   *
+   * كانت مفتوحة دائماً: صندوق نصّ طويل يتوسّط الخطوة الأخيرة بين العنوان ولوحة التوقيع، فيدفع
+   * كل من وصل إلى هنا للتمرير فوقه لا لقراءته. الزرّ يجعل فتحها فعلاً مقصوداً — ويجعل الفتح
+   * قابلاً للتسجيل، وهذا هو الفرق المهم: بنود مخفيّة بلا شرط فتح تعني توقيعاً على نصّ لم
+   * يُعرض، وهو أسوأ من حائط نصّ.
+   *
+   * termsViewedAt هو الأثر الباقي (يُكتب في العقد نفسه — انظر types.ts)؛ termsOpen مجرد حالة
+   * عرض تُفتح وتُغلق كما يشاء. مربّع الموافقة معطَّل حتى يوجد الأول. */
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [termsViewedAt, setTermsViewedAt] = useState<string | null>(null);
+  const termsRef = useRef<HTMLDivElement | null>(null);
+
+  /** يفتح البنود ويسجّل لحظة أول فتح. التسجيل مرة واحدة: الفتح الثاني ليس عرضاً جديداً. */
+  const openTerms = () => {
+    setTermsOpen(true);
+    setFieldErrors((prev) => {
+      if (!prev.has('terms')) return prev;
+      const next = new Set(prev);
+      next.delete('terms');
+      return next;
+    });
+    if (!termsViewedAt) setTermsViewedAt(new Date().toISOString());
+    requestAnimationFrame(() => {
+      termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  };
+
   // Digital Signature Canvas
   const signaturePadRef = useRef<HTMLDivElement | null>(null);
   // Drives an inline highlight on the pad instead of an alert() — a modal popup that just
@@ -333,7 +363,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   if (!primaryColor) {
     missingItems.push({ step: 2, field: 'primaryColor', label: isAr ? 'اللون الأساسي' : 'The primary colour' });
   }
-  if (!agreedToTerms) {
+  /* الاطّلاع أولاً، ثم الموافقة — بندان لا بند واحد.
+     ما دامت البنود لم تُفتح فمربّع الموافقة معطَّل، وقول "أشِّر على مربّع الموافقة" لمن لا يقدر
+     أن يؤشّر يجعله يبحث عن عطل غير موجود. فالناقص هنا هو القراءة، ويُسمّى باسمها. */
+  if (!termsViewedAt) {
+    missingItems.push({ step: 3, field: 'terms', label: isAr ? 'فتح بنود العقد وقراءتها' : 'Opening and reading the contract terms' });
+  } else if (!agreedToTerms) {
     missingItems.push({ step: 3, field: 'agreedToTerms', label: isAr ? 'الموافقة على بنود العقد' : 'Accepting the contract terms' });
   }
   if (!hasSignature) {
@@ -354,6 +389,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     );
     const firstStep = Math.min(...items.map((m) => m.step));
     if (firstStep !== currentStep) setCurrentStep(firstStep);
+    /* لا يُفتح شيء تلقائياً هنا: فتح البنود نيابةً عن العميل يكتب في عقده أنه اطّلع عليها
+       بينما الذي حدث أنه ضغط "إتمام". النقل إلى مكانها هو أقصى ما يجوز. */
+    if (items.some((m) => m.field === 'terms')) {
+      requestAnimationFrame(() => {
+        termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
     if (items.some((m) => m.field === 'signature')) {
       setSignatureMissing(true);
       requestAnimationFrame(() => {
@@ -462,6 +504,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       // علامة أن هذا التوقيع بحبر داكن، فلا يقلبه أي عارض (انظر types.ts).
       signatureInk: 'dark',
       agreedToTerms,
+      // مفتاح غائب لا مفتاح بقيمة undefined — Firestore يرفض الثاني ويسقط الكتابة كلها.
+      ...(termsViewedAt ? { termsViewedAt } : {}),
       status: 'submitted',
       createdAt: new Date().toISOString(),
     };
@@ -1107,39 +1151,60 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </h3>
               </div>
 
-              {/* The agreement itself, in full, immediately above the pad that signs it.
-                  A customer should never have to take on trust what they are signing, and
-                  the clauses printed as section 4 of their PDF are exactly these — same
-                  module, same order, so the two cannot drift apart (src/data/contractTerms.ts).
-                  `data-lenis-prevent` because this box scrolls internally: without it the
-                  smooth-scroll wrapper takes the wheel and moves the page behind instead. */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <label className="text-sm font-bold text-white/85">
-                    {isAr ? 'بنود العقد — يُرجى قراءتها قبل التوقيع:' : 'Contract terms — please read before signing:'}
-                  </label>
-                  <span className="text-xs text-white/60 shrink-0">
-                    {isAr ? arCount(terms.length, 'بند واحد', 'بندان', 'بنود', 'بنداً') : `${terms.length} clauses`}
-                  </span>
-                </div>
-
-                <div
-                  data-lenis-prevent
-                  className="max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-obsidian p-4"
+              {/* البنود، كاملة، خلف زرّ واحد فوق لوحة التوقيع مباشرة.
+                  النصّ هو هو: نفس الوحدة ونفس الترتيب الذي يُطبع كقسم 4 في وثيقة العميل
+                  (src/data/contractTerms.ts)، فلا يمكن أن يختلف ما قرأه عمّا وقّعه. المخفيّ هو
+                  الحائط لا المحتوى، والفتح بضغطة — ومسجَّل، فلا يُوقَّع على نصّ لم يُعرض.
+                  `data-lenis-prevent` لأن الصندوق يمرّر داخلياً: بدونها يأخذ التمرير الناعم
+                  العجلة ويحرّك الصفحة خلفه. */}
+              <div className="space-y-2" ref={termsRef}>
+                <button
+                  type="button"
+                  onClick={() => (termsOpen ? setTermsOpen(false) : openTerms())}
+                  aria-expanded={termsOpen}
+                  className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-obsidian border text-start cursor-pointer transition-colors"
+                  style={{ borderColor: fieldErrors.has('terms') ? ERROR : 'rgba(255,255,255,0.1)' }}
                 >
-                  <ol className="list-decimal space-y-2.5 ps-4 marker:font-bold marker:text-white/60">
-                    {terms.map((term, i) => (
-                      <li key={i} className="text-sm leading-relaxed text-white/85">
-                        {term}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
+                  <span className="flex items-center gap-2 min-w-0">
+                    <FileText className="w-4 h-4 shrink-0 text-white/70" />
+                    <span className="text-sm font-bold text-white">
+                      {isAr ? 'بنود العقد' : 'Contract terms'}
+                    </span>
+                    <span className="text-xs text-white/60 shrink-0">
+                      {isAr ? arCount(terms.length, 'بند واحد', 'بندان', 'بنود', 'بنداً') : `${terms.length} clauses`}
+                    </span>
+                  </span>
+                  <span className="flex items-center gap-2 shrink-0">
+                    {termsViewedAt && <CheckCircle2 className="w-4 h-4" style={{ color: SUCCESS }} />}
+                    <ChevronDown
+                      className={`w-4 h-4 text-white/70 transition-transform duration-200 ${termsOpen ? 'rotate-180' : ''}`}
+                    />
+                  </span>
+                </button>
+
+                {termsOpen && (
+                  <div
+                    data-lenis-prevent
+                    className="max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-obsidian p-4 animate-fade-in"
+                  >
+                    <ol className="list-decimal space-y-2.5 ps-4 marker:font-bold marker:text-white/60">
+                      {terms.map((term, i) => (
+                        <li key={i} className="text-sm leading-relaxed text-white/85">
+                          {term}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
 
                 <p className="text-xs leading-relaxed text-white/60">
-                  {isAr
-                    ? 'توقيعك أدناه إقرار بأنك قرأت البنود أعلاه ووافقت عليها، ويُطبع توقيعك ضمن نسخة عقدك.'
-                    : 'Signing below acknowledges that you have read and accepted the terms above; they are printed in your contract copy.'}
+                  {termsViewedAt
+                    ? isAr
+                      ? 'توقيعك أدناه إقرار بأنك قرأت هذه البنود ووافقت عليها، وتُطبع كاملة ضمن نسخة عقدك.'
+                      : 'Signing below acknowledges that you have read and accepted these terms; they are printed in full in your contract copy.'
+                    : isAr
+                      ? 'افتح البنود واقرأها أولاً — لا يمكن الموافقة على نصّ لم يُعرض عليك.'
+                      : 'Open the terms and read them first — you cannot accept text that was never shown to you.'}
                 </p>
               </div>
 
@@ -1209,17 +1274,34 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               </div>
 
               <div className="p-4 rounded-2xl bg-obsidian border border-white/10 text-sm text-white/85 space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+                {/* معطَّل قبل فتح البنود. المربّع نصّه "أوافق على بنود العقد أعلاه"، والتأشير
+                    عليه دون فتحها يجعل الجملة غير صحيحة — والموافقة هي كل ما يُحتجّ به لاحقاً. */}
+                <label className={`flex items-center gap-2 ${termsViewedAt ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
                   <input
                     type="checkbox"
+                    disabled={!termsViewedAt}
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="w-4 h-4 rounded bg-graphite border-steel/60 text-white focus:ring-white cursor-pointer"
+                    className="w-4 h-4 rounded bg-graphite border-steel/60 text-white focus:ring-white cursor-pointer disabled:cursor-not-allowed"
                   />
                   <span className="text-sm font-semibold text-white leading-relaxed">
                     {getTranslation('agreeTermsCheckbox', lang)}
                   </span>
                 </label>
+
+                {!termsViewedAt && (
+                  <button
+                    type="button"
+                    onClick={openTerms}
+                    className="text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    style={{ color: ERROR }}
+                  >
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span className="underline decoration-white/30">
+                      {isAr ? 'اضغط هنا لفتح البنود وقراءتها قبل الموافقة.' : 'Open the terms and read them before accepting.'}
+                    </span>
+                  </button>
+                )}
               </div>
 
               {/* The figure, last and alone. One number, not a breakdown: with the priced add-on
@@ -1269,6 +1351,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         setCurrentStep(item.step);
                         setFieldErrors(new Set([item.field]));
                         if (item.field === 'signature') setSignatureMissing(true);
+                        // السطر مكتوب "فتح بنود العقد وقراءتها"، والضغط عليه هو الفتح نفسه.
+                        if (item.field === 'terms') openTerms();
                       }}
                       className="text-xs font-bold text-white/85 hover:text-white cursor-pointer flex items-center gap-2"
                     >

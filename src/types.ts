@@ -129,6 +129,17 @@ export interface ContractData {
    */
   signatureInk?: 'dark';
   agreedToTerms: boolean;
+  /**
+   * لحظة فتح العميل لبنود العقد لأول مرة (ISO).
+   *
+   * البنود صارت خلف زرّ بدل حائط نصّ مفتوح دائماً. المكسب أن الخطوة الأخيرة لم تعد جداراً
+   * يُمرَّر عليه بالتمرير، والخطر المقابل أن يوقّع أحد على بنود لم تُعرض عليه أصلاً — و"أوافق
+   * على البنود" حينها ادّعاء بلا أثر. هذا الحقل هو الأثر: النموذج لا يفعّل مربّع الموافقة قبل
+   * الفتح، ويكتب هنا لحظته.
+   *
+   * غيابه في عقد قديم ليس نقصاً: تلك العقود أُنشئت والبنود مفتوحة أمام صاحبها طوال الخطوة.
+   */
+  termsViewedAt?: string;
   // Set only by the admin dashboard — NUVAIQ's own sign-off, shown on the printed contract
   // next to the client's signature so the client can see the work was actually approved.
   companySignatureDataUrl?: string;

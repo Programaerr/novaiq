@@ -571,6 +571,17 @@ function ContractRow({
                 </strong>
               </div>
               <div>
+                {/* متى عُرضت عليه البنود قبل توقيعه. البنود خلف زرّ الآن، فهذا هو ما يجيب على
+                    "هل قرأها؟" بدل الاكتفاء بأنه أشّر على مربّع. عقد قديم لا يحمل الحقل لأن
+                    بنوده كانت مفتوحة أمامه طوال الخطوة. */}
+                <span className="text-ink/50 block">{isAr ? 'اطّلع على البنود' : 'Terms opened'}</span>
+                <strong className="text-ink" dir="ltr">
+                  {contract.termsViewedAt
+                    ? new Date(contract.termsViewedAt).toLocaleString(isAr ? 'ar-IQ' : 'en-GB')
+                    : (isAr ? 'عقد سابق — كانت معروضة' : 'Legacy — shown inline')}
+                </strong>
+              </div>
+              <div>
                 <span className="text-ink/50 block">{isAr ? 'رقم السجل' : 'CR / ID'}</span>
                 <strong className="text-ink font-mono" dir="ltr">{contract.crNumber || '—'}</strong>
               </div>
