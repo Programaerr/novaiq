@@ -3,6 +3,7 @@
 // والملاحظة قابلة للتعديل والحفظ من هنا مباشرة (customer_notes)، منفصلة تماماً عن العقود نفسها:
 // تعديلها لا يغيّر أي عقد قديم — تلك تبقى سجلاً تاريخياً لما وُقِّع عليه فعلاً بالضبط.
 import { useEffect, useState } from 'react';
+import { IRAQI_PHONE_LENGTH, IRAQI_PHONE_RULE, sanitizeIraqiPhone } from '../../lib/iraqiPhone';
 import { createPortal } from 'react-dom';
 import { X, Phone, Mail, MapPin, Calendar, FileCheck, Loader2, Save, StickyNote, Home, RefreshCw } from 'lucide-react';
 import { ContractData } from '../../types';
@@ -202,11 +203,17 @@ export function CustomerProfileSheet({
                       <Phone className="w-3 h-3" />
                       {isAr ? 'رقم الهاتف' : 'Phone'}
                     </label>
+                    {/* نفس قانون رقم الهاتف في كل الموقع — هذا الحقل يحمل رقم نفس العميل الذي
+                        أدخله بنفسه في النموذج، فقاعدة أوسع هنا كانت تسمح لنا بأن نحفظ عنه رقماً
+                        ما كان ليقدر هو أن يكتبه. */}
                     <input
                       type="tel"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => setPhone(sanitizeIraqiPhone(e.target.value))}
+                      inputMode="numeric"
+                      maxLength={IRAQI_PHONE_LENGTH}
                       dir="ltr"
+                      title={isAr ? IRAQI_PHONE_RULE.ar : IRAQI_PHONE_RULE.en}
                       placeholder={isAr ? 'مثال: 07701234567' : 'e.g. 07701234567'}
                       className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 focus:border-periwinkle focus:outline-none text-ink text-xs font-mono"
                     />

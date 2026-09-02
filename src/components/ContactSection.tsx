@@ -1,11 +1,12 @@
 import React, { useCallback, useId, useState } from 'react';
-import { Send, MessageCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
+import { IRAQI_PHONE_LENGTH, IRAQI_PHONE_RULE, isValidIraqiPhone, sanitizeIraqiPhone } from '../lib/iraqiPhone';
 import { trackEvent } from '../lib/analytics';
 import { ERROR, OBSIDIAN, PAPER, PAPER_DEEP, SUCCESS, WHITE } from '../lib/homePalette';
 import { BAND_FADE, SIGNAL_TONES, TileField } from './TileField';
@@ -66,10 +67,7 @@ const FIELDS: Field[] = [
     en: 'Your phone',
     type: 'tel',
     autoComplete: 'tel',
-    hint: {
-      ar: 'رقم عراقي يبدأ بـ 07 ويتكوّن من 11 رقماً — أو بصيغة 964+.',
-      en: 'An Iraqi number starting 07, 11 digits — or in +964 form.',
-    },
+    hint: IRAQI_PHONE_RULE,
   },
   { key: 'message', ar: 'رسالتك', en: 'Your message', type: 'textarea', autoComplete: 'off' },
 ];
@@ -79,21 +77,18 @@ type Errors = Partial<Record<Field['key'], string>>;
 
 const EMPTY: Values = { name: '', phone: '', message: '' };
 
-/**
- * Iraqi mobile numbers start with 07 and run to 11 digits; a leading +964 is also accepted.
- * Looser than the strict contract check on purpose — this is a first-touch message, not a signed
- * document, so a friendly nudge beats a hard wall.
- */
-const PHONE = /^(?:\+964|0)?7\d{9}$/;
+/* القانون نفسه الذي يفرضه منشئ العقود، من نفس الوحدة (lib/iraqiPhone.ts).
+   كان هنا تعبيراً أوسع يقبل `+964` بحجّة أن هذه "لمسة أولى لا وثيقة موقّعة" — والنتيجة أن رقماً
+   يُقبل هنا ويُرفض في العقد، فيصطدم به صاحبه في أسوأ لحظة: وهو يوقّع. قاعدة واحدة، في الشاشتين. */
 
 function validate(values: Values, isAr: boolean): Errors {
   const errors: Errors = {};
   if (!values.name.trim()) errors.name = isAr ? 'اكتب اسمك.' : 'Please enter your name.';
   if (!values.phone.trim()) errors.phone = isAr ? 'اكتب رقم هاتفك.' : 'Please enter your phone.';
-  else if (!PHONE.test(values.phone.replace(/\s+/g, '')))
+  else if (!isValidIraqiPhone(values.phone))
     errors.phone = isAr
-      ? 'الرقم مو صحيح — لازم يبدأ بـ 07 ويكون 11 رقم (أو بصيغة 964+).'
-      : 'That number does not look right — it must start 07 and be 11 digits (or in +964 form).';
+      ? `الرقم مو صحيح — ${IRAQI_PHONE_RULE.ar}`
+      : `That number does not look right — ${IRAQI_PHONE_RULE.en.toLowerCase()}`;
   if (!values.message.trim()) errors.message = isAr ? 'اكتب رسالتك.' : 'Please enter a message.';
   return errors;
 }
@@ -123,9 +118,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
   const [touched, setTouched] = useState<Partial<Record<Field['key'], boolean>>>({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  /* رابط واتساب حين يحجب المتصفح فتحه تلقائياً. يُعرَض عندها كزرّ يضغطه الزائر بنفسه — ضغطة
+     على رابط حقيقي لا تُحجب أبداً — بدل أن ننقل صفحة الموقع نفسها إلى واتساب. */
+  const [blockedUrl, setBlockedUrl] = useState('');
 
   const set = useCallback((key: Field['key'], v: string) => {
-    setValues((prev) => ({ ...prev, [key]: v }));
+    /* القانون يُفرَض هنا لا عند الإرسال: حرف مكتوب في خانة رقم لا يدخل أصلاً، والرقم الثاني
+       عشر لا يُكتب. حقل خاطئ مستحيل أهدأ من حقل خاطئ مرفوض. */
+    setValues((prev) => ({ ...prev, [key]: key === 'phone' ? sanitizeIraqiPhone(v) : v }));
     /* Clear the error as the field changes rather than re-validating on every keystroke: a message
        that is still wrong the instant you start fixing it is worse than no message. */
     setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
@@ -179,11 +179,48 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
        * والفتح هنا، قبل أي await: نافذة تُفتح بعد انتظار غير متزامن تفقد ارتباطها بضغطة
        * المستخدم فيحجبها المتصفح (Safari بالذات بلا إنذار) — ويصير الزرّ زرّاً لا يفعل شيئاً.
        * وإن حُجبت رغم ذلك، ننتقل في نفس التبويب بدل أن نبتلع الطلب بصمت. */
-      const opened = Boolean(waNumber);
-      if (opened) {
-        const url = whatsappLink(waNumber, composeWhatsappText());
-        const win = window.open(url, '_blank', 'noopener,noreferrer');
-        if (!win) window.location.href = url;
+      /* بلا رقم واتساب لا يوجد إرسال، فلا يجوز أن تقول الشاشة إنه حصل.
+       *
+       * كان النموذج يعود عندها إلى الكتابة في `contact_messages` ويعرض "وصلت رسالتك. نرد عليك
+       * قريباً" — ولا شاشة في الموقع تقرأ تلك المجموعة، فالجملة وعدٌ لا أحد على الطرف الآخر
+       * منه. رسالة نجاح كاذبة أسوأ من رسالة فشل: من رآها ينتظر رداً لن يأتي، ولا يجرّب قناة
+       * أخرى لأنه يظنّ أنه أوصل. الفشل يُقال، ومعه الطريق البديل. */
+      if (!waNumber) {
+        showToast(
+          isAr
+            ? 'ما انرسلت الرسالة — قناة الإرسال مو متاحة حالياً. تواصل ويانا من روابط أسفل الموقع.'
+            : 'The message did not send — the sending channel is unavailable right now. Use the contact links in the footer.',
+          'error',
+        );
+        return;
+      }
+
+      /* تبويب جديد دائماً، وصفحة الموقع تبقى كما هي.
+       *
+       * كان هنا `window.open(url, '_blank', 'noopener,noreferrer')` يليه
+       * `if (!win) window.location.href = url` — وهذا هو سبب انتقال الموقع نفسه إلى واتساب:
+       * حين تُمرَّر `noopener` في قائمة الخصائص تُعيد `window.open` القيمة `null` **حتى عند
+       * النجاح** (سلوك موثَّق، لا عطل). فكان الشرط يقرأ نجاحاً على أنه حجب، فيُفتح التبويب
+       * الجديد وتُنقل الصفحة الحالية أيضاً — تبويبان على واتساب، ولا موقع يُرجَع إليه.
+       *
+       * الحلّ: فتح بلا `noopener` في القائمة (فتصير القيمة المُعادة صادقة)، ثم قطع `opener`
+       * يدوياً — نفس الحماية بلا فقدان الإشارة. وإن كان الحجب حقيقياً فلا انتقال إطلاقاً: يظهر
+       * زرّ يفتحه الزائر بنفسه. */
+      const url = whatsappLink(waNumber, composeWhatsappText());
+      const win = window.open(url, '_blank');
+      if (win) {
+        // يمنع صفحة واتساب من الوصول إلى نافذتنا عبر window.opener.
+        win.opener = null;
+        setBlockedUrl('');
+      } else {
+        setBlockedUrl(url);
+        showToast(
+          isAr
+            ? 'المتصفح منع فتح واتساب. اضغط زر «افتح واتساب» تحت النموذج.'
+            : 'Your browser blocked WhatsApp from opening. Use the "Open WhatsApp" button below the form.',
+          'error',
+        );
+        return;
       }
 
       setSending(true);
@@ -200,19 +237,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
         // بلا اسم ولا رقم ولا نص الرسالة — الحدث نفسه فقط (رسالة وصلت)، انظر lib/analytics.ts.
         trackEvent('contact_message_sent', { language });
       } catch {
-        /* فشل النسخة الداخلية لا يعني ضياع الرسالة إذا فُتح واتساب — إنذارٌ حينها يقول للعميل
-           إن شيئاً لم ينجح بينما رسالته أمامه جاهزة، وهذا أسوأ من الصمت. بلا واتساب، الفشل
-           فشل حقيقي ويُقال كما هو، مع إبقاء ما كتبه. */
-        if (!opened) {
-          showToast(
-            isAr
-              ? 'ما انرسلت الرسالة. جرب مرة ثانية أو تواصل ويانا مباشرة.'
-              : 'The message did not send. Try again, or reach us directly.',
-            'error',
-          );
-          setSending(false);
-          return;
-        }
+        /* فشل النسخة الداخلية لا يعني ضياع الرسالة: واتساب مفتوح ورسالته فيه. إنذارٌ هنا يقول
+           له إن شيئاً لم ينجح بينما الرسالة أمامه جاهزة — وهذا يدفعه لإعادة الإرسال مرّتين. */
       }
 
       setSent(true);
@@ -345,6 +371,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                           name={field.key}
                           type={field.type}
                           autoComplete={field.autoComplete}
+                          {...(field.key === 'phone'
+                            ? { inputMode: 'numeric' as const, maxLength: IRAQI_PHONE_LENGTH, dir: 'ltr' as const }
+                            : {})}
                           value={values[field.key]}
                           onChange={(e) => set(field.key, e.target.value)}
                           onBlur={() => blur(field.key)}
@@ -411,19 +440,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                   className="uw:text-base"
                   /* الزرّ يقول إلى أين يأخذك. زرّ مكتوب عليه "أرسل" يفتح تطبيقاً آخر هو
                      مفاجأة، ومفاجأة في زرّ إرسال تُقرأ كعطل. */
-                  badge={
-                    waNumber ? (
-                      <MessageCircle className="w-4 h-4" strokeWidth={2.4} />
-                    ) : (
-                      <Send className="w-4 h-4" strokeWidth={2.4} />
-                    )
-                  }
+                  badge={<MessageCircle className="w-4 h-4" strokeWidth={2.4} />}
                 >
-                  {sending
-                    ? (isAr ? 'جاري الإرسال…' : 'Sending…')
-                    : waNumber
-                      ? (isAr ? 'أرسل عبر واتساب' : 'Send on WhatsApp')
-                      : (isAr ? 'أرسل' : 'Send')}
+                  {sending ? (isAr ? 'جاري الإرسال…' : 'Sending…') : isAr ? 'أرسل عبر واتساب' : 'Send on WhatsApp'}
                 </NqButton>
 
                 {/* The confirmation sits beside the button that caused it, and is announced, on
@@ -432,13 +451,25 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     brown-green rather than success). On Obsidian, SUCCESS stays itself at full
                     saturation (8.70:1) — exactly the case the brief's semantic system exists
                     for: Orange cannot also mean "this worked". */}
+                {/* الحجب لا يُنهي الطريق: رابط حقيقي يضغطه الزائر، ورسالته محفوظة فيه كما
+                    كتبها. `target="_blank"` هنا آمن بذاته — المتصفحات الحديثة تضمّن noopener
+                    لكل رابط بهذا الهدف، و`rel` يقولها صراحةً للقديمة. */}
+                {blockedUrl && !sent && (
+                  <a
+                    href={blockedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] font-extrabold"
+                    style={{ color: SUCCESS, background: OBSIDIAN }}
+                  >
+                    <MessageCircle className="w-4 h-4" strokeWidth={2.4} />
+                    {isAr ? 'افتح واتساب' : 'Open WhatsApp'}
+                  </a>
+                )}
+
                 {sent && (
                   <p role="status" className="inline-block px-2.5 py-1 rounded-lg text-[0.85rem] font-extrabold" style={{ color: SUCCESS, background: OBSIDIAN }}>
-                    {waNumber
-                      ? (isAr
-                          ? 'فتحنا لك واتساب ورسالتك مكتوبة — اضغط إرسال هناك.'
-                          : 'WhatsApp is open with your message — hit send there.')
-                      : (isAr ? 'وصلت رسالتك. نرد عليك قريباً.' : 'Got it. We will reply shortly.')}
+                    {isAr ? 'تم الإرسال' : 'Sent'}
                   </p>
                 )}
               </div>
