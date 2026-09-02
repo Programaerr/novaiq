@@ -35,13 +35,15 @@ import { queueWebGLBuild } from '../../lib/webglBuildQueue';
  *
  * ## Two inks sit on this, so the amplitude is a contrast decision
  *
- *   panel `#273036`   wordmark 12.53:1   tagline (white at 0.72) 7.28:1
- *   crest `#373E42`   wordmark 10.14:1   tagline 6.15:1
- *   crest + full glint `#4C5154`   wordmark 7.53:1   tagline 4.86:1
+ *   trough `#081C25`              wordmark 16.27:1   tagline 8.88:1
+ *   panel  `#273036` (the mean)   wordmark 12.53:1   tagline 7.28:1
+ *   crest  `#373E42`              wordmark 10.14:1   tagline 6.15:1
+ *   crest + full glint `#4B5053`  wordmark  7.61:1   tagline 4.87:1
  *
- * The last row is the worst pixel the surface can produce landing directly under the smaller,
- * dimmer of the two inks, and it still clears the 4.5 floor. The tagline is what set the
- * amplitude; the wordmark was never close to the limit.
+ * The last row is the worst pixel this surface can produce, landing directly under the smaller
+ * and dimmer of the two inks. It is what set the glint: at 0.05 that row reads 4.46:1 and is the
+ * one thing on the panel that would have gone under the 4.5 floor, so the glint is 0.035. The
+ * wordmark was never anywhere near the limit; the tagline decided every number here.
  */
 
 /* ── الشكل ────────────────────────────────────────────────────────────────────────────────── */
@@ -63,8 +65,13 @@ const CREST = shadeLinear(PANEL, SWELL);
 
 /** بريق الضوء على الماء. أبيض الموقع، لا أبيض خالص — لا شيء في هذه اللوحة يصل `#FFFFFF`. */
 const GLINT = '#F7F7F5';
-/** كم يضيف البريق في أشدّ لمعة. القيمة التي تُبقي أسوأ بكسل عند 4.86:1 تحت النص الأصغر. */
-const GLINT_AMT = 0.05;
+/**
+ * كم يضيف البريق في أشدّ لمعة، بوحدات الضوء الخطّي.
+ *
+ * مقاسة لا مُقدَّرة: 0.05 تضع أسوأ بكسل عند 4.46:1 تحت السطر الثانوي — أي تحت أرضية 4.5 — و0.035
+ * تضعه عند 4.87:1. هذا الرقم وحده هو ما تحدّده قراءة النص، لا شكل الماء.
+ */
+const GLINT_AMT = 0.035;
 
 /**
  * طول الموجة، بالبكسل لكل وحدة من وحدات `swell`.

@@ -4,6 +4,7 @@ import { Language } from '../lib/i18n';
 import { ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
+import { WaterFill } from './ui/WaterFill';
 
 /**
  * The home page's container: a WARM WHITE screen with a swell of tiles running across it, and a
@@ -101,10 +102,25 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                so both were re-measured: the wordmark 12.53:1, the tagline 7.29:1, and the panel
                itself 12.53:1 against the hero's warm-white ground so it still reads as a slab
                laid on the page rather than a tint of it. */
+            /* The flat fill stays even though the water covers it. It is what shows for the
+               ~200ms before the build queue reaches this surface, and what shows forever in a
+               browser without WebGL: the card is still exactly its own colour rather than a
+               hole. A fallback that IS the thing being replaced is the only kind worth
+               having here. */
             style={{ background: ORANGE }}
           >
+            {/* The same colour, moving — and the same wave the cube field beside it runs, so
+                the two read as one body of water with a slab lying in it. See WaterFill for
+                why its mean is the panel's colour by construction rather than by eye. */}
+            <WaterFill />
+
             <div
-              className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
+              /* `relative` for PAINTING ORDER, not for layout. A positioned element paints
+                 above in-flow content in the same stacking context regardless of DOM order,
+                 so without this the canvas above would cover the wordmark. Positioned too,
+                 both land in the same painting step and being written second is what puts
+                 this on top. */
+              className="relative w-full max-w-[22rem] uw:max-w-[27rem] text-center"
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
