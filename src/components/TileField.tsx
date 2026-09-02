@@ -670,6 +670,9 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
    * عن قصد: بعد الإنشاء يبقى مركوناً على frameloop='never' خارج الشاشة بدل أن يُهدَم — هدم
    * الكانفاس يتلف السياق، وإعادة بنائه تكلّف الترجمة من جديد في كل مرّة يعود فيها القسم. */
   const [everActive, setEverActive] = useState(false);
+  /* Whether the observer has answered yet. Its FIRST answer is the only one that can tell us
+     "this field is in the opening view" -- every answer after it is the result of a scroll. */
+  const answered = useRef(false);
 
   /* المراقبة تبدأ بعد أول رسم، لا معه.
    *
@@ -685,7 +688,19 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
     let io: IntersectionObserver | undefined;
     const frame = requestAnimationFrame(() =>
       requestAnimationFrame(() => {
-        io = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), {
+        io = new IntersectionObserver(([entry]) => {
+          setActive(entry.isIntersecting);
+          /* A field already on screen when the observer first speaks is one the reader is
+             looking at RIGHT NOW, so it skips the idle queue below and is built in this
+             frame. Measured, that queue was costing 623ms of empty hero on every reload:
+             page load is the moment a browser is least likely to be idle, so the deferral
+             was longest exactly where it hurt most. Fields that arrive later by scrolling
+             still go through it -- that is where a compile hitch is actually felt. */
+          if (!answered.current) {
+            answered.current = true;
+            if (entry.isIntersecting) setEverActive(true);
+          }
+        }, {
           rootMargin: '150px 0px',
         });
         io.observe(el);
