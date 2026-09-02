@@ -12,6 +12,17 @@ import { trackEvent } from './analytics';
 
 const googleProvider = new GoogleAuthProvider();
 
+/* اختيار الحساب في كل مرة، لا الدخول الصامت بآخر حساب.
+ *
+ * تسجيل الخروج عندنا ينهي جلسة الموقع فقط؛ جلسة Google في المتصفح تبقى قائمة، وهي ملكها لا
+ * ملكنا ولا نستطيع إنهاءها. فحين يضغط المستخدم "دخول بحساب Google" مرة أخرى، تجد Google جلسة
+ * واحدة نشطة فتعيده بها فوراً بلا أن تسأله — فيبدو الأمر وكأن الموقع "لم يخرجه" أصلاً، ولا
+ * سبيل له للدخول بحساب آخر.
+ *
+ * `prompt: 'select_account'` يجبر شاشة اختيار الحساب في كل محاولة دخول، حتى مع جلسة واحدة
+ * نشطة. لا يغيّر شيئاً في بقاء الجلسة: من دخل يبقى داخلاً بعد تحديث الصفحة كما كان. */
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+
 // Everyone — customers and the owner/partner alike — signs in through the exact same
 // Google popup. There's no separate "admin sign-up": signing in here only ever grants a
 // normal customer view (their own contracts). Admin access is a completely separate
