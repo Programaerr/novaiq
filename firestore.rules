@@ -181,6 +181,26 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // لقطة العقد المعتمَد — نسخة مجمَّدة من مضمونه لحظة الاعتماد.
+    //
+    // `create` فقط: لا update ولا delete لأحد، ولا للأدمن. لقطة يمكن تعديلها لا تُثبت شيئاً،
+    // وكل قيمتها في أنها لا تتغيّر بعد كتابتها — فما يُطبع للعميل بعد سنة هو نصّ البنود
+    // والأرقام كما كانت يوم وقّع، لا كما صارت بعد تعديل على الموقع.
+    //
+    // القراءة لصاحب العقد أيضاً لا للأدمن وحده: هو من ينزّل نسخته. الملكية تُتحقَّق بقراءة
+    // مستند العقد نفسه (get) بدل تكرار بيانات المالك هنا — مصدر واحد للحقيقة.
+    match /contract_snapshots/{contractNumber} {
+      function ownsTheContract() {
+        return request.auth != null
+          && exists(/databases/$(database)/documents/contracts/$(contractNumber))
+          && get(/databases/$(database)/documents/contracts/$(contractNumber)).data.uid == request.auth.uid;
+      }
+
+      allow read: if isAdmin() || ownsTheContract();
+      allow create: if isAdmin() && request.resource.data.contractNumber == contractNumber;
+      allow update, delete: if false;
+    }
+
     // سجل التدقيق: من غيّر ماذا ومتى، سطر لكل تعديل إداري على عقد.
     //
     // `create` فقط — لا update ولا delete، ولو للأدمن نفسه. سجل يمكن تعديله أو حذفه ليس سجلاً:
