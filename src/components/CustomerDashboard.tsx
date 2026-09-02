@@ -254,6 +254,9 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
         {/* لا يوجد Navbar فوق هذه الصفحة (مخفي عمداً) ولا Footer تحتها، فالعودة للموقع كانت
             تعتمد فقط على زر رجوع المتصفح قبل هذا الزر. */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* أيقونة فقط، كما في لوحة التحكم: الشريط هنا يحمل اسم صاحب الحساب وبريده، وكلمتان
+              إضافيتان بجانبهما تزاحمانه على شاشة ضيّقة. الاسم لم يُحذف بل انتقل إلى
+              `aria-label` و`title` — يسمعه قارئ الشاشة ويراه من يقف بالمؤشّر، ولا يشغل عرضاً. */}
           <NqButton
             tone="white"
             variant="quiet"
@@ -261,9 +264,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
             radius="xl"
             onClick={onBackToSite}
             aria-label={isAr ? 'العودة للموقع' : 'Back to site'}
-            icon={<Home className="w-4 h-4" />}
+            title={isAr ? 'العودة للموقع' : 'Back to site'}
+            className="w-10 px-0"
           >
-            <span className="hidden sm:inline">{isAr ? 'العودة للموقع' : 'Back to site'}</span>
+            <Home className="w-4 h-4" />
           </NqButton>
           {/* `sand`, which is the ground this dashboard is painted on — it was carrying the dark
               chrome's `.nq-btn` on a light page. Signing out is not the primary action here, so it
@@ -276,9 +280,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
             radius="xl"
             onClick={() => setShowLogoutConfirm(true)}
             aria-label={isAr ? 'تسجيل الخروج' : 'Sign Out'}
-            icon={<LogOut className="w-4 h-4" />}
+            title={isAr ? 'تسجيل الخروج' : 'Sign Out'}
+            className="w-10 px-0"
           >
-          <span className="hidden sm:inline">{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
+            <LogOut className="w-4 h-4" />
           </NqButton>
         </div>
       </div>

@@ -37,6 +37,10 @@ export const auth: Auth = getAuth(app);
    المستعمل، والقديم يُقرأ مرة واحدة عند أول تشغيل وتُنقل بياناته إليه (migrateLegacyKeys
    أدناه) حتى لا يفقد أحد عقوداً محفوظة على جهازه أثناء مزامنة فاشلة. */
 const LOCAL_CONTRACTS_KEY = 'nuvaiq_contracts';
+
+/** النسخة المحلّية من العقد، ومعها لحظة وصولها إلى الخادم إن وصلت. الحقل محلّي بحت ولا
+ *  يُكتب في Firestore — انظر استعماله في saveContractToFirebase والاشتراكين أدناه. */
+type LocalContract = ContractData & { syncedAt?: string };
 const LOCAL_DELETED_KEY = 'nuvaiq_deleted_contracts';
 const LOCAL_UPDATED_EVENT = 'nuvaiq_contracts_updated';
 
@@ -65,6 +69,38 @@ const CONTRACT_FINANCE_COLLECTION = 'contract_finance';
 const CONTRACT_AUDIT_COLLECTION = 'contract_audit';
 
 // Helper to track deleted identifiers so Firestore snapshot listeners never resurrect deleted contracts
+/**
+ * يوفّق النسخ المحلّية مع لقطة الخادم.
+ *
+ * يعيد ما يستحق العرض من المحلّي فقط — أي ما لم يصل الخادم بعد — ويمسح من التخزين كل نسخة
+ * سبق أن وصلته ثم غابت عن لقطته: غيابها بعد وصولها يعني حذفاً وقع هناك، وإعادة إظهارها هي
+ * بالضبط ما كان يُبقي عقداً محذوفاً في حساب صاحبه إلى الأبد.
+ */
+function reconcileLocalWithCloud(cloudNumbers: Set<string>): ContractData[] {
+  try {
+    const local: LocalContract[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
+    const keep: LocalContract[] = [];
+    const pending: LocalContract[] = [];
+    for (const item of local) {
+      const num = (item.contractNumber || '').trim();
+      if (cloudNumbers.has(num)) {
+        keep.push(item); // موجود على الخادم: تبقى النسخة المحلّية كنسخة احتياطية بلا عرض مستقل.
+      } else if (item.syncedAt) {
+        // وصل الخادم ثم غاب عنه = حُذف هناك. لا يُحفظ ولا يُعرض.
+      } else {
+        keep.push(item);
+        pending.push(item); // لم يصل بعد: يستحق الظهور حتى تنجح المزامنة.
+      }
+    }
+    if (keep.length !== local.length) {
+      localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(keep));
+    }
+    return pending;
+  } catch {
+    return [];
+  }
+}
+
 function getDeletedIdentifiers(): Set<string> {
   try {
     const list: string[] = JSON.parse(localStorage.getItem(LOCAL_DELETED_KEY) || '[]');
@@ -149,6 +185,11 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
       const idx = localContracts.findIndex(c => (c.contractNumber || '').trim() === contractNum);
       if (idx >= 0) {
         localContracts[idx].id = docRef.id;
+        /* علامة "هذه النسخة وصلت الخادم".
+           بدونها لا تفرّق الواجهة بين عقد لم يصل السحابة بعد وعقد **حُذف منها** — وكلاهما
+           "محلّي وغير موجود في اللقطة". وهذا هو سبب بقاء العقد ظاهراً عند العميل بعد حذفه:
+           نسخته المحلّية كانت تُقرأ كعقد ينتظر المزامنة، فتُعاد إظهاره إلى الأبد. */
+        (localContracts[idx] as LocalContract).syncedAt = new Date().toISOString();
         localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(localContracts));
       }
     } catch (err) {
@@ -514,9 +555,10 @@ export function subscribeToContracts(callback: (contracts: ContractData[]) => vo
             return dateB - dateA;
           });
 
-          const localContracts = getLocalData();
           const cloudNumbers = new Set(contracts.map(c => (c.contractNumber || '').trim()));
-          const pendingLocal = localContracts.filter(c => !cloudNumbers.has((c.contractNumber || '').trim()));
+          /* نفس التوفيق الذي يجري في اشتراك العميل: نسخة محلّية وصلت الخادم ثم غابت عنه
+             محذوفة، لا "بانتظار المزامنة" — وإعادة إظهارها كانت تعيد عقوداً محذوفة. */
+          const pendingLocal = reconcileLocalWithCloud(cloudNumbers);
           notify([...contracts, ...pendingLocal]);
         } catch {
           notify(getLocalData());
@@ -609,8 +651,9 @@ export function subscribeToMyContracts(
         });
         contracts.sort((a, b) => (b.createdAt ? new Date(b.createdAt).getTime() : 0) - (a.createdAt ? new Date(a.createdAt).getTime() : 0));
         const cloudNumbers = new Set(contracts.map((c) => (c.contractNumber || '').trim()));
-        const pendingLocal = getLocalData().filter((c) => !cloudNumbers.has((c.contractNumber || '').trim()));
-        notify([...contracts, ...pendingLocal]);
+        /* المحلّي لا يُعيد إحياء ما حُذف: `reconcileLocalWithCloud` تُعيد ما لم يصل الخادم
+           بعد فقط، وتمسح من التخزين كل نسخة وصلته ثم غابت عنه. */
+        notify([...contracts, ...reconcileLocalWithCloud(cloudNumbers)]);
       },
       (_err) => {
         console.warn('Customer contract snapshot notice (falling back to local data):', _err?.message || 'Offline/Rate limit');
@@ -673,6 +716,21 @@ export async function deleteContractFromFirebase(contractId?: string, contractNu
     /* الرمي مقصود: لو ابتلعنا الخطأ هنا لعاد العطل نفسه — واجهة تقول "حُذف" وخادم لم يحذف.
        موضع الاستدعاء يعرض الفشل، والعقد يبقى ظاهراً للطرفين. */
     await Promise.all(targets.map((id) => deleteDoc(doc(db, CONTRACTS_COLLECTION, id))));
+
+    /* تحقّق، لا ثقة.
+       `deleteDoc` قد يعود دون أن يكون المستند قد اختفى فعلاً (كتابة محلّية غير مؤكَّدة، أو
+       رفض يصل متأخراً). وإعلان نجاح لم يقع هو أصل هذا العطل كلّه: عقد يبقى عند صاحبه ونحن
+       نظنّه محذوفاً. القراءة ثانيةً تحسم الأمر قبل أن نُخفيه محلّياً. */
+    if (targets.length > 0) {
+      const after = await getDocs(collection(db, CONTRACTS_COLLECTION));
+      const survivors: string[] = [];
+      after.forEach((docSnap) => {
+        if (targets.includes(docSnap.id)) survivors.push(docSnap.id);
+      });
+      if (survivors.length > 0) {
+        throw new Error(`Contract still present after delete: ${survivors.join(', ')}`);
+      }
+    }
   }
 
   // نجح الحذف على الخادم (أو لم يكن هناك ما يُحذف): الآن يُخفى محلّياً.
