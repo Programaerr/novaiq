@@ -36,9 +36,14 @@
      previous (Cobalt) identity used one. EMBER stays a sparing secondary. */
   --color-obsidian: #080A0D;
   --color-graphite: #12161C;
-  --color-orange: #FF8E3D;
-  --color-orange-on-light: #BA4F04;
-  --color-ember: #FFA552;
+  --color-orange: #273036;
+  /* Redundant now and kept only for the `periwinkle` alias and six call sites: the accent is
+     12.53:1 on warm white on its own, so there is nothing left to darken. */
+  --color-orange-on-light: #273036;
+  /* The LIGHT twin, for the grounds the accent vanishes on -- 1.47:1 on Obsidian, 1.35:1 on
+     Graphite. Same hue and saturation, lightness 80 instead of 18. */
+  --color-orange-on-dark: #C4CED4;
+  --color-ember: #3E4B54;
 
   /* The light-neutral family — Warm White plus three derived steps, so a raised card, a quiet
      section break and a badge/divider can each read as a distinct surface without a border
@@ -301,7 +306,7 @@
 
        `.nq-btn--solid` fills with this and brightens to white on hover — see that rule for why,
        and for the note that it is effectively unreachable in the app today. */
-    --nq-accent: #FF8E3D;
+    --nq-accent: #273036;
     background-color: var(--nq-ground);
 
     /* ── The content container, as a NUMBER rather than a utility class ────────────────────────
@@ -771,14 +776,15 @@
    overrides it a few rules down. Corrected in place anyway rather than left to bit-rot, because
    the alternative is exactly the kind of drifted legacy colour a future component could resurrect
    by using this class outside the sandbox.
-   Fill is Signal Orange with Obsidian on it (6.90:1) rather than white (2.87:1, under the 3:1
-   floor even for a large mark) — Orange, unusually for a saturated accent, is bright enough that
-   the DARK member of the pair is the one that reads.
+   Fill is the accent with WHITE on it (13.44:1) rather than Obsidian (1.47:1). That is the
+   reverse of what this rule said while the accent was Signal Orange, and for the same reason
+   stated then: the readable member of the pair is whichever one the fill has room for. Orange
+   was bright and left room below it; #273036 is dark and leaves room above.
    The top inset highlight is what stops a flat fill reading as a sticker — a real surface catches
    slightly more light along its upper edge. */
 .nq-btn--solid {
   background: var(--nq-accent);
-  color: var(--color-obsidian);
+  color: #FFFFFF;
   border: 0;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.18),
@@ -787,10 +793,10 @@
 }
 
 /* Hover goes LIGHTER, not darker. On a dark page a darkening hover reads as the control receding
-   at the moment it is being reached for; brightening reads as it coming forward. Text stays
-   Obsidian in both states this time — unlike the previous identity, where the accent needed a
-   fg flip on hover, Orange's dark label already reads on white too (18.48:1), so there is
-   nothing to flip. */
+   at the moment it is being reached for; brightening reads as it coming forward. The label DOES
+   flip now: white on the #273036 fill (13.44:1), Obsidian on the white hover fill (18.48:1).
+   White-on-white would be nothing at all, so unlike the Orange version of this rule there is no
+   single ink that survives both states. */
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
@@ -809,8 +815,8 @@
    badge would resolve to the badge's OWN colour, which is the glyph colour, and the arrow would
    vanish into a disc of exactly its own shade. The two values have to arrive from the button. */
 .nq-btn--solid {
-  --nq-surface: var(--nq-accent);  /* the button's body */
-  --nq-ink: var(--color-obsidian); /* what is written on it */
+  --nq-surface: var(--nq-accent); /* the button's body */
+  --nq-ink: #FFFFFF;              /* what is written on it */
 }
 
 .nq-btn--solid:hover,

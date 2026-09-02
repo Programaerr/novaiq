@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 're
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { attachWebGLContextRecovery } from '../lib/webglContextRecovery';
 import * as THREE from 'three';
-import { OBSIDIAN, ORANGE, PAPER, WHITE } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE, ORANGE_ON_DARK, PAPER, WHITE } from '../lib/homePalette';
 
 /**
  * حقل الهيرو: شبكة من المكعبات واقفة على مستوٍ مائل، مع موجة تجري خلاله.
@@ -110,10 +110,13 @@ export const HERO_TONES: FieldTones = {
  * (`shadeColor(ORANGE, ±0.14)`)، و`foam` — البقعة على كل قمة — Obsidian، لمسة داكنة صغيرة بدلاً
  * من غسلة لونية إضافية.
  */
+/* `foam` انقلب لمّا صار الإبراز داكناً. كان Obsidian لأنه لمسة داكنة صغيرة على مكعّب برتقالي
+   ساطع؛ المكعّبات صارت داكنة (القمة `#454D52`)، فنقطة Obsidian عليها ما راح تبيّن. التوأم
+   الفاتح يحفظ نفس الإشارة — بقعة متباينة على كل قمة — بدل ما تذوب بصمت. */
 export const SIGNAL_TONES: FieldTones = {
   trough: shadeColor(ORANGE, -0.14),
   crest: shadeColor(ORANGE, 0.14),
-  foam: OBSIDIAN,
+  foam: ORANGE_ON_DARK,
   ground: WHITE,
   // نزولاً إلى ورق القسم الذي تحته. القمة لا تتلاشى أبداً، فلونها هو دائماً لون الأرضية التي تقف عليها أصلاً.
   intoLo: PAPER,
@@ -153,10 +156,11 @@ export const PAPER_BAND_TONES: FieldTones = {
  * مشترك بين صفحة الجدول الزمني وصفحة القوالب. كُتب مرتين، مرة في كل منهما، وهذا بالضبط كيف
  * يتباعد قسمان يُفترض أنهما نفس السطح إلى سطحين.
  */
+/* نفس انقلاب `foam` المشروح عند `SIGNAL_TONES`. */
 export const SECTION_TONES: FieldTones = {
   trough: shadeColor(ORANGE, -0.14),
   crest: shadeColor(ORANGE, 0.14),
-  foam: OBSIDIAN,
+  foam: ORANGE_ON_DARK,
   ground: WHITE,
   intoLo: WHITE,
   intoHi: WHITE,

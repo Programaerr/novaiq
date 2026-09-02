@@ -630,15 +630,15 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
           ? 'bg-orange border-orange text-obsidian shadow-lg shadow-orange/25'
           : isCompleted
           ? 'bg-obsidian border-white/70 text-white shadow-lg shadow-black/50'
-          : 'bg-obsidian border-white/10 text-white/50 hover:border-orange'
+          : 'bg-obsidian border-white/10 text-white/50 hover:border-orange-on-dark'
                 }`}
               >
-                {/* `#BA4F04` — ORANGE_ON_LIGHT, the same darkened-for-a-light-fill orange every
-                    other white/light chip on the site uses; `text-periwinkle` resolved to this
-                    exact value already (via a legacy alias two identities old), just under a name
-                    that no longer means anything to a reader of this file. */}
+                {/* The accent itself. This used to be `#BA4F04`, the darkened-for-a-light-fill
+                    orange, because plain Orange was 2.13:1 on this white chip. The accent is
+                    `#273036` now and measures 13.44:1 on white, so there is nothing left to
+                    darken and the two values have collapsed into one. */}
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                  isCurrent ? 'bg-white text-[#BA4F04]' : isCompleted ? 'bg-white text-obsidian' : 'bg-white/10 text-white/60'
+                  isCurrent ? 'bg-white text-[#273036]' : isCompleted ? 'bg-white text-obsidian' : 'bg-white/10 text-white/60'
                 }`}>
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>

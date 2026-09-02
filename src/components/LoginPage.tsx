@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { loginWithGoogle, authErrorMessage } from '../lib/auth';
-import { ERROR, OBSIDIAN, ORANGE, WHITE } from '../lib/homePalette';
+import { ERROR, OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { CardField } from './CardField';
 import { NuvaiqLogo } from './NuvaiqLogo';
 import { NqButton } from './ui/NqButton';
@@ -207,12 +207,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
             <ul className="mt-6 sm:mt-7 space-y-3.5">
               {perks.map(({ icon: Icon, text }) => (
                 <li key={text} className="flex items-center justify-center gap-2.5 text-[14px] font-medium leading-[1.6]">
-                  {/* Plain ORANGE, not the `_ON_LIGHT` variant — this block is OBSIDIAN, where
-                      Orange measures 6.90:1 and has no legibility problem to fix. `mt-px`
+                  {/* ORANGE_ON_DARK, because this block is OBSIDIAN and the accent is dark now:
+                      `#273036` on it is 1.47:1, the light twin 12.39:1. While the accent was
+                      Orange this was the plain value and needed no twin at all. `mt-px`
                       rather than `items-start`: the icon is a 16px square whose artwork is
                       centred in it, and Arabic sits low in its own line box, so optically
                       centred and box-centred are one pixel apart here. */}
-                  <Icon className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" style={{ color: ORANGE }} />
+                  <Icon className="w-4 h-4 shrink-0 mt-px" aria-hidden="true" style={{ color: ORANGE_ON_DARK }} />
                   <span>{text}</span>
                 </li>
               ))}

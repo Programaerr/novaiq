@@ -51,18 +51,17 @@ const PAPER_VARS: React.CSSProperties = {
   // Brand accent (Signal Orange) and the ink that sits on it — used for markers, the CTA and
   // social hovers so the footer reads in the site's own colour instead of flat monochrome.
   //
-  // `--ft-accent-ink` is OBSIDIAN, not white — Signal Orange is bright enough that white on it
-  // measures a failing 2.29:1 (under even the 3:1 an icon needs), where Obsidian measures 8.67:1.
-  // Every earlier identity's accent needed the opposite: periwinkle and Cobalt were both dark
-  // enough, or close to it, that a LIGHT ink read better; Orange is the first accent this footer
-  // has carried that is too bright for its own ink to be light.
+  // `--ft-accent-ink` is WHITE again. It was Obsidian for exactly one identity — Signal Orange was
+  // the only accent this footer has carried that was too bright for a light ink (white on it was
+  // 2.29:1, Obsidian 8.67:1). The accent is `#273036` now, so the numbers swap back: Obsidian on
+  // it is 1.47:1 and white is 13.44:1, which is where periwinkle and Cobalt both sat.
   // Both DERIVED, not typed out. Tailwind needs the channels bare here so `rgb(var(--ft-accent)
   // / 0.25)` can compose an alpha onto them — and a channel triple is invisible to any search
   // for `#FF6A00`, which is how this line went on painting the old deep orange on four footer
   // elements after the accent was retuned everywhere else. `channels()` lives in homePalette so
   // the value has exactly one home.
   ['--ft-accent' as string]: channels(ORANGE),
-  ['--ft-accent-ink' as string]: channels(OBSIDIAN),
+  ['--ft-accent-ink' as string]: channels('#FFFFFF'),
 };
 
 interface FooterColumnProps {
@@ -286,14 +285,14 @@ export const Footer: React.FC<FooterProps> = ({
               <div className="rounded-2xl bg-[rgb(var(--ft-accent))] p-5"
                 style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18), inset 0 1px 0 rgba(255,255,255,0.25)' }}
               >
-                {/* النص لا يعود يستخدم شفافيات --ft-aXX (60%/50%) الموروثة من زمن الغسلة
-                    الشبه-شفافة: على برتقالي صافٍ، حبر --ft-fg بشفافية 60% أو 50% نسبته 3.56:1
-                    و2.83:1 فقط — فاشلة تحت 4.5:1. حبر بكامل قوته (بلا شفافية) نسبته 6.90:1، وهذا
-                    ما يُستخدم في كل مكان آخر بالموقع لنص فوق برتقالي مباشرة. */}
-                <p className="nq-label text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-fg))]">
+                {/* الحبر صار --ft-accent-ink مو --ft-fg. الفرق ما كان يبين يوم كان الإبراز
+                    برتقالياً: الاثنين كانوا Obsidian، والكارت يقرأ بـ 6.90:1. الحين التعبئة `#273036`
+                    وحبر الصفحة (--ft-fg = Obsidian) عليها 1.47:1 — يعني ما يُقرأ أبداً. حبر الإبراز
+                    أبيض، ونسبته 13.44:1. والشفافيات --ft-aXX لسه غير مستخدمة هنا، لنفس السبب. */}
+                <p className="nq-label text-sm sm:text-base uw:text-lg font-bold tracking-[0.2em] uppercase text-[rgb(var(--ft-accent-ink))]">
                   {isAr ? 'ابدأ مشروعك اليوم' : 'Start a project today'}
                 </p>
-                <p className="mt-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-fg))] opacity-90 leading-relaxed">
+                <p className="mt-2 text-sm sm:text-base uw:text-lg text-[rgb(var(--ft-accent-ink))] opacity-90 leading-relaxed">
                   {isAr
                     ? 'أخبرنا عن فكرتك وسنرجع إليك بمواصفات أولية خلال 48 ساعة.'
                     : 'Tell us about your idea and we will come back with a first spec within 48 hours.'}

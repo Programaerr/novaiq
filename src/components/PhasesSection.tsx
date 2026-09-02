@@ -30,9 +30,12 @@ import { ORANGE, PAPER_DEEP, OBSIDIAN, PAPER } from '../lib/homePalette';
  *
  * The brand's one accent was the state while the bar could set one. Without it the four cells
  * are equals, so all four marks carry it. The glyph on them is near-black rather than white, and
- * this one IS a hard requirement rather than a style choice: white on Signal Orange (`#FF8E3D`)
- * is 2.29:1, under even the 3:1 a graphical icon needs; Obsidian measures 8.67:1 on the same
- * fill. There is no version of this mark that reads with a light glyph.
+ * this one IS a hard requirement rather than a style choice — and it now points the other way. On
+ * Signal Orange the glyph HAD to be dark: white was 2.29:1, under even the 3:1 a graphical icon
+ * needs, against Obsidian's 8.67:1. The accent is `#273036` now, so the same measurement gives
+ * the opposite answer: Obsidian on it is 1.47:1 and white is 13.44:1. There is no version of
+ * this mark that reads with a dark glyph any more. The fill itself is unchanged in kind — it
+ * still stands on PAPER, at 10.88:1.
  *
  * ## Reading order follows the language
  *
@@ -231,7 +234,7 @@ export const PhasesSection: React.FC<PhasesSectionProps> = ({ language = 'ar' })
                       </h3>
                       <span
                         className="grid place-items-center w-14 h-14 sm:w-16 sm:h-16 uw:w-[4.5rem] uw:h-[4.5rem] rounded-2xl shrink-0"
-                        style={{ background: ORANGE, color: OBSIDIAN }}
+                        style={{ background: ORANGE, color: '#FFFFFF' }}
                         aria-hidden="true"
                       >
                         <Icon className="w-6 h-6 sm:w-7 sm:h-7 uw:w-8 uw:h-8" strokeWidth={1.9} />

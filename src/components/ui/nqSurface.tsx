@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { OBSIDIAN, ORANGE, PAPER, PAPER_DEEP, WHITE } from '../../lib/homePalette';
+import { OBSIDIAN, ORANGE, ORANGE_ON_DARK, PAPER, PAPER_DEEP, WHITE } from '../../lib/homePalette';
 import { buttonTones, contrastRatio, isLight } from '../../lib/tone';
 import { ButtonTiles, newDrive } from './ButtonTiles';
 
@@ -61,17 +61,28 @@ const CHROME_QUIET = '#17171C';
 /**
  * The six grounds, and what a pressable surface on each is made of.
  *
- * ## Why Orange needs dark text where Cobalt (the identity before this one) needed light
+ * ## Why the accent's ink has now flipped twice
  *
- * The two accents fail contrast in OPPOSITE directions, which is the whole reason this table was
- * rewritten pair by pair rather than swapped by search-and-replace. Cobalt (`#2864FF`) was dark
- * enough that white read on it and Midnight did not. Signal Orange (`#FF8E3D`) is the other way:
- * white on it is 2.29:1, under even the 3:1 floor for a large mark, where Obsidian on it is
- * 8.67:1. Every pair below that puts a label ON Orange or Ember uses Obsidian, not white. A badge
- * sitting on a LIGHT fill still wants Obsidian too — both directions land on the same dark ink
- * here, which is different from the Cobalt table (where the light-fill case wanted dark and the
- * bright-fill case wanted light) purely because Orange is the brighter of the two accents in
- * absolute terms, not because there is a single rule for "the accent's text colour".
+ * Three accents, three answers, which is the whole reason this table gets rewritten pair by pair
+ * rather than swapped by search-and-replace. Cobalt (`#2864FF`) was dark enough that white read on
+ * it and Midnight did not. Signal Orange (`#FF8E3D`) went the other way — white on it was 2.29:1,
+ * under even the 3:1 floor for a large mark, where Obsidian was 8.67:1 — so for the length of that
+ * identity the accent was the rare saturated fill that wanted a DARK label.
+ *
+ * The accent is `#273036` now, and it is back to Cobalt's side of the line, harder: Obsidian on it
+ * is 1.47:1 and white is 13.44:1. Every pair below that puts a label on the accent uses white.
+ *
+ * ## And why half of them use a different accent value entirely
+ *
+ * A bright accent has one failure mode — the ink on it. A dark accent has two, because it can also
+ * fail against the GROUND it stands on: `#273036` measures 1.47:1 on Obsidian and 1.35:1 on
+ * Graphite, so on any dark surface the fill simply is not there. `ORANGE_ON_DARK` (`#C4CED4`) is
+ * the accent's light twin for exactly those places.
+ *
+ * Which of the two a pair takes is decided by what is BEHIND it, never by the tone's name. The
+ * badge on `obsidian.solid` sits on that tone's white pill and keeps the dark accent; the badge on
+ * `footer.solid` sits on that tone's Obsidian pill and takes the light twin. The two lines read
+ * almost identically and resolve opposite ways.
  *
  * ## Where Obsidian actually lives, after three passes on the same question
  *
@@ -85,13 +96,16 @@ const CHROME_QUIET = '#17171C';
  * moved the other way: off the flat ground entirely and onto the cube swell itself.
  */
 export const TONES: Record<NqTone, ToneSpec> = {
-  /* The dark site chrome: navbar, login, cookie bar, dialogs. Orange is the brand's one saturated
-     accent on Obsidian, and Obsidian on Orange measures 6.90:1 where white measures a failing
-     2.87:1 — so the label is dark here, on its own bright fill. */
+  /* The dark site chrome: navbar, login, cookie bar, dialogs. This is the tone the accent change
+     hit hardest, because every pair here stands on Obsidian and the accent measures 1.47:1 against
+     it — a sign-in pill in `#273036` on the navbar would have been an invisible rectangle with a
+     label floating in it. So the whole tone runs on ORANGE_ON_DARK (12.39:1 on Obsidian), and the
+     ink on it goes back to being dark, since the light twin is a light fill. The tone keeps the
+     shape it always had — accent fill, contrasting label — at the other end of the ramp. */
   chrome: {
-    solid: { bg: ORANGE, fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: ORANGE },
-    quiet: { bg: CHROME_QUIET, fg: '#F4F4F5', badgeBg: ORANGE, badgeFg: OBSIDIAN },
-    ghost: { bg: 'transparent', fg: '#F4F4F5', tile: CHROME_QUIET, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    solid: { bg: ORANGE_ON_DARK, fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: ORANGE_ON_DARK },
+    quiet: { bg: CHROME_QUIET, fg: '#F4F4F5', badgeBg: ORANGE_ON_DARK, badgeFg: OBSIDIAN },
+    ghost: { bg: 'transparent', fg: '#F4F4F5', tile: CHROME_QUIET, badgeBg: ORANGE_ON_DARK, badgeFg: OBSIDIAN },
     accent: WHITE,
     darkRing: false,
   },
@@ -108,7 +122,8 @@ export const TONES: Record<NqTone, ToneSpec> = {
   },
   /* WHITE grounds — the light surfaces earlier tables called "sand" then "ice". */
   white: {
-    solid: { bg: OBSIDIAN, fg: PAPER, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    /* The badge is ON the Obsidian pill, not on the white page — so it takes the light twin. */
+    solid: { bg: OBSIDIAN, fg: PAPER, badgeBg: ORANGE_ON_DARK, badgeFg: OBSIDIAN },
     quiet: { bg: PAPER_DEEP, fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: PAPER },
     ghost: { bg: 'transparent', fg: OBSIDIAN, tile: WHITE, badgeBg: OBSIDIAN, badgeFg: PAPER },
     accent: ORANGE,
@@ -132,21 +147,27 @@ export const TONES: Record<NqTone, ToneSpec> = {
      the card's own `#202224`, and the ring goes back to white (`darkRing: false`) since a dark
      ring on a dark card would vanish the same way a white one vanished on Orange. */
   obsidian: {
-    solid: { bg: WHITE, fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    /* Two badges, opposite answers, and the difference is the fill under each: `solid`'s disc
+       sits on a WHITE pill where the dark accent is 13.44:1, `ghost`'s sits on the card's own
+       `#202224` where it would be 1.3:1. */
+    solid: { bg: WHITE, fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
     quiet: { bg: '#3F444B', fg: '#FFFFFF', badgeBg: OBSIDIAN, badgeFg: PAPER },
-    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: '#202224', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: '#202224', badgeBg: ORANGE_ON_DARK, badgeFg: OBSIDIAN },
     accent: ORANGE,
     darkRing: false,
   },
-  /* The footer, which is a paper ground that carries Orange as its accent rather than as its fill
-     — so its call to action is the one surface on the site that is Orange-on-paper. It gets its
-     own entry rather than borrowing `paper` (whose solid is Obsidian, and Obsidian is not what the
-     footer's `--ft-accent` means) or `chrome` (whose ring is white, and white on paper is no ring
-     at all). */
+  /* The footer, a paper ground that carries the accent rather than being filled with it — so its
+     call to action is the one surface on the site that is accent-on-paper. It gets its own entry
+     rather than borrowing `paper` (whose solid is Obsidian, and Obsidian is not what the footer's
+     `--ft-accent` means) or `chrome` (whose ring is white, and white on paper is no ring at all).
+
+     `solid`'s badge is the light twin because that disc sits on this tone's OBSIDIAN pill; the
+     other two badges sit on paper and keep the dark accent with white glyphs. Same three lines,
+     three different grounds. */
   footer: {
-    solid: { bg: OBSIDIAN, fg: '#FFFFFF', badgeBg: ORANGE, badgeFg: OBSIDIAN },
-    quiet: { bg: 'rgba(255,142,61,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: ORANGE, badgeFg: OBSIDIAN },
-    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    solid: { bg: OBSIDIAN, fg: '#FFFFFF', badgeBg: ORANGE_ON_DARK, badgeFg: OBSIDIAN },
+    quiet: { bg: 'rgba(39,48,54,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
+    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
     accent: ORANGE,
     darkRing: true,
   },
@@ -165,7 +186,7 @@ export const TONES: Record<NqTone, ToneSpec> = {
      invisible. `darkRing` follows the same reversal: a dark ring vanishes on a dark panel, so
      it's false again, as it was before the Orange interlude. */
   glass: {
-    solid: { bg: 'rgba(255,255,255,0.92)', fg: OBSIDIAN, tile: '#E4E4E2', badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    solid: { bg: 'rgba(255,255,255,0.92)', fg: OBSIDIAN, tile: '#E4E4E2', badgeBg: ORANGE, badgeFg: '#FFFFFF' },
     quiet: { bg: 'rgba(255,255,255,0.55)', fg: OBSIDIAN, tile: '#8B8C8D', badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
     ghost: { bg: 'transparent', fg: '#FFFFFF', tile: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
     accent: ORANGE,
@@ -186,21 +207,26 @@ export const TONES: Record<NqTone, ToneSpec> = {
      where the card is neutral, and a little more wherever the Orange behind the glass warms it.
      The label is what identifies this control; the fill is not doing that work. */
   frost: {
-    solid: { bg: '#FFFFFF', fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    solid: { bg: '#FFFFFF', fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
     quiet: { bg: 'rgba(255,255,255,0.55)', fg: OBSIDIAN, tile: '#8B8C8D', badgeBg: OBSIDIAN, badgeFg: '#FFFFFF' },
     ghost: { bg: 'transparent', fg: OBSIDIAN, tile: WHITE, badgeBg: OBSIDIAN, badgeFg: PAPER },
     accent: ORANGE,
     darkRing: true,
   },
-  /* Same fill as `chrome` (Orange, Obsidian text) but with a dark ring instead of white — for a
-   * button that has to match a full-bleed Orange ground while sitting on a LIGHT surface next to
-   * it, which `chrome`'s own white ring would vanish into. `chrome` itself keeps `darkRing: false`
-   * unchanged, since its 17 other call sites are all on dark grounds where white is correct; this
-   * exists rather than flipping that flag globally for the one button that needed the opposite. */
+  /* The accent as an actual fill, on a LIGHT surface — the sign-in card's primary button. It was
+   * created as "`chrome`'s fill with a dark ring instead of white", back when both were Orange;
+   * `chrome` has since had to move to the light twin to survive its dark ground, so this is now
+   * the ONE tone that still fills with the accent itself. It keeps `darkRing: true`, which is the
+   * reason it was split out: a white ring is invisible on the light card next to it.
+   *
+   * This is also the pair the change helps rather than fights. Orange was the weakest silhouette
+   * in the table on a light card; `#273036` measures 12.53:1 against warm white, and its white
+   * label 13.44:1 on the fill. The badge inverts with it — an Obsidian disc on a `#273036` button
+   * is 1.47:1, so the disc becomes white with the accent as its glyph. */
   signal: {
-    solid: { bg: ORANGE, fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: ORANGE },
-    quiet: { bg: CHROME_QUIET, fg: '#F4F4F5', badgeBg: ORANGE, badgeFg: OBSIDIAN },
-    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: ORANGE, badgeBg: OBSIDIAN, badgeFg: ORANGE },
+    solid: { bg: ORANGE, fg: '#FFFFFF', badgeBg: '#FFFFFF', badgeFg: ORANGE },
+    quiet: { bg: CHROME_QUIET, fg: '#F4F4F5', badgeBg: ORANGE_ON_DARK, badgeFg: OBSIDIAN },
+    ghost: { bg: 'transparent', fg: '#FFFFFF', tile: ORANGE, badgeBg: '#FFFFFF', badgeFg: ORANGE },
     accent: WHITE,
     darkRing: true,
   },
