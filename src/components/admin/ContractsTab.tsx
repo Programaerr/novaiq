@@ -21,13 +21,13 @@ import {
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { deleteContractFromFirebase, updateContractFields, fetchContractAudit } from '../../lib/firebase';
-import { generateContractPDF, renderContractPdfBlob } from '../../lib/pdfGenerator';
+import { deleteContractFromFirebase, updateContractFields, fetchContractAudit, auth } from '../../lib/firebase';
+import { generateContractPDF } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { ERROR_ON_LIGHT } from '../../lib/homePalette';
-import { uploadContractPdf } from '../../lib/contractArchive';
+import { createContractSnapshot } from '../../lib/contractSnapshot';
 import { useSignaturePad } from '../../lib/useSignaturePad';
 import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '../../lib/payments';
 import { PriceInput } from '../PriceInput';
@@ -365,25 +365,34 @@ function ContractRow({
       cosmicAudio.playPing();
       showToast(isAr ? 'تم حفظ التعديلات بنجاح' : 'Changes saved successfully', 'success');
 
-      /* الأرشفة تحدث لحظة الاعتماد فقط: توقيع NUVAIQ موجود + سعر معتمَد + لا نسخة مؤرشفة بعد.
-         هذه هي اللحظة التي تصبح فيها الوثيقة نهائية بين الطرفين؛ أرشفتها قبلها تحفظ مسودة،
-         وبعدها بكل حفظة تُنشئ نسخاً متكررة لنفس الوثيقة بلا سبب.
+      /* تجميد المضمون لحظة الاعتماد فقط: توقيع NUVAIQ موجود + سعر معتمَد + لا لقطة بعد.
+         هذه هي اللحظة التي تصبح فيها الوثيقة نهائية؛ تجميدها قبلها يحفظ مسوّدة، وبعد كل حفظة
+         يعني محاولة تغيير ما وقّع عليه الطرفان (والقاعدة ترفضها أصلاً).
 
-         خارج try الأصلي عمداً: فشل الرفع لا يجوز أن يظهر كفشل حفظ — الحفظ نجح فعلاً. */
+         خارج نجاح الحفظ الأساسي عمداً: فشل التجميد لا يجوز أن يظهر كفشل حفظ — الحفظ نجح. */
       const nowSigned = companySignatureDataUrl || contract.companySignatureDataUrl;
       const priced = (Number(totalPrice) || 0) > 0;
-      if (nowSigned && priced && !contract.archivedPdfUrl && printRef.current) {
+      if (nowSigned && priced && !contract.snapshotHash) {
         try {
-          const blob = await renderContractPdfBlob(printRef.current, contract);
-          const url = await uploadContractPdf(blob, contract);
-          await updateContractFields(contract, { archivedPdfUrl: url, archivedAt: new Date().toISOString() });
-          showToast(isAr ? 'أُرشفت نسخة معتمدة من العقد' : 'An approved copy of the contract was archived', 'success');
-        } catch (archiveError) {
-          console.error('Contract archive failed:', archiveError);
+          const approvedBy = (auth.currentUser?.email || '').trim().toLowerCase();
+          const hash = await createContractSnapshot(
+            {
+              ...contract,
+              totalPriceIQD: Number(totalPrice) || 0,
+              deliveryTimelineWeeks: Number(deliveryWeeks) || 0,
+              paymentPlan,
+              adminNotes: adminNotes.trim(),
+            },
+            approvedBy
+          );
+          await updateContractFields(contract, { snapshotHash: hash, snapshotAt: new Date().toISOString() });
+          showToast(isAr ? 'تم تجميد نسخة العقد المعتمدة' : 'The approved contract copy was frozen', 'success');
+        } catch (snapshotError) {
+          console.error('Contract snapshot failed:', snapshotError);
           showToast(
             isAr
-              ? 'حُفظ الاعتماد، لكن تعذّرت أرشفة نسخة PDF — تأكد من تفعيل Firebase Storage ونشر قواعده'
-              : 'Approval saved, but archiving the PDF copy failed — check that Firebase Storage is enabled and its rules published',
+              ? 'حُفظ الاعتماد، لكن تعذّر تجميد نسخة العقد — تأكد من نشر قواعد Firestore'
+              : 'Approval saved, but freezing the contract copy failed — check that the Firestore rules are published',
             'error'
           );
         }

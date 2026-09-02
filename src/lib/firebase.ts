@@ -167,7 +167,7 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
 // changes and the post-negotiation edits (final agreed price, admin notes) in one call.
 export async function updateContractFields(
   contract: Pick<ContractData, 'id' | 'contractNumber' | 'developmentStartedAt'>,
-  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'companySignatureInk' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned' | 'previewUrl' | 'deliveryTimelineWeeks' | 'paymentPlan' | 'cancellationRequestedAt' | 'cancellationReason' | 'archivedPdfUrl' | 'archivedAt'>>
+  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'companySignatureInk' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned' | 'previewUrl' | 'deliveryTimelineWeeks' | 'paymentPlan' | 'cancellationRequestedAt' | 'cancellationReason' | 'snapshotHash' | 'snapshotAt'>>
 ): Promise<void> {
   // Identified by contractNumber first, because that IS the document ID that
   // saveContractToFirebase writes to. `id` only equals it for contracts that came back from a
