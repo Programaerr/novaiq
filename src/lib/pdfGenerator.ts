@@ -11,7 +11,21 @@ import { ContractData } from '../types';
 // Uses the `-pro` fork rather than plain html2canvas: Tailwind v4's default palette is
 // defined in oklch(), which the original library's CSS parser throws on ("Attempting to
 // parse an unsupported color function") — that exception silently killed every download.
-export async function generateContractPDF(element: HTMLElement, contract: ContractData): Promise<void> {
+/**
+ * نفس مسار التوليد، لكن يعيد الملف بدل تنزيله — تستعمله أرشفة العقد المعتمد
+ * (lib/contractArchive.ts) لرفع نسخة مجمَّدة إلى التخزين.
+ *
+ * مقتطعة من الدالة أدناه لا منسوخة: نسختان من منطق الالتقاط والتقسيم تعنيان أن نسخة العميل
+ * المطبوعة قد تختلف يوماً عن النسخة المؤرشفة، وهو أسوأ خلل ممكن في وثيقة تعاقدية.
+ */
+export async function renderContractPdfBlob(element: HTMLElement, contract: ContractData): Promise<Blob> {
+  const doc = await buildContractPdf(element, contract);
+  if (!doc) throw new Error('Could not render the contract PDF');
+  return doc.output('blob');
+}
+
+/** الالتقاط والتقسيم — المنطق المشترك بين التنزيل والأرشفة. */
+async function buildContractPdf(element: HTMLElement, _contract: ContractData): Promise<jsPDF | null> {
   let canvas: HTMLCanvasElement;
   try {
     canvas = await html2canvas(element, {
@@ -21,8 +35,7 @@ export async function generateContractPDF(element: HTMLElement, contract: Contra
     });
   } catch (err) {
     console.error('Failed to capture contract document as an image:', err);
-    alert('تعذر تجهيز ملف PDF. يرجى إعادة المحاولة أو تحديث الصفحة.');
-    return;
+    return null;
   }
 
   const doc = new jsPDF({
@@ -67,6 +80,16 @@ export async function generateContractPDF(element: HTMLElement, contract: Contra
 
     if (page > 0) doc.addPage();
     doc.addImage(slice.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, height * scale);
+  }
+
+  return doc;
+}
+
+export async function generateContractPDF(element: HTMLElement, contract: ContractData): Promise<void> {
+  const doc = await buildContractPdf(element, contract);
+  if (!doc) {
+    alert('تعذر تجهيز ملف PDF. يرجى إعادة المحاولة أو تحديث الصفحة.');
+    return;
   }
 
   const cleanCompanyName = (contract.companyName || 'Company').replace(/[^a-zA-Z0-9_\-]/g, '_');

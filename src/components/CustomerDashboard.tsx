@@ -372,6 +372,14 @@ function CustomerContractRow({
   };
 
   const handleDownload = async () => {
+    /* النسخة المؤرشفة أولاً حين توجد.
+       بعد اعتماد العقد تُحفظ نسخة PDF مجمَّدة كما كانت لحظة الاعتماد (lib/contractArchive.ts).
+       إعادة توليد الملف من الكود بعدها قد تعطي وثيقة مختلفة قليلاً كلما تغيّر التصميم أو نصّ
+       البنود — وهذا آخر ما يجوز أن يحدث لوثيقة وقّع عليها الطرفان. */
+    if (contract.archivedPdfUrl) {
+      window.open(contract.archivedPdfUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
     if (!printRef.current || isDownloading) return;
     setIsDownloading(true);
     try {

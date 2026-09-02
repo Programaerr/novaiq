@@ -22,11 +22,12 @@ import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
 import { deleteContractFromFirebase, updateContractFields, fetchContractAudit } from '../../lib/firebase';
-import { generateContractPDF } from '../../lib/pdfGenerator';
+import { generateContractPDF, renderContractPdfBlob } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { ERROR_ON_LIGHT } from '../../lib/homePalette';
+import { uploadContractPdf } from '../../lib/contractArchive';
 import { useSignaturePad } from '../../lib/useSignaturePad';
 import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '../../lib/payments';
 import { PriceInput } from '../PriceInput';
@@ -363,6 +364,30 @@ function ContractRow({
       });
       cosmicAudio.playPing();
       showToast(isAr ? 'تم حفظ التعديلات بنجاح' : 'Changes saved successfully', 'success');
+
+      /* الأرشفة تحدث لحظة الاعتماد فقط: توقيع NUVAIQ موجود + سعر معتمَد + لا نسخة مؤرشفة بعد.
+         هذه هي اللحظة التي تصبح فيها الوثيقة نهائية بين الطرفين؛ أرشفتها قبلها تحفظ مسودة،
+         وبعدها بكل حفظة تُنشئ نسخاً متكررة لنفس الوثيقة بلا سبب.
+
+         خارج try الأصلي عمداً: فشل الرفع لا يجوز أن يظهر كفشل حفظ — الحفظ نجح فعلاً. */
+      const nowSigned = companySignatureDataUrl || contract.companySignatureDataUrl;
+      const priced = (Number(totalPrice) || 0) > 0;
+      if (nowSigned && priced && !contract.archivedPdfUrl && printRef.current) {
+        try {
+          const blob = await renderContractPdfBlob(printRef.current, contract);
+          const url = await uploadContractPdf(blob, contract);
+          await updateContractFields(contract, { archivedPdfUrl: url, archivedAt: new Date().toISOString() });
+          showToast(isAr ? 'أُرشفت نسخة معتمدة من العقد' : 'An approved copy of the contract was archived', 'success');
+        } catch (archiveError) {
+          console.error('Contract archive failed:', archiveError);
+          showToast(
+            isAr
+              ? 'حُفظ الاعتماد، لكن تعذّرت أرشفة نسخة PDF — تأكد من تفعيل Firebase Storage ونشر قواعده'
+              : 'Approval saved, but archiving the PDF copy failed — check that Firebase Storage is enabled and its rules published',
+            'error'
+          );
+        }
+      }
     } catch (e) {
       // Logged as well as toasted: "حاول مجدداً" is all the admin needs, but when a save keeps
       // failing the actual Firestore error (permissions, offline, bad field) is the only thing
