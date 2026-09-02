@@ -2024,7 +2024,3 @@ html[data-demo] .nq-navbar {
   z-index: 0;
   will-change: transform;
 }
-  .nq-nav-pill.is-travelling {
-    scale: 1 1;
-  }
-}
