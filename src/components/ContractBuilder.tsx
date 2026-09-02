@@ -362,6 +362,45 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     }
   };
 
+  /* Enter ينقل إلى الحقل التالي بدل أن يُرسل النموذج.
+   *
+   * سلوك المتصفح الافتراضي داخل أي <form> هو أن Enter في حقل نصّي = ضغط زرّ الإرسال. هنا كان
+   * ذلك يعني أن من يعبّئ اسم شركته ويضغط Enter — وهي حركة تلقائية عند كل من عبّأ نموذجاً في
+   * حياته — يُحاول إنشاء العقد من الخطوة الأولى، فتنهال عليه رسائل النقص. أي أن أسرع طريقة
+   * للتنقّل كانت أسرع طريقة لرؤية خطأ.
+   *
+   * الآن: Enter يمنع الإرسال وينقل التركيز إلى الحقل التالي داخل النموذج نفسه.
+   *  · textarea مستثناة: Enter فيها يعني سطراً جديداً، وهو المطلوب في وصف المشروع تحديداً.
+   *  · حقول اللون والملفات مستثناة: تركيزها يفتح نافذة النظام، فيتحوّل تنقّل هادئ إلى نافذة
+   *    منبثقة لم يطلبها أحد.
+   *  · آخر حقل يبقى مكانه بلا إرسال — الإرسال فعل يُقصَد بالضغط على زرّه، لا نتيجة جانبية
+   *    لضغطة تنقّل. */
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  const focusNextField = (event: React.KeyboardEvent<HTMLFormElement>) => {
+    if (event.key !== 'Enter') return;
+    const target = event.target as HTMLElement;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.type === 'color' || target.type === 'file' || target.type === 'checkbox') return;
+
+    event.preventDefault();
+    const form = formRef.current;
+    if (!form) return;
+
+    const fields = Array.from(
+      form.querySelectorAll<HTMLElement>('input, textarea')
+    ).filter((el) => {
+      if (el.hasAttribute('disabled') || el.getAttribute('aria-hidden') === 'true') return false;
+      if (el instanceof HTMLInputElement && ['color', 'file', 'hidden', 'checkbox'].includes(el.type)) return false;
+      // عنصر داخل خطوة غير معروضة لا وجود له في DOM أصلاً (الخطوات تُرسم شرطياً)، لكن هذا
+      // يحمي أيضاً من أي حقل مخفي بصرياً يبقى مركَّباً.
+      return el.offsetParent !== null;
+    });
+
+    const index = fields.indexOf(target);
+    if (index >= 0 && index < fields.length - 1) fields[index + 1].focus();
+  };
+
   const handleSubmitContract = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -540,7 +579,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
         </div>
 
         {/* Form Container */}
-        <form onSubmit={handleSubmitContract} className="bg-graphite border border-white/10 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
+        <form ref={formRef} onKeyDown={focusNextField} onSubmit={handleSubmitContract} className="bg-graphite border border-white/10 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
           
           {/* STEP 1: Company Details */}
           {currentStep === 1 && (
