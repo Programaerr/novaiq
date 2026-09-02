@@ -3,7 +3,7 @@ import { Template } from '../types';
 import { useLiveTemplates, resolveVariant } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { Currency } from '../lib/currency';
+import { Currency, formatPrice } from '../lib/currency';
 import { OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { NqButton } from './ui/NqButton';
 import { trackLoad } from '../lib/loadTracker';
@@ -217,10 +217,47 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   {variant.description}
                 </p>
 
-                {/* No price on the card: the customer chooses by reading the offer and opening the
-                    live preview, then continues straight into the contract. Each choice's own
-                    price (set separately per template in the admin Pricing tab) still flows into
-                    the contract the moment they pick it — see `pricedTemplate` above. */}
+                {/* السعر، لكل اختيار سعره.
+                    كان مخفياً عمداً (الاختيار بالقراءة والمعاينة ثم العقد)، وأصبح ظاهراً بقرار
+                    المالك: الزائر يجب أن يعرف كل شيء قبل أن يضغط، لا بعده.
+
+                    والرقم هو سعر هذا الاختيار تحديداً — سعر الموقع على بطاقة الموقع، وسعر
+                    التطبيق على بطاقة التطبيق — من `variant` نفسه الذي يُمرَّر إلى العقد
+                    (`pricedTemplate` أعلاه). أي أن ما يقرؤه هنا هو ما سيجده هناك حرفياً، ولا
+                    يمكن للرقمين أن يفترقا لأنهما مصدر واحد يُضبط من تبويب الأسعار في لوحة
+                    التحكم.
+
+                    والعبارة تحته ليست تحفّظاً قانونياً بل هي الرسالة نفسها: هذا نموذج واحد
+                    مبنيّ بالكامل لا سقف لما نبنيه، والرقم استرشادي لفكرته كما هي. */}
+                <div
+                  className="relative mt-7 pt-5 border-t"
+                  style={{ borderColor: 'rgba(247, 247, 245, 0.16)' }}
+                >
+                  <span
+                    className="block text-[0.68rem] sm:text-[0.72rem] font-extrabold tracking-[0.14em] uppercase"
+                    style={{ color: WHITE, opacity: 0.62 }}
+                  >
+                    {currentLang === 'ar'
+                      ? `السعر المقترح لهذه الفكرة — ${choice.tagAr}`
+                      : `Suggested price for this idea — ${choice.tagEn}`}
+                  </span>
+
+                  <strong
+                    className="block mt-1.5 text-[1.6rem] sm:text-[1.95rem] uw:text-[2.2rem] font-black leading-none tabular-nums"
+                    style={{ color: ORANGE_ON_DARK }}
+                  >
+                    {formatPrice(variant.priceIQD, currentLang, currency)}
+                  </strong>
+
+                  <p
+                    className="mt-3 text-[0.82rem] sm:text-[0.88rem] font-bold leading-relaxed"
+                    style={{ color: WHITE, opacity: 0.72 }}
+                  >
+                    {currentLang === 'ar'
+                      ? 'رقم استرشادي لهذا النموذج كما تراه. النموذج شكل واحد لا حدّ: نبني أي موقع أو تطبيق بأي فكرة ومواصفات — والسعر النهائي يُتفق عليه بعد قراءة طلبك، ويظهر في عقدك بعد الاتفاق.'
+                      : 'An indicative figure for this model as you see it. The model is one shape, not a limit: we build any website or app, to any idea and spec — the final price is agreed after we read your request, and appears in your contract once settled.'}
+                  </p>
+                </div>
                 <div className="relative mt-auto pt-8 flex flex-wrap items-center gap-3">
                   {/* `obsidian`, not `paper` — the card these buttons sit on IS a dark ground now
                       (the section's own flat fill moved to white; the card is the confined dark
