@@ -770,7 +770,11 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
       <Canvas
         frameloop={reduced || idle ? 'demand' : 'always'}
         dpr={[1, 1.75]}
-        shadows="soft"
+        /* "percentage" لا "soft": الأولى PCFShadowMap والثانية PCFSoftShadowMap — وthree
+           أهملت الثانية، فتطبع تحذيراً وتستبدلها بالأولى بنفسها عند كل رسم. أي أننا كنّا نطلب
+           شيئاً لا يُنفَّذ ثم نُحذَّر عليه. وهي أيضاً أرخص: PCF الناعمة تأخذ عيّنات أكثر لكل
+           شظية ظلّ، وهذا مشهد فيه بناية كاملة بشُرفها. */
+        shadows="percentage"
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         camera={{ fov: 36, near: 0.1, far: 100 }}
       >

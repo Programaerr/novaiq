@@ -283,8 +283,14 @@ export const SIZES: Record<NqSize, SizeSpec> = {
  * the next hover. Past it a surface simply goes without: it still presses, still rings its focus,
  * and the only thing missing is an ornament.
  */
-const MAX_LIVE_FIELDS = 4;
+const MAX_LIVE_FIELDS = 1;
 let liveFields = 0;
+
+/* خُفِّض من 4 إلى 1.
+   كانت 4 "هامشاً" لتداخل بقاء حقل مع بدء الذي يليه — أي أن أربعة سياقات WebGL قد تكون حيّة
+   معاً مقابل زخرفة يراها المؤشّر في مكان واحد فقط. وكل سياق منها تخصيصٌ على بطاقة الرسوميات
+   وترجمة shader على الخيط الرئيسي. واحد يكفي لما يمكن أن يراه أحد فعلاً، ويجعل السقف حقيقياً
+   لا اسمياً: مهما أسرع المؤشّر، لا يوجد أكثر من سياق زرّ واحد في أي لحظة. */
 
 /** How long the field stays mounted after the pointer leaves, so it can settle out rather than
     vanish mid-fall. Matched to the ease-out in ButtonTiles. */
