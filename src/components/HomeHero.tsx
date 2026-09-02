@@ -121,6 +121,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                Probed on the composited page the surface sits darker still, so they are a
                floor rather than an estimate.
 
+               The 8px radius is chosen the same way. 22px and 12px both erased the cube grid
+               into an even tone — blurring a regular repeating pattern averages it away by
+               definition, so the panel looked opaque no matter how much light was actually
+               getting through. At 8px the grid stays recognisable while going soft, which is
+               what reads as glass OVER something rather than as grey.
+
                Derived from ORANGE rather than written out as `rgb(39 48 54 / 0.82)`. A
                hand-typed channel triple next to a comment claiming it came from the accent is
                how the footer, the print document and the card field each sat out an accent
@@ -132,8 +138,8 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                it. Every number above was computed without the blur for that reason. */
             style={{
               background: `rgb(${channels(ORANGE)} / ${0.74})`,
-              backdropFilter: 'blur(12px) saturate(140%)',
-              WebkitBackdropFilter: 'blur(12px) saturate(140%)',
+              backdropFilter: 'blur(8px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(8px) saturate(140%)',
             }}
           >
             <div
