@@ -14,6 +14,9 @@ import {
   CheckCircle2,
   Globe,
   Smartphone,
+  FileText,
+  ChevronDown,
+  ImagePlus,
   X
 } from 'lucide-react';
 import { cosmicAudio } from '../lib/audio';
@@ -25,6 +28,7 @@ import { ColorWheel } from './ui/ColorWheel';
 import { loadContractDraft, saveContractDraft } from '../lib/contractDraft';
 import { useSignaturePad } from '../lib/useSignaturePad';
 import { contractTerms } from '../data/contractTerms';
+import { compressLogoFile, CONTRACT_LOGO_MAX_WIDTH, LOGO_MAX_DATA_URL } from '../lib/logoFile';
 import { trackEvent } from '../lib/analytics';
 import { ERROR, OBSIDIAN, SUCCESS } from '../lib/homePalette';
 
@@ -187,10 +191,76 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     { value: secondColor, set: setSecondColor },
     { value: thirdColor, set: setThirdColor },
   ];
+  /* شعار العميل.
+   *
+   * اختياري، ويُطبع في عقده كما رفعه بالضبط — بلا قصّ ولا إعادة تلوين ولا وضعه في إطار من
+   * ألواننا: هو علامته هو، والعقد وثيقة الطرفين لا لوحة إعلانية لنا.
+   *
+   * يُصغَّر ويُضغَط في المتصفح قبل الحفظ (lib/logoFile.ts). صورة هاتف بحجم أربعة ميغابايت
+   * تتجاوز وحدها سقف مستند Firestore، والرفض حينها كان سيقع بعد أن يوقّع العميل — أي بعد أن
+   * يظنّ أنه أنهى كل شيء. */
+  const [clientLogoDataUrl, setClientLogoDataUrl] = useState(draft?.clientLogoDataUrl || '');
+  const [logoBusy, setLogoBusy] = useState(false);
+
+  const pickClientLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // يُفرَّغ فوراً: بدونه لا يُطلق اختيار نفس الملف مرّة ثانية حدث change إطلاقاً.
+    event.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast(isAr ? 'اختر ملف صورة' : 'Pick an image file', 'error');
+      return;
+    }
+    setLogoBusy(true);
+    try {
+      const dataUrl = await compressLogoFile(file, CONTRACT_LOGO_MAX_WIDTH);
+      if (dataUrl.length > LOGO_MAX_DATA_URL) {
+        showToast(
+          isAr ? 'الصورة كبيرة جداً حتى بعد الضغط — جرّب صورة أبسط' : 'Still too large after compression — try a simpler image',
+          'error',
+        );
+        return;
+      }
+      setClientLogoDataUrl(dataUrl);
+    } catch {
+      showToast(isAr ? 'تعذّرت قراءة الصورة' : 'Could not read that image', 'error');
+    } finally {
+      setLogoBusy(false);
+    }
+  };
+
   const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'both'>(draft?.themePreference || 'dark');
   const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>(draft?.languageSupport || 'ar_en');
   const [paymentPlan] = useState<'50_50' | '100_upfront' | '3_milestones'>('50_50');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  /* البنود خلف زرّ.
+   *
+   * كانت مفتوحة دائماً: صندوق نصّ طويل يتوسّط الخطوة الأخيرة بين العنوان ولوحة التوقيع، فيدفع
+   * كل من وصل إلى هنا للتمرير فوقه لا لقراءته. الزرّ يجعل فتحها فعلاً مقصوداً — ويجعل الفتح
+   * قابلاً للتسجيل، وهذا هو الفرق المهم: بنود مخفيّة بلا شرط فتح تعني توقيعاً على نصّ لم
+   * يُعرض، وهو أسوأ من حائط نصّ.
+   *
+   * termsViewedAt هو الأثر الباقي (يُكتب في العقد نفسه — انظر types.ts)؛ termsOpen مجرد حالة
+   * عرض تُفتح وتُغلق كما يشاء. مربّع الموافقة معطَّل حتى يوجد الأول. */
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [termsViewedAt, setTermsViewedAt] = useState<string | null>(null);
+  const termsRef = useRef<HTMLDivElement | null>(null);
+
+  /** يفتح البنود ويسجّل لحظة أول فتح. التسجيل مرة واحدة: الفتح الثاني ليس عرضاً جديداً. */
+  const openTerms = () => {
+    setTermsOpen(true);
+    setFieldErrors((prev) => {
+      if (!prev.has('terms')) return prev;
+      const next = new Set(prev);
+      next.delete('terms');
+      return next;
+    });
+    if (!termsViewedAt) setTermsViewedAt(new Date().toISOString());
+    requestAnimationFrame(() => {
+      termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  };
 
   // Digital Signature Canvas
   const signaturePadRef = useRef<HTMLDivElement | null>(null);
@@ -239,6 +309,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       isCustomProject,
       customProjectName,
       projectType,
+      clientLogoDataUrl,
     });
   }, [
     companyName,
@@ -256,6 +327,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     isCustomProject,
     customProjectName,
     projectType,
+    clientLogoDataUrl,
   ]);
 
 
@@ -333,7 +405,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   if (!primaryColor) {
     missingItems.push({ step: 2, field: 'primaryColor', label: isAr ? 'اللون الأساسي' : 'The primary colour' });
   }
-  if (!agreedToTerms) {
+  /* الاطّلاع أولاً، ثم الموافقة — بندان لا بند واحد.
+     ما دامت البنود لم تُفتح فمربّع الموافقة معطَّل، وقول "أشِّر على مربّع الموافقة" لمن لا يقدر
+     أن يؤشّر يجعله يبحث عن عطل غير موجود. فالناقص هنا هو القراءة، ويُسمّى باسمها. */
+  if (!termsViewedAt) {
+    missingItems.push({ step: 3, field: 'terms', label: isAr ? 'فتح بنود العقد وقراءتها' : 'Opening and reading the contract terms' });
+  } else if (!agreedToTerms) {
     missingItems.push({ step: 3, field: 'agreedToTerms', label: isAr ? 'الموافقة على بنود العقد' : 'Accepting the contract terms' });
   }
   if (!hasSignature) {
@@ -354,6 +431,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     );
     const firstStep = Math.min(...items.map((m) => m.step));
     if (firstStep !== currentStep) setCurrentStep(firstStep);
+    /* لا يُفتح شيء تلقائياً هنا: فتح البنود نيابةً عن العميل يكتب في عقده أنه اطّلع عليها
+       بينما الذي حدث أنه ضغط "إتمام". النقل إلى مكانها هو أقصى ما يجوز. */
+    if (items.some((m) => m.field === 'terms')) {
+      requestAnimationFrame(() => {
+        termsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
     if (items.some((m) => m.field === 'signature')) {
       setSignatureMissing(true);
       requestAnimationFrame(() => {
@@ -452,6 +536,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       thirdColor,
       themePreference,
       languageSupport,
+      // مفتاح غائب لا مفتاح بقيمة undefined — Firestore يرفض الثاني ويسقط الكتابة كلها.
+      ...(clientLogoDataUrl ? { clientLogoDataUrl } : {}),
       basePriceIQD,
       totalPriceIQD,
       basePriceSAR: basePriceIQD,
@@ -462,6 +548,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       // علامة أن هذا التوقيع بحبر داكن، فلا يقلبه أي عارض (انظر types.ts).
       signatureInk: 'dark',
       agreedToTerms,
+      // مفتاح غائب لا مفتاح بقيمة undefined — Firestore يرفض الثاني ويسقط الكتابة كلها.
+      ...(termsViewedAt ? { termsViewedAt } : {}),
       status: 'submitted',
       createdAt: new Date().toISOString(),
     };
@@ -900,6 +988,63 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     ? 'اضغط على أي مستطيل واختار لونه، ويظهر كوده داخل المستطيل، وعلامة × ترجّعه فارغ. الألوان اللي تختارها راح نستخدمها بالضبط في تصميم موقعك، وتنطبع أكوادها في عقدك.'
                     : 'Tap any rectangle to pick its colour and its code appears inside it; the × empties it again. The colours you pick are the exact ones we use in your design, and their codes are printed in your contract.'}
                 </p>
+
+                {/* شعار العميل — يُطبع في العقد كما رُفع.
+                    تحت الألوان مباشرة لأنه نفس السؤال: ما هي هوية هذا المشروع البصرية. */}
+                <div className="mt-5 pt-4 border-t border-white/10">
+                  <label className="block text-sm font-semibold text-white/85 mb-2">
+                    {isAr ? 'شعار شركتك (اختياري)' : 'Your company logo (optional)'}
+                  </label>
+
+                  <div className="flex items-center gap-3">
+                    {/* أرضية بيضاء خلف المعاينة: أغلب الشعارات تُصمَّم على أبيض، وشعار داكن على
+                        بطاقتنا السوداء يختفي — فيظنّ صاحبه أن الرفع فشل. */}
+                    {clientLogoDataUrl ? (
+                      <span className="w-16 h-16 rounded-xl bg-white grid place-items-center shrink-0 overflow-hidden p-1.5">
+                        <img
+                          src={clientLogoDataUrl}
+                          alt={isAr ? 'شعار شركتك' : 'Your company logo'}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </span>
+                    ) : (
+                      <span className="w-16 h-16 rounded-xl border border-dashed border-steel/60 grid place-items-center shrink-0 text-white/45">
+                        <ImagePlus className="w-5 h-5" />
+                      </span>
+                    )}
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <label
+                        className={`px-3.5 py-2 rounded-xl border border-steel/60 hover:border-orange text-xs font-bold text-white transition-colors ${
+                          logoBusy ? 'opacity-60 cursor-wait' : 'cursor-pointer'
+                        }`}
+                      >
+                        <input type="file" accept="image/*" className="hidden" onChange={pickClientLogo} disabled={logoBusy} />
+                        {logoBusy
+                          ? (isAr ? 'جارٍ التجهيز…' : 'Preparing…')
+                          : clientLogoDataUrl
+                            ? (isAr ? 'تغيير الشعار' : 'Change logo')
+                            : (isAr ? 'رفع الشعار' : 'Upload logo')}
+                      </label>
+
+                      {clientLogoDataUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setClientLogoDataUrl('')}
+                          className="px-3 py-2 rounded-xl text-xs font-bold text-white/60 hover:text-white cursor-pointer transition-colors"
+                        >
+                          {isAr ? 'إزالة' : 'Remove'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-white/60 leading-relaxed mt-2.5">
+                    {isAr
+                      ? 'يظهر داخل عقدك كما رفعته بالضبط، بلا أي تعديل عليه. PNG أو SVG أو JPG.'
+                      : 'It appears inside your contract exactly as you uploaded it, unaltered. PNG, SVG or JPG.'}
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-10 p-4 rounded-2xl bg-obsidian border border-white/10">
@@ -1107,39 +1252,60 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </h3>
               </div>
 
-              {/* The agreement itself, in full, immediately above the pad that signs it.
-                  A customer should never have to take on trust what they are signing, and
-                  the clauses printed as section 4 of their PDF are exactly these — same
-                  module, same order, so the two cannot drift apart (src/data/contractTerms.ts).
-                  `data-lenis-prevent` because this box scrolls internally: without it the
-                  smooth-scroll wrapper takes the wheel and moves the page behind instead. */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <label className="text-sm font-bold text-white/85">
-                    {isAr ? 'بنود العقد — يُرجى قراءتها قبل التوقيع:' : 'Contract terms — please read before signing:'}
-                  </label>
-                  <span className="text-xs text-white/60 shrink-0">
-                    {isAr ? arCount(terms.length, 'بند واحد', 'بندان', 'بنود', 'بنداً') : `${terms.length} clauses`}
-                  </span>
-                </div>
-
-                <div
-                  data-lenis-prevent
-                  className="max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-obsidian p-4"
+              {/* البنود، كاملة، خلف زرّ واحد فوق لوحة التوقيع مباشرة.
+                  النصّ هو هو: نفس الوحدة ونفس الترتيب الذي يُطبع كقسم 4 في وثيقة العميل
+                  (src/data/contractTerms.ts)، فلا يمكن أن يختلف ما قرأه عمّا وقّعه. المخفيّ هو
+                  الحائط لا المحتوى، والفتح بضغطة — ومسجَّل، فلا يُوقَّع على نصّ لم يُعرض.
+                  `data-lenis-prevent` لأن الصندوق يمرّر داخلياً: بدونها يأخذ التمرير الناعم
+                  العجلة ويحرّك الصفحة خلفه. */}
+              <div className="space-y-2" ref={termsRef}>
+                <button
+                  type="button"
+                  onClick={() => (termsOpen ? setTermsOpen(false) : openTerms())}
+                  aria-expanded={termsOpen}
+                  className="w-full flex items-center justify-between gap-3 p-4 rounded-2xl bg-obsidian border text-start cursor-pointer transition-colors"
+                  style={{ borderColor: fieldErrors.has('terms') ? ERROR : 'rgba(255,255,255,0.1)' }}
                 >
-                  <ol className="list-decimal space-y-2.5 ps-4 marker:font-bold marker:text-white/60">
-                    {terms.map((term, i) => (
-                      <li key={i} className="text-sm leading-relaxed text-white/85">
-                        {term}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
+                  <span className="flex items-center gap-2 min-w-0">
+                    <FileText className="w-4 h-4 shrink-0 text-white/70" />
+                    <span className="text-sm font-bold text-white">
+                      {isAr ? 'بنود العقد' : 'Contract terms'}
+                    </span>
+                    <span className="text-xs text-white/60 shrink-0">
+                      {isAr ? arCount(terms.length, 'بند واحد', 'بندان', 'بنود', 'بنداً') : `${terms.length} clauses`}
+                    </span>
+                  </span>
+                  <span className="flex items-center gap-2 shrink-0">
+                    {termsViewedAt && <CheckCircle2 className="w-4 h-4" style={{ color: SUCCESS }} />}
+                    <ChevronDown
+                      className={`w-4 h-4 text-white/70 transition-transform duration-200 ${termsOpen ? 'rotate-180' : ''}`}
+                    />
+                  </span>
+                </button>
+
+                {termsOpen && (
+                  <div
+                    data-lenis-prevent
+                    className="max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-obsidian p-4 animate-fade-in"
+                  >
+                    <ol className="list-decimal space-y-2.5 ps-4 marker:font-bold marker:text-white/60">
+                      {terms.map((term, i) => (
+                        <li key={i} className="text-sm leading-relaxed text-white/85">
+                          {term}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
 
                 <p className="text-xs leading-relaxed text-white/60">
-                  {isAr
-                    ? 'توقيعك أدناه إقرار بأنك قرأت البنود أعلاه ووافقت عليها، ويُطبع توقيعك ضمن نسخة عقدك.'
-                    : 'Signing below acknowledges that you have read and accepted the terms above; they are printed in your contract copy.'}
+                  {termsViewedAt
+                    ? isAr
+                      ? 'توقيعك أدناه إقرار بأنك قرأت هذه البنود ووافقت عليها، وتُطبع كاملة ضمن نسخة عقدك.'
+                      : 'Signing below acknowledges that you have read and accepted these terms; they are printed in full in your contract copy.'
+                    : isAr
+                      ? 'افتح البنود واقرأها أولاً — لا يمكن الموافقة على نصّ لم يُعرض عليك.'
+                      : 'Open the terms and read them first — you cannot accept text that was never shown to you.'}
                 </p>
               </div>
 
@@ -1209,17 +1375,34 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               </div>
 
               <div className="p-4 rounded-2xl bg-obsidian border border-white/10 text-sm text-white/85 space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+                {/* معطَّل قبل فتح البنود. المربّع نصّه "أوافق على بنود العقد أعلاه"، والتأشير
+                    عليه دون فتحها يجعل الجملة غير صحيحة — والموافقة هي كل ما يُحتجّ به لاحقاً. */}
+                <label className={`flex items-center gap-2 ${termsViewedAt ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
                   <input
                     type="checkbox"
+                    disabled={!termsViewedAt}
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="w-4 h-4 rounded bg-graphite border-steel/60 text-white focus:ring-white cursor-pointer"
+                    className="w-4 h-4 rounded bg-graphite border-steel/60 text-white focus:ring-white cursor-pointer disabled:cursor-not-allowed"
                   />
                   <span className="text-sm font-semibold text-white leading-relaxed">
                     {getTranslation('agreeTermsCheckbox', lang)}
                   </span>
                 </label>
+
+                {!termsViewedAt && (
+                  <button
+                    type="button"
+                    onClick={openTerms}
+                    className="text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                    style={{ color: ERROR }}
+                  >
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span className="underline decoration-white/30">
+                      {isAr ? 'اضغط هنا لفتح البنود وقراءتها قبل الموافقة.' : 'Open the terms and read them before accepting.'}
+                    </span>
+                  </button>
+                )}
               </div>
 
               {/* The figure, last and alone. One number, not a breakdown: with the priced add-on
@@ -1269,6 +1452,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         setCurrentStep(item.step);
                         setFieldErrors(new Set([item.field]));
                         if (item.field === 'signature') setSignatureMissing(true);
+                        // السطر مكتوب "فتح بنود العقد وقراءتها"، والضغط عليه هو الفتح نفسه.
+                        if (item.field === 'terms') openTerms();
                       }}
                       className="text-xs font-bold text-white/85 hover:text-white cursor-pointer flex items-center gap-2"
                     >

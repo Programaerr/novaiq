@@ -33,6 +33,10 @@ export interface ContractDraft {
   isCustomProject: boolean;
   customProjectName: string;
   projectType: 'website' | 'app';
+  /** شعار العميل كـdata URL. يُحفظ مع بقية المسودّة لأن إعادة رفعه بعد تحديث صفحة هي بالضبط
+   *  نوع العمل المكرَّر الذي وُجدت المسودّة لمنعه. مصغَّر أصلاً قبل أن يصل إلى هنا
+   *  (lib/logoFile.ts)، فحجمه عشرات الكيلوبايتات لا ميغابايتات. */
+  clientLogoDataUrl?: string;
 }
 
 // Everything the customer types into ContractBuilder is mirrored here so a page refresh,

@@ -1,5 +1,6 @@
 // قسم "أعمالنا" في الإعدادات: تشغيله، عنوانه، سرعته، وعناصره (اسم أو شعار مرفوع).
 import React, { useEffect, useRef, useState } from 'react';
+import { compressLogoFile, STRIP_LOGO_MAX_WIDTH } from '../../lib/logoFile';
 import { Save, Loader2, Building2, Plus, Trash2, ImageUp, CheckCircle2, ChevronUp, ChevronDown } from 'lucide-react';
 import {
   useClientsStrip,
@@ -12,41 +13,9 @@ import {
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 
-/**
- * يُصغَّر الشعار ويُضغَط في المتصفح قبل حفظه.
- *
- * شعار يُرفع من هاتف قد يكون 4 ميغابايت و4000 بكسل عرضاً، بينما يُعرَض بارتفاع 44 بكسل. رفعه
- * كما هو يفجّر سقف مستند Firestore ويجبر كل زائر على تنزيل ميغابايتات لصورة بحجم إبهام.
- * 360 بكسل عرضاً تكفي لأعلى كثافة شاشة عند هذا الارتفاع.
- *
- * WebP أولاً مع PNG احتياطاً: WebP أصغر بكثير عند نفس الجودة، و`toDataURL` يعيد PNG صامتاً
- * لو لم يكن النوع المطلوب مدعوماً — فيُفحَص الناتج بدل افتراض نجاحه.
- */
-const MAX_LOGO_WIDTH = 360;
-
-function compressImage(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error('read failed'));
-    reader.onload = () => {
-      const img = new Image();
-      img.onerror = () => reject(new Error('decode failed'));
-      img.onload = () => {
-        const scale = Math.min(1, MAX_LOGO_WIDTH / img.width);
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return reject(new Error('no canvas'));
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const webp = canvas.toDataURL('image/webp', 0.85);
-        resolve(webp.startsWith('data:image/webp') ? webp : canvas.toDataURL('image/png'));
-      };
-      img.src = String(reader.result);
-    };
-    reader.readAsDataURL(file);
-  });
-}
+/* الضغط والتصغير انتقلا إلى lib/logoFile.ts حين احتاجهما العقد أيضاً — نفس الدالة، سقفان
+   مختلفان للعرض حسب أين يُطبع الشعار. */
+const compressImage = (file: File) => compressLogoFile(file, STRIP_LOGO_MAX_WIDTH);
 
 const newId = () => `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 

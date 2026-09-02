@@ -100,6 +100,17 @@ export interface ContractData {
   thirdColor?: string;
   themePreference: 'dark' | 'light' | 'both';
   languageSupport: 'ar' | 'en' | 'ar_en';
+  /**
+   * شعار العميل كما رفعه، data URL (WebP غالباً) مصغَّراً في المتصفح قبل الحفظ.
+   *
+   * مخزَّن داخل مستند العقد نفسه لا في خدمة ملفات: Firebase Storage يتطلب خطة مدفوعة، ونفس
+   * السبب الذي جعل لقطة العقد نصّاً لا PDF (انظر lib/contractSnapshot.ts). السقف في
+   * lib/logoFile.ts، وقاعدة Firestore تفرضه على الخادم أيضاً — مستند العقد يحمل معه توقيعين
+   * ونصوص العميل، فلا يجوز لصورة أن تأكل الميغابايت وحدها.
+   *
+   * يُطبع في العقد كما هو بلا قصّ ولا إعادة تلوين: هو علامة صاحبه، لا عنصر تصميم لدينا.
+   */
+  clientLogoDataUrl?: string;
   
   // Terms & Financial
   basePriceIQD: number;
@@ -129,6 +140,17 @@ export interface ContractData {
    */
   signatureInk?: 'dark';
   agreedToTerms: boolean;
+  /**
+   * لحظة فتح العميل لبنود العقد لأول مرة (ISO).
+   *
+   * البنود صارت خلف زرّ بدل حائط نصّ مفتوح دائماً. المكسب أن الخطوة الأخيرة لم تعد جداراً
+   * يُمرَّر عليه بالتمرير، والخطر المقابل أن يوقّع أحد على بنود لم تُعرض عليه أصلاً — و"أوافق
+   * على البنود" حينها ادّعاء بلا أثر. هذا الحقل هو الأثر: النموذج لا يفعّل مربّع الموافقة قبل
+   * الفتح، ويكتب هنا لحظته.
+   *
+   * غيابه في عقد قديم ليس نقصاً: تلك العقود أُنشئت والبنود مفتوحة أمام صاحبها طوال الخطوة.
+   */
+  termsViewedAt?: string;
   // Set only by the admin dashboard — NUVAIQ's own sign-off, shown on the printed contract
   // next to the client's signature so the client can see the work was actually approved.
   companySignatureDataUrl?: string;

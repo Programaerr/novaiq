@@ -46,6 +46,9 @@ export interface ContractSnapshot {
     deliveryTimelineText: string;
     paymentPlan: ContractData['paymentPlan'];
     languageSupport: ContractData['languageSupport'];
+    /** متى فُتحت البنود أمام العميل قبل توقيعه — جزء من كيفية التوقيع لا من محتواه، ولذلك
+     *  يُجمَّد معه: هو ما يجيب لاحقاً على "هل عُرضت عليه؟". */
+    termsViewedAt?: string;
     themePreference: ContractData['themePreference'];
     colors: string[];
     createdAt: string;
@@ -86,6 +89,7 @@ function buildSnapshotBody(contract: ContractData, approvedBy: string) {
       deliveryTimelineWeeks: contract.deliveryTimelineWeeks || 0,
       deliveryTimelineText: contract.deliveryTimelineText || '',
       paymentPlan: contract.paymentPlan,
+      ...(contract.termsViewedAt ? { termsViewedAt: contract.termsViewedAt } : {}),
       languageSupport: contract.languageSupport,
       themePreference: contract.themePreference,
       colors: [contract.primaryColor, contract.secondColor, contract.thirdColor].filter(Boolean) as string[],
