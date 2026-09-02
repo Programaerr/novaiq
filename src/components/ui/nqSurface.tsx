@@ -183,10 +183,15 @@ export const TONES: Record<NqTone, ToneSpec> = {
      three different grounds, three answers.
 
      `darkRing` was already correct and stays: the ring is #080A0D, 19.82:1 on the new fill. */
+  /* دائرة السهم في الفوتر: أسود الهيرو، لا البرتقالي.
+     أرضية الفوتر ورقية فاتحة (--ft-bg = PAPER) وأزراره كلّها بحبر Obsidian. ودائرة برتقالية
+     على تعبئة بيضاء أو على الورق نفسه تُقرأ كعنصر ثالث دخيل على اللونين؛ أمّا الأسود فهو
+     الحبر نفسه الذي يكتب به الزرّ — فتُقرأ الدائرة كامتداد للنصّ لا كملصق فوقه، وتبرز عن
+     الخلفية بأعلى تباين متاح في اللوحة (18.6:1 على الأبيض). والسهم داخلها بالأبيض الدافئ. */
   footer: {
-    solid: { bg: '#FFFFFF', fg: OBSIDIAN, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
-    quiet: { bg: 'rgba(39,48,54,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
-    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: ORANGE, badgeFg: '#FFFFFF' },
+    solid: { bg: '#FFFFFF', fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: WHITE },
+    quiet: { bg: 'rgba(39,48,54,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: OBSIDIAN, badgeFg: WHITE },
+    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: OBSIDIAN, badgeFg: WHITE },
     accent: ORANGE,
     darkRing: true,
   },
