@@ -3,6 +3,7 @@ import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice } from '../lib/currency';
 import { contractTerms } from '../data/contractTerms';
+import nuvaiqMark from '../assets/images/nuvaiq-icon.png';
 
 interface ContractPrintDocumentProps {
   contract: ContractData;
@@ -33,7 +34,6 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
     const t = {
       docTitle: isAr ? 'وثيقة عقد تطوير برمجي' : 'SOFTWARE DEVELOPMENT AGREEMENT',
-      tagline: isAr ? 'منصة القوالب البرمجية والعقد الإلكتروني' : 'Software Templates & Electronic Contract Platform',
       ref: isAr ? 'رقم العقد' : 'Reference',
       date: isAr ? 'تاريخ الإصدار' : 'Issue Date',
       status: isAr ? 'الحالة' : 'Status',
@@ -209,24 +209,53 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           textAlign: isAr ? 'right' : 'left',
         }}
       >
-        {/* Header banner */}
-        <div style={{ backgroundColor: '#080A0D', color: '#ffffff', padding: '16px 28px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-            <div>
-              <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: 3 }}>NUVAIQ</div>
-              <div style={{ fontSize: 11, color: '#D3D3D3', marginTop: 4 }}>{t.tagline}</div>
-            </div>
-            <div style={{ textAlign: isAr ? 'left' : 'right', fontSize: 11, color: '#E6E7E7' }}>
-              <div style={{ fontWeight: 700, fontSize: 13, color: '#ffffff' }}>
-                {t.ref}: {contract.contractNumber}
-              </div>
-              <div style={{ marginTop: 4 }}>
-                {t.date}: {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}
-              </div>
-              <div style={{ marginTop: 2 }}>
-                {t.status}: {contract.companySignatureDataUrl ? t.statusSigned : t.statusAwaiting}
-              </div>
-            </div>
+{/* Header banner — العلامة في المنتصف، وبيانات العقد تحتها.
+
+            كانت العلامة في ركن والبيانات في الركن المقابل، ومعها سطر "منصة القوالب البرمجية
+            والعقد الإلكتروني". حُذف السطر: العقد وثيقة بين طرفين، لا مساحة يُعرَّف فيها أحدهما
+            بنفسه، وهذه الجملة تصف موقعاً لا تصف التزاماً — ولم تعد صحيحة أصلاً بعد أن صار
+            العقد مخصصاً بالكامل لا مبنياً على قالب.
+
+            والتوسيط ليس ذوقاً وحده: ترويسة تُقرأ يميناً في العربية ويساراً في الإنجليزية كانت
+            تضع العلامة في مكانين مختلفين حسب لغة النسخة، فتبدو نسختا العقد الواحد وكأنهما من
+            جهتين. المنتصف هو الموضع الوحيد الذي لا يتحرّك. */}
+        <div style={{ backgroundColor: '#080A0D', color: '#ffffff', padding: '18px 28px 14px' }}>
+          <div style={{ textAlign: 'center' }}>
+            <img
+              src={nuvaiqMark}
+              alt="NUVAIQ"
+              width={44}
+              height={44}
+              style={{ width: 44, height: 44, objectFit: 'contain', display: 'inline-block' }}
+            />
+            <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: 3, marginTop: 4 }}>NUVAIQ</div>
+          </div>
+
+          {/* dir="ltr" على الصفّ وحده: الترتيب الفيزيائي للحقول الثلاثة يبقى واحداً في اللغتين،
+              بينما نصّ كل حقل يقرأ باتجاهه الطبيعي. */}
+          <div
+            dir="ltr"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 12,
+              marginTop: 14,
+              paddingTop: 10,
+              borderTop: '1px solid #282A2C',
+              fontSize: 11,
+              color: '#E6E7E7',
+            }}
+          >
+            <span style={{ fontWeight: 700, color: '#ffffff' }}>
+              {t.ref}: {contract.contractNumber}
+            </span>
+            <span>
+              {t.date}: {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}
+            </span>
+            <span>
+              {t.status}: {contract.companySignatureDataUrl ? t.statusSigned : t.statusAwaiting}
+            </span>
           </div>
         </div>
 
@@ -243,7 +272,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           {/* Section 1 */}
           <div style={{ marginBottom: 14 }}>
             <SectionTitle>{t.s1}</SectionTitle>
-            <div style={{ display: 'flex', gap: 32 }}>
+            <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
               <div style={{ flex: 1 }}>
                 <Field label={t.companyName} value={contract.companyName} />
                 <Field label={t.crNumber} value={contract.crNumber || '—'} />
@@ -254,6 +283,34 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                 <Field label={t.phone} value={contract.phone} />
                 <Field label={t.location} value={`${city}`} />
               </div>
+
+              {/* شعار العميل، كما رفعه.
+                  مع بياناته هو لا في الترويسة: الترويسة تخصّ مُصدِر الوثيقة، وهذا الشعار جزء من
+                  تعريف الطرف الثاني بنفسه. أرضية بيضاء وبلا قصّ — object-fit: contain داخل
+                  صندوق ثابت — بحيث يُطبع الشعار كما هو مهما كانت نسبته، فيصلح لأن يُستعمل كما
+                  يشاء صاحبه. */}
+              {contract.clientLogoDataUrl && (
+                <div
+                  style={{
+                    width: 104,
+                    height: 72,
+                    flex: 'none',
+                    border: '1px solid #E6E7E7',
+                    borderRadius: 6,
+                    backgroundColor: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 6,
+                  }}
+                >
+                  <img
+                    src={contract.clientLogoDataUrl}
+                    alt={contract.companyName}
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -351,8 +408,8 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                     color: '#ffffff',
                   }}
                 >
-                  <span style={{ fontSize: 12, fontWeight: 700 }}>{t.total}</span>
-                  <strong style={{ fontSize: 17, fontWeight: 900 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700 }}>{t.total}</span>
+                  <strong style={{ fontSize: 22, fontWeight: 900 }}>
                     {formatPrice(contract.totalPriceIQD || 0, language)}
                   </strong>
                 </div>

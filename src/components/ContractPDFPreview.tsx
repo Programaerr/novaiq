@@ -136,12 +136,10 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
 
           {/* Document Header Box */}
           <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <span className="text-2xl font-black text-white tracking-widest font-['Cairo'] block">NUVAIQ</span>
-              <span className="text-xs text-white/75">
-                {isAr ? 'منصة القوالب البرمجية والعقد الإلكتروني الذكي' : 'Smart Software Templates & Electronic Contract Platform'}
-              </span>
-            </div>
+            {/* نفس حذف الوثيقة المطبوعة: الجملة كانت تصف موقعاً لا التزاماً، وتقول "قوالب"
+                عن عقد صار مخصصاً بالكامل. نسخة المعاينة يجب أن تطابق ما يُطبع حرفياً — وإلا
+                فالمعاينة تعِد بشيء والملف يسلّم غيره. */}
+            <span className="text-2xl font-black text-white tracking-widest font-['Cairo'] block">NUVAIQ</span>
             <div className={`text-xs font-mono text-white/75 ${isAr ? 'text-right sm:text-left' : 'text-left sm:text-right'}`}>
               <div>{isAr ? 'تاريخ الإصدار:' : 'Issue Date:'} {new Date(contract.createdAt).toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')}</div>
               <div>{isAr ? 'حالة العقد:' : 'Contract Status:'} <span className="text-white font-bold">{isAr ? 'موقّع من الطرفين' : 'Signed by both parties'}</span></div>
