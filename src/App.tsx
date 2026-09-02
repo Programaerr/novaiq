@@ -12,6 +12,12 @@ import { LazyOnView } from './components/LazyOnView';
    and @react-three/fiber are already in the eager graph via NqButton -> ButtonTiles, so the
    hero's chunk was never what was carrying them. */
 import { HomeHero } from './components/HomeHero';
+/* Static for the same reason, one step further down: these two are the sections that carry
+   a cube band, and the bands are meant to be there when the reader arrives rather than to
+   start loading because the reader arrived. See the mount sites below, and the build queue
+   in TileField.tsx that keeps three fields from compiling their shaders in one frame. */
+import { ContactSection } from './components/ContactSection';
+import { Footer } from './components/Footer';
 import { MilestoneTimeline } from './components/MilestoneTimeline';
 import { AboutSection } from './components/AboutSection';
 import { CookieConsent } from './components/CookieConsent';
@@ -45,15 +51,17 @@ const EcontractsPage = lazy(() => trackLoad(import('./components/EcontractsPage'
 const TemplateInteractiveSandbox = lazy(() => trackLoad(import('./components/TemplateInteractiveSandbox').then((m) => ({ default: m.TemplateInteractiveSandbox }))));
 const AdminPage = lazy(() => trackLoad(import('./components/AdminPage').then((m) => ({ default: m.AdminPage }))));
 const LoginPage = lazy(() => trackLoad(import('./components/LoginPage').then((m) => ({ default: m.LoginPage }))));
-// The sections below the fold and the footer load on scroll (LazyOnView), so they are deliberately
-// NOT tracked: when one of them downloads while the visitor is already reading, a full-screen
+// The sections below the fold load on scroll (LazyOnView), so they are deliberately NOT
+// tracked: when one of them downloads while the visitor is already reading, a full-screen
 // loader popping up would be exactly the "annoying" flash we are removing. Their placeholders are
 // solid blocks in the incoming section's colour, so a chunk that finishes mid-scroll simply
 // replaces a block of the same colour — nothing flashes at all.
+//
+// ContactSection and Footer used to be in this list. They are static imports now (top of the
+// file): they carry the cube bands, and a band that starts loading when it is scrolled to is a
+// band that is still assembling itself while it is being looked at.
 const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
 const ClientsStrip = lazy(() => import('./components/ClientsStrip').then((m) => ({ default: m.ClientsStrip })));
-const ContactSection = lazy(() => import('./components/ContactSection').then((m) => ({ default: m.ContactSection })));
-const Footer = lazy(() => import('./components/Footer').then((m) => ({ default: m.Footer })));
 
 /* لا "وضع ضيف" بعد اليوم.
    كان يوجد علم يُحفظ في sessionStorage معناه "هذا الزائر اختار التصفّح بلا حساب"، وكان لازماً
@@ -590,14 +598,11 @@ export default function App() {
               </Suspense>
             </LazyOnView>
 
-            <LazyOnView
-              rootMargin="800px 0px"
-              placeholder={<div className="h-[40vh] bg-periwinkle" aria-hidden="true" />}
-            >
-              <Suspense fallback={null}>
-                <ContactSection language={language} />
-              </Suspense>
-            </LazyOnView>
+            {/* No LazyOnView and no Suspense: this section owns a cube band, and the whole
+                point is that the band is finished before the reader gets down here. It still
+                costs nothing per frame while off screen — TileField parks its canvas at
+                frameloop='never' until the field is actually in view. */}
+            <ContactSection language={language} />
           </div>
         )}
 
@@ -704,19 +709,18 @@ export default function App() {
 
       </main>
 
-      {/* Footer — mounted only when scrolled near, like the sections above. Not shown on the
-        control panel (orders), where it is not wanted. */}
+      {/* Footer — mounted with the page, not when scrolled near, because it carries the
+        second cube band. It is on every page, so its code was being downloaded on every page
+        regardless; this only moves that download off the scroll and into the initial bundle,
+        which is one request fewer rather than one more. Not shown on the control panel
+        (orders), where it is not wanted. */}
       {activePage !== 'orders' && (
-        <LazyOnView rootMargin="800px 0px" placeholder={<div className="h-[60vh] bg-paper" aria-hidden="true" />}>
-          <Suspense fallback={null}>
-            <Footer
-              language={language}
-              onNavigate={navigateTo}
-              onRequestProject={startContract}
-              pageKey={activePage}
-            />
-          </Suspense>
-        </LazyOnView>
+        <Footer
+          language={language}
+          onNavigate={navigateTo}
+          onRequestProject={startContract}
+          pageKey={activePage}
+        />
       )}
 
       {/* Bottom Cookie Consent Banner */}
