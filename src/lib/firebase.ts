@@ -7,6 +7,7 @@ import {
   onSnapshot,
   doc,
   setDoc,
+  updateDoc,
   deleteDoc,
   serverTimestamp,
   deleteField,
@@ -298,6 +299,47 @@ export async function fetchContractsFromFirebase(): Promise<ContractData[]> {
  * تكاليف العقود، مفتاحها رقم العقد. للأدمن وحده (القاعدة ترفض غيره)، ويُدمج ناتجها في قائمة
  * العقود داخل لوحة التحكم فقط — فيبقى كل قارئ لاحق يقرأ `contract.costIQD` كما كان.
  */
+/**
+ * طلب العميل إلغاء عقده — إشعار لنا، لا إلغاء.
+ *
+ * لا يغيّر حالة العقد ولا يوقف شيئاً: يكتب ختماً زمنياً وسبباً اختيارياً فقط، ليظهر الطلب في
+ * لوحة التحكم فنتحدث مع صاحبه. الإلغاء الفعلي (أو حلّ المشكلة وإبقاء العقد) قرار يُتخذ بعد
+ * ذلك من اللوحة.
+ *
+ * قاعدة Firestore تسمح بهذه الكتابة وحدها من العميل، وتشترط ألا تكون هناك دفعة مستلَمة — فحتى
+ * لو عُدِّلت الواجهة أو كُتب الطلب من الكونسول، الرفض يأتي من الخادم.
+ */
+export async function requestContractCancellation(
+  contract: Pick<ContractData, 'id' | 'contractNumber'>,
+  reason: string
+): Promise<void> {
+  const docId = (contract.contractNumber || '').trim() || (contract.id || '').trim();
+  if (!docId) throw new Error('Cannot request cancellation without a contract number');
+
+  const payload: Record<string, unknown> = {
+    cancellationRequestedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const trimmed = reason.trim();
+  if (trimmed) payload.cancellationReason = trimmed.slice(0, 1900);
+
+  // updateDoc لا setDoc: الطلب يقع على عقد قائم دائماً، والقاعدة تقارن الحقول المتغيّرة بالمستند
+  // الموجود (diff) — وهي مقارنة لا معنى لها لو أنشأت هذه الدالة مستنداً جديداً.
+  await updateDoc(doc(db, CONTRACTS_COLLECTION, docId), payload);
+
+  try {
+    const local: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
+    const idx = local.findIndex((c) => (c.contractNumber || '').trim() === docId);
+    if (idx >= 0) {
+      local[idx] = { ...local[idx], ...(payload as Partial<ContractData>) };
+      localStorage.setItem(LOCAL_CONTRACTS_KEY, JSON.stringify(local));
+      window.dispatchEvent(new Event(LOCAL_UPDATED_EVENT));
+    }
+  } catch {
+    // النسخة المحلية مرآة لا مصدر — فشلها لا يبطل طلباً وصل إلى Firestore.
+  }
+}
+
 export function subscribeToContractCosts(callback: (costs: Record<string, number>) => void) {
   try {
     return onSnapshot(

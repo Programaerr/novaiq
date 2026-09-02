@@ -75,6 +75,8 @@ service cloud.firestore {
           // في حسابه أو يزوّر نسبة تقدّم مشروعه.
           && !('previewUrl' in d)
           && !('developmentStartedAt' in d)
+          && !('cancellationRequestedAt' in d)
+          && !('cancellationReason' in d)
           && !('adminNotes' in d)
           && !('costIQD' in d)
           && !('paymentStatus' in d)
@@ -83,12 +85,33 @@ service cloud.firestore {
           && !('installmentsPlanned' in d);
       }
 
+      /* الاستثناء الوحيد الذي يكتب فيه العميل على عقده بعد إنشائه: طلب الإلغاء.
+       *
+       * مقيَّد بثلاثة قيود مجتمعة، وكلها تُفحَص على الخادم لا في الواجهة:
+       *  · `affectedKeys().hasOnly(...)` — لا يقدر يغيّر شيئاً آخر في نفس الكتابة. بدونها كانت
+       *    "اسمح له بطلب الإلغاء" تعني عملياً "اسمح له بتعديل سعره وحالته وتوقيعنا".
+       *  · لا دفعات مستلَمة — بعد أول دفعة يختفي الحق أصلاً، وهو نفس ما تفعله الواجهة، لكن
+       *    الواجهة وحدها لا تمنع أحداً يكتب من الكونسول.
+       *  · العقد غير مكتمل — عقد سُلِّم لا يُطلب إلغاؤه.
+       */
+      function cancellationRequestOnly() {
+        let d = request.resource.data;
+        let changed = d.diff(resource.data).affectedKeys();
+        return changed.hasOnly(['cancellationRequestedAt', 'cancellationReason', 'updatedAt'])
+          && d.cancellationRequestedAt is string
+          && d.cancellationRequestedAt.size() < 40
+          && (!('cancellationReason' in d) || (d.cancellationReason is string && d.cancellationReason.size() < 2000))
+          && (!('paidAmountIQD' in resource.data) || resource.data.paidAmountIQD == 0)
+          && resource.data.status != 'completed';
+      }
+
       allow read: if isAdmin() || ownsContract();
       allow create: if isAdmin() ||
         (request.auth != null
           && request.resource.data.uid == request.auth.uid
           && customerCreateIsClean());
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin() || (ownsContract() && cancellationRequestOnly());
+      allow delete: if isAdmin();
     }
 
     // قائمة الأدمن المسموح بهم: مُعرِّف المستند هو بريد الأدمن الإلكتروني؛ محتواه لا يهم،

@@ -148,6 +148,13 @@ export interface ContractData {
    */
   previewUrl?: string;
 
+  /** طلب العميل إلغاء العقد (ISO). يكتبه العميل بنفسه من حسابه، ولا يعني الإلغاء: هو إشعار
+   *  لنا بأنه يريد الإلغاء لنتحدث معه أولاً. يختفي زر الطلب نهائياً بمجرد استلام أي دفعة —
+   *  بعد بدء التنفيذ والدفع لم يعد الإلغاء قراراً من طرف واحد (انظر بنود العقد). */
+  cancellationRequestedAt?: string;
+  /** سبب اختياري يكتبه العميل مع الطلب — هو المدخل الوحيد لفهم المشكلة قبل أن نخسر العقد. */
+  cancellationReason?: string;
+
   // Set only by the admin dashboard, after negotiating with the client — appears on the
   // final printed contract as agreed terms, distinct from the client's own original request.
   adminNotes?: string;
