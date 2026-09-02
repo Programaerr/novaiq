@@ -53,9 +53,21 @@ const TILT_Y = -0.3;
 /** Pixels per world unit, matching both fields, so a size written in px means the same thing. */
 const ZOOM = 100;
 
-/** The cube grid, in CSS pixels. ~8px is ButtonTiles' pitch at a button's height, and a nav pill
-    is a button's height, so the grain matches what a press already shows. */
-const CELL = 8;
+/**
+ * The cube grid, in CSS pixels, and how much of each cell the cube actually fills.
+ *
+ * ButtonTiles' pitch is ~8px at a button's height and a nav pill IS a button's height, so that
+ * was the first guess. Rendered, it was wrong for this: at 8px across a 34px pill the swarm is
+ * ~32 cubes packed edge to edge, and they merge into a single torn white blob crossing the bar.
+ * The grain that reads as a field INSIDE a button reads as mush when the field is the only thing
+ * moving.
+ *
+ * 12px with a 0.72 fill is the fix, and both halves are needed. The larger cell drops it to ~15
+ * cubes, big enough to have a silhouette; the fill leaves a real gap between them, which is what
+ * makes them count as separate objects rather than one surface with cracks in it.
+ */
+const CELL = 12;
+const FILL = 0.72;
 
 /**
  * How long the whole crossing takes, and how much of that is spent staggering.
@@ -70,7 +82,7 @@ const STAGGER = 0.35;
 
 /** How far a cube rises out of the bar mid-flight, in px. Enough to read as passing OVER the
     labels between the two pills rather than through them. */
-const LIFT = 26;
+const LIFT = 30;
 
 export interface FlightRect {
   x: number;
@@ -129,8 +141,8 @@ const Swarm: React.FC<NavCubeFlightProps & { width: number; height: number }> = 
           sy: from.y + fy * from.h,
           ex: to.x + fx * to.w,
           ey: to.y + fy * to.h,
-          s0: Math.min(from.w / cols, from.h / rows),
-          s1: Math.min(to.w / cols, to.h / rows),
+          s0: Math.min(from.w / cols, from.h / rows) * FILL,
+          s1: Math.min(to.w / cols, to.h / rows) * FILL,
           u: rightward ? fx : 1 - fx,
         });
       }
@@ -183,18 +195,23 @@ const Swarm: React.FC<NavCubeFlightProps & { width: number; height: number }> = 
     <>
       {/* Lambert rather than the shader ButtonTiles uses: that shader's whole job is deriving a
           cube's colour from its height in a swell, and there is no swell here — every cube is the
-          same white the pill is. Lights give the three-face read on their own.
+          one colour the pill is. Lights give the three-face read on their own.
 
-          Since three r155 lights are physical and a Lambert surface divides irradiance by PI, so
-          these numbers are the ones that "look right" times pi. Tuned so a face square to the
-          light clips to the pill's own #FFFFFF and the two visible sides fall to about 0.8 of it
-          — the cube has to LAND as the same white it started as, or the swap back to the DOM pill
-          shows as a flash. */}
-      <ambientLight intensity={2.1} />
-      <directionalLight position={[-0.42, 0.5, 0.76]} intensity={2.4} />
+          That colour is `#F7F7F5`, NOT #FFFFFF, and it was measured off the live pill rather than
+          assumed: this project remaps Tailwind's `white`, so `bg-white` on a nav link resolves to
+          the warm white. A pure-white cube would land a shade brighter than the pill it turns
+          into, and the swap would show as a flash.
+
+          Since three r155 lights are physical and a Lambert surface divides its irradiance by PI,
+          these numbers are the ones that "look right" times pi. Set so the top face clips to the
+          pill's own colour exactly — (1.5 + 2.2)/pi is over 1, so the brightest face IS the
+          material — while a half-lit side lands at 0.83 and the dark side at 0.48. Three clearly
+          separate values is what makes a small white box read as a cube and not a square. */}
+      <ambientLight intensity={1.5} />
+      <directionalLight position={[-0.42, 0.5, 0.76]} intensity={2.2} />
       <instancedMesh ref={meshRef} args={[undefined, undefined, cubes.length]} frustumCulled={false}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshLambertMaterial color="#FFFFFF" />
+        <meshLambertMaterial color="#F7F7F5" />
       </instancedMesh>
     </>
   );
