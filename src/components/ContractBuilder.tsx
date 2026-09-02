@@ -294,66 +294,121 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     return null;
   })();
 
-  // Everything that must be true before the contract can be submitted at all. Kept as one
-  // expression so the disabled button and handleSubmit's guards cannot disagree about what
-  // "ready" means.
-  const canSubmit = hasSignature && agreedToTerms && isValidIraqiPhone(phone);
+  /* ما ينقص العقد، محسوباً في مكان واحد.
+   *
+   * كانت الفحوص مكتوبة ثلاث مرات: في زرّ "الخطوة التالية"، وفي handleSubmit، وفي شرط تعطيل زرّ
+   * الإتمام — ثلاث نسخ لنفس القاعدة، وأي شرط يُضاف لواحدة ينسى في الأخريين، فيصير زرّ مفعَّل
+   * يرفض العمل عند الضغط، أو خطوة تُقفل على نقص لا يقوله أحد. القائمة أدناه هي المصدر الوحيد:
+   * منها يعرف الزرّ متى يُعطَّل، ومنها تُبنى الرسالة، ومنها يُعرف إلى أي خطوة يُنقَل المستخدم.
+   *
+   * وكل عنصر يحمل خطوته واسم حقله وعبارته: الخطوة تنقل المستخدم إلى مكان النقص، واسم الحقل
+   * يلوّنه بالأحمر، والعبارة تقول ما هو بالضبط بدل "أكمل الحقول الناقصة". */
+  type MissingItem = { step: number; field: string; label: string };
+
+  const missingItems: MissingItem[] = [];
+  if (!companyName.trim()) {
+    missingItems.push({ step: 1, field: 'companyName', label: isAr ? 'اسم الشركة' : 'Company name' });
+  }
+  if (!repName.trim()) {
+    missingItems.push({ step: 1, field: 'repName', label: isAr ? 'اسم المخوَّل بالتوقيع' : 'Authorised signatory' });
+  }
+  if (!phone.trim()) {
+    missingItems.push({ step: 1, field: 'phone', label: isAr ? 'رقم الهاتف' : 'Phone number' });
+  } else if (!isValidIraqiPhone(phone)) {
+    missingItems.push({
+      step: 1,
+      field: 'phone',
+      label: isAr ? 'رقم هاتف صحيح (يبدأ بـ07 و11 رقماً)' : 'A valid phone (starts with 07, 11 digits)',
+    });
+  }
+  if (isCustomProject && !customProjectName.trim()) {
+    missingItems.push({ step: 2, field: 'customProjectName', label: isAr ? 'اسم مشروعك' : 'Your project name' });
+  }
+  if (isCustomProject && !customFeaturesText.trim()) {
+    missingItems.push({ step: 2, field: 'customDescription', label: isAr ? 'وصف المشروع' : 'Project description' });
+  }
+  /* لون واحد على الأقل. ليس تشدّداً شكلياً: الألوان تُطبع في العقد وتُنفَّذ حرفياً في التصميم
+     (انظر ContractPrintDocument)، فعقد بلا لون واحد يعني اتفاقاً على هوية بصرية لم يُتفق عليها
+     — والنتيجة جولة تعديل كاملة بعد التسليم على شيء كان سؤالاً واحداً قبله. */
+  if (!primaryColor) {
+    missingItems.push({ step: 2, field: 'primaryColor', label: isAr ? 'اللون الأساسي' : 'The primary colour' });
+  }
+  if (!agreedToTerms) {
+    missingItems.push({ step: 3, field: 'agreedToTerms', label: isAr ? 'الموافقة على بنود العقد' : 'Accepting the contract terms' });
+  }
+  if (!hasSignature) {
+    missingItems.push({ step: 3, field: 'signature', label: isAr ? 'توقيعك' : 'Your signature' });
+  }
+
+  const missingForStep = (step: number) => missingItems.filter((m) => m.step === step);
+  const canSubmit = missingItems.length === 0;
+
+  /** يعرض النقص: يلوّن الحقول، ينتقل إلى خطوته، ويقول ما هو بالاسم. */
+  const announceMissing = (items: MissingItem[]) => {
+    if (items.length === 0) return;
+    setFieldErrors(new Set(items.map((m) => m.field)));
+    const list = items.map((m) => m.label).join(isAr ? ' · ' : ' · ');
+    showToast(
+      isAr ? `ينقص العقد: ${list}` : `Still missing: ${list}`,
+      'error'
+    );
+    const firstStep = Math.min(...items.map((m) => m.step));
+    if (firstStep !== currentStep) setCurrentStep(firstStep);
+    if (items.some((m) => m.field === 'signature')) {
+      setSignatureMissing(true);
+      requestAnimationFrame(() => {
+        signaturePadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  };
+
+  /* Enter ينقل إلى الحقل التالي بدل أن يُرسل النموذج.
+   *
+   * سلوك المتصفح الافتراضي داخل أي <form> هو أن Enter في حقل نصّي = ضغط زرّ الإرسال. هنا كان
+   * ذلك يعني أن من يعبّئ اسم شركته ويضغط Enter — وهي حركة تلقائية عند كل من عبّأ نموذجاً في
+   * حياته — يُحاول إنشاء العقد من الخطوة الأولى، فتنهال عليه رسائل النقص. أي أن أسرع طريقة
+   * للتنقّل كانت أسرع طريقة لرؤية خطأ.
+   *
+   * الآن: Enter يمنع الإرسال وينقل التركيز إلى الحقل التالي داخل النموذج نفسه.
+   *  · textarea مستثناة: Enter فيها يعني سطراً جديداً، وهو المطلوب في وصف المشروع تحديداً.
+   *  · حقول اللون والملفات مستثناة: تركيزها يفتح نافذة النظام، فيتحوّل تنقّل هادئ إلى نافذة
+   *    منبثقة لم يطلبها أحد.
+   *  · آخر حقل يبقى مكانه بلا إرسال — الإرسال فعل يُقصَد بالضغط على زرّه، لا نتيجة جانبية
+   *    لضغطة تنقّل. */
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  const focusNextField = (event: React.KeyboardEvent<HTMLFormElement>) => {
+    if (event.key !== 'Enter') return;
+    const target = event.target as HTMLElement;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.type === 'color' || target.type === 'file' || target.type === 'checkbox') return;
+
+    event.preventDefault();
+    const form = formRef.current;
+    if (!form) return;
+
+    const fields = Array.from(
+      form.querySelectorAll<HTMLElement>('input, textarea')
+    ).filter((el) => {
+      if (el.hasAttribute('disabled') || el.getAttribute('aria-hidden') === 'true') return false;
+      if (el instanceof HTMLInputElement && ['color', 'file', 'hidden', 'checkbox'].includes(el.type)) return false;
+      // عنصر داخل خطوة غير معروضة لا وجود له في DOM أصلاً (الخطوات تُرسم شرطياً)، لكن هذا
+      // يحمي أيضاً من أي حقل مخفي بصرياً يبقى مركَّباً.
+      return el.offsetParent !== null;
+    });
+
+    const index = fields.indexOf(target);
+    if (index >= 0 && index < fields.length - 1) fields[index + 1].focus();
+  };
 
   const handleSubmitContract = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const missing = new Set<string>();
-    if (!companyName) missing.add('companyName');
-    if (!repName) missing.add('repName');
-    if (!phone) missing.add('phone');
-
-    if (missing.size > 0) {
-      setFieldErrors(missing);
-      showToast(
-        isAr ? 'يرجى إكمال بيانات شركتك في الخطوة الأولى (الحقول الناقصة محدّدة بالأحمر)' : 'Please complete the required company details in step 1 (highlighted in red)',
-        'error'
-      );
-      setCurrentStep(1);
-      return;
-    }
-
-    if (!isValidIraqiPhone(phone)) {
-      setFieldErrors(new Set(['phone']));
-      showToast(
-        isAr ? 'رقم الهاتف يجب أن يبدأ بـ 07 ويتكوّن من 11 رقماً' : 'Invalid Iraqi phone number format. Must start with 07 and be 11 digits.',
-        'error'
-      );
-      setCurrentStep(1);
-      return;
-    }
-
-    if (isCustomProject && (!customProjectName.trim() || !customFeaturesText.trim())) {
-      const missingCustom = new Set<string>();
-      if (!customProjectName.trim()) missingCustom.add('customProjectName');
-      if (!customFeaturesText.trim()) missingCustom.add('customDescription');
-      setFieldErrors(missingCustom);
-      showToast(
-        isAr ? 'يرجى تسمية مشروعك ووصفه في الخطوة الثانية (الحقول الناقصة محدّدة بالأحمر)' : 'Please name and describe your project in detail in step 2 (highlighted in red)',
-        'error'
-      );
-      setCurrentStep(2);
-      return;
-    }
-
-    if (!agreedToTerms) {
-      showToast(isAr ? 'يرجى الموافقة على بنود العقد أولاً' : 'Please accept the terms and conditions', 'error');
-      return;
-    }
-
-    if (!hasSignature) {
-      // Take the user straight to the pad and highlight it, rather than popping an alert
-      // that has to be dismissed before they can act on it.
-      setCurrentStep(3);
-      setSignatureMissing(true);
-      showToast(isAr ? 'التوقيع مطلوب لإتمام العقد' : 'A signature is required to complete the contract', 'error');
-      requestAnimationFrame(() => {
-        signaturePadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
+    /* فحص واحد لكل الخطوات، لا سلسلة فحوص تتوقف عند أول نقص.
+       السلسلة القديمة كانت تقول "أكمل الخطوة الأولى"، فيُكملها المستخدم ويضغط فيُقال له "أكمل
+       الثانية" — ثلاث رحلات لمعرفة ما كان يمكن قوله مرة واحدة. */
+    if (missingItems.length > 0) {
+      announceMissing(missingItems);
       return;
     }
 
@@ -481,6 +536,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   cosmicAudio.playPing();
                 }}
                 aria-current={isCurrent ? 'step' : undefined}
+                data-incomplete={missingForStep(s.step).length > 0 ? 'true' : undefined}
                 className={`text-start p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-2.5 cursor-pointer ${
         isCurrent
           ? 'bg-orange border-orange text-obsidian shadow-lg shadow-orange/25'
@@ -499,7 +555,18 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
                 <div className="min-w-0">
-                  <span className="block text-xs opacity-70">{s.phase}</span>
+                  <span className="block text-xs opacity-70 flex items-center gap-1.5">
+                    {s.phase}
+                    {/* علامة النقص على الخطوة نفسها: يراها المستخدم قبل أن يفتحها، فيعرف أين
+                        بقي شيء بلا أن يتنقّل بين الخطوات ليكتشفه. */}
+                    {missingForStep(s.step).length > 0 && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ background: ERROR }}
+                        aria-label={isAr ? 'خطوة غير مكتملة' : 'Incomplete step'}
+                      />
+                    )}
+                  </span>
                   {/* No `truncate`. It was hiding the overflow rather than fixing it, and now
                       that the cards are sized to hold their text there is nothing to hide: at
                       the sm breakpoint, where the longest title is still 14px over its column,
@@ -512,7 +579,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
         </div>
 
         {/* Form Container */}
-        <form onSubmit={handleSubmitContract} className="bg-graphite border border-white/10 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
+        <form ref={formRef} onKeyDown={focusNextField} onSubmit={handleSubmitContract} className="bg-graphite border border-white/10 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
           
           {/* STEP 1: Company Details */}
           {currentStep === 1 && (
@@ -1181,6 +1248,44 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             </div>
           )}
 
+          {/* ما ينقص، مرئياً قبل الضغط لا بعده.
+              زرّ معطَّل يقول "لا تستطيع" ولا يقول "لماذا"، فيبقى المستخدم يبحث عن السبب في ثلاث
+              خطوات. هذه القائمة تسمّي كل ناقص ومعه رقم خطوته، وكل سطر فيها زرّ ينقلك إليه. */}
+          {currentStep === 3 && missingItems.length > 0 && (
+            <div
+              className="p-4 rounded-2xl border"
+              style={{ background: 'rgba(239,68,68,0.06)', borderColor: 'rgba(239,68,68,0.35)' }}
+            >
+              <span className="flex items-center gap-2 text-sm font-bold" style={{ color: ERROR }}>
+                <AlertCircle className="w-4 h-4" />
+                {isAr ? 'لا يمكن إتمام العقد قبل إكمال:' : 'The contract cannot be completed until you finish:'}
+              </span>
+              <ul className="mt-2.5 space-y-1.5">
+                {missingItems.map((item) => (
+                  <li key={`${item.step}-${item.field}`}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCurrentStep(item.step);
+                        setFieldErrors(new Set([item.field]));
+                        if (item.field === 'signature') setSignatureMissing(true);
+                      }}
+                      className="text-xs font-bold text-white/85 hover:text-white cursor-pointer flex items-center gap-2"
+                    >
+                      <span
+                        className="w-5 h-5 rounded-md grid place-items-center text-[10px] shrink-0"
+                        style={{ background: 'rgba(255,255,255,0.12)' }}
+                      >
+                        {item.step}
+                      </span>
+                      <span className="underline decoration-white/30">{item.label}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Form Navigation Buttons */}
           <div className="pt-4 border-t border-white/10 flex items-center justify-between">
             {currentStep > 1 ? (
@@ -1205,45 +1310,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 size="sm"
                 radius="xl"
                 onClick={() => {
-                  if (currentStep === 1) {
-                    const missing = new Set<string>();
-                    if (!companyName) missing.add('companyName');
-                    if (!repName) missing.add('repName');
-                    if (!phone) missing.add('phone');
-                    if (missing.size > 0) {
-                      setFieldErrors(missing);
-                      showToast(
-                        isAr ? 'يرجى إكمال البيانات الأساسية أولاً (الحقول الناقصة محدّدة بالأحمر)' : 'Please complete the required basic info first (highlighted in red)',
-                        'error'
-                      );
-                      return;
-                    }
-                    // A present-but-wrong number was let through here and only rejected at
-                    // submit, three steps later — by which point the field that caused it is
-                    // off-screen. Caught on the step that owns it instead.
-                    if (!isValidIraqiPhone(phone)) {
-                      setFieldErrors(new Set(['phone']));
-                      showToast(
-                        isAr ? 'رقم الهاتف يجب أن يبدأ بـ 07 ويتكوّن من 11 رقماً' : 'The phone number must start with 07 and be 11 digits',
-                        'error'
-                      );
-                      return;
-                    }
-                  }
-                  if (currentStep === 2 && isCustomProject && (!customProjectName.trim() || !customFeaturesText.trim())) {
-                    const missingCustom = new Set<string>();
-                    if (!customProjectName.trim()) missingCustom.add('customProjectName');
-                    if (!customFeaturesText.trim()) missingCustom.add('customDescription');
-                    setFieldErrors(missingCustom);
-                    showToast(
-                      isAr ? 'يرجى تسمية مشروعك ووصفه أولاً (الحقول الناقصة محدّدة بالأحمر)' : 'Please name and describe your project first (highlighted in red)',
-                      'error'
-                    );
+                  // نفس القائمة، مقصورة على الخطوة الحالية — فلا يقفز أحد فوق نقص ثم يُفاجأ به
+                  // في النهاية، ولا يُمنع من التقدّم بسبب نقص في خطوة لم يصل إليها بعد.
+                  const missingHere = missingForStep(currentStep);
+                  if (missingHere.length > 0) {
+                    announceMissing(missingHere);
                     return;
                   }
-                  // خطوة اكتملت فعلاً (بعد اجتياز كل تحققات هذه الخطوة) — هذا ما يكشف أين
-                  // بالضبط يتوقف الزبائن داخل العقد بدل معرفة "دخل ولم يكمل" فقط.
-                  trackEvent('contract_step_completed', { step: currentStep, project_type: projectType });
                   setCurrentStep(currentStep + 1);
                   cosmicAudio.playPing();
                 }}
@@ -1267,9 +1340,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 title={
                   canSubmit
                     ? undefined
-                    : isAr
-                      ? 'أكمل رقم الهاتف والموافقة والتوقيع أولاً'
-                      : 'Complete the signature, approval and phone number first'
+                    : `${isAr ? 'ينقص: ' : 'Missing: '}${missingItems.map((m) => m.label).join(' · ')}`
                 }
                 className="sm:text-sm"
                 icon={<FileCheck className="w-4 h-4" />}

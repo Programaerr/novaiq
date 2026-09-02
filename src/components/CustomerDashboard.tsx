@@ -5,6 +5,7 @@ import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
 import { subscribeToMyContracts, requestContractCancellation } from '../lib/firebase';
+import { fetchContractSnapshot } from '../lib/contractSnapshot';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
@@ -34,6 +35,7 @@ const STATUS_LABEL_AR: Record<ContractData['status'], string> = {
   under_review: 'قيد المراجعة الفنية',
   in_development: 'قيد التطوير والتنفيذ',
   completed: 'مكتمل ومسلم',
+  cancelled: 'ملغي',
 };
 
 // The visible order of a contract's stages, used by the progress rail below. `draft` is
@@ -138,6 +140,8 @@ function StatusRail({ status, isAr }: { status: ContractData['status']; isAr: bo
     under_review: { ar: 'قيد المراجعة', en: 'Under review' },
     in_development: { ar: 'قيد التطوير', en: 'In development' },
     completed: { ar: 'مكتمل', en: 'Completed' },
+    // لا تظهر في الشريط أصلاً (ليست مرحلة في المسار)، لكن النوع يطلبها ولا يجوز أن تبقى فارغة.
+    cancelled: { ar: 'ملغي', en: 'Cancelled' },
   };
 return (
     <div className="pt-4">
@@ -322,6 +326,22 @@ function CustomerContractRow({
   onToggle: () => void;
 }) {
   const [isDownloading, setIsDownloading] = useState(false);
+  /* بنود العقد كما كانت يوم الاعتماد.
+     تُجلب مرة واحدة لكل عقد يحمل بصمة لقطة، وتُمرَّر إلى الوثيقة المطبوعة فتُطبع هي بدل البنود
+     الحالية. بدون هذا يكون تجميد المضمون بلا أثر: نحفظ اللقطة ثم نطبع من كود اليوم. */
+  const [frozenTerms, setFrozenTerms] = useState<string[] | undefined>(undefined);
+
+  useEffect(() => {
+    if (!contract.snapshotHash) return;
+    let cancelled = false;
+    fetchContractSnapshot(contract.contractNumber).then((snapshot) => {
+      if (cancelled || !snapshot) return;
+      setFrozenTerms(language === 'en' ? snapshot.terms.en : snapshot.terms.ar);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [contract.snapshotHash, contract.contractNumber, language]);
   const printRef = useRef<HTMLDivElement>(null);
 
   // Read-only for the client — never editable here, only in the admin dashboard. Showing it
@@ -344,8 +364,9 @@ function CustomerContractRow({
   const [cancelReason, setCancelReason] = useState('');
   const [cancelSending, setCancelSending] = useState(false);
   const alreadyRequested = !!contract.cancellationRequestedAt;
+  const isCancelled = contract.status === 'cancelled';
   const canRequestCancellation =
-    !alreadyRequested && paidAmountIQD <= 0 && contract.status !== 'completed';
+    !alreadyRequested && !isCancelled && paidAmountIQD <= 0 && contract.status !== 'completed';
 
   const submitCancellation = async () => {
     if (cancelSending) return;
@@ -372,14 +393,6 @@ function CustomerContractRow({
   };
 
   const handleDownload = async () => {
-    /* النسخة المؤرشفة أولاً حين توجد.
-       بعد اعتماد العقد تُحفظ نسخة PDF مجمَّدة كما كانت لحظة الاعتماد (lib/contractArchive.ts).
-       إعادة توليد الملف من الكود بعدها قد تعطي وثيقة مختلفة قليلاً كلما تغيّر التصميم أو نصّ
-       البنود — وهذا آخر ما يجوز أن يحدث لوثيقة وقّع عليها الطرفان. */
-    if (contract.archivedPdfUrl) {
-      window.open(contract.archivedPdfUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
     if (!printRef.current || isDownloading) return;
     setIsDownloading(true);
     try {
@@ -396,7 +409,9 @@ function CustomerContractRow({
       className="rounded-3xl bg-paper border border-ink/10 overflow-hidden"
       style={{ borderInlineStartWidth: '4px', borderInlineStartColor: STAGE_COLORS[contract.status].fill }}
     >
-      {expanded && <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} />}
+      {expanded && (
+        <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} frozenTerms={frozenTerms} />
+      )}
 
       <button
         type="button"
@@ -483,13 +498,15 @@ function CustomerContractRow({
               <div>
                 <span className="text-ink/50 block">{isAr ? 'مدة التسليم' : 'Delivery'}</span>
                 <strong className="text-ink/90">
-                  {hasAgreedPrice && contract.deliveryTimelineWeeks
-                    ? isAr
-                      ? `${contract.deliveryTimelineWeeks} أسبوع`
-                      : `${contract.deliveryTimelineWeeks} weeks`
-                    : isAr
-                      ? 'تُحدَّد بالاتفاق'
-                      : 'To be agreed'}
+                  {contract.deliveryTimelineText?.trim()
+                    ? contract.deliveryTimelineText
+                    : contract.deliveryTimelineWeeks
+                      ? isAr
+                        ? `${contract.deliveryTimelineWeeks} أسبوع`
+                        : `${contract.deliveryTimelineWeeks} weeks`
+                      : isAr
+                        ? 'تُحدَّد بالاتفاق'
+                        : 'To be agreed'}
                 </strong>
               </div>
               <div>
@@ -527,7 +544,18 @@ function CustomerContractRow({
               قرأ سعره ومواصفاته وحالة العمل. وطلب الإلغاء ليس إلغاءً — النص يقول ذلك صراحةً،
               لأن زرّاً يُفهم منه أنه ألغى العقد فوراً يجعل العميل يظنّ الأمر منتهياً ويتوقف عن
               الرد، وهو عكس الغرض: أن نتحدّث معه قبل أن نخسر المشروع. */}
-          {alreadyRequested ? (
+          {/* عقد ملغي: إعلان صريح يسبق كل شيء آخر، ولا طلب إلغاء بعده. الحالة معروضة في شارة
+              العقد أصلاً، لكن شارة صغيرة لا تكفي لواقعة بهذا الحجم. */}
+          {isCancelled ? (
+            <div className="p-3 rounded-xl border text-xs" style={{ background: '#F4F4F3', borderColor: 'rgba(107,113,121,0.35)' }}>
+              <span className="font-bold block mb-1 text-ink">{isAr ? 'هذا العقد ملغي' : 'This contract is cancelled'}</span>
+              <p className="text-ink/70 leading-relaxed">
+                {isAr
+                  ? 'أُلغي هذا العقد ولم يعد سارياً. تبقى نسخته ومحتواه محفوظين هنا للرجوع إليهما، ويمكنك بدء عقد جديد في أي وقت.'
+                  : 'This contract was cancelled and is no longer in force. Its copy and contents stay here for reference, and you can start a new contract at any time.'}
+              </p>
+            </div>
+          ) : alreadyRequested ? (
             <div className="p-3 rounded-xl border text-xs" style={{ background: '#FFF7F2', borderColor: `${ERROR_ON_LIGHT}33` }}>
               <span className="font-bold block mb-1" style={{ color: ERROR_ON_LIGHT }}>
                 {isAr ? 'طلب إلغاء قيد المراجعة' : 'Cancellation request under review'}

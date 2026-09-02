@@ -30,6 +30,14 @@ export interface StageColor {
 }
 
 export const STAGE_COLORS: Record<ContractData['status'], StageColor> = {
+  /* ملغي — رمادي داكن لا أحمر صارخ.
+     الإلغاء نهاية للعلاقة لا حادث خطأ، والأحمر في لوحة تُقرأ يومياً يجذب العين إلى العقود
+     المنتهية بدل العقود التي تحتاج عملاً. الرمادي الداكن يقول "خارج المسار" بوضوح وبلا إنذار. */
+  cancelled: {
+    fill: '#6B7179',
+    badge: 'bg-ink/10 border-ink/30 text-ink/70',
+    softBg: 'rgba(107, 113, 121, 0.18)',
+  },
   draft: {
     fill: '#9AA0A6',
     badge: 'bg-white/70 border-ink/20 text-ink/60',

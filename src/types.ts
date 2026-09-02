@@ -108,6 +108,12 @@ export interface ContractData {
   basePriceSAR?: number;
   totalPriceSAR?: number;
   paymentPlan: '50_50' | '100_upfront' | '3_milestones';
+  /** مدة التنفيذ كما اتُّفق عليها، نصاً حراً: "3 أسابيع"، "شهر ونصف"، "20 يوم عمل"، "قبل رمضان".
+   *  المشاريع لا تُقاس كلها بوحدة واحدة، وإجبار الأسابيع كان يحوّل اتفاقاً دقيقاً إلى تقريب.
+   *  يُعرض كما كُتب حرفياً في حساب العميل وفي الوثيقة. */
+  deliveryTimelineText?: string;
+  /** الحقل القديم بالأسابيع. يبقى للعقود التي أُنشئت قبل الحقل النصّي أعلاه فقط — لا يُكتب
+   *  فيه شيء جديد، ويُقرأ فقط حين لا يوجد نصّ. */
   deliveryTimelineWeeks: number;
   
   // Legal & Digital Signature
@@ -131,7 +137,9 @@ export interface ContractData {
   companySignatureInk?: 'dark';
   
   // Status
-  status: 'draft' | 'submitted' | 'under_review' | 'in_development' | 'completed';
+  /** 'cancelled' حالة نهائية يضبطها الأدمن وحده بعد أن يتعذّر حلّ مشكلة العميل. ليست مرحلة
+   *  في مسار التنفيذ بل خروج منه، ولذلك لا تظهر في شريط المراحل بل كإعلان مستقل. */
+  status: 'draft' | 'submitted' | 'under_review' | 'in_development' | 'completed' | 'cancelled';
   createdAt: string;
   updatedAt?: string;
   completedAt?: string;
@@ -148,12 +156,13 @@ export interface ContractData {
    */
   previewUrl?: string;
 
-  /** رابط نسخة PDF مجمَّدة من العقد، تُلتقط لحظة اعتماد الأدمن وتُرفع إلى Firebase Storage
-   *  (lib/contractArchive.ts). وجودها يعني أن ما يُنزّله العميل هو الوثيقة كما كانت وقت
-   *  الاعتماد، لا نسخة يُعاد رسمها اليوم من كود قد يكون تغيّر. */
-  archivedPdfUrl?: string;
-  /** متى أُرشفت تلك النسخة. */
-  archivedAt?: string;
+  /** بصمة لقطة العقد المعتمَد (SHA-256). وجودها يعني أن مضمون العقد جُمِّد لحظة الاعتماد في
+   *  `contract_snapshots/{contractNumber}`، وأن ما يُطبع للعميل يُقرأ من تلك اللقطة لا من كود
+   *  اليوم. تُخزَّن هنا نسخة من البصمة تحديداً ليكون التحقق ممكناً بمقارنة رقمين، بلا مقارنة
+   *  نصوص — انظر lib/contractSnapshot.ts. */
+  snapshotHash?: string;
+  /** متى جُمِّد المضمون. */
+  snapshotAt?: string;
 
   /** طلب العميل إلغاء العقد (ISO). يكتبه العميل بنفسه من حسابه، ولا يعني الإلغاء: هو إشعار
    *  لنا بأنه يريد الإلغاء لنتحدث معه أولاً. يختفي زر الطلب نهائياً بمجرد استلام أي دفعة —

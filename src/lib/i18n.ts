@@ -22,6 +22,7 @@ const DYNAMIC_TRANSLATIONS: Record<string, { en: string; ar: string }> = {
   'under_review': { ar: 'قيد المراجعة الفنية', en: 'Under Technical Review' },
   'in_development': { ar: 'قيد التطوير والتنفيذ', en: 'In Development' },
   'completed': { ar: 'مكتمل ومسلم', en: 'Completed & Delivered' },
+  'cancelled': { ar: 'ملغي', en: 'Cancelled' },
   'draft': { ar: 'مسودة', en: 'Draft' },
 
   // Templates Titles & Phrases

@@ -13,6 +13,9 @@ interface ContractPrintDocumentProps {
   translatedAdminNotes?: string;
   templateTitle: string;
   city: string;
+  /** بنود العقد كما كانت يوم الاعتماد (من lib/contractSnapshot.ts). حين تصل، تُطبع هي لا
+   *  البنود الحالية: عقد وُقّع قبل تعديل بند يجب أن يبقى محمولاً على نصّه هو. */
+  frozenTerms?: string[];
 }
 
 // A print-optimized rendering of the contract, separate from the on-screen preview.
@@ -25,7 +28,7 @@ interface ContractPrintDocumentProps {
 // Letting the browser lay out the text and photographing the result is what makes a genuine
 // Arabic PDF possible at all.
 export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPrintDocumentProps>(
-  ({ contract, language, translatedNotes, translatedAdminNotes, templateTitle, city }, ref) => {
+  ({ contract, language, translatedNotes, translatedAdminNotes, templateTitle, city, frozenTerms }, ref) => {
     const isAr = language === 'ar';
 
     const t = {
@@ -158,7 +161,9 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
 
     // Section 4, from the same module the builder reads when it shows the customer what they
     // are about to sign (src/data/contractTerms.ts) — the two must never be able to disagree.
-    const terms = contractTerms(language, contract.deliveryTimelineWeeks);
+    /* البنود المجمَّدة أولاً حين توجد — انظر frozenTerms أعلاه. غيابها يعني عقداً قبل نظام
+       اللقطات أو لم يُعتمد بعد، فتُطبع البنود الحالية كما كان يحدث دائماً. */
+    const terms = frozenTerms && frozenTerms.length > 0 ? frozenTerms : contractTerms(language, contract.deliveryTimelineWeeks);
 
     const Field: React.FC<{ label: string; value: string }> = ({ label, value }) => (
       <div style={{ marginBottom: 4 }}>
@@ -373,12 +378,18 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
               </div>
             )}
             <div style={{ marginTop: 7 }}>
+              {/* المدة مستقلة عن السعر.
+                  كانت مربوطة به، فمدة اعتمدها الأدمن تبقى مخفية لمجرد أن الرقم لم يُثبَّت بعد —
+                  وهما اتفاقان منفصلان قد يُبرمان في وقتين مختلفين. كل واحد يظهر متى وُجد. */}
+              {/* النصّ الحر أولاً، والأسابيع للعقود القديمة وحدها. */}
               <Field
                 label={t.timeline}
                 value={
-                  contract.deliveryTimelineWeeks && hasAgreedPrice
-                    ? `${contract.deliveryTimelineWeeks} ${t.weeks}`
-                    : t.toBeAgreed
+                  contract.deliveryTimelineText?.trim()
+                    ? contract.deliveryTimelineText
+                    : contract.deliveryTimelineWeeks
+                      ? `${contract.deliveryTimelineWeeks} ${t.weeks}`
+                      : t.toBeAgreed
                 }
               />
               <Field label={t.payment} value={hasAgreedPrice ? paymentPlanLabel : t.toBeAgreed} />
@@ -504,8 +515,8 @@ ContractPrintDocument.displayName = 'ContractPrintDocument';
  */
 export const ConnectedContractPrintDocument = React.forwardRef<
   HTMLDivElement,
-  { contract: ContractData; language: Language }
->(({ contract, language }, ref) => {
+  { contract: ContractData; language: Language; frozenTerms?: string[] }
+>(({ contract, language, frozenTerms }, ref) => {
   /* حرفياً كما كُتبا — انظر نفس التعليق في ContractPDFPreview: العقد يُطبع بنصّ صاحبه، لا
      بإعادة صياغة آلية له. */
   const translatedNotes = contract.customFeaturesText;
@@ -518,6 +529,7 @@ export const ConnectedContractPrintDocument = React.forwardRef<
       language={language}
       translatedNotes={translatedNotes}
       translatedAdminNotes={translatedAdminNotes}
+      frozenTerms={frozenTerms}
       templateTitle={translateText(contract.templateTitle, language)}
       city={translateText(contract.city, language)}
     />

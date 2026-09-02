@@ -21,13 +21,13 @@ import {
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { deleteContractFromFirebase, updateContractFields, fetchContractAudit } from '../../lib/firebase';
-import { generateContractPDF, renderContractPdfBlob } from '../../lib/pdfGenerator';
+import { deleteContractFromFirebase, updateContractFields, fetchContractAudit, auth } from '../../lib/firebase';
+import { generateContractPDF } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { ERROR_ON_LIGHT } from '../../lib/homePalette';
-import { uploadContractPdf } from '../../lib/contractArchive';
+import { createContractSnapshot } from '../../lib/contractSnapshot';
 import { useSignaturePad } from '../../lib/useSignaturePad';
 import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '../../lib/payments';
 import { PriceInput } from '../PriceInput';
@@ -252,7 +252,9 @@ function ContractRow({
      المشروع مخصص، فلا الباني يعرف مدته (كان يكتب 8 أسابيع لكل مشروع مهما كان حجمه) ولا العميل
      اختار خطة سداد (كانت مثبَّتة على 50/50 بلا أن تُعرَض عليه). كلاهما الآن يُترك فارغاً في
      الوثيقة حتى تعتمده أنت مع السعر، فيظهر للعميل عندها. */
-  const [deliveryWeeks, setDeliveryWeeks] = useState(String(contract.deliveryTimelineWeeks || ''));
+  const [deliveryText, setDeliveryText] = useState(
+    contract.deliveryTimelineText || (contract.deliveryTimelineWeeks ? String(contract.deliveryTimelineWeeks) + ' أسابيع' : '')
+  );
   const [paymentPlan, setPaymentPlan] = useState<ContractData['paymentPlan']>(contract.paymentPlan || '50_50');
   /** رابط المعاينة الخاص الذي يتابع منه العميل موقعه أثناء التنفيذ. */
   const [previewUrl, setPreviewUrl] = useState(contract.previewUrl || '');
@@ -271,7 +273,7 @@ function ContractRow({
       setAuditRows(await fetchContractAudit(contract.contractNumber));
     } catch (e) {
       console.error('Failed to load the audit trail:', e);
-      showToast(isAr ? 'تعذّر جلب سجل التعديلات' : 'Could not load the change log', 'error');
+      showToast(isAr ? 'تعذّر جلب سجل الحركات' : 'Could not load the activity log', 'error');
     } finally {
       setAuditLoading(false);
     }
@@ -291,7 +293,9 @@ function ContractRow({
     setPayments(baselinePayments(contract));
     setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
     setAdminNotes(contract.adminNotes || '');
-    setDeliveryWeeks(String(contract.deliveryTimelineWeeks || ''));
+    setDeliveryText(
+      contract.deliveryTimelineText || (contract.deliveryTimelineWeeks ? String(contract.deliveryTimelineWeeks) + ' أسابيع' : '')
+    );
     setPaymentPlan(contract.paymentPlan || '50_50');
     setPreviewUrl(contract.previewUrl || '');
     setSignatureDirty(false);
@@ -320,7 +324,7 @@ function ContractRow({
     JSON.stringify(payments) !== JSON.stringify(baselinePayments(contract)) ||
     installmentsPlannedNum !== (contract.installmentsPlanned || 0) ||
     adminNotes !== (contract.adminNotes || '') ||
-    Number(deliveryWeeks || 0) !== (contract.deliveryTimelineWeeks || 0) ||
+    deliveryText.trim() !== (contract.deliveryTimelineText || '') ||
     paymentPlan !== (contract.paymentPlan || '50_50') ||
     previewUrl.trim() !== (contract.previewUrl || '') ||
     signatureDirty;
@@ -353,7 +357,7 @@ function ContractRow({
         // sending `undefined` under merge:true could not do.
         installmentsPlanned: installmentsPlannedNum,
         adminNotes: adminNotes.trim(),
-        deliveryTimelineWeeks: Number(deliveryWeeks) || 0,
+        deliveryTimelineText: deliveryText.trim(),
         paymentPlan,
         previewUrl: previewUrl.trim(),
         // علامة الحبر الداكن تُكتب مع التوقيع نفسه وفي نفس الحفظ — لو كُتبت لاحقاً لظهر
@@ -365,25 +369,34 @@ function ContractRow({
       cosmicAudio.playPing();
       showToast(isAr ? 'تم حفظ التعديلات بنجاح' : 'Changes saved successfully', 'success');
 
-      /* الأرشفة تحدث لحظة الاعتماد فقط: توقيع NUVAIQ موجود + سعر معتمَد + لا نسخة مؤرشفة بعد.
-         هذه هي اللحظة التي تصبح فيها الوثيقة نهائية بين الطرفين؛ أرشفتها قبلها تحفظ مسودة،
-         وبعدها بكل حفظة تُنشئ نسخاً متكررة لنفس الوثيقة بلا سبب.
+      /* تجميد المضمون لحظة الاعتماد فقط: توقيع NUVAIQ موجود + سعر معتمَد + لا لقطة بعد.
+         هذه هي اللحظة التي تصبح فيها الوثيقة نهائية؛ تجميدها قبلها يحفظ مسوّدة، وبعد كل حفظة
+         يعني محاولة تغيير ما وقّع عليه الطرفان (والقاعدة ترفضها أصلاً).
 
-         خارج try الأصلي عمداً: فشل الرفع لا يجوز أن يظهر كفشل حفظ — الحفظ نجح فعلاً. */
+         خارج نجاح الحفظ الأساسي عمداً: فشل التجميد لا يجوز أن يظهر كفشل حفظ — الحفظ نجح. */
       const nowSigned = companySignatureDataUrl || contract.companySignatureDataUrl;
       const priced = (Number(totalPrice) || 0) > 0;
-      if (nowSigned && priced && !contract.archivedPdfUrl && printRef.current) {
+      if (nowSigned && priced && !contract.snapshotHash) {
         try {
-          const blob = await renderContractPdfBlob(printRef.current, contract);
-          const url = await uploadContractPdf(blob, contract);
-          await updateContractFields(contract, { archivedPdfUrl: url, archivedAt: new Date().toISOString() });
-          showToast(isAr ? 'أُرشفت نسخة معتمدة من العقد' : 'An approved copy of the contract was archived', 'success');
-        } catch (archiveError) {
-          console.error('Contract archive failed:', archiveError);
+          const approvedBy = (auth.currentUser?.email || '').trim().toLowerCase();
+          const hash = await createContractSnapshot(
+            {
+              ...contract,
+              totalPriceIQD: Number(totalPrice) || 0,
+              deliveryTimelineText: deliveryText.trim(),
+              paymentPlan,
+              adminNotes: adminNotes.trim(),
+            },
+            approvedBy
+          );
+          await updateContractFields(contract, { snapshotHash: hash, snapshotAt: new Date().toISOString() });
+          showToast(isAr ? 'تم تجميد نسخة العقد المعتمدة' : 'The approved contract copy was frozen', 'success');
+        } catch (snapshotError) {
+          console.error('Contract snapshot failed:', snapshotError);
           showToast(
             isAr
-              ? 'حُفظ الاعتماد، لكن تعذّرت أرشفة نسخة PDF — تأكد من تفعيل Firebase Storage ونشر قواعده'
-              : 'Approval saved, but archiving the PDF copy failed — check that Firebase Storage is enabled and its rules published',
+              ? 'حُفظ الاعتماد، لكن تعذّر تجميد نسخة العقد — تأكد من نشر قواعد Firestore'
+              : 'Approval saved, but freezing the contract copy failed — check that the Firestore rules are published',
             'error'
           );
         }
@@ -393,7 +406,20 @@ function ContractRow({
       // failing the actual Firestore error (permissions, offline, bad field) is the only thing
       // that says why, and it was previously swallowed by a bare `catch {}`.
       console.error('Failed to save contract changes:', e);
-      showToast(isAr ? 'تعذر حفظ التعديلات، حاول مجدداً' : 'Failed to save changes — please try again', 'error');
+      /* الرمز يُذكر في الرسالة: "حاول مجدداً" تجعل رفضاً من القواعد (لم تُنشر بعد، أو الحساب
+         ليس ضمن المشرفين) يبدو عطلاً عابراً، فيعيد الأدمن المحاولة عشر مرات بلا فائدة. */
+      const code = (e as { code?: string })?.code || '';
+      const denied = code.includes('permission-denied');
+      showToast(
+        denied
+          ? isAr
+            ? 'الحفظ مرفوض من قاعدة البيانات — انشر قواعد Firestore من الكونسول وتأكد أن حسابك ضمن المشرفين'
+            : 'The database refused the write — publish the Firestore rules and check that your account is an admin'
+          : isAr
+            ? `تعذر حفظ التعديلات${code ? ` (${code})` : ''}، حاول مجدداً`
+            : `Failed to save changes${code ? ` (${code})` : ''} — please try again`,
+        'error'
+      );
     } finally {
       setIsSaving(false);
     }
@@ -494,12 +520,129 @@ function ContractRow({
             )}
           </div>
 
-          {contract.customFeaturesText && (
-            <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
-              <span className="text-ink/60 block mb-1">{isAr ? 'طلب العميل الأصلي:' : "Client's Original Request:"}</span>
-              <p className="text-ink/90">{contract.customFeaturesText}</p>
+          {/* الوثيقة كما وقّعها العميل — نفس ما يراه هو في حسابه.
+              كانت هذه اللوحة تعرض بيانات الاتصال والنص الحر فقط، فيُفتح العقد هنا بلا نوعه ولا
+              ألوانه ولا لغاته ولا حتى توقيع صاحبه — أي أن الطرف الذي ينفّذ المشروع كان يراه أقل
+              مما يراه الطرف الذي طلبه. */}
+          <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs space-y-3">
+            <span className="text-[11px] font-bold text-ink/60 block">
+              {isAr ? 'العقد كما وقّعه العميل' : 'The contract as the client signed it'}
+            </span>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2.5">
+              <div className="min-w-0">
+                <span className="text-ink/50 block">{isAr ? 'المشروع' : 'Project'}</span>
+                <strong className="text-ink block truncate">{translateText(contract.templateTitle, language)}</strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'نوع المشروع' : 'Project type'}</span>
+                <strong className="text-ink">
+                  {contract.projectType === 'app'
+                    ? (isAr ? 'تطبيق هاتف' : 'Mobile app')
+                    : contract.projectType === 'website'
+                      ? (isAr ? 'موقع إلكتروني' : 'Website')
+                      : (isAr ? 'غير محدَّد' : 'Unspecified')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'الوضع' : 'Theme'}</span>
+                <strong className="text-ink">
+                  {contract.themePreference === 'light'
+                    ? (isAr ? 'فاتح' : 'Light')
+                    : contract.themePreference === 'both'
+                      ? (isAr ? 'ثنائي' : 'Both')
+                      : (isAr ? 'داكن' : 'Dark')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'اللغات' : 'Languages'}</span>
+                <strong className="text-ink">
+                  {contract.languageSupport === 'ar'
+                    ? (isAr ? 'عربي' : 'Arabic')
+                    : contract.languageSupport === 'en'
+                      ? (isAr ? 'إنجليزي' : 'English')
+                      : (isAr ? 'ثنائي' : 'Both')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'تاريخ التوقيع' : 'Signed on'}</span>
+                <strong className="text-ink" dir="ltr">
+                  {contract.createdAt ? new Date(contract.createdAt).toLocaleString(isAr ? 'ar-IQ' : 'en-GB') : '—'}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'رقم السجل' : 'CR / ID'}</span>
+                <strong className="text-ink font-mono" dir="ltr">{contract.crNumber || '—'}</strong>
+              </div>
+              <div className="col-span-2">
+                <span className="text-ink/50 block">{isAr ? 'ألوان الهوية' : 'Brand colours'}</span>
+                {/* بالكود لا بالمربّع وحده: المربّع يُري اللون تقريباً، والكود هو ما يُنفَّذ به. */}
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  {[contract.primaryColor, contract.secondColor, contract.thirdColor]
+                    .filter(Boolean)
+                    .map((hex, i) => (
+                      <span key={i} className="inline-flex items-center gap-1.5">
+                        <span
+                          className="w-4 h-4 rounded-md border border-ink/20 shrink-0"
+                          style={{ backgroundColor: hex as string }}
+                        />
+                        <span className="font-mono text-[10.5px] text-ink/70" dir="ltr">
+                          {(hex as string).toUpperCase()}
+                        </span>
+                      </span>
+                    ))}
+                  {![contract.primaryColor, contract.secondColor, contract.thirdColor].some(Boolean) && (
+                    <span className="text-ink/50">{isAr ? 'لم تُختَر ألوان' : 'No colours chosen'}</span>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
+
+            {contract.customFeaturesText && (
+              <div className="pt-2.5 border-t border-ink/10">
+                <span className="text-ink/50 block mb-1">
+                  {isAr ? 'ما كتبه العميل عن مشروعه' : 'What the client wrote about their project'}
+                </span>
+                <p className="text-ink/90 leading-relaxed whitespace-pre-line">{contract.customFeaturesText}</p>
+              </div>
+            )}
+
+            {/* التوقيعان جنباً إلى جنب — "كيف وقّع وأين التوقيع" لا يُعرف إلا برؤيته.
+                فلتر القلب يُطبَّق فقط على التواقيع القديمة المرسومة بحبر أبيض (signatureInk في
+                types.ts)؛ الجديدة داكنة أصلاً وقلبها كان سيُخفيها. */}
+            <div className="pt-2.5 border-t border-ink/10 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <span className="text-ink/50 block mb-1.5">{isAr ? 'توقيع العميل' : 'Client signature'}</span>
+                {contract.signatureDataUrl ? (
+                  <div className="bg-white rounded-lg border border-ink/10 h-16 flex items-center px-2">
+                    <img
+                      src={contract.signatureDataUrl}
+                      alt={isAr ? 'توقيع العميل' : 'Client signature'}
+                      className="max-h-full max-w-full object-contain"
+                      style={{ filter: contract.signatureInk === 'dark' ? undefined : 'invert(1)' }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-ink/50">{isAr ? 'لا يوجد توقيع مخزَّن' : 'No signature stored'}</p>
+                )}
+              </div>
+              <div>
+                <span className="text-ink/50 block mb-1.5">{isAr ? 'اعتماد NUVAIQ' : 'NUVAIQ sign-off'}</span>
+                {contract.companySignatureDataUrl ? (
+                  <div className="bg-white rounded-lg border border-ink/10 h-16 flex items-center px-2">
+                    <img
+                      src={contract.companySignatureDataUrl}
+                      alt={isAr ? 'اعتماد NUVAIQ' : 'NUVAIQ sign-off'}
+                      className="max-h-full max-w-full object-contain"
+                      style={{ filter: contract.companySignatureInk === 'dark' ? undefined : 'invert(1)' }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-ink/50">{isAr ? 'لم يُعتمد بعد' : 'Not approved yet'}</p>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -514,6 +657,10 @@ function ContractRow({
                     {translateText(statusArabic(s), language)}
                   </option>
                 ))}
+                {/* خارج STATUS_FLOW عمداً: الإلغاء ليس مرحلة في مسار التنفيذ بل خروج منه، فلا
+                    يجوز أن يظهر في شريط المراحل ولا في إحصاءات التقدّم. لكنه حالة كاملة تُختار
+                    هنا — والعقد يبقى في السجل بتواقيعه ومحتواه، لأن حذفه كان سيمحو دليل ما جرى. */}
+                <option value="cancelled">{isAr ? 'ملغي' : 'Cancelled'}</option>
               </select>
             </div>
             <div>
@@ -599,20 +746,45 @@ function ContractRow({
                       </p>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      try {
-                        await updateContractFields(contract, { cancellationRequestedAt: '', cancellationReason: '' });
-                        showToast(isAr ? 'تم إغلاق طلب الإلغاء' : 'Cancellation request cleared', 'success');
-                      } catch {
-                        showToast(isAr ? 'تعذّر إغلاق الطلب' : 'Could not clear the request', 'error');
-                      }
-                    }}
-                    className="shrink-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-ink/75 text-[11px] font-bold cursor-pointer"
-                  >
-                    {isAr ? 'تم الحل — إغلاق الطلب' : 'Resolved — clear'}
-                  </button>
+                  <div className="shrink-0 flex flex-col gap-1.5">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await updateContractFields(contract, { cancellationRequestedAt: '', cancellationReason: '' });
+                          showToast(isAr ? 'تم إغلاق طلب الإلغاء' : 'Cancellation request cleared', 'success');
+                        } catch {
+                          showToast(isAr ? 'تعذّر إغلاق الطلب' : 'Could not clear the request', 'error');
+                        }
+                      }}
+                      className="px-3 py-2 rounded-xl bg-white border border-ink/15 text-ink/75 text-[11px] font-bold cursor-pointer"
+                    >
+                      {isAr ? 'تم الحل — إغلاق الطلب' : 'Resolved — clear'}
+                    </button>
+                    {/* الطريق الثاني: لم يوجد حل. تأكيد صريح لأن هذه حالة نهائية يراها العميل
+                        فوراً في حسابه ولا يُتراجع عنها بضغطة. */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const ok = window.confirm(
+                          isAr
+                            ? 'إلغاء هذا العقد نهائياً؟ ستظهر حالته "ملغي" في حساب العميل فوراً.'
+                            : 'Cancel this contract for good? Its status will show as "Cancelled" in the client account immediately.'
+                        );
+                        if (!ok) return;
+                        try {
+                          await updateContractFields(contract, { status: 'cancelled' });
+                          showToast(isAr ? 'أُلغي العقد' : 'The contract was cancelled', 'success');
+                        } catch {
+                          showToast(isAr ? 'تعذّر إلغاء العقد' : 'Could not cancel the contract', 'error');
+                        }
+                      }}
+                      className="px-3 py-2 rounded-xl text-white text-[11px] font-bold cursor-pointer"
+                      style={{ background: ERROR_ON_LIGHT }}
+                    >
+                      {isAr ? 'إلغاء العقد' : 'Cancel the contract'}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -628,14 +800,16 @@ function ContractRow({
                 />
               </div>
               <div className="min-w-0">
-                <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'مدة التنفيذ (أسابيع)' : 'Delivery (weeks)'}</label>
+                {/* نصّ حر لا رقم أسابيع: المشاريع لا تُقاس بوحدة واحدة، ومدة مثل "شهر ونصف"
+                    أو "قبل رمضان" كانت تُجبَر على التقريب إلى رقم أسابيع فتفقد دقّتها. يُعرض
+                    للعميل حرفياً كما تكتبه. */}
+                <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'مدة التنفيذ' : 'Delivery time'}</label>
                 <input
-                  type="number"
-                  min={0}
-                  value={deliveryWeeks}
-                  onChange={(e) => setDeliveryWeeks(e.target.value)}
-                  placeholder={isAr ? 'تُحدَّد بالاتفاق' : 'to be agreed'}
-                  className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs font-mono"
+                  type="text"
+                  value={deliveryText}
+                  onChange={(e) => setDeliveryText(e.target.value)}
+                  placeholder={isAr ? 'مثال: 3 أسابيع · شهر ونصف · 20 يوم عمل' : 'e.g. 3 weeks · 6 weeks · 20 working days'}
+                  className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs"
                 />
               </div>
               <div className="min-w-0">
@@ -805,14 +979,14 @@ function ContractRow({
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               <span>{isAr ? 'تنزيل PDF' : 'Download PDF'}</span>
             </button>
-            {/* سجل التعديلات — بجوار زر الحفظ لأنه سجلّ ما حُفظ. */}
+            {/* سجل الحركات — بجوار زر الحفظ لأنه سجلّ ما حُفظ. */}
             <button
               onClick={() => (auditRows ? setAuditRows(null) : loadAudit())}
               disabled={auditLoading}
               className="px-4 py-2.5 rounded-xl bg-white/70 hover:bg-sand-light disabled:opacity-60 text-ink border border-ink/15 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
             >
               {auditLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <History className="w-4 h-4" />}
-              <span>{isAr ? 'سجل التعديلات' : 'Change log'}</span>
+              <span>{isAr ? 'سجل الحركات' : 'Activity log'}</span>
             </button>
             <button
               onClick={handleSave}
@@ -827,7 +1001,7 @@ function ContractRow({
           {auditRows && (
             <div className="mt-3 p-3 rounded-2xl bg-paper border border-ink/10 space-y-2">
               <span className="text-[11px] font-bold text-ink/60 block">
-                {isAr ? 'من غيّر ماذا ومتى' : 'Who changed what, and when'}
+                {isAr ? 'سجل الحركات' : 'Activity log'}
               </span>
               {auditRows.length === 0 ? (
                 <p className="text-[11px] text-ink/50">
