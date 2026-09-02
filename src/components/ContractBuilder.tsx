@@ -138,7 +138,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const errorInputClass = (field: string) =>
     fieldErrors.has(field)
       ? 'border-[#EF4444] focus:border-[#EF4444] ring-1 ring-[#EF4444]/40'
-      : 'border-steel/60 focus:border-orange';
+      : 'border-steel/60 focus:border-orange-on-dark';
 
   const clearFieldError = (field: string) => {
     if (!fieldErrors.has(field)) return;
@@ -626,7 +626,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 data-incomplete={missingForStep(s.step).length > 0 ? 'true' : undefined}
                 className={`text-start p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-2.5 cursor-pointer ${
         isCurrent
-          ? 'bg-orange border-orange text-obsidian shadow-lg shadow-orange/25'
+          /* Accent fill kept and only the LABEL flipped, because this row is on the light
+             page rather than in the panel: the fill is 12.53:1 there, where the obsidian
+             label on it was 1.47:1 and white is 13.44:1. The light twin every dark-ground
+             accent in this file takes would have been the wrong fix here -- 1.49:1 against
+             the white page. */
+          ? 'bg-orange border-orange text-white shadow-lg shadow-orange/25'
           : isCompleted
           ? 'bg-obsidian border-white/70 text-white shadow-lg shadow-black/50'
           : 'bg-obsidian border-white/10 text-white/50 hover:border-orange-on-dark'
@@ -666,7 +671,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
         </div>
 
         {/* Form Container */}
-        <form ref={formRef} onKeyDown={focusNextField} onSubmit={handleSubmitContract} className="bg-graphite border border-white/10 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
+        <form ref={formRef} onKeyDown={focusNextField} onSubmit={handleSubmitContract} /* The accent, on the owner's call, where this was `bg-graphite`. The inputs stay obsidian:
+             that is 1.47:1 against the new panel where graphite over the same inputs was 1.09:1,
+             so the layering got stronger rather than weaker -- and neither number ever carried
+             the separation alone, since every input has a `border-steel/60`, which measures
+             4.68:1 here. White copy on the panel is 12.53:1. */
+            className="bg-orange border border-white/10 p-4 sm:p-6 rounded-3xl space-y-5 shadow-2xl">
           
           {/* STEP 1: Company Details */}
           {currentStep === 1 && (
@@ -705,7 +715,23 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     value={crNumber}
                     onChange={(e) => setCrNumber(e.target.value)}
                     placeholder={getTranslation('crNumberPlaceholder', lang)}
-                    className="w-full px-4 py-3 rounded-xl bg-obsidian border border-steel/60 focus:border-orange focus:outline-none text-white text-sm font-mono placeholder:font-sans"
+                    /* No `font-mono` here, unlike the phone field below: this one accepts an
+                       IDENTITY as well as a register number, so its value can be Arabic. The app
+                       is wrapped in font-['Cairo'] and `font-mono` REPLACES that stack rather
+                       than extending it, so Arabic typed here fell out of the site's typeface
+                       into a monospace face that puts every letter in a fixed-width cell and
+                       breaks the cursive joining -- the letters visibly come apart.
+
+                       Appending 'Cairo' to the mono stack does NOT fix it, which is worth
+                       recording because it is the obvious thing to try: the browser resolves
+                       per character against the first family that HAS the glyph, an earlier
+                       monospace face carries Arabic, and Cairo is never reached. Rendered side
+                       by side the two were identical.
+
+                       `placeholder:font-sans` went with it. It existed only to rescue the
+                       placeholder from the mono face; kept on its own it would push the
+                       placeholder out of Cairo into the generic system sans instead. */
+                    className="w-full px-4 py-3 rounded-xl bg-obsidian border border-steel/60 focus:border-orange-on-dark focus:outline-none text-white text-sm"
                   />
                   {/* Said outright rather than left to the absence of a `*`: plenty of clients
                       here are individuals or new businesses with no commercial register at
@@ -783,7 +809,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             <div className="space-y-6 animate-fade-in">
               <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-orange" />
+                  <Layers className="w-5 h-5 text-orange-on-dark" />
                   <span>{getTranslation('stepTechSpecs', lang)}</span>
                 </h3>
                 <p className="text-white/55 text-xs sm:text-sm leading-relaxed mt-2 max-w-2xl">
@@ -859,8 +885,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       aria-pressed={projectType === opt.id}
                       className={`p-3 rounded-xl border text-sm font-bold cursor-pointer transition-all flex items-center justify-center gap-2 ${
                         projectType === opt.id
-                          ? 'bg-orange border-white text-obsidian'
-                          : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
+                          ? 'bg-orange-on-dark border-white text-obsidian'
+                          : 'bg-obsidian border-white/10 text-white/60 hover:border-orange-on-dark'
                       }`}
                     >
                       <opt.Icon className="w-4 h-4 shrink-0" />
@@ -902,7 +928,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     <div
                       key={i}
                       dir="ltr"
-                      className="relative flex items-center px-3 py-2.5 rounded-xl border border-steel/60 hover:border-orange focus-within:border-orange transition-colors"
+                      className="relative flex items-center px-3 py-2.5 rounded-xl border border-steel/60 hover:border-orange-on-dark focus-within:border-orange-on-dark transition-colors"
                     >
                       {/* One circle, two jobs, never both at once. Empty, it is the hue wheel:
                           a sign that nothing is chosen here and that pressing opens colours.
@@ -1016,7 +1042,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
                     <div className="flex items-center gap-2 flex-wrap">
                       <label
-                        className={`px-3.5 py-2 rounded-xl border border-steel/60 hover:border-orange text-xs font-bold text-white transition-colors ${
+                        className={`px-3.5 py-2 rounded-xl border border-steel/60 hover:border-orange-on-dark text-xs font-bold text-white transition-colors ${
                           logoBusy ? 'opacity-60 cursor-wait' : 'cursor-pointer'
                         }`}
                       >
@@ -1071,8 +1097,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         onClick={() => setThemePreference(opt.id)}
                         className={`p-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all ${
                           themePreference === opt.id
-                            ? 'bg-orange border-white text-obsidian'
-                            : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
+                            ? 'bg-orange-on-dark border-white text-obsidian'
+                            : 'bg-obsidian border-white/10 text-white/60 hover:border-orange-on-dark'
                         }`}
                       >
                         {opt.label}
@@ -1099,8 +1125,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                         title={opt.label}
                         className={`p-2.5 rounded-xl border text-sm font-bold cursor-pointer transition-all truncate ${
                           languageSupport === opt.id
-                            ? 'bg-orange border-white text-obsidian'
-                            : 'bg-obsidian border-white/10 text-white/60 hover:border-orange'
+                            ? 'bg-orange-on-dark border-white text-obsidian'
+                            : 'bg-obsidian border-white/10 text-white/60 hover:border-orange-on-dark'
                         }`}
                       >
                         {opt.label}
@@ -1158,7 +1184,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     value={customFeaturesText}
                     onChange={(e) => setCustomFeaturesText(e.target.value)}
                     placeholder={getTranslation('customFeaturesPlaceholder', lang)}
-                    className="w-full p-3.5 rounded-xl bg-obsidian border border-steel/60 focus:border-orange focus:outline-none text-white text-sm leading-relaxed"
+                    className="w-full p-3.5 rounded-xl bg-obsidian border border-steel/60 focus:border-orange-on-dark focus:outline-none text-white text-sm leading-relaxed"
                   />
                 </div>
               )}
@@ -1168,7 +1194,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   the contract is assembled from, so it can never disagree with what is sent. */}
               <div className="p-4 rounded-2xl bg-white/5 border border-steel/60 space-y-3">
                 <div className="flex items-center gap-2 text-white font-bold text-base">
-                  <FileCheck className="w-4 h-4 text-orange" />
+                  <FileCheck className="w-4 h-4 text-orange-on-dark" />
                   {isAr ? 'ملخّص مواصفات مشروعك' : 'Project Spec Outline'}
                 </div>
                 <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">

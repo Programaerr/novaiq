@@ -206,7 +206,11 @@ export const Footer: React.FC<FooterProps> = ({
             that did not read as the same brand gesture as everywhere else. `swellFrom: ORANGE`
             unifies it; `foam: OBSIDIAN` matches the small dark fleck every other Orange swell
             carries on its crest, rather than a second helping of Orange on top of Orange. */}
-        <TileField tones={connectionTones(fromColor, PAPER, OBSIDIAN, WHITE, ORANGE)} fade={FOOTER_BAND_FADE} />
+        {/* No fifth argument any more. `swellFrom` defaults to `ground`, which this call already
+            passes as WHITE, and the override existed only to make this one belt's swell the
+            accent while every other field's was white. All of them are white now, so the
+            default is the right answer and passing it again would just be saying it twice. */}
+        <TileField tones={connectionTones(fromColor, PAPER, OBSIDIAN, WHITE)} fade={FOOTER_BAND_FADE} />
       </div>
 
       {/* Top padding clears the belt, which is absolutely positioned and so takes up no height of
