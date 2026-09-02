@@ -469,9 +469,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
 
                 {sent && (
                   <p role="status" className="inline-block px-2.5 py-1 rounded-lg text-[0.85rem] font-extrabold" style={{ color: SUCCESS, background: OBSIDIAN }}>
-                    {isAr
-                      ? 'فتحنا لك واتساب ورسالتك مكتوبة — اضغط إرسال هناك.'
-                      : 'WhatsApp is open with your message — hit send there.'}
+                    {isAr ? 'تم الإرسال' : 'Sent'}
                   </p>
                 )}
               </div>
