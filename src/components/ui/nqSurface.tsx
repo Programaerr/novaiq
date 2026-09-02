@@ -65,9 +65,9 @@ const CHROME_QUIET = '#17171C';
  *
  * The two accents fail contrast in OPPOSITE directions, which is the whole reason this table was
  * rewritten pair by pair rather than swapped by search-and-replace. Cobalt (`#2864FF`) was dark
- * enough that white read on it and Midnight did not. Signal Orange (`#FF6A00`) is the other way:
- * white on it is 2.87:1, under even the 3:1 floor for a large mark, where Obsidian on it is
- * 6.90:1. Every pair below that puts a label ON Orange or Ember uses Obsidian, not white. A badge
+ * enough that white read on it and Midnight did not. Signal Orange (`#FF8E3D`) is the other way:
+ * white on it is 2.29:1, under even the 3:1 floor for a large mark, where Obsidian on it is
+ * 8.67:1. Every pair below that puts a label ON Orange or Ember uses Obsidian, not white. A badge
  * sitting on a LIGHT fill still wants Obsidian too — both directions land on the same dark ink
  * here, which is different from the Cobalt table (where the light-fill case wanted dark and the
  * bright-fill case wanted light) purely because Orange is the brighter of the two accents in
@@ -145,7 +145,7 @@ export const TONES: Record<NqTone, ToneSpec> = {
      at all). */
   footer: {
     solid: { bg: OBSIDIAN, fg: '#FFFFFF', badgeBg: ORANGE, badgeFg: OBSIDIAN },
-    quiet: { bg: 'rgba(255,106,0,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: ORANGE, badgeFg: OBSIDIAN },
+    quiet: { bg: 'rgba(255,142,61,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: ORANGE, badgeFg: OBSIDIAN },
     ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: ORANGE, badgeFg: OBSIDIAN },
     accent: ORANGE,
     darkRing: true,

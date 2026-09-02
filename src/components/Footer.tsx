@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
+import { channels, OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { NuvaiqLogo } from './NuvaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
@@ -52,12 +52,17 @@ const PAPER_VARS: React.CSSProperties = {
   // social hovers so the footer reads in the site's own colour instead of flat monochrome.
   //
   // `--ft-accent-ink` is OBSIDIAN, not white — Signal Orange is bright enough that white on it
-  // measures a failing 2.87:1 (under even the 3:1 an icon needs), where Obsidian measures 6.90:1.
+  // measures a failing 2.29:1 (under even the 3:1 an icon needs), where Obsidian measures 8.67:1.
   // Every earlier identity's accent needed the opposite: periwinkle and Cobalt were both dark
   // enough, or close to it, that a LIGHT ink read better; Orange is the first accent this footer
   // has carried that is too bright for its own ink to be light.
-  ['--ft-accent' as string]: '255 106 0',
-  ['--ft-accent-ink' as string]: '8 10 13',
+  // Both DERIVED, not typed out. Tailwind needs the channels bare here so `rgb(var(--ft-accent)
+  // / 0.25)` can compose an alpha onto them — and a channel triple is invisible to any search
+  // for `#FF6A00`, which is how this line went on painting the old deep orange on four footer
+  // elements after the accent was retuned everywhere else. `channels()` lives in homePalette so
+  // the value has exactly one home.
+  ['--ft-accent' as string]: channels(ORANGE),
+  ['--ft-accent-ink' as string]: channels(OBSIDIAN),
 };
 
 interface FooterColumnProps {
