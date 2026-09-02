@@ -493,6 +493,23 @@ const ShaderWarmup: React.FC<{ onReady: () => void }> = ({ onReady }) => {
   return null;
 };
 
+/**
+ * هندسة تُبنى مرّة واحدة في عمر الصفحة.
+ *
+ * `useMemo` يحفظ عبر إعادات العرض لا عبر التركيب: كل فتح جديد للمعاينة كان مكوّناً جديداً،
+ * فيعيد الدمج من الصفر. وهذه دوال خالصة تُنتج نفس المخازن دائماً، فلا معنى لإعادتها.
+ */
+const GEOMETRY_CACHE = new Map<string, THREE.BufferGeometry>();
+
+function sharedGeometry(key: string, build: () => THREE.BufferGeometry): THREE.BufferGeometry {
+  let geom = GEOMETRY_CACHE.get(key);
+  if (!geom) {
+    geom = build();
+    GEOMETRY_CACHE.set(key, geom);
+  }
+  return geom;
+}
+
 const KeyLight: React.FC = () => {
   const sunRef = useRef<THREE.DirectionalLight>(null);
   const targetRef = useRef<THREE.Object3D>(null);
@@ -551,19 +568,23 @@ const Building: React.FC<SceneProps> = ({
   // per-frame motion and nothing outside the canvas needs to read it.
   const offsets = useRef<number[]>(new Array(TOWER_FLOORS).fill(0));
 
-  const storeyGeom = useMemo(makeStoreyGeometry, []);
-  const glassGeom = useMemo(makeGlassGeometry, []);
-  const podiumGeom = useMemo(makePodiumGeometry, []);
-  const doorGeom = useMemo(makeDoorGeometry, []);
-  const roofGeom = useMemo(makeRoofGeometry, []);
+  /* من مخزن الوحدة، لا من useMemo لكل تركيب.
+     خمس عمليات دمج هندسي لبناية من اثني عشر طابقاً بشُرفها — عمل JavaScript متزامن يقع في
+     مرحلة العرض نفسها، أي داخل النقرة التي تفتح المعاينة. وكان يُعاد كاملاً عند كل فتح لأن
+     الهندسة كانت تُتلَف عند الإغلاق. الآن تُبنى مرّة واحدة في عمر الصفحة وتُعاد، فالفتح
+     الثاني وما بعده لا يكلّف منها شيئاً. */
+  const storeyGeom = sharedGeometry('storey', makeStoreyGeometry);
+  const glassGeom = sharedGeometry('glass', makeGlassGeometry);
+  const podiumGeom = sharedGeometry('podium', makePodiumGeometry);
+  const doorGeom = sharedGeometry('door', makeDoorGeometry);
+  const roofGeom = sharedGeometry('roof', makeRoofGeometry);
 
   useEffect(
     () => () => {
-      storeyGeom.dispose();
-      glassGeom.dispose();
-      podiumGeom.dispose();
-      doorGeom.dispose();
-      roofGeom.dispose();
+      /* لا إتلاف للهندسة هنا: صارت مشتركة على مستوى الوحدة (انظر sharedGeometry). إتلافها
+         عند الإغلاق كان يعني إعادة بنائها كاملةً عند كل فتح — وهو ما لا يُلاحَظ في الذاكرة
+         (خمسة مخازن صغيرة) ويُلاحَظ في التجمّد. الموادّ تبقى تُتلَف: هي رخيصة البناء ومرتبطة
+         بألوان قد تتغيّر. */
     },
     [storeyGeom, glassGeom, podiumGeom, doorGeom, roofGeom],
   );
@@ -839,6 +860,24 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
    * (متصفح قديم) يعود السلوك إلى ما كان بالضبط، بلا انتظار. */
   const [warm, setWarm] = useState(false);
 
+  /* الكانفاس نفسه لا يُنشأ في نفس الإطار الذي تُفتَح فيه النافذة.
+     إنشاء السياق وترجمة الـshaders وبناء ما تبقّى من المشهد كلّها عمل متزامن؛ وقوعه فوق حركة
+     فتح النافذة يجعل التجمّد مرئياً على شيء يتحرّك أمام العين. الانتظار حتى أوّل خمول يترك
+     الحركة تكتمل ناعمة أوّلاً. */
+  const [sceneLive, setSceneLive] = useState(false);
+
+  useEffect(() => {
+    const w = window as Window &
+      typeof globalThis & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+    const schedule = w.requestIdleCallback ?? ((cb: () => void) => w.setTimeout(cb, 250));
+    const cancel = w.cancelIdleCallback ?? w.clearTimeout;
+    const id = schedule(() => setSceneLive(true), { timeout: 900 });
+    return () => cancel(id);
+  }, []);
+
   return (
     <div
       className={`relative ${className ?? ''}`}
@@ -849,6 +888,7 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
       // Vertical gestures still scroll the page; only horizontal ones turn the building.
       style={{ touchAction: 'pan-y' }}
     >
+      {sceneLive && (
       <Canvas
         frameloop={!warm ? 'never' : reduced || idle ? 'demand' : 'always'}
         dpr={[1, 1.75]}
@@ -904,6 +944,7 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
             recovers — the model is on a page that also runs a phone mockup and a card grid. */}
         <AdaptiveDpr pixelated={false} />
       </Canvas>
+      )}
 
       {/* The floor's name, in the DOM rather than in the scene. Text drawn into a WebGL canvas is
           text a screen reader cannot reach and a browser cannot scale with the page. */}
