@@ -716,7 +716,23 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     value={crNumber}
                     onChange={(e) => setCrNumber(e.target.value)}
                     placeholder={getTranslation('crNumberPlaceholder', lang)}
-                    className="w-full px-4 py-3 rounded-xl bg-obsidian border border-steel/60 focus:border-orange-on-dark focus:outline-none text-white text-sm font-mono placeholder:font-sans"
+                    /* No `font-mono` here, unlike the phone field below: this one accepts an
+                       IDENTITY as well as a register number, so its value can be Arabic. The app
+                       is wrapped in font-['Cairo'] and `font-mono` REPLACES that stack rather
+                       than extending it, so Arabic typed here fell out of the site's typeface
+                       into a monospace face that puts every letter in a fixed-width cell and
+                       breaks the cursive joining -- the letters visibly come apart.
+
+                       Appending 'Cairo' to the mono stack does NOT fix it, which is worth
+                       recording because it is the obvious thing to try: the browser resolves
+                       per character against the first family that HAS the glyph, an earlier
+                       monospace face carries Arabic, and Cairo is never reached. Rendered side
+                       by side the two were identical.
+
+                       `placeholder:font-sans` went with it. It existed only to rescue the
+                       placeholder from the mono face; kept on its own it would push the
+                       placeholder out of Cairo into the generic system sans instead. */
+                    className="w-full px-4 py-3 rounded-xl bg-obsidian border border-steel/60 focus:border-orange-on-dark focus:outline-none text-white text-sm"
                   />
                   {/* Said outright rather than left to the absence of a `*`: plenty of clients
                       here are individuals or new businesses with no commercial register at
