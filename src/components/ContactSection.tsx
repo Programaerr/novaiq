@@ -50,11 +50,27 @@ interface Field {
   en: string;
   type: 'text' | 'tel' | 'textarea';
   autoComplete: string;
+  /** قاعدة الحقل، مكتوبة تحته قبل أن يكتب فيه شيئاً.
+   *
+   *  الشرط كان موجوداً في الكود وحده: يكتب الزائر رقمه، يضغط إرسال، فيُقال له "الرقم مو صحيح"
+   *  دون أن يُقال ما هو الصحيح — أي أنه يعرف القاعدة بمخالفتها. القاعدة معروضة الآن قبل
+   *  المحاولة، ونصّ الخطأ يعيدها بدل أن يكتفي بالرفض. */
+  hint?: { ar: string; en: string };
 }
 
 const FIELDS: Field[] = [
   { key: 'name', ar: 'اسمك', en: 'Your name', type: 'text', autoComplete: 'name' },
-  { key: 'phone', ar: 'رقم هاتفك', en: 'Your phone', type: 'tel', autoComplete: 'tel' },
+  {
+    key: 'phone',
+    ar: 'رقم هاتفك',
+    en: 'Your phone',
+    type: 'tel',
+    autoComplete: 'tel',
+    hint: {
+      ar: 'رقم عراقي يبدأ بـ 07 ويتكوّن من 11 رقماً — أو بصيغة 964+.',
+      en: 'An Iraqi number starting 07, 11 digits — or in +964 form.',
+    },
+  },
   { key: 'message', ar: 'رسالتك', en: 'Your message', type: 'textarea', autoComplete: 'off' },
 ];
 
@@ -75,7 +91,9 @@ function validate(values: Values, isAr: boolean): Errors {
   if (!values.name.trim()) errors.name = isAr ? 'اكتب اسمك.' : 'Please enter your name.';
   if (!values.phone.trim()) errors.phone = isAr ? 'اكتب رقم هاتفك.' : 'Please enter your phone.';
   else if (!PHONE.test(values.phone.replace(/\s+/g, '')))
-    errors.phone = isAr ? 'الرقم مو صحيح.' : 'That number does not look right.';
+    errors.phone = isAr
+      ? 'الرقم مو صحيح — لازم يبدأ بـ 07 ويكون 11 رقم (أو بصيغة 964+).'
+      : 'That number does not look right — it must start 07 and be 11 digits (or in +964 form).';
   if (!values.message.trim()) errors.message = isAr ? 'اكتب رسالتك.' : 'Please enter a message.';
   return errors;
 }
@@ -314,7 +332,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                           onChange={(e) => set(field.key, e.target.value)}
                           onBlur={() => blur(field.key)}
                           aria-invalid={error ? true : undefined}
-                          aria-describedby={error ? id + '-error' : undefined}
+                          aria-describedby={error ? id + '-error' : field.hint ? id + '-hint' : undefined}
                           /* No resize handle: the box is already five rows, and a draggable corner
                              on a coloured panel is the one control here that can be pulled out of
                              the layout it sits in. */
@@ -331,7 +349,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                           onChange={(e) => set(field.key, e.target.value)}
                           onBlur={() => blur(field.key)}
                           aria-invalid={error ? true : undefined}
-                          aria-describedby={error ? id + '-error' : undefined}
+                          aria-describedby={error ? id + '-error' : field.hint ? id + '-hint' : undefined}
                           /* 40px of input under a 20px label clears the 44px the whole block needs
                              to be a comfortable touch target. */
                           className="mt-1 block w-full h-10 uw:h-12 bg-transparent border-0 outline-none text-[0.95rem] uw:text-[1.05rem] font-bold"
@@ -339,6 +357,18 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                         />
                       )}
                     </label>
+
+                    {/* القاعدة تحت حقلها، وتختفي حين يحلّ الخطأ محلّها — سطران يقولان نفس الشيء
+                        فوق بعضهما يجعلان أحدهما ضجيجاً. */}
+                    {field.hint && !error && (
+                      <p
+                        id={id + '-hint'}
+                        className="mt-1.5 px-1 text-[0.72rem] sm:text-[0.78rem] font-bold leading-relaxed"
+                        style={{ color: OBSIDIAN, opacity: 0.7 }}
+                      >
+                        {isAr ? field.hint.ar : field.hint.en}
+                      </p>
+                    )}
 
                     {/* The error goes under its own field, not into a summary at the top. `role`
                         and the live region so it is announced when it appears rather than only
