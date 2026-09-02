@@ -112,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, [activePage]);
 
   // القياس بعد الرسم مباشرة: تغيّر الصفحة، وتغيّر اللغة (نصوص البنود تتغيّر فيتغيّر عرضها).
-  useLayoutEffect(measurePill, [measurePill, isAr]);
+  useLayoutEffect(measurePill, [measurePill, language]);
 
   // وأي تغيّر في مقاس الشريط: تكبير النافذة، وصول خطّ، أو ظهور/اختفاء زرّ الحساب بجانبه.
   useEffect(() => {
