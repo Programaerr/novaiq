@@ -73,13 +73,15 @@ function ProgressPanel({ contract, isAr }: { contract: ContractData; isAr: boole
   return (
     <div className="p-3 rounded-xl bg-white/70 border border-ink/10 space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[11px] font-bold text-ink/60">
+        <span className="text-xs font-bold text-ink/75">
           {isAr ? 'نسبة الإنجاز' : 'Progress'}
         </span>
-        <strong className="text-sm font-mono text-ink tabular-nums" dir="ltr">{percent}%</strong>
+        {/* أكبر ثلاث خطوات: هذا الرقم هو أول ما يبحث عنه العميل كل مرّة يفتح فيها حسابه، وكان
+            مكتوباً بنفس حجم تسمية "نسبة الإنجاز" بجانبه — أي أن التسمية والخبر متساويان. */}
+        <strong className="text-lg font-mono font-black text-ink tabular-nums" dir="ltr">{percent}%</strong>
       </div>
 
-      <div className="h-2 rounded-full bg-ink/10 overflow-hidden">
+      <div className="h-2.5 rounded-full bg-ink/15 overflow-hidden">
         <div
           className="h-full rounded-full transition-[width] duration-700 ease-out"
           style={{ width: `${percent}%`, background: color }}
@@ -90,7 +92,7 @@ function ProgressPanel({ contract, isAr }: { contract: ContractData; isAr: boole
         />
       </div>
 
-      <p className="text-[10px] text-ink/50 leading-relaxed">
+      <p className="text-[11px] text-ink/70 leading-relaxed">
         {contract.status === 'completed'
           ? (isAr ? 'اكتمل المشروع وسُلِّم بالكامل.' : 'The project is complete and fully delivered.')
           : isLive
@@ -116,7 +118,7 @@ function ProgressPanel({ contract, isAr }: { contract: ContractData; isAr: boole
         </a>
       ) : (
         contract.status === 'in_development' && (
-          <p className="text-[10px] text-ink/40">
+          <p className="text-[11px] text-ink/65">
             {isAr
               ? 'سيظهر هنا رابط معاينة موقعك بمجرد أن نرفعه لك.'
               : 'A preview link for your site will appear here as soon as we publish one.'}
@@ -160,7 +162,10 @@ return (
               {i > 0 && (
                 <div
                   className="h-0.5 flex-1 rounded-full transition-colors"
-                  style={{ background: filled ? color : 'rgba(7, 17, 31, 0.15)' }}
+                  /* رمادي مقروء لا شبح. كانت 0.15 من حبر قديم (07111F) لم يعد من اللوحة
+                     أصلاً: خطّ بالكاد يُرى، فيبدو المسار مقطوعاً بين النقاط بدل أن يبدو مساراً
+                     لم يُقطع بعد. والقيمة الآن من OBSIDIAN، حبر اللوحة الفعلي. */
+                  style={{ background: filled ? color : 'rgba(8, 10, 13, 0.25)' }}
                   aria-hidden="true"
                 />
               )}
@@ -169,7 +174,7 @@ return (
                 style={
                   filled
                     ? { background: color, borderColor: color, boxShadow: `0 0 0 3px ${color}33` }
-                    : { background: 'transparent', borderColor: 'rgba(7, 17, 31, 0.3)' }
+                    : { background: 'transparent', borderColor: 'rgba(8, 10, 13, 0.45)' }
                 }
                 aria-hidden="true"
               />
@@ -185,7 +190,7 @@ return (
             <span
               key={step}
               className={`text-[9px] sm:text-[10px] font-bold text-center leading-tight ${
-                filled ? 'text-ink' : 'text-ink/40'
+                filled ? 'text-ink' : 'text-ink/65'
               }`}
             >
               {isAr ? labels[step].ar : labels[step].en}
@@ -428,13 +433,13 @@ function CustomerContractRow({
           <div className="text-[10px] text-ink/50 font-mono truncate">{contract.contractNumber}</div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <span className="text-xs font-mono text-ink/75 hidden sm:inline">
+          <span className="text-sm font-mono font-bold text-ink hidden sm:inline">
             {hasAgreedPrice ? formatPrice(contract.totalPriceIQD || 0, language, currency) : (isAr ? 'بانتظار التسعير' : 'Awaiting quote')}
           </span>
           {/* النسبة في السطر المطوي أيضاً: أهم رقم يبحث عنه العميل، ولا يجب أن يضطر لفتح
               البطاقة ليراه. تظهر أثناء التنفيذ فقط — قبله هي رقم مرحلة ثابت لا خبر فيه. */}
           {contract.status === 'in_development' && (
-            <span className="text-[11px] font-mono font-bold text-ink/70 tabular-nums" dir="ltr">
+            <span className="text-xs font-mono font-bold text-ink tabular-nums" dir="ltr">
               {contractProgress(contract).percent}%
             </span>
           )}
@@ -472,9 +477,22 @@ function CustomerContractRow({
               printed: the price, the payment plan, the delivery window, and the details they
               typed into the form. Nothing here is admin-only; it is the customer's own order. */}
           <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
-            <span className="text-[11px] font-bold text-ink/60 block mb-3">
-              {isAr ? 'تفاصيل العقد' : 'Contract Details'}
-            </span>
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <span className="text-[11px] font-bold text-ink/75 block">
+                {isAr ? 'تفاصيل العقد' : 'Contract Details'}
+              </span>
+              {/* شعاره كما رفعه — نفس الصورة التي تُطبع في وثيقته، معروضة هنا ليتأكّد أن ما
+                  وصلنا هو ما أرسله قبل أن يجدها في ملف PDF. */}
+              {contract.clientLogoDataUrl && (
+                <span className="w-16 h-10 rounded-lg bg-white border border-ink/10 grid place-items-center shrink-0 p-1">
+                  <img
+                    src={contract.clientLogoDataUrl}
+                    alt={contract.companyName}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </span>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
               {/* نفس قاعدة الوثيقة المطبوعة (ContractPrintDocument): لا رقم قبل أن يوجد رقم.
                   المشروع مخصص، فالسعر والمدة وآلية السداد تُعتمد بعد مراجعة طلب العميل — وعرضها
@@ -482,7 +500,7 @@ function CustomerContractRow({
               <div>
                 <span className="text-ink/50 block">{isAr ? 'إجمالي السعر' : 'Total Price'}</span>
                 {hasAgreedPrice ? (
-                  <strong className="text-ink font-mono text-sm">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</strong>
+                  <strong className="text-ink font-mono text-base sm:text-lg font-black wrap-break-word">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</strong>
                 ) : (
                   <strong className="text-ink/70">{isAr ? 'يُتفق عليه حسب طلبك' : 'To be agreed on your request'}</strong>
                 )}
@@ -745,13 +763,16 @@ function CustomerContractRow({
                 {isAr ? 'سجل المدفوعات' : 'Payment History'}
               </span>
               <div className="grid grid-cols-2 gap-3 text-[11px]">
+                {/* الألوان من لوحة الموقع لا من ألوان Tailwind الجاهزة: SUCCESS_ON_LIGHT
+                    و WARNING_ON_LIGHT، وكلاهما مقيس فوق 4.5:1 على بطاقة فاتحة — بخلاف
+                    emerald-700/amber-700 اللذين كانا هنا ولا ينتميان إلى أي لوحة نملكها. */}
                 <div>
-                  <span className="text-ink/50 block mb-0.5">{isAr ? 'المدفوع' : 'Paid'}</span>
-                  <strong className="text-emerald-700 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
+                  <span className="text-ink/70 block mb-0.5">{isAr ? 'المدفوع' : 'Paid'}</span>
+                  <strong className="text-[#198241] font-mono text-sm font-bold wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
                 </div>
                 <div>
-                  <span className="text-ink/50 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
-                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-700' : 'text-ink/60'}`}>
+                  <span className="text-ink/70 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
+                  <strong className={`font-mono text-sm font-bold wrap-break-word ${remainingIQD > 0 ? 'text-[#8B6C0A]' : 'text-ink/70'}`}>
                     {formatPrice(remainingIQD, language, currency)}
                   </strong>
                 </div>
@@ -767,8 +788,8 @@ function CustomerContractRow({
                 <div className="space-y-1.5 pt-1 border-t border-ink/10">
                   {contract.payments.map((p) => (
                     <div key={p.id} className="flex items-center justify-between gap-2 text-[11px]">
-                      <span className="text-ink/50 font-mono shrink-0" dir="ltr">{p.date}</span>
-                      {p.note && <span className="text-ink/60 truncate flex-1 text-center">{p.note}</span>}
+                      <span className="text-ink/70 font-mono shrink-0" dir="ltr">{p.date}</span>
+                      {p.note && <span className="text-ink/75 truncate flex-1 text-center">{p.note}</span>}
                       <strong className="text-ink/90 font-mono shrink-0">{formatPrice(p.amountIQD, language, currency)}</strong>
                     </div>
                   ))}

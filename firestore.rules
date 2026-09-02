@@ -74,7 +74,10 @@ service cloud.firestore {
           // هي نفس القاعدة مكتوبة حيث لا يمكن تجاوزها من الكونسول.
           && (!('clientLogoDataUrl' in d) || (d.clientLogoDataUrl is string
               && d.clientLogoDataUrl.size() < 400000
-              && d.clientLogoDataUrl.matches('^data:image/.*')))
+              // تقطيع لا regex: matches() في قواعد Firestore تطابق النصّ كاملاً، وتعبير يُقصد
+              // به بادئة يصبح شرطاً على الشكل كله — والفشل هنا يعني عقداً يُرفض بعد أن وقّعه
+              // صاحبه. المقارنة على أول 11 حرفاً تقول ما يُقصد بالضبط.
+              && d.clientLogoDataUrl[0:11] == 'data:image/'))
           && !('companySignatureDataUrl' in d)
           && !('completedAt' in d)
           // حقلان يكتبهما الأدمن وحده: رابط المعاينة (يظهر للعميل كزر قابل للضغط) وساعة بدء

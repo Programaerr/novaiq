@@ -478,7 +478,7 @@ function ContractRow({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs font-mono text-ink/75 hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
+          <span className="text-sm font-mono font-bold text-ink hidden sm:inline">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</span>
           <span
             className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${
               (contract.paymentStatus || 'unpaid') === 'paid'
@@ -584,6 +584,23 @@ function ContractRow({
               <div>
                 <span className="text-ink/50 block">{isAr ? 'رقم السجل' : 'CR / ID'}</span>
                 <strong className="text-ink font-mono" dir="ltr">{contract.crNumber || '—'}</strong>
+              </div>
+              <div>
+                {/* شعاره، كما رفعه ــ نفس الصورة التي تُطبع في وثيقته. الغرض من هذه اللوحة أن
+                    نرى ما يراه هو بالضبط، وشعاره جزء منه: بدونه كنا نعتمد عقداً دون أن نرى
+                    العلامة التي سنبني بها. */}
+                <span className="text-ink/50 block">{isAr ? 'شعار العميل' : 'Client logo'}</span>
+                {contract.clientLogoDataUrl ? (
+                  <span className="mt-1 w-20 h-12 rounded-lg bg-white border border-ink/15 grid place-items-center p-1">
+                    <img
+                      src={contract.clientLogoDataUrl}
+                      alt={contract.companyName}
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </span>
+                ) : (
+                  <strong className="text-ink/60">{isAr ? 'لم يرفع شعاراً' : 'None uploaded'}</strong>
+                )}
               </div>
               <div className="col-span-2">
                 <span className="text-ink/50 block">{isAr ? 'ألوان الهوية' : 'Brand colours'}</span>
@@ -720,17 +737,19 @@ function ContractRow({
               {/* عمود واحد على شاشة هاتف ضيقة، ثلاثة أعمدة بدءاً من sm — ثلاثة مبالغ مالية
                   بخط 11px في عمود واحد ضيّق كانت تتزاحم فعلياً على هاتف بعرض 320-375px. */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+                {/* نفس ألوان حساب العميل بالضبط، ومن اللوحة نفسها: رقم يعني "محصّل" لدينا
+                    يجب أن يكون بنفس اللون الذي يراه صاحبه، وإلا فالشاشتان تحكيان روايتين. */}
                 <div className="min-w-0">
-                  <span className="text-ink/50 block mb-0.5">{isAr ? 'قيمة العقد' : 'Contract value'}</span>
-                  <strong className="text-ink font-mono wrap-break-word">{formatPrice(Number(totalPrice) || 0, language, currency)}</strong>
+                  <span className="text-ink/70 block mb-0.5">{isAr ? 'قيمة العقد' : 'Contract value'}</span>
+                  <strong className="text-ink font-mono text-sm font-bold wrap-break-word">{formatPrice(Number(totalPrice) || 0, language, currency)}</strong>
                 </div>
                 <div className="min-w-0">
-                  <span className="text-ink/50 block mb-0.5">{isAr ? 'المحصّل' : 'Collected'}</span>
-                  <strong className="text-emerald-700 font-mono wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
+                  <span className="text-ink/70 block mb-0.5">{isAr ? 'المحصّل' : 'Collected'}</span>
+                  <strong className="text-[#198241] font-mono text-sm font-bold wrap-break-word">{formatPrice(paidAmountIQD, language, currency)}</strong>
                 </div>
                 <div className="min-w-0">
-                  <span className="text-ink/50 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
-                  <strong className={`font-mono wrap-break-word ${remainingIQD > 0 ? 'text-amber-700' : 'text-ink/50'}`}>
+                  <span className="text-ink/70 block mb-0.5">{isAr ? 'المتبقي' : 'Remaining'}</span>
+                  <strong className={`font-mono text-sm font-bold wrap-break-word ${remainingIQD > 0 ? 'text-[#8B6C0A]' : 'text-ink/70'}`}>
                     {formatPrice(Math.max(remainingIQD, 0), language, currency)}
                   </strong>
                 </div>
