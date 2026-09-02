@@ -653,6 +653,10 @@ function ContractRow({
                     {translateText(statusArabic(s), language)}
                   </option>
                 ))}
+                {/* خارج STATUS_FLOW عمداً: الإلغاء ليس مرحلة في مسار التنفيذ بل خروج منه، فلا
+                    يجوز أن يظهر في شريط المراحل ولا في إحصاءات التقدّم. لكنه حالة كاملة تُختار
+                    هنا — والعقد يبقى في السجل بتواقيعه ومحتواه، لأن حذفه كان سيمحو دليل ما جرى. */}
+                <option value="cancelled">{isAr ? 'ملغي' : 'Cancelled'}</option>
               </select>
             </div>
             <div>
@@ -738,20 +742,45 @@ function ContractRow({
                       </p>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      try {
-                        await updateContractFields(contract, { cancellationRequestedAt: '', cancellationReason: '' });
-                        showToast(isAr ? 'تم إغلاق طلب الإلغاء' : 'Cancellation request cleared', 'success');
-                      } catch {
-                        showToast(isAr ? 'تعذّر إغلاق الطلب' : 'Could not clear the request', 'error');
-                      }
-                    }}
-                    className="shrink-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-ink/75 text-[11px] font-bold cursor-pointer"
-                  >
-                    {isAr ? 'تم الحل — إغلاق الطلب' : 'Resolved — clear'}
-                  </button>
+                  <div className="shrink-0 flex flex-col gap-1.5">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await updateContractFields(contract, { cancellationRequestedAt: '', cancellationReason: '' });
+                          showToast(isAr ? 'تم إغلاق طلب الإلغاء' : 'Cancellation request cleared', 'success');
+                        } catch {
+                          showToast(isAr ? 'تعذّر إغلاق الطلب' : 'Could not clear the request', 'error');
+                        }
+                      }}
+                      className="px-3 py-2 rounded-xl bg-white border border-ink/15 text-ink/75 text-[11px] font-bold cursor-pointer"
+                    >
+                      {isAr ? 'تم الحل — إغلاق الطلب' : 'Resolved — clear'}
+                    </button>
+                    {/* الطريق الثاني: لم يوجد حل. تأكيد صريح لأن هذه حالة نهائية يراها العميل
+                        فوراً في حسابه ولا يُتراجع عنها بضغطة. */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const ok = window.confirm(
+                          isAr
+                            ? 'إلغاء هذا العقد نهائياً؟ ستظهر حالته "ملغي" في حساب العميل فوراً.'
+                            : 'Cancel this contract for good? Its status will show as "Cancelled" in the client account immediately.'
+                        );
+                        if (!ok) return;
+                        try {
+                          await updateContractFields(contract, { status: 'cancelled' });
+                          showToast(isAr ? 'أُلغي العقد' : 'The contract was cancelled', 'success');
+                        } catch {
+                          showToast(isAr ? 'تعذّر إلغاء العقد' : 'Could not cancel the contract', 'error');
+                        }
+                      }}
+                      className="px-3 py-2 rounded-xl text-white text-[11px] font-bold cursor-pointer"
+                      style={{ background: ERROR_ON_LIGHT }}
+                    >
+                      {isAr ? 'إلغاء العقد' : 'Cancel the contract'}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

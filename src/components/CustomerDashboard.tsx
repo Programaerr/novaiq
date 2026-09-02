@@ -364,8 +364,9 @@ function CustomerContractRow({
   const [cancelReason, setCancelReason] = useState('');
   const [cancelSending, setCancelSending] = useState(false);
   const alreadyRequested = !!contract.cancellationRequestedAt;
+  const isCancelled = contract.status === 'cancelled';
   const canRequestCancellation =
-    !alreadyRequested && paidAmountIQD <= 0 && contract.status !== 'completed';
+    !alreadyRequested && !isCancelled && paidAmountIQD <= 0 && contract.status !== 'completed';
 
   const submitCancellation = async () => {
     if (cancelSending) return;
@@ -541,7 +542,18 @@ function CustomerContractRow({
               قرأ سعره ومواصفاته وحالة العمل. وطلب الإلغاء ليس إلغاءً — النص يقول ذلك صراحةً،
               لأن زرّاً يُفهم منه أنه ألغى العقد فوراً يجعل العميل يظنّ الأمر منتهياً ويتوقف عن
               الرد، وهو عكس الغرض: أن نتحدّث معه قبل أن نخسر المشروع. */}
-          {alreadyRequested ? (
+          {/* عقد ملغي: إعلان صريح يسبق كل شيء آخر، ولا طلب إلغاء بعده. الحالة معروضة في شارة
+              العقد أصلاً، لكن شارة صغيرة لا تكفي لواقعة بهذا الحجم. */}
+          {isCancelled ? (
+            <div className="p-3 rounded-xl border text-xs" style={{ background: '#F4F4F3', borderColor: 'rgba(107,113,121,0.35)' }}>
+              <span className="font-bold block mb-1 text-ink">{isAr ? 'هذا العقد ملغي' : 'This contract is cancelled'}</span>
+              <p className="text-ink/70 leading-relaxed">
+                {isAr
+                  ? 'أُلغي هذا العقد ولم يعد سارياً. تبقى نسخته ومحتواه محفوظين هنا للرجوع إليهما، ويمكنك بدء عقد جديد في أي وقت.'
+                  : 'This contract was cancelled and is no longer in force. Its copy and contents stay here for reference, and you can start a new contract at any time.'}
+              </p>
+            </div>
+          ) : alreadyRequested ? (
             <div className="p-3 rounded-xl border text-xs" style={{ background: '#FFF7F2', borderColor: `${ERROR_ON_LIGHT}33` }}>
               <span className="font-bold block mb-1" style={{ color: ERROR_ON_LIGHT }}>
                 {isAr ? 'طلب إلغاء قيد المراجعة' : 'Cancellation request under review'}
