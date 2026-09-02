@@ -290,6 +290,19 @@ let liveFields = 0;
     vanish mid-fall. Matched to the ease-out in ButtonTiles. */
 const LINGER_MS = 900;
 
+/**
+ * كم يبقى المؤشّر على الزرّ قبل أن يُنشأ له سياق WebGL أصلاً.
+ *
+ * كل تركيب لهذا الحقل سياق WebGL جديد، وكل تفكيك `forceContextLoss()` — وthree تطبع سطراً في
+ * الكونسول عند كل واحد منهما. مؤشّر يمرّ فوق شريط فيه ستة أزرار في طريقه إلى السابع كان ينشئ
+ * ستة سياقات ويتلفها في أقل من ثانية: ستّة أسطر في الكونسول، وستّ دورات تخصيص وتحرير على بطاقة
+ * الرسوميات، مقابل زخرفة لم يرها أحد.
+ *
+ * 120ms أطول من مرور عابر وأقصر من قصد. والضغط والتركيز بلوحة المفاتيح يتجاوزانها: كلاهما
+ * نيّة صريحة لا تحتمل تأخيراً.
+ */
+const WAKE_DELAY_MS = 120;
+
 /* ── The shared surface ─────────────────────────────────────────────────────────────────── */
 
 export interface NqSurfaceOptions {
@@ -359,6 +372,10 @@ export function useNqSurface(
   const [mounted, setMounted] = useState(false);
   const holdsSlot = useRef(false);
   const lingerTimer = useRef<number | undefined>(undefined);
+  const wakeTimer = useRef<number | undefined>(undefined);
+  /* نسخة مرجعية من `mounted` ليقرأها المؤقّت: المؤقّت يعيش في إغلاق قد يكون قديماً، وقراءة
+     الحالة منه مباشرة كانت ستعني احتساب فتحة (slot) مرّتين. */
+  const mountedRef = useRef(false);
 
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -393,22 +410,50 @@ export function useNqSurface(
   useEffect(
     () => () => {
       window.clearTimeout(lingerTimer.current);
+      window.clearTimeout(wakeTimer.current);
       release();
     },
     [release],
   );
 
-  const wake = useCallback(() => {
-    if (!wantsTiles) return;
-    window.clearTimeout(lingerTimer.current);
-    drive.current.target = 1;
-    if (claim()) setMounted(true);
-  }, [wantsTiles, claim]);
+  const mount = useCallback(() => {
+    if (mountedRef.current) return;
+    if (!claim()) return;
+    mountedRef.current = true;
+    setMounted(true);
+  }, [claim]);
+
+  /** `immediate` للضغط والتركيز؛ المرور بالمؤشّر ينتظر WAKE_DELAY_MS. */
+  const wake = useCallback(
+    (immediate = false) => {
+      if (!wantsTiles) return;
+      window.clearTimeout(lingerTimer.current);
+      /* الحركة تبدأ فوراً في الحالتين: `drive` مجرّد ref يقرؤه الحقل حين يوجد، فضبطه مبكراً
+         يعني أن الحقل يظهر وهو في منتصف حركته لا من الصفر. */
+      drive.current.target = 1;
+      if (immediate) {
+        window.clearTimeout(wakeTimer.current);
+        wakeTimer.current = undefined;
+        mount();
+        return;
+      }
+      if (mountedRef.current || wakeTimer.current !== undefined) return;
+      wakeTimer.current = window.setTimeout(() => {
+        wakeTimer.current = undefined;
+        mount();
+      }, WAKE_DELAY_MS);
+    },
+    [wantsTiles, mount],
+  );
 
   const sleep = useCallback(() => {
     drive.current.target = 0;
+    // غادر المؤشّر قبل أن ينتهي التأخير: لا سياق يُنشأ إطلاقاً، وهذا هو كل المكسب.
+    window.clearTimeout(wakeTimer.current);
+    wakeTimer.current = undefined;
     window.clearTimeout(lingerTimer.current);
     lingerTimer.current = window.setTimeout(() => {
+      mountedRef.current = false;
       setMounted(false);
       release();
     }, LINGER_MS);
@@ -457,7 +502,7 @@ export function useNqSurface(
       drive.current.px = p.x;
       drive.current.py = p.y;
       drive.current.pressAt = performance.now();
-      wake();
+      wake(true);
     },
     // On a touch screen the press IS the whole interaction — there is no hover to hold the field
     // open afterwards, so it is released here and the linger carries the ring to its end.
@@ -473,7 +518,7 @@ export function useNqSurface(
       if (!(e.currentTarget as HTMLElement).matches(':focus-visible')) return;
       drive.current.px = 0.5;
       drive.current.py = 0.5;
-      wake();
+      wake(true);
     },
     onBlur: () => sleep(),
   };

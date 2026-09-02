@@ -14,6 +14,23 @@ import { attachWebGLContextRecovery } from '../lib/webglContextRecovery';
  * rather than against a frustum. A perspective camera would also have made the grid diverge
  * toward the edges, and a grid that is not the same grid at the corners is not a tidy one.
  */
+/**
+ * يربط استعادة السياق بدورة حياة الكانفاس، لا بلحظة إنشائه.
+ *
+ * كان الربط يقع في `onCreated` والقيمة المُعادة — دالة الفصل — تُرمى. فيبقى المستمع مربوطاً
+ * بينما يُفكَّك الكانفاس، وR3F عند التفكيك تستدعي `forceContextLoss()` عمداً لتحرير السياق:
+ * فيُطلق ذلك حدث `webglcontextlost`، فيطبع المستمع تحذير "فقدان" ليس فقداناً بل تنظيفاً، ثم
+ * يستدعي `preventDefault()` طالباً من المتصفح استعادة سياق أتلفناه نحن قصداً.
+ *
+ * هذا هو مصدر تكرار السطر في الكونسول. الآن يُفصَل المستمع قبل التفكيك، فلا يبقى في السجلّ
+ * إلا فقدان حقيقي — وهو وحده ما يستحق تحذيراً.
+ */
+const ContextRecovery: React.FC = () => {
+  const gl = useThree((state) => state.gl);
+  useEffect(() => attachWebGLContextRecovery(gl), [gl]);
+  return null;
+};
+
 const CARD_W = 240;
 const CARD_H = 104;
 /** How thick the card is. This is what the light has an edge to catch, and the edge is the 3D. */
@@ -504,8 +521,8 @@ export const CardField: React.FC = () => {
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         // انظر webglContextRecovery.ts — بدونها فقدان السياق (شائع هنا تحديداً: هذه خلفية
         // صفحة تسجيل الدخول، حيث ينفتح popup تسجيل دخول Google فوقها مباشرة) كان نهائياً.
-        onCreated={(state) => attachWebGLContextRecovery(state.gl)}
       >
+        <ContextRecovery />
         <Grid reduced={reduced} />
       </Canvas>
     </div>

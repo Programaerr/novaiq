@@ -520,6 +520,23 @@ function makeFieldMaterial(cell: number, tones: FieldTones, fade: FieldFade): TH
   });
 }
 
+/**
+ * يربط استعادة السياق بدورة حياة الكانفاس، لا بلحظة إنشائه.
+ *
+ * كان الربط يقع في `onCreated` والقيمة المُعادة — دالة الفصل — تُرمى. فيبقى المستمع مربوطاً
+ * بينما يُفكَّك الكانفاس، وR3F عند التفكيك تستدعي `forceContextLoss()` عمداً لتحرير السياق:
+ * فيُطلق ذلك حدث `webglcontextlost`، فيطبع المستمع تحذير "فقدان" ليس فقداناً بل تنظيفاً، ثم
+ * يستدعي `preventDefault()` طالباً من المتصفح استعادة سياق أتلفناه نحن قصداً.
+ *
+ * هذا هو مصدر تكرار السطر في الكونسول. الآن يُفصَل المستمع قبل التفكيك، فلا يبقى في السجلّ
+ * إلا فقدان حقيقي — وهو وحده ما يستحق تحذيراً.
+ */
+const ContextRecovery: React.FC = () => {
+  const gl = useThree((state) => state.gl);
+  useEffect(() => attachWebGLContextRecovery(gl), [gl]);
+  return null;
+};
+
 /* ── الحقل ──────────────────────────────────────────────────────────────────────────────── */
 
 const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> = ({
@@ -697,11 +714,11 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
         // نهائياً حتى إعادة تحميل الصفحة كاملة — انظر توثيق الدالة نفسها. مهم بالذات هنا لأن
         // هذا الكانفاس مشترك ومُثبَّت طوال الجلسة (التعليق أعلاه)، فاستعادته تلقائياً تعيد
         // الحقل بصرياً في كل صفحة بالموقع دفعة واحدة.
-        onCreated={(state) => attachWebGLContextRecovery(state.gl)}
       >
         {/* الإمالة. على المجموعة (group) لا على الكاميرا بحيث يمكن لا يزال تخطيط الشبكة بمقاييس
             الشاشة أعلاه — تُوضع الخلايا على شبكة XY مسطحة، وهذا يُدير ذلك المستوى كله نحو
             المُشاهد بعد ذلك. */}
+        <ContextRecovery />
         <group rotation={[TILT_X, TILT_Y, 0]}>
           <Field reduced={reduced} tones={tones} fade={fade} />
         </group>
