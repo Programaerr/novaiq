@@ -987,28 +987,26 @@
 
 /* The logo mark on the sign-in card, and the entrance the card arrives on.
 
-   ## The mark, and why it is NO LONGER inverted
+   ## The mark, and why it is darkened with brightness rather than inverted
 
    No disc behind it: the drawing's circle was standing in for the logo, and the owner asked for
-   the logo alone. The asset is WHITE artwork with a hairline dark outline, made for the dark
-   chrome it sits in everywhere else on this site.
+   the logo alone. The asset is WHITE artwork — 84% of its opaque pixels are pure #FFFFFF — with a
+   dark semi-transparent hairline around the edge, made for the dark chrome it sits in everywhere
+   else on this site. Left alone on a frosted white card it measures 1.03:1 over a gap in the card
+   field and 1.77:1 over a card face: what a viewer sees is the hairline tracing the shape, not
+   the shape. It was shipped that way briefly, on request, and put back.
 
-   `invert(1)` used to be here, and it was solving a real problem: on a frosted white card the
-   only part of a white glyph that shows is its hairline. Inverting turned the glyph dark and the
-   outline light, so what survived was the mark rather than its edge — measured 11.88:1 over a
-   card face and 20.47:1 over a gap in the field.
+   `brightness(0)` rather than the `invert(1)` that was here before. Both turn the white glyph
+   black, and rendered side by side the difference is in what happens to that hairline: invert
+   flips it to near-WHITE, which draws a pale halo along the ring's inner edge, while brightness
+   multiplies every channel to zero and leaves alpha alone, so the hairline goes black with the
+   rest and the mark reads as one solid stroke. It is also the filter the footer's copy of this
+   mark already uses (`brightness-0`), so there is now one technique for "this mark, dark" instead
+   of two.
 
-   It is gone on the owner's call: they asked for the mark white. That is what ships, and the cost
-   is recorded here rather than discovered later — a white glyph on this card measures 1.03:1 over a
-   gap and 1.77:1 over a card face, so what a viewer actually sees is the dark hairline tracing the
-   shape and not the shape itself. The mark needs a dark ground to be a white mark; the one thing
-   that would give it back is a disc in the accent (13.44:1), which is the disc the owner removed
-   when it was black — and which would now be the same `#273036` as the panel beside it and the cards
-   behind, rather than the black blob it was then.
-
-   The note below is kept for whoever restores the filter: it landed on #000 rather than the
-   brand's #080A0D, because inverting white can only give pure black. Thirteen values apart at the
-   widest channel, which is under what a screen resolves;
+   It lands on #000 rather than the brand's #080A0D, because multiplying by zero can only give
+   pure black. Eight, ten and thirteen values apart across the channels, which is under what a
+   screen resolves;
    worth knowing rather than worth a second asset.
 
    `!important` is what a proportional size costs here: NuvaiqLogo writes width and height inline
@@ -1042,6 +1040,7 @@
 .nq-logo-mark img {
   width: 100% !important;
   height: 100% !important;
+  filter: brightness(0) !important;
 }
 
 .nq-rise {
