@@ -402,7 +402,20 @@ function ContractRow({
       // failing the actual Firestore error (permissions, offline, bad field) is the only thing
       // that says why, and it was previously swallowed by a bare `catch {}`.
       console.error('Failed to save contract changes:', e);
-      showToast(isAr ? 'تعذر حفظ التعديلات، حاول مجدداً' : 'Failed to save changes — please try again', 'error');
+      /* الرمز يُذكر في الرسالة: "حاول مجدداً" تجعل رفضاً من القواعد (لم تُنشر بعد، أو الحساب
+         ليس ضمن المشرفين) يبدو عطلاً عابراً، فيعيد الأدمن المحاولة عشر مرات بلا فائدة. */
+      const code = (e as { code?: string })?.code || '';
+      const denied = code.includes('permission-denied');
+      showToast(
+        denied
+          ? isAr
+            ? 'الحفظ مرفوض من قاعدة البيانات — انشر قواعد Firestore من الكونسول وتأكد أن حسابك ضمن المشرفين'
+            : 'The database refused the write — publish the Firestore rules and check that your account is an admin'
+          : isAr
+            ? `تعذر حفظ التعديلات${code ? ` (${code})` : ''}، حاول مجدداً`
+            : `Failed to save changes${code ? ` (${code})` : ''} — please try again`,
+        'error'
+      );
     } finally {
       setIsSaving(false);
     }

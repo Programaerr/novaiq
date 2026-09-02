@@ -244,12 +244,23 @@ export async function updateContractFields(
   const { costIQD, ...contractOnlyPayload } = cleanPayload as Record<string, unknown> & { costIQD?: number };
 
   if (costIQD !== undefined) {
-    await setDoc(
-      doc(db, CONTRACT_FINANCE_COLLECTION, docId),
-      { costIQD, contractNumber: docId, updatedAt: new Date().toISOString() },
-      { merge: true }
-    );
-    contractOnlyPayload.costIQD = deleteField();
+    /* الكتابة الثانوية لا تُسقط الأساسية.
+       كانت هذه الكتابة تسبق كتابة العقد وترمي عند فشلها، فيفشل حفظ العقد كله بسببها — وهو ما
+       يحدث حرفياً قبل نشر القواعد الجديدة: مجموعة `contract_finance` بلا قاعدة منشورة تُرفض
+       بالافتراض، فيظهر للأدمن "تعذر حفظ التعديلات" بينما السعر والتوقيع والحالة كلها سليمة ولا
+       علاقة لها بالتكلفة. الآن: تُحاوَل، وإن فشلت تبقى التكلفة في مستند العقد كما كانت ويستمر
+       الحفظ. */
+    try {
+      await setDoc(
+        doc(db, CONTRACT_FINANCE_COLLECTION, docId),
+        { costIQD, contractNumber: docId, updatedAt: new Date().toISOString() },
+        { merge: true }
+      );
+      contractOnlyPayload.costIQD = deleteField();
+    } catch (error) {
+      console.error('contract_finance write failed (contract still saved):', error);
+      contractOnlyPayload.costIQD = costIQD;
+    }
   }
 
   await setDoc(doc(db, CONTRACTS_COLLECTION, docId), contractOnlyPayload, { merge: true });
