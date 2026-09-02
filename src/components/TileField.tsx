@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 're
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { attachWebGLContextRecovery } from '../lib/webglContextRecovery';
 import * as THREE from 'three';
-import { OBSIDIAN, ORANGE, ORANGE_ON_DARK, PAPER, WHITE } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE, PAPER, WHITE } from '../lib/homePalette';
 
 /**
  * حقل الهيرو: شبكة من المكعبات واقفة على مستوٍ مائل، مع موجة تجري خلاله.
@@ -110,13 +110,17 @@ export const HERO_TONES: FieldTones = {
  * (`shadeColor(ORANGE, ±0.14)`)، و`foam` — البقعة على كل قمة — Obsidian، لمسة داكنة صغيرة بدلاً
  * من غسلة لونية إضافية.
  */
-/* `foam` انقلب لمّا صار الإبراز داكناً. كان Obsidian لأنه لمسة داكنة صغيرة على مكعّب برتقالي
-   ساطع؛ المكعّبات صارت داكنة (القمة `#454D52`)، فنقطة Obsidian عليها ما راح تبيّن. التوأم
-   الفاتح يحفظ نفس الإشارة — بقعة متباينة على كل قمة — بدل ما تذوب بصمت. */
+/* الموجة صارت بيضاء، بقرار المالك — وهذا يرجّعها لنفس طريقة `HERO_TONES` بالضبط:
+   القاع والقمة مشتقّان من الأرضية بـ ±0.14، والإبراز يعيش على `foam` وبس. ما صار بالموقع
+   حقل مشتقّ من الإبراز، فالهيرو ما عاد الشاذ بينهم.
+
+   و`foam` ينقلب وياها إجباراً، وهذا اللي كان راح ينكسر بصمت: كان ORANGE_ON_DARK لأن
+   المكعّبات داكنة؛ على مكعّب أبيض ذاك التوأم يقيس 1.50:1 — كان راح يختفي بنفس الدرجة،
+   بس من الطرف الثاني. رجع للإبراز نفسه: 12.64:1 على القمة و9.06:1 على القاع. */
 export const SIGNAL_TONES: FieldTones = {
-  trough: shadeColor(ORANGE, -0.14),
-  crest: shadeColor(ORANGE, 0.14),
-  foam: ORANGE_ON_DARK,
+  trough: shadeColor(WHITE, -0.14),
+  crest: shadeColor(WHITE, 0.14),
+  foam: ORANGE,
   ground: WHITE,
   // نزولاً إلى ورق القسم الذي تحته. القمة لا تتلاشى أبداً، فلونها هو دائماً لون الأرضية التي تقف عليها أصلاً.
   intoLo: PAPER,
@@ -156,11 +160,11 @@ export const PAPER_BAND_TONES: FieldTones = {
  * مشترك بين صفحة الجدول الزمني وصفحة القوالب. كُتب مرتين، مرة في كل منهما، وهذا بالضبط كيف
  * يتباعد قسمان يُفترض أنهما نفس السطح إلى سطحين.
  */
-/* نفس انقلاب `foam` المشروح عند `SIGNAL_TONES`. */
+/* نفس التحوّل للموجة البيضاء المشروح عند `SIGNAL_TONES`. */
 export const SECTION_TONES: FieldTones = {
-  trough: shadeColor(ORANGE, -0.14),
-  crest: shadeColor(ORANGE, 0.14),
-  foam: ORANGE_ON_DARK,
+  trough: shadeColor(WHITE, -0.14),
+  crest: shadeColor(WHITE, 0.14),
+  foam: ORANGE,
   ground: WHITE,
   intoLo: WHITE,
   intoHi: WHITE,
