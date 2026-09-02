@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import {ArrowUp, ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
+import { ArrowUp, ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { channels, OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { NuvaiqLogo } from './NuvaiqLogo';

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { OBSIDIAN, ORANGE, ORANGE_ON_DARK, PAPER, PAPER_DEEP, WHITE } from '../../lib/homePalette';
+import { OBSIDIAN, ORANGE, ORANGE_ON_DARK, PAPER, PAPER_DEEP, WHITE, SLATE} from '../../lib/homePalette';
 import { buttonTones, contrastRatio, isLight } from '../../lib/tone';
 import { ButtonTiles, newDrive } from './ButtonTiles';
 
@@ -189,9 +189,9 @@ export const TONES: Record<NqTone, ToneSpec> = {
      الحبر نفسه الذي يكتب به الزرّ — فتُقرأ الدائرة كامتداد للنصّ لا كملصق فوقه، وتبرز عن
      الخلفية بأعلى تباين متاح في اللوحة (18.6:1 على الأبيض). والسهم داخلها بالأبيض الدافئ. */
   footer: {
-    solid: { bg: '#FFFFFF', fg: OBSIDIAN, badgeBg: OBSIDIAN, badgeFg: WHITE },
-    quiet: { bg: 'rgba(39,48,54,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: OBSIDIAN, badgeFg: WHITE },
-    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: OBSIDIAN, badgeFg: WHITE },
+    solid: { bg: '#FFFFFF', fg: OBSIDIAN, badgeBg: SLATE, badgeFg: WHITE },
+    quiet: { bg: 'rgba(39,48,54,0.16)', fg: OBSIDIAN, tile: PAPER_DEEP, badgeBg: SLATE, badgeFg: WHITE },
+    ghost: { bg: 'transparent', fg: OBSIDIAN, tile: PAPER, badgeBg: SLATE, badgeFg: WHITE },
     accent: ORANGE,
     darkRing: true,
   },
