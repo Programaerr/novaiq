@@ -5,6 +5,7 @@ import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
 import { subscribeToMyContracts, requestContractCancellation } from '../lib/firebase';
+import { fetchContractSnapshot } from '../lib/contractSnapshot';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
@@ -322,6 +323,22 @@ function CustomerContractRow({
   onToggle: () => void;
 }) {
   const [isDownloading, setIsDownloading] = useState(false);
+  /* بنود العقد كما كانت يوم الاعتماد.
+     تُجلب مرة واحدة لكل عقد يحمل بصمة لقطة، وتُمرَّر إلى الوثيقة المطبوعة فتُطبع هي بدل البنود
+     الحالية. بدون هذا يكون تجميد المضمون بلا أثر: نحفظ اللقطة ثم نطبع من كود اليوم. */
+  const [frozenTerms, setFrozenTerms] = useState<string[] | undefined>(undefined);
+
+  useEffect(() => {
+    if (!contract.snapshotHash) return;
+    let cancelled = false;
+    fetchContractSnapshot(contract.contractNumber).then((snapshot) => {
+      if (cancelled || !snapshot) return;
+      setFrozenTerms(language === 'en' ? snapshot.terms.en : snapshot.terms.ar);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [contract.snapshotHash, contract.contractNumber, language]);
   const printRef = useRef<HTMLDivElement>(null);
 
   // Read-only for the client — never editable here, only in the admin dashboard. Showing it
@@ -372,14 +389,6 @@ function CustomerContractRow({
   };
 
   const handleDownload = async () => {
-    /* النسخة المؤرشفة أولاً حين توجد.
-       بعد اعتماد العقد تُحفظ نسخة PDF مجمَّدة كما كانت لحظة الاعتماد (lib/contractArchive.ts).
-       إعادة توليد الملف من الكود بعدها قد تعطي وثيقة مختلفة قليلاً كلما تغيّر التصميم أو نصّ
-       البنود — وهذا آخر ما يجوز أن يحدث لوثيقة وقّع عليها الطرفان. */
-    if (contract.archivedPdfUrl) {
-      window.open(contract.archivedPdfUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
     if (!printRef.current || isDownloading) return;
     setIsDownloading(true);
     try {
@@ -396,7 +405,9 @@ function CustomerContractRow({
       className="rounded-3xl bg-paper border border-ink/10 overflow-hidden"
       style={{ borderInlineStartWidth: '4px', borderInlineStartColor: STAGE_COLORS[contract.status].fill }}
     >
-      {expanded && <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} />}
+      {expanded && (
+        <ConnectedContractPrintDocument ref={printRef} contract={contract} language={language} frozenTerms={frozenTerms} />
+      )}
 
       <button
         type="button"
