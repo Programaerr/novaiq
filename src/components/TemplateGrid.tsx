@@ -254,8 +254,8 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     style={{ color: WHITE, opacity: 0.72 }}
                   >
                     {currentLang === 'ar'
-                      ? 'رقم استرشادي لهذا النموذج كما تراه. النموذج شكل واحد لا حدّ: نبني أي موقع أو تطبيق بأي فكرة ومواصفات — والسعر النهائي يُتفق عليه بعد قراءة طلبك، ويظهر في عقدك بعد الاتفاق.'
-                      : 'An indicative figure for this model as you see it. The model is one shape, not a limit: we build any website or app, to any idea and spec — the final price is agreed after we read your request, and appears in your contract once settled.'}
+                      ? 'رقم نموذجي للقالب والسعر قابل للتحديد من خلال العقد بين الطرفين'
+                      : 'An indicative figure for the template; the price is settled in the contract between the two parties.'}
                   </p>
                 </div>
                 <div className="relative mt-auto pt-8 flex flex-wrap items-center gap-3">
