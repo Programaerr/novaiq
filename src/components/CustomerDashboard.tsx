@@ -551,6 +551,70 @@ function CustomerContractRow({
                 <span className="text-ink/75 block">{isAr ? 'الموقع' : 'Location'}</span>
                 <strong className="text-ink/90">{contract.city}</strong>
               </div>
+
+              {/* الهوية البصرية التي طلبها — أربعة حقول كانت تظهر للأدمن وفي وثيقة الـPDF ولا
+                  تظهر لصاحبها في حسابه.
+
+                  وهي أكثر ما يريد أن يتأكّد منه: السعر والمدة يقرأهما مرّة، أمّا اللون فهو ما
+                  سيُبنى به موقعه فعلياً — ولو كان خطأً فالمكان الوحيد الذي كان سيكتشفه فيه هو
+                  ملف PDF ينزّله ويفتحه، أو الموقع بعد تسليمه. نفس التسميات ونفس الترتيب الذي
+                  تعرضه لوحة "العقد كما وقّعه العميل" في لوحة التحكم، فلا تقول الشاشتان شيئين. */}
+              <div>
+                <span className="text-ink/75 block">{isAr ? 'نوع المشروع' : 'Project type'}</span>
+                <strong className="text-ink/90">
+                  {contract.projectType === 'app'
+                    ? (isAr ? 'تطبيق هاتف' : 'Mobile app')
+                    : contract.projectType === 'website'
+                      ? (isAr ? 'موقع إلكتروني' : 'Website')
+                      : (isAr ? 'غير محدَّد' : 'Unspecified')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/75 block">{isAr ? 'وضع العرض' : 'Theme'}</span>
+                <strong className="text-ink/90">
+                  {contract.themePreference === 'light'
+                    ? (isAr ? 'فاتح' : 'Light')
+                    : contract.themePreference === 'both'
+                      ? (isAr ? 'فاتح وداكن' : 'Light & dark')
+                      : (isAr ? 'داكن' : 'Dark')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/75 block">{isAr ? 'اللغات' : 'Languages'}</span>
+                <strong className="text-ink/90">
+                  {contract.languageSupport === 'ar'
+                    ? (isAr ? 'عربي' : 'Arabic')
+                    : contract.languageSupport === 'en'
+                      ? (isAr ? 'إنجليزي' : 'English')
+                      : (isAr ? 'عربي وإنجليزي' : 'Arabic & English')}
+                </strong>
+              </div>
+
+              <div className="sm:col-span-2">
+                <span className="text-ink/75 block">{isAr ? 'ألوان هويتك' : 'Your brand colours'}</span>
+                {/* بالكود لا بالمربّع وحده: المربّع يُري اللون تقريباً، والكود هو ما يُنفَّذ به —
+                    وهو ما يقدر أن ينسخه ويقارنه بما سلّمناه. dir="ltr" على الكود لأن '#' محايد
+                    اتجاهياً، ففي سياق عربي يقفز إلى آخر كود يبدأ بحرف فيُطبع F59E0B#. */}
+                {[contract.primaryColor, contract.secondColor, contract.thirdColor].filter(Boolean).length === 0 ? (
+                  <strong className="text-ink/70">{isAr ? 'لم تختر ألواناً' : 'No colours chosen'}</strong>
+                ) : (
+                  <div className="flex items-center gap-3 mt-1 flex-wrap">
+                    {[contract.primaryColor, contract.secondColor, contract.thirdColor]
+                      .filter(Boolean)
+                      .map((hex, i) => (
+                        <span key={i} className="inline-flex items-center gap-1.5">
+                          <span
+                            className="w-5 h-5 rounded-md border border-ink/20 shrink-0"
+                            style={{ backgroundColor: hex as string }}
+                          />
+                          <span className="font-mono text-[11px] text-ink/75" dir="ltr">
+                            {(hex as string).toUpperCase()}
+                          </span>
+                        </span>
+                      ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {contract.customFeaturesText && (
