@@ -1,10 +1,11 @@
 import React, { useCallback, useId, useState } from 'react';
-import { Send } from 'lucide-react';
+import { Send, MessageCircle } from 'lucide-react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { db } from '../lib/firebase';
 import { showToast } from '../lib/toast';
+import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 import { trackEvent } from '../lib/analytics';
 import { ERROR, OBSIDIAN, PAPER, PAPER_DEEP, SUCCESS, WHITE } from '../lib/homePalette';
 import { BAND_FADE, SIGNAL_TONES, TileField } from './TileField';
@@ -49,11 +50,27 @@ interface Field {
   en: string;
   type: 'text' | 'tel' | 'textarea';
   autoComplete: string;
+  /** قاعدة الحقل، مكتوبة تحته قبل أن يكتب فيه شيئاً.
+   *
+   *  الشرط كان موجوداً في الكود وحده: يكتب الزائر رقمه، يضغط إرسال، فيُقال له "الرقم مو صحيح"
+   *  دون أن يُقال ما هو الصحيح — أي أنه يعرف القاعدة بمخالفتها. القاعدة معروضة الآن قبل
+   *  المحاولة، ونصّ الخطأ يعيدها بدل أن يكتفي بالرفض. */
+  hint?: { ar: string; en: string };
 }
 
 const FIELDS: Field[] = [
   { key: 'name', ar: 'اسمك', en: 'Your name', type: 'text', autoComplete: 'name' },
-  { key: 'phone', ar: 'رقم هاتفك', en: 'Your phone', type: 'tel', autoComplete: 'tel' },
+  {
+    key: 'phone',
+    ar: 'رقم هاتفك',
+    en: 'Your phone',
+    type: 'tel',
+    autoComplete: 'tel',
+    hint: {
+      ar: 'رقم عراقي يبدأ بـ 07 ويتكوّن من 11 رقماً — أو بصيغة 964+.',
+      en: 'An Iraqi number starting 07, 11 digits — or in +964 form.',
+    },
+  },
   { key: 'message', ar: 'رسالتك', en: 'Your message', type: 'textarea', autoComplete: 'off' },
 ];
 
@@ -74,7 +91,9 @@ function validate(values: Values, isAr: boolean): Errors {
   if (!values.name.trim()) errors.name = isAr ? 'اكتب اسمك.' : 'Please enter your name.';
   if (!values.phone.trim()) errors.phone = isAr ? 'اكتب رقم هاتفك.' : 'Please enter your phone.';
   else if (!PHONE.test(values.phone.replace(/\s+/g, '')))
-    errors.phone = isAr ? 'الرقم مو صحيح.' : 'That number does not look right.';
+    errors.phone = isAr
+      ? 'الرقم مو صحيح — لازم يبدأ بـ 07 ويكون 11 رقم (أو بصيغة 964+).'
+      : 'That number does not look right — it must start 07 and be 11 digits (or in +964 form).';
   if (!values.message.trim()) errors.message = isAr ? 'اكتب رسالتك.' : 'Please enter a message.';
   return errors;
 }
@@ -120,6 +139,23 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
     [values, isAr],
   );
 
+  /* رقم واتساب يأتي من إعدادات لوحة التحكم لا من قيمة مكتوبة في الكود: الرقم يتغيّر، ومن
+     يغيّره ليس من يعدّل الكود. غيابه ليس عطلاً — النموذج يعود عندها إلى سلوكه القديم بالضبط
+     (حفظ ورسالة تأكيد) بدل أن يصبح زرّاً معطوباً. */
+  const socialLinks = useSocialLinks();
+  const waNumber = (socialLinks.whatsapp || '').trim();
+
+  /* الرسالة كما ستصل إلينا: مكتوبة كاملة، فلا نضطر لسؤاله عن اسمه ورقمه بعد أن كتبهما.
+     أسطر منفصلة لا سطر واحد — محادثة واتساب تُقرأ على شاشة هاتف ضيّقة. */
+  const composeWhatsappText = useCallback(() => {
+    const name = values.name.trim();
+    const phone = values.phone.trim();
+    const message = values.message.trim();
+    return isAr
+      ? `مرحباً NUVAIQ\n\nالاسم: ${name}\nرقم الهاتف: ${phone}\n\nالرسالة:\n${message}`
+      : `Hello NUVAIQ\n\nName: ${name}\nPhone: ${phone}\n\nMessage:\n${message}`;
+  }, [values, isAr]);
+
   const submit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -134,7 +170,25 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
         return;
       }
 
+      /* واتساب هو التسليم الآن، لا الحفظ.
+       *
+       * كان النموذج يكتب في `contact_messages` ويقول "وصلت رسالتك. نرد عليك قريباً" — ولا
+       * شاشة واحدة في الموقع تقرأ تلك المجموعة. أي أن الرسائل كانت تهبط في قاعدة البيانات ولا
+       * يراها أحد، والجملة المعروضة وعدٌ لا أحد على الطرف الآخر منه. الآن تصل حيث نقرأ فعلاً.
+       *
+       * والفتح هنا، قبل أي await: نافذة تُفتح بعد انتظار غير متزامن تفقد ارتباطها بضغطة
+       * المستخدم فيحجبها المتصفح (Safari بالذات بلا إنذار) — ويصير الزرّ زرّاً لا يفعل شيئاً.
+       * وإن حُجبت رغم ذلك، ننتقل في نفس التبويب بدل أن نبتلع الطلب بصمت. */
+      const opened = Boolean(waNumber);
+      if (opened) {
+        const url = whatsappLink(waNumber, composeWhatsappText());
+        const win = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!win) window.location.href = url;
+      }
+
       setSending(true);
+      /* النسخة المحفوظة تبقى: سجلّ لدينا لا قناة تسليم. من راسلنا يبقى له أثر عندنا حتى لو
+         أغلق واتساب قبل الإرسال. */
       try {
         await addDoc(collection(db, 'contact_messages'), {
           name: values.name.trim(),
@@ -143,25 +197,30 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
           language,
           createdAt: serverTimestamp(),
         });
-        setSent(true);
-        setValues(EMPTY);
-        setTouched({});
         // بلا اسم ولا رقم ولا نص الرسالة — الحدث نفسه فقط (رسالة وصلت)، انظر lib/analytics.ts.
         trackEvent('contact_message_sent', { language });
       } catch {
-        /* The message did not go. Say so plainly and keep what they typed — clearing the form on a
-           failed send loses their words as well as their time. */
-        showToast(
-          isAr
-            ? 'ما انرسلت الرسالة. جرب مرة ثانية أو تواصل ويانا مباشرة.'
-            : 'The message did not send. Try again, or reach us directly.',
-          'error',
-        );
-      } finally {
-        setSending(false);
+        /* فشل النسخة الداخلية لا يعني ضياع الرسالة إذا فُتح واتساب — إنذارٌ حينها يقول للعميل
+           إن شيئاً لم ينجح بينما رسالته أمامه جاهزة، وهذا أسوأ من الصمت. بلا واتساب، الفشل
+           فشل حقيقي ويُقال كما هو، مع إبقاء ما كتبه. */
+        if (!opened) {
+          showToast(
+            isAr
+              ? 'ما انرسلت الرسالة. جرب مرة ثانية أو تواصل ويانا مباشرة.'
+              : 'The message did not send. Try again, or reach us directly.',
+            'error',
+          );
+          setSending(false);
+          return;
+        }
       }
+
+      setSent(true);
+      setValues(EMPTY);
+      setTouched({});
+      setSending(false);
     },
-    [values, isAr, language, uid],
+    [values, isAr, language, uid, waNumber, composeWhatsappText],
   );
 
   return (
@@ -273,7 +332,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                           onChange={(e) => set(field.key, e.target.value)}
                           onBlur={() => blur(field.key)}
                           aria-invalid={error ? true : undefined}
-                          aria-describedby={error ? id + '-error' : undefined}
+                          aria-describedby={error ? id + '-error' : field.hint ? id + '-hint' : undefined}
                           /* No resize handle: the box is already five rows, and a draggable corner
                              on a coloured panel is the one control here that can be pulled out of
                              the layout it sits in. */
@@ -290,7 +349,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                           onChange={(e) => set(field.key, e.target.value)}
                           onBlur={() => blur(field.key)}
                           aria-invalid={error ? true : undefined}
-                          aria-describedby={error ? id + '-error' : undefined}
+                          aria-describedby={error ? id + '-error' : field.hint ? id + '-hint' : undefined}
                           /* 40px of input under a 20px label clears the 44px the whole block needs
                              to be a comfortable touch target. */
                           className="mt-1 block w-full h-10 uw:h-12 bg-transparent border-0 outline-none text-[0.95rem] uw:text-[1.05rem] font-bold"
@@ -298,6 +357,18 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                         />
                       )}
                     </label>
+
+                    {/* القاعدة تحت حقلها، وتختفي حين يحلّ الخطأ محلّها — سطران يقولان نفس الشيء
+                        فوق بعضهما يجعلان أحدهما ضجيجاً. */}
+                    {field.hint && !error && (
+                      <p
+                        id={id + '-hint'}
+                        className="mt-1.5 px-1 text-[0.72rem] sm:text-[0.78rem] font-bold leading-relaxed"
+                        style={{ color: OBSIDIAN, opacity: 0.7 }}
+                      >
+                        {isAr ? field.hint.ar : field.hint.en}
+                      </p>
+                    )}
 
                     {/* The error goes under its own field, not into a summary at the top. `role`
                         and the live region so it is announced when it appears rather than only
@@ -338,9 +409,21 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                   size="md"
                   loading={sending}
                   className="uw:text-base"
-                  badge={<Send className="w-4 h-4" strokeWidth={2.4} />}
+                  /* الزرّ يقول إلى أين يأخذك. زرّ مكتوب عليه "أرسل" يفتح تطبيقاً آخر هو
+                     مفاجأة، ومفاجأة في زرّ إرسال تُقرأ كعطل. */
+                  badge={
+                    waNumber ? (
+                      <MessageCircle className="w-4 h-4" strokeWidth={2.4} />
+                    ) : (
+                      <Send className="w-4 h-4" strokeWidth={2.4} />
+                    )
+                  }
                 >
-                  {sending ? (isAr ? 'جاري الإرسال…' : 'Sending…') : isAr ? 'أرسل' : 'Send'}
+                  {sending
+                    ? (isAr ? 'جاري الإرسال…' : 'Sending…')
+                    : waNumber
+                      ? (isAr ? 'أرسل عبر واتساب' : 'Send on WhatsApp')
+                      : (isAr ? 'أرسل' : 'Send')}
                 </NqButton>
 
                 {/* The confirmation sits beside the button that caused it, and is announced, on
@@ -351,7 +434,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     for: Orange cannot also mean "this worked". */}
                 {sent && (
                   <p role="status" className="inline-block px-2.5 py-1 rounded-lg text-[0.85rem] font-extrabold" style={{ color: SUCCESS, background: OBSIDIAN }}>
-                    {isAr ? 'وصلت رسالتك. نرد عليك قريباً.' : 'Got it. We will reply shortly.'}
+                    {waNumber
+                      ? (isAr
+                          ? 'فتحنا لك واتساب ورسالتك مكتوبة — اضغط إرسال هناك.'
+                          : 'WhatsApp is open with your message — hit send there.')
+                      : (isAr ? 'وصلت رسالتك. نرد عليك قريباً.' : 'Got it. We will reply shortly.')}
                   </p>
                 )}
               </div>

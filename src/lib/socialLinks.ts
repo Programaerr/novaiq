@@ -83,7 +83,12 @@ export function useSocialLinks(): SocialLinks {
 }
 
 /** Digits only — accepts whatever format the admin typed (spaces, +, dashes) and builds a
- *  working wa.me link regardless. */
-export function whatsappLink(rawNumber: string): string {
-  return `https://wa.me/${rawNumber.replace(/[^\d]/g, '')}`;
+ *  working wa.me link regardless.
+ *
+ *  `prefilledText` يفتح المحادثة ونصّها مكتوب أصلاً، ينقص ضغطة إرسال واحدة. مضاف هنا لا في
+ *  موضع الاستدعاء: شكل رابط wa.me يعيش في هذه الدالة وحدها، ومن يبني `?text=` بنفسه في مكان
+ *  آخر يصنع النسخة الثانية التي تفترق عند أول تغيير في الشكل. */
+export function whatsappLink(rawNumber: string, prefilledText?: string): string {
+  const base = `https://wa.me/${rawNumber.replace(/[^\d]/g, '')}`;
+  return prefilledText ? `${base}?text=${encodeURIComponent(prefilledText)}` : base;
 }
