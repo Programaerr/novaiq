@@ -48,41 +48,10 @@ const ClientsStrip = lazy(() => import('./components/ClientsStrip').then((m) => 
 const ContactSection = lazy(() => import('./components/ContactSection').then((m) => ({ default: m.ContactSection })));
 const Footer = lazy(() => import('./components/Footer').then((m) => ({ default: m.Footer })));
 
-// A visitor who chose "أكمل كضيف" at the sign-in screen.
-//
-// sessionStorage rather than component state alone, because state does not survive a reload:
-// without it, refreshing — or following an outside link back into the site — would drop a guest
-// at the sign-in screen again, which is the exact friction the button exists to remove.
-//
-// And sessionStorage rather than localStorage, because the choice should not outlive the visit.
-// Persisted forever it would quietly hide sign-in from someone who does eventually want an
-// account, and they would have no obvious way to get the screen back.
-const GUEST_KEY = 'nuvaiq_guest';
-
-function readGuestMode(): boolean {
-  try {
-    return sessionStorage.getItem(GUEST_KEY) === 'true';
-  } catch {
-    return false;
-  }
-}
-
-function writeGuestMode(): void {
-  try {
-    sessionStorage.setItem(GUEST_KEY, 'true');
-  } catch {
-    // Storage blocked (private mode, strict settings) — guest mode still works for this
-    // render, it simply will not survive a reload. That is a better outcome than throwing.
-  }
-}
-
-function clearGuestMode(): void {
-  try {
-    sessionStorage.removeItem(GUEST_KEY);
-  } catch {
-    // As above.
-  }
-}
+/* لا "وضع ضيف" بعد اليوم.
+   كان يوجد علم يُحفظ في sessionStorage معناه "هذا الزائر اختار التصفّح بلا حساب"، وكان لازماً
+   حين كانت شاشة الدخول تقف على مدخل الموقع. المدخل صار مفتوحاً للجميع، فالتصفّح بلا حساب هو
+   السلوك الافتراضي لا استثناءً يُحفظ — والعلم كله صار بلا معنى. */
 
 export default function App() {
   const liveTemplates = useLiveTemplates();
@@ -90,24 +59,9 @@ export default function App() {
   // "signed out". Read here at the top rather than inside the gate below, because hooks cannot
   // live behind the early returns that gate depends on.
   const currentUser = useCurrentUser();
-  const [isGuest, setIsGuest] = useState(readGuestMode);
-  // Lands the visitor on the home page, not merely "somewhere that isn't the sign-in screen".
-  // Reached from the gate the URL is already clean, but reached from the navbar's own sign-in
-  // button the address bar still says `?page=login`, and without resetting it a refresh — or
-  // the back button — would put them straight back on the screen they just chose to leave.
-  const continueAsGuest = () => {
-    writeGuestMode();
-    setIsGuest(true);
-    leaveSignIn();
-  };
-  // Shared by every sign-in screen in the app, so "أكمل كضيف" always does the same thing
-  // wherever it is pressed: leave, and land on the home page.
-  //
-  // The inner pages (my orders, the contract builder) use this directly rather than
-  // continueAsGuest, because reaching their sign-in screen does not mean the visitor chose to
-  // be a guest — they may be a signed-out visitor who simply changed their mind about that one
-  // page. Marking them a guest from there would silently answer a question they were never
-  // asked. Leaving is the whole action.
+  // مشتركة بين كل شاشات الدخول: الخروج منها يعني العودة إلى الصفحة الرئيسية بعنوان نظيف.
+  // بدون تنظيف العنوان يبقى `?page=login` في شريط المتصفح، فيعيد التحديث — أو زر الرجوع —
+  // الزائرَ إلى الشاشة التي غادرها للتو.
   function leaveSignIn() {
     setActivePage('home');
     setActiveSection('hero');
@@ -324,11 +278,6 @@ export default function App() {
     const previous = previousUserRef.current;
     previousUserRef.current = currentUser;
     if (previous !== null || !currentUser) return;
-    // Signing in supersedes guest mode. Without this the flag would outlive the session and a
-    // later sign-OUT would drop them straight back into browsing instead of the sign-in screen
-    // they just asked for.
-    clearGuestMode();
-    setIsGuest(false);
     setActivePage('home');
     setActiveSection('hero');
     // replace, not push: the pre-sign-in entry is already the current one, and leaving it there
@@ -508,13 +457,22 @@ export default function App() {
   if (currentUser === undefined) {
     return <DeferredPageLoader />;
   }
-  // Either the visitor has not chosen yet (the gate), or a guest asked for the sign-in screen
-  // from the navbar. Same screen, and both offer the way back out to browsing.
-  if (currentUser === null && (!isGuest || activePage === 'login' || activePage === 'custom-request')) {
+  /* الموقع يفتح مباشرة لكل زائر. لا بوابة على المدخل.
+   *
+   * كانت هذه الشرطية تعرض شاشة تسجيل الدخول لكل زائر غير مسجَّل ما لم يكن قد ضغط "أكمل كضيف"
+   * في زيارة سابقة — أي أن أول ما يراه القادم من إعلان أو بحث هو طلب حساب، قبل أن يرى شيئاً
+   * يستحق أن يُنشئ حساباً لأجله. هذا يطرد الزوار لا يحوّلهم.
+   *
+   * الجدار الحقيقي لم يُلمس: إنشاء عقد ما زال يتطلب حساباً (ContractBuilderGate)، وصفحة
+   * الحساب/لوحة التحكم كذلك (AdminPage). الفرق أن الحساب يُطلب عند الحاجة إليه فعلاً — لحظة
+   * ربط عقد بشخص — لا عند الباب.
+   *
+   * وشاشة الدخول تبقى وجهة كاملة لمن طلبها من الشريط العلوي (?page=login). */
+  if (currentUser === null && activePage === 'login') {
     return (
       <>
         <Suspense fallback={null}>
-          <LoginPage language={language} onContinueAsGuest={continueAsGuest} />
+          <LoginPage language={language} onContinueAsGuest={leaveSignIn} />
         </Suspense>
         <SmartPageLoader />
       </>
