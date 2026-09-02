@@ -1,5 +1,5 @@
 import React, { useCallback, useId, useState } from 'react';
-import { Send, MessageCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
@@ -179,12 +179,25 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
        * والفتح هنا، قبل أي await: نافذة تُفتح بعد انتظار غير متزامن تفقد ارتباطها بضغطة
        * المستخدم فيحجبها المتصفح (Safari بالذات بلا إنذار) — ويصير الزرّ زرّاً لا يفعل شيئاً.
        * وإن حُجبت رغم ذلك، ننتقل في نفس التبويب بدل أن نبتلع الطلب بصمت. */
-      const opened = Boolean(waNumber);
-      if (opened) {
-        const url = whatsappLink(waNumber, composeWhatsappText());
-        const win = window.open(url, '_blank', 'noopener,noreferrer');
-        if (!win) window.location.href = url;
+      /* بلا رقم واتساب لا يوجد إرسال، فلا يجوز أن تقول الشاشة إنه حصل.
+       *
+       * كان النموذج يعود عندها إلى الكتابة في `contact_messages` ويعرض "وصلت رسالتك. نرد عليك
+       * قريباً" — ولا شاشة في الموقع تقرأ تلك المجموعة، فالجملة وعدٌ لا أحد على الطرف الآخر
+       * منه. رسالة نجاح كاذبة أسوأ من رسالة فشل: من رآها ينتظر رداً لن يأتي، ولا يجرّب قناة
+       * أخرى لأنه يظنّ أنه أوصل. الفشل يُقال، ومعه الطريق البديل. */
+      if (!waNumber) {
+        showToast(
+          isAr
+            ? 'ما انرسلت الرسالة — قناة الإرسال مو متاحة حالياً. تواصل ويانا من روابط أسفل الموقع.'
+            : 'The message did not send — the sending channel is unavailable right now. Use the contact links in the footer.',
+          'error',
+        );
+        return;
       }
+
+      const url = whatsappLink(waNumber, composeWhatsappText());
+      const win = window.open(url, '_blank', 'noopener,noreferrer');
+      if (!win) window.location.href = url;
 
       setSending(true);
       /* النسخة المحفوظة تبقى: سجلّ لدينا لا قناة تسليم. من راسلنا يبقى له أثر عندنا حتى لو
@@ -200,19 +213,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
         // بلا اسم ولا رقم ولا نص الرسالة — الحدث نفسه فقط (رسالة وصلت)، انظر lib/analytics.ts.
         trackEvent('contact_message_sent', { language });
       } catch {
-        /* فشل النسخة الداخلية لا يعني ضياع الرسالة إذا فُتح واتساب — إنذارٌ حينها يقول للعميل
-           إن شيئاً لم ينجح بينما رسالته أمامه جاهزة، وهذا أسوأ من الصمت. بلا واتساب، الفشل
-           فشل حقيقي ويُقال كما هو، مع إبقاء ما كتبه. */
-        if (!opened) {
-          showToast(
-            isAr
-              ? 'ما انرسلت الرسالة. جرب مرة ثانية أو تواصل ويانا مباشرة.'
-              : 'The message did not send. Try again, or reach us directly.',
-            'error',
-          );
-          setSending(false);
-          return;
-        }
+        /* فشل النسخة الداخلية لا يعني ضياع الرسالة: واتساب مفتوح ورسالته فيه. إنذارٌ هنا يقول
+           له إن شيئاً لم ينجح بينما الرسالة أمامه جاهزة — وهذا يدفعه لإعادة الإرسال مرّتين. */
       }
 
       setSent(true);
@@ -411,19 +413,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                   className="uw:text-base"
                   /* الزرّ يقول إلى أين يأخذك. زرّ مكتوب عليه "أرسل" يفتح تطبيقاً آخر هو
                      مفاجأة، ومفاجأة في زرّ إرسال تُقرأ كعطل. */
-                  badge={
-                    waNumber ? (
-                      <MessageCircle className="w-4 h-4" strokeWidth={2.4} />
-                    ) : (
-                      <Send className="w-4 h-4" strokeWidth={2.4} />
-                    )
-                  }
+                  badge={<MessageCircle className="w-4 h-4" strokeWidth={2.4} />}
                 >
-                  {sending
-                    ? (isAr ? 'جاري الإرسال…' : 'Sending…')
-                    : waNumber
-                      ? (isAr ? 'أرسل عبر واتساب' : 'Send on WhatsApp')
-                      : (isAr ? 'أرسل' : 'Send')}
+                  {sending ? (isAr ? 'جاري الإرسال…' : 'Sending…') : isAr ? 'أرسل عبر واتساب' : 'Send on WhatsApp'}
                 </NqButton>
 
                 {/* The confirmation sits beside the button that caused it, and is announced, on
@@ -434,11 +426,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     for: Orange cannot also mean "this worked". */}
                 {sent && (
                   <p role="status" className="inline-block px-2.5 py-1 rounded-lg text-[0.85rem] font-extrabold" style={{ color: SUCCESS, background: OBSIDIAN }}>
-                    {waNumber
-                      ? (isAr
-                          ? 'فتحنا لك واتساب ورسالتك مكتوبة — اضغط إرسال هناك.'
-                          : 'WhatsApp is open with your message — hit send there.')
-                      : (isAr ? 'وصلت رسالتك. نرد عليك قريباً.' : 'Got it. We will reply shortly.')}
+                    {isAr
+                      ? 'فتحنا لك واتساب ورسالتك مكتوبة — اضغط إرسال هناك.'
+                      : 'WhatsApp is open with your message — hit send there.'}
                   </p>
                 )}
               </div>
