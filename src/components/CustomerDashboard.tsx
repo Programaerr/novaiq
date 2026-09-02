@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink } from 'lucide-react';
+import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink, XCircle, Loader2 } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
-import { subscribeToMyContracts } from '../lib/firebase';
+import { subscribeToMyContracts, requestContractCancellation } from '../lib/firebase';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from './ContractPrintDocument';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { showToast } from '../lib/toast';
+import { ERROR_ON_LIGHT } from '../lib/homePalette';
 import { sumPayments } from '../lib/payments';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { contractTerms } from '../data/contractTerms';
@@ -332,6 +333,44 @@ function CustomerContractRow({
   const hasAgreedPrice = (contract.totalPriceIQD || 0) > 0;
   const installmentsPlanned = contract.installmentsPlanned || 0;
 
+  /* طلب إلغاء العقد — من العميل، وقبل أول دفعة فقط.
+   *
+   * الشرط ليس تجميلاً: بعد استلام أول دفعة يكون العمل قد بدأ فعلاً وصُرف عليه، والإلغاء عندها
+   * لم يعد قراراً من طرف واحد بل بند تعاقدي (يسدّد العميل قيمة ما أُنجز). فيختفي الزرّ تماماً
+   * بدل أن يبقى ظاهراً ويُرفض عند الضغط — زر يَعِد بما لا يملكه أسوأ من غيابه.
+   *
+   * ونفس الشرط مكتوب في قاعدة Firestore، لأن إخفاء زرّ ليس منعاً. */
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelSending, setCancelSending] = useState(false);
+  const alreadyRequested = !!contract.cancellationRequestedAt;
+  const canRequestCancellation =
+    !alreadyRequested && paidAmountIQD <= 0 && contract.status !== 'completed';
+
+  const submitCancellation = async () => {
+    if (cancelSending) return;
+    setCancelSending(true);
+    try {
+      await requestContractCancellation(contract, cancelReason);
+      setCancelOpen(false);
+      setCancelReason('');
+      showToast(
+        isAr
+          ? 'وصلنا طلبك. سنتواصل معك قبل اتخاذ أي إجراء.'
+          : 'We received your request. We will contact you before taking any action.',
+        'success'
+      );
+    } catch (e) {
+      console.error('Cancellation request failed:', e);
+      showToast(
+        isAr ? 'تعذّر إرسال الطلب، حاول مجدداً أو تواصل معنا مباشرة' : 'Could not send the request — try again or contact us directly',
+        'error'
+      );
+    } finally {
+      setCancelSending(false);
+    }
+  };
+
   const handleDownload = async () => {
     if (!printRef.current || isDownloading) return;
     setIsDownloading(true);
@@ -474,6 +513,78 @@ function CustomerContractRow({
               </div>
             )}
           </div>
+
+          {/* طلب إلغاء العقد.
+              مكانه هنا لا في أعلى البطاقة: لا يُعرض على العميل كخيار أول، بل بعد أن يكون قد
+              قرأ سعره ومواصفاته وحالة العمل. وطلب الإلغاء ليس إلغاءً — النص يقول ذلك صراحةً،
+              لأن زرّاً يُفهم منه أنه ألغى العقد فوراً يجعل العميل يظنّ الأمر منتهياً ويتوقف عن
+              الرد، وهو عكس الغرض: أن نتحدّث معه قبل أن نخسر المشروع. */}
+          {alreadyRequested ? (
+            <div className="p-3 rounded-xl border text-xs" style={{ background: '#FFF7F2', borderColor: `${ERROR_ON_LIGHT}33` }}>
+              <span className="font-bold block mb-1" style={{ color: ERROR_ON_LIGHT }}>
+                {isAr ? 'طلب إلغاء قيد المراجعة' : 'Cancellation request under review'}
+              </span>
+              <p className="text-ink/70 leading-relaxed">
+                {isAr
+                  ? 'وصلنا طلبك بإلغاء هذا العقد وسنتواصل معك. العقد يبقى قائماً حتى نتفق على الخطوة التالية.'
+                  : 'We received your request to cancel this contract and will contact you. The contract stands until we agree on the next step.'}
+              </p>
+              {contract.cancellationReason && (
+                <p className="mt-2 text-ink/60 whitespace-pre-line">"{contract.cancellationReason}"</p>
+              )}
+            </div>
+          ) : canRequestCancellation ? (
+            <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
+              {!cancelOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setCancelOpen(true)}
+                  className="flex items-center gap-2 font-bold cursor-pointer hover:underline"
+                  style={{ color: ERROR_ON_LIGHT }}
+                >
+                  <XCircle className="w-4 h-4" />
+                  {isAr ? 'تقديم طلب إلغاء العقد' : 'Request to cancel this contract'}
+                </button>
+              ) : (
+                <div className="space-y-2.5">
+                  <span className="font-bold block" style={{ color: ERROR_ON_LIGHT }}>
+                    {isAr ? 'تأكيد طلب الإلغاء' : 'Confirm the cancellation request'}
+                  </span>
+                  <p className="text-ink/70 leading-relaxed">
+                    {isAr
+                      ? 'هذا الطلب لا يلغي العقد فوراً: يصلنا إشعار به، ونتواصل معك لفهم المشكلة — فإن كان بالإمكان حلّها نكمل، وإلا أنهينا العقد باتفاق الطرفين.'
+                      : 'This request does not cancel the contract immediately: it notifies us, and we contact you to understand the problem — if it can be solved we continue, otherwise we end the contract by mutual agreement.'}
+                  </p>
+                  <textarea
+                    rows={3}
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    placeholder={isAr ? 'سبب الطلب (اختياري، لكنه يساعدنا على حلّ المشكلة)' : 'Reason (optional, but it helps us solve the problem)'}
+                    className="w-full p-2.5 rounded-lg bg-white border border-ink/15 text-ink text-xs leading-relaxed outline-none focus:border-ink/40"
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={submitCancellation}
+                      disabled={cancelSending}
+                      className="px-3 py-2 rounded-lg text-white text-xs font-bold cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
+                      style={{ background: ERROR_ON_LIGHT }}
+                    >
+                      {cancelSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                      {isAr ? 'تأكيد إرسال الطلب' : 'Confirm and send'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCancelOpen(false)}
+                      className="px-3 py-2 rounded-lg bg-white border border-ink/15 text-ink/70 text-xs font-bold cursor-pointer"
+                    >
+                      {isAr ? 'تراجع' : 'Cancel'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {/* The clauses the customer is actually bound by — the same numbered list printed in
               the PDF and shown above the pad at signing. Showing them here, verbatim, means

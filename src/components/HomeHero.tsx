@@ -153,7 +153,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                  would be pointing back into the label half the time. */
               badge={<ArrowUpLeft className="w-4 h-4" strokeWidth={2.6} />}
             >
-              {isAr ? 'ابدأ مشروعك' : 'Start your project'}
+              {isAr ? 'ابدأ مشروعك' : 'Start project'}
             </NqButton>
 
             <NqButton
@@ -163,7 +163,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               onClick={onStart}
               className="sm:text-sm"
             >
-              {isAr ? 'اختار مشروعك' : 'Choose your project'}
+              {isAr ? 'اختار مشروعك' : 'Choose project'}
             </NqButton>
           </div>
         </div>

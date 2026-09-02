@@ -58,6 +58,8 @@ const LOCAL_UPDATED_EVENT = 'nuvaiq_contracts_updated';
 const CONTRACTS_COLLECTION = 'contracts';
 /** التكلفة الداخلية لكل عقد، بعيداً عن مستند العقد الذي يقرؤه صاحبه — انظر firestore.rules. */
 const CONTRACT_FINANCE_COLLECTION = 'contract_finance';
+/** سجل التدقيق — سطر لكل تعديل إداري، غير قابل للتعديل ولا الحذف (انظر firestore.rules). */
+const CONTRACT_AUDIT_COLLECTION = 'contract_audit';
 
 // Helper to track deleted identifiers so Firestore snapshot listeners never resurrect deleted contracts
 function getDeletedIdentifiers(): Set<string> {
@@ -162,7 +164,7 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
 // changes and the post-negotiation edits (final agreed price, admin notes) in one call.
 export async function updateContractFields(
   contract: Pick<ContractData, 'id' | 'contractNumber' | 'developmentStartedAt'>,
-  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'companySignatureInk' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned' | 'previewUrl' | 'deliveryTimelineWeeks' | 'paymentPlan'>>
+  fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'companySignatureInk' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned' | 'previewUrl' | 'deliveryTimelineWeeks' | 'paymentPlan' | 'cancellationRequestedAt' | 'cancellationReason'>>
 ): Promise<void> {
   // Identified by contractNumber first, because that IS the document ID that
   // saveContractToFirebase writes to. `id` only equals it for contracts that came back from a
@@ -224,6 +226,18 @@ export async function updateContractFields(
      `costIQD` داخل العقد كان مقروءاً لكل عميل مهما أخفته الواجهة، أي أن كل زبون يعرف تكلفتنا
      وهامش ربحنا من مشروعه. تُكتب هنا في مجموعة أدمن-فقط، ويُمحى الحقل القديم من مستند العقد
      في نفس الحفظة (deleteField) فتُرحَّل العقود السابقة تلقائياً أول مرة تُعدَّل. */
+  /* الحالة "قبل" تُقرأ من النسخة المحلية التي تحملها اللوحة أصلاً (نفس المصدر الذي يعرض
+     الأرقام على الشاشة)، لا بقراءة إضافية من Firestore: قراءة ثانية لكل حفظة تكلفة بلا مقابل،
+     والفارق الوحيد حالة نادرة يكون فيها زميل قد عدّل العقد في نفس اللحظة — وحتى عندها يبقى
+     السطر صحيحاً في "إلى ماذا" وقد يخطئ في "من ماذا" فقط. */
+  let previousState: ContractData | undefined;
+  try {
+    const local: ContractData[] = JSON.parse(localStorage.getItem(LOCAL_CONTRACTS_KEY) || '[]');
+    previousState = local.find((c) => (c.contractNumber || '').trim() === docId);
+  } catch {
+    previousState = undefined;
+  }
+
   const { costIQD, ...contractOnlyPayload } = cleanPayload as Record<string, unknown> & { costIQD?: number };
 
   if (costIQD !== undefined) {
@@ -236,6 +250,9 @@ export async function updateContractFields(
   }
 
   await setDoc(doc(db, CONTRACTS_COLLECTION, docId), contractOnlyPayload, { merge: true });
+
+  // بعد نجاح الكتابة لا قبلها: سجل يقول "غُيّر السعر" عن تعديل فشل هو تزوير للسجل لا حماية له.
+  await writeAuditEntry(previousState, { ...fields }, docId);
 
   // Keep the local cache in sync so the admin list doesn't flash back to the old value
   // before Firestore's onSnapshot round-trip completes. Matched on either identifier, for the
@@ -309,6 +326,77 @@ export async function fetchContractsFromFirebase(): Promise<ContractData[]> {
  * قاعدة Firestore تسمح بهذه الكتابة وحدها من العميل، وتشترط ألا تكون هناك دفعة مستلَمة — فحتى
  * لو عُدِّلت الواجهة أو كُتب الطلب من الكونسول، الرفض يأتي من الخادم.
  */
+/** الحقول التي يُسجَّل تغيّرها. الباقي (طوابع الوقت مثلاً) ضجيج يغرق السجل بلا فائدة. */
+const AUDITED_FIELDS: (keyof ContractData)[] = [
+  'status',
+  'totalPriceIQD',
+  'deliveryTimelineWeeks',
+  'paymentPlan',
+  'adminNotes',
+  'previewUrl',
+  'installmentsPlanned',
+  'paidAmountIQD',
+  'paymentStatus',
+  'costIQD',
+  'companySignatureDataUrl',
+  'cancellationRequestedAt',
+];
+
+/** قيمة مختصرة صالحة للتخزين: التواقيع صور بحجم عشرات الكيلوبايتات، والسجل يحتاج أن يعرف
+ *  "وُضع توقيع" لا أن يحتفظ بنسخة ثانية منه. */
+function auditValue(field: keyof ContractData, value: unknown): unknown {
+  if (value === undefined) return null;
+  if (field === 'companySignatureDataUrl') return value ? 'signed' : 'cleared';
+  if (typeof value === 'string' && value.length > 300) return `${value.slice(0, 300)}…`;
+  return value as unknown;
+}
+
+/**
+ * يكتب سطر تدقيق واحداً لكل حفظة إدارية غيّرت شيئاً فعلاً.
+ *
+ * لا يرمي أبداً: فشل الكتابة هنا يجب ألا يُسقط الحفظة نفسها — تعديل نجح وسجلٌّ لم يُكتب أهون
+ * من تعديل رُفض لأن سجله فشل. الفشل يُسجَّل في الكونسول ليُرى.
+ */
+async function writeAuditEntry(
+  before: ContractData | undefined,
+  after: Partial<ContractData>,
+  contractNumber: string
+): Promise<void> {
+  try {
+    const email = (auth.currentUser?.email || '').trim().toLowerCase();
+    if (!email) return;
+
+    const changes: Record<string, { from: unknown; to: unknown }> = {};
+    for (const field of AUDITED_FIELDS) {
+      if (!(field in after)) continue;
+      const nextValue = (after as unknown as Record<string, unknown>)[field];
+      const prevValue = before ? (before as unknown as Record<string, unknown>)[field] : undefined;
+      if (JSON.stringify(prevValue ?? null) === JSON.stringify(nextValue ?? null)) continue;
+      changes[field] = { from: auditValue(field, prevValue), to: auditValue(field, nextValue) };
+    }
+    if (Object.keys(changes).length === 0) return;
+
+    await setDoc(doc(collection(db, CONTRACT_AUDIT_COLLECTION)), {
+      contractNumber,
+      actorEmail: email,
+      at: new Date().toISOString(),
+      changes,
+    });
+  } catch (error) {
+    console.error('audit log write failed:', error);
+  }
+}
+
+/** أسطر التدقيق الخاصة بعقد واحد، الأحدث أولاً. للأدمن فقط. */
+export async function fetchContractAudit(contractNumber: string) {
+  const snap = await getDocs(
+    query(collection(db, CONTRACT_AUDIT_COLLECTION), where('contractNumber', '==', contractNumber))
+  );
+  return snap.docs
+    .map((d) => d.data() as { actorEmail: string; at: string; changes: Record<string, { from: unknown; to: unknown }> })
+    .sort((a, b) => (a.at < b.at ? 1 : -1));
+}
+
 export async function requestContractCancellation(
   contract: Pick<ContractData, 'id' | 'contractNumber'>,
   reason: string

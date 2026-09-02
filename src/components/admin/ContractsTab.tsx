@@ -9,6 +9,7 @@ import {
   Download,
   Trash2,
   Save,
+  History,
   Pencil,
   Search,
   Loader2,
@@ -20,11 +21,12 @@ import {
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { deleteContractFromFirebase, updateContractFields } from '../../lib/firebase';
+import { deleteContractFromFirebase, updateContractFields, fetchContractAudit } from '../../lib/firebase';
 import { generateContractPDF } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
+import { ERROR_ON_LIGHT } from '../../lib/homePalette';
 import { useSignaturePad } from '../../lib/useSignaturePad';
 import { sumPayments, derivePaymentStatus, newPaymentId, todayIsoDate } from '../../lib/payments';
 import { PriceInput } from '../PriceInput';
@@ -253,6 +255,27 @@ function ContractRow({
   const [paymentPlan, setPaymentPlan] = useState<ContractData['paymentPlan']>(contract.paymentPlan || '50_50');
   /** رابط المعاينة الخاص الذي يتابع منه العميل موقعه أثناء التنفيذ. */
   const [previewUrl, setPreviewUrl] = useState(contract.previewUrl || '');
+  /* سجل التدقيق يُجلَب عند الطلب لا مع كل عقد.
+     قائمة العقود قد تحمل عشرات الصفوف، وجلب سجل كل صف مسبقاً يعني عشرات القراءات لبيانات لا
+     يفتحها أحد في الغالب. الزرّ هو الإشارة الوحيدة الموثوقة بأن أحداً يريد رؤيتها الآن. */
+  const [auditRows, setAuditRows] = useState<
+    { actorEmail: string; at: string; changes: Record<string, { from: unknown; to: unknown }> }[] | null
+  >(null);
+  const [auditLoading, setAuditLoading] = useState(false);
+
+  const loadAudit = async () => {
+    if (auditLoading) return;
+    setAuditLoading(true);
+    try {
+      setAuditRows(await fetchContractAudit(contract.contractNumber));
+    } catch (e) {
+      console.error('Failed to load the audit trail:', e);
+      showToast(isAr ? 'تعذّر جلب سجل التعديلات' : 'Could not load the change log', 'error');
+    } finally {
+      setAuditLoading(false);
+    }
+  };
+
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -530,6 +553,44 @@ function ContractRow({
                 </div>
               </div>
             </div>
+
+            {/* طلب إلغاء من العميل — أول ما يُرى في العقد، قبل الأرقام.
+                الغرض من هذا الطلب أن نتحدّث مع صاحبه قبل أن نخسر المشروع، وطلبٌ يظهر في آخر
+                البطاقة يُقرأ بعد فوات الأوان. يبقى ظاهراً حتى تضغط "تم الحل" — أي حتى يقرّر
+                إنسان أن الموضوع انتهى، لا حتى يمرّ الوقت. */}
+            {contract.cancellationRequestedAt && (
+              <div className="p-3.5 border-b border-ink/10" style={{ background: '#FFF3EC' }}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="text-xs font-black block" style={{ color: ERROR_ON_LIGHT }}>
+                      {isAr ? 'العميل طلب إلغاء هذا العقد' : 'The client requested to cancel this contract'}
+                    </span>
+                    <span className="text-[11px] text-ink/60 block mt-0.5">
+                      {new Date(contract.cancellationRequestedAt).toLocaleString(isAr ? 'ar-IQ' : 'en-GB')}
+                    </span>
+                    {contract.cancellationReason && (
+                      <p className="text-[11.5px] text-ink/80 mt-1.5 leading-relaxed whitespace-pre-line">
+                        {contract.cancellationReason}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await updateContractFields(contract, { cancellationRequestedAt: '', cancellationReason: '' });
+                        showToast(isAr ? 'تم إغلاق طلب الإلغاء' : 'Cancellation request cleared', 'success');
+                      } catch {
+                        showToast(isAr ? 'تعذّر إغلاق الطلب' : 'Could not clear the request', 'error');
+                      }
+                    }}
+                    className="shrink-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-ink/75 text-[11px] font-bold cursor-pointer"
+                  >
+                    {isAr ? 'تم الحل — إغلاق الطلب' : 'Resolved — clear'}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Band 2 — the two things you type, and the one figure they produce. */}
             <div className="p-3.5 grid grid-cols-2 sm:grid-cols-3 gap-3 items-end border-b border-ink/10 bg-sand-deep/30">

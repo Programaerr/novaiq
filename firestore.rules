@@ -181,6 +181,20 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // سجل التدقيق: من غيّر ماذا ومتى، سطر لكل تعديل إداري على عقد.
+    //
+    // `create` فقط — لا update ولا delete، ولو للأدمن نفسه. سجل يمكن تعديله أو حذفه ليس سجلاً:
+    // قيمته كلها في أنه لا يُنكَر، وهذا ما يجعله دليلاً إن نازع عميل في رقم أو تاريخ.
+    // القراءة للأدمن، والكتابة تشترط أن يكون كاتب السطر هو الحساب الموقَّع نفسه — فلا يستطيع
+    // أدمن أن ينسب تعديله إلى زميله.
+    match /contract_audit/{entryId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource.data.actorEmail == request.auth.token.email.lower()
+        && request.resource.data.contractNumber is string;
+      allow update, delete: if false;
+    }
+
     // التكلفة الداخلية لكل عقد — ما أنفقناه نحن لتنفيذه.
     //
     // مجموعة مستقلة لا حقل داخل العقد، والسبب أن Firestore لا يملك تحكّماً بمستوى الحقل: قاعدة
