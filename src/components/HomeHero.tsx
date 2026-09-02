@@ -92,6 +92,47 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
              column is a 544px slab beside 1000px of field: not a panel on a background any more,
              a bookmark. 42rem holds the same share of the column the 34rem cap holds of 80rem. */
           className="nq-curtain w-full mr-auto lg:w-[43%] lg:max-w-[34rem] uw:max-w-[42rem] min-h-[54svh] lg:min-h-[66vh] rounded-[0.5rem] p-5 sm:p-7 flex flex-col relative overflow-hidden"
+          /* The frosted surface lives HERE, on the animated element, and not on the box
+             inside it. That is the whole reason the frost is visible while the curtain
+             opens rather than only after it lands.
+
+             `backdrop-filter` filters everything painted behind the element up to its
+             BACKDROP ROOT, and an ancestor becomes that root as soon as it carries a
+             grouping property -- `opacity` below 1, `filter`, `mask`, `clip-path`. This
+             element animates two of them. So while it ran, a blur on the child had a
+             backdrop root containing nothing and blurred nothing; `backwards` fill meant
+             both properties stopped applying at the end, the root dissolved, and the frost
+             snapped in. An element's OWN clip-path and opacity do not cut it off from its
+             backdrop -- the backdrop is filtered first, then clipped and faded along with
+             the element -- so from here the frost is revealed BY the curtain.
+
+             0.74 is where the field becomes visible through the glass rather than merely
+             present in the arithmetic. It was 0.82 first, which measured fine and looked
+             opaque: 18% of an already-blurred cube field arrives as a flat lift. The cost
+             is measured -- the field behind is WARM WHITE, the worst backdrop white ink can
+             have, so at 0.74 the surface is `#5D6468` and white ink reads 5.61:1, where the
+             tagline's old 0.72 dimming would have read 3.81:1. That dimming is what paid
+             for this; see the note on the tagline below. Both figures are worst case,
+             against the brightest cube in the field, and the composited page probes darker.
+
+             8px, not 22px: blurring a regular repeating grid averages it away by
+             definition, and at 22px and 12px the panel looked opaque no matter how much
+             light was getting through. At 8px the grid stays recognisable while going soft,
+             which is what reads as glass OVER something rather than as grey.
+
+             Derived from ORANGE rather than typed as `rgb(39 48 54 / 0.74)`: a hand-written
+             channel triple beside a comment claiming it came from the accent is how the
+             footer, the print document and the card field each sat out an accent change.
+
+             No @supports guard: where backdrop-filter is unavailable the property is
+             ignored, leaving the panel translucent but not frosted -- a weaker look and an
+             IDENTICAL contrast, since blurring a near-uniform light field does not darken
+             it. Every number above was computed without the blur for that reason. */
+          style={{
+            background: `rgb(${channels(ORANGE)} / ${0.74})`,
+            backdropFilter: 'blur(8px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(8px) saturate(140%)',
+          }}
         >
           <div
             aria-hidden="true"
@@ -101,46 +142,6 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                so both were re-measured: the wordmark 12.53:1, the tagline 7.29:1, and the panel
                itself 12.53:1 against the hero's warm-white ground so it still reads as a slab
                laid on the page rather than a tint of it. */
-            /* Frosted glass, on the owner's call: the accent at 82% over a 22px blur of
-               whatever is behind — which here is the hero's own cube field.
-
-               0.74 is where the field becomes VISIBLE through the glass rather than merely
-               present in the arithmetic. This was 0.82 first, which measured fine and looked
-               opaque: 18% of a blurred cube field is 18% of something already near-uniform, so
-               it arrived as a flat lift and the panel read as grey. The blur radius was not
-               the cause — 22px and 12px looked identical, because almost nothing was getting
-               through either one.
-
-               What it costs is measured. The field behind is WARM WHITE, the worst backdrop
-               white ink can have, so transparency is paid straight out of contrast: at 0.74
-               the surface is `#5D6468` and white ink reads 5.61:1, while the tagline's old
-               0.72 dimming would have read 3.81:1 there. That dimming is what paid for this,
-               and the note on the tagline below says so.
-
-               Both figures are worst case, taken against the brightest cube in the field.
-               Probed on the composited page the surface sits darker still, so they are a
-               floor rather than an estimate.
-
-               The 8px radius is chosen the same way. 22px and 12px both erased the cube grid
-               into an even tone — blurring a regular repeating pattern averages it away by
-               definition, so the panel looked opaque no matter how much light was actually
-               getting through. At 8px the grid stays recognisable while going soft, which is
-               what reads as glass OVER something rather than as grey.
-
-               Derived from ORANGE rather than written out as `rgb(39 48 54 / 0.82)`. A
-               hand-typed channel triple next to a comment claiming it came from the accent is
-               how the footer, the print document and the card field each sat out an accent
-               change in this repo.
-
-               No @supports guard: where backdrop-filter is unavailable the property is ignored
-               and the panel is translucent without being frosted — a weaker look and an
-               IDENTICAL contrast, because blurring a near-uniform light field does not darken
-               it. Every number above was computed without the blur for that reason. */
-            style={{
-              background: `rgb(${channels(ORANGE)} / ${0.74})`,
-              backdropFilter: 'blur(8px) saturate(140%)',
-              WebkitBackdropFilter: 'blur(8px) saturate(140%)',
-            }}
           >
             <div
               className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
