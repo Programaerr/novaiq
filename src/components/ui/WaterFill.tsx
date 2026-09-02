@@ -82,6 +82,13 @@ const GLINT_AMT = 0.035;
  */
 const WAVE_PX = 62;
 
+/**
+ * هل المؤشّر خشن (لمس). يُقرأ مرة واحدة عند تحميل الوحدة لا لكل عرض — matchMedia قراءة قريبة من
+ * التخطيط، وجوابها لا يتغيّر دون جهاز آخر. محمي للبناء حيث لا وجود لـwindow.
+ */
+const COARSE: boolean =
+  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+
 /** نفس اتجاه الضوء الذي يضيء حقل المكعبات. مصدر واحد للمشهد كله. */
 const LIGHT = new THREE.Vector3(-0.42, 0.5, 0.76).normalize();
 
