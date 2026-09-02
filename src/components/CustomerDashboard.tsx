@@ -118,7 +118,7 @@ function ProgressPanel({ contract, isAr }: { contract: ContractData; isAr: boole
         </a>
       ) : (
         contract.status === 'in_development' && (
-          <p className="text-[11px] text-ink/65">
+          <p className="text-[11px] text-ink/80">
             {isAr
               ? 'سيظهر هنا رابط معاينة موقعك بمجرد أن نرفعه لك.'
               : 'A preview link for your site will appear here as soon as we publish one.'}
@@ -189,8 +189,8 @@ return (
           return (
             <span
               key={step}
-              className={`text-[9px] sm:text-[10px] font-bold text-center leading-tight ${
-                filled ? 'text-ink' : 'text-ink/65'
+              className={`text-[11px] sm:text-[11px] font-bold text-center leading-tight ${
+                filled ? 'text-ink' : 'text-ink/80'
               }`}
             >
               {isAr ? labels[step].ar : labels[step].en}
@@ -248,7 +248,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
             <h1 className="text-xl sm:text-2xl font-bold text-ink">
               {isAr ? 'عقودي المحفوظة' : 'My Saved Contracts'}
             </h1>
-            <p className="text-xs text-ink/60 font-mono" dir="ltr">{user.email}</p>
+            <p className="text-xs text-ink/80 font-mono" dir="ltr">{user.email}</p>
           </div>
         </div>
         {/* لا يوجد Navbar فوق هذه الصفحة (مخفي عمداً) ولا Footer تحتها، فالعودة للموقع كانت
@@ -284,13 +284,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
       </div>
 
       {contracts.length === 0 ? (
-        <div className="py-16 text-center text-ink/50 text-xs border border-dashed border-ink/10 rounded-2xl space-y-2">
+        <div className="py-16 text-center text-ink/75 text-xs border border-dashed border-ink/10 rounded-2xl space-y-2">
           <p>
             {isAr
               ? 'لا توجد عقود مرتبطة بهذا البريد الإلكتروني بعد.'
               : 'No contracts linked to this email yet.'}
           </p>
-          <p className="text-ink/45">
+          <p className="text-ink/75">
             {isAr
               ? 'عند إنشاء عقد جديد بنفس البريد الإلكتروني، سيظهر هنا تلقائياً.'
               : 'Create a new contract with this same email and it will appear here automatically.'}
@@ -430,7 +430,7 @@ function CustomerContractRow({
       >
         <div className="min-w-0">
           <div className="text-xs sm:text-sm font-bold text-ink truncate">{translateText(contract.templateTitle, language)}</div>
-          <div className="text-[10px] text-ink/50 font-mono truncate">{contract.contractNumber}</div>
+          <div className="text-[11px] text-ink/75 font-mono truncate">{contract.contractNumber}</div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-sm font-mono font-bold text-ink hidden sm:inline">
@@ -443,7 +443,7 @@ function CustomerContractRow({
               {contractProgress(contract).percent}%
             </span>
           )}
-          <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${STAGE_COLORS[contract.status].badge}`}>
+          <span className={`px-2 py-0.5 rounded-full border text-[11px] font-bold ${STAGE_COLORS[contract.status].badge}`}>
             {translateText(STATUS_LABEL_AR[contract.status], language)}
           </span>
         </div>
@@ -452,15 +452,15 @@ function CustomerContractRow({
       {expanded && (
         <div className="p-4 pt-0 space-y-4 border-t border-ink/10 animate-fade-in">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-4">
-            <div className="flex items-center gap-1.5 text-ink/60">
+            <div className="flex items-center gap-1.5 text-ink/80">
               <Clock className="w-3.5 h-3.5 shrink-0" />
               <span>{isAr ? 'أُنشئ:' : 'Created:'} <span className="text-ink">{formatDate(contract.createdAt, isAr)}</span></span>
             </div>
-            <div className="flex items-center gap-1.5 text-ink/60">
+            <div className="flex items-center gap-1.5 text-ink/80">
               <Clock className="w-3.5 h-3.5 shrink-0" />
               <span>{isAr ? 'آخر تحديث:' : 'Last Updated:'} <span className="text-ink">{formatDate(contract.updatedAt, isAr)}</span></span>
             </div>
-            <div className="flex items-center gap-1.5 text-ink/60">
+            <div className="flex items-center gap-1.5 text-ink/80">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
               <span>{isAr ? 'اكتمل:' : 'Completed:'} <span className="text-ink">{contract.completedAt ? formatDate(contract.completedAt, isAr) : (isAr ? 'لم يكتمل بعد' : 'Not yet')}</span></span>
             </div>
@@ -498,7 +498,7 @@ function CustomerContractRow({
                   المشروع مخصص، فالسعر والمدة وآلية السداد تُعتمد بعد مراجعة طلب العميل — وعرضها
                   أصفاراً هنا كان يقول للعميل إن مشروعه بلا قيمة وبمدة صفر. */}
               <div>
-                <span className="text-ink/50 block">{isAr ? 'إجمالي السعر' : 'Total Price'}</span>
+                <span className="text-ink/75 block">{isAr ? 'إجمالي السعر' : 'Total Price'}</span>
                 {hasAgreedPrice ? (
                   <strong className="text-ink font-mono text-base sm:text-lg font-black wrap-break-word">{formatPrice(contract.totalPriceIQD || 0, language, currency)}</strong>
                 ) : (
@@ -506,7 +506,7 @@ function CustomerContractRow({
                 )}
               </div>
               <div>
-                <span className="text-ink/50 block">{isAr ? 'خطة الدفع' : 'Payment Plan'}</span>
+                <span className="text-ink/75 block">{isAr ? 'خطة الدفع' : 'Payment Plan'}</span>
                 <strong className="text-ink/90">
                   {!hasAgreedPrice
                     ? (isAr ? 'تُحدَّد بالاتفاق' : 'To be agreed')
@@ -518,7 +518,7 @@ function CustomerContractRow({
                 </strong>
               </div>
               <div>
-                <span className="text-ink/50 block">{isAr ? 'مدة التسليم' : 'Delivery'}</span>
+                <span className="text-ink/75 block">{isAr ? 'مدة التسليم' : 'Delivery'}</span>
                 <strong className="text-ink/90">
                   {contract.deliveryTimelineText?.trim()
                     ? contract.deliveryTimelineText
@@ -532,30 +532,30 @@ function CustomerContractRow({
                 </strong>
               </div>
               <div>
-                <span className="text-ink/50 block">{isAr ? 'قالب المشروع' : 'Project Template'}</span>
+                <span className="text-ink/75 block">{isAr ? 'قالب المشروع' : 'Project Template'}</span>
                 <strong className="text-ink/90">{translateText(contract.templateTitle, language)}</strong>
               </div>
               <div>
-                <span className="text-ink/50 block">{isAr ? 'اسم الشركة' : 'Company Name'}</span>
+                <span className="text-ink/75 block">{isAr ? 'اسم الشركة' : 'Company Name'}</span>
                 <strong className="text-ink/90">{contract.companyName}</strong>
               </div>
               <div>
-                <span className="text-ink/50 block">{isAr ? 'اسم الممثل' : 'Representative'}</span>
+                <span className="text-ink/75 block">{isAr ? 'اسم الممثل' : 'Representative'}</span>
                 <strong className="text-ink/90">{contract.repName}</strong>
               </div>
               <div>
-                <span className="text-ink/50 block">{isAr ? 'الهاتف' : 'Phone'}</span>
+                <span className="text-ink/75 block">{isAr ? 'الهاتف' : 'Phone'}</span>
                 <strong className="text-ink/90 font-mono" dir="ltr">{contract.phone}</strong>
               </div>
               <div>
-                <span className="text-ink/50 block">{isAr ? 'الموقع' : 'Location'}</span>
+                <span className="text-ink/75 block">{isAr ? 'الموقع' : 'Location'}</span>
                 <strong className="text-ink/90">{contract.city}</strong>
               </div>
             </div>
 
             {contract.customFeaturesText && (
               <div className="mt-3 pt-3 border-t border-ink/10">
-                <span className="text-ink/50 block mb-1">{isAr ? 'ما طلبته إضافياً:' : 'What you requested:'}</span>
+                <span className="text-ink/75 block mb-1">{isAr ? 'ما طلبته إضافياً:' : 'What you requested:'}</span>
                 <p className="text-ink/90 leading-relaxed whitespace-pre-line">{contract.customFeaturesText}</p>
               </div>
             )}
@@ -588,7 +588,7 @@ function CustomerContractRow({
                   : 'We received your request to cancel this contract and will contact you. The contract stands until we agree on the next step.'}
               </p>
               {contract.cancellationReason && (
-                <p className="mt-2 text-ink/60 whitespace-pre-line">"{contract.cancellationReason}"</p>
+                <p className="mt-2 text-ink/80 whitespace-pre-line">"{contract.cancellationReason}"</p>
               )}
             </div>
           ) : canRequestCancellation ? (
@@ -665,18 +665,18 @@ function CustomerContractRow({
                   className="w-full flex items-center justify-between gap-3 p-3 text-start cursor-pointer hover:bg-white/50 transition-colors"
                 >
                   <span className="flex items-center gap-2 min-w-0">
-                    <FileText className="w-3.5 h-3.5 text-ink/60 shrink-0" />
+                    <FileText className="w-3.5 h-3.5 text-ink/80 shrink-0" />
                     <span className="text-[11px] font-bold text-ink/70">
                       {isAr ? `بنود العقد (${shownTerms.length})` : `Contract Clauses (${shownTerms.length})`}
                     </span>
                     {isFrozen && (
-                      <span className="text-[10px] text-ink/50 truncate">
+                      <span className="text-[11px] text-ink/75 truncate">
                         {isAr ? '— كما جُمِّدت يوم الاعتماد' : '— frozen on approval'}
                       </span>
                     )}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-ink/60 shrink-0 transition-transform duration-200 ${termsOpen ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 text-ink/80 shrink-0 transition-transform duration-200 ${termsOpen ? 'rotate-180' : ''}`}
                   />
                 </button>
 
@@ -707,7 +707,7 @@ function CustomerContractRow({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {contract.signatureDataUrl ? (
               <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
-                <span className="text-[11px] font-bold text-ink/60 block mb-2">
+                <span className="text-[11px] font-bold text-ink/80 block mb-2">
                   {isAr ? 'توقيعك' : 'Your Signature'}
                 </span>
                 <div className="bg-white rounded-lg h-16 flex items-center px-2">
@@ -723,10 +723,10 @@ function CustomerContractRow({
               </div>
             ) : (
               <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
-                <span className="text-[11px] font-bold text-ink/60 block">
+                <span className="text-[11px] font-bold text-ink/80 block">
                   {isAr ? 'توقيعك' : 'Your Signature'}
                 </span>
-                <p className="mt-2 text-ink/50">{isAr ? 'لا يوجد توقيع مخزن لهذا العقد.' : 'No signature stored for this contract.'}</p>
+                <p className="mt-2 text-ink/75">{isAr ? 'لا يوجد توقيع مخزن لهذا العقد.' : 'No signature stored for this contract.'}</p>
               </div>
             )}
 
@@ -746,10 +746,10 @@ function CustomerContractRow({
               </div>
             ) : (
               <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
-                <span className="text-[11px] font-bold text-ink/60 block">
+                <span className="text-[11px] font-bold text-ink/80 block">
                   {isAr ? 'توقيع NUVAIQ' : 'NUVAIQ Signature'}
                 </span>
-                <p className="mt-2 text-ink/50">
+                <p className="mt-2 text-ink/75">
                   {isAr ? 'بانتظار مراجعة الفريق وتوقيعه.' : 'Awaiting the team’s review and sign-off.'}
                 </p>
               </div>
@@ -759,7 +759,7 @@ function CustomerContractRow({
           {(paidAmountIQD > 0 || (contract.payments && contract.payments.length > 0)) && (
             <div className="p-3 rounded-xl bg-white/70 border border-ink/10 space-y-2.5">
               <span className="text-[11px] font-bold text-ink flex items-center gap-1.5">
-                <Wallet className="w-3.5 h-3.5 text-ink/60" />
+                <Wallet className="w-3.5 h-3.5 text-ink/80" />
                 {isAr ? 'سجل المدفوعات' : 'Payment History'}
               </span>
               <div className="grid grid-cols-2 gap-3 text-[11px]">
@@ -778,7 +778,7 @@ function CustomerContractRow({
                 </div>
               </div>
               {installmentsPlanned > 0 && (
-                <p className="text-[11px] text-ink/60">
+                <p className="text-[11px] text-ink/80">
                   {isAr
                     ? `${(contract.payments || []).length} من ${installmentsPlanned} دفعة`
                     : `${(contract.payments || []).length} of ${installmentsPlanned} installments`}
