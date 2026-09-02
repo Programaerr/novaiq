@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { attachWebGLContextRecovery } from '../lib/webglContextRecovery';
+import { queueWebGLBuild } from '../lib/webglBuildQueue';
 import * as THREE from 'three';
 import { OBSIDIAN, ORANGE, PAPER, WHITE } from '../lib/homePalette';
 
@@ -637,68 +638,6 @@ const Field: React.FC<{ reduced: boolean; tones: FieldTones; fade: FieldFade }> 
   );
 };
 
-/* ── طابور البناء ───────────────────────────────────────────────────────── */
-
-/**
- * One field at a time, and every field on the page in the same load.
- *
- * What was worth protecting against was never "a field nobody is looking at" -- it was three
- * WebGL contexts and three GLSL compiles landing in the SAME FRAME, which is what used to print
- * "[Violation] requestAnimationFrame handler took 124ms" at load. That is a collision, not a
- * budget, and a queue answers it exactly: the compiles all still happen at load, they just happen
- * one after another with an idle slot between them, so no single frame carries more than one.
- *
- * Gating them on visibility answered it too, but charged the bill to the wrong moment. The band in
- * the contact section began its work when the reader scrolled to it, and so finished assembling
- * itself while it was being looked at. Now it is finished before they get there.
- *
- * `timeout` on the idle request is a ceiling, not a target: a page that never goes idle -- which a
- * page still loading rarely is -- would otherwise hold the second and third fields indefinitely.
- */
-type IdleWindow = Window &
-  typeof globalThis & {
-    requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
-  };
-
-const buildQueue: Array<() => void> = [];
-let draining = false;
-
-/** Yield to the browser, but never for longer than a beat. Safari still has no rIC. */
-function afterAGap(fn: () => void) {
-  const w = window as IdleWindow;
-  if (w.requestIdleCallback) w.requestIdleCallback(fn, { timeout: 180 });
-  else window.setTimeout(fn, 32);
-}
-
-function drainBuildQueue() {
-  const next = buildQueue.shift();
-  if (!next) {
-    draining = false;
-    return;
-  }
-  next();
-  if (buildQueue.length) afterAGap(drainBuildQueue);
-  else draining = false;
-}
-
-/**
- * Register a field to be built. Returns a canceller, for a field that unmounts -- or that jumped
- * the queue by being on screen already -- before its turn comes up.
- */
-function queueFieldBuild(build: () => void): () => void {
-  let cancelled = false;
-  buildQueue.push(() => {
-    if (!cancelled) build();
-  });
-  if (!draining) {
-    draining = true;
-    afterAGap(drainBuildQueue);
-  }
-  return () => {
-    cancelled = true;
-  };
-}
-
 /* ── المُضيف (host) ─────────────────────────────────────────────────────────────────────── */
 
 export interface TileFieldProps {
@@ -729,7 +668,7 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
    * "[Violation] requestAnimationFrame handler took 124ms" عند التحميل.
    *
    * والجواب صار "مع التحميل"، لا "عند الاقتراب من الشاشة": يسجّل الحقل نفسه في
-   * `queueFieldBuild` أعلاه عند التركيب، ويُبنى في دوره وحده. المطلوب أصلاً ما كان "لا
+   * `queueWebGLBuild` (في lib/webglBuildQueue) عند التركيب، ويُبنى في دوره وحده. المطلوب أصلاً ما كان "لا
    * تبنِ ما لا يُرى"، بل "لا تبنِ اثنين في نفس الإطار" — والطابور يحقق ذاك بالضبط، دون
    * أن يدفع ثمنه الحقل الذي ينظر إليه القارئ هذه اللحظة.
    *
@@ -784,7 +723,7 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
    * متتالية، بدل ما يؤجّلها إلى أن يوصل القارئ إليها. */
   useEffect(() => {
     if (everActive) return;
-    return queueFieldBuild(() => setEverActive(true));
+    return queueWebGLBuild(() => setEverActive(true));
   }, [everActive]);
 
   /* تُضبط `data-idle` على <html> بواسطة usePauseOffscreenWork() عندما تُنقل التبويب للخلفية، أو
