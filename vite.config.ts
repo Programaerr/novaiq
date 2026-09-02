@@ -21,6 +21,21 @@ export default defineConfig(() => {
       host: true,
       allowedHosts: true,
     },
+    /* ترويسات `vite preview` — نسخة من ترويسات الإنتاج، لا زينة.
+     *
+     * الإنتاج يضبطها في netlify.toml، والتطوير في server.ts (خادم Express). أمّا
+     * `vite preview` فكان بلا أي منها — ولهذا ظهر في الكونسول:
+     * "Cross-Origin-Opener-Policy policy would block the window.closed call" أربع مرّات من
+     * Firebase Auth: نافذة دخول Google المنبثقة تُستفتى كل بضع ميلي‑ثانية عن `window.closed`،
+     * والقيمة الافتراضية تقطع الصلة بها.
+     *
+     * وهذا كان إنذاراً كاذباً — الترويسة صحيحة في الإنتاج — لكن معاينةً لا تطابق الإنتاج
+     * تجعل كل قياس عليها موضع شكّ. */
+    preview: {
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      },
+    },
     build: {
       // 1.4MB لا 500KB الافتراضي: `vendor` (three.js + react-three-fiber)، `vendor-firebase`
       // و`vendor-pdf` تتجاوز الافتراضي بالتصميم، وكل واحد منها معالَج فعلاً بالطريقة الصحيحة

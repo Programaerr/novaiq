@@ -451,15 +451,42 @@ const ShaderWarmup: React.FC<{ onReady: () => void }> = ({ onReady }) => {
     const renderer = gl as THREE.WebGLRenderer & {
       compileAsync?: (scene: THREE.Object3D, camera: THREE.Camera) => Promise<unknown>;
     };
-    // الفشل يُعامَل كنجاح عمداً: هدف هذه الخطوة تسريع الرسم لا شرطه، وحجب المشهد لأن التسخين
-    // تعثّر يحوّل تحسيناً إلى عطل.
-    if (typeof renderer.compileAsync === 'function') {
-      renderer.compileAsync(scene, camera).then(finish, finish);
-    } else {
-      finish();
-    }
+
+    /* الترجمة تنتظر أوّل فراغ، لا لحظة الفتح.
+     *
+     * `compileAsync` لا تُلغي ثمن الترجمة — تُلغي الانتظار فقط: هي تستدعي `compile()` متزامنةً
+     * ثم تستفسر عن جاهزية الربط على خيط المُشغِّل. فبقي عمل بمقدار 313ms يحجب الخيط الرئيسي
+     * (هو ما ظهر كـ"[Violation] 'setTimeout' handler took 313ms" في حزمة three).
+     *
+     * ولأن هذا الثمن لا يُلغى، يبقى أن نختار **متى** يُدفع. تشغيله في تأثير التركيب يجعله
+     * يصطدم بحركة فتح النافذة نفسها — أسوأ لحظة ممكنة، لأن التجمّد يقع فوق شيء متحرّك أمام
+     * العين. `requestIdleCallback` يؤجّله إلى أوّل لحظة لا يرسم فيها المتصفح شيئاً، والسقف
+     * الزمني يضمن ألّا ينتظر إلى الأبد على صفحة لا تخمد. */
+    const w = window as Window &
+      typeof globalThis & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+    const schedule = w.requestIdleCallback ?? ((cb: () => void) => w.setTimeout(cb, 300));
+    const unschedule = w.cancelIdleCallback ?? w.clearTimeout;
+
+    const id = schedule(
+      () => {
+        if (cancelled) return;
+        // الفشل يُعامَل كنجاح عمداً: هدف هذه الخطوة تسريع الرسم لا شرطه، وحجب المشهد لأن
+        // التسخين تعثّر يحوّل تحسيناً إلى عطل.
+        if (typeof renderer.compileAsync === 'function') {
+          renderer.compileAsync(scene, camera).then(finish, finish);
+        } else {
+          finish();
+        }
+      },
+      { timeout: 600 },
+    );
+
     return () => {
       cancelled = true;
+      unschedule(id);
     };
   }, [gl, scene, camera, onReady]);
 
