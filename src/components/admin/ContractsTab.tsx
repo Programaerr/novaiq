@@ -503,12 +503,129 @@ function ContractRow({
             )}
           </div>
 
-          {contract.customFeaturesText && (
-            <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs">
-              <span className="text-ink/60 block mb-1">{isAr ? 'طلب العميل الأصلي:' : "Client's Original Request:"}</span>
-              <p className="text-ink/90">{contract.customFeaturesText}</p>
+          {/* الوثيقة كما وقّعها العميل — نفس ما يراه هو في حسابه.
+              كانت هذه اللوحة تعرض بيانات الاتصال والنص الحر فقط، فيُفتح العقد هنا بلا نوعه ولا
+              ألوانه ولا لغاته ولا حتى توقيع صاحبه — أي أن الطرف الذي ينفّذ المشروع كان يراه أقل
+              مما يراه الطرف الذي طلبه. */}
+          <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs space-y-3">
+            <span className="text-[11px] font-bold text-ink/60 block">
+              {isAr ? 'العقد كما وقّعه العميل' : 'The contract as the client signed it'}
+            </span>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2.5">
+              <div className="min-w-0">
+                <span className="text-ink/50 block">{isAr ? 'المشروع' : 'Project'}</span>
+                <strong className="text-ink block truncate">{translateText(contract.templateTitle, language)}</strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'نوع المشروع' : 'Project type'}</span>
+                <strong className="text-ink">
+                  {contract.projectType === 'app'
+                    ? (isAr ? 'تطبيق هاتف' : 'Mobile app')
+                    : contract.projectType === 'website'
+                      ? (isAr ? 'موقع إلكتروني' : 'Website')
+                      : (isAr ? 'غير محدَّد' : 'Unspecified')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'الوضع' : 'Theme'}</span>
+                <strong className="text-ink">
+                  {contract.themePreference === 'light'
+                    ? (isAr ? 'فاتح' : 'Light')
+                    : contract.themePreference === 'both'
+                      ? (isAr ? 'ثنائي' : 'Both')
+                      : (isAr ? 'داكن' : 'Dark')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'اللغات' : 'Languages'}</span>
+                <strong className="text-ink">
+                  {contract.languageSupport === 'ar'
+                    ? (isAr ? 'عربي' : 'Arabic')
+                    : contract.languageSupport === 'en'
+                      ? (isAr ? 'إنجليزي' : 'English')
+                      : (isAr ? 'ثنائي' : 'Both')}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'تاريخ التوقيع' : 'Signed on'}</span>
+                <strong className="text-ink" dir="ltr">
+                  {contract.createdAt ? new Date(contract.createdAt).toLocaleString(isAr ? 'ar-IQ' : 'en-GB') : '—'}
+                </strong>
+              </div>
+              <div>
+                <span className="text-ink/50 block">{isAr ? 'رقم السجل' : 'CR / ID'}</span>
+                <strong className="text-ink font-mono" dir="ltr">{contract.crNumber || '—'}</strong>
+              </div>
+              <div className="col-span-2">
+                <span className="text-ink/50 block">{isAr ? 'ألوان الهوية' : 'Brand colours'}</span>
+                {/* بالكود لا بالمربّع وحده: المربّع يُري اللون تقريباً، والكود هو ما يُنفَّذ به. */}
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  {[contract.primaryColor, contract.secondColor, contract.thirdColor]
+                    .filter(Boolean)
+                    .map((hex, i) => (
+                      <span key={i} className="inline-flex items-center gap-1.5">
+                        <span
+                          className="w-4 h-4 rounded-md border border-ink/20 shrink-0"
+                          style={{ backgroundColor: hex as string }}
+                        />
+                        <span className="font-mono text-[10.5px] text-ink/70" dir="ltr">
+                          {(hex as string).toUpperCase()}
+                        </span>
+                      </span>
+                    ))}
+                  {![contract.primaryColor, contract.secondColor, contract.thirdColor].some(Boolean) && (
+                    <span className="text-ink/50">{isAr ? 'لم تُختَر ألوان' : 'No colours chosen'}</span>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
+
+            {contract.customFeaturesText && (
+              <div className="pt-2.5 border-t border-ink/10">
+                <span className="text-ink/50 block mb-1">
+                  {isAr ? 'ما كتبه العميل عن مشروعه' : 'What the client wrote about their project'}
+                </span>
+                <p className="text-ink/90 leading-relaxed whitespace-pre-line">{contract.customFeaturesText}</p>
+              </div>
+            )}
+
+            {/* التوقيعان جنباً إلى جنب — "كيف وقّع وأين التوقيع" لا يُعرف إلا برؤيته.
+                فلتر القلب يُطبَّق فقط على التواقيع القديمة المرسومة بحبر أبيض (signatureInk في
+                types.ts)؛ الجديدة داكنة أصلاً وقلبها كان سيُخفيها. */}
+            <div className="pt-2.5 border-t border-ink/10 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <span className="text-ink/50 block mb-1.5">{isAr ? 'توقيع العميل' : 'Client signature'}</span>
+                {contract.signatureDataUrl ? (
+                  <div className="bg-white rounded-lg border border-ink/10 h-16 flex items-center px-2">
+                    <img
+                      src={contract.signatureDataUrl}
+                      alt={isAr ? 'توقيع العميل' : 'Client signature'}
+                      className="max-h-full max-w-full object-contain"
+                      style={{ filter: contract.signatureInk === 'dark' ? undefined : 'invert(1)' }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-ink/50">{isAr ? 'لا يوجد توقيع مخزَّن' : 'No signature stored'}</p>
+                )}
+              </div>
+              <div>
+                <span className="text-ink/50 block mb-1.5">{isAr ? 'اعتماد NUVAIQ' : 'NUVAIQ sign-off'}</span>
+                {contract.companySignatureDataUrl ? (
+                  <div className="bg-white rounded-lg border border-ink/10 h-16 flex items-center px-2">
+                    <img
+                      src={contract.companySignatureDataUrl}
+                      alt={isAr ? 'اعتماد NUVAIQ' : 'NUVAIQ sign-off'}
+                      className="max-h-full max-w-full object-contain"
+                      style={{ filter: contract.companySignatureInk === 'dark' ? undefined : 'invert(1)' }}
+                    />
+                  </div>
+                ) : (
+                  <p className="text-ink/50">{isAr ? 'لم يُعتمد بعد' : 'Not approved yet'}</p>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
