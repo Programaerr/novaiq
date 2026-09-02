@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -19,21 +19,25 @@ import * as THREE from 'three';
  * are the same grid at three scales, and an indicator that travels as cubes reads as the page
  * carrying the highlight across rather than as a widget sliding over it.
  *
- * ## Why the canvas is mounted only while it flies
+ * ## لماذا الكانفاس مُثبَّت الآن، ولم يعد يُنشأ لكل طيران
  *
- * ButtonTiles states the rule this file has to obey, and states it as a hard limit rather than a
- * preference: "A WebGL context is a scarce, browser-wide resource — around sixteen of them, after
- * which the oldest is killed out from under whoever owned it." Its own answer is that a pointer
- * can only be in one place, so at most a couple of button fields exist at once.
+ * الفكرة الأصلية هنا كانت "الطيران حدث لا طبقة": يُركَّب الكانفاس عند تغيّر الصفحة، يعمل مرّة،
+ * ثم يُفكَّك — تفادياً لإمساك سياق WebGL طوال الجلسة مقابل أربعمئة ميلي‑ثانية من الحركة. القلق
+ * صحيح، لكن الحساب كان مقلوباً: الثمن الذي جُنِّب (سياق خامل) أرخص بكثير من الثمن الذي دُفع
+ * (إنشاء سياق **داخل نقرة المستخدم**).
  *
- * A navbar is worse than a button for this, because the navbar is on EVERY page and never
- * unmounts. A canvas living here permanently would be a context held for the entire session to
- * pay for four hundred milliseconds of motion, and it would be the context that pushes the
- * templates page over the edge and takes the hero's field down.
+ * لأن إنشاء السياق ليس مجّانياً ولا غير متزامن: WebGLRenderer يُبنى، وتُترجَم الـshaders، كلّها
+ * على الخيط الرئيسي وداخل نفس الـcommit الذي أطلقته النقرة. النتيجة كانت تجمّد الواجهة عند كل
+ * تنقّل — وهو ما ظهر في الكونسول كـ"[Violation] 'click' handler took Nms" — يليه
+ * "THREE.WebGLRenderer: Context Lost" عند التفكيك، لكل نقرة.
  *
- * So the flight is an event, not a layer: Navbar mounts this when the page changes, it runs once,
- * calls `onDone`, and unmounts. At rest the navbar holds no context at all and the pill is the
- * plain DOM element it always was.
+ * الآن: كانفاس واحد يُنشأ مرّة، **في أوّل لحظة خمول** بعد التحميل لا داخل تفاعل، ويبقى. وفي
+ * السكون `frameloop='never'` ولا سرب مركَّب أصلاً — أي سياق لا يرسم إطاراً ولا يحمل هندسة، وهذا
+ * أرخص بكثير من إنشائه وإتلافه عند كل تنقّل. التنقّل لم يعد يُنشئ شيئاً: يُمرَّر الطيران الجديد
+ * إلى كانفاس قائم فيبدأ الرسم فوراً.
+ *
+ * ويبقى التحذير الذي دفع الكاتب الأصلي: السياقات مورد نادر (نحو ستة عشر). لكنّ هذا **سياق واحد
+ * ثابت** يُحسب مرّة في الميزانية، بينما النمط السابق كان يُنشئ ويُتلف بلا سقف مع سرعة التنقّل.
  *
  * ## Why the tilt is per-cube and not on a group
  *
@@ -217,25 +221,77 @@ const Swarm: React.FC<NavCubeFlightProps & { width: number; height: number }> = 
   );
 };
 
+/** الطيران الواحد: من أين وإلى أين، وضمن أي شريط. */
+export interface NavFlight {
+  from: FlightRect;
+  to: FlightRect;
+  width: number;
+  height: number;
+}
+
 /**
  * The canvas, sized to the nav strip it covers.
  *
  * `pointer-events-none` throughout: the links underneath stay clickable during the crossing, so a
  * fast second click is never eaten by the animation of the first.
+ *
+ * يبقى مُثبَّتاً ويستقبل الطيران كخاصية — انظر ملاحظة الملف أعلاه.
  */
-export const NavCubeFlight: React.FC<NavCubeFlightProps & { width: number; height: number }> = (props) => (
-  <span aria-hidden="true" className="absolute inset-0 block pointer-events-none z-20">
-    <Canvas
-      orthographic
-      dpr={[1, 2]}
-      camera={{ zoom: ZOOM, position: [0, 0, 60], near: 0.1, far: 200 }}
-      // Alpha, so the bar and the labels show between and behind the cubes.
-      gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
-      style={{ pointerEvents: 'none' }}
-    >
-      <Swarm {...props} />
-    </Canvas>
-  </span>
-);
+export const NavCubeFlight: React.FC<{ flight: NavFlight | null; onDone: () => void }> = ({
+  flight,
+  onDone,
+}) => {
+  /* الإنشاء في أوّل خمول، لا عند أول رسم ولا عند نقرة.
+     أوّل رسم مزدحم أصلاً (الخطوط، الهيرو، حقل المكعبات)، وإضافة سياق ثالث إليه تؤخّر ظهور
+     الصفحة. والخمول يأتي بعد جزء من الثانية، وهو أطول بكثير مما يحتاجه أحد ليضغط على تبويب. */
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    if (live) return;
+    const w = window as Window &
+      typeof globalThis & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+    const schedule = w.requestIdleCallback ?? ((cb: () => void) => w.setTimeout(cb, 400));
+    const cancel = w.cancelIdleCallback ?? w.clearTimeout;
+    const id = schedule(() => setLive(true), { timeout: 2500 });
+    return () => cancel(id);
+  }, [live]);
+
+  /* سرب جديد لكل طيران: `Swarm` يحفظ ساعته وحالة انتهائه في refs، فبقاؤه نفسه بين طيرانين
+     يعني ساعة لا تعود إلى الصفر. المفتاح يعيد بناءه، والكانفاس تحته لا يُمسّ. */
+  const seq = useRef(0);
+  const flightKey = useMemo(() => (flight ? ++seq.current : seq.current), [flight]);
+
+  // طيران قبل أن يحلّ الخمول (نادر — الثانيتان الأوليان) يُنشئ الكانفاس فوراً بدل أن يُهمَل.
+  if (!live && !flight) return null;
+
+  return (
+    <span aria-hidden="true" className="absolute inset-0 block pointer-events-none z-20">
+      <Canvas
+        orthographic
+        dpr={[1, 2]}
+        camera={{ zoom: ZOOM, position: [0, 0, 60], near: 0.1, far: 200 }}
+        // في السكون لا إطار يُرسم إطلاقاً؛ الطيران وحده يشغّل الحلقة.
+        frameloop={flight ? 'always' : 'never'}
+        // Alpha, so the bar and the labels show between and behind the cubes.
+        gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
+        style={{ pointerEvents: 'none' }}
+      >
+        {flight && (
+          <Swarm
+            key={flightKey}
+            from={flight.from}
+            to={flight.to}
+            width={flight.width}
+            height={flight.height}
+            onDone={onDone}
+          />
+        )}
+      </Canvas>
+    </span>
+  );
+};
 
 export default NavCubeFlight;

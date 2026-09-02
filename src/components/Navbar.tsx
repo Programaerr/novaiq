@@ -318,15 +318,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </a>
               );
             })}
-            {flight && (
-              <NavCubeFlight
-                from={flight.from}
-                to={flight.to}
-                width={flight.width}
-                height={flight.height}
-                onDone={() => setFlight(null)}
-              />
-            )}
+            {/* مُثبَّت دائماً ويستقبل الطيران كخاصية: تركيبه عند النقرة كان يعني إنشاء سياق
+                WebGL داخل معالج النقرة نفسه، وهو سبب تجمّد التنقّل. انظر NavCubeFlight.tsx. */}
+            <NavCubeFlight flight={flight} onDone={() => setFlight(null)} />
           </nav>
 
           {/* Account/login — lives in the navigation half on desktop, and moves INSIDE the
