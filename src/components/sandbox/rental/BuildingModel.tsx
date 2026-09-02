@@ -432,6 +432,40 @@ const Rig: React.FC = () => {
  * the target at mid-height the frustum can be symmetric, which is the only arrangement that
  * stays correct at every angle the model turns through.
  */
+/**
+ * يترجم برامج المشهد قبل أن يُطلَب أوّل إطار — انظر الملاحظة عند `warm` أدناه.
+ *
+ * التأثيرات (effects) تعمل بعد أن يُركّب React الشجرة كاملةً ويُلحق R3F كل أجسامها بالمشهد،
+ * فالمشهد مكتمل هنا رغم أن هذا المكوّن أوّل الأبناء.
+ */
+const ShaderWarmup: React.FC<{ onReady: () => void }> = ({ onReady }) => {
+  const gl = useThree((state) => state.gl);
+  const scene = useThree((state) => state.scene);
+  const camera = useThree((state) => state.camera);
+
+  useEffect(() => {
+    let cancelled = false;
+    const finish = () => {
+      if (!cancelled) onReady();
+    };
+    const renderer = gl as THREE.WebGLRenderer & {
+      compileAsync?: (scene: THREE.Object3D, camera: THREE.Camera) => Promise<unknown>;
+    };
+    // الفشل يُعامَل كنجاح عمداً: هدف هذه الخطوة تسريع الرسم لا شرطه، وحجب المشهد لأن التسخين
+    // تعثّر يحوّل تحسيناً إلى عطل.
+    if (typeof renderer.compileAsync === 'function') {
+      renderer.compileAsync(scene, camera).then(finish, finish);
+    } else {
+      finish();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [gl, scene, camera, onReady]);
+
+  return null;
+};
+
 const KeyLight: React.FC = () => {
   const sunRef = useRef<THREE.DirectionalLight>(null);
   const targetRef = useRef<THREE.Object3D>(null);
@@ -455,7 +489,10 @@ const KeyLight: React.FC = () => {
         position={[7.4, 6.6, 2.0]}
         intensity={2.9}
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        /* 512 بدل 1024. خريطة الظل تُرسَم من جديد لكل إطار يتحرّك فيه شيء، وتكلفتها
+           مساحتها — فالنزول درجة يوفّر ثلاثة أرباع العمل. وعلى مجسّم بهذا الحجم داخل بطاقة
+           معاينة، الفرق في حدّة حافة الظل لا يُرى، بينما الفرق في الإطارات يُرى. */
+        shadow-mapSize={[512, 512]}
         shadow-bias={-0.0008}
         shadow-normalBias={0.015}
         shadow-camera-near={1}
@@ -757,6 +794,24 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
 
   const label = hoverFloor ?? selectedFloor;
 
+  /* الترجمة قبل أول رسم، لا أثناءه.
+   *
+   * ## ما كان يحدث
+   * أوّل إطار لهذا المشهد هو اللحظة التي تترجم فيها three كل برامج الـshader التي يحتاجها:
+   * بناية بموادّ PBR، وضوء رئيسي يُلقي ظلاً، وضوء ملء، وخريطة بيئة. الترجمة عمل متزامن على
+   * الخيط الرئيسي، وتقع داخل rAF — فيتوقّف الموقع بالكامل حتى تنتهي، وهو بالضبط ما يظهر في
+   * الكونسول: صمت، ثم دفعة "Program Info Log"، ثم يعود كل شيء للعمل.
+   *
+   * ## الحل
+   * `compileAsync` تستعمل إضافة KHR_parallel_shader_compile: تُسلَّم البرامج إلى مُشغِّل
+   * الرسوميات ليترجمها على خيطه هو، ونحن نستفسر لا ننتظر. والكانفاس يبقى على `frameloop:
+   * 'never'` حتى تنتهي — أي لا إطار يُطلب قبل أن تكون الأدوات جاهزة، فلا شيء يُترجَم في
+   * منتصف رسم.
+   *
+   * الثمن: الكانفاس فارغ لجزء من الثانية بدل أن تتجمّد الصفحة كلها. وإن لم تكن الدالة موجودة
+   * (متصفح قديم) يعود السلوك إلى ما كان بالضبط، بلا انتظار. */
+  const [warm, setWarm] = useState(false);
+
   return (
     <div
       className={`relative ${className ?? ''}`}
@@ -768,7 +823,7 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
       style={{ touchAction: 'pan-y' }}
     >
       <Canvas
-        frameloop={reduced || idle ? 'demand' : 'always'}
+        frameloop={!warm ? 'never' : reduced || idle ? 'demand' : 'always'}
         dpr={[1, 1.75]}
         /* "percentage" لا "soft": الأولى PCFShadowMap والثانية PCFSoftShadowMap — وthree
            أهملت الثانية، فتطبع تحذيراً وتستبدلها بالأولى بنفسها عند كل رسم. أي أننا كنّا نطلب
@@ -778,6 +833,7 @@ export const BuildingModel: React.FC<BuildingModelProps> = ({
         gl={{ antialias: true, alpha: true, powerPreference: 'low-power' }}
         camera={{ fov: 36, near: 0.1, far: 100 }}
       >
+        <ShaderWarmup onReady={() => setWarm(true)} />
         <Rig />
 
         <KeyLight />
