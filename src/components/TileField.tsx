@@ -658,6 +658,19 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
   const [idle, setIdle] = useState(false);
   const [reduced, setReduced] = useState(false);
 
+  /* لا يُنشأ سياق WebGL لحقل لم يقترب من الشاشة بعد.
+   *
+   * الصفحة الرئيسية تحمل ثلاثة من هذه: الهيرو، وحزام التواصل، وحزام الفوتر. كان الكانفاس
+   * يُركَّب للثلاثة عند أول رسم — ثلاثة سياقات، وثلاث ترجمات GLSL على الخيط الرئيسي، دفعة
+   * واحدة، بينما اثنان منها تحت الطيّة ولن يراهما أحد قبل التمرير. وترجمة الـshader هي أثقل
+   * لحظة في عمر الكانفاس؛ ثلاثتها معاً هي ما يظهر في الكونسول كـ
+   * "[Violation] requestAnimationFrame handler took 124ms" عند التحميل.
+   *
+   * الآن يُنشأ الكانفاس عند أول اقتراب من الشاشة فقط. `everActive` لا تعود إلى false أبداً
+   * عن قصد: بعد الإنشاء يبقى مركوناً على frameloop='never' خارج الشاشة بدل أن يُهدَم — هدم
+   * الكانفاس يتلف السياق، وإعادة بنائه تكلّف الترجمة من جديد في كل مرّة يعود فيها القسم. */
+  const [everActive, setEverActive] = useState(false);
+
   useEffect(() => {
     const el = hostRef.current;
     if (!el) return;
@@ -667,6 +680,10 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (active) setEverActive(true);
+  }, [active]);
 
   /* تُضبط `data-idle` على <html> بواسطة usePauseOffscreenWork() عندما تُنقل التبويب للخلفية، أو
      تُصغَّر النافذة، أو تأخذ نافذة أخرى التركيز. تتوقف كل حركة CSS في الموقع عليها؛ حلقة WebGL هي
@@ -698,6 +715,7 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
           متعامدة (orthographic): هذا حقل مسطّح يُرى من الأمام مباشرة، وكاميرا منظورية كانت
           ستُضيّق البلاط نحو حواف الشاشة دون سبب. `antialias` مُطفأة لأن الحواف الوحيدة في المشهد
           هي حواف SDF، وهذه تُنعّم حوافها بنفسها مجاناً. */}
+      {everActive && (
       <Canvas
         orthographic
         frameloop={reduced ? 'demand' : active && !idle ? 'always' : 'never'}
@@ -723,6 +741,7 @@ const TileFieldHost: React.FC<TileFieldProps> = ({ tones = HERO_TONES, fade = HE
           <Field reduced={reduced} tones={tones} fade={fade} />
         </group>
       </Canvas>
+      )}
     </div>
   );
 };
