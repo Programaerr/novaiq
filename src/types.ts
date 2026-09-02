@@ -131,7 +131,9 @@ export interface ContractData {
   companySignatureInk?: 'dark';
   
   // Status
-  status: 'draft' | 'submitted' | 'under_review' | 'in_development' | 'completed';
+  /** 'cancelled' حالة نهائية يضبطها الأدمن وحده بعد أن يتعذّر حلّ مشكلة العميل. ليست مرحلة
+   *  في مسار التنفيذ بل خروج منه، ولذلك لا تظهر في شريط المراحل بل كإعلان مستقل. */
+  status: 'draft' | 'submitted' | 'under_review' | 'in_development' | 'completed' | 'cancelled';
   createdAt: string;
   updatedAt?: string;
   completedAt?: string;

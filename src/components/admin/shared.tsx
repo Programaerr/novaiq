@@ -317,6 +317,8 @@ export function statusArabic(status: ContractData['status']): string {
       return 'قيد التطوير والتنفيذ';
     case 'completed':
       return 'مكتمل ومسلم';
+    case 'cancelled':
+      return 'ملغي';
     default:
       return 'مسودة';
   }

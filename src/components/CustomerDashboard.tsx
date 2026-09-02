@@ -35,6 +35,7 @@ const STATUS_LABEL_AR: Record<ContractData['status'], string> = {
   under_review: 'قيد المراجعة الفنية',
   in_development: 'قيد التطوير والتنفيذ',
   completed: 'مكتمل ومسلم',
+  cancelled: 'ملغي',
 };
 
 // The visible order of a contract's stages, used by the progress rail below. `draft` is
@@ -139,6 +140,8 @@ function StatusRail({ status, isAr }: { status: ContractData['status']; isAr: bo
     under_review: { ar: 'قيد المراجعة', en: 'Under review' },
     in_development: { ar: 'قيد التطوير', en: 'In development' },
     completed: { ar: 'مكتمل', en: 'Completed' },
+    // لا تظهر في الشريط أصلاً (ليست مرحلة في المسار)، لكن النوع يطلبها ولا يجوز أن تبقى فارغة.
+    cancelled: { ar: 'ملغي', en: 'Cancelled' },
   };
 return (
     <div className="pt-4">
