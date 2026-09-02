@@ -498,7 +498,7 @@ function CustomerContractRow({
               <div>
                 <span className="text-ink/50 block">{isAr ? 'مدة التسليم' : 'Delivery'}</span>
                 <strong className="text-ink/90">
-                  {hasAgreedPrice && contract.deliveryTimelineWeeks
+                  {contract.deliveryTimelineWeeks
                     ? isAr
                       ? `${contract.deliveryTimelineWeeks} أسبوع`
                       : `${contract.deliveryTimelineWeeks} weeks`

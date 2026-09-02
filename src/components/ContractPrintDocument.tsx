@@ -378,10 +378,13 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
               </div>
             )}
             <div style={{ marginTop: 7 }}>
+              {/* المدة مستقلة عن السعر.
+                  كانت مربوطة به، فمدة اعتمدها الأدمن تبقى مخفية لمجرد أن الرقم لم يُثبَّت بعد —
+                  وهما اتفاقان منفصلان قد يُبرمان في وقتين مختلفين. كل واحد يظهر متى وُجد. */}
               <Field
                 label={t.timeline}
                 value={
-                  contract.deliveryTimelineWeeks && hasAgreedPrice
+                  contract.deliveryTimelineWeeks
                     ? `${contract.deliveryTimelineWeeks} ${t.weeks}`
                     : t.toBeAgreed
                 }
