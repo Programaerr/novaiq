@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
+import {ArrowUp, ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { channels, OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { NuvaiqLogo } from './NuvaiqLogo';
@@ -328,7 +328,12 @@ export const Footer: React.FC<FooterProps> = ({
             size="sm"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="nq-label tracking-[0.18em] uppercase sm:text-sm uw:text-base"
-            badge={<Arrow className="w-3.5 h-3.5 -rotate-90" strokeWidth={2.6} />}
+            /* سهم لأعلى، بلا دوران.
+               كان `Arrow` المائل (ArrowUpRight/ArrowUpLeft) مع `-rotate-90`، وذلك يصحّ في
+               اتجاه واحد فقط: ↗ بدورانه تصير ↖ (لأعلى، مقبول)، أمّا ↖ العربية فتصير ↙ —
+               **سهم يشير لأسفل على زرّ اسمه "العودة للأعلى"**. والأعلى لا يختلف بين لغة
+               وأخرى، فلا معنى لسهم يتبع الاتجاه هنا أصلاً. */
+            badge={<ArrowUp className="w-4 h-4" strokeWidth={2.6} />}
           >
             {isAr ? 'العودة للأعلى' : 'Back to top'}
           </NqButton>
