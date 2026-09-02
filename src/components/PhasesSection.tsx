@@ -30,8 +30,8 @@ import { ORANGE, PAPER_DEEP, OBSIDIAN, PAPER } from '../lib/homePalette';
  *
  * The brand's one accent was the state while the bar could set one. Without it the four cells
  * are equals, so all four marks carry it. The glyph on them is near-black rather than white, and
- * this one IS a hard requirement rather than a style choice: white on Signal Orange (`#FF6A00`)
- * is 2.87:1, under even the 3:1 a graphical icon needs; Obsidian measures 6.90:1 on the same
+ * this one IS a hard requirement rather than a style choice: white on Signal Orange (`#FF8E3D`)
+ * is 2.29:1, under even the 3:1 a graphical icon needs; Obsidian measures 8.67:1 on the same
  * fill. There is no version of this mark that reads with a light glyph.
  *
  * ## Reading order follows the language

@@ -36,9 +36,9 @@
      previous (Cobalt) identity used one. EMBER stays a sparing secondary. */
   --color-obsidian: #080A0D;
   --color-graphite: #12161C;
-  --color-orange: #FF6A00;
+  --color-orange: #FF8E3D;
   --color-orange-on-light: #BA4F04;
-  --color-ember: #FF8A1F;
+  --color-ember: #FFA552;
 
   /* The light-neutral family — Warm White plus three derived steps, so a raised card, a quiet
      section break and a badge/divider can each read as a distinct surface without a border
@@ -301,7 +301,7 @@
 
        `.nq-btn--solid` fills with this and brightens to white on hover — see that rule for why,
        and for the note that it is effectively unreachable in the app today. */
-    --nq-accent: #FF6A00;
+    --nq-accent: #FF8E3D;
     background-color: var(--nq-ground);
 
     /* ── The content container, as a NUMBER rather than a utility class ────────────────────────

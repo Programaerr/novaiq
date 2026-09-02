@@ -36,16 +36,16 @@ export const STAGE_COLORS: Record<ContractData['status'], StageColor> = {
     softBg: 'rgba(154, 160, 166, 0.18)',
   },
   submitted: {
-    fill: '#FF6A00',
+    fill: '#FF8E3D',
     // `border-periwinkle`/`bg-periwinkle` are Tailwind's own OLD token names, aliased in @theme
     // onto `orange-on-light` now (see index.css) — they resolve correctly without being renamed
-    // here, and safely: plain Signal Orange is 2.68:1 on white, under even the 3:1 a border
+    // here, and safely: plain Signal Orange is 2.13:1 on white, under even the 3:1 a border
     // needs, which is exactly why that alias points at the darkened variant rather than the raw
     // accent. `text-[#A14605]` is a literal, so it has to be re-derived directly: darkened from
     // plain Orange until it clears 6.19:1 on white, matching the safety margin earlier stages on
     // this badge have carried.
     badge: 'bg-periwinkle/20 border-periwinkle text-[#A14605]',
-    softBg: 'rgba(255, 106, 0, 0.22)',
+    softBg: 'rgba(255, 142, 61, 0.22)',
   },
   under_review: {
     fill: '#D9A441',

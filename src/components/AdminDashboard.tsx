@@ -306,7 +306,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
       </div>
       <div className="lg:hidden mb-6 -mx-4 px-4 overflow-x-auto">
         <div className="flex gap-2.5 w-max pb-1">
-          <StatChip icon={FileCheck} label={isAr ? 'العقود' : 'Contracts'} value={String(stats.count)} tint="#FF6A00" />
+          <StatChip icon={FileCheck} label={isAr ? 'العقود' : 'Contracts'} value={String(stats.count)} tint="#FF8E3D" />
           <StatChip icon={BarChart3} label={isAr ? 'القيمة المتعاقدة' : 'Contracted'} value={formatPrice(stats.totalIQD, language, currency)} tint="#080A0D" />
           <StatChip icon={ArrowLeftRight} label={isAr ? 'المحصّل' : 'Collected'} value={formatPrice(stats.totalCollectedIQD, language, currency)} tint="#3E8F5F" />
           <StatChip
