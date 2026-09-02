@@ -239,46 +239,35 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
           onConfirm={() => logoutAccount()}
         />
       )}
+      {/* شريط الرأس: زرّان فقط، واحد في كل جهة.
+          حُذف منه العنوان والأيقونة والبريد: الصفحة كلّها عقود صاحب الحساب، فعنوان يقول
+          "عقودي المحفوظة" يكرّر ما تقوله الصفحة بوجودها، والبريد مكانه داخل العقد نفسه
+          (وهو الآن معروض فيه) لا في شريط يعلوه. وما بقي هو ما يُفعَل لا ما يُقرأ.
+
+          نفس زرّي لوحة التحكم حرفياً: دائريان بحجم 44/48 بكسل — الحدّ الأدنى الموصى به
+          لمساحة اللمس — بخلفية معتمة وحدّ وظلّ، وأيقونة وحدها بلا كلمات. */}
       <div className="flex items-center justify-between gap-4 pb-4 border-b border-ink/10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-white/70 border border-ink/10 flex items-center justify-center text-ink shadow-md">
-            <FileCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-ink">
-              {isAr ? 'عقودي المحفوظة' : 'My Saved Contracts'}
-            </h1>
-            <p className="text-xs text-ink/80 font-mono" dir="ltr">{user.email}</p>
-          </div>
-        </div>
-        {/* نفس زرّي لوحة التحكم حرفياً: دائريان بحجم 44/48 بكسل — الحدّ الأدنى الموصى به
-            لمساحة اللمس — بخلفية معتمة وحدّ وظلّ، وأيقونة وحدها بلا كلمات.
+        <button
+          onClick={onBackToSite}
+          aria-label={isAr ? 'العودة للموقع' : 'Back to site'}
+          title={isAr ? 'العودة للموقع' : 'Back to site'}
+          className="w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border border-ink/15 text-ink/70 hover:text-ink hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
+        >
+          {/* سهم رجوع يتبع اتجاه اللغة: في العربية يشير يميناً (جهة "الخلف" في تخطيط rtl)
+              وفي الإنجليزية يساراً. سهم ثابت الاتجاه يعني في إحدى اللغتين سهماً يشير إلى
+              الأمام على زرّ يعود للخلف. */}
+          {isAr ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+        </button>
 
-            لا يوجد Navbar فوق هذه الصفحة (مخفي عمداً) ولا Footer تحتها، فالعودة للموقع كانت
-            تعتمد على زرّ رجوع المتصفح وحده قبل هذا الزرّ. */}
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={onBackToSite}
-            aria-label={isAr ? 'العودة للموقع' : 'Back to site'}
-            title={isAr ? 'العودة للموقع' : 'Back to site'}
-            className="w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border border-ink/15 text-ink/70 hover:text-ink hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
-          >
-            {/* سهم رجوع يتبع اتجاه اللغة: في العربية يشير يميناً (جهة "الخلف" في تخطيط rtl)
-                وفي الإنجليزية يساراً. سهم ثابت الاتجاه يعني في إحدى اللغتين سهماً يشير إلى
-                الأمام على زرّ يعود للخلف. */}
-            {isAr ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-          </button>
-
-          <button
-            onClick={() => setShowLogoutConfirm(true)}
-            aria-label={isAr ? 'تسجيل الخروج' : 'Sign out'}
-            title={isAr ? 'تسجيل الخروج' : 'Sign out'}
-            className="w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
-            style={{ borderColor: `${ERROR_ON_LIGHT}40`, color: ERROR_ON_LIGHT }}
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
-        </div>
+        <button
+          onClick={() => setShowLogoutConfirm(true)}
+          aria-label={isAr ? 'تسجيل الخروج' : 'Sign out'}
+          title={isAr ? 'تسجيل الخروج' : 'Sign out'}
+          className="w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
+          style={{ borderColor: `${ERROR_ON_LIGHT}40`, color: ERROR_ON_LIGHT }}
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
 
       {contracts.length === 0 ? (
@@ -536,6 +525,17 @@ function CustomerContractRow({
               <div>
                 <span className="text-ink/75 block">{isAr ? 'اسم الشركة' : 'Company Name'}</span>
                 <strong className="text-ink/90">{contract.companyName}</strong>
+              </div>
+              {/* البريد ورقم السجل: كلاهما مطبوع في وثيقة الـPDF منذ البداية وغائب عن هذه
+                  الشاشة — أي أن العميل يقرأ عقده هنا ناقصاً ويجده كاملاً في الملف. وهذه
+                  الشاشة هي ما يفتحه أوّلاً، فالنقص فيها هو النقص الذي يُرى. */}
+              <div>
+                <span className="text-ink/75 block">{isAr ? 'البريد الإلكتروني' : 'Email'}</span>
+                <strong className="text-ink/90 font-mono wrap-break-word" dir="ltr">{contract.email || '—'}</strong>
+              </div>
+              <div>
+                <span className="text-ink/75 block">{isAr ? 'رقم السجل التجاري' : 'CR / ID Number'}</span>
+                <strong className="text-ink/90 font-mono" dir="ltr">{contract.crNumber || '—'}</strong>
               </div>
               <div>
                 <span className="text-ink/75 block">{isAr ? 'اسم الممثل' : 'Representative'}</span>
