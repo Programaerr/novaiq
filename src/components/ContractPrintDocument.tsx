@@ -3,6 +3,7 @@ import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice } from '../lib/currency';
 import { contractTerms } from '../data/contractTerms';
+import { sumPayments } from '../lib/payments';
 import nuvaiqMark from '../assets/images/nuvaiq-icon.png';
 
 interface ContractPrintDocumentProps {
@@ -77,6 +78,23 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       toBeAgreed: isAr ? 'تُحدَّد بالاتفاق' : 'To be agreed',
       s4: isAr ? '4. الشروط والأحكام والضمانات' : '4. TERMS, CONDITIONS & GUARANTEES',
       s5: isAr ? '5. التواقيع والاعتماد' : '5. SIGNATURES & AUTHORIZATION',
+      schedule: isAr ? 'جدول الدفعات' : 'Payment schedule',
+      instalment: isAr ? 'الدفعة' : 'Instalment',
+      due: isAr ? 'الاستحقاق' : 'Due',
+      dueDate: isAr ? 'التاريخ' : 'Date',
+      amount: isAr ? 'المبلغ' : 'Amount',
+      onSigning: isAr ? 'عند التوقيع' : 'On signing',
+      onMidpoint: isAr ? 'عند منتصف التنفيذ' : 'At the midpoint of development',
+      onDelivery: isAr ? 'عند التسليم' : 'On delivery',
+      dateFromDuration: isAr
+        ? 'التواريخ محسوبة من تاريخ التوقيع ومدّة التنفيذ المتفق عليها.'
+        : 'Dates are computed from the signing date and the agreed delivery window.',
+      ledger: isAr ? 'الدفعات المستلمة' : 'Payments received',
+      noPayments: isAr ? 'لم تُستلم أي دفعة حتى تاريخ إصدار هذه النسخة.' : 'No payment has been received as of this issue date.',
+      paid: isAr ? 'المستلم' : 'Received',
+      remaining: isAr ? 'المتبقي' : 'Remaining',
+      contractState: isAr ? 'حالة العقد' : 'Contract status',
+      issuedOn: isAr ? 'تاريخ إصدار هذه النسخة' : 'This copy issued on',
       clientSig: isAr ? 'توقيع ممثل الشركة' : 'Client Representative Signature',
       signedElectronically: isAr ? '[ تم التوقيع إلكترونياً ]' : '[ Signed Electronically ]',
       companySig: isAr ? 'توقيع واعتماد NUVAIQ' : 'NUVAIQ Sign-off',
@@ -96,6 +114,68 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
        وإضافة حقل حالة ثانٍ يعني احتمال أن يتناقض الحقلان (سعر موجود وحالة "بانتظار"، أو
        العكس) — وهذا في وثيقة تعاقدية أسوأ من عدم وجود الحالة أصلاً. */
     const hasAgreedPrice = (contract.totalPriceIQD || 0) > 0;
+
+    /* حالة العقد، بكل حالاتها.
+       كانت الترويسة تعرف حالتين فقط — موقّع من الطرفين أو بانتظار الاعتماد — فعقد ملغٍ أو قيد
+       التطوير يصدر بوثيقة لا تذكر ذلك إطلاقاً. الوثيقة يجب أن تصلح للإصدار في كل حالة، لا في
+       حالتين. */
+    const contractStateLabel = (() => {
+      switch (contract.status) {
+        case 'draft':
+          return isAr ? 'مسودة — لم تُقدَّم بعد' : 'Draft — not yet submitted';
+        case 'submitted':
+          return isAr ? 'مقدَّم — بانتظار المراجعة' : 'Submitted — awaiting review';
+        case 'under_review':
+          return isAr ? 'قيد المراجعة الفنية' : 'Under technical review';
+        case 'in_development':
+          return isAr ? 'قيد التنفيذ' : 'In development';
+        case 'completed':
+          return isAr ? 'مكتمل ومسلَّم' : 'Completed and delivered';
+        case 'cancelled':
+          return isAr ? 'ملغي' : 'Cancelled';
+        default:
+          return contract.status;
+      }
+    })();
+
+    /* جدول الدفعات، مشتقّاً من آلية السداد المتفق عليها.
+       كانت الوثيقة تذكر الآلية بالاسم ("50% عند التوقيع و50% عند التسليم") ولا تقول متى ولا
+       كم — أي أنها تصف اتفاقاً ولا تُثبته. هنا كل دفعة برقمها واستحقاقها وتاريخها. */
+    const signedOn = contract.createdAt ? new Date(contract.createdAt) : null;
+    const weeks = contract.deliveryTimelineWeeks || 0;
+    const addDays = (d: Date, n: number) => new Date(d.getTime() + n * 86400000);
+    const printDate = (d: Date | null) => (d ? d.toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB') : '—');
+    /* لا تاريخ مخترَع: المدة صارت نصّاً حرّاً ("قبل رمضان"، "20 يوم عمل")، ولا تُحوَّل إلى يوم
+       بعينه إلا حين تكون بالأسابيع فعلاً. غير ذلك تُطبع الاستحقاق بلا تاريخ — وهذا أصدق من
+       تاريخ يبدو ملزماً ولم يتفق عليه أحد. */
+    const deliveryOn = signedOn && weeks > 0 ? addDays(signedOn, weeks * 7) : null;
+    const midpointOn = signedOn && weeks > 0 ? addDays(signedOn, Math.round((weeks * 7) / 2)) : null;
+
+    const scheduleRows: { label: string; when: string; on: Date | null; amount: number }[] = (() => {
+      if (!hasAgreedPrice) return [];
+      const total = contract.totalPriceIQD || 0;
+      if (contract.paymentPlan === '100_upfront') {
+        return [{ label: isAr ? 'دفعة واحدة' : 'Single payment', when: t.onSigning, on: signedOn, amount: total }];
+      }
+      if (contract.paymentPlan === '3_milestones') {
+        // القسمة على ثلاثة لا تقع صحيحة دائماً؛ الباقي يُضاف إلى الأخيرة فيبقى المجموع مطابقاً
+        // للقيمة الكلية بالدينار الواحد.
+        const part = Math.floor(total / 3);
+        return [
+          { label: isAr ? 'الدفعة الأولى' : 'First instalment', when: t.onSigning, on: signedOn, amount: part },
+          { label: isAr ? 'الدفعة الثانية' : 'Second instalment', when: t.onMidpoint, on: midpointOn, amount: part },
+          { label: isAr ? 'الدفعة الثالثة' : 'Third instalment', when: t.onDelivery, on: deliveryOn, amount: total - part * 2 },
+        ];
+      }
+      const half = Math.floor(total / 2);
+      return [
+        { label: isAr ? 'الدفعة الأولى' : 'First instalment', when: t.onSigning, on: signedOn, amount: half },
+        { label: isAr ? 'الدفعة الثانية' : 'Second instalment', when: t.onDelivery, on: deliveryOn, amount: total - half },
+      ];
+    })();
+
+    const receivedIQD = contract.payments ? sumPayments(contract.payments) : contract.paidAmountIQD || 0;
+    const remainingIQD = Math.max((contract.totalPriceIQD || 0) - receivedIQD, 0);
 
     const paymentPlanLabel = (() => {
       switch (contract.paymentPlan) {
@@ -450,7 +530,75 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                 }
               />
               <Field label={t.payment} value={hasAgreedPrice ? paymentPlanLabel : t.toBeAgreed} />
+              <Field label={t.contractState} value={contractStateLabel} />
+              <Field label={t.issuedOn} value={new Date().toLocaleDateString(isAr ? 'ar-IQ' : 'en-GB')} />
             </div>
+
+            {/* جدول الدفعات — لا يُقصّ عبر صفحتين. */}
+            {scheduleRows.length > 0 && (
+              <div data-pdf-keep style={{ marginTop: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#080A0D', marginBottom: 5 }}>
+                  {t.schedule}
+                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10.5 }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#E9E7E3' }}>
+                      <th style={{ textAlign: isAr ? 'right' : 'left', padding: '5px 8px', color: '#434547', fontWeight: 700 }}>{t.instalment}</th>
+                      <th style={{ textAlign: isAr ? 'right' : 'left', padding: '5px 8px', color: '#434547', fontWeight: 700 }}>{t.due}</th>
+                      <th style={{ textAlign: isAr ? 'right' : 'left', padding: '5px 8px', color: '#434547', fontWeight: 700 }}>{t.dueDate}</th>
+                      <th style={{ textAlign: isAr ? 'left' : 'right', padding: '5px 8px', color: '#434547', fontWeight: 700 }}>{t.amount}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scheduleRows.map((row, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #E6E7E7' }}>
+                        <td style={{ padding: '5px 8px', color: '#080A0D', fontWeight: 700 }}>{row.label}</td>
+                        <td style={{ padding: '5px 8px', color: '#434547' }}>{row.when}</td>
+                        <td style={{ padding: '5px 8px', color: '#434547' }}>{printDate(row.on)}</td>
+                        <td style={{ padding: '5px 8px', color: '#080A0D', fontWeight: 700, textAlign: isAr ? 'left' : 'right' }}>
+                          {formatPrice(row.amount, language)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div style={{ fontSize: 9.5, color: '#666769', marginTop: 4 }}>{t.dateFromDuration}</div>
+              </div>
+            )}
+
+            {/* الدفعات المستلمة فعلاً — الفرق بين ما اتُّفق عليه وما جرى. */}
+            {hasAgreedPrice && (
+              <div data-pdf-keep style={{ marginTop: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#080A0D', marginBottom: 5 }}>
+                  {t.ledger}
+                </div>
+                {contract.payments && contract.payments.length > 0 ? (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10.5 }}>
+                    <tbody>
+                      {contract.payments.map((pay) => (
+                        <tr key={pay.id} style={{ borderBottom: '1px solid #E6E7E7' }}>
+                          <td style={{ padding: '5px 8px', color: '#434547' }} dir="ltr">{pay.date}</td>
+                          <td style={{ padding: '5px 8px', color: '#666769' }}>{pay.note || '—'}</td>
+                          <td style={{ padding: '5px 8px', color: '#080A0D', fontWeight: 700, textAlign: isAr ? 'left' : 'right' }}>
+                            {formatPrice(pay.amountIQD, language)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ fontSize: 10.5, color: '#666769' }}>{t.noPayments}</div>
+                )}
+                <div style={{ display: 'flex', gap: 18, marginTop: 6 }}>
+                  <span style={{ fontSize: 11, color: '#6B7179' }}>
+                    {t.paid}: <strong style={{ color: '#080A0D' }}>{formatPrice(receivedIQD, language)}</strong>
+                  </span>
+                  <span style={{ fontSize: 11, color: '#6B7179' }}>
+                    {t.remaining}: <strong style={{ color: '#080A0D' }}>{formatPrice(remainingIQD, language)}</strong>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Section 4 */}
@@ -465,8 +613,12 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             </ol>
           </div>
 
-          {/* Section 5 */}
-          <div>
+          {/* Section 5 — كتلة واحدة لا تُقصّ عبر صفحتين.
+              كانت تُقطع نصفين حين يصادفها حدّ الصفحة: توقيع في أسفل ورقة وسطر الاسم في أعلى
+              التي تليها. الوسم يجعل مولّد الـPDF يدفعها كاملة إلى الصفحة التالية بدل قصّها
+              (انظر lib/pdfGenerator.ts). والمسافة فوقها تفصلها عن البنود، فهي إقرار مستقل لا
+              ذيل للقائمة قبلها. */}
+          <div data-pdf-keep style={{ marginTop: 20 }}>
             <SectionTitle>{t.s5}</SectionTitle>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24 }}>
               <div style={{ flex: 1 }}>
