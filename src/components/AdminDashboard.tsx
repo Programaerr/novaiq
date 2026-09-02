@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { ERROR_ON_LIGHT } from '../lib/homePalette';
 import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Settings, ArrowLeftRight, ArrowRight, ArrowLeft } from 'lucide-react';
 import { ContractData } from '../types';
 import { Language } from '../lib/i18n';
@@ -267,7 +268,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
           onClick={() => setShowLogoutConfirm(true)}
           aria-label={isAr ? 'تسجيل الخروج' : 'Sign out'}
           title={isAr ? 'تسجيل الخروج' : 'Sign out'}
-          className="pointer-events-auto w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border border-red-600/25 text-red-600/80 hover:text-red-600 hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
+          /* الأحمر من لوحة الموقع (ERROR_ON_LIGHT) لا من ألوان Tailwind الجاهزة: كان
+             `red-600` وهو لون لا تملكه اللوحة، وحساب العميل يعرض الآن نفس الزرّ — فلونان
+             مختلفان لنفس الفعل في شاشتين. */
+          className="pointer-events-auto w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
+          style={{ borderColor: `${ERROR_ON_LIGHT}40`, color: ERROR_ON_LIGHT }}
         >
           <LogOut className="w-5 h-5" />
         </button>

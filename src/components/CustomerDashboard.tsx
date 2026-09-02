@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink, XCircle, Loader2, FileText, ChevronDown } from 'lucide-react';
+import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink, XCircle, Loader2, FileText, ChevronDown, ArrowRight, ArrowLeft} from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
@@ -251,40 +251,33 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
             <p className="text-xs text-ink/80 font-mono" dir="ltr">{user.email}</p>
           </div>
         </div>
-        {/* لا يوجد Navbar فوق هذه الصفحة (مخفي عمداً) ولا Footer تحتها، فالعودة للموقع كانت
-            تعتمد فقط على زر رجوع المتصفح قبل هذا الزر. */}
+        {/* نفس زرّي لوحة التحكم حرفياً: دائريان بحجم 44/48 بكسل — الحدّ الأدنى الموصى به
+            لمساحة اللمس — بخلفية معتمة وحدّ وظلّ، وأيقونة وحدها بلا كلمات.
+
+            لا يوجد Navbar فوق هذه الصفحة (مخفي عمداً) ولا Footer تحتها، فالعودة للموقع كانت
+            تعتمد على زرّ رجوع المتصفح وحده قبل هذا الزرّ. */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* أيقونة فقط، كما في لوحة التحكم: الشريط هنا يحمل اسم صاحب الحساب وبريده، وكلمتان
-              إضافيتان بجانبهما تزاحمانه على شاشة ضيّقة. الاسم لم يُحذف بل انتقل إلى
-              `aria-label` و`title` — يسمعه قارئ الشاشة ويراه من يقف بالمؤشّر، ولا يشغل عرضاً. */}
-          <NqButton
-            tone="white"
-            variant="quiet"
-            size="sm"
-            radius="xl"
+          <button
             onClick={onBackToSite}
             aria-label={isAr ? 'العودة للموقع' : 'Back to site'}
             title={isAr ? 'العودة للموقع' : 'Back to site'}
-            className="w-10 px-0"
+            className="w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border border-ink/15 text-ink/70 hover:text-ink hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
           >
-            <Home className="w-4 h-4" />
-          </NqButton>
-          {/* `sand`, which is the ground this dashboard is painted on — it was carrying the dark
-              chrome's `.nq-btn` on a light page. Signing out is not the primary action here, so it
-              is the quiet weight; the label hides on a narrow screen and `aria-label` keeps the
-              name at every width. */}
-          <NqButton
-            tone="white"
-            variant="quiet"
-            size="sm"
-            radius="xl"
+            {/* سهم رجوع يتبع اتجاه اللغة: في العربية يشير يميناً (جهة "الخلف" في تخطيط rtl)
+                وفي الإنجليزية يساراً. سهم ثابت الاتجاه يعني في إحدى اللغتين سهماً يشير إلى
+                الأمام على زرّ يعود للخلف. */}
+            {isAr ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+          </button>
+
+          <button
             onClick={() => setShowLogoutConfirm(true)}
-            aria-label={isAr ? 'تسجيل الخروج' : 'Sign Out'}
-            title={isAr ? 'تسجيل الخروج' : 'Sign Out'}
-            className="w-10 px-0"
+            aria-label={isAr ? 'تسجيل الخروج' : 'Sign out'}
+            title={isAr ? 'تسجيل الخروج' : 'Sign out'}
+            className="w-11 h-11 sm:w-12 sm:h-12 grid place-items-center rounded-full bg-white/90 backdrop-blur-md border hover:bg-white shadow-lg shadow-ink/10 transition-colors cursor-pointer"
+            style={{ borderColor: `${ERROR_ON_LIGHT}40`, color: ERROR_ON_LIGHT }}
           >
-            <LogOut className="w-4 h-4" />
-          </NqButton>
+            <LogOut className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
