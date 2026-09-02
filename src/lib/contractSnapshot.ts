@@ -43,6 +43,7 @@ export interface ContractSnapshot {
     adminNotes: string;
     totalPriceIQD: number;
     deliveryTimelineWeeks: number;
+    deliveryTimelineText: string;
     paymentPlan: ContractData['paymentPlan'];
     languageSupport: ContractData['languageSupport'];
     themePreference: ContractData['themePreference'];
@@ -83,6 +84,7 @@ function buildSnapshotBody(contract: ContractData, approvedBy: string) {
       adminNotes: contract.adminNotes || '',
       totalPriceIQD: contract.totalPriceIQD || 0,
       deliveryTimelineWeeks: contract.deliveryTimelineWeeks || 0,
+      deliveryTimelineText: contract.deliveryTimelineText || '',
       paymentPlan: contract.paymentPlan,
       languageSupport: contract.languageSupport,
       themePreference: contract.themePreference,

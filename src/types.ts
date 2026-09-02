@@ -108,6 +108,12 @@ export interface ContractData {
   basePriceSAR?: number;
   totalPriceSAR?: number;
   paymentPlan: '50_50' | '100_upfront' | '3_milestones';
+  /** مدة التنفيذ كما اتُّفق عليها، نصاً حراً: "3 أسابيع"، "شهر ونصف"، "20 يوم عمل"، "قبل رمضان".
+   *  المشاريع لا تُقاس كلها بوحدة واحدة، وإجبار الأسابيع كان يحوّل اتفاقاً دقيقاً إلى تقريب.
+   *  يُعرض كما كُتب حرفياً في حساب العميل وفي الوثيقة. */
+  deliveryTimelineText?: string;
+  /** الحقل القديم بالأسابيع. يبقى للعقود التي أُنشئت قبل الحقل النصّي أعلاه فقط — لا يُكتب
+   *  فيه شيء جديد، ويُقرأ فقط حين لا يوجد نصّ. */
   deliveryTimelineWeeks: number;
   
   // Legal & Digital Signature

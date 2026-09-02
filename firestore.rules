@@ -75,6 +75,7 @@ service cloud.firestore {
           // في حسابه أو يزوّر نسبة تقدّم مشروعه.
           && !('previewUrl' in d)
           && !('developmentStartedAt' in d)
+          && !('deliveryTimelineText' in d)
           && !('cancellationRequestedAt' in d)
           && !('cancellationReason' in d)
           && !('adminNotes' in d)

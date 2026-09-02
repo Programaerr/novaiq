@@ -252,7 +252,9 @@ function ContractRow({
      المشروع مخصص، فلا الباني يعرف مدته (كان يكتب 8 أسابيع لكل مشروع مهما كان حجمه) ولا العميل
      اختار خطة سداد (كانت مثبَّتة على 50/50 بلا أن تُعرَض عليه). كلاهما الآن يُترك فارغاً في
      الوثيقة حتى تعتمده أنت مع السعر، فيظهر للعميل عندها. */
-  const [deliveryWeeks, setDeliveryWeeks] = useState(String(contract.deliveryTimelineWeeks || ''));
+  const [deliveryText, setDeliveryText] = useState(
+    contract.deliveryTimelineText || (contract.deliveryTimelineWeeks ? String(contract.deliveryTimelineWeeks) + ' أسابيع' : '')
+  );
   const [paymentPlan, setPaymentPlan] = useState<ContractData['paymentPlan']>(contract.paymentPlan || '50_50');
   /** رابط المعاينة الخاص الذي يتابع منه العميل موقعه أثناء التنفيذ. */
   const [previewUrl, setPreviewUrl] = useState(contract.previewUrl || '');
@@ -291,7 +293,9 @@ function ContractRow({
     setPayments(baselinePayments(contract));
     setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
     setAdminNotes(contract.adminNotes || '');
-    setDeliveryWeeks(String(contract.deliveryTimelineWeeks || ''));
+    setDeliveryText(
+      contract.deliveryTimelineText || (contract.deliveryTimelineWeeks ? String(contract.deliveryTimelineWeeks) + ' أسابيع' : '')
+    );
     setPaymentPlan(contract.paymentPlan || '50_50');
     setPreviewUrl(contract.previewUrl || '');
     setSignatureDirty(false);
@@ -320,7 +324,7 @@ function ContractRow({
     JSON.stringify(payments) !== JSON.stringify(baselinePayments(contract)) ||
     installmentsPlannedNum !== (contract.installmentsPlanned || 0) ||
     adminNotes !== (contract.adminNotes || '') ||
-    Number(deliveryWeeks || 0) !== (contract.deliveryTimelineWeeks || 0) ||
+    deliveryText.trim() !== (contract.deliveryTimelineText || '') ||
     paymentPlan !== (contract.paymentPlan || '50_50') ||
     previewUrl.trim() !== (contract.previewUrl || '') ||
     signatureDirty;
@@ -353,7 +357,7 @@ function ContractRow({
         // sending `undefined` under merge:true could not do.
         installmentsPlanned: installmentsPlannedNum,
         adminNotes: adminNotes.trim(),
-        deliveryTimelineWeeks: Number(deliveryWeeks) || 0,
+        deliveryTimelineText: deliveryText.trim(),
         paymentPlan,
         previewUrl: previewUrl.trim(),
         // علامة الحبر الداكن تُكتب مع التوقيع نفسه وفي نفس الحفظ — لو كُتبت لاحقاً لظهر
@@ -379,7 +383,7 @@ function ContractRow({
             {
               ...contract,
               totalPriceIQD: Number(totalPrice) || 0,
-              deliveryTimelineWeeks: Number(deliveryWeeks) || 0,
+              deliveryTimelineText: deliveryText.trim(),
               paymentPlan,
               adminNotes: adminNotes.trim(),
             },
@@ -796,14 +800,16 @@ function ContractRow({
                 />
               </div>
               <div className="min-w-0">
-                <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'مدة التنفيذ (أسابيع)' : 'Delivery (weeks)'}</label>
+                {/* نصّ حر لا رقم أسابيع: المشاريع لا تُقاس بوحدة واحدة، ومدة مثل "شهر ونصف"
+                    أو "قبل رمضان" كانت تُجبَر على التقريب إلى رقم أسابيع فتفقد دقّتها. يُعرض
+                    للعميل حرفياً كما تكتبه. */}
+                <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'مدة التنفيذ' : 'Delivery time'}</label>
                 <input
-                  type="number"
-                  min={0}
-                  value={deliveryWeeks}
-                  onChange={(e) => setDeliveryWeeks(e.target.value)}
-                  placeholder={isAr ? 'تُحدَّد بالاتفاق' : 'to be agreed'}
-                  className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs font-mono"
+                  type="text"
+                  value={deliveryText}
+                  onChange={(e) => setDeliveryText(e.target.value)}
+                  placeholder={isAr ? 'مثال: 3 أسابيع · شهر ونصف · 20 يوم عمل' : 'e.g. 3 weeks · 6 weeks · 20 working days'}
+                  className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs"
                 />
               </div>
               <div className="min-w-0">
