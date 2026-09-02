@@ -454,6 +454,7 @@ export function useNqSurface(
 
   const sleep = useCallback(() => {
     drive.current.target = 0;
+    rect.current = null;
     // غادر المؤشّر قبل أن ينتهي التأخير: لا سياق يُنشأ إطلاقاً، وهذا هو كل المكسب.
     window.clearTimeout(wakeTimer.current);
     wakeTimer.current = undefined;
@@ -465,12 +466,26 @@ export function useNqSurface(
     }, LINGER_MS);
   }, [release]);
 
+  /* صندوق العنصر، مقيساً مرّة عند الدخول لا عند كل حركة.
+   *
+   * كانت `localise` تستدعي getBoundingClientRect() في كل حدث pointermove — وهذه قراءة تُجبر
+   * المتصفح على إعادة حساب التخطيط فوراً إن كان هناك أي تغيير معلّق (forced synchronous
+   * layout). أي أن مجرّد تحريك المؤشّر فوق زرّ كان يفرض دورة تخطيط لكل حدث، وهو ما يظهر في
+   * الكونسول كـ"[Violation] Forced reflow while executing JavaScript".
+   *
+   * الصندوق لا يتغيّر أثناء المرور فوقه، فقياسه مرّة عند الدخول (وعند الضغط، تحسّباً لتمرير
+   * الصفحة بينهما) يكفي — والحركة بعدها حساب بلا لمس DOM. */
+  const rect = useRef<DOMRect | null>(null);
+
+  const measure = useCallback(() => {
+    const node = el.current;
+    rect.current = node ? node.getBoundingClientRect() : null;
+  }, []);
+
   /** Pointer position as a fraction of the element's own box. */
   const localise = useCallback((e: React.PointerEvent) => {
-    const node = el.current;
-    if (!node) return { x: 0.5, y: 0.5 };
-    const r = node.getBoundingClientRect();
-    if (!r.width || !r.height) return { x: 0.5, y: 0.5 };
+    const r = rect.current;
+    if (!r || !r.width || !r.height) return { x: 0.5, y: 0.5 };
     return {
       x: Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)),
       y: Math.min(1, Math.max(0, (e.clientY - r.top) / r.height)),
@@ -483,6 +498,7 @@ export function useNqSurface(
       // A touch fires enter/leave around the tap as well, and waking on it makes the field flash
       // on and off around a press that already has its own ring. Press is the touch entry point.
       if (e.pointerType === 'touch') return;
+      measure();
       const p = localise(e);
       drive.current.px = p.x;
       drive.current.py = p.y;
@@ -502,6 +518,8 @@ export function useNqSurface(
     },
     onPointerDown: (e: React.PointerEvent) => {
       if (!wantsTiles) return;
+      // قياس ثانٍ: قد تكون الصفحة مُرِّرت بين الدخول والضغط، فيصير الصندوق المخزَّن قديماً.
+      measure();
       const p = localise(e);
       drive.current.pressX = p.x;
       drive.current.pressY = p.y;

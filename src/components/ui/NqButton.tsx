@@ -72,7 +72,23 @@ export const NqButton = React.forwardRef<HTMLButtonElement, NqButtonProps>(funct
     className = '',
     type = 'button',
     tileSurface,
-    tiles = true,
+    /* مطفأة افتراضياً.
+     *
+     * كانت كل ضغطة زرّ تُنشئ سياق WebGL كاملاً **داخل معالج الضغطة نفسها**: onPointerDown →
+     * تركيب <Canvas> → إنشاء WebGLRenderer → ترجمة shader، كلها متزامنة قبل أن يعود المتصفح
+     * إلى الرسم. وهذا حرفياً ما ظهر في الكونسول كـ"[Violation] 'click' handler took Nms"
+     * عشر مرّات متتالية: الموقع كان يتجمّد عند كل ضغطة ليرسم زخرفة.
+     *
+     * ويليها الثمن الثاني: كل تفكيك يستدعي forceContextLoss()، فتتوالى أسطر
+     * "THREE.WebGLRenderer: Context Lost" — ومتصفّح كروم يسمح بنحو ستة عشر سياقاً حيّاً ثم
+     * يقتل الأقدم، أي أن كثرة الأزرار كانت تهدّد حقول المكعبات نفسها.
+     *
+     * الزرّ لم يخسر شيئاً وظيفياً: التعبئة والحلقة والضغط والتركيز كلها CSS كما كانت. الخاسر
+     * هو زخرفة مكعبات لم تكن تُرى إلا لحظة، بثمن تجمّد كل ضغطة.
+     *
+     * `tiles` باقية كخاصية: من يريدها على زرّ بعينه (دعوة رئيسية واحدة مثلاً) يمرّر
+     * `tiles` صراحةً، ويدفع ثمنها في ذلك الموضع وحده. */
+    tiles = false,
     disabled,
     onPointerEnter,
     onPointerMove,
