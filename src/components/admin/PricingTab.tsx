@@ -114,7 +114,6 @@ function PricingRow({
   const [previewImage, setPreviewImage] = useState(template.previewImage);
   const [imageBroken, setImageBroken] = useState(false);
   const [demoUrl, setDemoUrl] = useState(template.demoUrl || '');
-  const [basePriceIQD, setBasePriceIQD] = useState(String(template.basePriceIQD));
   const [sitePriceIQD, setSitePriceIQD] = useState(String(resolveVariant(template, 'website', '').priceIQD));
   const [siteDesc, setSiteDesc] = useState(resolveVariant(template, 'website', '').description);
   const [appPriceIQD, setAppPriceIQD] = useState(String(resolveVariant(template, 'app', '').priceIQD));
@@ -126,7 +125,6 @@ function PricingRow({
     setTitle(template.title);
     setPreviewImage(template.previewImage);
     setDemoUrl(template.demoUrl || '');
-    setBasePriceIQD(String(template.basePriceIQD));
     setSitePriceIQD(String(resolveVariant(template, 'website', '').priceIQD));
     setSiteDesc(resolveVariant(template, 'website', '').description);
     setAppPriceIQD(String(resolveVariant(template, 'app', '').priceIQD));
@@ -144,8 +142,9 @@ function PricingRow({
         title: title.trim() || template.title,
         previewImage: previewImage.trim() || template.previewImage,
         demoUrl: demoUrl.trim(),
-        basePriceIQD: Number(basePriceIQD) || 0,
-        basePriceUSD: toUSD(Number(basePriceIQD) || 0),
+        // مشتقّ من سعر الموقع: قيمة احتياطية واحدة تتبع سعراً حقيقياً بدل رقم ثالث يُنسى.
+        basePriceIQD: siteIQD,
+        basePriceUSD: toUSD(siteIQD),
         variants: {
           website: { priceIQD: siteIQD, priceUSD: toUSD(siteIQD), description: siteDesc.trim() },
           app: { priceIQD: appIQD, priceUSD: toUSD(appIQD), description: appDesc.trim() },
@@ -189,8 +188,17 @@ function PricingRow({
           <div className="text-xs sm:text-sm font-bold text-ink truncate">{translateText(template.title, language)}</div>
           <div className="text-[10px] text-ink/50 truncate">{translateText(template.categoryLabel, language)}</div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs font-mono text-ink/75">{formatPrice(template.basePriceIQD, language, currency)}</span>
+        {/* السعران كما هما في الموقع، لا رقم ثالث. الصفّ المطوي هو أسرع مكان يُقرأ منه
+            التسعير، فعرضه رقماً لا يراه أي زائر كان يعني أن أسرع قراءة هي أيضاً أقلّها صدقاً. */}
+        <div className="flex items-center gap-2.5 shrink-0 text-[11px] font-mono">
+          <span className="flex items-center gap-1 text-ink/80">
+            <Globe className="w-3 h-3 shrink-0" aria-hidden="true" />
+            {formatPrice(resolveVariant(template, 'website', '').priceIQD, language, currency)}
+          </span>
+          <span className="flex items-center gap-1 text-ink/80">
+            <Smartphone className="w-3 h-3 shrink-0" aria-hidden="true" />
+            {formatPrice(resolveVariant(template, 'app', '').priceIQD, language, currency)}
+          </span>
         </div>
       </button>
 
@@ -258,16 +266,15 @@ function PricingRow({
             )}
           </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
-              {isAr ? 'السعر العام (يظهر في القوائم والبطاقات قبل الاختيار)' : 'General price (shown in listings before a choice is made)'}
-            </label>
-            <PriceInput
-              value={basePriceIQD}
-              onChange={setBasePriceIQD}
-              className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs font-mono"
-            />
-          </div>
+          {/* "السعر العام" حُذف.
+              كان يُوصَف بأنه "يظهر في القوائم والبطاقات قبل الاختيار" — ولم يعد لذلك وجود: كل
+              بطاقة في قسم القوالب تعرض سعر اختيارها هي (سعر الموقع على بطاقة الموقع، وسعر
+              التطبيق على بطاقة التطبيق)، والعقد يستلم سعر الاختيار نفسه. فكان رقماً ثالثاً لا
+              يظهر لأحد ويُطلَب تعديله مع كل تغيير سعر، وأي نسيان يجعله يناقض الاثنين.
+
+              الحقل ما زال يُكتب في قاعدة البيانات — لكن مشتقّاً من سعر الموقع لا مكتوباً
+              باليد: هو القيمة الاحتياطية في resolveVariant لأي مستهلك لم يجد نسخة، وتركه
+              قديماً كان يعني رجوعاً صامتاً إلى سعر مضى. */}
 
           {/* التسعير الفعلي الذي يدخل العقد: "الهاتف" و"الموقع الإلكتروني" برقم ووصف مستقلين
               تماماً — تعديل أحدهما لا يمسّ الآخر. */}
