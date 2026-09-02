@@ -37,6 +37,7 @@ import { RentalApp } from './sandbox/rental/RentalApp';
 import { PhoneFrame } from './sandbox/rental/PhoneFrame';
 import type { RentalCtx } from './sandbox/rental/rentalContext';
 import { RENTAL_UNITS } from '../data/rentalDemoData';
+import { resolveVariant } from '../lib/pricingOverrides';
 
 // Re-exported for callers that reach the palette through the sandbox (TemplateLivePage).
 export type { ThemeColor };
@@ -677,6 +678,15 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
     );
   }
 
+  /* النسخة التي يقف عليها المستخدم الآن، بسعرها ووصفها. مصدر واحد يغذّي الشريط أسفل
+     المعاينة والعقد معاً — فلا يمكن للرقم المعروض أن يختلف عن الرقم الذي يستلمه العقد. */
+  const pricedVariant = resolveVariant(template, mode === 'app' ? 'app' : 'website', '');
+  const pricedTemplate: Template = {
+    ...template,
+    basePriceIQD: pricedVariant.priceIQD,
+    basePriceUSD: pricedVariant.priceUSD,
+  };
+
   const liveHref = (forMode: DemoMode) =>
     `${window.location.pathname}?live=${encodeURIComponent(template.id)}&color=${themeColor}&mode=${forMode}&name=${encodeURIComponent(template.title)}`;
 
@@ -892,10 +902,17 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
 
       {/* Action bar */}
       <div className="py-2.5 px-3 sm:px-6 bg-zinc-950 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0 z-20">
+        {/* سعر ما يراه الآن، لا "سعر القالب" العام.
+            كان يعرض basePriceIQD — الرقم الموحّد — بينما المستخدم واقف على معاينة الموقع أو
+            معاينة التطبيق تحديداً، ولكلٍّ سعره المستقل في لوحة الأسعار. أي أن نفس الاختيار
+            كان يُقرأ برقمين مختلفين حسب الطريق الذي وصل منه: بطاقة القوالب تعرض سعر النسخة،
+            وهذا الشريط يعرض العام. */}
         <div className="text-center sm:text-right">
-          <span className="text-[11px] text-zinc-400">التكلفة الأساسية للقالب: </span>
+          <span className="text-[11px] text-zinc-400">
+            {mode === 'app' ? 'سعر تطبيق الهاتف: ' : 'سعر الموقع الإلكتروني: '}
+          </span>
           <span className="text-sm sm:text-base font-bold text-white font-mono">
-            {price(template.basePriceIQD || 0)}
+            {price(pricedVariant.priceIQD || 0)}
           </span>
         </div>
 
@@ -903,7 +920,9 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
           <button
             onClick={() =>
               onSelectForContract(
-                template,
+                // القالب بسعر النسخة المعروضة، لا بالسعر العام — وإلا فتح العقد برقم لم يره
+                // العميل في أي شاشة.
+                pricedTemplate,
                 buildCustomizationSummary(),
                 THEME_COLOR_HEX[themeColor],
                 // نفس مفتاح الموقع/التطبيق الذي كان العميل ينظر إليه لحظة الطلب — أدق إشارة
