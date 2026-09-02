@@ -25,7 +25,7 @@ if (!getApps().length) {
   app = getApp();
 }
 
-/** يُصدَّر ليستعمله من يحتاج خدمة Firebase أخرى (التخزين مثلاً — lib/contractArchive.ts). */
+/** يُصدَّر ليستعمله من يحتاج خدمة Firebase أخرى من نفس التطبيق. */
 export { app };
 
 // Pass databaseId if provided in config
