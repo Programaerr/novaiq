@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Calendar,
   Layers,
@@ -13,7 +13,6 @@ import { NqButton } from './ui/NqButton';
 import { NqLink } from './ui/NqLink';
 import { useFloatingBarBottom } from '../lib/useFloatingBarBottom';
 import { NuvaiqLogo } from './NuvaiqLogo';
-import { NavCubeFlight, type FlightRect } from './ui/NavCubeFlight';
 // نوع فقط (import type) — يُحذف بالكامل عند الترجمة، لا يسحب Firebase SDK فعلياً وقت التشغيل.
 // من يملك حالة الدخول فعلياً هو App.tsx (useCurrentUser، مطلوبة هناك أصلاً لتوجيه الصفحات)،
 // وهذا الملف يستقبلها كخاصية بدل الاشتراك بنفسه بشكل مكرر — انظر تعليق currentUser أدناه.
@@ -78,50 +77,67 @@ export const Navbar: React.FC<NavbarProps> = ({
   // is opened. The pill is the actual bar, and the drawer is its sibling.
   const barRef = useRef<HTMLDivElement | null>(null);
 
-  /* ── The active pill's crossing ─────────────────────────────────────────────────────────
-     The three nav items are three separate elements, so the pill could never animate: its
-     white fill vanished from one <a> and appeared on another in the same frame, with no
-     shared object in between. `NavCubeFlight` is that object, and these four refs are what
-     let it be told where to start. See that file for why its canvas only exists while it
-     runs. */
+  /* ── الحبّة النشطة: جسم واحد يسيل بين البنود ──────────────────────────────────────
+     البنود الثلاثة عناصر منفصلة، فالتعبئة البيضاء كانت تختفي من واحد وتظهر على آخر في نفس
+     الإطار — لا جسم مشترك بينهما، وهو بالضبط ما يوجد مؤشّر التبويب من أجله.
+
+     الجسم المشترك الآن عنصر DOM واحد يقف خلف النصّ ويتحرّك إليه، لا مشهد ثلاثي الأبعاد.
+     والحركة سائلة بمعنيين: منحنى Apple نفسه (`cubic-bezier(0.32, 0.72, 0, 1)`) الذي يبدأ
+     سريعاً ويستقرّ بلا ارتداد، وتمدّد أفقي لحظي أثناء العبور يجعل الحبّة تُقرأ كقطرة تُشدّ
+     نحو هدفها ثم ترتخي عليه — لا كمستطيل ينتقل.
+
+     وهذا يُلغي آخر سياق WebGL كان يُنشأ لأجل التنقّل: العرض والحركة كلاهما CSS، فلا ترجمة
+     shader ولا تخصيص على بطاقة الرسوميات مقابل نصف ثانية من الحركة. */
   const navStripRef = useRef<HTMLElement | null>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
-  /* The page as of the LAST commit. By the time an effect runs React has already painted
-     the pill onto the new item, so the DOM can no longer answer "where was it before" --
-     it has to be remembered rather than measured. Seeded with the initial page so landing
-     straight on ?page=templates does not fire a flight from nowhere. */
-  const prevPage = useRef(activePage);
-  const [flight, setFlight] = useState<
-    { from: FlightRect; to: FlightRect; width: number; height: number } | null
-  >(null);
+  const [pill, setPill] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  /* أوّل قياس يقع بلا حركة: الحبّة تظهر على البند النشط مباشرة عند فتح الصفحة بدل أن تنزلق
+     إليه من الزاوية. */
+  const [settled, setSettled] = useState(false);
+  const [travelling, setTravelling] = useState(false);
 
-  useLayoutEffect(() => {
-    const was = prevPage.current;
-    prevPage.current = activePage;
-    if (was === activePage) return;
-
-    /* Decorative motion over a long distance is precisely what this setting is for, so it
-       is skipped outright rather than shortened: no canvas, no measurement, the pill just
-       appears where it always did. */
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
+  /** يقيس البند النشط بإحداثيات الشريط نفسه — الشريط `fixed` ويتحرّك مع التمرير، فإحداثيات
+   *  النافذة كانت ستُلاحقه بلا داعٍ. */
+  const measurePill = useCallback(() => {
     const strip = navStripRef.current;
-    const a = linkRefs.current[was];
-    const b = linkRefs.current[activePage];
-    /* Below `lg` the inline nav is not rendered at all (the drawer is), so there is nothing
-       to measure and nothing to fly. */
-    if (!strip || !a || !b) return;
-
-    /* Relative to the strip, not the viewport: the canvas covers the strip, so measuring in
-       its coordinates means the two spaces are the same one. The bar is `fixed` and moves
-       on scroll, which viewport coordinates would have to keep chasing. */
+    const el = linkRefs.current[activePage];
+    // دون `lg` لا يُرسَم شريط التنقّل أصلاً (الدرج بدلاً منه) فلا شيء يُقاس.
+    if (!strip || !el) {
+      setPill(null);
+      return;
+    }
     const s = strip.getBoundingClientRect();
-    const rect = (el: HTMLElement): FlightRect => {
-      const r = el.getBoundingClientRect();
-      return { x: r.x - s.x, y: r.y - s.y, w: r.width, h: r.height };
-    };
-    setFlight({ from: rect(a), to: rect(b), width: s.width, height: s.height });
+    const r = el.getBoundingClientRect();
+    setPill({ x: r.x - s.x, y: r.y - s.y, w: r.width, h: r.height });
   }, [activePage]);
+
+  // القياس بعد الرسم مباشرة: تغيّر الصفحة، وتغيّر اللغة (نصوص البنود تتغيّر فيتغيّر عرضها).
+  useLayoutEffect(measurePill, [measurePill, isAr]);
+
+  // وأي تغيّر في مقاس الشريط: تكبير النافذة، وصول خطّ، أو ظهور/اختفاء زرّ الحساب بجانبه.
+  useEffect(() => {
+    const strip = navStripRef.current;
+    if (!strip) return;
+    const ro = new ResizeObserver(measurePill);
+    ro.observe(strip);
+    return () => ro.disconnect();
+  }, [measurePill]);
+
+  /* نبضة التمدّد: تُشغَّل عند تغيّر الصفحة فقط، وتُطفأ قبل أن تنتهي الحركة بقليل فترتخي
+     الحبّة على هدفها بدل أن تصل ممدودة. متجاهَلة تماماً مع تقليل الحركة — حركة زخرفية عبر
+     مسافة طويلة هي بالضبط ما وُجد ذلك الإعداد لأجله. */
+  useEffect(() => {
+    if (!settled) {
+      setSettled(true);
+      return;
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    setTravelling(true);
+    const id = window.setTimeout(() => setTravelling(false), 300);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePage]);
+
   // مشتقة من خاصية currentUser (انظر تعليقها بالأعلى)، لا من اشتراك خاص بهذا الملف —
   // undefined = لم يُحسم فحص الدخول الأولي بعد، وهذا ما يمنع "Login" من الوميض للحظة قبل أن
   // ينقلب "حسابي" لزائر داخل بالفعل، بالضبط كما كان الاشتراك المحلي القديم يفعل.
@@ -292,14 +308,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="hidden lg:flex items-center gap-2 relative"
             aria-label={isAr ? 'التنقل الرئيسي' : 'Main navigation'}
           >
+            {/* الحبّة أولاً في ترتيب الرسم لتقع خلف النصوص، وz-0 مقابل z-10 عليها. */}
+            {pill && (
+              <span
+                aria-hidden="true"
+                className={`nq-nav-pill${settled ? '' : ' is-instant'}${travelling ? ' is-travelling' : ''}`}
+                style={{
+                  transform: `translate3d(${pill.x}px, ${pill.y}px, 0)`,
+                  width: pill.w,
+                  height: pill.h,
+                }}
+              />
+            )}
+
             {navItems.map((item) => {
               const isActive = activePage === item.id;
-              /* While the cubes are crossing they ARE the pill, so the real one is held back
-                 until they land. Without this there are two pills on screen and the DOM one is
-                 already sitting at the destination before the swarm gets there. The label keeps
-                 its inactive colour for those 420ms and flips with the fill, in the same frame
-                 the cubes are removed. */
-              const wearsPill = isActive && !flight;
               return (
                 <a
                   key={item.id}
@@ -308,19 +331,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }}
                   href={item.href}
                   onClick={(e) => handleNavClick(item.id, e)}
-                  className={`px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    wearsPill
-                      ? 'bg-white text-black shadow-lg'
-                      : 'text-white/90 hover:text-white hover:bg-white/5'
+                  /* لا تعبئة على الرابط نفسه: التعبئة هي الحبّة المتحرّكة خلفه. اللون وحده هو
+                     ما ينقلب، وبتأخير بسيط يجعله ينقلب والحبّة تصل لا قبلها. */
+                  className={`relative z-10 px-3 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap cursor-pointer transition-colors duration-300 ${
+                    isActive ? 'text-black' : 'text-white/90 hover:text-white'
                   }`}
                 >
                   {item.label}
                 </a>
               );
             })}
-            {/* مُثبَّت دائماً ويستقبل الطيران كخاصية: تركيبه عند النقرة كان يعني إنشاء سياق
-                WebGL داخل معالج النقرة نفسه، وهو سبب تجمّد التنقّل. انظر NavCubeFlight.tsx. */}
-            <NavCubeFlight flight={flight} onDone={() => setFlight(null)} />
           </nav>
 
           {/* Account/login — lives in the navigation half on desktop, and moves INSIDE the

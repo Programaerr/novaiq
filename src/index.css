@@ -2001,3 +2001,49 @@ html[data-demo] .nq-navbar {
 @media (prefers-reduced-motion: reduce) {
   .nq-marquee { animation: none; }
 }
+
+/* ── حبّة التنقّل السائلة ─────────────────────────────────────────────────────────────────
+   جسم واحد يقف خلف بنود الشريط وينتقل بينها. كان الانتقال يُرسَم كسرب مكعبات في مشهد
+   ثلاثي الأبعاد — سياق WebGL يُنشأ لأجل نصف ثانية من الحركة — وصار CSS خالصاً.
+
+   السيولة من شيئين معاً:
+   · منحنى Apple نفسه: يبدأ سريعاً ثم يستقرّ بلا ارتداد. الارتداد يُقرأ كزنبرك ميكانيكي،
+     والمطلوب سائل يستقرّ.
+   · تمدّد أفقي لحظي أثناء العبور (`scale: 1.12 1`) يُطفأ قبل نهاية الحركة، فتُقرأ الحبّة
+     كقطرة تُشدّ نحو هدفها ثم ترتخي عليه.
+
+   `scale` كخاصية مستقلّة لا داخل `transform`: الأخيرة يملكها الانتقال الأفقي، وكتابة
+   الاثنين في سلسلة واحدة تجعل أي تحديث لأحدهما يمسح الآخر. */
+.nq-nav-pill {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  border-radius: 0.75rem;
+  background: var(--color-white-warm);
+  box-shadow: 0 10px 15px -3px rgb(8 10 13 / 0.28), 0 4px 6px -4px rgb(8 10 13 / 0.22);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform, width;
+  transition:
+    transform 520ms cubic-bezier(0.32, 0.72, 0, 1),
+    width 520ms cubic-bezier(0.32, 0.72, 0, 1),
+    scale 300ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* أوّل ظهور: تُوضع مكانها بلا انزلاق من الزاوية. */
+.nq-nav-pill.is-instant {
+  transition: none;
+}
+
+.nq-nav-pill.is-travelling {
+  scale: 1.12 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nq-nav-pill {
+    transition: none;
+  }
+  .nq-nav-pill.is-travelling {
+    scale: 1 1;
+  }
+}
