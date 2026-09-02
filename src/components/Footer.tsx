@@ -118,6 +118,26 @@ const FooterLink: React.FC<FooterLinkProps> = ({ label, onClick, href }) => (
  * Every colour in this file is `--ft-fg` (marks) or `--ft-bg` (ground) at some opacity, written
  * once in PAPER_VARS, so re-toning the whole footer is one object rather than thirty class names.
  */
+/**
+ * السهم داخل دائرة.
+ *
+ * كان سهماً عارياً بحجم 14 بكسل يقف على تعبئة الزرّ مباشرة: على الأرضية البرتقالية للزرّ
+ * الممتلئ، وعلى أرضية الفوتر نفسها في الزرّ الشفّاف — وفي الحالتين لا حدّ له يفصله عمّا خلفه،
+ * فيقرأه النظر كجزء من النصّ لا كعلامة اتجاه.
+ *
+ * الدائرة تجعله جسماً قائماً بذاته. ولونها من `currentColor` لا من قيمة مكتوبة: الزرّان
+ * لهما أرضيتان مختلفتان ونصّان مختلفان، وأي لون ثابت هنا كان سيصحّ على واحد ويخفت على الآخر —
+ * أمّا لون النصّ نفسه فمقيس التباين أصلاً على كليهما.
+ */
+const ArrowBadge: React.FC<{ up?: boolean }> = ({ up = false }) => (
+  <span
+    aria-hidden="true"
+    className="inline-grid place-items-center w-7 h-7 rounded-full shrink-0 bg-current/15 ring-1 ring-current/35"
+  >
+    <Arrow className={`w-3.5 h-3.5 ${up ? '-rotate-90' : ''}`} strokeWidth={2.6} />
+  </span>
+);
+
 export const Footer: React.FC<FooterProps> = ({
   language = 'ar',
   onNavigate,
@@ -307,7 +327,7 @@ export const Footer: React.FC<FooterProps> = ({
                   size="md"
                   onClick={onRequestProject ?? (() => go('custom-request')())}
                   className="nq-label mt-4 tracking-[0.12em] uppercase sm:text-base uw:text-lg"
-                  trailing={<Arrow className="w-3.5 h-3.5" strokeWidth={2.6} />}
+                  trailing={<ArrowBadge />}
                 >
                   {isAr ? 'اطلب مشروعك' : 'Request a project'}
                 </NqButton>
@@ -328,7 +348,7 @@ export const Footer: React.FC<FooterProps> = ({
             size="sm"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="nq-label -me-4 tracking-[0.18em] uppercase sm:text-sm uw:text-base"
-            trailing={<Arrow className="w-3.5 h-3.5 -rotate-90" strokeWidth={2.6} />}
+            trailing={<ArrowBadge up />}
           >
             {isAr ? 'العودة للأعلى' : 'Back to top'}
           </NqButton>
