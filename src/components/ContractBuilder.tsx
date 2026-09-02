@@ -294,66 +294,82 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     return null;
   })();
 
-  // Everything that must be true before the contract can be submitted at all. Kept as one
-  // expression so the disabled button and handleSubmit's guards cannot disagree about what
-  // "ready" means.
-  const canSubmit = hasSignature && agreedToTerms && isValidIraqiPhone(phone);
+  /* ما ينقص العقد، محسوباً في مكان واحد.
+   *
+   * كانت الفحوص مكتوبة ثلاث مرات: في زرّ "الخطوة التالية"، وفي handleSubmit، وفي شرط تعطيل زرّ
+   * الإتمام — ثلاث نسخ لنفس القاعدة، وأي شرط يُضاف لواحدة ينسى في الأخريين، فيصير زرّ مفعَّل
+   * يرفض العمل عند الضغط، أو خطوة تُقفل على نقص لا يقوله أحد. القائمة أدناه هي المصدر الوحيد:
+   * منها يعرف الزرّ متى يُعطَّل، ومنها تُبنى الرسالة، ومنها يُعرف إلى أي خطوة يُنقَل المستخدم.
+   *
+   * وكل عنصر يحمل خطوته واسم حقله وعبارته: الخطوة تنقل المستخدم إلى مكان النقص، واسم الحقل
+   * يلوّنه بالأحمر، والعبارة تقول ما هو بالضبط بدل "أكمل الحقول الناقصة". */
+  type MissingItem = { step: number; field: string; label: string };
+
+  const missingItems: MissingItem[] = [];
+  if (!companyName.trim()) {
+    missingItems.push({ step: 1, field: 'companyName', label: isAr ? 'اسم الشركة' : 'Company name' });
+  }
+  if (!repName.trim()) {
+    missingItems.push({ step: 1, field: 'repName', label: isAr ? 'اسم المخوَّل بالتوقيع' : 'Authorised signatory' });
+  }
+  if (!phone.trim()) {
+    missingItems.push({ step: 1, field: 'phone', label: isAr ? 'رقم الهاتف' : 'Phone number' });
+  } else if (!isValidIraqiPhone(phone)) {
+    missingItems.push({
+      step: 1,
+      field: 'phone',
+      label: isAr ? 'رقم هاتف صحيح (يبدأ بـ07 و11 رقماً)' : 'A valid phone (starts with 07, 11 digits)',
+    });
+  }
+  if (isCustomProject && !customProjectName.trim()) {
+    missingItems.push({ step: 2, field: 'customProjectName', label: isAr ? 'اسم مشروعك' : 'Your project name' });
+  }
+  if (isCustomProject && !customFeaturesText.trim()) {
+    missingItems.push({ step: 2, field: 'customDescription', label: isAr ? 'وصف المشروع' : 'Project description' });
+  }
+  /* لون واحد على الأقل. ليس تشدّداً شكلياً: الألوان تُطبع في العقد وتُنفَّذ حرفياً في التصميم
+     (انظر ContractPrintDocument)، فعقد بلا لون واحد يعني اتفاقاً على هوية بصرية لم يُتفق عليها
+     — والنتيجة جولة تعديل كاملة بعد التسليم على شيء كان سؤالاً واحداً قبله. */
+  if (!primaryColor) {
+    missingItems.push({ step: 2, field: 'primaryColor', label: isAr ? 'اللون الأساسي' : 'The primary colour' });
+  }
+  if (!agreedToTerms) {
+    missingItems.push({ step: 3, field: 'agreedToTerms', label: isAr ? 'الموافقة على بنود العقد' : 'Accepting the contract terms' });
+  }
+  if (!hasSignature) {
+    missingItems.push({ step: 3, field: 'signature', label: isAr ? 'توقيعك' : 'Your signature' });
+  }
+
+  const missingForStep = (step: number) => missingItems.filter((m) => m.step === step);
+  const canSubmit = missingItems.length === 0;
+
+  /** يعرض النقص: يلوّن الحقول، ينتقل إلى خطوته، ويقول ما هو بالاسم. */
+  const announceMissing = (items: MissingItem[]) => {
+    if (items.length === 0) return;
+    setFieldErrors(new Set(items.map((m) => m.field)));
+    const list = items.map((m) => m.label).join(isAr ? ' · ' : ' · ');
+    showToast(
+      isAr ? `ينقص العقد: ${list}` : `Still missing: ${list}`,
+      'error'
+    );
+    const firstStep = Math.min(...items.map((m) => m.step));
+    if (firstStep !== currentStep) setCurrentStep(firstStep);
+    if (items.some((m) => m.field === 'signature')) {
+      setSignatureMissing(true);
+      requestAnimationFrame(() => {
+        signaturePadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  };
 
   const handleSubmitContract = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const missing = new Set<string>();
-    if (!companyName) missing.add('companyName');
-    if (!repName) missing.add('repName');
-    if (!phone) missing.add('phone');
-
-    if (missing.size > 0) {
-      setFieldErrors(missing);
-      showToast(
-        isAr ? 'يرجى إكمال بيانات شركتك في الخطوة الأولى (الحقول الناقصة محدّدة بالأحمر)' : 'Please complete the required company details in step 1 (highlighted in red)',
-        'error'
-      );
-      setCurrentStep(1);
-      return;
-    }
-
-    if (!isValidIraqiPhone(phone)) {
-      setFieldErrors(new Set(['phone']));
-      showToast(
-        isAr ? 'رقم الهاتف يجب أن يبدأ بـ 07 ويتكوّن من 11 رقماً' : 'Invalid Iraqi phone number format. Must start with 07 and be 11 digits.',
-        'error'
-      );
-      setCurrentStep(1);
-      return;
-    }
-
-    if (isCustomProject && (!customProjectName.trim() || !customFeaturesText.trim())) {
-      const missingCustom = new Set<string>();
-      if (!customProjectName.trim()) missingCustom.add('customProjectName');
-      if (!customFeaturesText.trim()) missingCustom.add('customDescription');
-      setFieldErrors(missingCustom);
-      showToast(
-        isAr ? 'يرجى تسمية مشروعك ووصفه في الخطوة الثانية (الحقول الناقصة محدّدة بالأحمر)' : 'Please name and describe your project in detail in step 2 (highlighted in red)',
-        'error'
-      );
-      setCurrentStep(2);
-      return;
-    }
-
-    if (!agreedToTerms) {
-      showToast(isAr ? 'يرجى الموافقة على بنود العقد أولاً' : 'Please accept the terms and conditions', 'error');
-      return;
-    }
-
-    if (!hasSignature) {
-      // Take the user straight to the pad and highlight it, rather than popping an alert
-      // that has to be dismissed before they can act on it.
-      setCurrentStep(3);
-      setSignatureMissing(true);
-      showToast(isAr ? 'التوقيع مطلوب لإتمام العقد' : 'A signature is required to complete the contract', 'error');
-      requestAnimationFrame(() => {
-        signaturePadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
+    /* فحص واحد لكل الخطوات، لا سلسلة فحوص تتوقف عند أول نقص.
+       السلسلة القديمة كانت تقول "أكمل الخطوة الأولى"، فيُكملها المستخدم ويضغط فيُقال له "أكمل
+       الثانية" — ثلاث رحلات لمعرفة ما كان يمكن قوله مرة واحدة. */
+    if (missingItems.length > 0) {
+      announceMissing(missingItems);
       return;
     }
 
@@ -1205,45 +1221,13 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 size="sm"
                 radius="xl"
                 onClick={() => {
-                  if (currentStep === 1) {
-                    const missing = new Set<string>();
-                    if (!companyName) missing.add('companyName');
-                    if (!repName) missing.add('repName');
-                    if (!phone) missing.add('phone');
-                    if (missing.size > 0) {
-                      setFieldErrors(missing);
-                      showToast(
-                        isAr ? 'يرجى إكمال البيانات الأساسية أولاً (الحقول الناقصة محدّدة بالأحمر)' : 'Please complete the required basic info first (highlighted in red)',
-                        'error'
-                      );
-                      return;
-                    }
-                    // A present-but-wrong number was let through here and only rejected at
-                    // submit, three steps later — by which point the field that caused it is
-                    // off-screen. Caught on the step that owns it instead.
-                    if (!isValidIraqiPhone(phone)) {
-                      setFieldErrors(new Set(['phone']));
-                      showToast(
-                        isAr ? 'رقم الهاتف يجب أن يبدأ بـ 07 ويتكوّن من 11 رقماً' : 'The phone number must start with 07 and be 11 digits',
-                        'error'
-                      );
-                      return;
-                    }
-                  }
-                  if (currentStep === 2 && isCustomProject && (!customProjectName.trim() || !customFeaturesText.trim())) {
-                    const missingCustom = new Set<string>();
-                    if (!customProjectName.trim()) missingCustom.add('customProjectName');
-                    if (!customFeaturesText.trim()) missingCustom.add('customDescription');
-                    setFieldErrors(missingCustom);
-                    showToast(
-                      isAr ? 'يرجى تسمية مشروعك ووصفه أولاً (الحقول الناقصة محدّدة بالأحمر)' : 'Please name and describe your project first (highlighted in red)',
-                      'error'
-                    );
+                  // نفس القائمة، مقصورة على الخطوة الحالية — فلا يقفز أحد فوق نقص ثم يُفاجأ به
+                  // في النهاية، ولا يُمنع من التقدّم بسبب نقص في خطوة لم يصل إليها بعد.
+                  const missingHere = missingForStep(currentStep);
+                  if (missingHere.length > 0) {
+                    announceMissing(missingHere);
                     return;
                   }
-                  // خطوة اكتملت فعلاً (بعد اجتياز كل تحققات هذه الخطوة) — هذا ما يكشف أين
-                  // بالضبط يتوقف الزبائن داخل العقد بدل معرفة "دخل ولم يكمل" فقط.
-                  trackEvent('contract_step_completed', { step: currentStep, project_type: projectType });
                   setCurrentStep(currentStep + 1);
                   cosmicAudio.playPing();
                 }}
