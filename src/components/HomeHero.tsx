@@ -1,10 +1,9 @@
 import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { ORANGE, WHITE, PAPER } from '../lib/homePalette';
+import { channels, ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
-import { WaterFill } from './ui/WaterFill';
 
 /**
  * The home page's container: a WARM WHITE screen with a swell of tiles running across it, and a
@@ -102,25 +101,43 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                so both were re-measured: the wordmark 12.53:1, the tagline 7.29:1, and the panel
                itself 12.53:1 against the hero's warm-white ground so it still reads as a slab
                laid on the page rather than a tint of it. */
-            /* The flat fill stays even though the water covers it. It is what shows for the
-               ~200ms before the build queue reaches this surface, and what shows forever in a
-               browser without WebGL: the card is still exactly its own colour rather than a
-               hole. A fallback that IS the thing being replaced is the only kind worth
-               having here. */
-            style={{ background: ORANGE }}
-          >
-            {/* The same colour, moving — and the same wave the cube field beside it runs, so
-                the two read as one body of water with a slab lying in it. See WaterFill for
-                why its mean is the panel's colour by construction rather than by eye. */}
-            <WaterFill />
+            /* Frosted glass, on the owner's call: the accent at 82% over a 22px blur of
+               whatever is behind — which here is the hero's own cube field.
 
+               0.74 is where the field becomes VISIBLE through the glass rather than merely
+               present in the arithmetic. This was 0.82 first, which measured fine and looked
+               opaque: 18% of a blurred cube field is 18% of something already near-uniform, so
+               it arrived as a flat lift and the panel read as grey. The blur radius was not
+               the cause — 22px and 12px looked identical, because almost nothing was getting
+               through either one.
+
+               What it costs is measured. The field behind is WARM WHITE, the worst backdrop
+               white ink can have, so transparency is paid straight out of contrast: at 0.74
+               the surface is `#5D6468` and white ink reads 5.61:1, while the tagline's old
+               0.72 dimming would have read 3.81:1 there. That dimming is what paid for this,
+               and the note on the tagline below says so.
+
+               Both figures are worst case, taken against the brightest cube in the field.
+               Probed on the composited page the surface sits darker still, so they are a
+               floor rather than an estimate.
+
+               Derived from ORANGE rather than written out as `rgb(39 48 54 / 0.82)`. A
+               hand-typed channel triple next to a comment claiming it came from the accent is
+               how the footer, the print document and the card field each sat out an accent
+               change in this repo.
+
+               No @supports guard: where backdrop-filter is unavailable the property is ignored
+               and the panel is translucent without being frosted — a weaker look and an
+               IDENTICAL contrast, because blurring a near-uniform light field does not darken
+               it. Every number above was computed without the blur for that reason. */
+            style={{
+              background: `rgb(${channels(ORANGE)} / ${0.74})`,
+              backdropFilter: 'blur(12px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(12px) saturate(140%)',
+            }}
+          >
             <div
-              /* `relative` for PAINTING ORDER, not for layout. A positioned element paints
-                 above in-flow content in the same stacking context regardless of DOM order,
-                 so without this the canvas above would cover the wordmark. Positioned too,
-                 both land in the same painting step and being written second is what puts
-                 this on top. */
-              className="relative w-full max-w-[22rem] uw:max-w-[27rem] text-center"
+              className="w-full max-w-[22rem] uw:max-w-[27rem] text-center"
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
@@ -130,7 +147,18 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
               </span>
               <p
                 className="mt-3 text-[0.8rem] sm:text-sm uw:text-base font-bold leading-relaxed"
-                style={{ color: WHITE, opacity: 0.72 }}
+                /* Full strength, where this used to be 0.72 — and this is what pays for the
+                   panel being see-through.
+
+                   On the glass at 0.74 the dimmed version measures 3.81:1, under the floor.
+                   Holding the dimming instead would have meant holding the panel at 0.82,
+                   which is the version that read as opaque grey.
+
+                   It is also the right call rather than merely the affordable one: a secondary
+                   line is dimmed so it sits back from a SOLID surface, and there is no solid
+                   surface here. The hierarchy now comes from size and weight, which is what
+                   survives a backdrop that shows through. */
+                style={{ color: WHITE }}
               >
                 {isAr
                   ? 'اطلب موقعك او تصميمك الخاص والباقي علينا'

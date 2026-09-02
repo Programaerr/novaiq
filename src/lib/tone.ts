@@ -34,36 +34,6 @@ export function shadeColor(hex: string, amt: number): string {
   return toHex(mix(r), mix(g), mix(b));
 }
 
-/**
- * Step `hex` darker (`amt < 0`) or lighter (`amt > 0`) by `amt` of LIGHT, not of sRGB.
- *
- * `shadeColor` above steps in sRGB, which is the right thing for a surface a designer picks by
- * eye. This is for the other case: a pair of tones that a SHADER will mix between, where the
- * result has to average back to the colour they were derived from.
- *
- * Those are not the same operation, and assuming they were is a real bug that this function
- * exists because of. `shadeColor('#273036', -0.30)` and `shadeColor('#273036', +0.26)` look
- * symmetric and are not: three converts uniforms to linear light on the way in, mixes there, and
- * the linear midpoint of that pair is `#474D51` — a visibly lighter, greyer slab than the
- * `#273036` it was supposed to still be. sRGB is a curve, and this palette is dark, which is
- * exactly where that curve is steepest.
- *
- * `amt` is in linear units, so it is much smaller than an sRGB one: `#273036` is only about 0.03
- * of the way up in linear light, and 0.018 is already a generous swell either side of it.
- */
-export function shadeLinear(hex: string, amt: number): string {
-  const toLin = (c: number) => {
-    const s = c / 255;
-    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
-  };
-  const toSrgb = (v: number) => {
-    const c = Math.min(1, Math.max(0, v));
-    return (c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055) * 255;
-  };
-  const [r, g, b] = parse(hex).map((c) => toSrgb(toLin(c) + amt));
-  return toHex(r, g, b);
-}
-
 /** Straight linear mix of two colours, `t` from 0 (all `a`) to 1 (all `b`). */
 export function mixColor(a: string, b: string, t: number): string {
   const [ar, ag, ab] = parse(a);
