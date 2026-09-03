@@ -767,7 +767,8 @@ function ContractRow({
                       يجوز أن يظهر في شريط المراحل ولا في إحصاءات التقدّم. لكنه حالة كاملة تُختار
                       هنا — والعقد يبقى في السجل بتواقيعه ومحتواه، لأن حذفه كان سيمحو دليل ما جرى. */}
                   <option value="cancelled">{isAr ? 'ملغي' : 'Cancelled'}</option>
-              </select>
+                </select>
+              )}
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
