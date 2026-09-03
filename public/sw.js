@@ -10,7 +10,10 @@
    and this worker doesn't need to know them at build time. Bump `CACHE_VERSION` to force old
    caches to be purged after a deploy. */
 
-const CACHE_VERSION = 'nuvaiq-v2';
+/* v3: علامة NUVAIQ صارت WebP بدل PNG. الاسم مبنيّ على المحتوى فلا شيء يطلب الملف
+   القديم بعد اليوم — لكنه يبقى محفوظاً في ذاكرة كل زائر سابق (105KB ميتة) حتى
+   يُرفَع هذا الرقم، فيُمسح الكاش القديم كلّه عند أوّل زيارة بعد النشر. */
+const CACHE_VERSION = 'nuvaiq-v3';
 const CACHE = CACHE_VERSION;
 const SHELL = '/index.html';
 
