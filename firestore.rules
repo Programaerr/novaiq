@@ -39,6 +39,12 @@ service cloud.firestore {
           (!('uid' in resource.data) && resource.data.email.lower() == request.auth.token.email.lower())
         );
       }
+
+      // مرّة يُكتب توقيع حقيقي، يبقى كما هو إلى الأبد — لا فحص "من يكتب" هنا، بل على القيمة
+      // نفسها فقط، فلا يقدر حتى حساب الأدمن الكتابة فوق توقيع موجود، بالخطأ أو بالتلاعب.
+      function signatureIsLocked() {
+        return ('signatureDataUrl' in resource.data) && resource.data.signatureDataUrl != '';
+      }
       // ليس لدى Firestore تحكّم بمستوى الحقل: "create" إما كله أو لا شيء، فقاعدة تتحقق فقط
       // من الملكية تسمح لعميل مسجّل دخول بأن يعطينا عقداً يحمل أصلاً توقيعنا المضاد، أو
       // حالة معتمَدة، أو رصيداً مدفوعاً، أو ملاحظة أدمن. كل حقل أدناه يُكتب حصراً من
@@ -65,6 +71,12 @@ service cloud.firestore {
           && d.phone is string && d.phone.size() > 0 && d.phone.size() < 40
           && d.templateTitle is string && d.templateTitle.size() < 400
           && d.customFeaturesText is string && d.customFeaturesText.size() < 20000
+          // عقد بحالة 'submitted' معناه موقَّع فعلاً — الواجهة (ContractBuilder.tsx) لا تسمح
+          // بالإرسال بلا توقيع ولا بلا موافقة على البنود، لكن ذلك منع في الواجهة وحدها؛ هذا
+          // يمنعه على الخادم أيضاً، فلا يقدر أحد يكتب من الكونسول عقداً "مُرسَلاً" بلا توقيع
+          // حقيقي عليه. السقف (200KB) سخي لصورة توقيع من لوحة رسم صغيرة، ويمنع بلوباً ضخماً.
+          && d.signatureDataUrl is string && d.signatureDataUrl.size() > 0 && d.signatureDataUrl.size() < 200000
+          && d.agreedToTerms == true
           // موقع إلكتروني أو تطبيق هاتف حصراً. مكتوبة كـ"إن وُجد" لأن عقداً أنشأه متصفح
           // يحمل نسخة قديمة من الكود (قبل وجود الحقل) يجب أن يبقى قابلاً للإنشاء.
           && (!('projectType' in d) || d.projectType in ['website', 'app'])
@@ -117,12 +129,50 @@ service cloud.firestore {
           && resource.data.status != 'cancelled';
       }
 
+      /* الاستثناء الثاني: عقد أنشأه الأدمن نيابةً عن زبون لا يعرف كيف يفتح الموقع (حالة
+       * "وقّعه لاحقاً من حسابه" — أنشأه الأدمن بـstatus:'draft' وتوقيع فارغ، بلا uid، ليطابقه
+       * الزبون ببريده حين يسجّل دخوله فعلاً؛ انظر ownsContract() أعلاه). صاحب العقد يقدر
+       * يوقّعه بنفسه بعدها، بنفس قيود "لا شيء آخر يتغيّر" التي يخضع لها طلب الإلغاء:
+       *  · العقد يجب أن يكون 'draft' أصلاً — لا يقدر "يوقّع" عقداً تجاوز هذه المرحلة أو
+       *    وُقِّع من قبل، مهما كانت حالته الحالية.
+       *  · `!signatureIsLocked()` — نفس قفل التوقيع أعلاه، هنا أيضاً: لا كتابة فوق توقيع
+       *    موجود، ولو كان العقد لا يزال 'draft' لأي سبب.
+       *  · `affectedKeys().hasOnly(...)` — لا يقدر يغيّر السعر أو الوصف أو أي حقل آخر ملأه
+       *    الأدمن نيابة عنه؛ التوقيع فقط.
+       *  · uid يُسمح بإضافته مرّة واحدة (ربط العقد بحسابه الفعلي أول مرة يوقّع)، ولا يقدر
+       *    ادّعاء عقد بربطه بـuid غير uid حسابه هو.
+       */
+      function customerSignsPendingContract() {
+        let d = request.resource.data;
+        let changed = d.diff(resource.data).affectedKeys();
+        return ownsContract()
+          && resource.data.status == 'draft'
+          && !signatureIsLocked()
+          && changed.hasOnly(['signatureDataUrl', 'signatureInk', 'agreedToTerms', 'termsViewedAt', 'status', 'uid', 'updatedAt'])
+          && d.status == 'submitted'
+          && d.agreedToTerms == true
+          && d.signatureDataUrl is string && d.signatureDataUrl.size() > 0 && d.signatureDataUrl.size() < 200000
+          && d.termsViewedAt is string
+          && (!('uid' in resource.data)
+              ? (!('uid' in d) || d.uid == request.auth.uid)
+              : d.uid == resource.data.uid);
+      }
+
+      // نفس قفل التوقيع أعلاه، لكن من جهة الأدمن: يقدر يعدّل أي حقل آخر بحرّية كما كان دائماً،
+      // لكن لا يقدر الكتابة فوق توقيع موجود فعلاً — لا بالخطأ ولا عمداً. القيمة يجب أن تبقى
+      // كما هي بالضبط إن كانت مقفلة أصلاً؛ حذفها أو تغييرها مرفوض بنفس القدر.
+      function adminUpdateHonoursSignatureLock() {
+        return !signatureIsLocked() || request.resource.data.signatureDataUrl == resource.data.signatureDataUrl;
+      }
+
       allow read: if isAdmin() || ownsContract();
       allow create: if isAdmin() ||
         (request.auth != null
           && request.resource.data.uid == request.auth.uid
           && customerCreateIsClean());
-      allow update: if isAdmin() || (ownsContract() && cancellationRequestOnly());
+      allow update: if (isAdmin() && adminUpdateHonoursSignatureLock())
+        || (ownsContract() && cancellationRequestOnly())
+        || customerSignsPendingContract();
       allow delete: if isAdmin();
     }
 
