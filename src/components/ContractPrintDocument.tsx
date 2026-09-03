@@ -619,45 +619,46 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           {/* Section 4 */}
           <div style={{ marginBottom: 14 }}>
             <SectionTitle>{t.s4}</SectionTitle>
-            {/* الترقيم مبنيّ يدوياً برقم + نص، لا بـ`list-style-type` على `<ol>` (جُرِّب وظهر
-                بلا أرقام تحت html2canvas) ولا بـ`flexDirection: row-reverse` (جُرِّب بعده
-                وظهر الرقم يسار السطر بالعربية — لأن `flex-direction: row` يتبع أصلاً اتجاه
-                `direction` الموروث من `dir="rtl"` فيصير يميناً-ليساراً بنفسه، وrow-reverse
-                يقلبه مرّتين فيعود يساراً).
+            {/* الترقيم بـflexbox جُرِّب مرّتين وأخطأ الجهة مرّتين: `list-style-type` بلا أرقام
+                إطلاقاً تحت html2canvas، ثم `flexDirection` (سواء 'row' أو 'row-reverse') غير
+                موثوق أصلاً هنا — لأن معنى 'row' نفسه يعتمد على `direction`، وما إذا كانت
+                html2canvas تحسبه بنفس قاعدة المتصفح الحيّ (يتبع `direction`) أو لا (يبقى
+                يساراً-يميناً دائماً) غير مضمون؛ جرّبنا الفرضيتين وكلتاهما أعطت نفس الخطأ.
 
-                الحل الآن لا يعتمد على تفسير html2canvas لـ`direction` إطلاقاً: `flexDirection`
-                ثابتة دائماً 'row' (أول عنصر أقصى اليسار فعلياً، بلا أي قراءة اتجاه)، والترتيب
-                نفسه — أيّ span يُكتب أوّلاً في الـJSX — هو ما يتغيّر حسب اللغة. بالعربية النص
-                أولاً (فيقع يساراً) والرقم ثانياً (فيقع يميناً، حيث يبدأ السطر عربياً)؛
-                بالإنجليزية العكس. توضّع فيزيائي صريح لا تفسير مزدوج لخاصية واحدة. */}
+                الحل الآن لا يستعمل flex ولا أي خاصية "تفهم" الاتجاه إطلاقاً: `right`/`left`
+                فيزيائيتان صريحتان (لا `insetInlineStart`)، بالضبط نفس النمط المُثبَت في هذا
+                الملف كله (`textAlign: isAr ? 'right' : 'left'`) ولم يُبلَّغ عنه خطأ قط. الرقم
+                `position: absolute` على حافة السطر الصحيحة، ونص البند يُزاح عنه بـpadding على
+                نفس الجهة — يشمل كل الأسطر الملتفّة لا أوّلها فقط (خلافاً لـtext-indent). */}
             <ol style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-              {terms.map((term, i) => {
-                const number = (
-                  <span style={{ fontSize: 10, color: '#080A0D', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
-                );
-                const text = (
-                  <span style={{ fontSize: 10, color: '#080A0D', lineHeight: 1.45, flex: 1 }}>{term}</span>
-                );
-                return (
-                  <li
-                    key={i}
-                    data-pdf-keep
-                    style={{ display: 'flex', flexDirection: 'row', gap: 6, marginBottom: 3 }}
+              {terms.map((term, i) => (
+                <li key={i} data-pdf-keep style={{ position: 'relative', marginBottom: 3 }}>
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      [isAr ? 'right' : 'left']: 0,
+                      fontSize: 10,
+                      color: '#080A0D',
+                      fontWeight: 700,
+                    }}
                   >
-                    {isAr ? (
-                      <>
-                        {text}
-                        {number}
-                      </>
-                    ) : (
-                      <>
-                        {number}
-                        {text}
-                      </>
-                    )}
-                  </li>
-                );
-              })}
+                    {i + 1}.
+                  </span>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 10,
+                      color: '#080A0D',
+                      lineHeight: 1.45,
+                      textAlign: isAr ? 'right' : 'left',
+                      [isAr ? 'paddingRight' : 'paddingLeft']: 18,
+                    }}
+                  >
+                    {term}
+                  </p>
+                </li>
+              ))}
             </ol>
           </div>
 
