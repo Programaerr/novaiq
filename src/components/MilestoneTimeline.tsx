@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { OBSIDIAN, PAPER_DEEP, WHITE } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { ProjectCtaButton } from './ProjectCtaButton';
 
 interface MilestoneTimelineProps {
@@ -184,15 +184,23 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                         </h3>
                         <span
                           className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0"
-                          /* PAPER_DEEP, not ORANGE. An Orange chip here would fight the one
-                             signal colour this whole page already carries at full strength —
-                             Orange is reserved for things being pressed or pointed at, not
-                             passive icon chrome, and a second orange note next to the first
-                             dilutes both. PAPER_DEEP is a light neutral grey, so it reads as its
-                             own chip against the panel's dark glass regardless of what that glass
-                             is tinted; Obsidian on it measures 14.30:1, unchanged since the chip's
-                             own contrast never depended on the panel's ground. */
-                          style={{ background: PAPER_DEEP, color: OBSIDIAN }}
+                          /* ORANGE_ON_DARK, matching the icon tile on the templates cards — the
+                             owner asked for the two to be the same chip, and they are the same
+                             thing: a light square holding a dark glyph on dark glass.
+
+                             This was PAPER_DEEP, and the note that put it there argued against
+                             ORANGE specifically — that a second orange note beside the page's one
+                             signal colour dilutes both. That argument is now moot rather than
+                             overruled: the accent is , a dark slate, and ORANGE_ON_DARK
+                             is its LIGHT twin . Nothing orange is being added here.
+
+                             Measured on the panel's new glass ( over the brightest cube
+                             behind it): the Obsidian glyph reads 12.39:1 on the chip, and the
+                             chip itself 6.69:1 against the panel. Both are a little lower than
+                             PAPER_DEEP's 14.30:1 and 7.72:1, and both are far clear of any floor;
+                             what is bought is that the two sections stop using two different
+                             greys for one idea. */
+                          style={{ background: ORANGE_ON_DARK, color: OBSIDIAN }}
                           aria-hidden="true"
                         >
                           <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.9} />
