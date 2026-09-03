@@ -90,6 +90,17 @@ export default defineConfig(({ mode }) => {
 
       rollupOptions: {
         output: {
+          /* دمج الحزم الصغيرة جداً تلقائياً — لا تعداد يدوي لكل مكوّن.
+             `React.lazy` هنا كثيرة (AdminPage، LoginPage، PolicyPage، ClientsStrip...)، وكل
+             واحد منها يُنتج ملف JS خاصاً به مهما صغر محتواه — بعضها كان أقل من 1 كيلوبايت.
+             تكلفة طلب HTTP إضافي (اتصال، ترويسات، جولة ذهاب وإياب) تتجاوز غالباً حجم ملف
+             بهذا الصغر، فملف منفصل له خسارة صافية لا فائدة عزل حقيقية.
+
+             `experimentalMinChunkSize` يدمج أي حزمة أصغر من هذا السقف في حزمة مجاورة تستدعيها
+             تلقائياً — يعمل على مستوى كل حزم Rollup الناتجة عن `import()`، فلا يحتاج تحديثاً
+             يدوياً كلما أُضيف مكوّن كسول جديد. السقف صغير عمداً (5 كيلوبايت): كل الحزم
+             المُقسَّمة يدوياً في manualChunks أدناه (vendor-*) أكبر منه بأضعاف، فلا يمسّها. */
+          experimentalMinChunkSize: 5000,
           /* أسماء ملفات مبهمة لحزم التطبيق.
              كانت تُبنى بأسماء مكوّناتها: AdminPage، LoginPage، ContractBuilderGate،
              ContractPrintDocument، TemplateInteractiveSandbox… أي أن قائمة الملفات في
