@@ -1069,27 +1069,33 @@
    headline on patterned ground. So the default here is OPAQUE, and the frost is the enhancement
    layered on top where the browser can actually do it — the same order the navbar uses.
 
-   `#202224` is not a chosen colour. It is `mix(SURFACE_LIGHT, OBSIDIAN, 0.9)` — 90% of the
-   brand's dark neutral over the section's own white ground, computed the same way the live
+   `#3D454A` is not a chosen colour. It is `mix(SURFACE_LIGHT, SLATE, 0.90)` — 90% of the
+   brand's accent slate over the section's own white ground, computed the same way the live
    `@supports` version below composites at runtime. Using it as the fallback means a browser
    without backdrop-filter gets the same colour, minus the softness.
+
+   The tint is SLATE (`#273036`) on the owner's call, where this was OBSIDIAN — and that swap
+   moves the FLOOR, not just the hue. SLATE is a far lighter dark, so the same alpha buys much
+   less ink. Opening it to 0.78, where the Obsidian version sat, puts this card's WEAKEST ink —
+   its 0.62 label — at 3.56:1 and fails it outright. Measured against the brightest cube behind
+   it, SLATE's floor is 0.88, where that label is 4.51:1. 0.90 is one step in from that knife
+   edge: the surface lands on `#3C4449`, where the 0.62 label reads 4.71:1 and WHITE 9.26:1.
+   The see-through the owner asked for is carried by the 8px blur on the card itself, not by the
+   last two points of alpha — at 40px the blur averaged the cube grid away and no alpha could
+   have shown it.
 
    Worth writing down because the intuition keeps being wrong here, five identities running: this
    constant has been a cool lavender over periwinkle, a pale blue-grey over Cobalt Deep, a flat
    grey over Obsidian, a warm peach over Orange, and is DARK now — the third client pass moves the
    flat section back to white and asks for black confined to secondary text, and this card is
-   where that confined black lives. 90% Obsidian composited over the section's own white ground
-   reads `#202224`; WHITE text on it measures 15.96:1. Translucent-over-dark rather than
-   translucent-over-light, so browsers that get the real blur see dark glass instead of light. */
+   where that confined black lives. Translucent-over-dark rather than translucent-over-light, so
+   browsers that get the real blur see dark glass instead of light. */
 .nq-card-glass {
-  /* SLATE (#273036) باختيار المالك، بدل مركّب Obsidian السابق (#202224).
-     والاحتياطي هنا هو ما يُركِّب إليه الزجاج فعلاً فوق أرضية القسم البيضاء عند 0.92 — لا
-     اللون الصافي: متصفّح بلا backdrop-filter يجب أن يرى نفس السطح لا سطحاً أغمق منه. */
-  background: #384045;
+  background: #3D454A;
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nq-card-glass {
-    background: rgba(39, 48, 54, 0.92);
+    background: rgba(39, 48, 54, 0.9);
   }
 }
 

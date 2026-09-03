@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { OBSIDIAN, PAPER_DEEP, WHITE } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { ProjectCtaButton } from './ProjectCtaButton';
 
 interface MilestoneTimelineProps {
@@ -128,16 +128,26 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
               and Orange were both bright grounds, so the panel stayed light and its marks dark
               ink. The third pass moves the flat ground itself to WARM WHITE and asks for black to
               be confined to where secondary things are written — so this panel is where the
-              brief's black actually lives: 90% Obsidian composited over the white ground reads
-              `#202224` (the same composite the templates grid's own cards use), and WHITE text
-              on it measures 15.96:1. */}
+              brief's black actually lives.
+
+              SLATE at 90% now, where this was 90% Obsidian, and an 8px blur where it was
+              `backdrop-blur-2xl` (40px). The blur change stays exactly as it came: 40px averages
+              a regular cube grid away entirely, so the 10% of field that used to come through
+              arrived as a flat lift and the panel read as a dark card rather than as glass. At
+              8px the field is visible through it, which is what "glass over the field" was always
+              claiming to be.
+
+              The tint is the owner's `#273036`, and it is why the ALPHA did not follow the blur
+              down to 0.78 the way the templates card's first draft did. SLATE is a much lighter
+              dark than Obsidian, so it buys much less ink at the same alpha: at 0.78 these 0.70
+              step numbers fall to 4.08:1, and the templates card's 0.62 label — the same glass,
+              so the same floor — to 3.56:1, which fails. 0.90 is the honest setting for this
+              colour: over the brightest cube behind it the surface is `#3C4449`, where WHITE
+              reads 9.26:1 and these step numbers 5.49:1. */}
           <div
-            className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/10 backdrop-blur-2xl"
+            className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/10 backdrop-blur-[8px]"
             style={{
-              /* نفس زجاج بطاقتَي القوالب: SLATE شفّافاً فوق أرضية القسم، مع الضبابية التي
-                 يحملها الصنف أعلاه (backdrop-blur-2xl) — فتُقرأ الثلاثة كسطح واحد في الموقع
-                 لا كثلاثة أسطح متقاربة. */
-              background: 'rgba(39, 48, 54, 0.92)',
+              background: 'rgba(39, 48, 54, 0.9)',
               /* A clear drop shadow so the panel reads as floating above the cube field rather
                  than sitting flat on it — the field is busy, and without the shadow the two
                  planes fight for the same depth. */
@@ -176,15 +186,23 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                         </h3>
                         <span
                           className="grid place-items-center w-11 h-11 sm:w-12 sm:h-12 rounded-xl shrink-0"
-                          /* PAPER_DEEP, not ORANGE. An Orange chip here would fight the one
-                             signal colour this whole page already carries at full strength —
-                             Orange is reserved for things being pressed or pointed at, not
-                             passive icon chrome, and a second orange note next to the first
-                             dilutes both. PAPER_DEEP is a light neutral grey, so it reads as its
-                             own chip against the panel's dark glass regardless of what that glass
-                             is tinted; Obsidian on it measures 14.30:1, unchanged since the chip's
-                             own contrast never depended on the panel's ground. */
-                          style={{ background: PAPER_DEEP, color: OBSIDIAN }}
+                          /* ORANGE_ON_DARK, matching the icon tile on the templates cards — the
+                             owner asked for the two to be the same chip, and they are the same
+                             thing: a light square holding a dark glyph on dark glass.
+
+                             This was PAPER_DEEP, and the note that put it there argued against
+                             ORANGE specifically — that a second orange note beside the page's one
+                             signal colour dilutes both. That argument is now moot rather than
+                             overruled: the accent is `#273036`, a dark slate, and ORANGE_ON_DARK
+                             is its LIGHT twin `#C4CED4`. Nothing orange is being added here.
+
+                             Measured on the panel's new glass (`#3C4449` over the brightest cube
+                             behind it): the Obsidian glyph reads 12.39:1 on the chip, and the
+                             chip itself 6.21:1 against the panel. Both are a little lower than
+                             PAPER_DEEP's 14.30:1 and 7.16:1, and both are far clear of any floor;
+                             what is bought is that the two sections stop using two different
+                             greys for one idea. */
+                          style={{ background: ORANGE_ON_DARK, color: OBSIDIAN }}
                           aria-hidden="true"
                         >
                           <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.9} />
