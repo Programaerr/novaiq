@@ -22,9 +22,10 @@ import {
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { deleteContractFromFirebase, updateContractFields, fetchContractAudit, auth } from '../../lib/firebase';
+import { deleteContractFromFirebase, updateContractFields, fetchContractAudit, saveContractToFirebase, auth } from '../../lib/firebase';
 import { generateContractPDF } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
+import { ContractBuilder } from '../ContractBuilder';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { ERROR_ON_LIGHT } from '../../lib/homePalette';
@@ -50,6 +51,40 @@ export function ContractsTab({
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ContractData['status']>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // نافذة "عقد جديد لزبون" — انظر التعليق فوق الزرّ أدناه لماذا هي مسار مختلف عن نموذج
+  // الموقع العام (ContractBuilderGate) لا نفس المسار.
+  const [creatingForClient, setCreatingForClient] = useState(false);
+  const [savingNewContract, setSavingNewContract] = useState(false);
+
+  const handleAdminContractGenerated = async (contract: ContractData) => {
+    setSavingNewContract(true);
+    try {
+      await saveContractToFirebase(contract);
+      showToast(
+        contract.status === 'draft'
+          ? isAr
+            ? 'تم حفظ العقد — سيجده الزبون في حسابه ليوقّعه'
+            : 'Contract saved — the client will find it in their account to sign'
+          : isAr
+            ? 'تم إنشاء العقد وتوقيعه'
+            : 'Contract created and signed',
+        'success'
+      );
+      // لا صوت هنا: ContractBuilder.tsx يُصدره أصلاً (cosmicAudio.playWarp) لحظة الضغط على
+      // زرّ الإنشاء، قبل أن يصل إلى هذه الدالّة — تشغيله مرّة ثانية يكرّره بلا فائدة.
+      setCreatingForClient(false);
+      // لا تحديث محلّي للقائمة: onSnapshot في AdminDashboard يوصل العقد الجديد تلقائياً
+      // خلال أجزاء من الثانية — نفس مصدر الحقيقة الوحيد المعتمد في كل الموقع.
+    } catch (e) {
+      console.error('Failed to save admin-created contract:', e);
+      showToast(
+        isAr ? 'تعذر حفظ العقد. تحقّق من الإنترنت وحاول مجدداً' : 'Could not save the contract. Check your connection and try again',
+        'error'
+      );
+    } finally {
+      setSavingNewContract(false);
+    }
+  };
 
   const filtered = contracts.filter((c) => {
     const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
@@ -86,12 +121,31 @@ export function ContractsTab({
           className="px-4 py-2.5 rounded-xl bg-paper border border-ink/10 text-ink text-xs font-bold cursor-pointer"
         >
           <option value="all">{isAr ? 'كل الحالات' : 'All Statuses'}</option>
+          {/* 'draft' مكتوبة يدوياً هنا خارج STATUS_FLOW عمداً: تلك القائمة تصف مراحل عقد
+              قيد التنفيذ (submitted → ... → completed) ويُستعمَل نفسها لأزرار "الحالة
+              التالية" في بطاقة العقد، حيث لا معنى لظهور 'draft' كوجهة يُنقَل إليها عقد قائم.
+              هنا هي مجرد فلتر عرض، وإخفاؤها كان يعني أن الأدمن لا يقدر يفرز "العقود بانتظار
+              توقيع الزبون" عن الباقي رغم أنها موجودة فعلاً في القائمة غير المفلترة. */}
+          <option value="draft">{isAr ? 'مسودة — بانتظار توقيع الزبون' : 'Draft — awaiting client signature'}</option>
           {STATUS_FLOW.map((s) => (
             <option key={s} value={s}>
               {translateText(statusArabic(s), language)}
             </option>
           ))}
         </select>
+        {/* عقد ينشئه الأدمن نيابةً عن زبون لا يعرف كيف يفتح الموقع أو غير حاضر الآن.
+            ليس نفس مسار الموقع العام (ContractBuilderGate خلف تسجيل دخول العميل) — هنا الأدمن
+            نفسه يملأ بيانات الزبون، ويقدر يترك التوقيع فارغاً فيُحفظ العقد 'draft' ليجده
+            الزبون في حسابه لاحقاً ويوقّعه بنفسه (انظر adminCreatingForClient في
+            ContractBuilder.tsx وfirestore.rules: customerSignsPendingContract). */}
+        <button
+          type="button"
+          onClick={() => setCreatingForClient(true)}
+          className="shrink-0 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-ink text-white text-xs font-bold cursor-pointer hover:opacity-90 transition-opacity"
+        >
+          <Plus className="w-4 h-4" />
+          {isAr ? 'عقد جديد لزبون' : 'New contract for client'}
+        </button>
       </div>
 
       {filtered.length === 0 ? (
@@ -112,6 +166,40 @@ export function ContractsTab({
               onToggle={() => setExpandedId((prev) => (prev === (c.id || c.contractNumber) ? null : c.id || c.contractNumber || null))}
             />
           ))}
+        </div>
+      )}
+
+      {/* نافذة "عقد جديد لزبون" — ContractBuilder نفسه بوضع adminCreatingForClient، بلا
+          selectedTemplate (مشروع مخصَّص: السعر يُضبط لاحقاً من بطاقة العقد، كما في كل مشروع
+          مخصَّص آخر). أرضية بيضاء ثابتة لأن ContractBuilder مبنيّ على افتراض أنه يجلس على
+          أرضية القسم الفاتحة (انظر تعليقه الخاص)، لا على `bg-paper` الرمادي المائل للوحة
+          التحكم — التبايت هنا مقصود: هذه نافذة عمل منفصلة عن سياق اللوحة، لا امتداد له. */}
+      {creatingForClient && (
+        <div
+          data-lenis-prevent
+          className="nq-scroll-dark fixed inset-0 z-50 overflow-y-auto bg-white"
+        >
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-white border-b border-ink/10">
+            <span className="text-sm font-bold text-ink">
+              {isAr ? 'عقد جديد لزبون' : 'New contract for client'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCreatingForClient(false)}
+              disabled={savingNewContract}
+              aria-label={isAr ? 'إغلاق' : 'Close'}
+              className="w-9 h-9 rounded-xl bg-paper border border-ink/10 flex items-center justify-center text-ink cursor-pointer hover:opacity-80 disabled:opacity-50"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <ContractBuilder
+            selectedTemplate={null}
+            onContractGenerated={handleAdminContractGenerated}
+            language={language}
+            currency={currency}
+            adminCreatingForClient
+          />
         </div>
       )}
     </div>
@@ -655,20 +743,30 @@ function ContractRow({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">{isAr ? 'حالة العقد' : 'Contract Status'}</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as ContractData['status'])}
-                className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs font-bold cursor-pointer"
-              >
-                {STATUS_FLOW.map((s) => (
-                  <option key={s} value={s}>
-                    {translateText(statusArabic(s), language)}
-                  </option>
-                ))}
-                {/* خارج STATUS_FLOW عمداً: الإلغاء ليس مرحلة في مسار التنفيذ بل خروج منه، فلا
-                    يجوز أن يظهر في شريط المراحل ولا في إحصاءات التقدّم. لكنه حالة كاملة تُختار
-                    هنا — والعقد يبقى في السجل بتواقيعه ومحتواه، لأن حذفه كان سيمحو دليل ما جرى. */}
-                <option value="cancelled">{isAr ? 'ملغي' : 'Cancelled'}</option>
+              {/* عقد 'draft' (أنشأه الأدمن نيابةً عن زبون غائب، بلا توقيع — انظر
+                  adminCreatingForClient) لا قائمة اختيار له هنا، بل ملاحظة ثابتة. قاعدة
+                  Firestore (adminDoesNotAdvanceUnsignedDraft) ترفض أصلاً أي محاولة لترقيته
+                  إلى حالة حقيقية بلا توقيع معها في نفس الكتابة — فقائمة تعرض "تقديم/مراجعة/
+                  تنفيذ" كأنها خيارات متاحة كانت تَعِد الأدمن بحفظ سيُرفَض صامتاً. */}
+              {contract.status === 'draft' ? (
+                <div className="w-full px-3 py-2.5 rounded-xl bg-white/40 border border-dashed border-ink/15 text-ink/60 text-xs font-bold">
+                  {isAr ? 'مسودة — بانتظار توقيع الزبون' : 'Draft — awaiting client signature'}
+                </div>
+              ) : (
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as ContractData['status'])}
+                  className="w-full px-3 py-2.5 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs font-bold cursor-pointer"
+                >
+                  {STATUS_FLOW.map((s) => (
+                    <option key={s} value={s}>
+                      {translateText(statusArabic(s), language)}
+                    </option>
+                  ))}
+                  {/* خارج STATUS_FLOW عمداً: الإلغاء ليس مرحلة في مسار التنفيذ بل خروج منه، فلا
+                      يجوز أن يظهر في شريط المراحل ولا في إحصاءات التقدّم. لكنه حالة كاملة تُختار
+                      هنا — والعقد يبقى في السجل بتواقيعه ومحتواه، لأن حذفه كان سيمحو دليل ما جرى. */}
+                  <option value="cancelled">{isAr ? 'ملغي' : 'Cancelled'}</option>
               </select>
             </div>
             <div>

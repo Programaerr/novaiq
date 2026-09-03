@@ -108,7 +108,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   // Restored once on mount (not re-read on every render) — whatever the customer last
   // typed here, so a refresh or accidental navigation away doesn't mean starting over.
-  const [draft] = useState(() => loadContractDraft());
+  //
+  // لا يُقرأ في وضع الأدمن: المفتاح المحلّي مشترك للمتصفح كله (نفس المفتاح لأي زائر لاحق على
+  // نفس الجهاز)، وقراءته هنا كانت تملأ نموذج الأدمن ببيانات آخر زبون بدأ عقده على هذا الجهاز.
+  const [draft] = useState(() => (adminCreatingForClient ? null : loadContractDraft()));
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [template, setTemplate] = useState<Template>(selectedTemplate || templatesData[0]);
@@ -306,7 +309,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // Mirrors every field into localStorage as the customer types, so the draft survives a
   // refresh or an accidental navigation away. Cleared only once a contract is actually
   // submitted (see handleSubmitContract).
+  //
+  // نفس السبب أعلاه بالضبط، بالاتجاه المعاكس: عقد الزبون الذي يملأه الأدمن الآن لا يُكتب على
+  // هذا المفتاح المشترك — لأن أوّل زائر عادي يفتح الموقع على هذا الجهاز بعدها كان سيجد شركة
+  // ذلك الزبون معبَّأة في نموذجه هو.
   useEffect(() => {
+    if (adminCreatingForClient) return;
     saveContractDraft({
       companyName,
       crNumber,

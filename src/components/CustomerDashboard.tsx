@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink, XCircle, Loader2, FileText, ChevronDown, ArrowRight, ArrowLeft} from 'lucide-react';
+import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink, XCircle, Loader2, FileText, ChevronDown, ArrowRight, ArrowLeft, AlertCircle, RotateCcw, PenLine } from 'lucide-react';
 import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
-import { subscribeToMyContracts, requestContractCancellation } from '../lib/firebase';
+import { subscribeToMyContracts, requestContractCancellation, signPendingContract } from '../lib/firebase';
 import { fetchContractSnapshot } from '../lib/contractSnapshot';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
@@ -12,10 +12,11 @@ import { ConnectedContractPrintDocument } from './ContractPrintDocument';
 import { ContractDetailsPanel } from './ContractDetailsPanel';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';
 import { showToast } from '../lib/toast';
-import { ERROR_ON_LIGHT } from '../lib/homePalette';
+import { ERROR_ON_LIGHT, SUCCESS_ON_LIGHT } from '../lib/homePalette';
 import { sumPayments } from '../lib/payments';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { contractTerms } from '../data/contractTerms';
+import { useSignaturePad } from '../lib/useSignaturePad';
 import { STAGE_COLORS } from '../lib/statusColors';
 import { contractProgress, safeExternalUrl } from '../lib/contractProgress';
 import { NqButton } from './ui/NqButton';
@@ -293,6 +294,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, 
               isAr={isAr}
               language={language}
               currency={currency}
+              uid={user.uid}
               expanded={expandedId === (c.id || c.contractNumber)}
               onToggle={() => setExpandedId((prev) => (prev === (c.id || c.contractNumber) ? null : c.id || c.contractNumber || null))}
             />
@@ -308,6 +310,7 @@ function CustomerContractRow({
   isAr,
   language,
   currency,
+  uid,
   expanded,
   onToggle,
 }: {
@@ -315,6 +318,9 @@ function CustomerContractRow({
   isAr: boolean;
   language: Language;
   currency: Currency;
+  /** حساب صاحب الحساب — يُكتب على العقد لحظة التوقيع فقط إن لم يكن مكتوباً عليه أصلاً
+   *  (انظر handleSignPending أدناه وfirestore.rules: customerSignsPendingContract). */
+  uid: string;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -327,6 +333,64 @@ function CustomerContractRow({
      ومدّته ودفعاته، وقائمة بنود مفتوحة فوق ذلك كله كانت تدفن كل ما عداها. تبقى في مكانها
      بزرّها، فيفتحها صاحبها متى شاء. */
   const [termsOpen, setTermsOpen] = useState(false);
+
+  /* عقد أنشأه الأدمن نيابةً عن هذا الزبون ('draft'، بلا توقيع — انظر ContractBuilder.tsx
+   * وContractsTab.tsx: adminCreatingForClient). هنا، وهنا فقط، تصير قراءة البنود والتوقيع
+   * فعلاً تفاعليَّين بدل عرض للقراءة وحدها — بنفس قوانين نموذج الإنشاء العادي بالضبط، بلا أي
+   * تخطٍّ: لا موافقة قبل فتح البنود، ولا حفظ قبل توقيع حقيقي. الفرق الوحيد أن صاحب هذا العقد
+   * يوقّعه من حسابه هو لا من نموذج إنشاء جديد. */
+  const isPendingSignature = contract.status === 'draft';
+  const [pendingTermsViewedAt, setPendingTermsViewedAt] = useState<string | null>(null);
+  const [pendingAgreedToTerms, setPendingAgreedToTerms] = useState(false);
+  const [signatureMissing, setSignatureMissing] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
+  const {
+    canvasRef: signatureCanvasRef,
+    hasSignature,
+    startDrawing,
+    draw,
+    stopDrawing,
+    clear: clearSignature,
+    getDataUrl: getSignatureDataUrl,
+  } = useSignaturePad({ onStrokeStart: () => setSignatureMissing(false) });
+
+  const openPendingTerms = () => {
+    setTermsOpen(true);
+    if (!pendingTermsViewedAt) setPendingTermsViewedAt(new Date().toISOString());
+  };
+
+  const handleSignPending = async () => {
+    if (isSigning) return;
+    if (!pendingTermsViewedAt || !pendingAgreedToTerms) {
+      openPendingTerms();
+      showToast(
+        isAr ? 'افتح البنود واقرأها ووافق عليها أولاً' : 'Open the terms, read them, and agree first',
+        'error'
+      );
+      return;
+    }
+    const signatureDataUrl = getSignatureDataUrl();
+    if (!signatureDataUrl) {
+      setSignatureMissing(true);
+      showToast(isAr ? 'التوقيع مطلوب' : 'A signature is required', 'error');
+      return;
+    }
+    setIsSigning(true);
+    try {
+      await signPendingContract(contract, signatureDataUrl, uid);
+      showToast(isAr ? 'تم توقيع العقد بنجاح' : 'Contract signed successfully', 'success');
+      // لا حاجة لتحديث محلّي: onSnapshot في CustomerDashboard يوصل حالة 'submitted' الجديدة
+      // تلقائياً، فتختفي لوحة التوقيع هذه من تلقاء نفسها لأن isPendingSignature تصير false.
+    } catch (e) {
+      console.error('Failed to sign pending contract:', e);
+      showToast(
+        isAr ? 'تعذر حفظ التوقيع. تحقّق من الإنترنت وحاول مجدداً' : 'Could not save the signature. Check your connection and try again',
+        'error'
+      );
+    } finally {
+      setIsSigning(false);
+    }
+  };
 
   useEffect(() => {
     if (!contract.snapshotHash) return;
@@ -362,8 +426,10 @@ function CustomerContractRow({
   const [cancelSending, setCancelSending] = useState(false);
   const alreadyRequested = !!contract.cancellationRequestedAt;
   const isCancelled = contract.status === 'cancelled';
+  // 'draft' مستثناة أيضاً: عقد لم يُوقَّع بعد لا معنى لطلب "إلغائه" — الفعل المتاح لصاحبه هو
+  // ببساطة ألّا يوقّعه، لا أن يطلب إلغاء التزام لم يلتزم به أصلاً.
   const canRequestCancellation =
-    !alreadyRequested && !isCancelled && paidAmountIQD <= 0 && contract.status !== 'completed';
+    !alreadyRequested && !isCancelled && !isPendingSignature && paidAmountIQD <= 0 && contract.status !== 'completed';
 
   const submitCancellation = async () => {
     if (cancelSending) return;
@@ -439,6 +505,24 @@ function CustomerContractRow({
 
       {expanded && (
         <div className="p-4 pt-0 space-y-4 border-t border-ink/10 animate-fade-in">
+          {/* أهم سطر في هذه البطاقة لعقد كهذا — قبل تاريخ الإنشاء وقبل شريط المراحل. عقد
+              أنشأه الأدمن نيابةً عن هذا الزبون، ولا قيمة قانونية له قبل أن يوقّعه صاحبه؛
+              الشارة الرمادية "مسودة" أعلى البطاقة لا تكفي وحدها لتوصيل هذا، فالسطر يقوله
+              صراحة ويشير إلى مكان الفعل (لوحة البنود والتوقيع أسفل الصفحة). */}
+          {isPendingSignature && (
+            <div className="p-3 rounded-xl border text-xs" style={{ background: `${ERROR_ON_LIGHT}0d`, borderColor: `${ERROR_ON_LIGHT}40` }}>
+              <span className="font-bold flex items-center gap-1.5 mb-1" style={{ color: ERROR_ON_LIGHT }}>
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                {isAr ? 'هذا العقد بانتظار توقيعك' : 'This contract is awaiting your signature'}
+              </span>
+              <p className="text-ink/75 leading-relaxed">
+                {isAr
+                  ? 'راجع تفاصيل عقدك أدناه، ثم افتح البنود واقرأها ووقّع في الأسفل — عقدك لا يصبح سارياً قبل ذلك.'
+                  : "Review your contract details below, then open the terms, read them, and sign further down — your contract isn't in force until you do."}
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-4">
             <div className="flex items-center gap-1.5 text-ink/80">
               <Clock className="w-3.5 h-3.5 shrink-0" />
@@ -565,7 +649,7 @@ function CustomerContractRow({
               <div className="rounded-xl bg-white/70 border border-ink/10 overflow-hidden">
                 <button
                   type="button"
-                  onClick={() => setTermsOpen((open) => !open)}
+                  onClick={() => (isPendingSignature ? (termsOpen ? setTermsOpen(false) : openPendingTerms()) : setTermsOpen((open) => !open))}
                   aria-expanded={termsOpen}
                   className="w-full flex items-center justify-between gap-3 p-3 text-start cursor-pointer hover:bg-white/50 transition-colors"
                 >
@@ -579,6 +663,15 @@ function CustomerContractRow({
                         {isAr ? '— كما جُمِّدت يوم الاعتماد' : '— frozen on approval'}
                       </span>
                     )}
+                    {isPendingSignature && (
+                      pendingTermsViewedAt ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" style={{ color: SUCCESS_ON_LIGHT }} />
+                      ) : (
+                        <span className="text-[11px] font-bold shrink-0" style={{ color: ERROR_ON_LIGHT }}>
+                          {isAr ? '— اقرأها لتوقّع' : '— read to sign'}
+                        </span>
+                      )
+                    )}
                   </span>
                   <ChevronDown
                     className={`w-4 h-4 text-ink/80 shrink-0 transition-transform duration-200 ${termsOpen ? 'rotate-180' : ''}`}
@@ -586,17 +679,103 @@ function CustomerContractRow({
                 </button>
 
                 {termsOpen && (
-                  <ol className="px-3 pb-3 space-y-2.5 list-decimal list-inside text-xs">
-                    {shownTerms.map((term, i) => (
-                      <li key={i} className="text-ink/90 leading-relaxed">
-                        {term}
-                      </li>
-                    ))}
-                  </ol>
+                  <>
+                    <ol className="px-3 pb-3 space-y-2.5 list-decimal list-inside text-xs">
+                      {shownTerms.map((term, i) => (
+                        <li key={i} className="text-ink/90 leading-relaxed">
+                          {term}
+                        </li>
+                      ))}
+                    </ol>
+
+                    {/* الموافقة معطَّلة قبل فتح البنود — نفس قاعدة نموذج الإنشاء بالضبط
+                        (ContractBuilder.tsx)، وهنا محقَّقة أصلاً لأن هذا الصندوق كله لا يُرسم
+                        قبل termsOpen، والذي لا يصير true بدون openPendingTerms(). */}
+                    {isPendingSignature && (
+                      <label className="flex items-center gap-2 px-3 pb-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={pendingAgreedToTerms}
+                          onChange={(e) => setPendingAgreedToTerms(e.target.checked)}
+                          className="w-4 h-4 rounded border-ink/30 cursor-pointer"
+                        />
+                        <span className="text-xs font-bold text-ink">
+                          {isAr ? 'أوافق على بنود العقد أعلاه' : 'I agree to the contract terms above'}
+                        </span>
+                      </label>
+                    )}
+                  </>
                 )}
               </div>
             );
           })()}
+
+          {/* لوحة توقيع الزبون — تظهر فقط لعقد أنشأه الأدمن نيابةً عنه وما زال بلا توقيع.
+              نفس لوحة الرسم ونفس منطق الحبر الداكن المستعملَين في نموذج الإنشاء
+              (lib/useSignaturePad.ts)، فتوقيعه هنا يُطبع في وثيقته بلا أي فرق. */}
+          {isPendingSignature && (
+            <div className="p-3 rounded-xl bg-white/70 border border-ink/10 text-xs space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-ink/75">{isAr ? 'توقيعك' : 'Your signature'}</span>
+                <button
+                  type="button"
+                  onClick={clearSignature}
+                  className="flex items-center gap-1 text-[11px] text-ink/60 hover:text-ink cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>{isAr ? 'مسح' : 'Clear'}</span>
+                </button>
+              </div>
+
+              <div
+                className={`relative rounded-xl overflow-hidden border-2 border-dashed bg-white transition-colors ${
+                  signatureMissing ? 'ring-2' : ''
+                }`}
+                style={{ borderColor: signatureMissing ? ERROR_ON_LIGHT : 'rgba(0,0,0,0.15)' }}
+              >
+                <canvas
+                  ref={signatureCanvasRef}
+                  width={700}
+                  height={140}
+                  onMouseDown={startDrawing}
+                  onMouseMove={draw}
+                  onMouseUp={stopDrawing}
+                  onMouseLeave={stopDrawing}
+                  onTouchStart={startDrawing}
+                  onTouchMove={draw}
+                  onTouchEnd={stopDrawing}
+                  className="w-full h-32 cursor-crosshair touch-none"
+                />
+                {!hasSignature && (
+                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-ink/40 text-xs font-semibold">
+                    {isAr ? '[ ارسم توقيعك هنا ]' : '[ Draw your signature here ]'}
+                  </div>
+                )}
+              </div>
+
+              {hasSignature ? (
+                <p className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: SUCCESS_ON_LIGHT }}>
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>{isAr ? 'تم التوقيع' : 'Signed'}</span>
+                </p>
+              ) : (
+                <p className="text-[11px] text-ink/60 flex items-center gap-1.5">
+                  <PenLine className="w-3.5 h-3.5 shrink-0" />
+                  <span>{isAr ? 'التوقيع مطلوب لإتمام العقد.' : 'A signature is required to complete the contract.'}</span>
+                </p>
+              )}
+
+              <button
+                type="button"
+                onClick={handleSignPending}
+                disabled={isSigning}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-ink text-white text-xs font-bold cursor-pointer disabled:opacity-60"
+              >
+                {isSigning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileCheck className="w-3.5 h-3.5" />}
+                {isSigning ? (isAr ? 'جارِ الحفظ...' : 'Saving...') : (isAr ? 'توقيع وتأكيد العقد' : 'Sign and confirm the contract')}
+              </button>
+            </div>
+          )}
 
           {contract.adminNotes && (
             <div className="p-3 rounded-xl bg-amber-100/80 border border-amber-300/40 text-xs">

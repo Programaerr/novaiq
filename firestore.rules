@@ -165,12 +165,23 @@ service cloud.firestore {
         return !signatureIsLocked() || request.resource.data.signatureDataUrl == resource.data.signatureDataUrl;
       }
 
+      // عقد 'draft' لا يقدر الأدمن نفسه يُخرجه من 'draft' إلا بتوقيع حقيقي معه في نفس الكتابة
+      // (الزبون حاضر أمامه فعلاً ووقّع). بدون هذا كانت لوحة "حالة العقد" (select عادي، لا
+      // يفرّق بين عقد موقَّع وآخر لا يزال مسودّة) تسمح بترقية عقد لم يوقّعه أحد إلى 'submitted'
+      // بضغطة، فيتقدّم في خط الإنتاج بلا أي توقيع عليه إطلاقاً — بالضبط ما صُمِّم هذا النظام
+      // كله لمنعه. تعديل باقي الحقول (السعر، الوصف...) بينما يبقى 'draft' كما هو يبقى حراً.
+      function adminDoesNotAdvanceUnsignedDraft() {
+        return resource.data.status != 'draft'
+          || request.resource.data.status == 'draft'
+          || (request.resource.data.signatureDataUrl is string && request.resource.data.signatureDataUrl.size() > 0);
+      }
+
       allow read: if isAdmin() || ownsContract();
       allow create: if isAdmin() ||
         (request.auth != null
           && request.resource.data.uid == request.auth.uid
           && customerCreateIsClean());
-      allow update: if (isAdmin() && adminUpdateHonoursSignatureLock())
+      allow update: if (isAdmin() && adminUpdateHonoursSignatureLock() && adminDoesNotAdvanceUnsignedDraft())
         || (ownsContract() && cancellationRequestOnly())
         || customerSignsPendingContract();
       allow delete: if isAdmin();

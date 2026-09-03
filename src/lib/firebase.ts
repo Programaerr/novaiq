@@ -104,6 +104,47 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
   return docRef.id;
 }
 
+/**
+ * الزبون يوقّع عقداً أنشأه الأدمن نيابةً عنه ('draft'، بلا توقيع — انظر ContractBuilder.tsx
+ * وADMIN's ContractsTab.tsx). حصراً هذه الحقول، لا شيء آخر — تماماً ما تسمح به
+ * `customerSignsPendingContract()` في firestore.rules، فرفضها الخادم يعني خللاً هنا لا هناك.
+ *
+ * `updateDoc` لا `setDoc(merge)` عمداً: هذه الكتابة يجب أن تستهدف مستنداً موجوداً فعلاً
+ * (المسودّة التي أنشأها الأدمن)؛ توقيع عقد غير موجود أصلاً خطأ يجب أن يُرمى لا أن يُصمَت عنه
+ * بإنشاء مستند جديد ناقص.
+ */
+export async function signPendingContract(
+  contract: Pick<ContractData, 'id' | 'contractNumber' | 'uid'>,
+  signatureDataUrl: string,
+  currentUid: string
+): Promise<void> {
+  const docId = (contract.contractNumber || '').trim() || (contract.id || '').trim();
+  if (!docId) {
+    throw new Error('Cannot sign a contract with neither a contract number nor an id');
+  }
+  if (!signatureDataUrl) {
+    throw new Error('Cannot sign a contract without a signature');
+  }
+
+  const payload: Record<string, unknown> = {
+    signatureDataUrl,
+    // حبر داكن دائماً — نفس ما ترسمه useSignaturePad.ts، ونفس ما تفترضه ContractPrintDocument
+    // لعرضه بلا قلب ألوان.
+    signatureInk: 'dark',
+    agreedToTerms: true,
+    termsViewedAt: new Date().toISOString(),
+    status: 'submitted',
+    updatedAt: new Date().toISOString(),
+  };
+  // uid يُضاف فقط إن لم يكن موجوداً أصلاً على العقد — أول مرة يربط الزبون حسابه الفعلي بعقد
+  // كان يطابقه ببريده وحده. القاعدة ترفض تغييره لو كان موجوداً أصلاً.
+  if (!contract.uid) {
+    payload.uid = currentUid;
+  }
+
+  await updateDoc(doc(db, CONTRACTS_COLLECTION, docId), payload);
+}
+
 export async function updateContractFields(
   contract: Pick<ContractData, 'id' | 'contractNumber' | 'developmentStartedAt'>,
   fields: Partial<Pick<ContractData, 'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'companySignatureInk' | 'costIQD' | 'paymentStatus' | 'paidAmountIQD' | 'payments' | 'installmentsPlanned' | 'previewUrl' | 'deliveryTimelineWeeks' | 'deliveryTimelineText' | 'paymentPlan' | 'cancellationRequestedAt' | 'cancellationReason' | 'snapshotHash' | 'snapshotAt'>>
