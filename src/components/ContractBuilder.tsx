@@ -44,6 +44,17 @@ interface ContractBuilderProps {
   initialProjectType?: 'website' | 'app';
   accountEmail?: string | null;
   accountUid?: string | null;
+  /** الأدمن يُنشئ هذا العقد نيابةً عن زبون غائب عن الشاشة، لا العميل نفسه.
+   *
+   *  يفتح ثلاثة استثناءات معاً، ولا واحد منها يصل إلى مستخدم عادي أبداً — لأن هذه القيمة
+   *  لا تُمرَّر إلا من داخل ContractsTab.tsx (لوحة الأدمن)، لا من أي مسار عام في الموقع:
+   *   · بريد الزبون يصبح حقلاً يكتبه الأدمن بدل أن يُؤخَذ من حساب الأدمن الموقّع دخوله.
+   *   · التوقيع والبنود يخرجان من "الناقص المانع للإرسال" — العقد يُحفظ بلا توقيع، بحالة
+   *     'draft'، ليجده الزبون في حسابه لاحقاً ويوقّعه هو بنفسه بنفس القوانين الكاملة
+   *     (انظر CustomerDashboard.tsx وfirestore.rules: customerSignsPendingContract).
+   *   · uid لا يُكتب من حساب الأدمن — لو كُتب لَربَط العقدَ بحساب الأدمن نفسه، فلا يظهر
+   *     للزبون في "عقودي" أبداً (المطابقة هناك تعتمد البريد حين لا يوجد uid). */
+  adminCreatingForClient?: boolean;
 }
 
 /**
@@ -86,6 +97,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   initialProjectType,
   accountEmail,
   accountUid,
+  adminCreatingForClient = false,
 }) => {
   const lang: Language = language;
   const isAr = lang === 'ar';
@@ -123,8 +135,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [repName, setRepName] = useState(draft?.repName || '');
   /* بريد الحساب الموقّع أولاً، لا بريد المسودة: من فتح النموذج بحساب ثم سجّل دخوله بحساب آخر
      كانت مسودته تُبقي البريد القديم، فيُنشأ عقد ببريد لا يخصّ صاحب الحساب — وقاعدة Firestore
-     الآن ترفض ذلك صراحةً (firestore.rules)، فكانت النتيجة فشل حفظ صامت. */
-  const [email] = useState(accountEmail || draft?.email || '');
+     الآن ترفض ذلك صراحةً (firestore.rules)، فكانت النتيجة فشل حفظ صامت.
+
+     الاستثناء الوحيد: الأدمن ينشئ العقد نيابةً عن زبون، فبريد الحساب هو بريد الأدمن نفسه لا
+     بريد الزبون — والقاعدة هناك لا تفرض تطابقهما أصلاً (branch الأدمن في allow create). لذلك
+     وحده تصير setEmail مستعملة فعلاً؛ في المسار العادي يبقى الحقل كما كان دائماً. */
+  const [email, setEmail] = useState(accountEmail || draft?.email || '');
   const [phone, setPhone] = useState(draft?.phone || '');
   const city = draft?.city || 'بغداد';
   const [fieldErrors, setFieldErrors] = useState<Set<string>>(new Set());
@@ -381,6 +397,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   }
   if (!repName.trim()) {
     missingItems.push({ step: 1, field: 'repName', label: isAr ? 'اسم المخوَّل بالتوقيع' : 'Authorised signatory' });
+  }
+  if (adminCreatingForClient && !email.trim()) {
+    missingItems.push({ step: 1, field: 'email', label: isAr ? 'بريد الزبون الإلكتروني' : "Client's email" });
   }
   if (!phone.trim()) {
     missingItems.push({ step: 1, field: 'phone', label: isAr ? 'رقم الهاتف' : 'Phone number' });
@@ -760,6 +779,35 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-sm transition-colors ${errorInputClass('repName')}`}
                   />
                 </div>
+
+                {/* بريد الزبون — يظهر فقط حين يملأ الأدمن هذا النموذج نيابةً عنه؛ في المسار
+                    العادي يُؤخَذ البريد من حساب العميل الموقّع دخوله بلا أي حقل مرئي (أعلاه).
+                    هذا هو ما يربط العقد بالزبون لاحقاً حين يسجّل دخوله بنفسه ليوقّعه: المطابقة
+                    في subscribeToMyContracts/firestore.rules تعتمد هذا البريد بالضبط. */}
+                {adminCreatingForClient && (
+                  <div>
+                    <label className="block text-sm font-semibold text-white/85 mb-2">
+                      {isAr ? 'بريد الزبون الإلكتروني' : "Client's email"} *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      dir="ltr"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        clearFieldError('email');
+                      }}
+                      placeholder="client@company.com"
+                      className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-sm font-mono transition-colors ${errorInputClass('email')}`}
+                    />
+                    <p className="text-xs text-white/60 mt-1">
+                      {isAr
+                        ? 'هذا هو البريد الذي سيدخل به الزبون لاحقاً ليجد العقد ويوقّعه.'
+                        : 'The client will use this exact email later to find and sign the contract.'}
+                    </p>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-semibold text-white/85 mb-2">
