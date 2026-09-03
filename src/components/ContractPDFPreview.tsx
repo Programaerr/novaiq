@@ -3,8 +3,9 @@ import { OBSIDIAN } from '../lib/homePalette';
 import { ContractData } from '../types';
 import { generateContractPDF } from '../lib/pdfGenerator';
 import { Language, translateText } from '../lib/i18n';
-import { formatPrice, Currency } from '../lib/currency';
+import { Currency } from '../lib/currency';
 import { ContractPrintDocument } from './ContractPrintDocument';
+import { ContractDetailsPanel } from './ContractDetailsPanel';
 import { showToast } from '../lib/toast';
 import {
   Download,
@@ -65,19 +66,6 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
     }
   };
 
-  const paymentPlanLabel = (() => {
-    switch (contract.paymentPlan) {
-      case '50_50':
-        return isAr ? '50% مقدم / 50% عند التسليم' : '50% Upfront / 50% On Delivery';
-      case '100_upfront':
-        return isAr ? '100% دفعة كاملة مسبقة (خصم 5%)' : '100% Upfront Payment (5% Discount)';
-      case '3_milestones':
-        return isAr ? '3 دفعات حسب مراحل الإنجاز' : '3 Installments by Milestone';
-      default:
-        return contract.paymentPlan;
-    }
-  })();
-
   // `nq-scroll-dark` because this overlay and the document inside it are the two black surfaces
   // left on the site, and the page's ink scrollbar is invisible on black.
   return (
@@ -133,30 +121,25 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
         </div>
 
         {/* On-screen contract preview */}
-        {/* المعاينة هي الوثيقة نفسها، لا نسخة ثانية منها.
-            كان هنا بناء موازٍ داكن يعيد كتابة العقد بيده — وقد افترق عن المطبوع فعلاً: يعلن
-            "موقّع من الطرفين" دائماً ولو كان بانتظار الاعتماد، ويطبع "0 د.ع" و"0 أسابيع"
-            لمشروع لم يُسعَّر بعد، ولا يعرف حالة العقد ولا جدول الدفعات. أي أن العميل كان يقرأ
-            شيئاً وينزّل شيئاً آخر.
+        {/* كانت هذه الشاشة تعرض `ContractPrintDocument` نفسها بوضع inline: ورقة A4 كاملة
+            بعرض 794px مضغوطة داخل نافذة الهاتف — فتبدو الشاشة وكأنها تعرض ملف PDF داخل الصفحة
+            بدل قائمة تفاصيل مقروءة، وتحتاج تكبيراً وتمريراً أفقياً لقراءة سطر واحد على هاتف.
 
-            الآن تُعرض `ContractPrintDocument` نفسها بوضع inline: نفس المكوّن ونفس البيانات
-            التي يلتقطها مولّد الـPDF — فالمعاينة والملف لا يمكن أن يفترقا، والتوقيع يظهر على
-            الورق الأبيض كما سيُطبع بالضبط لا على أرضية داكنة تبتلعه. */}
+            الآن تُعرض `ContractDetailsPanel`، نفس البطاقة المستعملة في "عقودي" بحساب العميل —
+            مكوّن واحد لا نسختان: النسخة الداكنة اليدوية التي كانت هنا قبل الورقة البيضاء كانت
+            قد افترقت فعلاً عن العقد الحقيقي (أعلنت "موقّع من الطرفين" قبل الاعتماد، وطبعت
+            "0 د.ع" لمشروع لم يُسعَّر)، ومشاركة نفس المكوّن مع الحساب تمنع تكرار ذلك بنيوياً.
+
+            وثيقة الطباعة الفعلية (`ContractPrintDocument` بلا inline، أعلاه) تبقى خارج
+            الشاشة تماماً كما كانت — هي وحدها ما يلتقطه زر التنزيل، فالملف الذي ينزّله العميل
+            يبقى مطابقاً لما وقّعه بالضبط. */}
         <div
           data-lenis-prevent
           className="nq-scroll-dark overflow-y-auto p-4 sm:p-6"
           style={{ background: OBSIDIAN }}
         >
-          <div className="mx-auto shadow-2xl" style={{ maxWidth: 794 }}>
-            <ContractPrintDocument
-              inline
-              contract={contract}
-              language={language}
-              translatedNotes={customNotes}
-              translatedAdminNotes={translatedAdminNotes}
-              templateTitle={templateTitle}
-              city={city}
-            />
+          <div className="mx-auto" style={{ maxWidth: 640 }}>
+            <ContractDetailsPanel contract={contract} language={language} currency={currency} />
           </div>
         </div>
 

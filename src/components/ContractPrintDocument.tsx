@@ -286,6 +286,12 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
         // own translations, and letting the page translator loose on it would also rewrite
         // the client's own company name and signature line, which must stay verbatim.
         data-no-translate
+        // nq-print-sheet: يستهدفها `@media print` في index.css فقط عند inline=false — أي
+        // النسخة خارج الشاشة الكاملة غير المقصوصة. لو طبع الزبون من متصفح الهاتف مباشرة
+        // (لا زر "تنزيل PDF") بلا هذا الصنف، يُطبع صندوق المعاينة الداكن المقصوص بدلاً من
+        // الوثيقة البيضاء الصحيحة — وهذا بالضبط ما يبدو للعميل "أحرف عربية مكسورة": نص
+        // عربي مقصوص منتصف الكلمة عند حافة صندوق overflow، لا عطل في الخط نفسه.
+        className={inline ? undefined : 'nq-print-sheet'}
         style={{
           // Rendered off-screen: html2canvas needs a genuinely laid-out element, so this
           // can't use display:none. Fixed 794px is A4 width at 96dpi.
@@ -613,12 +619,45 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           {/* Section 4 */}
           <div style={{ marginBottom: 14 }}>
             <SectionTitle>{t.s4}</SectionTitle>
-            <ol style={{ margin: 0, paddingInlineStart: 18 }}>
-              {terms.map((term, i) => (
-                <li key={i} data-pdf-keep style={{ fontSize: 10, color: '#434547', marginBottom: 3, lineHeight: 1.45 }}>
-                  {term}
-                </li>
-              ))}
+            {/* الترقيم مبنيّ يدوياً برقم + نص، لا بـ`list-style-type` على `<ol>` (جُرِّب وظهر
+                بلا أرقام تحت html2canvas) ولا بـ`flexDirection: row-reverse` (جُرِّب بعده
+                وظهر الرقم يسار السطر بالعربية — لأن `flex-direction: row` يتبع أصلاً اتجاه
+                `direction` الموروث من `dir="rtl"` فيصير يميناً-ليساراً بنفسه، وrow-reverse
+                يقلبه مرّتين فيعود يساراً).
+
+                الحل الآن لا يعتمد على تفسير html2canvas لـ`direction` إطلاقاً: `flexDirection`
+                ثابتة دائماً 'row' (أول عنصر أقصى اليسار فعلياً، بلا أي قراءة اتجاه)، والترتيب
+                نفسه — أيّ span يُكتب أوّلاً في الـJSX — هو ما يتغيّر حسب اللغة. بالعربية النص
+                أولاً (فيقع يساراً) والرقم ثانياً (فيقع يميناً، حيث يبدأ السطر عربياً)؛
+                بالإنجليزية العكس. توضّع فيزيائي صريح لا تفسير مزدوج لخاصية واحدة. */}
+            <ol style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+              {terms.map((term, i) => {
+                const number = (
+                  <span style={{ fontSize: 10, color: '#080A0D', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                );
+                const text = (
+                  <span style={{ fontSize: 10, color: '#080A0D', lineHeight: 1.45, flex: 1 }}>{term}</span>
+                );
+                return (
+                  <li
+                    key={i}
+                    data-pdf-keep
+                    style={{ display: 'flex', flexDirection: 'row', gap: 6, marginBottom: 3 }}
+                  >
+                    {isAr ? (
+                      <>
+                        {text}
+                        {number}
+                      </>
+                    ) : (
+                      <>
+                        {number}
+                        {text}
+                      </>
+                    )}
+                  </li>
+                );
+              })}
             </ol>
           </div>
 
@@ -698,7 +737,9 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
                 <div style={{ fontSize: 11, fontWeight: 900, color: '#080A0D', marginTop: 6, borderTop: '1px solid #D3D3D3', paddingTop: 6 }}>
                   {t.seal}
                 </div>
-                <div style={{ fontSize: 9, color: '#666769', marginTop: 4, letterSpacing: 0.5 }}>{t.verified}</div>
+                {/* letterSpacing يُعطَّل بالعربية دائماً: عربي حروفه متصلة، والتباعد يفصلها
+                    فتُقرأ منفصلة مشوَّهة — بالضبط ما بلَّغ عنه العميل كمشكلة "أحرف عربية". */}
+                <div style={{ fontSize: 9, color: '#666769', marginTop: 4, letterSpacing: isAr ? 0 : 0.5 }}>{t.verified}</div>
                 <div style={{ fontSize: 9, color: '#666769', marginTop: 6, fontFamily: 'monospace' }}>
                   {t.authCode}: {contract.contractNumber}
                 </div>
