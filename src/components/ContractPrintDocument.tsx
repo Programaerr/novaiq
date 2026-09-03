@@ -300,7 +300,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
             : { position: 'fixed' as const, top: 0, left: -20000, width: 794 }),
           backgroundColor: '#ffffff',
           color: '#080A0D',
-          fontFamily: isAr ? "'Cairo', 'Tajawal', sans-serif" : "'Helvetica Neue', Arial, sans-serif",
+          fontFamily: isAr ? "'Cairo', sans-serif" : "'Helvetica Neue', Arial, sans-serif",
           textAlign: isAr ? 'right' : 'left',
         }}
       >
