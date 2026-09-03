@@ -1345,6 +1345,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </h3>
               </div>
 
+              {/* وضع الأدمن: يقول صراحة أن التوقيع أدناه اختياري هنا تحديداً، لا حقاً غير
+                  موضَّح — فلا يُترك الأدمن يظن أن العقد لن يُحفظ بلا توقيع الزبون. */}
+              {adminCreatingForClient && (
+                <div className="p-3.5 rounded-2xl border text-xs leading-relaxed" style={{ borderColor: 'rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.85)' }}>
+                  {isAr
+                    ? 'الزبون غير حاضر الآن؟ يمكنك حفظ العقد دون فتح البنود أو التوقيع — سيصل الزبون إلى حسابه (بالبريد الذي كتبتَه في الخطوة الأولى) ويجد عقده بانتظاره ليقرأه ويوقّعه بنفسه. وإن كان حاضراً معك الآن، اطلب منه فتح البنود والتوقيع كالمعتاد أدناه.'
+                    : "Client not here right now? You can save this contract without opening the terms or signing — they'll find it waiting in their own account (under the email you entered in step one) to read and sign themselves. If they're with you now, have them open the terms and sign below as usual."}
+                </div>
+              )}
+
               {/* البنود، كاملة، خلف زرّ واحد فوق لوحة التوقيع مباشرة.
                   النصّ هو هو: نفس الوحدة ونفس الترتيب الذي يُطبع كقسم 4 في وثيقة العميل
                   (src/data/contractTerms.ts)، فلا يمكن أن يختلف ما قرأه عمّا وقّعه. المخفيّ هو
@@ -1623,7 +1633,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 className="sm:text-sm"
                 icon={<FileCheck className="w-4 h-4" />}
               >
-                {getTranslation('generateContractBtn', lang)}
+                {adminCreatingForClient && !hasSignature
+                  ? isAr ? 'حفظ العقد للزبون (بلا توقيع الآن)' : 'Save contract for client (unsigned)'
+                  : getTranslation('generateContractBtn', lang)}
               </NqButton>
             )}
           </div>
