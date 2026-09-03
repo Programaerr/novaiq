@@ -4,7 +4,7 @@ import { Language, translateText } from '../lib/i18n';
 import { formatPrice } from '../lib/currency';
 import { contractTerms } from '../data/contractTerms';
 import { sumPayments } from '../lib/payments';
-import nuvaiqMark from '../assets/images/nuvaiq-icon.png';
+import nuvaiqMark from '../assets/images/nuvaiq-icon.webp';
 
 interface ContractPrintDocumentProps {
   contract: ContractData;

@@ -1,5 +1,5 @@
 import React from 'react';
-import logoMark from '../assets/images/nuvaiq-icon.png';
+import logoMark from '../assets/images/nuvaiq-icon.webp';
 
 interface NuvaiqLogoProps {
   className?: string;
