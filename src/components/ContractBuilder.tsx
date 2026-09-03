@@ -549,9 +549,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     const contractNumber = `NVQ-${stamp}-${suffix}`;
 
     /* موقَّع فعلاً = له توقيع وموافقة واطّلاع على البنود، معاً. لشخص عادي هذا صحيح دائماً هنا —
-       missingItems منعت الوصول إلى هذه النقطة أصلاً بدونها. وللأدمن (adminCreatingForClient)
-       هذا هو الفارق: إن كان الزبون حاضراً فعلاً ووقّع، يُحفظ العقد "مُرسَلاً" كأي عقد عادي؛
-       وإن تُرك فارغاً — الحالة المقصودة من هذه الميزة — يُحفظ "مسودّة" ليوقّعها الزبون لاحقاً. */
+       missingItems منعت الوصول إلى هذه النقطة أصلاً بدونها، فتُحفَظ "مُرسَلاً" كالعادة.
+       وللأدمن (adminCreatingForClient) لا بنود ولا لوحة توقيع مرسومتان في هذه الشاشة أصلاً
+       (الثلاثتها معطَّلة كليةً في وضعه)، فتبقى الثلاثة فارغة دائماً وتُحفَظ "مسودّة" — بالضبط
+       الحالة المقصودة من هذه الميزة، ليوقّعها الزبون لاحقاً من حسابه هو. */
     const isActuallySigned = hasSignature && agreedToTerms && !!termsViewedAt;
 
     const contractData: ContractData = {
@@ -1353,16 +1354,20 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </h3>
               </div>
 
-              {/* وضع الأدمن: يقول صراحة أن التوقيع أدناه اختياري هنا تحديداً، لا حقاً غير
-                  موضَّح — فلا يُترك الأدمن يظن أن العقد لن يُحفظ بلا توقيع الزبون. */}
+              {/* وضع الأدمن: لا بنود ولا توقيع في هذه الشاشة إطلاقاً — الأدمن ليس طرف العقد
+                  فلا معنى لأن يقرأ هو البنود أو يوافق عليها نيابةً عن الزبون. القراءة
+                  والموافقة والتوقيع الثلاثة تنتقل معاً إلى الزبون نفسه لاحقاً من حسابه (انظر
+                  CustomerDashboard.tsx). */}
               {adminCreatingForClient && (
                 <div className="p-3.5 rounded-2xl border text-xs leading-relaxed" style={{ borderColor: 'rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.85)' }}>
                   {isAr
-                    ? 'الزبون غير حاضر الآن؟ يمكنك حفظ العقد دون فتح البنود أو التوقيع — سيصل الزبون إلى حسابه (بالبريد الذي كتبتَه في الخطوة الأولى) ويجد عقده بانتظاره ليقرأه ويوقّعه بنفسه. وإن كان حاضراً معك الآن، اطلب منه فتح البنود والتوقيع كالمعتاد أدناه.'
-                    : "Client not here right now? You can save this contract without opening the terms or signing — they'll find it waiting in their own account (under the email you entered in step one) to read and sign themselves. If they're with you now, have them open the terms and sign below as usual."}
+                    ? 'لن تفتح البنود ولن توقّع هنا — هذا العقد للزبون، لا لك. سيصل إلى حسابه (بالبريد الذي كتبتَه في الخطوة الأولى) ويجد عقده بانتظاره ليقرأ البنود ويوافق عليها ويوقّع بنفسه.'
+                    : "You won't open the terms or sign here — this contract is the client's, not yours. It'll appear in their own account (under the email you entered in step one) for them to read the terms, agree, and sign themselves."}
                 </div>
               )}
 
+              {!adminCreatingForClient && (
+              <>
               {/* البنود، كاملة، خلف زرّ واحد فوق لوحة التوقيع مباشرة.
                   النصّ هو هو: نفس الوحدة ونفس الترتيب الذي يُطبع كقسم 4 في وثيقة العميل
                   (src/data/contractTerms.ts)، فلا يمكن أن يختلف ما قرأه عمّا وقّعه. المخفيّ هو
@@ -1515,6 +1520,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </button>
                 )}
               </div>
+              </>
+              )}
 
               {/* The figure, last and alone. One number, not a breakdown: with the priced add-on
                   list gone the base price and the total are the same amount by definition, and
@@ -1641,8 +1648,8 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 className="sm:text-sm"
                 icon={<FileCheck className="w-4 h-4" />}
               >
-                {adminCreatingForClient && !hasSignature
-                  ? isAr ? 'حفظ العقد للزبون (بلا توقيع الآن)' : 'Save contract for client (unsigned)'
+                {adminCreatingForClient
+                  ? isAr ? 'حفظ العقد للزبون' : 'Save contract for client'
                   : getTranslation('generateContractBtn', lang)}
               </NqButton>
             )}
