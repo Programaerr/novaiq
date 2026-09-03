@@ -425,14 +425,21 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   }
   /* الاطّلاع أولاً، ثم الموافقة — بندان لا بند واحد.
      ما دامت البنود لم تُفتح فمربّع الموافقة معطَّل، وقول "أشِّر على مربّع الموافقة" لمن لا يقدر
-     أن يؤشّر يجعله يبحث عن عطل غير موجود. فالناقص هنا هو القراءة، ويُسمّى باسمها. */
-  if (!termsViewedAt) {
-    missingItems.push({ step: 3, field: 'terms', label: isAr ? 'فتح بنود العقد وقراءتها' : 'Opening and reading the contract terms' });
-  } else if (!agreedToTerms) {
-    missingItems.push({ step: 3, field: 'agreedToTerms', label: isAr ? 'الموافقة على بنود العقد' : 'Accepting the contract terms' });
-  }
-  if (!hasSignature) {
-    missingItems.push({ step: 3, field: 'signature', label: isAr ? 'توقيعك' : 'Your signature' });
+     أن يؤشّر يجعله يبحث عن عطل غير موجود. فالناقص هنا هو القراءة، ويُسمّى باسمها.
+
+     وكلا الشرطين يُتخطَّيان حين ينشئ الأدمن العقد نيابةً عن زبون غائب: هو من يملأ النموذج، لا
+     الزبون، فلا معنى لإجباره هو على "قراءة" بنود ليست بنوده — القراءة والتوقيع ينتقلان إلى
+     الزبون نفسه لاحقاً من حسابه (انظر CustomerDashboard.tsx). القانون الكامل يبقى كما هو
+     بلا استثناء لأي شخص عادي يُنشئ عقده بنفسه؛ الاستثناء محصور بمسار الأدمن وحده. */
+  if (!adminCreatingForClient) {
+    if (!termsViewedAt) {
+      missingItems.push({ step: 3, field: 'terms', label: isAr ? 'فتح بنود العقد وقراءتها' : 'Opening and reading the contract terms' });
+    } else if (!agreedToTerms) {
+      missingItems.push({ step: 3, field: 'agreedToTerms', label: isAr ? 'الموافقة على بنود العقد' : 'Accepting the contract terms' });
+    }
+    if (!hasSignature) {
+      missingItems.push({ step: 3, field: 'signature', label: isAr ? 'توقيعك' : 'Your signature' });
+    }
   }
 
   const missingForStep = (step: number) => missingItems.filter((m) => m.step === step);
@@ -533,11 +540,22 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     const suffix = Math.random().toString(36).slice(2, 7).toUpperCase();
     const contractNumber = `NVQ-${stamp}-${suffix}`;
 
+    /* موقَّع فعلاً = له توقيع وموافقة واطّلاع على البنود، معاً. لشخص عادي هذا صحيح دائماً هنا —
+       missingItems منعت الوصول إلى هذه النقطة أصلاً بدونها. وللأدمن (adminCreatingForClient)
+       هذا هو الفارق: إن كان الزبون حاضراً فعلاً ووقّع، يُحفظ العقد "مُرسَلاً" كأي عقد عادي؛
+       وإن تُرك فارغاً — الحالة المقصودة من هذه الميزة — يُحفظ "مسودّة" ليوقّعها الزبون لاحقاً. */
+    const isActuallySigned = hasSignature && agreedToTerms && !!termsViewedAt;
+
     const contractData: ContractData = {
       // Conditionally spread (not `uid: accountUid || undefined`) — Firestore's setDoc
       // throws on an explicit `undefined` field value, so the key must be entirely absent
       // rather than present-with-undefined when there's no account uid.
-      ...(accountUid ? { uid: accountUid } : {}),
+      //
+      // وليس فقط عند غياب accountUid: الأدمن الذي يُنشئ هذا العقد نيابةً عن زبون له هو
+      // نفسه حساب مسجَّل دخول (accountUid موجود)، لكنه حساب الأدمن لا حساب الزبون — فكتابته
+      // هنا كانت تربط العقد بحساب الأدمن، ولا يظهر للزبون في "عقودي" حين يسجّل دخوله لاحقاً
+      // (المطابقة بلا uid تعتمد البريد وحده؛ انظر subscribeToMyContracts وfirestore.rules).
+      ...(accountUid && !adminCreatingForClient ? { uid: accountUid } : {}),
       contractNumber,
       companyName,
       crNumber,
@@ -568,7 +586,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       agreedToTerms,
       // مفتاح غائب لا مفتاح بقيمة undefined — Firestore يرفض الثاني ويسقط الكتابة كلها.
       ...(termsViewedAt ? { termsViewedAt } : {}),
-      status: 'submitted',
+      status: isActuallySigned ? 'submitted' : 'draft',
       createdAt: new Date().toISOString(),
     };
 
