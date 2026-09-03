@@ -162,22 +162,27 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                    field is running. Measured at 120fps on the reference machine with both cards
                    on screen, and the field already parks itself at `frameloop: 'never'` when it
                    scrolls out and on `data-idle`, which is when two full-card blurs would
-                   otherwise be pure waste. 18px, not the navbar's 32: the radius is what the
-                   pass costs, and 18 is already past the point where a cube edge survives it. */
-                className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden backdrop-blur-[18px] backdrop-saturate-[140%] border border-white/45"
-              >
-                {/* A faint highlight at the top of each dark card — the lit top edge a real glass
-                    pane catches, not a wash of the section's own ground any more: the ground is
-                    WHITE now and the card is dark, so what used to blend the card into an Orange
-                    section instead reads as a sheen on a dark one. Low opacity fading to nothing,
-                    so it does not compete with the one full-strength Orange element on the card
-                    (the icon tile below). */}
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-x-0 top-0 h-24 pointer-events-none"
-                  style={{ background: `linear-gradient(to bottom, ${WHITE}2e, ${WHITE}00)` }}
-                />
+                   otherwise be pure waste.
 
+                   8px, where this was 18. The paragraph above still describes the reasoning
+                   that put it at 18 — far enough that no cube edge survives — and the owner has
+                   asked for the opposite twice, on this card and on the hero before it: a
+                   surface you can see the field THROUGH. Erasing the grid is also what made
+                   the card read opaque regardless of its alpha, since blurring a regular
+                   repeating pattern averages it away and whatever light still came through
+                   arrived as a flat lift. Proven on the hero, where 22px and 12px were
+                   indistinguishable from each other.
+
+                   What keeps the type readable at 8px is no longer the blur, it is the
+                   surface: `.nq-card-glass` composites to `#3D3E40` over the brightest cube
+                   behind it, where the weakest ink on this card measures 4.98:1. */
+                className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden backdrop-blur-[8px] backdrop-saturate-[140%] border border-white/45"
+              >
+                {/* The white sheen that used to run across the top of each card is gone, on the
+                    owner's call. It was a lit top edge for a card that was nearly opaque; on
+                    glass this open it stopped reading as a highlight and started reading as fog
+                    laid over the headline. The hairline border is what tells the pane from a
+                    hole now, which is the job that edge was doing anyway. */}
                 <div className="relative flex items-center gap-3">
                   {/* The light twin, not the accent itself. Everywhere else on the site this tile
                       is the plain accent, but this one stands on the card's `#202224`, and

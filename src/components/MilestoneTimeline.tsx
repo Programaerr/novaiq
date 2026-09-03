@@ -128,13 +128,24 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
               and Orange were both bright grounds, so the panel stayed light and its marks dark
               ink. The third pass moves the flat ground itself to WARM WHITE and asks for black to
               be confined to where secondary things are written — so this panel is where the
-              brief's black actually lives: 90% Obsidian composited over the white ground reads
-              `#202224` (the same composite the templates grid's own cards use), and WHITE text
-              on it measures 15.96:1. */}
+              brief's black actually lives.
+
+              78% Obsidian now, where this was 90%, and an 8px blur where it was
+              `backdrop-blur-2xl` (40px). Both on the owner's call, and both are the same
+              change the templates card and the hero took: 40px averages a regular cube grid
+              away entirely, so the 10% of field that used to come through arrived as a flat
+              lift and the panel read as a dark card. At 8px and 22% the field is visible
+              through it, which is what "glass over the field" was always claiming to be.
+
+              0.78 is the floor for this panel, set by its dimmest ink rather than by taste:
+              against the brightest cube behind it the surface is `#3D3E40`, where WHITE reads
+              9.98:1 and the 0.70 step numbers read 5.82:1. One step further out, at 0.72,
+              those numbers land at 4.86:1 — still passing, but with the templates card's own
+              0.62 label failing at 4.19:1, and these two are meant to be the same glass. */}
           <div
-            className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/10 backdrop-blur-2xl"
+            className="nq-rise mt-10 sm:mt-12 rounded-3xl px-5 sm:px-8 lg:px-10 py-8 sm:py-10 border border-white/10 backdrop-blur-[8px]"
             style={{
-              background: 'rgba(8, 10, 13, 0.9)',
+              background: 'rgba(8, 10, 13, 0.78)',
               /* A clear drop shadow so the panel reads as floating above the cube field rather
                  than sitting flat on it — the field is busy, and without the shadow the two
                  planes fight for the same depth. */
