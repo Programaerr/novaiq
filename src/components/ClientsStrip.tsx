@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useClientsStrip } from '../lib/clientsStrip';
-import { OBSIDIAN, PAPER, WHITE } from '../lib/homePalette';
+import { OBSIDIAN, PAPER } from '../lib/homePalette';
 import { Language } from '../lib/i18n';
 
 /**
@@ -27,14 +27,6 @@ import { Language } from '../lib/i18n';
  * المسار عرضَ الحاوية. يعمل مع أي عدد عناصر، وأي عرض شاشة، وأي مقاس شعار، ويعيد الحساب
  * تلقائياً حين تُفك صور جديدة أو يُدار الجهاز.
  */
-/* ضلع البطاقة والفراغ حولها، بالبكسل ولمقاسين فقط.
-
-   مكتوبة هنا لا في الأصناف (classes) لأن حساب الطور أدناه يحتاج الخطوة الواحدة رقماً:
-   مركز البطاقة رقم i هو i × الخطوة + نصف الخطوة. لو كان المقاس في الأصناف والحساب هنا
-   لصار للشيء الواحد مصدران، وأي تعديل على أحدهما يُزيح التحوّل عن حافة الشريط بصمت. */
-const TILE = { sm: 96, lg: 120 };
-const GAP = { sm: 20, lg: 28 };
-
 export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language === 'ar';
@@ -47,9 +39,6 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
      الذي يتغيّر بعدد الشعارات وبعرض الجهاز. لو استُعملت القيمة مدةً مباشرة لصار الشريط أسرع
      كلما زادت الشعارات وأبطأ على الشاشة الصغيرة — أي سرعة مختلفة عند كل زائر. */
   const [durationSeconds, setDurationSeconds] = useState(strip.speedSeconds);
-  /* عرض المسار وعرض النافذة، محفوظان لا مقروءان عند العرض: منهما وحدهما يُحسب طور كل
-     بطاقة أدناه، وقراءتهما من DOM أثناء العرض كانت ستجبر تخطيطاً متزامناً في كل إطار. */
-  const [metrics, setMetrics] = useState({ laneWidth: 0, viewportWidth: 0 });
 
   const measure = useCallback(() => {
     const viewport = viewportRef.current;
@@ -70,14 +59,6 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
 
     const seconds = Math.max(4, strip.speedSeconds * (laneWidth / viewportWidth));
     setDurationSeconds((prev) => (Math.abs(prev - seconds) > 0.25 ? seconds : prev));
-
-    // عتبة بكسل واحد، مثل عتبة الربع ثانية أعلاه: ResizeObserver يُطلق على كسور البكسل
-    // في أثناء التخطيط، وحالة جديدة عند كل كسر تعني إعادة عرض لا يراها أحد.
-    setMetrics((prev) =>
-      Math.abs(prev.laneWidth - laneWidth) > 1 || Math.abs(prev.viewportWidth - viewportWidth) > 1
-        ? { laneWidth, viewportWidth }
-        : prev,
-    );
   }, [repeats, strip.speedSeconds]);
 
   useEffect(() => {
@@ -96,49 +77,8 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
 
   const lane = Array.from({ length: repeats }, () => strip.items).flat();
 
-  const wide = metrics.viewportWidth >= 640;
-  const side = wide ? TILE.lg : TILE.sm;
-  const pitch = side + (wide ? GAP.lg : GAP.sm);
-
-  /* طور البطاقة: كم مضى من دورة الشريط لحظة عبورها الحافة اليمنى، بالسالب.
-
-     التحوّل يجب أن يقع حيث **تدخل** البطاقة الشريط، لا عند نقطة ما من دورتها هي، وإلا رآه
-     كل زائر في مكان مختلف من الشريط حسب لحظة فتحه الصفحة. والحركتان تتقاسمان ساعة واحدة
-     أصلاً — دورة الشريط — فلا تحتاج البطاقة أن تعرف أكثر من إزاحتها داخل تلك الدورة.
-
-     بطاقة على الشاشة الآن تأخذ تأخيراً سالباً يساوي الزمن المنقضي منذ دخولها، فتُرسم
-     مفتوحة كما يجب. وبطاقة لم تصل الحافة بعد يقع كيفريمها الصفري على لحظة عبورها إياها. */
-  const delayFor = (index: number): string => {
-    if (metrics.laneWidth <= 0) return '0s';
-    const centre = index * pitch + pitch / 2;
-    /* البطاقة تعبر الحافة اليمنى بعد (المركز − عرض النافذة) ÷ السرعة، والسرعة هي عرض المسار
-       ÷ المدّة — فالتأخير هو هذا الفرق نفسه مقيساً بالدورة. بلا باقي قسمة: المركز يقع بين
-       صفر وعرض المسار، فالناتج بين −(مدّة × عرض النافذة ÷ عرض المسار) و+المدّة، وحركة لا
-       نهائية تقبل المدى كله.
-
-       والإشارتان تُقرآن كما هما: السالب بطاقة دخلت فعلاً وهذا هو الزمن المنقضي منذ دخولها،
-       فتُرسم عند النقطة التي بلغتها من الانفتاح؛ والموجب بطاقة لم تصل بعد، وملء backwards
-       يُبقيها على الكيفريم الصفري — المثلث — إلى أن تصل. */
-    const seconds = (durationSeconds * (centre - metrics.viewportWidth)) / metrics.laneWidth;
-    return `${seconds.toFixed(3)}s`;
-  };
-
-  const Item: React.FC<{ item: (typeof strip.items)[number]; index: number }> = ({ item, index }) => (
-    <li
-      /* nq-tile هي القصّ نفسه — انظر الكيفريمات في index.css. البطاقة مربّعة بضلع ثابت لأن
-         المضلّع نسبيّ (100%)، وضلع متغيّر كان سيجعل ميل المثلث يختلف من بطاقة لأخرى. */
-      className="nq-tile shrink-0 grid place-items-center overflow-hidden"
-      style={{
-        width: side,
-        height: side,
-        marginInline: (wide ? GAP.lg : GAP.sm) / 2,
-        background: WHITE,
-        /* حدّ شعري لا ظلّ: البطاقة تُقصّ، والظلّ يُقصّ معها فيتحوّل إلى حافة سوداء حادة على
-           ضلع المثلث المائل. الحدّ يُقصّ أيضاً لكنه يبقى حدّاً. */
-        border: `1px solid ${OBSIDIAN}1F`,
-        ['--nq-tile-delay' as string]: delayFor(index),
-      }}
-    >
+  const Item: React.FC<{ item: (typeof strip.items)[number] }> = ({ item }) => (
+    <li className="shrink-0 px-6 sm:px-9 flex items-center">
       {item.logoDataUrl ? (
         <img
           src={item.logoDataUrl}
@@ -147,18 +87,12 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
              تنزيلاً — كل ما يفعله هو تأخير معرفة عرضها، وهو ما يجعل قياس المسار أعلاه يبدأ
              من عرض خاطئ فتظهر فجوة حتى يُعاد القياس. */
           decoding="async"
-          /* داخل مربّع الآن، فالمقاس صار نسبة من ضلعه لا ارتفاعاً ثابتاً. object-contain يحفظ
-             نسبة كل شعار، و64% تترك هامشاً يبقى داخل المثلث فترة أطول أثناء الانفتاح.
-             التدرّج الرمادي يجعل شعارات بألوان متضاربة تُقرأ كصفّ واحد لا لافتات متنافسة. */
-          className="max-w-[64%] max-h-[64%] w-auto h-auto object-contain opacity-85 grayscale"
+          /* ارتفاع موحّد وعرض حر: الشعارات تصل بنسب مختلفة وتثبيت الاثنين يشوّهها. التدرّج
+             الرمادي يجعل شعارات بألوان متضاربة تُقرأ كصفّ واحد مرتّب لا لافتات متنافسة. */
+          className="h-9 sm:h-11 w-auto max-w-[160px] object-contain opacity-85 grayscale"
         />
       ) : (
-        /* بلا whitespace-nowrap: الاسم صار داخل مربّع لا في سطر مفتوح، فمنع الالتفاف كان
-           سيدفعه خارج البطاقة. ثلاثة أسطر كحدّ، وما زاد يُقصّ بنقاط. */
-        <span
-          className="px-2 text-center text-[0.8rem] sm:text-[0.9rem] font-black leading-snug line-clamp-3"
-          style={{ color: OBSIDIAN, opacity: 0.72 }}
-        >
+        <span className="text-base sm:text-xl font-black whitespace-nowrap" style={{ color: OBSIDIAN, opacity: 0.72 }}>
           {item.name}
         </span>
       )}
@@ -212,14 +146,14 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
         >
           <ul ref={laneRef} className="flex items-center">
             {lane.map((item, i) => (
-              <Item key={`a-${item.id}-${i}`} item={item} index={i} />
+              <Item key={`a-${item.id}-${i}`} item={item} />
             ))}
           </ul>
           {/* النسخة الثانية مطابقة تماماً و`aria-hidden`: هي ما يقع تحت العين لحظة إرجاع
               المسار إلى الصفر، فلا تُرى قفزة. ليست محتوى إضافياً لقارئ الشاشة. */}
           <ul className="flex items-center" aria-hidden="true">
             {lane.map((item, i) => (
-              <Item key={`b-${item.id}-${i}`} item={item} index={i} />
+              <Item key={`b-${item.id}-${i}`} item={item} />
             ))}
           </ul>
         </div>
