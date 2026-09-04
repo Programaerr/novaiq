@@ -358,21 +358,53 @@ function ContractRow({
   const signatureRef = useRef<CompanySignatureHandle>(null);
   const [signatureDirty, setSignatureDirty] = useState(false);
 
+  /* مزامنة مع الخادم، بلا مسح ما لم يُحفظ بعد.
+   *
+   * كانت هذه المزامنة تُعيد ضبط **كل** الحقول من المستند في كل مرّة تعمل فيها. وهي تعمل أكثر
+   * بكثير ممّا يبدو من قائمة اعتمادياتها: `contract.payments` مصفوفة تُبنى من جديد في كل لقطة
+   * (`{...docSnap.data()}` في subscribeToContracts)، فهويتها تتغيّر مع **أي** كتابة على أي عقد
+   * في المجموعة كلها — لا على هذا العقد وحده.
+   *
+   * والنتيجة عطل صامت وخطير: يفتح الأدمن عقداً ويختار "مكتمل" من القائمة، ثم تصل لقطة لأي سبب
+   * (زبون آخر وقّع، دفعة سُجّلت في عقد آخر) فتُعيد هذه الدالّة الحالة إلى قيمة الخادم — ويختفي
+   * اختياره بلا أثر. ثم يضغط "حفظ" فتُكتب الحالة **القديمة**، وتظهر له رسالة نجاح. فيبقى العقد
+   * على حاله عند الزبون بينما الأدمن واثق أنه غيّره.
+   *
+   * الآن: تُقارَن قيمة كل حقل بقيمته في اللقطة السابقة، ولا يُكتب فوق الحالة المحلّية إلا إن
+   * تغيّر ذلك الحقل على الخادم فعلاً. فتبقى "الحقيقة من الخادم" قائمة، ولا يُمسح تعديل لم
+   * يلمسه الخادم أصلاً. */
+  const lastServerValues = useRef<Record<string, string>>({});
+
   useEffect(() => {
-    setStatus(contract.status);
-    setTotalPrice(String(contract.totalPriceIQD || 0));
-    setCost(String(contract.costIQD || 0));
-    setPayments(baselinePayments(contract));
-    setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
-    setAdminNotes(contract.adminNotes || '');
-    setDeliveryText(
-      contract.deliveryTimelineText || (contract.deliveryTimelineWeeks ? String(contract.deliveryTimelineWeeks) + ' أسابيع' : '')
-    );
-    setPaymentPlan(contract.paymentPlan || '50_50');
-    setPreviewUrl(contract.previewUrl || '');
-    setSignatureDirty(false);
+    const seen = lastServerValues.current;
+    /** هل تغيّر هذا الحقل على الخادم منذ آخر لقطة عالجناها؟ (مقارنة بالقيمة لا بالهوية) */
+    const serverChanged = (key: string, value: unknown) => {
+      const encoded = JSON.stringify(value ?? null);
+      if (seen[key] === encoded) return false;
+      seen[key] = encoded;
+      return true;
+    };
+
+    if (serverChanged('status', contract.status)) setStatus(contract.status);
+    if (serverChanged('totalPriceIQD', contract.totalPriceIQD)) setTotalPrice(String(contract.totalPriceIQD || 0));
+    if (serverChanged('costIQD', contract.costIQD)) setCost(String(contract.costIQD || 0));
+    if (serverChanged('payments', contract.payments ?? contract.paidAmountIQD ?? null)) {
+      setPayments(baselinePayments(contract));
+    }
+    if (serverChanged('installmentsPlanned', contract.installmentsPlanned)) {
+      setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
+    }
+    if (serverChanged('adminNotes', contract.adminNotes)) setAdminNotes(contract.adminNotes || '');
+    if (serverChanged('delivery', [contract.deliveryTimelineText, contract.deliveryTimelineWeeks])) {
+      setDeliveryText(
+        contract.deliveryTimelineText || (contract.deliveryTimelineWeeks ? String(contract.deliveryTimelineWeeks) + ' أسابيع' : '')
+      );
+    }
+    if (serverChanged('paymentPlan', contract.paymentPlan)) setPaymentPlan(contract.paymentPlan || '50_50');
+    if (serverChanged('previewUrl', contract.previewUrl)) setPreviewUrl(contract.previewUrl || '');
+    if (serverChanged('companySignatureDataUrl', contract.companySignatureDataUrl)) setSignatureDirty(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contract.status, contract.totalPriceIQD, contract.costIQD, contract.payments, contract.paidAmountIQD, contract.installmentsPlanned, contract.adminNotes, contract.previewUrl, contract.companySignatureDataUrl]);
+  }, [contract]);
 
   const addPayment = () => {
     setPayments((prev) => [...prev, { id: newPaymentId(), amountIQD: 0, date: todayIsoDate(), note: '' }]);

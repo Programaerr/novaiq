@@ -339,7 +339,11 @@ function CustomerContractRow({
    * فعلاً تفاعليَّين بدل عرض للقراءة وحدها — بنفس قوانين نموذج الإنشاء العادي بالضبط، بلا أي
    * تخطٍّ: لا موافقة قبل فتح البنود، ولا حفظ قبل توقيع حقيقي. الفرق الوحيد أن صاحب هذا العقد
    * يوقّعه من حسابه هو لا من نموذج إنشاء جديد. */
-  const isPendingSignature = contract.status === 'draft';
+  /* "بانتظار توقيعك" تعني **بلا توقيع**، لا مجرّد حالة 'draft'.
+     الحالة وحدها كانت كافية لعرض لوحة توقيع فوق عقد موقَّع أصلاً لو عاد إلى 'draft' لأي سبب —
+     ولوحة لا يمكن أن تنجح إطلاقاً، لأن القاعدة تقفل التوقيع بعد أول كتابة له
+     (signatureIsLocked في firestore.rules). زرّ يَعِد بما يرفضه الخادم أسوأ من غيابه. */
+  const isPendingSignature = contract.status === 'draft' && !contract.signatureDataUrl;
   const [pendingTermsViewedAt, setPendingTermsViewedAt] = useState<string | null>(null);
   const [pendingAgreedToTerms, setPendingAgreedToTerms] = useState(false);
   const [signatureMissing, setSignatureMissing] = useState(false);

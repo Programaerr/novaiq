@@ -182,12 +182,21 @@ service cloud.firestore {
           || (request.resource.data.signatureDataUrl is string && request.resource.data.signatureDataUrl.size() > 0);
       }
 
+      /* 'draft' حالة دخول لا يُعاد إليها أبداً.
+         عقد وقّعه صاحبه وصار 'submitted' ثم أُعيد إلى 'draft' — بكتابة خاطئة أو حالة قديمة
+         عالقة في الواجهة — يُحدث ضرراً مركّباً عند الزبون: نسبة إنجازه تهبط إلى 3%، وتعود له
+         لوحة "بانتظار توقيعك" فوق عقد **موقَّع أصلاً**، ولوحة لا يمكن أن تنجح لأن التوقيع
+         مقفل (signatureIsLocked). فالمنع هنا لا في الواجهة: الواجهة تُخطئ، والقاعدة لا. */
+      function statusNeverReturnsToDraft() {
+        return request.resource.data.status != 'draft' || resource.data.status == 'draft';
+      }
+
       allow read: if isAdmin() || ownsContract();
       allow create: if isAdmin() ||
         (request.auth != null
           && request.resource.data.uid == request.auth.uid
           && customerCreateIsClean());
-      allow update: if (isAdmin() && adminUpdateHonoursSignatureLock() && adminDoesNotAdvanceUnsignedDraft())
+      allow update: if (isAdmin() && adminUpdateHonoursSignatureLock() && adminDoesNotAdvanceUnsignedDraft() && statusNeverReturnsToDraft())
         || (ownsContract() && cancellationRequestOnly())
         || customerSignsPendingContract();
       allow delete: if isAdmin();
