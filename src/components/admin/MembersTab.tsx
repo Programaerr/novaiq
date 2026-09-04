@@ -100,6 +100,17 @@ export function MembersTab({
         </button>
       </div>
 
+      {/* أين ذهب زرّا "تعطيل" و"حذف نهائي".
+          كلاهما يتطلّب Firebase Admin SDK — مفتاح حساب خدمة لا يجوز أن يلمسه المتصفح — أي
+          دالّة سحابية. وقد حُذفت الدوال كلها من هذا النشر، فبقاء زرّين لا يملكان ما ينفّذهما
+          كان سيعني وعداً كاذباً عند أول ضغطة. السرد والبحث والملفّ الشخصي تبقى هنا كما هي،
+          لأنها تُقرأ من Firestore مباشرة ولا تحتاج خادماً. */}
+      <p className="text-[11px] text-ink/60 leading-relaxed max-w-md">
+        {isAr
+          ? 'تعطيل حساب أو حذفه نهائياً يتمّان من Firebase Console ← Authentication ← Users. لا يمكن تنفيذهما من المتصفح: كلاهما يحتاج مفتاح حساب خدمة لا يجوز أن يصل إلى صفحة ويب.'
+          : 'Disabling or permanently deleting an account is done in Firebase Console → Authentication → Users. Neither can run in the browser: both need a service-account key that must never reach a web page.'}
+      </p>
+
       <div className="relative max-w-md">
         {/* موضع الأيقونة يتبع اتجاه اللغة الآن (يمين في العربية، يسار في الإنجليزية) بدل موضع
             ثابت فيزيائياً — نفس النمط المستخدم أصلاً في ContractsTab.tsx لحقل البحث هناك. */}
