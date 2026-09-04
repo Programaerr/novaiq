@@ -452,7 +452,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
     });
   }
   if (isCustomProject && !customProjectName.trim()) {
-    missingItems.push({ step: 2, field: 'customProjectName', label: isAr ? 'اسم مشروعك' : 'Your project name' });
+    missingItems.push({ step: 2, field: 'customProjectName', label: say(isAr ? 'اسم مشروعك' : 'Your project name', isAr ? 'اسم مشروع الزبون' : "The client's project name") });
   }
   if (isCustomProject && !customFeaturesText.trim()) {
     missingItems.push({ step: 2, field: 'customDescription', label: isAr ? 'وصف المشروع' : 'Project description' });
@@ -816,9 +816,14 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       all, and a blank field with no explanation reads as something they are
                       missing rather than something they can skip. */}
                   <p className="text-xs text-white/60 mt-1">
-                    {isAr
+                    {say(
+                      isAr
                       ? 'يمكنك تركه فارغاً إذا لم يكن لديك سجل تجاري.'
-                      : 'Leave blank if you do not have a commercial register.'}
+                      : 'Leave blank if you do not have a commercial register.',
+                      isAr
+                        ? 'يُترك فارغاً إذا لم يكن لدى الزبون سجل تجاري.'
+                        : 'Leave blank if the client has no commercial register.'
+                    )}
                   </p>
                 </div>
 
@@ -945,7 +950,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       {isCustomProject ? (isAr ? 'مشروع مخصص بالكامل' : 'Fully Custom Project') : template.categoryLabel}
                     </span>
                     <h4 className="text-base font-bold text-white mt-1">
-                      {isCustomProject ? (isAr ? 'صف مشروعك بنفسك بالأسفل' : 'Describe your project below') : template.title}
+                      {isCustomProject ? say(isAr ? 'صف مشروعك بنفسك بالأسفل' : 'Describe your project below', isAr ? 'وصف مشروع الزبون بالأسفل' : "Describe the client's project below") : template.title}
                     </h4>
                   </div>
                 </div>
@@ -957,7 +962,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               {isCustomProject && (
                 <div>
                   <label className="block text-sm font-semibold text-white/85 mb-2">
-                    {isAr ? 'اسم مشروعك المخصص' : 'Name your custom project'} *
+                    {say(isAr ? 'اسم مشروعك المخصص' : 'Name your custom project', isAr ? 'اسم مشروع الزبون' : "The client's project name")} *
                   </label>
                   <input
                     type="text"
@@ -1002,9 +1007,14 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   ))}
                 </div>
                 <p className="text-xs text-white/60 mt-2 leading-relaxed">
-                  {isAr
+                  {say(
+                    isAr
                     ? 'يُطبع هذا الاختيار في عقدك كنوع المشروع المتفق عليه.'
-                    : 'This choice is printed on your contract as the agreed project type.'}
+                    : 'This choice is printed on your contract as the agreed project type.',
+                    isAr
+                      ? 'يُطبع هذا الاختيار في عقد الزبون كنوع المشروع المتفق عليه.'
+                      : "This choice is printed on the client's contract as the agreed project type."
+                  )}
                 </p>
               </div>
 
@@ -1118,16 +1128,21 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   ))}
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed mt-3">
-                  {isAr
+                  {say(
+                    isAr
                     ? 'اضغط على أي مستطيل واختار لونه، ويظهر كوده داخل المستطيل، وعلامة × ترجّعه فارغ. الألوان اللي تختارها راح نستخدمها بالضبط في تصميم موقعك، وتنطبع أكوادها في عقدك.'
-                    : 'Tap any rectangle to pick its colour and its code appears inside it; the × empties it again. The colours you pick are the exact ones we use in your design, and their codes are printed in your contract.'}
+                    : 'Tap any rectangle to pick its colour and its code appears inside it; the × empties it again. The colours you pick are the exact ones we use in your design, and their codes are printed in your contract.',
+                    isAr
+                      ? 'ألوان الهوية التي طلبها الزبون. تُستخدم حرفياً في تصميم موقعه، وتُطبع أكوادها في عقده.'
+                      : "The brand colours the client asked for. They are used exactly in their design, and their codes are printed in their contract."
+                  )}
                 </p>
 
                 {/* شعار العميل — يُطبع في العقد كما رُفع.
                     تحت الألوان مباشرة لأنه نفس السؤال: ما هي هوية هذا المشروع البصرية. */}
                 <div className="mt-5 pt-4 border-t border-white/10">
                   <label className="block text-sm font-semibold text-white/85 mb-2">
-                    {isAr ? 'شعار شركتك (اختياري)' : 'Your company logo (optional)'}
+                    {say(isAr ? 'شعار شركتك (اختياري)' : 'Your company logo (optional)', isAr ? 'شعار شركة الزبون (اختياري)' : "Client's company logo (optional)")}
                   </label>
 
                   <div className="flex items-center gap-3">
@@ -1137,7 +1152,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       <span className="w-16 h-16 rounded-xl bg-white grid place-items-center shrink-0 overflow-hidden p-1.5">
                         <img
                           src={clientLogoDataUrl}
-                          alt={isAr ? 'شعار شركتك' : 'Your company logo'}
+                          alt={say(isAr ? 'شعار شركتك' : 'Your company logo', isAr ? 'شعار شركة الزبون' : "Client's company logo")}
                           className="max-w-full max-h-full object-contain"
                         />
                       </span>
@@ -1174,9 +1189,14 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                   </div>
 
                   <p className="text-xs text-white/60 leading-relaxed mt-2.5">
-                    {isAr
+                    {say(
+                      isAr
                       ? 'يظهر داخل عقدك كما رفعته بالضبط، بلا أي تعديل عليه. PNG أو SVG أو JPG.'
-                      : 'It appears inside your contract exactly as you uploaded it, unaltered. PNG, SVG or JPG.'}
+                      : 'It appears inside your contract exactly as you uploaded it, unaltered. PNG, SVG or JPG.',
+                      isAr
+                        ? 'يظهر داخل عقد الزبون كما رفعتَه بالضبط، بلا أي تعديل عليه. PNG أو SVG أو JPG.'
+                        : "It appears inside the client's contract exactly as uploaded, unaltered. PNG, SVG or JPG."
+                    )}
                   </p>
                 </div>
               </div>
@@ -1250,7 +1270,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-white/85 mb-2">
-                      {isAr ? 'صف مشروعك بالتفصيل الكامل' : 'Describe your project in full detail'} *
+                      {say(isAr ? 'صف مشروعك بالتفصيل الكامل' : 'Describe your project in full detail', isAr ? 'وصف مشروع الزبون بالتفصيل الكامل' : "Describe the client's project in full detail")} *
                     </label>
                     <p className="text-xs text-white/60 leading-relaxed mb-2">
                       {isAr
@@ -1275,9 +1295,14 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       shouldn't have to know that three identities' worth of renaming happened to
                       find out what colour this actually is. */}
                   <div className="p-3.5 rounded-xl bg-white-warm/10 border border-white-warm/40 text-xs leading-relaxed text-surface-light">
-                    {isAr
+                    {say(
+                      isAr
                       ? 'لا يوجد سعر مسبق لمشروع مخصص — سيراجع فريقنا وصفك ويرسل لك عرض سعر ومدة تنفيذ مناسبة بعد تقديم الطلب.'
-                      : 'A custom project has no upfront price — our team will review your description and send back a quote and timeline after you submit.'}
+                      : 'A custom project has no upfront price — our team will review your description and send back a quote and timeline after you submit.',
+                      isAr
+                        ? 'لا سعر مسبق لمشروع مخصص — يُحفظ العقد بلا سعر، ويُضبط السعر النهائي ومدّة التنفيذ من بطاقة العقد في لوحة التحكّم.'
+                        : 'A custom project has no upfront price — the contract saves without one; set the final price and timeline from its card in the dashboard.'
+                    )}
                   </div>
                 </div>
               ) : (
@@ -1302,7 +1327,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <div className="p-4 rounded-2xl bg-white/5 border border-steel/60 space-y-3">
                 <div className="flex items-center gap-2 text-white font-bold text-base">
                   <FileCheck className="w-4 h-4 text-orange-on-dark" />
-                  {isAr ? 'ملخّص مواصفات مشروعك' : 'Project Spec Outline'}
+                  {say(isAr ? 'ملخّص مواصفات مشروعك' : 'Project Spec Outline', isAr ? 'ملخّص مواصفات المشروع' : 'Project spec outline')}
                 </div>
                 <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">
                   <div className="flex flex-col min-w-0">
@@ -1565,9 +1590,14 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     {isAr ? 'مشروع مخصص — السعر يُحدَّد بعد المراجعة' : 'Custom Project — price to be quoted after review'}
                   </div>
                   <p className="text-sm text-white/60 leading-relaxed">
-                    {isAr
+                    {say(
+                      isAr
                       ? 'سيراجع فريقنا الوصف الذي كتبته في الخطوة السابقة ويتواصل معك بعرض سعر ومدة تنفيذ دقيقة بعد تقديم الطلب.'
-                      : 'Our team will review the description you wrote in the previous step and follow up with an accurate quote and timeline after you submit.'}
+                      : 'Our team will review the description you wrote in the previous step and follow up with an accurate quote and timeline after you submit.',
+                      isAr
+                        ? 'يُحفظ العقد بلا سعر. اضبط السعر النهائي ومدّة التنفيذ لاحقاً من بطاقة هذا العقد في لوحة التحكّم.'
+                        : 'The contract saves without a price. Set the final price and timeline later from its card in the dashboard.'
+                    )}
                   </p>
                 </div>
               ) : (
