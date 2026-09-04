@@ -2014,7 +2014,7 @@ html[data-demo] .nq-navbar {
 
    ## The reveal is a mask, not eight animations
 
-   `.nq-proc-wipe` is a white rect inside an SVG `<mask>`, scaled along X from the side the
+   `.nq-band-wipe` is a white rect inside an SVG `<mask>`, scaled along X from the side the
    language starts on. One transform on one element wipes the band's fill, its hairline outline,
    its dashed spine and the indicator together. Animating the outline instead — a `stroke-dashoffset`
    draw — would have needed a second animation for the fill and a third for the spine, all of them
@@ -2044,16 +2044,16 @@ html[data-demo] .nq-navbar {
    the same rule `.nq-rise` already follows a few hundred lines up: clear the from-states, do not
    just drop the animations. */
 
-.nq-proc-wipe {
+.nq-band-wipe {
   transform-box: fill-box;
   transform: scaleX(0);
 }
 
-[data-seen='true'] .nq-proc-wipe {
-  animation: nq-proc-wipe 1.15s cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards;
+[data-seen='true'] .nq-band-wipe {
+  animation: nq-band-wipe 1.15s cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards;
 }
 
-@keyframes nq-proc-wipe {
+@keyframes nq-band-wipe {
   from { transform: scaleX(0); }
   to   { transform: scaleX(1); }
 }
@@ -2115,7 +2115,7 @@ html[data-demo] .nq-navbar {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nq-proc-wipe {
+  .nq-band-wipe {
     transform: scaleX(1);
     animation: none;
   }

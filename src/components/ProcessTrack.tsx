@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
 import { OBSIDIAN, ORANGE, PAPER_DEEP, WHITE } from '../lib/homePalette';
+import { CHEVRON, bandSvgPath } from '../lib/bandPath';
 
 /**
  * The process track: eight stages on one continuous path, start to end.
@@ -119,9 +120,8 @@ const STAGES: Stage[] = [
 
 /* ── Geometry ────────────────────────────────────────────────────────────────────────────────── */
 
-/** Band height, and the horizontal run of the notch and the arrow head. */
+/** Band height. The chevron's run belongs to the shape, so it lives with the shape. */
 const BAND_H = 132;
-const CHEVRON = 38;
 
 /**
  * How much of the band's width the end shapes are allowed to take before a stage may stand there.
@@ -133,22 +133,6 @@ const END_PAD = CHEVRON + 46;
 
 /** The floating card's width, and the margin it keeps from the band's ends. */
 const CARD_W = 300;
-
-/**
- * The band outline, as one closed path in real pixels.
- *
- * `flowsRight` puts the arrow head on the right and the notch on the left; the mirror image puts
- * them the other way. Both are written out rather than one of them being a `scaleX(-1)` of the
- * other, because a mirrored transform would also mirror everything drawn inside the band -- the
- * indicator sweep included -- and un-mirroring that costs more than the six coordinates here do.
- */
-function bandPath(w: number, h: number, flowsRight: boolean): string {
-  const c = CHEVRON;
-  const mid = h / 2;
-  return flowsRight
-    ? `M 0 0 L ${w - c} 0 L ${w} ${mid} L ${w - c} ${h} L 0 ${h} L ${c} ${mid} Z`
-    : `M ${c} 0 L ${w} 0 L ${w - c} ${mid} L ${w} ${h} L ${c} ${h} L 0 ${mid} Z`;
-}
 
 /* ── The section ─────────────────────────────────────────────────────────────────────────────── */
 
@@ -285,7 +269,7 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
                     animating the path itself would have needed three animations kept in step. */}
                 <mask id="nq-proc-reveal" maskUnits="userSpaceOnUse" x="0" y="0" width={bandWidth} height={BAND_H}>
                   <rect
-                    className="nq-proc-wipe"
+                    className="nq-band-wipe"
                     width={bandWidth}
                     height={BAND_H}
                     fill="#fff"
@@ -293,7 +277,7 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
                   />
                 </mask>
                 <clipPath id="nq-proc-clip">
-                  <path d={bandPath(bandWidth, BAND_H, flowsRight)} />
+                  <path d={bandSvgPath(bandWidth, BAND_H, flowsRight)} />
                 </clipPath>
                 <linearGradient id="nq-proc-sweep" x1="0" x2="1" y1="0" y2="0">
                   <stop offset="0%" stopColor={ORANGE} stopOpacity="0" />
@@ -305,7 +289,7 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
               <g mask="url(#nq-proc-reveal)">
                 {/* Fill first, outline last, so the hairline is never half-covered by its own
                     fill at the corners. */}
-                <path d={bandPath(bandWidth, BAND_H, flowsRight)} fill={OBSIDIAN} fillOpacity="0.028" />
+                <path d={bandSvgPath(bandWidth, BAND_H, flowsRight)} fill={OBSIDIAN} fillOpacity="0.028" />
                 <g clipPath="url(#nq-proc-clip)">
                   <rect
                     className="nq-proc-sweep"
@@ -316,7 +300,7 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
                   />
                 </g>
                 <path
-                  d={bandPath(bandWidth, BAND_H, flowsRight)}
+                  d={bandSvgPath(bandWidth, BAND_H, flowsRight)}
                   fill="none"
                   stroke={OBSIDIAN}
                   strokeOpacity="0.16"

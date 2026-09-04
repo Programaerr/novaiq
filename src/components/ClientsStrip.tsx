@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useClientsStrip } from '../lib/clientsStrip';
 import { OBSIDIAN, PAPER } from '../lib/homePalette';
+import { bandClipPath, bandSvgPath } from '../lib/bandPath';
+import { useSeen } from '../lib/useSeen';
 import { Language } from '../lib/i18n';
 
 /**
@@ -27,9 +29,25 @@ import { Language } from '../lib/i18n';
  * المسار عرضَ الحاوية. يعمل مع أي عدد عناصر، وأي عرض شاشة، وأي مقاس شعار، ويعيد الحساب
  * تلقائياً حين تُفك صور جديدة أو يُدار الجهاز.
  */
+/**
+ * ارتفاع الشريط. الشعارات 36 بكسل على الهاتف و44 على غيره، وهذا يترك لها هامشاً أعلى وأسفل
+ * ويعطي الشيفرون طولاً كافياً ليُقرأ كرأس سهم لا كقصّة مائلة.
+ */
+const BAND_H = 116;
+
+/**
+ * اتجاه الشريط هو اتجاه **الحركة** لا اتجاه اللغة، خلافاً لقسم مسار المشروع.
+ *
+ * المسار مثبَّت على dir="ltr" ويترجم -50% في اللغتين معاً — التعليق أسفل يشرح لماذا — أي أنه
+ * يمشي يساراً دائماً. فرأس السهم على اليسار والفتحة على اليمين، وهما بالضبط حيث تدخل الشعارات
+ * وتخرج فعلياً.
+ */
+const FLOWS_RIGHT = false;
+
 export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language === 'ar';
+  const { ref: sectionRef, seen } = useSeen<HTMLElement>();
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const laneRef = useRef<HTMLUListElement | null>(null);
@@ -39,6 +57,10 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
      الذي يتغيّر بعدد الشعارات وبعرض الجهاز. لو استُعملت القيمة مدةً مباشرة لصار الشريط أسرع
      كلما زادت الشعارات وأبطأ على الشاشة الصغيرة — أي سرعة مختلفة عند كل زائر. */
   const [durationSeconds, setDurationSeconds] = useState(strip.speedSeconds);
+  /* عرض الشريط بالبكسل، لرسم الحدّ. الـSVG يُرسم بالبكسل الحقيقي لا بـviewBox ممدود:
+     preserveAspectRatio="none" يمدّ المحورين بنسبتين مختلفتين، فيتفلطح الشيفرون على شاشة
+     عريضة ويصير حادّاً على ضيقة — وهو الشكل الوحيد هنا الذي يجب أن يحافظ على زاويته. */
+  const [bandWidth, setBandWidth] = useState(0);
 
   const measure = useCallback(() => {
     const viewport = viewportRef.current;
@@ -59,6 +81,10 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
 
     const seconds = Math.max(4, strip.speedSeconds * (laneWidth / viewportWidth));
     setDurationSeconds((prev) => (Math.abs(prev - seconds) > 0.25 ? seconds : prev));
+
+    // عتبة بكسل واحد: ResizeObserver يُطلق على كسور البكسل أثناء التخطيط، وحالة جديدة عند
+    // كل كسر تعني إعادة عرض لا يراها أحد.
+    setBandWidth((prev) => (Math.abs(prev - viewportWidth) > 1 ? viewportWidth : prev));
   }, [repeats, strip.speedSeconds]);
 
   useEffect(() => {
