@@ -438,8 +438,20 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   if (!repName.trim()) {
     missingItems.push({ step: 1, field: 'repName', label: isAr ? 'اسم المخوَّل بالتوقيع' : 'Authorised signatory' });
   }
-  if (adminCreatingForClient && !email.trim()) {
-    missingItems.push({ step: 1, field: 'email', label: isAr ? 'بريد الزبون الإلكتروني' : "Client's email" });
+  /* بريد الزبون: فارغاً أو مكتوباً خطأً، النتيجة واحدة — عقد لا يجده صاحبه أبداً، لأن
+     المطابقة في subscribeToMyContracts مساواة نصّية على هذا الحقل بالذات. ولا يكفي هنا
+     `required` على الحقل نفسه: الحقل في الخطوة الأولى وزرّ الحفظ في الثالثة، وحقل غير مرسوم
+     في الصفحة لا يوقف إرسال النموذج. */
+  if (adminCreatingForClient) {
+    if (!email.trim()) {
+      missingItems.push({ step: 1, field: 'email', label: isAr ? 'بريد الزبون الإلكتروني' : "Client's email" });
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      missingItems.push({
+        step: 1,
+        field: 'email',
+        label: isAr ? 'بريد إلكتروني صحيح للزبون' : "A valid client email",
+      });
+    }
   }
   if (!phone.trim()) {
     missingItems.push({ step: 1, field: 'phone', label: isAr ? 'رقم الهاتف' : 'Phone number' });
@@ -767,7 +779,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       that the cards are sized to hold their text there is nothing to hide: at
                       the sm breakpoint, where the longest title is still 14px over its column,
                       it wraps at the space between two words instead of disappearing. */}
-                  <span className={`font-bold leading-snug flex items-center justify-center gap-1.5 ${adminCreatingForClient ? 'text-[11px]' : 'block text-xs sm:text-sm'}`}>
+                  {/* `display` مكتوب في فرع واحد لا في الاثنين: كتابة `flex` و`block` معاً في
+                      نفس السطر تترك الفائز لترتيب Tailwind في ملف الأنماط لا لترتيبنا هنا —
+                      وكانت ستقلب محاذاة عنوان العميل بلا أن يطلب أحد ذلك. */}
+                  <span
+                    className={
+                      adminCreatingForClient
+                        ? 'flex items-center justify-center gap-1.5 font-bold leading-snug text-[11px]'
+                        : 'block font-bold leading-snug text-xs sm:text-sm'
+                    }
+                  >
                     {s.title}
                     {adminCreatingForClient && missingForStep(s.step).length > 0 && (
                       <span
@@ -894,7 +915,9 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       dir="ltr"
                       value={email}
                       onChange={(e) => {
-                        setEmail(e.target.value);
+                        // يُطبَّع أثناء الكتابة لا عند الحفظ فقط: ما يراه الأدمن هنا هو نفسه ما
+                        // يُخزَّن وما يُستعلم به لاحقاً، فلا يبقى فرق خفيّ بين الاثنين.
+                        setEmail(e.target.value.trim().toLowerCase());
                         clearFieldError('email');
                       }}
                       placeholder="client@company.com"
