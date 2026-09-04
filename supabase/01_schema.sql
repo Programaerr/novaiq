@@ -210,8 +210,15 @@ create table if not exists public.profiles (
   display_name  text not null default '',
   photo_url     text not null default '',
   created_at    timestamptz not null default now(),
-  last_sign_in_at timestamptz
+  last_sign_in_at timestamptz,
+  -- متى ينتهي حظر هذا الحساب، أو NULL إن لم يكن محظوراً. مرآة لعمود auth.users.banned_until
+  -- نفسه — يملؤها المشغّل أدناه تلقائياً بعد كل حظر/فكّ حظر (انظر admin-users في Edge
+  -- Functions)، فتقرأ لوحة الأعضاء حالة الحساب من هنا بلا نداء إضافي.
+  banned_until  timestamptz
 );
+
+-- عمود أُضيف بعد الإصدار الأول من هذا الملف؛ لمن شغّله من قبل بلا هذا العمود.
+alter table public.profiles add column if not exists banned_until timestamptz;
 
 create index if not exists profiles_email_idx on public.profiles (email);
 
@@ -322,19 +329,24 @@ create trigger contracts_stamp_milestones
 create or replace function public.sync_profile_from_auth()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.profiles (id, email, display_name, photo_url, last_sign_in_at)
+  insert into public.profiles (id, email, display_name, photo_url, last_sign_in_at, banned_until)
   values (
     new.id,
     lower(btrim(coalesce(new.email, ''))),
     coalesce(new.raw_user_meta_data ->> 'full_name', ''),
     coalesce(new.raw_user_meta_data ->> 'avatar_url', ''),
-    new.last_sign_in_at
+    new.last_sign_in_at,
+    new.banned_until
   )
   on conflict (id) do update
     set email = excluded.email,
         display_name = case when excluded.display_name <> '' then excluded.display_name else public.profiles.display_name end,
         photo_url = case when excluded.photo_url <> '' then excluded.photo_url else public.profiles.photo_url end,
-        last_sign_in_at = excluded.last_sign_in_at;
+        last_sign_in_at = excluded.last_sign_in_at,
+        -- حظر/فكّ حظر حساب هو تحديث على auth.users (banned_until)، وهذا المشغّل يعمل على
+        -- كل إدخال أو تحديث لذلك الجدول — فيمرّ من هنا تلقائياً بلا كود إضافي في Edge
+        -- Function الإدارة، ويكفيها استدعاء GoTrue Admin API وحده.
+        banned_until = excluded.banned_until;
 
   /* أول دخول لزبون أنشأ له الأدمن عقداً قبل أن يملك حساباً: يُربط العقد بحسابه الآن، بالبريد.
 

@@ -7,6 +7,9 @@ export interface ManagedUser {
   photoURL: string;
   createdAt: string;
   lastSignInAt: string;
+  /** تاريخ انتهاء الحظر إن كان الحساب محظوراً حالياً، وإلا `null`. مرآة لـauth.users.banned_until
+   *  (انظر sync_profile_from_auth في 01_schema.sql) — تُقرأ هنا بلا أي نداء إضافي. */
+  bannedUntil: string | null;
 }
 
 /* يقرأ جدول `profiles` مباشرة — وهو مرآة يملؤها **مشغّل على auth.users**، لا الحساب نفسه.
@@ -16,7 +19,7 @@ export interface ManagedUser {
 export async function listAllUsers(): Promise<ManagedUser[]> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, email, display_name, photo_url, created_at, last_sign_in_at');
+    .select('id, email, display_name, photo_url, created_at, last_sign_in_at, banned_until');
   if (error) throw error;
   return ((data || []) as Record<string, unknown>[]).map((row) => ({
     uid: row.id as string,
@@ -25,8 +28,28 @@ export async function listAllUsers(): Promise<ManagedUser[]> {
     photoURL: (row.photo_url as string) || '',
     createdAt: (row.created_at as string) || '',
     lastSignInAt: (row.last_sign_in_at as string) || '',
+    bannedUntil: (row.banned_until as string) || null,
   }));
 }
+
+/** حساب محظور فعلاً الآن — لا يكفي وجود تاريخ في `banned_until`، لأنه قد يكون في الماضي
+ *  (حظر انتهى ولم يُصفَّر الحقل بعد فكّ حظر GoTrue التلقائي أحياناً لا يُحدَّث فوراً). */
+export function isAccountBanned(bannedUntil: string | null): boolean {
+  return !!bannedUntil && new Date(bannedUntil).getTime() > Date.now();
+}
+
+/* تعطيل حساب (حظر مؤقت قابل للتراجع) أو حذفه نهائياً.
+   كلاهما يحتاج مفتاح service_role — لا يجوز أن يصل المتصفح أبداً — فتُنفَّذ عبر دالّة سحابية
+   وسيطة (supabase/functions/admin-users) تتحقّق أن المُنادي أدمن فعلاً بجلسته هو قبل التنفيذ.
+   `functions.invoke` يُرفق رمز جلسة الأدمن الحالية تلقائياً — لا حاجة لقراءته يدوياً. */
+async function callAdminUsersFunction(action: 'ban' | 'unban' | 'delete', uid: string): Promise<void> {
+  const { error } = await supabase.functions.invoke('admin-users', { body: { action, uid } });
+  if (error) throw error;
+}
+
+export const disableUserAccount = (uid: string) => callAdminUsersFunction('ban', uid);
+export const enableUserAccount = (uid: string) => callAdminUsersFunction('unban', uid);
+export const deleteUserAccountForever = (uid: string) => callAdminUsersFunction('delete', uid);
 
 /* المشتركون = الحسابات ناقص المشرفين. كان هذا في Firestore سؤالاً منفصلاً لكل حساب على حدة
    (N+1) لأن سرد `admins` ممنوع هناك. هنا استعلام واحد لقائمة المشرفين — والسياسة تسمح للأدمن
