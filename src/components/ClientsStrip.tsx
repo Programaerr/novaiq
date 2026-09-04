@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useClientsStrip } from '../lib/clientsStrip';
+import { ClientsShapeBand } from './ClientsShapeBand';
 import { OBSIDIAN, PAPER } from '../lib/homePalette';
 import { Language } from '../lib/i18n';
 
@@ -39,6 +40,12 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
      الذي يتغيّر بعدد الشعارات وبعرض الجهاز. لو استُعملت القيمة مدةً مباشرة لصار الشريط أسرع
      كلما زادت الشعارات وأبطأ على الشاشة الصغيرة — أي سرعة مختلفة عند كل زائر. */
   const [durationSeconds, setDurationSeconds] = useState(strip.speedSeconds);
+  /* نفس الحركة مقاسة بالبكسل/الثانية، لطبقة الأشكال خلف الشريط.
+     لا تُحسب هناك لأن مصدرها واحد: المسار يقطع عرض مسار واحد بالضبط في كل دورة
+     (ترجمة -50% على صندوق عرضه مساران)، فالقسمة هنا هي نفسها ما تفعله حركة CSS. حساب
+     مستقل داخل الطبقة كان سيصير مصدر حقيقة ثانياً لشيء واحد، والانحراف بينهما يُقرأ
+     كخلل لا كتصميم. */
+  const [speedPxPerSecond, setSpeedPxPerSecond] = useState(0);
 
   const measure = useCallback(() => {
     const viewport = viewportRef.current;
@@ -59,6 +66,11 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
 
     const seconds = Math.max(4, strip.speedSeconds * (laneWidth / viewportWidth));
     setDurationSeconds((prev) => (Math.abs(prev - seconds) > 0.25 ? seconds : prev));
+
+    // عتبة بكسل واحد، مثل عتبة الربع ثانية أعلاه: ResizeObserver يُطلق على كسور البكسل
+    // في أثناء التخطيط، وحالة جديدة عند كل كسر تعني إعادة عرض لا يراها أحد.
+    const pxPerSecond = laneWidth / seconds;
+    setSpeedPxPerSecond((prev) => (Math.abs(prev - pxPerSecond) > 1 ? pxPerSecond : prev));
   }, [repeats, strip.speedSeconds]);
 
   useEffect(() => {
@@ -129,6 +141,13 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
           WebkitMaskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
         }}
       >
+        {/* طبقة الأشكال، داخل هذا الصندوق بالذات وليس في القسم كله — ولثلاثة أسباب لا واحد:
+            هو الأب المُوضَع (relative)، فـabsolute inset-0 تقع على الشريط وحده لا على القسم؛
+            والقناع عليه يسري على أبنائه، فتدخل الأشكال وتخرج من العدم بنفس تلاشي الشعارات
+            بلا تلاشٍ ثانٍ يُكتب وينحرف عنه لاحقاً؛ وهو الصندوق الذي يُقاس عليه المسار أصلاً،
+            فالطبقة والشعارات تنظران إلى نفس العرض. */}
+        <ClientsShapeBand speedPxPerSecond={speedPxPerSecond} />
+
         {/* dir="ltr" على المسار، وهذا هو أصل "الفراغ الكبير ثم يظهر من العدم".
             الصفحة عربية (rtl)، فالنسختان تُصفّان من اليمين إلى اليسار: النسخة الأصلية تحتل
             النصف الأيمن والمكرّرة النصف الأيسر. والحركة `-50%` تدفع المسار يساراً — أي نحو
@@ -141,7 +160,10 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
             يستجيب لضغطة، كما طُلب. */}
         <div
           dir="ltr"
-          className="nq-marquee flex w-max pointer-events-none"
+          /* relative z-10 لأجل ترتيب الطلاء وحده: العنصر المُوضَع يُطلى فوق شقيقه غير
+             المُوضَع مهما كان ترتيبهما في المصدر، وطبقة الأشكال مُوضَعة بالضرورة لأنها تملأ
+             الشريط — فبدون هذا السطر تُرسم الأشكال فوق الشعارات لا خلفها. */
+          className="nq-marquee relative z-10 flex w-max pointer-events-none"
           style={{ ['--nq-marquee-duration' as string]: `${durationSeconds}s` }}
         >
           <ul ref={laneRef} className="flex items-center">
