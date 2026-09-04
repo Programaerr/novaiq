@@ -25,9 +25,30 @@ const ADMIN_CHAT_IDS = (Deno.env.get('TELEGRAM_ADMIN_CHAT_ID') ?? '')
   .map((id) => id.trim())
   .filter(Boolean);
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
-const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
 type Payload = { type: 'new_contract' | 'new_subscriber'; record: Record<string, unknown> };
+
+/**
+ * يقرأ دعوى `role` من حمولة الرمز — بلا تحقّق من التوقيع، لأن التحقّق ليس مهمّة هذه الدالّة:
+ * تكفّلت به المنصّة قبل أن يصل الطلب أصلاً (إعداد Verify JWT مُفعَّل).
+ *
+ * ولماذا لا نقارن الرمز حرفاً بحرف بـ`SUPABASE_SERVICE_ROLE_KEY`: قيمة ذلك المتغيّر تُحقَن في
+ * الدالّة لحظة نشرها وتتجمّد عندها. فلو دُوِّر المفتاح — أو نُسخ إلى Vault مفتاحٌ أحدث من آخر
+ * نشرة — صار عندك مفتاحان صحيحان لا يتطابقان نصّاً، فتُرفض نداءات القاعدة كلها بـ403 وهي تحمل
+ * صلاحية كاملة. الدور لا يشيخ، والنصّ يشيخ.
+ */
+function jwtRole(token: string): string {
+  try {
+    const part = token.split('.')[1];
+    if (!part) return '';
+    const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
+    const claims = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+    return String(claims?.role ?? '');
+  } catch {
+    return '';
+  }
+}
 
 const api = (method: string) => `https://api.telegram.org/bot${BOT_TOKEN}/${method}`;
 
@@ -97,16 +118,20 @@ function subscriberBody(r: Record<string, unknown>) {
   ].join('\n');
 }
 
-/** يحفظ رقم الموضوع على العقد، فتعرف كل رسالة لاحقة عنه أين تذهب. */
-async function rememberTopic(contractNumber: string, threadId: number) {
-  if (!SUPABASE_URL || !SERVICE_ROLE) return;
+/** يحفظ رقم الموضوع على العقد، فتعرف كل رسالة لاحقة عنه أين تذهب.
+ *
+ *  يكتب برمز المُنادي نفسه لا بمتغيّر البيئة: هو رمز `service_role` تحقّقت المنصّة من توقيعه
+ *  قبل أسطر، وهو بالضرورة أحدث من أي قيمة تجمّدت في بيئة النشر — فلا يبقى في الطريق شيء
+ *  يمكن أن يشيخ. */
+async function rememberTopic(contractNumber: string, threadId: number, token: string) {
+  if (!SUPABASE_URL || !token) return;
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/contracts?contract_number=eq.${encodeURIComponent(contractNumber)}`,
     {
       method: 'PATCH',
       headers: {
-        apikey: SERVICE_ROLE,
-        Authorization: `Bearer ${SERVICE_ROLE}`,
+        apikey: token,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
         Prefer: 'return=minimal',
       },
@@ -123,12 +148,18 @@ Deno.serve(async (req) => {
    * عنوان الدالّة ليس سرّاً — مُعرِّف المشروع مكتوب في حزمة الموقع التي ينزّلها كل زائر،
    * والمسار مُخمَّن. فبلا فحص هنا يقدر أي شخص إغراق مجموعتك بمواضيع لعقود لا وجود لها.
    *
-   * والمقارنة بمفتاح `service_role` لا بسرّ مخترَع: المفتاح موجود أصلاً، وSupabase يحقنه في
-   * كل دالّة تلقائياً، فلا شيء جديد يُخترع ولا يُحفظ في مكانين. وهو أضيق من `Verify JWT`
-   * المدمج: ذاك يقبل **أي** رمز صادر عن المشروع — ومنه مفتاح `anon` المنشور للعالم في
-   * الموقع نفسه، أي أنه لا يمنع أحداً هنا. */
-  const bearer = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
-  if (!SERVICE_ROLE || bearer !== SERVICE_ROLE) {
+   * والحراسة طبقتان، كلٌّ تسدّ ما تتركه الأخرى:
+   *  · **المنصّة** تتحقّق من توقيع الرمز (Verify JWT مُفعَّل) — فلا يمرّ رمز مُلفَّق.
+   *  · **هنا** نتحقّق من الدور — لأن Verify JWT وحده يقبل **أي** رمز صادر عن المشروع، ومنه
+   *    مفتاح `anon` المنشور للعالم في حزمة الموقع نفسها. والدور `service_role` لا يحمله إلا
+   *    من يكتب في القاعدة، وهو ما ترسله pg_net.
+   *
+   * وإن ظهر 401 بدل 403 فالمعنى مختلف تماماً: التوقيع لم يُقبل — أي أن ما في Vault مفتاحٌ من
+   * سرّ JWT آخر (بعد تدوير مثلاً)، وعلاجه نسخ مفتاح service_role الحالي إلى Vault. */
+  const bearer = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '').trim();
+  const role = jwtRole(bearer);
+  if (role !== 'service_role') {
+    console.error('notify: نداء مرفوض — الدور:', role || '(بلا رمز صالح)');
     return new Response('forbidden', { status: 403 });
   }
   if (!BOT_TOKEN || !CHAT_ID) {
@@ -163,7 +194,7 @@ Deno.serve(async (req) => {
         link_preview_options: { is_disabled: true },
       });
 
-      await rememberTopic(String(r.contract_number), topic.message_thread_id);
+      await rememberTopic(String(r.contract_number), topic.message_thread_id, bearer);
     } else if (payload.type === 'new_subscriber') {
       /* المشتركون إلى محادثة البوت الخاصّة لا إلى المجموعة.
        *

@@ -127,9 +127,13 @@ create trigger profiles_notify_insert
 --
 --    select public.set_vault_secret('service_role_key', '<مفتاح service_role من Settings ← API>');
 --
---  لا سرّ يُخترع: الدالّة تقارن الترويسة بمفتاح service_role الذي يحقنه Supabase فيها تلقائياً.
---  وأسرارها تقتصر على TELEGRAM_BOT_TOKEN وTELEGRAM_CHAT_ID.
---  لتغيير أيّها لاحقاً: vault.update_secret(id, value).
+--  لا سرّ يُخترع: الدالّة تقرأ دور الرمز الوارد وتشترط `service_role`، والمنصّة تكون قد تحقّقت
+--  من توقيعه قبلها — فيلزم إبقاء `Verify JWT` **مُفعَّلاً** في إعدادات الدالّة.
+--  ولا تُقارَن النصوص: مفتاح البيئة المحقون يتجمّد لحظة النشر، فتدويرُ المفتاح بعده يجعل
+--  مفتاحين صحيحين لا يتطابقان حرفياً — وتُردّ نداءات القاعدة كلها بـ403 بلا سبب ظاهر.
+--
+--  وأسرار الدالّة نفسها تقتصر على TELEGRAM_BOT_TOKEN وTELEGRAM_CHAT_ID وTELEGRAM_ADMIN_CHAT_ID،
+--  وتُضبط من لوحة Edge Functions ← Secrets لا من هنا.
 --
 --  ملاحظة على عمود `telegram_topic_id`: تكتبه الدالّة بمفتاح service_role بعد إنشاء الموضوع.
 --  ولهذا يعرف مشغّلُ الحراسة في 02_policies.sql هذا الدور صراحةً — بدونه كانت تلك الكتابة
