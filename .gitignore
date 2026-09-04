@@ -6,7 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
-service-account*.json
 .claude/settings.local.json
 # Throwaway verification scripts and the screenshots they produce.
 _*.mjs

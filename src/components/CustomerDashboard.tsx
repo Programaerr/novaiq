@@ -319,7 +319,7 @@ function CustomerContractRow({
   language: Language;
   currency: Currency;
   /** حساب صاحب الحساب — يُكتب على العقد لحظة التوقيع فقط إن لم يكن مكتوباً عليه أصلاً
-   *  (انظر handleSignPending أدناه وfirestore.rules: customerSignsPendingContract). */
+   *  (انظر handleSignPending أدناه وsupabase/02_policies.sql: customerSignsPendingContract). */
   uid: string;
   expanded: boolean;
   onToggle: () => void;
@@ -342,7 +342,7 @@ function CustomerContractRow({
   /* "بانتظار توقيعك" تعني **بلا توقيع**، لا مجرّد حالة 'draft'.
      الحالة وحدها كانت كافية لعرض لوحة توقيع فوق عقد موقَّع أصلاً لو عاد إلى 'draft' لأي سبب —
      ولوحة لا يمكن أن تنجح إطلاقاً، لأن القاعدة تقفل التوقيع بعد أول كتابة له
-     (signatureIsLocked في firestore.rules). زرّ يَعِد بما يرفضه الخادم أسوأ من غيابه. */
+     (signatureIsLocked في supabase/02_policies.sql). زرّ يَعِد بما يرفضه الخادم أسوأ من غيابه. */
   const isPendingSignature = contract.status === 'draft' && !contract.signatureDataUrl;
   const [pendingTermsViewedAt, setPendingTermsViewedAt] = useState<string | null>(null);
   const [pendingAgreedToTerms, setPendingAgreedToTerms] = useState(false);

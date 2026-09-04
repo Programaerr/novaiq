@@ -50,7 +50,7 @@ export function CustomerProfileSheet({
   contracts,
   onClose,
 }: CustomerProfileSheetProps) {
-  // نفس منطق الملكية المستخدم في firestore.rules وCustomerDashboard: uid أولاً، والبريد
+  // نفس منطق الملكية المستخدم في supabase/02_policies.sql وCustomerDashboard: uid أولاً، والبريد
   // احتياطاً لعقد أقدم من وجود هذا الحقل.
   const own = contracts
     .filter((c) => c.uid === uid || (!c.uid && c.email?.toLowerCase() === email.toLowerCase()))

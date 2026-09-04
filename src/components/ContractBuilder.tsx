@@ -51,7 +51,7 @@ interface ContractBuilderProps {
    *   · بريد الزبون يصبح حقلاً يكتبه الأدمن بدل أن يُؤخَذ من حساب الأدمن الموقّع دخوله.
    *   · التوقيع والبنود يخرجان من "الناقص المانع للإرسال" — العقد يُحفظ بلا توقيع، بحالة
    *     'draft'، ليجده الزبون في حسابه لاحقاً ويوقّعه هو بنفسه بنفس القوانين الكاملة
-   *     (انظر CustomerDashboard.tsx وfirestore.rules: customerSignsPendingContract).
+   *     (انظر CustomerDashboard.tsx وsupabase/02_policies.sql: customerSignsPendingContract).
    *   · uid لا يُكتب من حساب الأدمن — لو كُتب لَربَط العقدَ بحساب الأدمن نفسه، فلا يظهر
    *     للزبون في "عقودي" أبداً (المطابقة هناك تعتمد البريد حين لا يوجد uid). */
   adminCreatingForClient?: boolean;
@@ -138,7 +138,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   const [repName, setRepName] = useState(draft?.repName || '');
   /* بريد الحساب الموقّع أولاً، لا بريد المسودة: من فتح النموذج بحساب ثم سجّل دخوله بحساب آخر
      كانت مسودته تُبقي البريد القديم، فيُنشأ عقد ببريد لا يخصّ صاحب الحساب — وقاعدة Firestore
-     الآن ترفض ذلك صراحةً (firestore.rules)، فكانت النتيجة فشل حفظ صامت.
+     الآن ترفض ذلك صراحةً (supabase/02_policies.sql)، فكانت النتيجة فشل حفظ صامت.
 
      الاستثناء الوحيد: الأدمن ينشئ العقد نيابةً عن زبون، فبريد الحساب هو بريد الأدمن نفسه لا
      بريد الزبون — والقاعدة هناك لا تفرض تطابقهما أصلاً (branch الأدمن في allow create). لذلك
@@ -607,7 +607,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       // وليس فقط عند غياب accountUid: الأدمن الذي يُنشئ هذا العقد نيابةً عن زبون له هو
       // نفسه حساب مسجَّل دخول (accountUid موجود)، لكنه حساب الأدمن لا حساب الزبون — فكتابته
       // هنا كانت تربط العقد بحساب الأدمن، ولا يظهر للزبون في "عقودي" حين يسجّل دخوله لاحقاً
-      // (المطابقة بلا uid تعتمد البريد وحده؛ انظر subscribeToMyContracts وfirestore.rules).
+      // (المطابقة بلا uid تعتمد البريد وحده؛ انظر subscribeToMyContracts وsupabase/02_policies.sql).
       ...(accountUid && !adminCreatingForClient ? { uid: accountUid } : {}),
       contractNumber,
       companyName,
@@ -903,7 +903,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 {/* بريد الزبون — يظهر فقط حين يملأ الأدمن هذا النموذج نيابةً عنه؛ في المسار
                     العادي يُؤخَذ البريد من حساب العميل الموقّع دخوله بلا أي حقل مرئي (أعلاه).
                     هذا هو ما يربط العقد بالزبون لاحقاً حين يسجّل دخوله بنفسه ليوقّعه: المطابقة
-                    في subscribeToMyContracts/firestore.rules تعتمد هذا البريد بالضبط. */}
+                    في subscribeToMyContracts/supabase/02_policies.sql تعتمد هذا البريد بالضبط. */}
                 {adminCreatingForClient && (
                   <div>
                     <label className="block text-sm font-semibold text-white/85 mb-2">

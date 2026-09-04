@@ -35,7 +35,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
-  if (url.origin !== location.origin) return; // firebase / translate / fonts stay untouched
+  if (url.origin !== location.origin) return; // Supabase والخطوط الخارجية لا يعترضها العامل
 
   // مسارات /api/ لا تُخزَّن أبداً. الاستراتيجية أدناه "الكاش أولاً"، وردّ مثل /api/admin/users
   // يحمل بيانات حساب مسجّل دخول — تخزينه يعني أن مستخدماً آخر على نفس الجهاز/المتصفح قد

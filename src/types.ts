@@ -62,7 +62,7 @@ export interface PaymentRecord {
 export interface ContractData {
   id?: string;
   // The creating account's Firebase Auth uid — the basis Firestore security rules use to
-  // confirm a customer owns a contract (see firestore.rules). Optional because contracts
+  // confirm a customer owns a contract (see supabase/02_policies.sql). Optional because contracts
   // created before this field existed don't have it; those fall back to an email match.
   uid?: string;
   contractNumber: string;
@@ -166,7 +166,7 @@ export interface ContractData {
   updatedAt?: string;
   completedAt?: string;
   /** لحظة دخول العقد فعلياً في "قيد التنفيذ" — تُضبط تلقائياً أول مرة يصل فيها إلى هذه
-   *  الحالة (lib/firebase.ts)، وهي نقطة الصفر التي تُحسب منها نسبة التقدّم في حساب العميل
+   *  الحالة (lib/db.ts)، وهي نقطة الصفر التي تُحسب منها نسبة التقدّم في حساب العميل
    *  (lib/contractProgress.ts). بدونها كانت النسبة ستقفز أو تعود للوراء كلما عدّل الأدمن
    *  أي حقل آخر، لأن لا شيء يقول متى بدأ العمل. */
   developmentStartedAt?: string;

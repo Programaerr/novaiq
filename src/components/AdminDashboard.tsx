@@ -34,7 +34,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
   const isAr = language === 'ar';
   const [tab, setTab] = useState<Tab>('overview');
   const [rawContracts, setRawContracts] = useState<ContractData[]>([]);
-  /** التكاليف تعيش في مجموعة أدمن-فقط منفصلة (انظر firestore.rules) وتُدمج هنا. */
+  /** التكاليف تعيش في مجموعة أدمن-فقط منفصلة (انظر supabase/02_policies.sql) وتُدمج هنا. */
   const [costs, setCosts] = useState<Record<string, number>>({});
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showMore, setShowMore] = useState(false);

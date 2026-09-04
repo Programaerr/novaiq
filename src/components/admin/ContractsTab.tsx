@@ -78,7 +78,7 @@ export function ContractsTab({
       // خلال أجزاء من الثانية — نفس مصدر الحقيقة الوحيد المعتمد في كل الموقع.
     } catch (e) {
       console.error('Failed to save admin-created contract:', e);
-      // نفس السبب المشروح في lib/firebase.ts: رفضٌ من القاعدة ليس انقطاع إنترنت، وقولهما
+      // نفس السبب المشروح في lib/db.ts: رفضٌ من القاعدة ليس انقطاع إنترنت، وقولهما
       // بعبارة واحدة يرسل من يقرأها يفحص المكان الخطأ.
       const reason = classifyWriteFailure(e);
       showToast(
@@ -151,7 +151,7 @@ export function ContractsTab({
             ليس نفس مسار الموقع العام (ContractBuilderGate خلف تسجيل دخول العميل) — هنا الأدمن
             نفسه يملأ بيانات الزبون، ويقدر يترك التوقيع فارغاً فيُحفظ العقد 'draft' ليجده
             الزبون في حسابه لاحقاً ويوقّعه بنفسه (انظر adminCreatingForClient في
-            ContractBuilder.tsx وfirestore.rules: customerSignsPendingContract). */}
+            ContractBuilder.tsx وsupabase/02_policies.sql: customerSignsPendingContract). */}
         <button
           type="button"
           onClick={() => setCreatingForClient(true)}
@@ -543,7 +543,7 @@ function ContractRow({
       showToast(isAr ? 'تم حذف العقد' : 'Contract deleted', 'success');
     } catch (error) {
       /* الرسالة تسمّي الخطأ لا تخفيه: أشهر أسباب الفشل هنا هو رفض القواعد (permission-denied)
-         حين لا تكون firestore.rules منشورة أو لا يُقيَّم الحساب أدمناً — ورسالة عامة كانت
+         حين لا تكون supabase/02_policies.sql منشورة أو لا يُقيَّم الحساب أدمناً — ورسالة عامة كانت
          تُقرأ كعُطل عابر يُعاد المحاولة بعده، فيُعاد إلى ما لا نهاية. */
       const code = (error as { code?: string })?.code || '';
       showToast(

@@ -15,7 +15,7 @@ import type { ContractData } from '../types';
  * الأدمن الحالة "مكتمل" فعلاً.
  *
  * ## ولماذا لا تعود للوراء أبداً
- * الأساس هو `developmentStartedAt` (يُضبط مرة واحدة، انظر lib/firebase.ts) لا `updatedAt`:
+ * الأساس هو `developmentStartedAt` (يُضبط مرة واحدة، انظر lib/db.ts) لا `updatedAt`:
  * لو حُسبت من آخر تعديل، لكان كل حفظ يقوم به الأدمن يعيد النسبة إلى نقطة البداية أمام
  * العميل.
  */
