@@ -116,7 +116,11 @@ declare
      تعمل بلا مستخدم — فـ`auth.uid()` فارغ و`is_admin()` تعطي false، فكانت تسقط في فرع
      "العميل" أدناه وتُرفض. ولاحظ ما لا يشمله هذا الإعفاء: قفل التوقيع وقاعدة المسودّة
      يُفحصان **قبله** ويسريان على الجميع بلا استثناء. */
-  is_privileged boolean := public.is_admin() or auth.role() = 'service_role';
+  is_privileged boolean :=
+    public.is_admin()
+    or auth.role() = 'service_role'
+    -- كتابة من القاعدة نفسها (ربط عقد بحسابه عند أول دخول) — انظر sync_profile_from_auth.
+    or coalesce(current_setting('nuvaiq.internal_write', true), 'off') = 'on';
   -- ما يجوز أن يتغيّر في كل شكل من أشكال كتابة العميل. أي عمود خارج القائمة = رفض.
   sign_keys text[] := array[
     'signature_data_url', 'signature_ink', 'agreed_to_terms',

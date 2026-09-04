@@ -16,7 +16,10 @@
  */
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? '';
+/** مجموعة العمل — هنا تُفتح مواضيع العقود. */
 const CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID') ?? '';
+/** محادثة البوت الخاصّة — هنا تصل تنبيهات المشتركين الجدد وحدها. */
+const ADMIN_CHAT_ID = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
@@ -158,9 +161,20 @@ Deno.serve(async (req) => {
 
       await rememberTopic(String(r.contract_number), topic.message_thread_id);
     } else if (payload.type === 'new_subscriber') {
-      // المشتركون لا موضوع لكل منهم: لا خيط يتبع مشتركاً، بخلاف العقد. تذهب إلى العام.
+      /* المشتركون إلى محادثة البوت الخاصّة لا إلى المجموعة.
+       *
+       * تسجيل حساب ليس حدثاً تعاقدياً — لا خيط يتبعه ولا نقاش يدور حوله، بخلاف العقد. وضعُه
+       * في المجموعة يُغرق مواضيع العقود بضجيج يومي، وأول ما يُفقد في مجموعة كثيرة الرسائل هو
+       * الرسالة التي تهمّ.
+       *
+       * والارتداد إلى المجموعة عند غياب الإعداد مقصود: إشعار في المكان الخطأ يُلاحَظ ويُصحَّح،
+       * أمّا إشعار لا يصل فيبدو كأن أحداً لم يسجّل. */
+      const target = ADMIN_CHAT_ID || CHAT_ID;
+      if (!ADMIN_CHAT_ID) {
+        console.warn('notify: TELEGRAM_ADMIN_CHAT_ID غير مضبوط — أُرسل تنبيه المشترك إلى المجموعة');
+      }
       await tg('sendMessage', {
-        chat_id: CHAT_ID,
+        chat_id: target,
         parse_mode: 'HTML',
         text: subscriberBody(r),
         link_preview_options: { is_disabled: true },

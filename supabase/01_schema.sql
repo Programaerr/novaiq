@@ -336,12 +336,30 @@ begin
         photo_url = case when excluded.photo_url <> '' then excluded.photo_url else public.profiles.photo_url end,
         last_sign_in_at = excluded.last_sign_in_at;
 
-  -- أول دخول لزبون أنشأ له الأدمن عقداً قبل أن يملك حساباً: يُربط العقد بحسابه الآن، بالبريد.
+  /* أول دخول لزبون أنشأ له الأدمن عقداً قبل أن يملك حساباً: يُربط العقد بحسابه الآن، بالبريد.
+
+     العَلَم قبلها ضروري: هذه الكتابة تُطلق `guard_contract_update`، وهي تجري بلا رمز مستخدم
+     (خادم الهوية يتصل بدور خاص به)، فكان الحارس يقرأها ككتابة عميل غير مصرَّح بها ويرمي.
+     `set_config(..., true)` تجعل العَلَم **محصوراً في المعاملة** فلا يتسرّب إلى طلب آخر على
+     نفس الاتصال المُجمَّع. ولا يقدر أي عميل ضبطه: لا دالّة معرَّضة عبر الواجهة تفعل ذلك. */
+  perform set_config('nuvaiq.internal_write', 'on', true);
+
   update public.contracts
      set user_id = new.id
    where user_id is null
      and email = lower(btrim(coalesce(new.email, '')));
 
+  perform set_config('nuvaiq.internal_write', 'off', true);
+
+  return new;
+
+/* ── لا يرمي أبداً، مهما حدث ────────────────────────────────────────────────────────────
+   هذا مشغّل على `auth.users`، وكل تحديث لجلسة يمرّ به. فاستثناء واحد غير ملتقَط هنا يعني أن
+   خادم الهوية يردّ 500 على **كل** طلب تجديد رمز — أي أن الموقع كله يتوقّف عن العمل، لا ميزة
+   واحدة فيه. وهذا ما وقع فعلاً.
+   مسك دفاتر داخلي (مرآة الحساب، ربط العقود) لا يجوز أن يكون شرطاً في قدرة أحد على الدخول. */
+exception when others then
+  raise warning 'sync_profile_from_auth failed for %: %', new.id, sqlerrm;
   return new;
 end;
 $$;
