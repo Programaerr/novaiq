@@ -22,5 +22,9 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  // بلا هذا يفحص tsc كل ملف .ts في المستودع — ومنها دوال Supabase التي تعمل على Deno لا على
+  // المتصفح: تستعمل `Deno.env` و`Deno.serve` وواردات بروابط، فتظهر كأخطاء وهي سليمة تماماً في
+  // بيئتها. تُنشر بأمر supabase CLI وحده، ولا يبنيها Vite ولا يشحنها إلى أحد.
+  "exclude": ["supabase/functions", "node_modules", "dist"]
 }
