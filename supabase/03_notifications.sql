@@ -133,6 +133,7 @@ create trigger profiles_notify_insert
 --  مفتاحين صحيحين لا يتطابقان حرفياً — وتُردّ نداءات القاعدة كلها بـ403 بلا سبب ظاهر.
 --
 --  وأسرار الدالّة نفسها بوتان منفصلان لا بوت واحد (انظر تعليق أعلى functions/notify/index.ts
---  لسبب ذلك): TELEGRAM_CONTRACT_BOT_TOKEN وTELEGRAM_CONTRACT_CHAT_ID للعقود، وTELEGRAM_SUBSCRIBER_BOT_TOKEN
---  وTELEGRAM_ADMIN_CHAT_ID للمشتركين — تُضبط من لوحة Edge Functions ← Secrets لا من هنا.
+--  لسبب ذلك): TELEGRAM_CONTRACT_BOT_TOKEN للعقود وTELEGRAM_SUBSCRIBER_BOT_TOKEN للمشتركين —
+--  وكلاهما يرسل إلى نفس القائمة TELEGRAM_ADMIN_CHAT_ID (أنت وشريكك). تُضبط من لوحة
+--  Edge Functions ← Secrets لا من هنا.
 -- ═══════════════════════════════════════════════════════════════════════════════════════

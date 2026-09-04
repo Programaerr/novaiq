@@ -18,21 +18,19 @@
  *  · **بوت المشتركين** — إلى محادثات الأدمن الخاصة فقط، كما كان بالضبط.
  */
 
-/** بوت العقود: يرسل تفاصيل كل عقد جديد. أكثر من محادثة (أنت وشريكك مثلاً)، مفصولةً بفاصلة —
- *  نفس صيغة ADMIN_CHAT_IDS تماماً تحتها، فتُضاف محادثة لاحقاً بلا لمس الكود. */
-const CONTRACT_BOT_TOKEN = Deno.env.get('TELEGRAM_CONTRACT_BOT_TOKEN') ?? '';
-const CONTRACT_CHAT_IDS = (Deno.env.get('TELEGRAM_CONTRACT_CHAT_ID') ?? '')
-  .split(',')
-  .map((id) => id.trim())
-  .filter(Boolean);
-
-/** بوت المشتركين: إلى محادثات الأدمن الخاصة وحدها.
- *  تقبل أكثر من رقم مفصولةً بفاصلة، فتُضاف أرقام لاحقاً بلا لمس الكود. */
-const SUBSCRIBER_BOT_TOKEN = Deno.env.get('TELEGRAM_SUBSCRIBER_BOT_TOKEN') ?? '';
+/** الوجهة واحدة لكلا البوتين: أنت وشريكك، بمعرّفَي محادثتيكما الخاصّتين (أرقام موجبة)
+ *  مفصولةً بفاصلة. سرّ واحد لا اثنان — البوتان مختلفان (توكنان)، لكنهما يراسلان نفس
+ *  الشخصين، فلا داعي لضبط نفس القائمة مرّتين باسمين مختلفين. */
 const ADMIN_CHAT_IDS = (Deno.env.get('TELEGRAM_ADMIN_CHAT_ID') ?? '')
   .split(',')
   .map((id) => id.trim())
   .filter(Boolean);
+
+/** بوت العقود: يرسل تفاصيل كل عقد جديد. */
+const CONTRACT_BOT_TOKEN = Deno.env.get('TELEGRAM_CONTRACT_BOT_TOKEN') ?? '';
+
+/** بوت المشتركين: يرسل تنبيه كل مشترك جديد. */
+const SUBSCRIBER_BOT_TOKEN = Deno.env.get('TELEGRAM_SUBSCRIBER_BOT_TOKEN') ?? '';
 
 /** رابط لوحة العقود، لفتح العقد مباشرة من الرسالة بلا بحث. */
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://nuvaiq.com';
@@ -166,15 +164,15 @@ Deno.serve(async (req) => {
 
   try {
     if (payload.type === 'new_contract') {
-      if (!CONTRACT_BOT_TOKEN || !CONTRACT_CHAT_IDS.length) {
-        console.error('notify: missing TELEGRAM_CONTRACT_BOT_TOKEN / TELEGRAM_CONTRACT_CHAT_ID');
+      if (!CONTRACT_BOT_TOKEN || !ADMIN_CHAT_IDS.length) {
+        console.error('notify: missing TELEGRAM_CONTRACT_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID');
         return new Response('not configured', { status: 500 });
       }
 
       // كل مُستلِم على حدة، وفشلُ أحدهم (لم يضغط Start بعد مثلاً) لا يمنع وصولها للباقين.
       const text = contractBody(r);
       const results = await Promise.allSettled(
-        CONTRACT_CHAT_IDS.map((chat_id) =>
+        ADMIN_CHAT_IDS.map((chat_id) =>
           tg(CONTRACT_BOT_TOKEN, 'sendMessage', {
             chat_id,
             parse_mode: 'HTML',
@@ -186,7 +184,7 @@ Deno.serve(async (req) => {
 
       results.forEach((result, i) => {
         if (result.status === 'rejected') {
-          console.error(`notify: تعذّر إبلاغ ${CONTRACT_CHAT_IDS[i]} بالعقد —`, result.reason);
+          console.error(`notify: تعذّر إبلاغ ${ADMIN_CHAT_IDS[i]} بالعقد —`, result.reason);
         }
       });
 
