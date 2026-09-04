@@ -22,7 +22,7 @@ import {
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { deleteContractFromFirebase, updateContractFields, fetchContractAudit, saveContractToFirebase, auth } from '../../lib/firebase';
+import { deleteContractFromFirebase, updateContractFields, fetchContractAudit, saveContractToFirebase, classifyWriteFailure, auth } from '../../lib/firebase';
 import { generateContractPDF } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { ContractBuilder } from '../ContractBuilder';
@@ -77,8 +77,21 @@ export function ContractsTab({
       // خلال أجزاء من الثانية — نفس مصدر الحقيقة الوحيد المعتمد في كل الموقع.
     } catch (e) {
       console.error('Failed to save admin-created contract:', e);
+      // نفس السبب المشروح في lib/firebase.ts: رفضٌ من القاعدة ليس انقطاع إنترنت، وقولهما
+      // بعبارة واحدة يرسل من يقرأها يفحص المكان الخطأ.
+      const reason = classifyWriteFailure(e);
       showToast(
-        isAr ? 'تعذر حفظ العقد. تحقّق من الإنترنت وحاول مجدداً' : 'Could not save the contract. Check your connection and try again',
+        reason === 'denied'
+          ? isAr
+            ? 'رفض الخادم حفظ العقد — تأكّد أن حسابك أدمن وأن قواعد Firestore منشورة.'
+            : 'The server refused to save the contract — check that this account is an admin and the Firestore rules are published.'
+          : reason === 'offline'
+            ? isAr
+              ? 'تعذّر الوصول إلى الخادم. تحقّق من الإنترنت وحاول مجدداً.'
+              : 'Could not reach the server. Check your connection and try again.'
+            : isAr
+              ? 'تعذّر حفظ العقد. حاول مجدداً.'
+              : 'Could not save the contract. Please try again.',
         'error'
       );
     } finally {

@@ -113,6 +113,24 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
   return docRef.id;
 }
 
+/** لماذا فشلت كتابة: رفضٌ من الخادم، أم تعذُّر وصول إليه، أم شيء ثالث. */
+export type WriteFailure = 'denied' | 'offline' | 'unknown';
+
+/**
+ * تصنيف فشل الكتابة — يصنّف هنا وتصوغ الواجهة عبارتها بنفسها.
+ *
+ * وُجدت لأن الرسالة الموحّدة "تحقّق من الإنترنت" كانت تكذب في أكثر الحالات شيوعاً: قاعدة
+ * Firestore ترفض الكتابة (permission-denied) والإنترنت سليم تماماً، فيذهب المستخدم يفحص شبكته
+ * بينما العطل في مكان آخر لا يراه — وفي الإنتاج تُحذف `console.*` من الحزمة، فلا أثر يقوده
+ * إلى السبب الحقيقي. الرسالة نفسها هي كل ما يملكه، فيجب أن تكون صادقة.
+ */
+export function classifyWriteFailure(error: unknown): WriteFailure {
+  const code = (error as { code?: string } | null)?.code || '';
+  if (code === 'permission-denied' || code === 'unauthenticated') return 'denied';
+  if (code === 'unavailable' || code === 'deadline-exceeded') return 'offline';
+  return 'unknown';
+}
+
 /**
  * الزبون يوقّع عقداً أنشأه الأدمن نيابةً عنه ('draft'، بلا توقيع — انظر ContractBuilder.tsx
  * وADMIN's ContractsTab.tsx). حصراً هذه الحقول، لا شيء آخر — تماماً ما تسمح به

@@ -4,7 +4,7 @@ import type { User } from 'firebase/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
-import { subscribeToMyContracts, requestContractCancellation, signPendingContract } from '../lib/firebase';
+import { subscribeToMyContracts, requestContractCancellation, signPendingContract, classifyWriteFailure } from '../lib/firebase';
 import { fetchContractSnapshot } from '../lib/contractSnapshot';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';
@@ -383,8 +383,21 @@ function CustomerContractRow({
       // تلقائياً، فتختفي لوحة التوقيع هذه من تلقاء نفسها لأن isPendingSignature تصير false.
     } catch (e) {
       console.error('Failed to sign pending contract:', e);
+      /* لكل سبب رسالته: "تحقّق من الإنترنت" على رفضٍ من الخادم كانت تُرسل صاحب العقد يفحص
+         شبكته بينما الشبكة سليمة والرفض في مكان لا يراه. */
+      const reason = classifyWriteFailure(e);
       showToast(
-        isAr ? 'تعذر حفظ التوقيع. تحقّق من الإنترنت وحاول مجدداً' : 'Could not save the signature. Check your connection and try again',
+        reason === 'denied'
+          ? isAr
+            ? 'رفض الخادم حفظ التوقيع. حدِّث الصفحة وحاول مجدداً، وإن تكرّر فأبلغنا — العقد بحاجة إلى مراجعة صلاحياته.'
+            : 'The server refused to save the signature. Refresh and try again; if it repeats, tell us — the contract needs its permissions reviewed.'
+          : reason === 'offline'
+            ? isAr
+              ? 'تعذّر الوصول إلى الخادم. تحقّق من الإنترنت وحاول مجدداً.'
+              : 'Could not reach the server. Check your connection and try again.'
+            : isAr
+              ? 'تعذّر حفظ التوقيع. حاول مجدداً.'
+              : 'Could not save the signature. Please try again.',
         'error'
       );
     } finally {

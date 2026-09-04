@@ -153,9 +153,15 @@ service cloud.firestore {
           && d.agreedToTerms == true
           && d.signatureDataUrl is string && d.signatureDataUrl.size() > 0 && d.signatureDataUrl.size() < 200000
           && d.termsViewedAt is string
-          && (!('uid' in resource.data)
-              ? (!('uid' in d) || d.uid == request.auth.uid)
-              : d.uid == resource.data.uid);
+          /* نفس معنى الشرط السابق، مكتوباً بمنطق بولياني صرف بدل عامل ثلاثي (؟ :).
+             السبب عملي لا جمالي: هذا الملف يُنشر بلصقه في لوحة Firebase، وأي بناء لغوي يرفضه
+             المحلّل هناك يعني أن الملف كلّه لا يُنشر — فيبقى العقد غير قابل للتوقيع بينما يبدو
+             كل شيء سليماً في المستودع. الصيغة أدناه لا تستعمل إلا ما تستعمله بقية دوال هذا
+             الملف المنشورة أصلاً. */
+          && (
+            (!('uid' in resource.data) && (!('uid' in d) || d.uid == request.auth.uid))
+            || (('uid' in resource.data) && d.uid == resource.data.uid)
+          );
       }
 
       // نفس قفل التوقيع أعلاه، لكن من جهة الأدمن: يقدر يعدّل أي حقل آخر بحرّية كما كان دائماً،
