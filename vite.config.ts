@@ -144,6 +144,10 @@ export default defineConfig(({ mode }) => {
               return 'vendor-drei';
             }
 
+            // Supabase: عميل القاعدة والهوية معاً، ويُطلب عند أول رسم (فحص الجلسة)، فهو
+            // في حزمته الخاصة لا في `vendor` العام — نفس سبب فصل react: نادر التغيّر، فلا
+            // يُبطل تحديثُ مكتبة أخرى نسخةً مخزَّنة عند الزائر.
+            if (id.includes('@supabase')) return 'vendor-supabase';
             if (id.includes('firebase')) return 'vendor-firebase';
             // React and the icon set are both eager and both almost never change, while the
             // rest of `vendor` does. Splitting them off means a dependency bump elsewhere no

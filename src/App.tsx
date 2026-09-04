@@ -34,7 +34,7 @@ import { useCurrentUser } from './lib/auth';
 import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
 import { consumePendingContractSelection } from './lib/pendingContractSelection';
 import { initAnalytics, trackPageView, trackEvent } from './lib/analytics';
-import { saveContractToFirebase } from './lib/firebase';
+import { saveContract } from './lib/db';
 import { clearContractDraft } from './lib/contractDraft';
 import { showToast } from './lib/toast';
 
@@ -394,16 +394,15 @@ export default function App() {
    * Saving is business-critical and needs nothing from that chunk; only the *download* button
    * does. So the save happens here first, and the heavy PDF code stays lazy behind it.
    *
-   * The preview opens either way. saveContractToFirebase writes to localStorage before it
-   * touches the network, so even a failed cloud sync leaves the contract recoverable, and the
-   * customer keeps the download button that turns it into a PDF they can keep. The draft is
-   * cleared only on a confirmed save, so a failure leaves them able to retry rather than
+   * The preview opens either way. الحفظ سحابي بالكامل — لا نسخة محلّية للعقد (حُذفت عمداً:
+   * كانت تُبقي عقداً على الجهاز بعد حذفه من الخادم). ما يبقى عند الفشل هو **مسودّة النموذج**،
+   * فيقدر صاحبها إعادة المحاولة. والمسودّة لا تُمسح إلا بعد حفظ مؤكَّد، فالفشل يترك له ما
    * having to fill the whole form again.
    */
   const handleContractGenerated = async (contract: ContractData) => {
     setIsSavingContract(true);
     try {
-      await saveContractToFirebase(contract);
+      await saveContract(contract);
       clearContractDraft();
       // الحدث الأهم في القمع كله: عقد وُقّع وحُفظ فعلاً. لا بريد ولا هاتف ولا اسم شركة هنا —
       // بيانات تعريف شخصية في GA مخالفة لشروط Google نفسها (انظر lib/analytics.ts).
