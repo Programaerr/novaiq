@@ -262,7 +262,8 @@ export function MembersTab({
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
