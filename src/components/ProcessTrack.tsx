@@ -232,7 +232,10 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
         <header className="max-w-[44rem]">
           <p
             className="nq-label nq-rise text-[0.82rem] sm:text-[0.85rem] font-extrabold tracking-[0.14em] uppercase"
-            style={{ color: OBSIDIAN, opacity: 0.55, ['--nq-rise-delay' as string]: '40ms' }}
+            /* 0.62, not 0.55. At 0.55 this line measures 4.33:1 on the section's warm white
+               and fails the 4.5:1 floor; 0.62 is 5.41:1. Small tracked type is the last
+               place that can afford to sit just under a threshold. */
+            style={{ color: OBSIDIAN, opacity: 0.62, ['--nq-rise-delay' as string]: '40ms' }}
           >
             {isAr ? 'كيف نشتغل' : 'How we work'}
           </p>
@@ -372,7 +375,12 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
                       height: 46,
                       background: isActive ? ORANGE : PAPER_DEEP,
                       color: isActive ? WHITE : OBSIDIAN,
-                      border: `1px solid ${OBSIDIAN}${isActive ? '00' : '14'}`,
+                      /* 18% where this was 8%. The chip itself is PAPER_DEEP on a near-white
+                         band, 1.29:1 — a surface for the numeral rather than the thing that
+                         carries the meaning, which is the numeral at 14.30:1. The stronger
+                         edge is so the chip has a boundary at all; it is not a claim that it
+                         reaches the 3:1 a mark carrying information would owe. */
+                      border: `1px solid ${OBSIDIAN}${isActive ? '00' : '2E'}`,
                     }}
                   >
                     {numeral(i)}
@@ -431,7 +439,10 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
         </div>
 
         {/* ── Mobile: the same path, stood on its end ─────────────────────────────────────────── */}
-        <ol className="md:hidden mt-12 relative">
+        {/* The spine and its two caps live OUTSIDE the list. `<ol>` may contain list items and
+            nothing else; a bare span inside it renders only because browsers repair it, and the
+            repair is not specified. */}
+        <div className="md:hidden mt-12 relative">
           {/* The spine, dashed exactly like the horizontal one, inset to the middle of the marks. */}
           <span
             aria-hidden="true"
@@ -441,6 +452,35 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
               background: `repeating-linear-gradient(to bottom, ${OBSIDIAN}1A 0 2px, transparent 2px 8px)`,
             }}
           />
+
+          {/* The band's own two end shapes, stood on end: the concave chevron the path starts
+              from and the solid head it ends on. Same shapes, same opacities — the vertical
+              layout is the same path rotated, not a different component that happens to list
+              the same eight things. */}
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            width="16"
+            height="9"
+            viewBox="0 0 16 9"
+            className="absolute"
+            style={{ insetInlineStart: 14, top: -14 }}
+          >
+            <path d="M1 1 L8 7.6 L15 1" fill="none" stroke={OBSIDIAN} strokeOpacity="0.28" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            width="16"
+            height="11"
+            viewBox="0 0 16 11"
+            className="absolute"
+            style={{ insetInlineStart: 14, bottom: -13 }}
+          >
+            <path d="M8 10.2 L0.8 0.8 L15.2 0.8 Z" fill={OBSIDIAN} fillOpacity="0.22" />
+          </svg>
+
+          <ol>
           {STAGES.map((stage, i) => (
             <li
               key={stage.key}
@@ -473,7 +513,8 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
               </div>
             </li>
           ))}
-        </ol>
+          </ol>
+        </div>
       </div>
     </section>
   );
