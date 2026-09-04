@@ -25,18 +25,44 @@
 -- ── أنواع محصورة، بدل نصوص حرّة ─────────────────────────────────────────────────────────
 -- في Firestore كانت هذه سلاسل نصّية تحرسها قاعدة أمان. هنا يحرسها النوع نفسه: قيمة خارج
 -- القائمة تُرفض عند الكتابة، لا عند المراجعة.
-create type contract_status as enum (
-  'draft', 'submitted', 'under_review', 'in_development', 'completed', 'cancelled'
-);
-create type payment_plan as enum ('50_50', '100_upfront', '3_milestones');
-create type payment_status as enum ('unpaid', 'partial', 'paid');
-create type project_type as enum ('website', 'app');
-create type theme_preference as enum ('dark', 'light', 'both');
-create type language_support as enum ('ar', 'en', 'ar_en');
-create type signature_ink as enum ('dark');
+do $$ begin
+  if not exists (select 1 from pg_type where typname = 'contract_status') then
+    create type contract_status as enum ('draft', 'submitted', 'under_review', 'in_development', 'completed', 'cancelled');
+  end if;
+end $$;
+do $$ begin
+  if not exists (select 1 from pg_type where typname = 'payment_plan') then
+    create type payment_plan as enum ('50_50', '100_upfront', '3_milestones');
+  end if;
+end $$;
+do $$ begin
+  if not exists (select 1 from pg_type where typname = 'payment_status') then
+    create type payment_status as enum ('unpaid', 'partial', 'paid');
+  end if;
+end $$;
+do $$ begin
+  if not exists (select 1 from pg_type where typname = 'project_type') then
+    create type project_type as enum ('website', 'app');
+  end if;
+end $$;
+do $$ begin
+  if not exists (select 1 from pg_type where typname = 'theme_preference') then
+    create type theme_preference as enum ('dark', 'light', 'both');
+  end if;
+end $$;
+do $$ begin
+  if not exists (select 1 from pg_type where typname = 'language_support') then
+    create type language_support as enum ('ar', 'en', 'ar_en');
+  end if;
+end $$;
+do $$ begin
+  if not exists (select 1 from pg_type where typname = 'signature_ink') then
+    create type signature_ink as enum ('dark');
+  end if;
+end $$;
 
 -- ═══ العقود ═══════════════════════════════════════════════════════════════════════════
-create table public.contracts (
+create table if not exists public.contracts (
   contract_number      text primary key,
 
   -- الملكية: uuid الحساب حين يكون معروفاً، والبريد دائماً.
@@ -115,13 +141,13 @@ create table public.contracts (
 comment on column public.contracts.email is
   'مطبَّع دائماً (صغير ومشذَّب) — هو ما يربط العقد بصاحبه قبل أن يسجّل دخوله، والقيد أعلاه يفرض ذلك في القاعدة لا في الواجهة.';
 
-create index contracts_user_id_idx  on public.contracts (user_id);
-create index contracts_email_idx    on public.contracts (email);
-create index contracts_status_idx   on public.contracts (status);
-create index contracts_created_idx  on public.contracts (created_at desc);
+create index if not exists contracts_user_id_idx  on public.contracts (user_id);
+create index if not exists contracts_email_idx    on public.contracts (email);
+create index if not exists contracts_status_idx   on public.contracts (status);
+create index if not exists contracts_created_idx  on public.contracts (created_at desc);
 
 -- ═══ دفعات العقد ══════════════════════════════════════════════════════════════════════
-create table public.contract_payments (
+create table if not exists public.contract_payments (
   id              uuid primary key default gen_random_uuid(),
   contract_number text not null references public.contracts(contract_number) on delete cascade,
   amount_iqd      bigint not null check (amount_iqd > 0),
@@ -130,12 +156,12 @@ create table public.contract_payments (
   created_at      timestamptz not null default now()
 );
 
-create index contract_payments_contract_idx on public.contract_payments (contract_number);
+create index if not exists contract_payments_contract_idx on public.contract_payments (contract_number);
 
 -- ═══ لقطة العقد المعتمَد ═══════════════════════════════════════════════════════════════
 -- تُكتب مرّة ولا تُعدَّل ولا تُحذف أبداً (السياسات تمنع update/delete تماماً، كما في Firestore).
 -- كل قيمتها في أنها لا تتغيّر: ما يُطبع للعميل بعد سنة هو نصّ البنود كما كان يوم وقّع.
-create table public.contract_snapshots (
+create table if not exists public.contract_snapshots (
   contract_number text primary key references public.contracts(contract_number) on delete cascade,
   snapshot_at     timestamptz not null default now(),
   approved_by     text not null,
@@ -146,7 +172,7 @@ create table public.contract_snapshots (
 
 -- ═══ سجلّ التدقيق ═════════════════════════════════════════════════════════════════════
 -- إضافة فقط. سجل يمكن تعديله أو حذفه ليس سجلاً.
-create table public.contract_audit (
+create table if not exists public.contract_audit (
   id              uuid primary key default gen_random_uuid(),
   contract_number text not null,
   actor_email     text not null check (actor_email = lower(btrim(actor_email))),
@@ -154,14 +180,14 @@ create table public.contract_audit (
   changes         jsonb not null
 );
 
-create index contract_audit_contract_idx on public.contract_audit (contract_number, at desc);
+create index if not exists contract_audit_contract_idx on public.contract_audit (contract_number, at desc);
 
 -- ═══ تكلفتنا الداخلية ═════════════════════════════════════════════════════════════════
 -- جدول مستقل لا عمود في `contracts`، لنفس السبب الذي فصلها في Firestore: القراءة هناك كانت
 -- كلاً لا يتجزأ، فأي حقل داخل العقد يقرأه صاحبه مهما أخفته الواجهة — أي أن كل زبون كان
 -- سيعرف هامش ربحنا من مشروعه. هنا RLS تقدر تفصل بالعمود، لكن الفصل يبقى أوضح وأقل عرضة
 -- لخطأ سياسة واحد.
-create table public.contract_finance (
+create table if not exists public.contract_finance (
   contract_number text primary key references public.contracts(contract_number) on delete cascade,
   cost_iqd        bigint not null default 0,
   updated_at      timestamptz not null default now()
@@ -169,7 +195,7 @@ create table public.contract_finance (
 
 -- ═══ المشرفون ═════════════════════════════════════════════════════════════════════════
 -- مفتاحه البريد كما كان. القائمة نفسها لا تُسرد أبداً (السياسات) حتى لا تُكتشف بالتخمين.
-create table public.admins (
+create table if not exists public.admins (
   email    text primary key check (email = lower(btrim(email))),
   added_at timestamptz not null default now()
 );
@@ -178,7 +204,7 @@ create table public.admins (
 -- في Firestore كان الحساب نفسه يكتب صفّه عند كل دخول لأن سرد حسابات Auth كان يتطلّب Admin
 -- SDK. هنا يُملأ تلقائياً بمشغّل على auth.users — لا كتابة من المتصفح إطلاقاً، فلا يقدر أحد
 -- تزوير بريد أو تاريخ إنشاء.
-create table public.profiles (
+create table if not exists public.profiles (
   id            uuid primary key references auth.users(id) on delete cascade,
   email         text not null check (email = lower(btrim(email))),
   display_name  text not null default '',
@@ -187,10 +213,10 @@ create table public.profiles (
   last_sign_in_at timestamptz
 );
 
-create index profiles_email_idx on public.profiles (email);
+create index if not exists profiles_email_idx on public.profiles (email);
 
 -- ═══ ملاحظات الأدمن عن الشخص (لا عن عقد) ══════════════════════════════════════════════
-create table public.customer_notes (
+create table if not exists public.customer_notes (
   user_id    uuid primary key references auth.users(id) on delete cascade,
   note       text not null default '',
   phone      text not null default '',
@@ -199,7 +225,7 @@ create table public.customer_notes (
 );
 
 -- ═══ رسائل نموذج التواصل ══════════════════════════════════════════════════════════════
-create table public.contact_messages (
+create table if not exists public.contact_messages (
   id         uuid primary key default gen_random_uuid(),
   name       text not null check (length(name) between 1 and 200),
   phone      text not null check (length(phone) between 1 and 40),
@@ -210,13 +236,13 @@ create table public.contact_messages (
 
 -- ═══ تجاوزات الأسعار وإعدادات الموقع ══════════════════════════════════════════════════
 -- الاثنان يقرأهما كل زائر ويكتبهما الأدمن وحده — نفس ما كان.
-create table public.pricing_overrides (
+create table if not exists public.pricing_overrides (
   template_id text primary key,
   data        jsonb not null,
   updated_at  timestamptz not null default now()
 );
 
-create table public.site_settings (
+create table if not exists public.site_settings (
   key        text primary key,          -- 'social' وحده اليوم
   data       jsonb not null,
   updated_at timestamptz not null default now()
@@ -234,6 +260,7 @@ begin
 end;
 $$;
 
+drop trigger if exists contracts_touch_updated_at on public.contracts;
 create trigger contracts_touch_updated_at
   before update on public.contracts
   for each row execute function public.touch_updated_at();
@@ -264,6 +291,7 @@ begin
 end;
 $$;
 
+drop trigger if exists contract_payments_recompute on public.contract_payments;
 create trigger contract_payments_recompute
   after insert or update or delete on public.contract_payments
   for each row execute function public.recompute_contract_payment_totals();
@@ -285,6 +313,7 @@ begin
 end;
 $$;
 
+drop trigger if exists contracts_stamp_milestones on public.contracts;
 create trigger contracts_stamp_milestones
   before update on public.contracts
   for each row execute function public.stamp_development_start();
@@ -317,6 +346,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created_or_updated on auth.users;
 create trigger on_auth_user_created_or_updated
   after insert or update on auth.users
   for each row execute function public.sync_profile_from_auth();

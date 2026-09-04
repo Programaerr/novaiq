@@ -59,15 +59,18 @@ $$;
 
 -- ═══ contracts — أي الصفوف ════════════════════════════════════════════════════════════
 
+drop policy if exists contracts_read on public.contracts;
 create policy contracts_read on public.contracts
   for select using (public.is_admin() or public.owns_contract(user_id, email));
 
 -- الأدمن ينشئ نيابةً عن زبون: يترك user_id فارغاً ويكتب بريد الزبون، فيُربط العقد بحسابه
 -- تلقائياً أول مرّة يسجّل دخوله (المشغّل في 01_schema.sql).
+drop policy if exists contracts_insert_admin on public.contracts;
 create policy contracts_insert_admin on public.contracts
   for insert with check (public.is_admin());
 
 -- والعميل لنفسه فقط، بعقد نظيف — نظير customerCreateIsClean().
+drop policy if exists contracts_insert_own on public.contracts;
 create policy contracts_insert_own on public.contracts
   for insert with check (
     auth.uid() is not null
@@ -91,13 +94,16 @@ create policy contracts_insert_own on public.contracts
   );
 
 -- التعديل: الصفّ مسموح للأدمن، أو لصاحب العقد. **وأي الأعمدة** يقرّرها المشغّل أدناه.
+drop policy if exists contracts_update_admin on public.contracts;
 create policy contracts_update_admin on public.contracts
   for update using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists contracts_update_own on public.contracts;
 create policy contracts_update_own on public.contracts
   for update using (public.owns_contract(user_id, email))
              with check (public.owns_contract(user_id, email));
 
+drop policy if exists contracts_delete_admin on public.contracts;
 create policy contracts_delete_admin on public.contracts
   for delete using (public.is_admin());
 
@@ -177,18 +183,21 @@ begin
 end;
 $$;
 
+drop trigger if exists contracts_guard_update on public.contracts;
 create trigger contracts_guard_update
   before update on public.contracts
   for each row execute function public.guard_contract_update();
 
 -- ═══ contract_payments ════════════════════════════════════════════════════════════════
 -- دفتر داخلي بالكامل: العميل يرى المجموع على عقده (paid_amount_iqd)، لا الأسطر.
+drop policy if exists payments_admin_all on public.contract_payments;
 create policy payments_admin_all on public.contract_payments
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- ═══ contract_snapshots ═══════════════════════════════════════════════════════════════
 -- إضافة فقط. لا update ولا delete لأحد — ولا للأدمن: لقطة يمكن تعديلها لا تُثبت شيئاً، وكل
 -- قيمتها في أنها لا تتغيّر. (غياب سياسة update/delete = منعٌ تام تحت RLS.)
+drop policy if exists snapshots_read on public.contract_snapshots;
 create policy snapshots_read on public.contract_snapshots
   for select using (
     public.is_admin()
@@ -199,14 +208,17 @@ create policy snapshots_read on public.contract_snapshots
     )
   );
 
+drop policy if exists snapshots_insert_admin on public.contract_snapshots;
 create policy snapshots_insert_admin on public.contract_snapshots
   for insert with check (public.is_admin());
 
 -- ═══ contract_audit ═══════════════════════════════════════════════════════════════════
 -- إضافة فقط كذلك، والكاتب هو الحساب الموقَّع نفسه — فلا ينسب أدمن تعديله إلى زميله.
+drop policy if exists audit_read_admin on public.contract_audit;
 create policy audit_read_admin on public.contract_audit
   for select using (public.is_admin());
 
+drop policy if exists audit_insert_admin on public.contract_audit;
 create policy audit_insert_admin on public.contract_audit
   for insert with check (
     public.is_admin()
@@ -214,49 +226,60 @@ create policy audit_insert_admin on public.contract_audit
   );
 
 -- ═══ contract_finance ═════════════════════════════════════════════════════════════════
+drop policy if exists finance_admin_all on public.contract_finance;
 create policy finance_admin_all on public.contract_finance
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- ═══ admins ═══════════════════════════════════════════════════════════════════════════
 -- لا سرد إطلاقاً — القائمة نفسها معلومة حسّاسة. والمستخدم العادي يسأل عن بريده هو فقط، فلا
 -- تُكتشف العضوية بالتخمين. والأدمن وحده يضيف أدمن؛ الأول يُنشأ يدوياً مرّة واحدة.
+drop policy if exists admins_read_self_or_admin on public.admins;
 create policy admins_read_self_or_admin on public.admins
   for select using (
     public.is_admin()
     or email = lower(btrim(coalesce(auth.jwt() ->> 'email', '')))
   );
 
+drop policy if exists admins_write_admin on public.admins;
 create policy admins_write_admin on public.admins
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- ═══ profiles ═════════════════════════════════════════════════════════════════════════
 -- لا كتابة من أحد إطلاقاً: يملؤه مشغّل على auth.users. في Firestore كان الحساب يكتب صفّه
 -- بنفسه لغياب بديل — أي أنه كان يقدر يكتب بريداً أو تاريخ إنشاء غير صحيحين.
+drop policy if exists profiles_read on public.profiles;
 create policy profiles_read on public.profiles
   for select using (public.is_admin() or id = auth.uid());
 
 -- ═══ customer_notes ═══════════════════════════════════════════════════════════════════
 -- ملاحظات الأدمن عن الشخص — لا يقرؤها صاحبها.
+drop policy if exists customer_notes_admin_all on public.customer_notes;
 create policy customer_notes_admin_all on public.customer_notes
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- ═══ contact_messages ═════════════════════════════════════════════════════════════════
 -- النموذج عام عمداً (لا تسجيل دخول لإرسال رسالة)، فالإدخال مفتوح — وقيود الشكل في الجدول
 -- نفسه (01_schema.sql). القراءة للأدمن: رسائل عملاء محتملين لا يقرؤها زائر.
+drop policy if exists contact_insert_anyone on public.contact_messages;
 create policy contact_insert_anyone on public.contact_messages
   for insert with check (true);
 
+drop policy if exists contact_read_admin on public.contact_messages;
 create policy contact_read_admin on public.contact_messages
   for select using (public.is_admin());
 
 -- ═══ pricing_overrides / site_settings ════════════════════════════════════════════════
 -- قراءة عامة (صفحة كل زائر تعرضها)، كتابة للأدمن وحده.
+drop policy if exists pricing_read_all on public.pricing_overrides;
 create policy pricing_read_all on public.pricing_overrides
   for select using (true);
+drop policy if exists pricing_write_admin on public.pricing_overrides;
 create policy pricing_write_admin on public.pricing_overrides
   for all using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists settings_read_all on public.site_settings;
 create policy settings_read_all on public.site_settings
   for select using (true);
+drop policy if exists settings_write_admin on public.site_settings;
 create policy settings_write_admin on public.site_settings
   for all using (public.is_admin()) with check (public.is_admin());

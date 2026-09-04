@@ -75,6 +75,7 @@ begin
 end;
 $$;
 
+drop trigger if exists contracts_notify_insert on public.contracts;
 create trigger contracts_notify_insert
   after insert on public.contracts
   for each row execute function public.notify_new_contract();
@@ -91,6 +92,7 @@ begin
 end;
 $$;
 
+drop trigger if exists profiles_notify_insert on public.profiles;
 create trigger profiles_notify_insert
   after insert on public.profiles
   for each row execute function public.notify_new_subscriber();
