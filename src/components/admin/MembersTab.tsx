@@ -1,21 +1,11 @@
 // Subscriber management: the non-admin account list, with disable and delete controls, and a
 // per-person profile pulling every contract they hold into one place.
 import { useState, useEffect } from 'react';
-import {
-  Trash2,
-  Search,
-  Loader2,
-  Users,
-  RotateCcw,
-  Ban,
-  UserCheck,
-  IdCard,
-} from 'lucide-react';
+import { Search, Loader2, Users, RotateCcw, UserCheck, IdCard } from 'lucide-react';
 import { ContractData } from '../../types';
 import { Language } from '../../lib/i18n';
 import { Currency } from '../../lib/currency';
-import { listRegularSubscribers, setUserDisabled, deleteUserAccount, ManagedUser } from '../../lib/adminUsers';
-import { showToast } from '../../lib/toast';
+import { listRegularSubscribers, ManagedUser } from '../../lib/adminUsers';
 import { StatTile } from './shared';
 import { CustomerProfileSheet } from './CustomerProfileSheet';
 
@@ -40,7 +30,6 @@ export function MembersTab({
   const [users, setUsers] = useState<ManagedUser[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [busyUid, setBusyUid] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [profileUser, setProfileUser] = useState<ManagedUser | null>(null);
 
@@ -82,41 +71,6 @@ export function MembersTab({
       month: 'short',
       day: 'numeric',
     });
-  };
-
-  const handleToggleDisabled = async (u: ManagedUser) => {
-    if (busyUid) return;
-    setBusyUid(u.uid);
-    try {
-      await setUserDisabled(u.uid, !u.disabled);
-      setUsers((prev) => prev && prev.map((x) => (x.uid === u.uid ? { ...x, disabled: !u.disabled } : x)));
-      showToast(
-        !u.disabled ? (isAr ? 'تم تعطيل الحساب' : 'Account disabled') : (isAr ? 'تم إعادة تفعيل الحساب' : 'Account re-enabled'),
-        'success'
-      );
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : (isAr ? 'فشلت العملية' : 'Action failed'), 'error');
-    } finally {
-      setBusyUid(null);
-    }
-  };
-
-  const handleDelete = async (u: ManagedUser) => {
-    if (busyUid) return;
-    const confirmMsg = isAr
-      ? `هل تريد حذف حساب "${u.email}" نهائياً؟ لا يمكن التراجع عن هذا الإجراء.`
-      : `Permanently delete the account for "${u.email}"? This cannot be undone.`;
-    if (!window.confirm(confirmMsg)) return;
-    setBusyUid(u.uid);
-    try {
-      await deleteUserAccount(u.uid);
-      setUsers((prev) => prev && prev.filter((x) => x.uid !== u.uid));
-      showToast(isAr ? 'تم حذف الحساب' : 'Account deleted', 'success');
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : (isAr ? 'فشل الحذف' : 'Delete failed'), 'error');
-    } finally {
-      setBusyUid(null);
-    }
   };
 
   return (
@@ -178,9 +132,7 @@ export function MembersTab({
           {filtered.map((u) => (
             <div
               key={u.uid}
-              className={`p-3.5 rounded-2xl bg-paper border flex items-center justify-between gap-3 ${
-                u.disabled ? 'border-red-300/50' : 'border-ink/10'
-              }`}
+              className="p-3.5 rounded-2xl bg-paper border border-ink/10 flex items-center justify-between gap-3"
             >
               <div className="flex items-center gap-3 min-w-0">
                 {u.photoURL ? (
@@ -191,14 +143,7 @@ export function MembersTab({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-ink truncate">{u.displayName || u.email}</span>
-                    {u.disabled && (
-                      <span className="px-1.5 py-0.5 rounded bg-red-950/40 border border-red-300/60 text-red-700 text-[10px] font-bold shrink-0">
-                        {isAr ? 'معطّل' : 'Disabled'}
-                      </span>
-                    )}
-                  </div>
+                  <span className="block text-xs font-bold text-ink truncate">{u.displayName || u.email}</span>
                   <div className="text-[10px] text-ink/50 font-mono truncate" dir="ltr">{u.email}</div>
                   <div className="text-[10px] text-ink/45 mt-0.5">
                     {isAr ? 'انضم:' : 'Joined:'} {formatDate(u.createdAt)} · {isAr ? 'آخر دخول:' : 'Last seen:'} {formatDate(u.lastSignInAt)}
@@ -212,28 +157,6 @@ export function MembersTab({
                   className="p-2 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/75 hover:text-ink cursor-pointer transition-colors"
                 >
                   <IdCard className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => handleToggleDisabled(u)}
-                  disabled={busyUid === u.uid}
-                  title={u.disabled ? (isAr ? 'إعادة تفعيل' : 'Re-enable') : (isAr ? 'تعطيل' : 'Disable')}
-                  className="p-2 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/75 hover:text-ink cursor-pointer disabled:opacity-50 transition-colors"
-                >
-                  {busyUid === u.uid ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : u.disabled ? (
-                    <UserCheck className="w-3.5 h-3.5" />
-                  ) : (
-                    <Ban className="w-3.5 h-3.5" />
-                  )}
-                </button>
-                <button
-                  onClick={() => handleDelete(u)}
-                  disabled={busyUid === u.uid}
-                  title={isAr ? 'حذف نهائي' : 'Delete permanently'}
-                  className="p-2 rounded-lg bg-red-950/30 hover:bg-red-950/50 border border-red-300/50 text-red-700 hover:text-red-700 cursor-pointer disabled:opacity-50 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -252,7 +175,6 @@ export function MembersTab({
           photoURL={profileUser.photoURL}
           createdAt={profileUser.createdAt}
           lastSignInAt={profileUser.lastSignInAt}
-          disabled={profileUser.disabled}
           contracts={contracts}
           onClose={() => setProfileUser(null)}
         />

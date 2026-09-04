@@ -6,45 +6,8 @@ export interface ManagedUser {
   email: string;
   displayName: string;
   photoURL: string;
-  disabled: boolean;
   createdAt: string;
   lastSignInAt: string;
-}
-
-// Every call here needs the current admin's own ID token (server verifies both that
-// it's valid AND that the email is in the admins allowlist) — listing/editing/deleting
-// OTHER people's accounts can only happen server-side, with a real service account key
-// that never reaches the browser.
-async function authedFetch(path: string, options: RequestInit = {}): Promise<any> {
-  const user = auth.currentUser;
-  if (!user) throw new Error('Not signed in');
-  const idToken = await user.getIdToken();
-
-  const res = await fetch(path, {
-    ...options,
-    headers: {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-      ...options.headers,
-      Authorization: `Bearer ${idToken}`,
-    },
-  });
-
-  // A route the running server doesn't actually have (e.g. server.ts was edited but the
-  // dev server wasn't restarted) falls through to Vite's SPA catch-all and comes back as
-  // a 200 OK HTML page, not JSON — silently defaulting to {} here let that masquerade as
-  // "no error", so .users ended up undefined instead of surfacing what actually happened.
-  const isJson = (res.headers.get('content-type') || '').includes('application/json');
-  if (!isJson) {
-    throw new Error(
-      `Server did not return JSON (status ${res.status}) — the dev server likely needs a restart to pick up new backend routes.`
-    );
-  }
-
-  const body = await res.json();
-  if (!res.ok) {
-    throw new Error(body.error || `Request failed (${res.status})`);
-  }
-  return body;
 }
 
 // Reads the `users` mirror (see src/lib/auth.ts) straight from Firestore — no Admin SDK /
@@ -61,7 +24,6 @@ export async function listAllUsers(): Promise<ManagedUser[]> {
       email: (data.email as string) || '',
       displayName: (data.displayName as string) || '',
       photoURL: (data.photoURL as string) || '',
-      disabled: !!data.disabled,
       createdAt: (data.createdAt as string) || '',
       lastSignInAt: (data.lastSignInAt as string) || '',
     };
@@ -80,16 +42,12 @@ export async function listRegularSubscribers(): Promise<ManagedUser[]> {
   return users.filter((_, i) => !adminFlags[i]?.exists());
 }
 
-export async function setUserDisabled(uid: string, disabled: boolean): Promise<void> {
-  await authedFetch(`/api/admin/users/${uid}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ disabled }),
-  });
-}
-
-export async function deleteUserAccount(uid: string): Promise<void> {
-  await authedFetch(`/api/admin/users/${uid}`, { method: 'DELETE' });
-}
+/* تعطيل حساب أو حذفه نهائياً لم يعودا هنا.
+   كلاهما يتطلّب Firebase Admin SDK — مفتاح حساب خدمة لا يجوز أن يصل المتصفح أبداً — أي دالّة
+   سحابية على Netlify. وتلك الدالّة كانت تُستهلك من حصّتها بطلبات لا يرسلها أحد منّا (كل مسار
+   معلَن يُجَسّ من الشبكة)، بينما المهمّتان تُنفَّذان في ثوانٍ من Firebase Console وتُستعملان
+   مرّة كل بضعة أشهر. فحُذفت الدالّة كلها؛ ولوحة الأعضاء تقول الآن أين تُنفَّذان بدل أن تعرض
+   زرّين لا يملكان ما ينفّذهما. */
 
 // ما يعرفه الأدمن عن هذا الشخص نفسه (لا عن عقد واحد بذاته) — يبقى معه عبر كل عقوده الحالية
 // والمستقبلية، مخزّن في مجموعة `customer_notes` منفصلة تماماً عن `users` (انظر

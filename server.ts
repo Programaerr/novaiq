@@ -1,11 +1,7 @@
 import express from 'express';
 import path from 'path';
 import os from 'os';
-import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
-import { initializeApp, cert } from 'firebase-admin/app';
-import { getAuth, type UpdateRequest } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,54 +10,17 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 // ---------------------------------------------------------------------------
-// Firebase Admin SDK — powers the "Subscribers" panel (list/disable/delete any
-// registered account). The client SDK can only ever act on the currently signed-in
-// user, so listing or deleting OTHER people's accounts has to happen here, with a real
-// service account key that never reaches the browser. Initialization is optional: if no
-// key is present, the /api/admin/users routes below respond with a clear 503 instead of
-// crashing the whole server (translation/PDF/contract features don't depend on this).
-let adminSdkReady = false;
-try {
-  const keyPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || path.join(process.cwd(), 'service-account.json');
-  if (fs.existsSync(keyPath)) {
-    const serviceAccount = JSON.parse(fs.readFileSync(keyPath, 'utf-8'));
-    initializeApp({ credential: cert(serviceAccount) });
-    adminSdkReady = true;
-    console.log('Firebase Admin SDK initialized (subscriber management enabled).');
-  } else {
-    console.warn(`Firebase Admin SDK not initialized — no service account key found at ${keyPath}. The Subscribers panel will be unavailable until one is added.`);
-  }
-} catch (e) {
-  console.error('Failed to initialize Firebase Admin SDK:', e);
-}
+// لا Firebase Admin SDK هنا بعد اليوم.
+//
+// كان يشغّل ثلاثة مسارات إدارية (سرد الحسابات، تعطيلها، حذفها)، ولم يبقَ منها شيء: السرد
+// انتقل إلى قراءة مجموعة `users` مباشرة من المتصفح (lib/adminUsers.ts، وقاعدة Firestore
+// تقصر `list` عليها على الأدمن)، والتعطيل والحذف انتقلا إلى Firebase Console — فكلاهما
+// يتطلّب مفتاح حساب خدمة، ومفتاح كهذا يعني دالّة سحابية على Netlify، وهي ما نتخلّص منه.
+//
+// وهذا الخادم لم يكن يُنشر أصلاً (netlify.toml يبني `npx vite build` وحده) — يعمل محلياً
+// فقط عبر `npm run dev`. إبقاء مسارات ميّتة فيه كان سيجعله يقول إن الميزة موجودة.
+// ---------------------------------------------------------------------------
 
-// Verifies the request carries a valid Firebase ID token AND that its email is in the
-// admins Firestore collection — the same allowlist the client already trusts elsewhere.
-async function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
-  if (!adminSdkReady) {
-    return res.status(503).json({ error: 'Firebase Admin SDK not configured on the server' });
-  }
-  try {
-    const authHeader = req.headers.authorization || '';
-    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    if (!idToken) return res.status(401).json({ error: 'Missing auth token' });
-
-    const decoded = await getAuth().verifyIdToken(idToken);
-    const email = (decoded.email || '').trim().toLowerCase();
-    if (!email) return res.status(403).json({ error: 'No email on token' });
-
-    const adminDoc = await getFirestore().collection('admins').doc(email).get();
-    if (!adminDoc.exists) return res.status(403).json({ error: 'Not an admin' });
-
-    (req as any).adminUid = decoded.uid;
-    next();
-  } catch (e) {
-    console.error('Admin auth check failed:', e);
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
-}
-
-// Find the machine's LAN IP so the server can also be reached from other devices on the same network
 function getLocalNetworkIP(): string | null {
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
@@ -138,165 +97,15 @@ app.disable('x-powered-by');
 // Fixed window per IP. In-memory on purpose: the site runs as a single Node process, so there
 // is no second instance to share counters with, and a limiter that survives a restart is not
 // worth a database round-trip on every request.
-// ---------------------------------------------------------------------------
-function rateLimit({ windowMs, max }: { windowMs: number; max: number }) {
-  const hits = new Map<string, { count: number; resetAt: number }>();
+// حدّ معدّل الطلبات حُذف مع مسارات /api التي كان يحرسها وحدها — لم يبقَ في هذا الخادم إلا
+// ملفات ثابتة وإعادة توجيه، وهي لا تُحمى بعدّاد في الذاكرة. أمّا الموقع المنشور فخلف Netlify
+// أصلاً، لا خلف هذا الملف.
 
-  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const now = Date.now();
-    const key = req.ip || 'unknown';
-    const entry = hits.get(key);
-
-    if (!entry || now >= entry.resetAt) {
-      hits.set(key, { count: 1, resetAt: now + windowMs });
-      // Sweep expired keys once the map is large enough to be worth sweeping, so a long
-      // uptime cannot grow it without bound. Only runs on a window rollover, so it is not
-      // on the hot path.
-      if (hits.size > 5000) {
-        for (const [k, v] of hits) if (now >= v.resetAt) hits.delete(k);
-      }
-      return next();
-    }
-
-    if (entry.count >= max) {
-      res.setHeader('Retry-After', String(Math.ceil((entry.resetAt - now) / 1000)));
-      return res.status(429).json({ error: 'Too many requests' });
-    }
-
-    entry.count += 1;
-    return next();
-  };
-}
-
-// A ceiling on the whole API, generous enough that no real visitor meets it.
-app.use('/api', rateLimit({ windowMs: 60_000, max: 120 }));
-
-// نفس الروابط النظيفة التي يضبطها netlify.toml، حتى يتصرّف التشغيل المحلي/الذاتي مثل
-// الاستضافة تماماً: /privacy و/terms هما الرابطان المُسلَّمان لشاشة موافقة Google، ويجب
-// ألا يعملا في مكان دون آخر.
 app.get(['/privacy', '/terms'], (req, res) => {
   res.redirect(301, `/?page=${req.path === '/terms' ? 'terms' : 'privacy'}`);
 });
 
 // API Health Check
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', app: 'NUVAIQ Cosmic Engine' });
-});
-
-// ---------------------------------------------------------------------------
-// Subscriber management — list every registered account and let an admin disable or
-// permanently delete one. All three routes are gated by requireAdmin above.
-// ---------------------------------------------------------------------------
-
-app.get('/api/admin/users', requireAdmin, async (_req, res) => {
-  try {
-    // 1000 is the max a single listUsers() page can return; this business is nowhere
-    // near that yet, so pagination isn't wired up — trivial to add via .pageToken later.
-    const result = await getAuth().listUsers(1000);
-    const users = result.users.map((u) => ({
-      uid: u.uid,
-      email: u.email || '',
-      displayName: u.displayName || '',
-      photoURL: u.photoURL || '',
-      disabled: u.disabled,
-      createdAt: u.metadata.creationTime,
-      lastSignInAt: u.metadata.lastSignInTime,
-    }));
-    res.json({ users });
-  } catch (error: any) {
-    console.error('List users error:', error);
-    res.status(500).json({ error: error.message || 'Failed to list users' });
-  }
-});
-
-app.patch('/api/admin/users/:uid', requireAdmin, async (req, res) => {
-  try {
-    const { uid } = req.params;
-    const { disabled, displayName } = req.body;
-    const update: UpdateRequest = {};
-    if (typeof disabled === 'boolean') update.disabled = disabled;
-    // سقف الطول: لا سبب لاسم عرض أطول من هذا، وبدونه يُكتب أي حجم يرسله الطلب في سجلّ حساب.
-    if (typeof displayName === 'string' && displayName.length <= 200) update.displayName = displayName;
-    if (Object.keys(update).length === 0) {
-      return res.status(400).json({ error: 'Nothing to update' });
-    }
-
-    const updated = await getAuth().updateUser(uid, update);
-
-    // Keep the client-readable `users` mirror (src/lib/auth.ts) in sync — the Subscribers/
-    // Team panels list from that collection directly now, not from this route.
-    if (typeof disabled === 'boolean') {
-      await getFirestore().collection('users').doc(uid).set({ disabled }, { merge: true }).catch(() => {});
-    }
-
-    res.json({
-      user: {
-        uid: updated.uid,
-        email: updated.email || '',
-        displayName: updated.displayName || '',
-        disabled: updated.disabled,
-      },
-    });
-  } catch (error: any) {
-    console.error('Update user error:', error);
-    res.status(500).json({ error: error.message || 'Failed to update user' });
-  }
-});
-
-app.delete('/api/admin/users/:uid', requireAdmin, async (req, res) => {
-  try {
-    const { uid } = req.params;
-    if ((req as any).adminUid === uid) {
-      return res.status(400).json({ error: 'Cannot delete your own account from this panel' });
-    }
-    await getAuth().deleteUser(uid);
-    await getFirestore().collection('users').doc(uid).delete().catch(() => {});
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Delete user error:', error);
-    res.status(500).json({ error: error.message || 'Failed to delete user' });
-  }
-});
-
-// ---------------------------------------------------------------------------
-// Team roster — the admins Firestore collection only stores email + addedAt (its
-// `list` operation is denied to clients, so even a signed-in admin can't scan it
-// themselves; see isAdminEmail in src/lib/auth.ts). Cross-referencing it against Auth
-// records here is what lets the dashboard show each teammate's real name/photo instead
-// of just a bare email string.
-// ---------------------------------------------------------------------------
-
-app.get('/api/admin/team', requireAdmin, async (_req, res) => {
-  try {
-    const adminsSnap = await getFirestore().collection('admins').get();
-    const team = await Promise.all(
-      adminsSnap.docs.map(async (docSnap) => {
-        const email = docSnap.id;
-        const addedAt = docSnap.data().addedAt || null;
-        try {
-          const userRecord = await getAuth().getUserByEmail(email);
-          return {
-            email,
-            addedAt,
-            hasAccount: true,
-            uid: userRecord.uid,
-            displayName: userRecord.displayName || '',
-            photoURL: userRecord.photoURL || '',
-          };
-        } catch {
-          // Added as an admin but hasn't signed up with this email yet.
-          return { email, addedAt, hasAccount: false, uid: '', displayName: '', photoURL: '' };
-        }
-      })
-    );
-    team.sort((a, b) => new Date(a.addedAt || 0).getTime() - new Date(b.addedAt || 0).getTime());
-    res.json({ team });
-  } catch (error: any) {
-    console.error('List team error:', error);
-    res.status(500).json({ error: error.message || 'Failed to list team' });
-  }
-});
-
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

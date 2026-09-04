@@ -25,7 +25,6 @@ interface CustomerProfileSheetProps {
   photoURL: string;
   createdAt?: string;
   lastSignInAt?: string;
-  disabled?: boolean;
   /** كل العقود في الموقع — يُصفّى هنا داخلياً لعقود هذا الشخص وحده. تمريرها جاهزة (بدل
    *  استعلام Firestore جديد) لأن AdminDashboard مشترك بها أصلاً لحظياً؛ استعلام ثانٍ كان
    *  سيعني اشتراكاً حياً ثانياً على نفس البيانات لسبب واحد فقط. */
@@ -48,7 +47,6 @@ export function CustomerProfileSheet({
   photoURL,
   createdAt,
   lastSignInAt,
-  disabled,
   contracts,
   onClose,
 }: CustomerProfileSheetProps) {
@@ -135,11 +133,6 @@ export function CustomerProfileSheet({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-ink truncate">{displayName || latest?.repName || email}</span>
-              {disabled && (
-                <span className="px-1.5 py-0.5 rounded bg-red-950/40 border border-red-300/60 text-red-700 text-[10px] font-bold shrink-0">
-                  {isAr ? 'معطّل' : 'Disabled'}
-                </span>
-              )}
             </div>
             <span className="text-[11px] text-ink/50 font-mono truncate block" dir="ltr">{email}</span>
           </div>
