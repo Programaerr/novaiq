@@ -88,6 +88,11 @@ create table public.contracts (
   development_started_at timestamptz,
   preview_url          text,
 
+  -- مُعرِّف الموضوع (Forum Topic) الذي أنشأه البوت لهذا العقد في مجموعة العمل.
+  -- يُكتب مرّة واحدة من دالّة الإشعار بعد إنشاء الموضوع، وهو ما يجعل كل رسالة لاحقة عن هذا
+  -- العقد تذهب إلى خيطه هو لا إلى قاع المجموعة.
+  telegram_topic_id    bigint,
+
   snapshot_hash        text,
   snapshot_at          timestamptz,
   cancellation_requested_at timestamptz,

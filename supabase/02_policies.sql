@@ -105,7 +105,12 @@ create policy contracts_delete_admin on public.contracts
 create or replace function public.guard_contract_update()
 returns trigger language plpgsql security definer set search_path = public, auth as $$
 declare
-  is_adm boolean := public.is_admin();
+  /* الأدمن، أو خادمنا نفسه (service_role).
+     الثاني ضروري: دالّة الإشعار تكتب `telegram_topic_id` على العقد بعد إنشاء موضوعه، وهي
+     تعمل بلا مستخدم — فـ`auth.uid()` فارغ و`is_admin()` تعطي false، فكانت تسقط في فرع
+     "العميل" أدناه وتُرفض. ولاحظ ما لا يشمله هذا الإعفاء: قفل التوقيع وقاعدة المسودّة
+     يُفحصان **قبله** ويسريان على الجميع بلا استثناء. */
+  is_privileged boolean := public.is_admin() or auth.role() = 'service_role';
   -- ما يجوز أن يتغيّر في كل شكل من أشكال كتابة العميل. أي عمود خارج القائمة = رفض.
   sign_keys text[] := array[
     'signature_data_url', 'signature_ink', 'agreed_to_terms',
@@ -127,7 +132,7 @@ begin
     raise exception 'a contract never returns to draft' using errcode = 'check_violation';
   end if;
 
-  if is_adm then
+  if is_privileged then
     -- مسودّة لا تُرقّى إلى حالة حقيقية إلا بتوقيع يرافقها في نفس الكتابة (الزبون حاضر ووقّع).
     -- بدون هذا تسمح قائمة "حالة العقد" بترقية عقد لم يوقّعه أحد بضغطة واحدة.
     if old.status = 'draft' and new.status <> 'draft' and length(new.signature_data_url) = 0 then
