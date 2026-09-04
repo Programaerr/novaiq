@@ -1,14 +1,20 @@
 -- ═══════════════════════════════════════════════════════════════════════════════════════
---  NUVAIQ — سياسات RLS، مترجَمة سطراً بسطر عن firestore.rules.
+--  NUVAIQ — الأمان على الخادم، مترجَماً عن firestore.rules.
 --
 --  هذا هو الملف الخطر في الترحيل كلّه. قواعد Firestore الحالية نتاج جلسات متتابعة من إغلاق
---  ثغرات محدَّدة، وكل شرط فيها كُتب بعد حادثة أو تحليل — لا كاحتياط عام. فالترجمة هنا حرفية
---  في المعنى، لا إعادة تصميم: أي شرط سقط سهواً هو ثغرة، لا "تبسيط".
+--  ثغرات محدَّدة؛ كل شرط فيها كُتب بعد حادثة أو تحليل، لا كاحتياط عام. فالترجمة حرفية في
+--  المعنى: أي شرط يسقط سهواً هو ثغرة، لا "تبسيط".
 --
---  فرق جوهري لصالحنا: في Firestore كان الرفض كلّاً لا يتجزأ — من يقرأ مستنداً يقرأ كل حقوله،
---  ولهذا فُصلت التكلفة في مجموعة مستقلة. هنا RLS تعمل على مستوى الصف، ويمكن حجب أعمدة
---  بالمناظر (views). أبقيتُ الفصل على أي حال (انظر contract_finance) لأن سياسة واحدة خاطئة
---  على جدول واحد أهون من عمود مكشوف داخل جدول يقرأه الجميع.
+--  ── لماذا طبقتان: سياسات + مشغّل ────────────────────────────────────────────────────────
+--  RLS تجيب عن سؤال واحد: **أي الصفوف** يجوز لهذا الحساب أن يمسّها. `USING` ترى الصف القديم
+--  و`WITH CHECK` ترى الجديد، ولا ترى أيٌّ منهما الاثنين معاً — فلا يمكن أن تُكتب فيها قاعدة
+--  من نوع "السعر يجب أن يبقى كما هو". وهذا بالضبط جوهر نصف قواعدنا الحالية
+--  (`affectedKeys().hasOnly(...)` في Firestore).
+--
+--  لذلك: **أي الصفوف** في السياسات، و**أي الأعمدة** في مشغّل `BEFORE UPDATE` — وهو وحده من
+--  يرى OLD وNEW معاً. والمقارنة فيه تتم بـ`to_jsonb(old) - allowed <> to_jsonb(new) - allowed`،
+--  أي نظير `hasOnly` تماماً، وأمتن منه: عمود يُضاف إلى الجدول مستقبلاً يصبح محميّاً تلقائياً
+--  بلا أن يتذكّره أحد — بخلاف القائمة اليدوية في firestore.rules.
 -- ═══════════════════════════════════════════════════════════════════════════════════════
 
 alter table public.contracts          enable row level security;
@@ -24,14 +30,11 @@ alter table public.pricing_overrides  enable row level security;
 alter table public.site_settings      enable row level security;
 
 -- ── من هو الأدمن ───────────────────────────────────────────────────────────────────────
--- نظير isAdmin() في firestore.rules، بشرطيه معاً:
---  · البريد في قائمة `admins`.
---  · والبريد **موثَّق**. الشرط الثاني ليس زخرفة: القائمة مفتاحها البريد، فمن يقدر ينشئ حساباً
---    ببريد أدمن دون إثبات ملكيته يصبح أدمن. مزوّد Google يوثّق دائماً، لكن لحظة تفعيل الدخول
---    بكلمة مرور يتحوّل هذا الشرط من احتياط إلى الفارق بين نظام آمن ونظام مخترَق.
+-- نظير isAdmin()، بشرطيه معاً: البريد في القائمة، **وموثَّق**. الثاني ليس زخرفة — القائمة
+-- مفتاحها البريد، فمن يقدر ينشئ حساباً ببريد أدمن دون إثبات ملكيته يصبح أدمن. Google يوثّق
+-- دائماً، لكن لحظة تفعيل الدخول بكلمة مرور يصير هذا الشرط الفارق بين نظام آمن ومخترَق.
 --
--- `security definer` ضرورية: الدالّة تقرأ `admins` وهو جدول تمنع سياساته السرد — بدونها
--- تفشل السياسات التي تستدعيها بدل أن تُقيَّم.
+-- `security definer` ضرورية: تقرأ `admins` وهو جدول تمنع سياساته السرد.
 create or replace function public.is_admin()
 returns boolean language sql stable security definer set search_path = public, auth as $$
   select exists (
@@ -44,8 +47,8 @@ returns boolean language sql stable security definer set search_path = public, a
 $$;
 
 -- ── ملكية العقد ────────────────────────────────────────────────────────────────────────
--- نظير ownsContract(): المُعرِّف حين يوجد، وإلا البريد. البريد ليس تنازلاً أمنياً — هو
--- `auth.jwt() ->> 'email'` أي بريد الحساب الموثَّق نفسه، لا نصّ يكتبه أحد.
+-- نظير ownsContract(): المُعرِّف حين يوجد، وإلا البريد. والبريد هنا ليس تنازلاً أمنياً — هو
+-- بريد الحساب الموثَّق من الرمز نفسه، لا نصّ يكتبه أحد.
 create or replace function public.owns_contract(row_user_id uuid, row_email text)
 returns boolean language sql stable as $$
   select auth.uid() is not null and (
@@ -54,20 +57,17 @@ returns boolean language sql stable as $$
   );
 $$;
 
--- ═══ contracts ════════════════════════════════════════════════════════════════════════
+-- ═══ contracts — أي الصفوف ════════════════════════════════════════════════════════════
 
 create policy contracts_read on public.contracts
   for select using (public.is_admin() or public.owns_contract(user_id, email));
 
--- الإنشاء: الأدمن بحرّية (ينشئ نيابةً عن زبون، فيترك user_id فارغاً ويكتب بريد الزبون)،
--- والعميل لنفسه فقط وبعقد نظيف.
---
--- نظير customerCreateIsClean(): كل حقل يكتبه الأدمن وحده ممنوع هنا. في Firestore كان المنع
--- بقائمة `!('field' in d)` طويلة لأن الإنشاء هناك كلٌّ لا يتجزأ؛ هنا القيم الافتراضية في
--- الجدول تتكفّل بأكثرها، ويبقى ما يستطيع العميل ضبطه صراحةً.
+-- الأدمن ينشئ نيابةً عن زبون: يترك user_id فارغاً ويكتب بريد الزبون، فيُربط العقد بحسابه
+-- تلقائياً أول مرّة يسجّل دخوله (المشغّل في 01_schema.sql).
 create policy contracts_insert_admin on public.contracts
   for insert with check (public.is_admin());
 
+-- والعميل لنفسه فقط، بعقد نظيف — نظير customerCreateIsClean().
 create policy contracts_insert_own on public.contracts
   for insert with check (
     auth.uid() is not null
@@ -77,7 +77,7 @@ create policy contracts_insert_own on public.contracts
     and status = 'submitted'
     and length(signature_data_url) > 0
     and agreed_to_terms
-    -- حقول الأدمن وحده: لا يكتبها العميل ولو من الكونسول.
+    -- حقول يكتبها الأدمن وحده: لا يضعها العميل في مستنده ولو كتب من الكونسول.
     and company_signature_data_url is null
     and completed_at is null
     and development_started_at is null
@@ -90,70 +90,91 @@ create policy contracts_insert_own on public.contracts
     and payment_status = 'unpaid'
   );
 
--- التعديل: ثلاثة أبواب، كما في firestore.rules تماماً.
---
--- Postgres لا يملك نظير `affectedKeys().hasOnly(...)` — لا يقول لك أي الأعمدة تغيّرت. البديل
--- الصحيح: مقارنة العمود بنفسه بين OLD وNEW. أي عمود لا يُذكر هنا يعني "يجوز تغييره"، فقائمة
--- المساواة أدناه هي القفل، وغيابُ عمود منها ثغرة لا تبسيط.
+-- التعديل: الصفّ مسموح للأدمن، أو لصاحب العقد. **وأي الأعمدة** يقرّرها المشغّل أدناه.
 create policy contracts_update_admin on public.contracts
-  for update using (public.is_admin()) with check (
-    public.is_admin()
-    -- قفل التوقيع: مرّة يُكتب توقيع حقيقي يبقى كما هو إلى الأبد — ولا حتى الأدمن يكتب فوقه.
-    and (old.signature_data_url = '' or new.signature_data_url = old.signature_data_url)
-    -- عقد 'draft' لا يخرج منها إلا بتوقيع حقيقي معه في نفس الكتابة.
-    and (old.status <> 'draft' or new.status = 'draft' or length(new.signature_data_url) > 0)
-    -- و'draft' حالة دخول لا يُعاد إليها: العودة تُسقط نسبة الزبون وتعيد له لوحة توقيع
-    -- فوق عقد موقَّع، ولوحة لا يمكن أن تنجح لأن التوقيع مقفل.
-    and (new.status <> 'draft' or old.status = 'draft')
-  );
+  for update using (public.is_admin()) with check (public.is_admin());
 
--- العميل يطلب الإلغاء — ولا شيء آخر.
-create policy contracts_update_cancellation on public.contracts
-  for update using (
-    public.owns_contract(user_id, email)
-    and status not in ('completed', 'cancelled')
-    and paid_amount_iqd = 0
-  ) with check (
-    public.owns_contract(user_id, email)
-    and new.cancellation_requested_at is not null
-    -- كل شيء آخر كما هو. هذه هي `hasOnly` مكتوبةً بالمساواة.
-    and new.status = old.status
-    and new.total_price_iqd = old.total_price_iqd
-    and new.signature_data_url = old.signature_data_url
-    and new.company_signature_data_url is not distinct from old.company_signature_data_url
-    and new.admin_notes is not distinct from old.admin_notes
-    and new.preview_url is not distinct from old.preview_url
-    and new.email = old.email
-    and new.user_id is not distinct from old.user_id
-    and new.paid_amount_iqd = old.paid_amount_iqd
-  );
-
--- العميل يوقّع عقداً أنشأه له الأدمن — الباب الثالث، وأضيقها.
-create policy contracts_update_sign on public.contracts
-  for update using (
-    public.owns_contract(user_id, email)
-    and status = 'draft'
-    and signature_data_url = ''   -- لا كتابة فوق توقيع موجود، ولو بقي العقد 'draft'
-  ) with check (
-    public.owns_contract(user_id, email)
-    and new.status = 'submitted'
-    and new.agreed_to_terms
-    and length(new.signature_data_url) > 0
-    and new.terms_viewed_at is not null
-    -- يربط العقد بحسابه أول مرّة، ولا يقدر ادّعاء عقد بربطه بحساب آخر.
-    and (new.user_id = auth.uid() or new.user_id is not distinct from old.user_id)
-    -- ولا شيء غير التوقيع: لا سعر، ولا وصف، ولا مدّة.
-    and new.total_price_iqd = old.total_price_iqd
-    and new.company_name = old.company_name
-    and new.custom_features_text = old.custom_features_text
-    and new.delivery_timeline_weeks = old.delivery_timeline_weeks
-    and new.email = old.email
-    and new.admin_notes is not distinct from old.admin_notes
-    and new.company_signature_data_url is not distinct from old.company_signature_data_url
-  );
+create policy contracts_update_own on public.contracts
+  for update using (public.owns_contract(user_id, email))
+             with check (public.owns_contract(user_id, email));
 
 create policy contracts_delete_admin on public.contracts
   for delete using (public.is_admin());
+
+-- ═══ contracts — أي الأعمدة ═══════════════════════════════════════════════════════════
+create or replace function public.guard_contract_update()
+returns trigger language plpgsql security definer set search_path = public, auth as $$
+declare
+  is_adm boolean := public.is_admin();
+  -- ما يجوز أن يتغيّر في كل شكل من أشكال كتابة العميل. أي عمود خارج القائمة = رفض.
+  sign_keys text[] := array[
+    'signature_data_url', 'signature_ink', 'agreed_to_terms',
+    'terms_viewed_at', 'status', 'user_id', 'updated_at'
+  ];
+  cancel_keys text[] := array['cancellation_requested_at', 'cancellation_reason', 'updated_at'];
+  allowed text[];
+begin
+  -- ── قواعد تسري على الجميع، الأدمن أوّلهم ────────────────────────────────────────────
+  -- قفل التوقيع: مرّة يُكتب توقيع حقيقي يبقى كما هو إلى الأبد. لا فحص "من يكتب" هنا، بل على
+  -- القيمة نفسها — فلا يقدر حتى حساب الأدمن الكتابة فوقه، بالخطأ أو بالتلاعب.
+  if old.signature_data_url <> '' and new.signature_data_url is distinct from old.signature_data_url then
+    raise exception 'signature is locked once signed' using errcode = 'check_violation';
+  end if;
+
+  -- 'draft' حالة دخول لا يُعاد إليها أبداً. العودة إليها تُسقط نسبة إنجاز الزبون وتعيد له
+  -- لوحة "بانتظار توقيعك" فوق عقد موقَّع — ولوحة لا يمكن أن تنجح لأن التوقيع مقفل أعلاه.
+  if new.status = 'draft' and old.status <> 'draft' then
+    raise exception 'a contract never returns to draft' using errcode = 'check_violation';
+  end if;
+
+  if is_adm then
+    -- مسودّة لا تُرقّى إلى حالة حقيقية إلا بتوقيع يرافقها في نفس الكتابة (الزبون حاضر ووقّع).
+    -- بدون هذا تسمح قائمة "حالة العقد" بترقية عقد لم يوقّعه أحد بضغطة واحدة.
+    if old.status = 'draft' and new.status <> 'draft' and length(new.signature_data_url) = 0 then
+      raise exception 'an unsigned draft cannot be advanced' using errcode = 'check_violation';
+    end if;
+    return new;
+  end if;
+
+  -- ── من هنا: صاحب العقد، لا الأدمن. بابان لا ثالث لهما ───────────────────────────────
+  if old.status = 'draft' and old.signature_data_url = '' then
+    -- الباب الأول: يوقّع عقداً أنشأه له الأدمن.
+    if new.status <> 'submitted'
+       or not new.agreed_to_terms
+       or length(new.signature_data_url) = 0
+       or new.terms_viewed_at is null then
+      raise exception 'invalid signing update' using errcode = 'check_violation';
+    end if;
+    -- يربط العقد بحسابه أوّل مرّة، ولا يقدر ادّعاء عقد بربطه بحساب آخر.
+    if new.user_id is distinct from old.user_id and new.user_id is distinct from auth.uid() then
+      raise exception 'cannot claim a contract for another account' using errcode = 'check_violation';
+    end if;
+    allowed := sign_keys;
+  else
+    -- الباب الثاني: يطلب الإلغاء — إشعار لنا لا إلغاء، ولا يُفتح بعد أول دفعة.
+    if new.cancellation_requested_at is null then
+      raise exception 'customers may only request cancellation here' using errcode = 'check_violation';
+    end if;
+    if old.paid_amount_iqd > 0 or old.status in ('completed', 'cancelled') then
+      raise exception 'cancellation is no longer available on this contract' using errcode = 'check_violation';
+    end if;
+    allowed := cancel_keys;
+  end if;
+
+  -- نظير `affectedKeys().hasOnly(...)`: كل ما عدا الأعمدة المسموح بها يجب أن يبقى حرفياً كما
+  -- هو. وهي أمتن من نظيرتها في Firestore: عمود يُضاف إلى الجدول لاحقاً يصير محميّاً تلقائياً
+  -- بلا أن يتذكّره أحد.
+  if (to_jsonb(old) - allowed) is distinct from (to_jsonb(new) - allowed) then
+    raise exception 'this update touches columns you may not change' using errcode = 'check_violation';
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger contracts_guard_update
+  before update on public.contracts
+  for each row execute function public.guard_contract_update();
 
 -- ═══ contract_payments ════════════════════════════════════════════════════════════════
 -- دفتر داخلي بالكامل: العميل يرى المجموع على عقده (paid_amount_iqd)، لا الأسطر.
@@ -161,8 +182,8 @@ create policy payments_admin_all on public.contract_payments
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- ═══ contract_snapshots ═══════════════════════════════════════════════════════════════
--- إضافة فقط. لا update ولا delete لأحد — ولا للأدمن: لقطة يمكن تعديلها لا تُثبت شيئاً،
--- وكل قيمتها في أنها لا تتغيّر بعد كتابتها.
+-- إضافة فقط. لا update ولا delete لأحد — ولا للأدمن: لقطة يمكن تعديلها لا تُثبت شيئاً، وكل
+-- قيمتها في أنها لا تتغيّر. (غياب سياسة update/delete = منعٌ تام تحت RLS.)
 create policy snapshots_read on public.contract_snapshots
   for select using (
     public.is_admin()
@@ -177,7 +198,7 @@ create policy snapshots_insert_admin on public.contract_snapshots
   for insert with check (public.is_admin());
 
 -- ═══ contract_audit ═══════════════════════════════════════════════════════════════════
--- إضافة فقط كذلك، والكاتب يجب أن يكون الحساب الموقَّع نفسه — فلا ينسب أدمن تعديله لزميله.
+-- إضافة فقط كذلك، والكاتب هو الحساب الموقَّع نفسه — فلا ينسب أدمن تعديله إلى زميله.
 create policy audit_read_admin on public.contract_audit
   for select using (public.is_admin());
 
@@ -192,8 +213,8 @@ create policy finance_admin_all on public.contract_finance
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- ═══ admins ═══════════════════════════════════════════════════════════════════════════
--- لا سرد إطلاقاً — القائمة نفسها معلومة حسّاسة. والمستخدم العادي يسأل عن بريده هو فقط،
--- فلا تُكتشف العضوية بالتخمين. والأدمن وحده يضيف أدمن؛ الأول يُنشأ يدوياً مرّة واحدة.
+-- لا سرد إطلاقاً — القائمة نفسها معلومة حسّاسة. والمستخدم العادي يسأل عن بريده هو فقط، فلا
+-- تُكتشف العضوية بالتخمين. والأدمن وحده يضيف أدمن؛ الأول يُنشأ يدوياً مرّة واحدة.
 create policy admins_read_self_or_admin on public.admins
   for select using (
     public.is_admin()
@@ -205,7 +226,7 @@ create policy admins_write_admin on public.admins
 
 -- ═══ profiles ═════════════════════════════════════════════════════════════════════════
 -- لا كتابة من أحد إطلاقاً: يملؤه مشغّل على auth.users. في Firestore كان الحساب يكتب صفّه
--- بنفسه (لغياب بديل)، أي أنه كان يقدر يكتب بريداً أو تاريخ إنشاء غير صحيحين.
+-- بنفسه لغياب بديل — أي أنه كان يقدر يكتب بريداً أو تاريخ إنشاء غير صحيحين.
 create policy profiles_read on public.profiles
   for select using (public.is_admin() or id = auth.uid());
 
@@ -215,8 +236,8 @@ create policy customer_notes_admin_all on public.customer_notes
   for all using (public.is_admin()) with check (public.is_admin());
 
 -- ═══ contact_messages ═════════════════════════════════════════════════════════════════
--- النموذج عام عمداً (لا تسجيل دخول لإرسال رسالة)، فالإدخال مفتوح — والقيود على الشكل في
--- الجدول نفسه (01_schema.sql) لا هنا. القراءة للأدمن: رسائل عملاء محتملين لا يقرؤها زائر.
+-- النموذج عام عمداً (لا تسجيل دخول لإرسال رسالة)، فالإدخال مفتوح — وقيود الشكل في الجدول
+-- نفسه (01_schema.sql). القراءة للأدمن: رسائل عملاء محتملين لا يقرؤها زائر.
 create policy contact_insert_anyone on public.contact_messages
   for insert with check (true);
 
