@@ -188,6 +188,38 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
      timeline, and templateId/templateTitle taken from the customer's own project name.
      Sakan is still in templatesData, so the templates gallery and the timeline are unaffected. */
   const isCustomProject = true;
+
+  /* ── من يقرأ هذه الشاشة؟ ────────────────────────────────────────────────────────────────
+     كل نصّ في هذا النموذج مكتوب بصيغة المخاطَب للعميل: "مواصفات مشروعك"، "شعار شركتك"،
+     "يُطبع في عقدك". وهو صحيح حين يملأه صاحب المشروع بنفسه — وخاطئ تماماً حين يملأه الأدمن
+     نيابةً عن زبون غائب: يسأل الأدمن عن "مشروعه" وهو لا مشروع له هنا، ويَعِده بأن العقد
+     "سيُحفظ في حسابه" وهو ليس حسابه.
+
+     `say` للنصوص المكتوبة في هذا الملف، و`tr` لمفاتيح i18n المشتركة مع بقية الموقع — الثاني
+     يتجاوز القاموس في وضع الأدمن وحده ويعود إليه حرفياً فيما عداه، فلا يتغيّر حرف واحد ممّا
+     يقرأه العميل. */
+  const say = (customer: string, admin: string) => (adminCreatingForClient ? admin : customer);
+
+  type CopyKey = Parameters<typeof getTranslation>[0];
+  const ADMIN_COPY: Partial<Record<CopyKey, { ar: string; en: string }>> = {
+    stepCompanyInfo: { ar: '1. بيانات الزبون', en: "1. Client's details" },
+    stepTechSpecs: { ar: '2. مواصفات مشروع الزبون', en: "2. Client's project specs" },
+    // لا بنود ولا توقيع في هذه الخطوة بوضع الأدمن (كلاهما مخفيّ)، فاسمها القديم كان يَعِد
+    // بشاشة لا توجد.
+    stepSignature: { ar: '3. المراجعة والحفظ', en: '3. Review & save' },
+    customFeaturesPlaceholder: {
+      ar: 'اكتب ما طلبه الزبون من ميزات إضافية...',
+      en: 'Write the extra features the client asked for...',
+    },
+    colorSchemeLabel: { ar: 'ألوان موقع الزبون:', en: "Client's site colours:" },
+    languageSupportLabel: { ar: 'لغات موقع الزبون:', en: "Client's site languages:" },
+    totalCostSummary: { ar: 'التكلفة التقديرية:', en: 'Estimated cost:' },
+  };
+  const tr = (key: CopyKey): string => {
+    const override = adminCreatingForClient ? ADMIN_COPY[key] : undefined;
+    return override ? override[isAr ? 'ar' : 'en'] : getTranslation(key, lang);
+  };
+
   const [customProjectName, setCustomProjectName] = useState(draft?.customProjectName || '');
   /* نوع المشروع: موقع إلكتروني أم تطبيق هاتف. يبدأ على ما اختاره العميل فعلاً قبل وصوله إلى
      هنا (بطاقة "اطلب موقع"/"اطلب تطبيق"، أو مفتاح الموقع/التطبيق داخل المعاينة الحية)، ويبقى
@@ -626,10 +658,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             had drifted to on its own. */}
         <div className="text-center mb-5">
           <h2 className="text-xl sm:text-3xl font-black mb-1.5" style={{ color: OBSIDIAN }}>
-            {getTranslation('builderTitle', lang)}
+            {tr('builderTitle')}
           </h2>
           <p className="text-sm sm:text-base max-w-2xl mx-auto font-bold leading-relaxed" style={{ color: OBSIDIAN, opacity: 0.7 }}>
-            {getTranslation('builderSubtext', lang)}
+            {tr('builderSubtext')}
           </p>
         </div>
 
@@ -730,14 +762,14 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-white" />
-                  <span>{getTranslation('stepCompanyInfo', lang)}</span>
+                  <span>{tr('stepCompanyInfo')}</span>
                 </h3>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-white/85 mb-2">
-                    {getTranslation('companyNameLabel', lang)} *
+                    {tr('companyNameLabel')} *
                   </label>
                   <input
                     type="text"
@@ -747,20 +779,20 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       setCompanyName(e.target.value);
                       clearFieldError('companyName');
                     }}
-                    placeholder={getTranslation('companyNamePlaceholder', lang)}
+                    placeholder={tr('companyNamePlaceholder')}
                     className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-sm transition-colors ${errorInputClass('companyName')}`}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-white/85 mb-2">
-                    {getTranslation('crNumberLabel', lang)}
+                    {tr('crNumberLabel')}
                   </label>
                   <input
                     type="text"
                     value={crNumber}
                     onChange={(e) => setCrNumber(e.target.value)}
-                    placeholder={getTranslation('crNumberPlaceholder', lang)}
+                    placeholder={tr('crNumberPlaceholder')}
                     /* No `font-mono` here, unlike the phone field below: this one accepts an
                        IDENTITY as well as a register number, so its value can be Arabic. The app
                        is wrapped in font-['Cairo'] and `font-mono` REPLACES that stack rather
@@ -792,7 +824,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
                 <div>
                   <label className="block text-sm font-semibold text-white/85 mb-2">
-                    {getTranslation('repNameLabel', lang)} *
+                    {tr('repNameLabel')} *
                   </label>
                   <input
                     type="text"
@@ -802,7 +834,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       setRepName(e.target.value);
                       clearFieldError('repName');
                     }}
-                    placeholder={getTranslation('repNamePlaceholder', lang)}
+                    placeholder={tr('repNamePlaceholder')}
                     className={`w-full px-4 py-3 rounded-xl bg-obsidian border focus:outline-none text-white text-sm transition-colors ${errorInputClass('repName')}`}
                   />
                 </div>
@@ -838,7 +870,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
                 <div>
                   <label className="block text-sm font-semibold text-white/85 mb-2">
-                    {getTranslation('phoneLabel', lang)} *
+                    {tr('phoneLabel')} *
                   </label>
                   <input
                     type="tel"
@@ -852,7 +884,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       setPhone(sanitizeIraqiPhone(e.target.value));
                       clearFieldError('phone');
                     }}
-                    placeholder={getTranslation('phonePlaceholder', lang)}
+                    placeholder={tr('phonePlaceholder')}
                     aria-invalid={phoneError ? true : undefined}
                     // The live verdict outranks the submit-time one: while someone is fixing a
                     // number the field should follow what they are typing right now, not stay
@@ -885,7 +917,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <Layers className="w-5 h-5 text-orange-on-dark" />
-                  <span>{getTranslation('stepTechSpecs', lang)}</span>
+                  <span>{tr('stepTechSpecs')}</span>
                 </h3>
                 <p className="text-white/55 text-xs sm:text-sm leading-relaxed mt-2 max-w-2xl">
                   {isAr
@@ -981,7 +1013,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <div className="text-white font-bold text-base mt-1">{isAr ? 'تخصيص المظهر' : 'Appearance'}</div>
               <div className="p-4 rounded-2xl bg-obsidian border border-white/10">
                 <label className="block text-sm font-semibold text-white/85 mb-2">
-                  {getTranslation('colorSchemeLabel', lang)}
+                  {tr('colorSchemeLabel')}
                 </label>
                 {/* Three rectangles, each one a free colour picker.
 
@@ -1185,12 +1217,12 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 {/* Language Support */}
                 <div>
                   <label className="block text-sm font-semibold text-white/85 mb-2">
-                    {getTranslation('languageSupportLabel', lang)}
+                    {tr('languageSupportLabel')}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {([
-                      { id: 'ar' as const, label: getTranslation('langAr', lang) },
-                      { id: 'en' as const, label: getTranslation('langEn', lang) },
+                      { id: 'ar' as const, label: tr('langAr') },
+                      { id: 'en' as const, label: tr('langEn') },
                       { id: 'ar_en' as const, label: isAr ? 'ثنائي' : 'Both' },
                     ]).map((opt) => (
                       <button
@@ -1258,7 +1290,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     rows={4}
                     value={customFeaturesText}
                     onChange={(e) => setCustomFeaturesText(e.target.value)}
-                    placeholder={getTranslation('customFeaturesPlaceholder', lang)}
+                    placeholder={tr('customFeaturesPlaceholder')}
                     className="w-full p-3.5 rounded-xl bg-obsidian border border-steel/60 focus:border-orange-on-dark focus:outline-none text-white text-sm leading-relaxed"
                   />
                 </div>
@@ -1350,7 +1382,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               <div className="border-b border-white/10 pb-4">
                 <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   <FileSignature className="w-5 h-5 text-white" />
-                  <span>{getTranslation('stepSignature', lang)}</span>
+                  <span>{tr('stepSignature')}</span>
                 </h3>
               </div>
 
@@ -1436,7 +1468,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     className="flex items-center gap-1 text-xs text-white/60 hover:text-white cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>{getTranslation('clearSignature', lang)}</span>
+                    <span>{tr('clearSignature')}</span>
                   </button>
                 </div>
 
@@ -1502,7 +1534,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     className="w-4 h-4 rounded bg-graphite border-steel/60 text-white focus:ring-white cursor-pointer disabled:cursor-not-allowed"
                   />
                   <span className="text-sm font-semibold text-white leading-relaxed">
-                    {getTranslation('agreeTermsCheckbox', lang)}
+                    {tr('agreeTermsCheckbox')}
                   </span>
                 </label>
 
@@ -1540,7 +1572,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 </div>
               ) : (
                 <div className="p-5 rounded-2xl bg-obsidian border border-white/10 flex items-center justify-between gap-3">
-                  <span className="text-base font-bold text-white">{getTranslation('totalCostSummary', lang)}</span>
+                  <span className="text-base font-bold text-white">{tr('totalCostSummary')}</span>
                   <span className="text-xl text-white font-extrabold tabular-nums">
                     {formatPrice(totalPriceIQD, lang, currency)}
                   </span>
@@ -1650,7 +1682,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
               >
                 {adminCreatingForClient
                   ? isAr ? 'حفظ العقد للزبون' : 'Save contract for client'
-                  : getTranslation('generateContractBtn', lang)}
+                  : tr('generateContractBtn')}
               </NqButton>
             )}
           </div>

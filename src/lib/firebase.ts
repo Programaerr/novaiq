@@ -89,11 +89,20 @@ export async function saveContractToFirebase(contract: ContractData): Promise<st
   const { id: _dropped, ...cleanContract } = contract;
   const docRef = doc(db, CONTRACTS_COLLECTION, contractNum || `NVQ-${Date.now()}`);
 
+  /* البريد يُخزَّن مُطبَّعاً: صغير الأحرف ومشذَّب.
+     ليس تجميلاً — هو ما يجعل العقد قابلاً للعثور عليه أصلاً. صاحب العقد يُستدعى بـ
+     `where('email','==',…)` في subscribeToMyContracts، و Firestore يقارن النصّ حرفياً؛ فبريد
+     كتبه الأدمن بحرف كبير واحد ("Client@x.com" مقابل "client@x.com") يعني عقداً لا يظهر لصاحبه
+     أبداً مهما سجّل دخوله. وقاعدة firestore.rules تقبل التطبيع لأنها تقارن `.lower()` من
+     الطرفين، فلا شيء ينكسر في مسار العميل العادي. */
+  const normalisedEmail = (cleanContract.email || '').trim().toLowerCase();
+
   /* تنظيف `undefined`: حقل واحد present-but-undefined يجعل Firestore يرفض المستند كلّه.
      و`serverTimestamp()` كائن إشارة لا `undefined`، فينجو من المرشّح. */
   const docData = Object.fromEntries(
     Object.entries({
       ...cleanContract,
+      ...(normalisedEmail ? { email: normalisedEmail } : {}),
       createdAt: contract.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       serverCreatedAt: serverTimestamp(),
@@ -454,29 +463,86 @@ export function subscribeToMyContracts(
     return !!accountEmail && !!cEmail && cEmail === accountEmail;
   };
 
+  /* استعلامان لا واحد، وهذا هو بيت الداء الذي كان يُخفي عقود الأدمن عن أصحابها.
+   *
+   * كان الاستعلام واحداً: `where('uid','==',uid)`. والعميل مسجّل دخوله دائماً، فـ`uid` موجود
+   * دائماً، فالاستعلام هذا هو المطبَّق دائماً — واستعلام مساواة في Firestore **لا يُرجِع أبداً**
+   * مستنداً لا يحمل الحقل أصلاً. وعقد ينشئه الأدمن نيابةً عن زبون لا يحمل `uid` إطلاقاً (عمداً:
+   * الأدمن لا يعرف مُعرِّف حساب زبون قد لا يكون سجّل بعد — انظر ContractBuilder.tsx). أي أن
+   * المستند لم يكن يصل من الخادم أصلاً، ومرشِّح البريد في `owns()` أدناه — المكتوب لهذه الحالة
+   * بالذات — كان يعمل على نتيجة لا يمكن أن تحتويه. كود ميت يحرس باباً لا يمرّ منه أحد.
+   *
+   * الآن: مستمع على `uid` (عقود أنشأها بنفسه) ومستمع على `email` (عقود أُنشئت له)، ويُدمج
+   * الاتحاد. كلاهما مساواة على حقل واحد، فالفهارس التلقائية تكفي ولا يحتاج أي منهما فهرساً
+   * مركّباً. */
+  const unsubscribers: Array<() => void> = [];
+  /** نتيجة كل مستمع على حدة. الاتحاد يُعاد حسابه من الصفر عند كل لقطة — لا تراكم في خريطة
+   *  واحدة، وإلا بقي عقد حُذف من الخادم ظاهراً على الشاشة إلى الأبد لأن لا شيء يزيله منها. */
+  const perListener = new Map<string, Map<string, ContractData>>();
+  const delivered = new Set<string>();
+  let expected = 0;
+
+  const emit = () => {
+    // لا عرض قبل أن يردّ كل مستمع مرّة: أوّل لقطة من أحدهما وحدها كانت ستعرض قائمة ناقصة
+    // للحظة ثم تقفز — ومَن عقده الوحيد في المستمع الآخر يقرأ "لا عقود" قبل أن يظهر.
+    if (delivered.size < expected) return;
+    const merged = new Map<string, ContractData>();
+    for (const set of perListener.values()) {
+      for (const [id, contract] of set) merged.set(id, contract);
+    }
+    const contracts = [...merged.values()].filter(owns);
+    contracts.sort(
+      (x, y) =>
+        (y.createdAt ? new Date(y.createdAt).getTime() : 0) -
+        (x.createdAt ? new Date(x.createdAt).getTime() : 0)
+    );
+    callback(contracts);
+  };
+
+  const listen = (key: string, q: ReturnType<typeof query> | ReturnType<typeof collection>) => {
+    expected += 1;
+    perListener.set(key, new Map());
+    unsubscribers.push(
+      onSnapshot(
+        q,
+        (snapshot) => {
+          const set = new Map<string, ContractData>();
+          snapshot.forEach((docSnap) => {
+            set.set(docSnap.id, { ...(docSnap.data() as ContractData), id: docSnap.id });
+          });
+          perListener.set(key, set);
+          delivered.add(key);
+          emit();
+        },
+        (error) => {
+          /* فشل مستمع لا يمسح نتيجة الآخر: لو رفض الخادم استعلام البريد لأي سبب، يبقى ما
+             وصل عبر `uid` معروضاً بدل أن تُفرَّغ الشاشة كلها. */
+          console.error(`Customer contracts snapshot failed (${key}):`, error);
+          perListener.set(key, new Map());
+          delivered.add(key);
+          emit();
+        }
+      )
+    );
+  };
+
   try {
     const contractsRef = collection(db, CONTRACTS_COLLECTION);
-    const q = uid ? query(contractsRef, where('uid', '==', uid)) : contractsRef;
 
-    return onSnapshot(
-      q,
-      (snapshot) => {
-        const contracts: ContractData[] = [];
-        snapshot.forEach((docSnap) => {
-          contracts.push({ ...(docSnap.data() as ContractData), id: docSnap.id });
-        });
-        contracts.sort(
-          (x, y) =>
-            (y.createdAt ? new Date(y.createdAt).getTime() : 0) -
-            (x.createdAt ? new Date(x.createdAt).getTime() : 0)
-        );
-        callback(contracts.filter(owns));
-      },
-      (error) => {
-        console.error('Customer contracts snapshot failed:', error);
-        callback([]);
-      }
-    );
+    if (uid) listen('uid', query(contractsRef, where('uid', '==', uid)));
+    /* البريد يُخزَّن مُطبَّعاً (صغيراً ومشذَّباً) في saveContractToFirebase، فالمقارنة هنا
+       تطابق ما هو مكتوب فعلاً. بدون ذلك التطبيع كان بريد كتبه الأدمن بحرف كبير واحد يعني
+       عقداً لا يجده صاحبه أبداً — والقاعدة في firestore.rules تقبله لأنها تُطبِّع الطرفين. */
+    if (accountEmail) listen('email', query(contractsRef, where('email', '==', accountEmail)));
+
+    if (expected === 0) {
+      callback([]);
+      return () => undefined;
+    }
+
+    return () => {
+      for (const stop of unsubscribers) stop();
+    };
   } catch {
     return () => undefined;
   }
