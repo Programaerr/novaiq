@@ -64,6 +64,28 @@ exception when others then
 end;
 $$;
 
+-- ═══ ضبط أسرار Vault، بلا خطأ عند الإعادة ═════════════════════════════════════════════
+-- `vault.create_secret` ترمي إن كان الاسم موجوداً، فإعادة تشغيل خطوة الإعداد تفشل بخطأ
+-- "duplicate key". هذه تُنشئ أو تُحدِّث، فتُنفَّذ مرّة أو عشراً بلا فرق — والسرّ يبقى في Vault
+-- لا في هذا الملف.
+create or replace function public.set_vault_secret(secret_name text, secret_value text)
+returns void
+language plpgsql
+security definer
+set search_path = vault, public
+as $$
+declare
+  existing uuid;
+begin
+  select id into existing from vault.secrets where name = secret_name limit 1;
+  if existing is null then
+    perform vault.create_secret(secret_value, secret_name);
+  else
+    perform vault.update_secret(existing, secret_value);
+  end if;
+end;
+$$;
+
 -- ═══ عقد جديد ═════════════════════════════════════════════════════════════════════════
 -- على الإدخال وحده: كل تعديل لاحق (سعر، حالة، دفعة) له مكانه في اللوحة ولا يستحق بريداً —
 -- وإشعارٌ عن كل حفظة يصير ضجيجاً يُتجاهَل، فيضيع معه الإشعار الذي يهمّ.
@@ -98,12 +120,12 @@ create trigger profiles_notify_insert
   for each row execute function public.notify_new_subscriber();
 
 -- ═══════════════════════════════════════════════════════════════════════════════════════
---  الأسرار — تُكتب مرّة واحدة، من محرّر SQL، ولا تُحفظ في أي ملف:
+--  الأسرار — من محرّر SQL، ولا تُحفظ في أي ملف. تُعاد كما تشاء:
 --
---    select vault.create_secret(
---      'https://<PROJECT_REF>.supabase.co/functions/v1/notify', 'notify_url');
+--    select public.set_vault_secret(
+--      'notify_url', 'https://<PROJECT_REF>.supabase.co/functions/v1/notify');
 --
---    select vault.create_secret('<مفتاح service_role من Settings ← API>', 'service_role_key');
+--    select public.set_vault_secret('service_role_key', '<مفتاح service_role من Settings ← API>');
 --
 --  لا سرّ يُخترع: الدالّة تقارن الترويسة بمفتاح service_role الذي يحقنه Supabase فيها تلقائياً.
 --  وأسرارها تقتصر على TELEGRAM_BOT_TOKEN وTELEGRAM_CHAT_ID.
