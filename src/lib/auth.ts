@@ -1,176 +1,176 @@
 import { useEffect, useState } from 'react';
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
-  onAuthStateChanged,
-  type User,
-} from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { supabase } from './supabase';
 import { trackEvent } from './analytics';
 
-const googleProvider = new GoogleAuthProvider();
-
-/* اختيار الحساب في كل مرة، لا الدخول الصامت بآخر حساب.
+/**
+ * شكل الحساب كما يراه هذا التطبيق — لا كما يراه المزوّد.
  *
- * تسجيل الخروج عندنا ينهي جلسة الموقع فقط؛ جلسة Google في المتصفح تبقى قائمة، وهي ملكها لا
- * ملكنا ولا نستطيع إنهاءها. فحين يضغط المستخدم "دخول بحساب Google" مرة أخرى، تجد Google جلسة
- * واحدة نشطة فتعيده بها فوراً بلا أن تسأله — فيبدو الأمر وكأن الموقع "لم يخرجه" أصلاً، ولا
- * سبيل له للدخول بحساب آخر.
- *
- * `prompt: 'select_account'` يجبر شاشة اختيار الحساب في كل محاولة دخول، حتى مع جلسة واحدة
- * نشطة. لا يغيّر شيئاً في بقاء الجلسة: من دخل يبقى داخلاً بعد تحديث الصفحة كما كان. */
-googleProvider.setCustomParameters({ prompt: 'select_account' });
+ * الحقول المستعملة فعلاً في الموقع كله هي `uid` و`email` لا غير. وترجمتها هنا، في مكان واحد،
+ * هي ما يجعل تبديل مزوّد الهوية تعديلاً في ملف بدل تعديل في كل مكوّن: Firebase كان يسمّيه
+ * `uid` وSupabase تسمّيه `id`، والاسم الذي يعرفه التطبيق يبقى واحداً.
+ */
+export interface AppUser {
+  uid: string;
+  email: string | null;
+  displayName: string;
+  photoURL: string;
+  /** حساب Google يصل موثَّقاً دائماً — وهذا ما تشترطه دالّة is_admin() في القاعدة. */
+  emailVerified: boolean;
+}
 
-// Everyone — customers and the owner/partner alike — signs in through the exact same
-// Google popup. There's no separate "admin sign-up": signing in here only ever grants a
-// normal customer view (their own contracts). Admin access is a completely separate
-// allowlist (see isAdminEmail/addAdminEmail below), checked after login — the app decides
-// where to route someone once it knows who they are, not at account-creation time.
+function toAppUser(user: SupabaseUser | null | undefined): AppUser | null {
+  if (!user) return null;
+  const meta = (user.user_metadata || {}) as Record<string, unknown>;
+  return {
+    uid: user.id,
+    email: user.email ?? null,
+    displayName: (meta.full_name as string) || (meta.name as string) || '',
+    photoURL: (meta.avatar_url as string) || (meta.picture as string) || '',
+    emailVerified: Boolean(user.email_confirmed_at),
+  };
+}
+
+/* نسخة حاضرة من الجلسة، تُحدَّث من الاشتراك أدناه.
+   السبب أن `getSession()` في Supabase غير متزامنة، بينما `hasActiveSession()` تُستدعى من
+   مسار يحتاج جواباً فورياً (انظر تعليقها). فبدل تحويل نصف الواجهة إلى async لأجل سؤال واحد،
+   تُحفظ آخر حالة معروفة هنا. */
+let cachedSession: Session | null = null;
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+/**
+ * دخول Google — **بإعادة توجيه، لا بنافذة منبثقة**.
+ *
+ * هذا فرق جوهري عن Firebase وله أثران في الواجهة:
+ *  · الصفحة تغادر فوراً، فأي كود بعد هذا الاستدعاء لا يعمل — ولهذا يُسجَّل حدث الدخول في
+ *    الاشتراك أدناه لا هنا، وإلا لما سُجّل أبداً.
+ *  · لا توجد نافذة تُغلق، فلا معنى لـ"أُغلقت النافذة بلا دخول". من يتراجع عند Google يعود
+ *    إلى الصفحة نفسها بلا جلسة، وهذا كل ما يظهر.
+ *
+ * `prompt=select_account` يبقى للسبب نفسه الذي وُضع له أصلاً: تسجيل الخروج عندنا ينهي جلسة
+ * الموقع فقط، وجلسة Google في المتصفح تبقى ملكها لا ملكنا — فبدونه يُعاد المستخدم بالحساب
+ * الأخير فوراً بلا سؤال، ولا سبيل له للدخول بحساب آخر.
+ */
 export function loginWithGoogle() {
-  // الحدث يُسجَّل بعد نجاح الدخول فقط، لا عند فتح النافذة: نافذة تُفتح ثم تُغلق ليست تسجيل
-  // دخول، وحسابها كذلك كان سيضخّم الرقم. بلا أي بيانات عن الحساب نفسه (انظر lib/analytics.ts).
-  return signInWithPopup(auth, googleProvider).then((result) => {
-    trackEvent('login', { method: 'google' });
-    return result;
+  return supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      // العودة إلى نفس الصفحة التي انطلق منها — لا إلى الجذر، فيبقى سياقه كما تركه.
+      redirectTo: window.location.href,
+      queryParams: { prompt: 'select_account' },
+    },
   });
 }
 
 /**
  * هل توجد جلسة قائمة الآن؟
  *
- * تُقرأ لحظياً من الـSDK لا من اشتراك: يستعملها مراقب الإلغاء في شاشة الدخول ليفرّق بين
- * "أُغلقت النافذة بلا دخول" و"نجح الدخول ولم تصل الإشارة بعد" — والفرق بينهما هو الفرق بين
- * رسالة صحيحة ورسالة تكذّب ما حدث.
+ * جواب فوري من آخر حالة معروفة، لا رحلة شبكة. تُستعمل في شاشة الدخول للتفريق بين "لم يدخل"
+ * و"دخل ولم تصل الإشارة بعد" — والفرق بينهما هو الفرق بين رسالة صحيحة ورسالة تكذّب ما حدث.
  */
 export function hasActiveSession(): boolean {
-  return auth.currentUser !== null;
+  return cachedSession !== null;
 }
 
 export function logoutAccount() {
-  return signOut(auth);
+  return supabase.auth.signOut();
 }
 
-export function subscribeToAuthState(callback: (user: User | null) => void) {
-  return onAuthStateChanged(auth, callback);
+export function subscribeToAuthState(callback: (user: AppUser | null) => void) {
+  const { data } = supabase.auth.onAuthStateChange((event, session) => {
+    cachedSession = session;
+    callback(toAppUser(session?.user));
+
+    /* حدث الدخول يُسجَّل هنا لا في loginWithGoogle: الصفحة تغادر عند إعادة التوجيه فلا يعمل
+       أي كود بعدها. و`SIGNED_IN` وحده — لا `INITIAL_SESSION` — وإلا حُسب كل فتح للموقع بجلسة
+       قائمة دخولاً جديداً وتضخّم الرقم. بلا أي بيانات عن الحساب (انظر lib/analytics.ts). */
+    if (event === 'SIGNED_IN') trackEvent('login', { method: 'google' });
+  });
+
+  return () => data.subscription.unsubscribe();
 }
 
-// `undefined` while the initial auth check is in flight, `null` once resolved to "signed
-// out". Any component needing "who's logged in, if anyone" (e.g. gating a page behind
-// login) can use this instead of wiring its own subscribeToAuthState effect.
-export function useCurrentUser(): User | null | undefined {
-  const [user, setUser] = useState<User | null | undefined>(undefined);
+// `undefined` أثناء الفحص الأول، و`null` بعده حين لا يوجد حساب. أي مكوّن يحتاج "من الداخل
+// الآن، إن وُجد" يستعملها بدل أن يبني اشتراكه بنفسه.
+export function useCurrentUser(): AppUser | null | undefined {
+  const [user, setUser] = useState<AppUser | null | undefined>(undefined);
   useEffect(() => subscribeToAuthState(setUser), []);
   return user;
 }
 
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
-// Mirrors every signed-in account into a client-queryable `users/{uid}` Firestore doc.
-// Enumerating Firebase Auth accounts directly needs the Admin SDK (server-only, requires a
-// service account key), which most local setups don't have configured yet — this mirror is
-// what lets the Subscribers/Team panels list real accounts without that dependency.
-// Registered once here (not inside subscribeToAuthState) so it fires exactly once per real
-// auth change no matter how many components subscribe.
-//
-// Skipped entirely on `?live=` — the standalone template preview is a customer-facing demo
-// site with no NUVAIQ account layer, and each device frame loads it in its own iframe. Left
-// unguarded, simply opening a preview would restore auth state and re-write the signed-in
-// admin's users/ document once per frame, for a page that never reads it.
-const isLiveTemplateView =
-  typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('live');
-
-if (!isLiveTemplateView) onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-  try {
-    const ref = doc(db, 'users', user.uid);
-    const existing = await getDoc(ref);
-    await setDoc(
-      ref,
-      {
-        email: normalizeEmail(user.email || ''),
-        displayName: user.displayName || '',
-        photoURL: user.photoURL || '',
-        lastSignInAt: new Date().toISOString(),
-        ...(existing.exists() ? {} : { createdAt: new Date().toISOString() }),
-      },
-      { merge: true }
-    );
-  } catch {
-    // Best-effort mirror — a failed write here must never block sign-in itself.
-  }
-});
-
-// The admin allowlist: document ID is the admin's email. A document existing (its content
-// doesn't matter) means that email is an admin. `get`-by-exact-ID is allowed for anyone
-// signed in (so the app can check "am I an admin?"), but `list` is denied — the set of
-// admin emails can't be discovered by scanning the collection. The very first admin has to
-// be added once, manually, in the Firebase Console; after that, an existing admin can add
-// more from the dashboard itself.
+/**
+ * قائمة المشرفين: صفّ في جدول `admins` مفتاحه البريد. وجوده يعني أن هذا البريد أدمن.
+ *
+ * السياسة تسمح لأي حساب بقراءة صفّه هو فقط (أو للأدمن بقراءة الجميع)، والسرد ممنوع تماماً —
+ * فلا تُكتشف عضوية القائمة بالتخمين. الأدمن الأول يُدخَل مرّة واحدة يدوياً من محرّر SQL.
+ */
 export async function isAdminEmail(email: string | null | undefined): Promise<boolean> {
   if (!email) return false;
-  try {
-    const snap = await getDoc(doc(db, 'admins', normalizeEmail(email)));
-    return snap.exists();
-  } catch {
-    return false;
-  }
+  const { data, error } = await supabase
+    .from('admins')
+    .select('email')
+    .eq('email', normalizeEmail(email))
+    .maybeSingle();
+  return !error && !!data;
 }
 
 /**
- * "هل الحساب الموقّع حالياً أدمن؟" — الفحص الوحيد الذي يجوز لواجهة لوحة التحكم أن تعتمد عليه.
+ * "هل الحساب الموقّع حالياً أدمن؟" — الفحص الوحيد الذي يجوز للواجهة أن تعتمد عليه.
  *
- * لماذا دالة مستقلة بدل تمرير بريد إلى isAdminEmail:
- *  · البريد يُؤخذ من `auth.currentUser` مباشرة، أي من رمز الدخول الموقَّع من Firebase — لا من
- *    خاصية أو حالة أو تخزين محلي يقدر أحد يعدّلها. لا يوجد مدخل يمكن "حقنه" هنا أصلاً.
- *  · تتحقق من emailVerified أولاً، بنفس شرط قاعدة isAdmin() في firestore.rules، فلا تُظهر
- *    الواجهة صلاحية سترفضها القاعدة لاحقاً.
- *  · مع forceTokenRefresh تُجبر تحديث الرمز من خوادم Google: حساب عُطِّل أو حُذف أو سُحبت
- *    جلسته يفشل هنا فوراً بدل أن يبقى رمزه القديم صالحاً في المتصفح حتى ينتهي وحده. تُمرَّر
- *    في إعادة التحقق الدورية فقط، لا في الفحص الأول (انظر التعليق داخل الدالة).
+ *  · البريد يُقرأ من الجلسة الموقَّعة نفسها، لا من خاصية أو تخزين محلي يقدر أحد تعديله.
+ *  · يتحقق من توثيق البريد أولاً، بنفس شرط `is_admin()` في القاعدة — فلا تُظهر الواجهة
+ *    صلاحية سيرفضها الخادم بعد لحظة.
+ *  · مع `forceServerCheck` تُسأل الخوادم مباشرة (`getUser`) بدل الجلسة المحفوظة: حساب حُذف أو
+ *    سُحبت جلسته يفشل هنا فوراً بدل أن يبقى رمزه صالحاً في المتصفح حتى ينتهي وحده. تُمرَّر في
+ *    إعادة التحقق الدورية فقط — الفحص الأول لا يحتاجها لأن القاعدة تتحقق من الرمز على أي حال.
  *  · أي خطأ = ليس أدمن. الفشل يُغلق الباب لا يفتحه.
  *
- * ويبقى الأهم: هذه الدالة تقرر ما يُرسَم على الشاشة فقط. الحاجز الحقيقي هو firestore.rules —
- * من يعدّل جافاسكربت في متصفحه ليجبر ظهور اللوحة يحصل على هيكل فارغ: كل قراءة عقود أو
- * حسابات أو كتابة سعر تُرفض من الخادم، لأن الخادم لا يسأل المتصفح من هو.
+ * ويبقى الأهم: هذه الدالّة تقرّر ما يُرسَم على الشاشة فقط. الحاجز الحقيقي هو سياسات RLS —
+ * من يعدّل جافاسكربت في متصفحه ليجبر ظهور اللوحة يحصل على هيكل فارغ، لأن كل قراءة وكتابة
+ * تُقيَّم على الخادم الذي لا يسأل المتصفح من هو.
  */
-export async function isCurrentUserAdmin(forceTokenRefresh = false): Promise<boolean> {
-  const user = auth.currentUser;
-  if (!user || !user.email) return false;
+export async function isCurrentUserAdmin(forceServerCheck = false): Promise<boolean> {
   try {
-    /* تحديث الرمز إجبارياً رحلة شبكة كاملة إلى خوادم Google، وهي أبطأ خطوة في فتح اللوحة.
-       الفحص الأول لا يحتاجها: قاعدة Firestore تتحقق من الرمز على الخادم مهما كان عمره، وأي
-       رمز مسحوب يُرفض هناك لا هنا. تبقى إجبارية في إعادة التحقق الدورية (AdminPage)، حيث
-       الهدف بالضبط هو التقاط حساب عُطِّل أو حُذف أثناء الجلسة. */
-    if (forceTokenRefresh) await user.getIdToken(true);
-    if (!user.emailVerified) return false;
-    const snap = await getDoc(doc(db, 'admins', normalizeEmail(user.email)));
-    return snap.exists();
+    const user = forceServerCheck
+      ? (await supabase.auth.getUser()).data.user
+      : cachedSession?.user ?? (await supabase.auth.getSession()).data.session?.user ?? null;
+
+    if (!user?.email || !user.email_confirmed_at) return false;
+    return await isAdminEmail(user.email);
   } catch {
     return false;
   }
 }
 
 export async function addAdminEmail(email: string): Promise<void> {
-  await setDoc(doc(db, 'admins', normalizeEmail(email)), { addedAt: new Date().toISOString() });
+  const { error } = await supabase
+    .from('admins')
+    .upsert({ email: normalizeEmail(email) }, { onConflict: 'email' });
+  if (error) throw error;
 }
 
 export function authErrorMessage(error: unknown, isAr: boolean): string {
-  const code = (error as { code?: string })?.code || '';
-  switch (code) {
-    case 'auth/popup-closed-by-user':
-    case 'auth/cancelled-popup-request':
-      return isAr ? 'تم إلغاء تسجيل الدخول' : 'Sign-in was cancelled';
-    case 'auth/popup-blocked':
-      return isAr ? 'المتصفح منع النافذة المنبثقة، اسمح بها وحاول مجدداً' : 'Your browser blocked the popup — allow it and try again';
-    case 'auth/too-many-requests':
-      return isAr ? 'محاولات كثيرة جداً، يرجى المحاولة لاحقاً' : 'Too many attempts — please try again later';
-    case 'auth/network-request-failed':
-      return isAr ? 'تعذر الاتصال بالخادم، تحقق من الإنترنت' : 'Network error — check your connection';
-    default:
-      return isAr ? 'حدث خطأ، يرجى المحاولة مجدداً' : 'Something went wrong — please try again';
+  const err = error as { message?: string; status?: number } | null;
+  const message = (err?.message || '').toLowerCase();
+  const status = err?.status;
+
+  /* رموز Firebase (`auth/popup-closed-by-user` وأخواتها) لم يعد لها وجود: لا نافذة منبثقة في
+     تدفّق إعادة التوجيه أصلاً. والتصنيف هنا بحسب ما يمكن أن يقع فعلاً في هذا التدفّق. */
+  if (status === 429 || message.includes('rate limit')) {
+    return isAr ? 'محاولات كثيرة جداً، حاول بعد قليل' : 'Too many attempts — please try again shortly';
   }
+  if (message.includes('failed to fetch') || message.includes('network')) {
+    return isAr ? 'تعذّر الاتصال بالخادم، تحقّق من الإنترنت' : 'Network error — check your connection';
+  }
+  if (status === 403 || message.includes('not allowed') || message.includes('redirect')) {
+    // يقع حين لا يكون رابط العودة ضمن قائمة Redirect URLs في إعدادات Supabase — وهو خطأ
+    // إعداد لا خطأ مستخدم، فالرسالة تقوله لمن يقرأ السجلّ بدل "حدث خطأ ما".
+    return isAr
+      ? 'تعذّر إكمال الدخول — إعداد روابط العودة غير مكتمل'
+      : 'Sign-in could not complete — the redirect URL configuration is incomplete';
+  }
+  return isAr ? 'حدث خطأ، يرجى المحاولة مجدداً' : 'Something went wrong — please try again';
 }

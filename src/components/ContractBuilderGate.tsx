@@ -1,6 +1,6 @@
 import React from 'react';
 import { RefreshCw } from 'lucide-react';
-import type { User } from 'firebase/auth';
+import type { AppUser as User } from '../lib/auth';
 import { Language } from '../lib/i18n';
 import { Currency } from '../lib/currency';
 import { Template, ContractData } from '../types';

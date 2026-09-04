@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LogOut, FileCheck, Download, Clock, CheckCircle2, Wallet, Home, ExternalLink, XCircle, Loader2, FileText, ChevronDown, ArrowRight, ArrowLeft, AlertCircle, RotateCcw, PenLine } from 'lucide-react';
-import type { User } from 'firebase/auth';
+import type { AppUser as User } from '../lib/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';

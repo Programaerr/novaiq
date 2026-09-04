@@ -16,7 +16,7 @@ import { NuvaiqLogo } from './NuvaiqLogo';
 // نوع فقط (import type) — يُحذف بالكامل عند الترجمة، لا يسحب Firebase SDK فعلياً وقت التشغيل.
 // من يملك حالة الدخول فعلياً هو App.tsx (useCurrentUser، مطلوبة هناك أصلاً لتوجيه الصفحات)،
 // وهذا الملف يستقبلها كخاصية بدل الاشتراك بنفسه بشكل مكرر — انظر تعليق currentUser أدناه.
-import type { User } from 'firebase/auth';
+import type { AppUser as User } from '../lib/auth';
 
 // The nav toggle's icon: three uneven bars that settle toward an even split on hover, and
 // morph in place into an X on open — the same three bars animating throughout, never two
