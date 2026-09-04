@@ -2007,3 +2007,129 @@ html[data-demo] .nq-navbar {
     margin: 10mm;
   }
 }
+
+/* ═══ The process track ════════════════════════════════════════════════════════
+
+   Four moving parts, all of them compositor properties.
+
+   ## The reveal is a mask, not eight animations
+
+   `.nq-proc-wipe` is a white rect inside an SVG `<mask>`, scaled along X from the side the
+   language starts on. One transform on one element wipes the band's fill, its hairline outline,
+   its dashed spine and the indicator together. Animating the outline instead — a `stroke-dashoffset`
+   draw — would have needed a second animation for the fill and a third for the spine, all of them
+   timed to agree, and any drift between them shows as the band arriving in pieces.
+
+   `transform-box: fill-box` is required and easy to miss: without it an SVG transform-origin is
+   resolved against the nearest viewport rather than the element, so `left center` would not be the
+   left of the rect and the wipe would start somewhere off-screen.
+
+   ## The indicator travels the band's own width
+
+   `--nq-proc-run` is set from the measured width in the component, so the sweep crosses exactly
+   the band and not a guess at it. It is clipped to the band path, so it disappears into the notch
+   and the arrow head rather than running past them.
+
+   ## The hover state is on the innermost element on purpose
+
+   The mark carries three transforms across three nested elements — position, entrance, hover —
+   because `.nq-rise` ends on `transform: none` and holds it with `forwards`, which outranks a
+   normal declaration. Sharing one element would have let the entrance cancel the centring and
+   then permanently block the hover scale. See the note in ProcessTrack.tsx.
+
+   ## Reduced motion removes the motion, not the section
+
+   The wipe and the sweep stop, and the marks and card still respond to hover and focus — the
+   interaction is how the descriptions are read, so removing it would remove the content. This is
+   the same rule `.nq-rise` already follows a few hundred lines up: clear the from-states, do not
+   just drop the animations. */
+
+.nq-proc-wipe {
+  transform-box: fill-box;
+  transform: scaleX(0);
+}
+
+[data-seen='true'] .nq-proc-wipe {
+  animation: nq-proc-wipe 1.15s cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards;
+}
+
+@keyframes nq-proc-wipe {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.nq-proc-sweep {
+  transform-box: fill-box;
+  opacity: 0;
+}
+
+[data-seen='true'] .nq-proc-sweep {
+  animation: nq-proc-sweep 7s linear 1.3s infinite;
+}
+
+@keyframes nq-proc-sweep {
+  0%        { transform: translateX(calc(var(--nq-proc-run, 100%) * -1)); opacity: 0; }
+  12%, 88%  { opacity: 1; }
+  100%      { transform: translateX(var(--nq-proc-run, 100%)); opacity: 0; }
+}
+
+/* The mark. `will-change` is deliberately absent: eight permanent compositing layers for a hover
+   that lasts a moment is the trade the property exists to warn about, and a 46px square scaling
+   by 8% does not need the help. */
+.nq-proc-stage {
+  transform: scale(1);
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+}
+
+.nq-proc-stage:hover,
+.nq-proc-stage:focus-visible {
+  transform: scale(1.08);
+}
+
+.nq-proc-stage .nq-proc-mark {
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+/* The ring goes on the mark rather than on the button box, which is taller than the mark by the
+   title beneath it — a rounded rectangle around both reads as a form field, not a focused step. */
+.nq-proc-stage:focus-visible .nq-proc-mark {
+  box-shadow: 0 0 0 2px #F7F7F5, 0 0 0 4px #273036;
+}
+
+.nq-proc-title {
+  transition: opacity 180ms ease;
+}
+
+/* The card is present in the DOM only while a stage is active, so this is an entrance and never
+   an exit: there is nothing to animate out, and a fade-out would need the element kept alive
+   past its own state. 8px of travel, which reads as "it came from the mark" without being a
+   slide. */
+.nq-proc-card[data-open='true'] {
+  animation: nq-proc-card 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes nq-proc-card {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nq-proc-wipe {
+    transform: scaleX(1);
+    animation: none;
+  }
+  .nq-proc-sweep {
+    animation: none;
+    opacity: 0;
+  }
+  .nq-proc-stage,
+  .nq-proc-stage:hover,
+  .nq-proc-stage:focus-visible {
+    transform: none;
+    transition: none;
+  }
+  .nq-proc-card[data-open='true'] {
+    animation: none;
+  }
+}
