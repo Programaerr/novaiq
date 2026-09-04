@@ -29,7 +29,11 @@ export const ProjectCtaButton: React.FC<ProjectCtaButtonProps> = ({ onCreateCont
           onCreateContract();
           cosmicAudio.playWarp();
         }}
-        className="uppercase tracking-[0.1em]"
+        /* `nq-label` so the 0.1em below applies to English only. This is the tracked
+           uppercase label device exactly as index.css describes it, and in Arabic the
+           spacing measured 1.4px -- enough to detach the letters on the one button this
+           whole section is pointing at. */
+        className="nq-label uppercase tracking-[0.1em]"
         icon={<Rocket className="w-4 h-4 sm:w-5 sm:h-5" />}
         /* Just the action. "…and sign the contract now" named a second step the button does not
            take you to — the contract is at the end of the builder, not behind this press — and a

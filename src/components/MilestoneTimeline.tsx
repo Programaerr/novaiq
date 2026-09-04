@@ -101,7 +101,18 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
               black the brief asks to confine to secondary text lives here and in the frosted
               panel below — which is where the "confined" black actually IS the panel. */}
           <h2
-            className="nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none tracking-tight"
+            /* `tracking-tight` in English only. It is -0.025em, a Latin display nicety for a
+               heavy weight at a large size, and on Arabic it does the mirror image of what
+               the footer's positive tracking did: instead of cutting the joins open it
+               drags the glyphs together, so the dots that are the ONLY thing separating
+               several letters start colliding with the letter beside them. Measured at
+               -0.62px on this heading at 390px.
+
+               Conditional here rather than via the `.nq-label` rule in index.css: that rule
+               also clears `text-transform`, and this is a heading rather than the tracked
+               uppercase label device the rule was written for. The `isAr ? '' : ...`
+               shape is the pattern already used at HomeHero.tsx:195. */
+            className={`nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none ${isAr ? '' : 'tracking-tight'}`}
             style={{ color: OBSIDIAN, ['--nq-rise-delay' as string]: '80ms' }}
           >
             {isAr ? 'مراحل العمل' : 'Project Phases & Delivery'}
@@ -178,8 +189,19 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-3 sm:gap-4">
+                        {/* `leading-[1.35]`, where this was `leading-none`. Every one of the
+                            four titles wraps to two lines on a phone -- in English as well as
+                            Arabic -- and line-height 1 makes the line box exactly the font
+                            size, so the two lines had nothing between them. Latin survives
+                            that as merely tight; Arabic collides, because it puts real ink
+                            both above the line (the alif and lam ascenders) and below it (the
+                            dots under several letters), so its true vertical extent is well
+                            over 1em where Latin’s is about 1em.
+
+                            Still tighter than the 1.9 the task list below it uses, so the
+                            title stays the denser block of the two. */}
                         <h3
-                          className="text-[1.05rem] sm:text-[1.2rem] font-black leading-none"
+                          className="text-[1.05rem] sm:text-[1.2rem] font-black leading-[1.35]"
                           style={{ color: WHITE }}
                         >
                           {ms.phaseTitle}
@@ -210,8 +232,11 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                       </div>
 
                       <p
-                        className="mt-2 text-xs font-bold"
-                        style={{ color: WHITE, opacity: 0.75 }}
+                        /* 0.85rem and 0.82, up from `text-xs` (12px) and 0.75. Two or three
+                           Arabic words on glass at 12px is the size this section was least
+                           readable at. */
+                        className="mt-2 text-[0.85rem] sm:text-sm font-bold"
+                        style={{ color: WHITE, opacity: 0.82 }}
                       >
                         {ms.status}
                       </p>
@@ -238,7 +263,9 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                           well; see the note on `milestones` for why the timing is not stated
                           here but in the contract that actually sets it. */}
                       <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
-                        <div className="text-xl font-black tracking-tight" style={{ color: WHITE }}>
+                        {/* English only, for the reason on the section heading above: at 20px
+                            this measured -0.5px, pulling the Arabic joins closed. */}
+                        <div className={`text-xl font-black ${isAr ? '' : 'tracking-tight'}`} style={{ color: WHITE }}>
                           {isAr ? `المرحلة ${index + 1} من 4` : `Phase ${index + 1} of 4`}
                         </div>
                       </div>

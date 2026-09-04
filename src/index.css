@@ -1026,8 +1026,24 @@
    one property.
 
    It is a legibility bug rather than a taste call, which is why the fix is a rule and not five
-   edits: anything that carries `.nq-label` keeps its tracking in English and loses it in Arabic,
-   and a sixth label added later is covered without anyone having to remember.
+   edits: anything that carries `.nq-label` keeps its tracking in English and loses it in Arabic.
+
+   The line that used to close this paragraph -- "a sixth label added later is covered without
+   anyone having to remember" -- was wrong, and is removed rather than left standing. The class
+   is OPT-IN. It covered the five footer labels and nothing else, and three tracked labels
+   outside the footer shipped without it: the templates tag (11.2px, +1.57px), the templates
+   price caption (10.9px, +1.52px) and the phases CTA (14px, +1.4px). All three carry it now.
+
+   Still a class and not an inversion. `[dir='rtl'] * { letter-spacing: normal }` would cover
+   every case that has not been written yet, but there are 30 `tracking-*` sites in the app and
+   some set LATIN inside an Arabic page -- the wordmark first among them -- where the tracking
+   is correct and wanted. So the reminder is this paragraph: a tracked label needs the class.
+
+   Negative tracking is the same bug with the sign flipped, and this rule does NOT cover it,
+   because the elements that carry it are headings rather than labels and would lose their
+   `text-transform` too. `tracking-tight` drags Arabic glyphs together instead of pulling them
+   apart, so the dots collide instead of detaching. See MilestoneTimeline.tsx, where it is made
+   conditional in the component instead.
 
    `text-transform` goes with it. On Arabic glyphs uppercase is a no-op, so it only ever reached
    the Latin inside an Arabic line — a brand name that is already capitalised.

@@ -197,8 +197,18 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   >
                     <Icon className="w-7 h-7" strokeWidth={2.2} />
                   </span>
+                  {/* `nq-label`, which is what stops the tracking below from cutting the
+                      Arabic apart. The rule and the reasoning are in index.css; the short
+                      version is that Arabic is a connected script and 0.14em lands on the
+                      joining stroke, so the tag rendered as detached letters. English keeps
+                      the tracking and the uppercase; only RTL drops them.
+
+                      0.82rem on a phone where this was 0.7rem (11.2px). Arabic keeps what
+                      distinguishes one letter from another -- the dots, the teeth -- at a
+                      far finer scale than Latin does, so a size that is merely small in
+                      Latin stops being readable here. */}
                   <span
-                    className="text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-[0.14em] uppercase"
+                    className="nq-label text-[0.82rem] sm:text-[0.85rem] uw:text-[0.9rem] font-extrabold tracking-[0.14em] uppercase"
                     style={{ color: WHITE }}
                   >
                     {currentLang === 'ar' ? choice.tagAr : choice.tagEn}
@@ -217,8 +227,11 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                 </h3>
 
                 <p
-                    className="relative mt-3 text-[0.92rem] sm:text-base uw:text-lg font-bold leading-relaxed"
-                    style={{ color: WHITE, opacity: 0.85 }}
+                    /* 1rem on a phone, where this was 0.92rem, and `leading-[1.9]` for the
+                       same reason as the line above: this is the longest Arabic sentence on
+                       the card and it wraps to three lines at 390px. */
+                    className="relative mt-3 text-[1rem] sm:text-base uw:text-lg font-bold leading-[1.9]"
+                    style={{ color: WHITE, opacity: 0.9 }}
                 >
                   {variant.description}
                 </p>
@@ -239,9 +252,18 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                   className="relative mt-7 pt-5 border-t"
                   style={{ borderColor: 'rgba(247, 247, 245, 0.16)' }}
                 >
+                  {/* The same `nq-label` fix, and the same size floor. This line was the
+                      worst case on the page and it was three faults at once: 10.9px, the
+                      smallest type anywhere here; 1.52px of spacing splitting every join;
+                      and 0.62 opacity on top of both. 0.82rem and 0.78 now.
+
+                      Raising the opacity cannot cost contrast, only add it -- 0.62 was the
+                      weakest ink on the card at 4.71:1 over the brightest cube behind the
+                      glass, and it is the reason the card cannot open past 0.78 alpha. At
+                      0.78 ink that constraint loosens rather than tightens. */}
                   <span
-                    className="block text-[0.68rem] sm:text-[0.72rem] font-extrabold tracking-[0.14em] uppercase"
-                    style={{ color: WHITE, opacity: 0.62 }}
+                    className="nq-label block text-[0.82rem] sm:text-[0.85rem] font-extrabold tracking-[0.14em] uppercase"
+                    style={{ color: WHITE, opacity: 0.78 }}
                   >
                     {currentLang === 'ar'
                       ? `السعر المقترح لهذه الفكرة — ${choice.tagAr}`
@@ -255,9 +277,15 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     {formatPrice(variant.priceIQD, currentLang, currency)}
                   </strong>
 
+                  {/* 0.9rem and 0.82, up from 0.82rem and 0.72. No tracking on this one, so
+                      it was legible rather than broken -- but it is a full Arabic sentence
+                      set at 13.1px and dimmed, which is the size where the script stops
+                      being comfortable rather than the size where it fails. `leading-[1.85]`
+                      instead of `leading-relaxed` (1.625) because Arabic ascenders and the
+                      dots below the baseline need more room between lines than Latin. */}
                   <p
-                    className="mt-3 text-[0.82rem] sm:text-[0.88rem] font-bold leading-relaxed"
-                    style={{ color: WHITE, opacity: 0.72 }}
+                    className="mt-3 text-[0.9rem] sm:text-[0.92rem] font-bold leading-[1.85]"
+                    style={{ color: WHITE, opacity: 0.82 }}
                   >
                     {currentLang === 'ar'
                       ? 'رقم نموذجي للقالب والسعر قابل للتحديد من خلال العقد بين الطرفين'
