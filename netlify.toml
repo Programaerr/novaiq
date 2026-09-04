@@ -71,10 +71,13 @@
 #    ودخول Google صار إعادة توجيه لصفحة كاملة لا سكربتاً يُحمَّل في صفحتنا.
 #  • frame-ancestors 'self' وليس 'none': الموقع يعرض المعاينة الحية (?live=) داخل إطار
 #    من نفس النطاق؛ 'none' كانت ستُفرغ إطار المعاينة.
+#  • https://open.er-api.com في connect-src: مصدر سعر الصرف المباشر في أداة الأدمن
+#    (CurrencyConverterCard). بدونه يُحظر الطلب من المتصفح نفسه، فتظهر رسالة "تعذر جلب
+#    السعر" دائماً لا أحياناً — عطل كان يبدو كخلل في الشبكة وهو في الحقيقة CSP.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src 'self' https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://open.er-api.com; frame-src 'self' https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
     # لا استنتاج لنوع الملف من محتواه: صورة رفعها أحدهم لا يمكن أن تُنفَّذ كسكربت.
     X-Content-Type-Options = "nosniff"
     # لا يُوضع الموقع داخل إطار في نطاق غريب (هجوم clickjacking) — نفس معنى frame-ancestors
