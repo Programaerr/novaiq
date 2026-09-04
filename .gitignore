@@ -6,6 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+# A file literally named `env`, with no dot. `.env*` does NOT match it — that pattern
+# needs the leading dot — so this one was tracked and pushed with a Supabase
+# service_role key and a database URL in it. Its own line, so the gap cannot reopen.
+/env
 .claude/settings.local.json
 # Throwaway verification scripts and the screenshots they produce.
 _*.mjs
