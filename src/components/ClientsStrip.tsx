@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useClientsStrip } from '../lib/clientsStrip';
-import { ClientsShapeBand } from './ClientsShapeBand';
-import { OBSIDIAN, PAPER } from '../lib/homePalette';
+import { OBSIDIAN, PAPER, WHITE } from '../lib/homePalette';
 import { Language } from '../lib/i18n';
 
 /**
@@ -28,6 +27,14 @@ import { Language } from '../lib/i18n';
  * المسار عرضَ الحاوية. يعمل مع أي عدد عناصر، وأي عرض شاشة، وأي مقاس شعار، ويعيد الحساب
  * تلقائياً حين تُفك صور جديدة أو يُدار الجهاز.
  */
+/* ضلع البطاقة والفراغ حولها، بالبكسل ولمقاسين فقط.
+
+   مكتوبة هنا لا في الأصناف (classes) لأن حساب الطور أدناه يحتاج الخطوة الواحدة رقماً:
+   مركز البطاقة رقم i هو i × الخطوة + نصف الخطوة. لو كان المقاس في الأصناف والحساب هنا
+   لصار للشيء الواحد مصدران، وأي تعديل على أحدهما يُزيح التحوّل عن حافة الشريط بصمت. */
+const TILE = { sm: 96, lg: 120 };
+const GAP = { sm: 20, lg: 28 };
+
 export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language === 'ar';
@@ -40,12 +47,9 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
      الذي يتغيّر بعدد الشعارات وبعرض الجهاز. لو استُعملت القيمة مدةً مباشرة لصار الشريط أسرع
      كلما زادت الشعارات وأبطأ على الشاشة الصغيرة — أي سرعة مختلفة عند كل زائر. */
   const [durationSeconds, setDurationSeconds] = useState(strip.speedSeconds);
-  /* نفس الحركة مقاسة بالبكسل/الثانية، لطبقة الأشكال خلف الشريط.
-     لا تُحسب هناك لأن مصدرها واحد: المسار يقطع عرض مسار واحد بالضبط في كل دورة
-     (ترجمة -50% على صندوق عرضه مساران)، فالقسمة هنا هي نفسها ما تفعله حركة CSS. حساب
-     مستقل داخل الطبقة كان سيصير مصدر حقيقة ثانياً لشيء واحد، والانحراف بينهما يُقرأ
-     كخلل لا كتصميم. */
-  const [speedPxPerSecond, setSpeedPxPerSecond] = useState(0);
+  /* عرض المسار وعرض النافذة، محفوظان لا مقروءان عند العرض: منهما وحدهما يُحسب طور كل
+     بطاقة أدناه، وقراءتهما من DOM أثناء العرض كانت ستجبر تخطيطاً متزامناً في كل إطار. */
+  const [metrics, setMetrics] = useState({ laneWidth: 0, viewportWidth: 0 });
 
   const measure = useCallback(() => {
     const viewport = viewportRef.current;
@@ -69,8 +73,11 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
 
     // عتبة بكسل واحد، مثل عتبة الربع ثانية أعلاه: ResizeObserver يُطلق على كسور البكسل
     // في أثناء التخطيط، وحالة جديدة عند كل كسر تعني إعادة عرض لا يراها أحد.
-    const pxPerSecond = laneWidth / seconds;
-    setSpeedPxPerSecond((prev) => (Math.abs(prev - pxPerSecond) > 1 ? pxPerSecond : prev));
+    setMetrics((prev) =>
+      Math.abs(prev.laneWidth - laneWidth) > 1 || Math.abs(prev.viewportWidth - viewportWidth) > 1
+        ? { laneWidth, viewportWidth }
+        : prev,
+    );
   }, [repeats, strip.speedSeconds]);
 
   useEffect(() => {
@@ -89,8 +96,49 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
 
   const lane = Array.from({ length: repeats }, () => strip.items).flat();
 
-  const Item: React.FC<{ item: (typeof strip.items)[number] }> = ({ item }) => (
-    <li className="shrink-0 px-6 sm:px-9 flex items-center">
+  const wide = metrics.viewportWidth >= 640;
+  const side = wide ? TILE.lg : TILE.sm;
+  const pitch = side + (wide ? GAP.lg : GAP.sm);
+
+  /* طور البطاقة: كم مضى من دورة الشريط لحظة عبورها الحافة اليمنى، بالسالب.
+
+     التحوّل يجب أن يقع حيث **تدخل** البطاقة الشريط، لا عند نقطة ما من دورتها هي، وإلا رآه
+     كل زائر في مكان مختلف من الشريط حسب لحظة فتحه الصفحة. والحركتان تتقاسمان ساعة واحدة
+     أصلاً — دورة الشريط — فلا تحتاج البطاقة أن تعرف أكثر من إزاحتها داخل تلك الدورة.
+
+     بطاقة على الشاشة الآن تأخذ تأخيراً سالباً يساوي الزمن المنقضي منذ دخولها، فتُرسم
+     مفتوحة كما يجب. وبطاقة لم تصل الحافة بعد يقع كيفريمها الصفري على لحظة عبورها إياها. */
+  const delayFor = (index: number): string => {
+    if (metrics.laneWidth <= 0) return '0s';
+    const centre = index * pitch + pitch / 2;
+    /* البطاقة تعبر الحافة اليمنى بعد (المركز − عرض النافذة) ÷ السرعة، والسرعة هي عرض المسار
+       ÷ المدّة — فالتأخير هو هذا الفرق نفسه مقيساً بالدورة. بلا باقي قسمة: المركز يقع بين
+       صفر وعرض المسار، فالناتج بين −(مدّة × عرض النافذة ÷ عرض المسار) و+المدّة، وحركة لا
+       نهائية تقبل المدى كله.
+
+       والإشارتان تُقرآن كما هما: السالب بطاقة دخلت فعلاً وهذا هو الزمن المنقضي منذ دخولها،
+       فتُرسم عند النقطة التي بلغتها من الانفتاح؛ والموجب بطاقة لم تصل بعد، وملء backwards
+       يُبقيها على الكيفريم الصفري — المثلث — إلى أن تصل. */
+    const seconds = (durationSeconds * (centre - metrics.viewportWidth)) / metrics.laneWidth;
+    return `${seconds.toFixed(3)}s`;
+  };
+
+  const Item: React.FC<{ item: (typeof strip.items)[number]; index: number }> = ({ item, index }) => (
+    <li
+      /* nq-tile هي القصّ نفسه — انظر الكيفريمات في index.css. البطاقة مربّعة بضلع ثابت لأن
+         المضلّع نسبيّ (100%)، وضلع متغيّر كان سيجعل ميل المثلث يختلف من بطاقة لأخرى. */
+      className="nq-tile shrink-0 grid place-items-center overflow-hidden"
+      style={{
+        width: side,
+        height: side,
+        marginInline: (wide ? GAP.lg : GAP.sm) / 2,
+        background: WHITE,
+        /* حدّ شعري لا ظلّ: البطاقة تُقصّ، والظلّ يُقصّ معها فيتحوّل إلى حافة سوداء حادة على
+           ضلع المثلث المائل. الحدّ يُقصّ أيضاً لكنه يبقى حدّاً. */
+        border: `1px solid ${OBSIDIAN}1F`,
+        ['--nq-tile-delay' as string]: delayFor(index),
+      }}
+    >
       {item.logoDataUrl ? (
         <img
           src={item.logoDataUrl}
@@ -99,12 +147,18 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
              تنزيلاً — كل ما يفعله هو تأخير معرفة عرضها، وهو ما يجعل قياس المسار أعلاه يبدأ
              من عرض خاطئ فتظهر فجوة حتى يُعاد القياس. */
           decoding="async"
-          /* ارتفاع موحّد وعرض حر: الشعارات تصل بنسب مختلفة وتثبيت الاثنين يشوّهها. التدرّج
-             الرمادي يجعل شعارات بألوان متضاربة تُقرأ كصفّ واحد مرتّب لا لافتات متنافسة. */
-          className="h-9 sm:h-11 w-auto max-w-[160px] object-contain opacity-85 grayscale"
+          /* داخل مربّع الآن، فالمقاس صار نسبة من ضلعه لا ارتفاعاً ثابتاً. object-contain يحفظ
+             نسبة كل شعار، و64% تترك هامشاً يبقى داخل المثلث فترة أطول أثناء الانفتاح.
+             التدرّج الرمادي يجعل شعارات بألوان متضاربة تُقرأ كصفّ واحد لا لافتات متنافسة. */
+          className="max-w-[64%] max-h-[64%] w-auto h-auto object-contain opacity-85 grayscale"
         />
       ) : (
-        <span className="text-base sm:text-xl font-black whitespace-nowrap" style={{ color: OBSIDIAN, opacity: 0.72 }}>
+        /* بلا whitespace-nowrap: الاسم صار داخل مربّع لا في سطر مفتوح، فمنع الالتفاف كان
+           سيدفعه خارج البطاقة. ثلاثة أسطر كحدّ، وما زاد يُقصّ بنقاط. */
+        <span
+          className="px-2 text-center text-[0.8rem] sm:text-[0.9rem] font-black leading-snug line-clamp-3"
+          style={{ color: OBSIDIAN, opacity: 0.72 }}
+        >
           {item.name}
         </span>
       )}
@@ -141,13 +195,6 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
           WebkitMaskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
         }}
       >
-        {/* طبقة الأشكال، داخل هذا الصندوق بالذات وليس في القسم كله — ولثلاثة أسباب لا واحد:
-            هو الأب المُوضَع (relative)، فـabsolute inset-0 تقع على الشريط وحده لا على القسم؛
-            والقناع عليه يسري على أبنائه، فتدخل الأشكال وتخرج من العدم بنفس تلاشي الشعارات
-            بلا تلاشٍ ثانٍ يُكتب وينحرف عنه لاحقاً؛ وهو الصندوق الذي يُقاس عليه المسار أصلاً،
-            فالطبقة والشعارات تنظران إلى نفس العرض. */}
-        <ClientsShapeBand speedPxPerSecond={speedPxPerSecond} />
-
         {/* dir="ltr" على المسار، وهذا هو أصل "الفراغ الكبير ثم يظهر من العدم".
             الصفحة عربية (rtl)، فالنسختان تُصفّان من اليمين إلى اليسار: النسخة الأصلية تحتل
             النصف الأيمن والمكرّرة النصف الأيسر. والحركة `-50%` تدفع المسار يساراً — أي نحو
@@ -160,22 +207,19 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
             يستجيب لضغطة، كما طُلب. */}
         <div
           dir="ltr"
-          /* relative z-10 لأجل ترتيب الطلاء وحده: العنصر المُوضَع يُطلى فوق شقيقه غير
-             المُوضَع مهما كان ترتيبهما في المصدر، وطبقة الأشكال مُوضَعة بالضرورة لأنها تملأ
-             الشريط — فبدون هذا السطر تُرسم الأشكال فوق الشعارات لا خلفها. */
-          className="nq-marquee relative z-10 flex w-max pointer-events-none"
+          className="nq-marquee flex w-max pointer-events-none"
           style={{ ['--nq-marquee-duration' as string]: `${durationSeconds}s` }}
         >
           <ul ref={laneRef} className="flex items-center">
             {lane.map((item, i) => (
-              <Item key={`a-${item.id}-${i}`} item={item} />
+              <Item key={`a-${item.id}-${i}`} item={item} index={i} />
             ))}
           </ul>
           {/* النسخة الثانية مطابقة تماماً و`aria-hidden`: هي ما يقع تحت العين لحظة إرجاع
               المسار إلى الصفر، فلا تُرى قفزة. ليست محتوى إضافياً لقارئ الشاشة. */}
           <ul className="flex items-center" aria-hidden="true">
             {lane.map((item, i) => (
-              <Item key={`b-${item.id}-${i}`} item={item} />
+              <Item key={`b-${item.id}-${i}`} item={item} index={i} />
             ))}
           </ul>
         </div>
