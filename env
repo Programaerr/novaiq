@@ -1,0 +1,9 @@
+# VITE_* تُحزَم داخل ملفات المتصفح — يقرأها أي زائر. ما يحميك هو RLS لا المفتاح.
+VITE_SUPABASE_URL=https://brnxxjqukljvdnkultdh.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybnh4anF1a2xqdmRua3VsdGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MTMyNTEsImV4cCI6MjEwNDA4OTI1MX0.OmBhxGBYWDU9BbzreSY1bbPAeMeGOJG5xiheqpMdGcs
+
+# محلّي فقط. service_role يتجاوز RLS بالكامل — لا يُنشر ولا يأخذ بادئة VITE_.
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_DB_URL=postgresql://postgres:[0987aA0987@]@db.brnxxjqukljvdnkultdh.supabase.co:5432/postgres
+
+TRUST_PROXY_HOPS=0
