@@ -58,7 +58,7 @@ const CHOICES: Choice[] = [
   {
     id: 'website',
     icon: Globe,
-    titleAr: 'اطلب موقع الكتروني',
+    titleAr: 'اطلب موقع إلكتروني',
     titleEn: 'Order a Website',
     tagAr: 'موقع متكامل',
     tagEn: 'Full website',
@@ -66,17 +66,17 @@ const CHOICES: Choice[] = [
       'موقع احترافي يعمل على كل المتصفحات — صفحات تعريفية، حجوزات فورية، ولوحة تحكم تدير طلباتك من مكان واحد.',
     descEn:
       'A professional site that runs in every browser — intro pages, instant bookings, and a control panel that runs your requests from one place.',
-    note: 'موقع الكتروني',
+    note: 'موقع إلكتروني',
   },
   {
     id: 'app',
     icon: Smartphone,
     titleAr: 'اطلب تطبيق هاتف',
     titleEn: 'Order a Mobile App',
-    tagAr: 'تطبيق جوال',
+    tagAr: 'تطبيق للهواتف',
     tagEn: 'Mobile app',
     descAr:
-      'تطبيق جوال متكامل لنظامي iOS وأندرويد — نفس الخدمات في جيب عميلك، مع إشعارات وحجز من الهاتف مباشرة.',
+      'تطبيق متكامل لنظامي iOS وأندرويد — الخدمات نفسها بين يدي عميلك، مع إشعارات وحجز مباشر من الهاتف.',
     descEn:
       'A full mobile app for iOS and Android — the same services in your customer’s pocket, with push alerts and in-app booking.',
     note: 'تطبيق هاتف',
@@ -282,7 +282,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     style={{ color: WHITE, opacity: 0.88 }}
                   >
                     {currentLang === 'ar'
-                      ? `السعر المقترح لهذه الفكرة — ${choice.tagAr}`
+                      ? `السعر التقديري لهذا الخيار — ${choice.tagAr}`
                       : `Suggested price for this idea — ${choice.tagEn}`}
                   </span>
 
@@ -304,7 +304,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     style={{ color: WHITE, opacity: 0.82 }}
                   >
                     {currentLang === 'ar'
-                      ? 'رقم نموذجي للقالب والسعر قابل للتحديد من خلال العقد بين الطرفين'
+                      ? 'هذا رقم استرشادي لهذا القالب، ويُحدَّد السعر النهائي في العقد بين الطرفين.'
                       : 'An indicative figure for the template; the price is settled in the contract between the two parties.'}
                   </p>
                 </div>

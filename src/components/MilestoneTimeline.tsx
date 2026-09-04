@@ -38,7 +38,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
     {
       phaseTitle: isAr ? 'المرحلة الأولى: التحليل والاعتماد' : 'Phase 1: Analysis & Approval',
       icon: Calendar,
-      status: isAr ? 'مرحلة الاعتماد' : 'Approval Phase',
+      status: isAr ? 'الاتفاق والتحضير' : 'Approval Phase',
       tasks: [
         isAr ? 'توقيع الاتفاق إلكترونياً وتحديد النطاق في القسم الأول' : 'Sign the agreement electronically and set the scope in Section One',
         isAr ? 'تحديد الهوية البصرية ولغات النظام' : 'Define visual identity, colors, and required system languages',
@@ -46,17 +46,17 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       ]
     },
     {
-      phaseTitle: isAr ? 'المرحلة الثانية: بناء التصميم' : 'Phase 2: Interactive Design & UI/UX',
+      phaseTitle: isAr ? 'المرحلة الثانية: التصميم والواجهات' : 'Phase 2: Interactive Design & UI/UX',
       icon: Code2,
       status: isAr ? 'التطوير البصري' : 'Visual Development',
       tasks: [
         isAr ? 'تطوير واجهات المستخدم' : 'Develop responsive user interfaces with top UX/UI standards',
-        isAr ? 'دمج تأثيرات الحركة والسلاسة' : 'Integrate motion effects and smooth interactivity',
+        isAr ? 'إضافة تأثيرات الحركة وسلاسة التنقل' : 'Integrate motion effects and smooth interactivity',
         isAr ? 'جولتا تعديل مجانيتان ضمن النطاق المتفق عليه' : 'Two free revision rounds within the agreed scope',
       ]
     },
     {
-      phaseTitle: isAr ? 'المرحلة الثالثة: الربط البرمجي' : 'Phase 3: Core Engineering & Backend Integration',
+      phaseTitle: isAr ? 'المرحلة الثالثة: بناء النظام' : 'Phase 3: Core Engineering & Backend Integration',
       icon: Cpu,
       status: isAr ? 'البرمجة والخوادم' : 'Engineering & Cloud',
       tasks: [
@@ -66,9 +66,9 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       ]
     },
     {
-      phaseTitle: isAr ? 'المرحلة الرابعة: الاختبار النهائي' : 'Phase 4: Final Testing & Live Launch',
+      phaseTitle: isAr ? 'المرحلة الرابعة: الاختبار والإطلاق' : 'Phase 4: Final Testing & Live Launch',
       icon: ShieldCheck,
-      status: isAr ? 'الإطلاق المكتمل' : 'Live Launch',
+      status: isAr ? 'التسليم والتشغيل' : 'Live Launch',
       tasks: [
         isAr ? 'اختبارات الأمان والسرعة' : 'Run load tests, security audits, and performance tuning',
         isAr ? 'تسليم الكود المصدري وصلاحيات الإدارة للعميل بعد اكتمال السداد' : 'Hand the source code and admin access to the client once payment is complete',
