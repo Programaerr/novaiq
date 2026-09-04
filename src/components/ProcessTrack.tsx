@@ -258,7 +258,12 @@ export const ProcessTrack: React.FC<ProcessTrackProps> = ({ language = 'ar' }) =
         {/* ── Desktop and tablet: the horizontal band ─────────────────────────────────────────── */}
         <div
           ref={bandRef}
-          className="nq-proc-band relative hidden md:block mt-14 lg:mt-20"
+          /* The gap above the band is the card's room, not decoration. The card is absolutely
+             positioned so it takes no layout space of its own, and at mt-14 it opened straight
+             through the lede above it. 11rem clears the tallest card (a three-line description
+             at this width measures about 150px, plus its 14px stand-off) with a little left
+             over. */
+          className="nq-proc-band relative hidden md:block mt-[11rem] lg:mt-[12.5rem]"
           style={{ height: BAND_H }}
           onMouseLeave={() => setActiveIndex(null)}
         >
