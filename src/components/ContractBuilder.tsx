@@ -656,14 +656,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
             invisible ever since: white text with no dark backing under it. `font-black` and the
             rest of the site's heading weight, in place of the one-off `font-extrabold` this page
             had drifted to on its own. */}
-        <div className="text-center mb-5">
-          <h2 className="text-xl sm:text-3xl font-black mb-1.5" style={{ color: OBSIDIAN }}>
-            {tr('builderTitle')}
-          </h2>
-          <p className="text-sm sm:text-base max-w-2xl mx-auto font-bold leading-relaxed" style={{ color: OBSIDIAN, opacity: 0.7 }}>
-            {tr('builderSubtext')}
-          </p>
-        </div>
+        {/* لا عنوان تسويقي في وضع الأدمن: هو نداء لصاحب المشروع ("مواصفات مشروعك… يُحفظ في
+            حسابك")، ولوحة الأدمن تحمل عنوانها الثابت فوق النافذة أصلاً. وحذفه ليس تجميلاً على
+            الهاتف: العنوان وسطره التوضيحي وحدهما نحو 90px من أعلى الشاشة قبل أوّل حقل. */}
+        {!adminCreatingForClient && (
+          <div className="text-center mb-5">
+            <h2 className="text-xl sm:text-3xl font-black mb-1.5" style={{ color: OBSIDIAN }}>
+              {tr('builderTitle')}
+            </h2>
+            <p className="text-sm sm:text-base max-w-2xl mx-auto font-bold leading-relaxed" style={{ color: OBSIDIAN, opacity: 0.7 }}>
+              {tr('builderSubtext')}
+            </p>
+          </div>
+        )}
 
         {/* Phase stepper — the three phases of building a contract. Each is clickable so a
             customer can jump back to a phase they want to revisit; the active one is filled
@@ -683,11 +688,26 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
             It buys that with height, about 190px against 74. Worth it here: this is three rows
             above a form, read once on the way in, and a row of "بيانا..." names nothing. */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mb-6">
+        {/* ثلاثة عرضاً دائماً في وضع الأدمن، بلا التكديس الذي يأخذ ~190px من شاشة هاتف.
+            التكديس أعلاه وُجد لأن عناوين العميل الطويلة تُقصّ في عمود بعرض 86px — وعناوين
+            الأدمن أقصر (كلمة واحدة)، وهو يعرف الخطوات الثلاث بحكم التكرار ولا يقرأ "المرحلة
+            الأولى" في كل عقد ينشئه. */}
+        <div
+          className={`grid gap-2.5 sm:gap-3 mb-6 ${
+            adminCreatingForClient ? 'grid-cols-3' : 'grid-cols-1 sm:grid-cols-3'
+          }`}
+        >
           {[
-            { step: 1, title: isAr ? 'بيانات الشركة' : 'Company Details', icon: Building2, phase: isAr ? 'المرحلة الأولى' : 'Phase one' },
-            { step: 2, title: isAr ? 'مواصفات المشروع' : 'Project Specs', icon: Layers, phase: isAr ? 'المرحلة الثانية' : 'Phase two' },
-            { step: 3, title: isAr ? 'المراجعة والتوقيع' : 'Review & Sign', icon: FileSignature, phase: isAr ? 'المرحلة الثالثة' : 'Phase three' },
+            { step: 1, title: say(isAr ? 'بيانات الشركة' : 'Company Details', isAr ? 'الزبون' : 'Client'), icon: Building2, phase: isAr ? 'المرحلة الأولى' : 'Phase one' },
+            { step: 2, title: say(isAr ? 'مواصفات المشروع' : 'Project Specs', isAr ? 'المشروع' : 'Project'), icon: Layers, phase: isAr ? 'المرحلة الثانية' : 'Phase two' },
+            {
+              step: 3,
+              // لا توقيع في هذه الخطوة بوضع الأدمن — البنود ولوحة التوقيع مخفيّتان فيه، فاسم
+              // "المراجعة والتوقيع" كان يَعِد بما ليس هناك.
+              title: say(isAr ? 'المراجعة والتوقيع' : 'Review & Sign', isAr ? 'الحفظ' : 'Save'),
+              icon: FileSignature,
+              phase: isAr ? 'المرحلة الثالثة' : 'Phase three',
+            },
           ].map((s) => {
             const Icon = s.icon;
             const isCompleted = currentStep > s.step;
@@ -702,7 +722,11 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                 }}
                 aria-current={isCurrent ? 'step' : undefined}
                 data-incomplete={missingForStep(s.step).length > 0 ? 'true' : undefined}
-                className={`text-start p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-2.5 cursor-pointer ${
+                className={`rounded-2xl border transition-all duration-200 flex cursor-pointer ${
+                  adminCreatingForClient
+                    ? 'flex-col items-center text-center gap-1 p-2'
+                    : 'text-start items-center gap-2.5 p-3 sm:p-3.5'
+                } ${
         isCurrent
           /* Accent fill kept and only the LABEL flipped, because this row is on the light
              page rather than in the panel: the fill is 12.53:1 there, where the obsidian
@@ -719,13 +743,15 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                     orange, because plain Orange was 2.13:1 on this white chip. The accent is
                     `#273036` now and measures 13.44:1 on white, so there is nothing left to
                     darken and the two values have collapsed into one. */}
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                <div className={`${adminCreatingForClient ? 'w-7 h-7' : 'w-8 h-8'} rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                   isCurrent ? 'bg-white text-[#273036]' : isCompleted ? 'bg-white text-obsidian' : 'bg-white/10 text-white/60'
                 }`}>
                   {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                 </div>
                 <div className="min-w-0">
-                  <span className="block text-xs opacity-70 flex items-center gap-1.5">
+                  {/* سطر "المرحلة الأولى" يختفي في وضع الأدمن — نصف ارتفاع البطاقة مقابل
+                      معلومة يعرفها. علامة النقص تنتقل بجانب العنوان فلا تضيع معه. */}
+                  <span className={`text-xs opacity-70 items-center gap-1.5 ${adminCreatingForClient ? 'hidden' : 'flex'}`}>
                     {s.phase}
                     {/* علامة النقص على الخطوة نفسها: يراها المستخدم قبل أن يفتحها، فيعرف أين
                         بقي شيء بلا أن يتنقّل بين الخطوات ليكتشفه. */}
@@ -741,7 +767,16 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
                       that the cards are sized to hold their text there is nothing to hide: at
                       the sm breakpoint, where the longest title is still 14px over its column,
                       it wraps at the space between two words instead of disappearing. */}
-                  <span className="block text-xs sm:text-sm font-bold leading-snug">{s.title}</span>
+                  <span className={`font-bold leading-snug flex items-center justify-center gap-1.5 ${adminCreatingForClient ? 'text-[11px]' : 'block text-xs sm:text-sm'}`}>
+                    {s.title}
+                    {adminCreatingForClient && missingForStep(s.step).length > 0 && (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ background: ERROR }}
+                        aria-label={isAr ? 'خطوة غير مكتملة' : 'Incomplete step'}
+                      />
+                    )}
+                  </span>
                 </div>
               </button>
             );
