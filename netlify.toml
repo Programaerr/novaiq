@@ -1,7 +1,12 @@
 [build]
   # فقط جهة الواجهة (vite build) — لا حاجة على Netlify لخطوة esbuild التي تبني dist/server.cjs
   # (خادم Express)؛ Netlify يستضيف ملفات ثابتة فقط، لا يشغّل عملية Node مستمرة.
-  command = "npx vite build"
+  #
+  # `check-dist` ليست زينة: Netlify ينشر `dist` كما هو، وVite ينسخ إليه **كل** ما في `public/`
+  # حرفياً بلا سؤال. فأي ملف يُترك هناك يوماً — نسخة احتياطية، مفتاح، ملاحظة — يُنشر على
+  # الإنترنت العام ويبقى منشوراً حتى يلاحظه أحد صدفةً. الفحص قائمة سماح: ما لا يُعرَف يوقف
+  # النشر، فيقع المنع قبل الرفع لا بعده.
+  command = "npx vite build && node scripts/check-dist.mjs"
   publish = "dist"
 
 [build.environment]
