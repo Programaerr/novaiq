@@ -4,7 +4,7 @@ import type { AppUser as User } from '../lib/auth';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
 import { formatPrice, Currency } from '../lib/currency';
-import { subscribeToMyContracts, requestContractCancellation, signPendingContract, classifyWriteFailure } from '../lib/firebase';
+import { subscribeToMyContracts, requestContractCancellation, signPendingContract, classifyWriteFailure } from '../lib/db';
 import { fetchContractSnapshot } from '../lib/contractSnapshot';
 import { logoutAccount } from '../lib/auth';
 import { generateContractPDF } from '../lib/pdfGenerator';

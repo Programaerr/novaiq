@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 // A single settings document (not per-template like pricing_overrides) — there's only ever
 // one set of company social accounts, so one doc keyed by a fixed ID is simpler than a
 // collection of one.
-const SETTINGS_DOC = 'settings/social';
+const SETTINGS_KEY = 'social';
 
 // Same reasoning as OVERRIDES_CACHE_KEY in pricingOverrides.ts: without a local cache, a
 // fresh page load shows no social links at all until the async Firestore listener responds,
@@ -37,26 +37,41 @@ export interface SocialLinks {
 }
 
 export function subscribeToSocialLinks(callback: (links: SocialLinks) => void) {
-  // Deferred Firebase load — the Footer already renders from localStorage cache first, so
-  // visitors never touching Firestore don't pull the SDK into the eager home bundle.
   let unsubscribe: (() => void) | null = null;
   let cancelled = false;
 
-  import('firebase/firestore')
-    .then(async ({ doc, onSnapshot }) => {
+  import('./supabase')
+    .then(async ({ supabase }) => {
       if (cancelled) return;
-      const { db } = await import('./firebase');
+
+      const load = async () => {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('data')
+          .eq('key', SETTINGS_KEY)
+          .maybeSingle();
+        if (cancelled) return;
+        // لا مسح لما حُمِّل عند خطأ عابر — نفس القاعدة في pricingOverrides.ts: وميض يُخفي روابط الفوتر ثم يعيدها أسوأ من لا شيء.
+        if (error) {
+          console.error('social-links load error:', error);
+          return;
+        }
+        callback(((data?.data as SocialLinks) || {}));
+      };
+
+      await load();
       if (cancelled) return;
-      unsubscribe = onSnapshot(
-        doc(db, SETTINGS_DOC),
-        (snap) => callback((snap.data() as SocialLinks) || {}),
-        // See the identical note in pricingOverrides.ts: never wipe already-loaded data on a
-        // transient listener error, or a brief hiccup would flash the footer's social links
-        // back to hidden until the next successful snapshot.
-        (error) => console.error('social links subscription error:', error)
-      );
+
+      const channel = supabase
+        .channel('social-links')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, () => void load())
+        .subscribe();
+
+      unsubscribe = () => {
+        void supabase.removeChannel(channel);
+      };
     })
-    .catch((error) => console.error('social links subscription error:', error));
+    .catch((error) => console.error('social-links subscription error:', error));
 
   return () => {
     cancelled = true;
@@ -65,11 +80,12 @@ export function subscribeToSocialLinks(callback: (links: SocialLinks) => void) {
 }
 
 export async function saveSocialLinks(links: SocialLinks): Promise<void> {
-  const [{ doc, setDoc }, { db }] = await Promise.all([
-    import('firebase/firestore'),
-    import('./firebase'),
-  ]);
-  await setDoc(doc(db, SETTINGS_DOC), links, { merge: true });
+  const { supabase } = await import('./supabase');
+  const { error } = await supabase
+    .from('site_settings')
+    .upsert({ key: SETTINGS_KEY, data: links, updated_at: new Date().toISOString() },
+            { onConflict: 'key' });
+  if (error) throw error;
 }
 
 /** The single hook every social-links consumer (currently just the Footer) should use. */

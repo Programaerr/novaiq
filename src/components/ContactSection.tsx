@@ -1,9 +1,8 @@
 import React, { useCallback, useId, useState } from 'react';
 import { MessageCircle } from 'lucide-react';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { db } from '../lib/firebase';
+import { sendContactMessage } from '../lib/db';
 import { showToast } from '../lib/toast';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 import { IRAQI_PHONE_LENGTH, IRAQI_PHONE_RULE, isValidIraqiPhone, sanitizeIraqiPhone } from '../lib/iraqiPhone';
@@ -227,12 +226,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
       /* النسخة المحفوظة تبقى: سجلّ لدينا لا قناة تسليم. من راسلنا يبقى له أثر عندنا حتى لو
          أغلق واتساب قبل الإرسال. */
       try {
-        await addDoc(collection(db, 'contact_messages'), {
+        await sendContactMessage({
           name: values.name.trim(),
           phone: values.phone.trim(),
           message: values.message.trim(),
           language,
-          createdAt: serverTimestamp(),
         });
         // بلا اسم ولا رقم ولا نص الرسالة — الحدث نفسه فقط (رسالة وصلت)، انظر lib/analytics.ts.
         trackEvent('contact_message_sent', { language });

@@ -55,34 +55,43 @@ export interface PricingOverride {
 }
 
 export function subscribeToPricingOverrides(callback: (overrides: Record<string, PricingOverride>) => void) {
-  // Firebase (and its ~120KB gzipped footprint) is deferred until this is actually called —
-  // the home page already renders the live Overrided prices from the localStorage cache below,
-  // so a visitor who never reaches a page that needs Firestore doesn't pay for the SDK at all.
+  // عميل Supabase مؤجَّل حتى تُستدعى هذه فعلاً: الصفحة الرئيسية تعرض الأسعار من الكاش المحلّي
+  // أدناه، فزائر لا يبلغ صفحة تحتاج القاعدة لا يدفع ثمن الحزمة أصلاً.
   let unsubscribe: (() => void) | null = null;
   let cancelled = false;
 
-  import('firebase/firestore')
-    .then(async ({ collection, onSnapshot }) => {
+  import('./supabase')
+    .then(async ({ supabase }) => {
       if (cancelled) return;
-      const { db } = await import('./firebase');
+
+      const load = async () => {
+        const { data, error } = await supabase.from(OVERRIDES_COLLECTION).select('template_id, data');
+        if (cancelled) return;
+        /* لا `callback({})` عند الخطأ — عمداً. عطل عابر (انقطاع لحظي، تجديد رمز) يقع **بعد**
+           تحميل الأسعار الحقيقية كان سيمسحها كلها ويعيد الافتراضية: وهو بالضبط عطل "يظهر
+           تم الحفظ ثم يعود السعر القديم". يُسجَّل ليبقى الفشل الحقيقي مرئياً، ولا يُمسح شيء. */
+        if (error) {
+          console.error('pricing_overrides load error:', error);
+          return;
+        }
+        const result: Record<string, PricingOverride> = {};
+        for (const row of (data || []) as Record<string, unknown>[]) {
+          result[row.template_id as string] = row.data as PricingOverride;
+        }
+        callback(result);
+      };
+
+      await load();
       if (cancelled) return;
-      unsubscribe = onSnapshot(
-        collection(db, OVERRIDES_COLLECTION),
-        (snapshot) => {
-          const result: Record<string, PricingOverride> = {};
-          snapshot.forEach((docSnap) => {
-            result[docSnap.id] = docSnap.data() as PricingOverride;
-          });
-          callback(result);
-        },
-        // Deliberately does NOT call callback({}) here. A transient listener error (a brief
-        // network blip, the token refreshing, the listener being re-negotiated) firing *after*
-        // real overrides already loaded would otherwise wipe every live price/name/link back to
-        // the static defaults — exactly the "shows Saved, then reverts to the old price" bug.
-        // Logged so a genuine, persistent failure (e.g. unpublished Firestore rules) is still
-        // visible in the console instead of failing completely silently.
-        (error) => console.error('pricing_overrides subscription error:', error)
-      );
+
+      const channel = supabase
+        .channel('pricing-overrides')
+        .on('postgres_changes', { event: '*', schema: 'public', table: OVERRIDES_COLLECTION }, () => void load())
+        .subscribe();
+
+      unsubscribe = () => {
+        void supabase.removeChannel(channel);
+      };
     })
     .catch((error) => console.error('pricing_overrides subscription error:', error));
 
@@ -93,11 +102,12 @@ export function subscribeToPricingOverrides(callback: (overrides: Record<string,
 }
 
 export async function savePricingOverride(templateId: string, override: PricingOverride): Promise<void> {
-  const [{ doc, setDoc }, { db }] = await Promise.all([
-    import('firebase/firestore'),
-    import('./firebase'),
-  ]);
-  await setDoc(doc(db, OVERRIDES_COLLECTION, templateId), override, { merge: true });
+  const { supabase } = await import('./supabase');
+  const { error } = await supabase
+    .from(OVERRIDES_COLLECTION)
+    .upsert({ template_id: templateId, data: override, updated_at: new Date().toISOString() },
+            { onConflict: 'template_id' });
+  if (error) throw error;
 }
 
 /** يحل متغيّر تسليم واحد (موقع/تطبيق) لقالب: يرجّع override الخاص به إن وُجد، وإلا يبني

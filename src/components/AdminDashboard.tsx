@@ -4,7 +4,7 @@ import { LogOut, ShieldCheck, BarChart3, FileCheck, Tag, Users, UserCheck, Setti
 import { ContractData } from '../types';
 import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
-import { subscribeToContracts, subscribeToContractCosts } from '../lib/firebase';
+import { subscribeToContracts, subscribeToContractCosts } from '../lib/db';
 import { logoutAccount, isCurrentUserAdmin } from '../lib/auth';
 import { useDocumentFlag } from '../lib/useDocumentFlag';
 import { LogoutConfirmDialog } from './LogoutConfirmDialog';

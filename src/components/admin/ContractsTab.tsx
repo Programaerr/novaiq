@@ -22,7 +22,8 @@ import {
 import { ContractData, PaymentRecord } from '../../types';
 import { Language, translateText } from '../../lib/i18n';
 import { formatPrice, Currency } from '../../lib/currency';
-import { deleteContractFromFirebase, updateContractFields, fetchContractAudit, saveContractToFirebase, classifyWriteFailure, auth } from '../../lib/firebase';
+import { deleteContract, updateContractFields, fetchContractAudit, saveContract, classifyWriteFailure } from '../../lib/db';
+import { currentUserEmail } from '../../lib/auth';
 import { generateContractPDF } from '../../lib/pdfGenerator';
 import { ConnectedContractPrintDocument } from '../ContractPrintDocument';
 import { ContractBuilder } from '../ContractBuilder';
@@ -59,7 +60,7 @@ export function ContractsTab({
   const handleAdminContractGenerated = async (contract: ContractData) => {
     setSavingNewContract(true);
     try {
-      await saveContractToFirebase(contract);
+      await saveContract(contract);
       showToast(
         contract.status === 'draft'
           ? isAr
@@ -451,8 +452,9 @@ function ContractRow({
         totalPriceIQD: Number(totalPrice) || 0,
         costIQD: Number(cost) || 0,
         payments,
-        paidAmountIQD,
-        paymentStatus,
+        /* المحصَّل وحالة السداد لا يُرسَلان: يشتقّهما مشغّل في القاعدة من دفتر الدفعات نفسه
+           عند كل تغيير فيه. إرسالهما من هنا كان يعني رقمين قد يتناقضان مع الدفتر الذي بُنيا
+           منه — وهو ما كان يحدث فعلاً حين يُحسبان في المتصفح ثم يُكتبان بجانبه. */
         // Plain number, never `undefined` — Firestore rejects undefined field values and
         // fails the entire write. `0` is not a lossy substitute for "unset" here: every
         // reader of this field treats it as `contract.installmentsPlanned || 0` and shows the
@@ -482,7 +484,7 @@ function ContractRow({
       const priced = (Number(totalPrice) || 0) > 0;
       if (nowSigned && priced && !contract.snapshotHash) {
         try {
-          const approvedBy = (auth.currentUser?.email || '').trim().toLowerCase();
+          const approvedBy = currentUserEmail();
           const hash = await createContractSnapshot(
             {
               ...contract,
@@ -537,7 +539,7 @@ function ContractRow({
     if (!window.confirm(confirmMsg)) return;
     setIsDeleting(true);
     try {
-      await deleteContractFromFirebase(contract.id, contract.contractNumber);
+      await deleteContract(contract.id, contract.contractNumber);
       showToast(isAr ? 'تم حذف العقد' : 'Contract deleted', 'success');
     } catch (error) {
       /* الرسالة تسمّي الخطأ لا تخفيه: أشهر أسباب الفشل هنا هو رفض القواعد (permission-denied)

@@ -75,6 +75,11 @@ export function hasActiveSession(): boolean {
   return cachedSession !== null;
 }
 
+/** بريد الحساب الموقّع الآن، فوراً وبلا انتظار — من الجلسة المحفوظة نفسها. */
+export function currentUserEmail(): string {
+  return (cachedSession?.user?.email || '').trim().toLowerCase();
+}
+
 export function logoutAccount() {
   return supabase.auth.signOut();
 }

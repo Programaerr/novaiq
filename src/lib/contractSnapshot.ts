@@ -109,17 +109,38 @@ export async function createContractSnapshot(contract: ContractData, approvedBy:
   if (!body.contractNumber) throw new Error('Cannot snapshot a contract without a number');
 
   const hash = await sha256(JSON.stringify(body));
-  const [{ doc, setDoc }, { db }] = await Promise.all([import('firebase/firestore'), import('./firebase')]);
-  await setDoc(doc(db, 'contract_snapshots', body.contractNumber), { ...body, hash });
+  const { supabase } = await import('./supabase');
+  const { error } = await supabase.from('contract_snapshots').insert({
+    contract_number: body.contractNumber,
+    snapshot_at: body.snapshotAt,
+    approved_by: body.approvedBy,
+    terms: body.terms,
+    values: body.values,
+    hash,
+  });
+  if (error) throw error;
   return hash;
 }
 
 /** يقرأ اللقطة إن وُجدت. غيابها ليس خطأً: عقد قديم أو غير معتمَد بعد لا لقطة له. */
 export async function fetchContractSnapshot(contractNumber: string): Promise<ContractSnapshot | null> {
   try {
-    const [{ doc, getDoc }, { db }] = await Promise.all([import('firebase/firestore'), import('./firebase')]);
-    const snap = await getDoc(doc(db, 'contract_snapshots', contractNumber.trim()));
-    return snap.exists() ? (snap.data() as ContractSnapshot) : null;
+    const { supabase } = await import('./supabase');
+    const { data } = await supabase
+      .from('contract_snapshots')
+      .select('contract_number, snapshot_at, approved_by, terms, values, hash')
+      .eq('contract_number', contractNumber.trim())
+      .maybeSingle();
+    if (!data) return null;
+    const row = data as Record<string, unknown>;
+    return {
+      contractNumber: row.contract_number as string,
+      snapshotAt: row.snapshot_at as string,
+      approvedBy: row.approved_by as string,
+      terms: row.terms as ContractSnapshot['terms'],
+      values: row.values as ContractSnapshot['values'],
+      hash: row.hash as string,
+    };
   } catch (error) {
     console.error('Could not read the contract snapshot:', error);
     return null;

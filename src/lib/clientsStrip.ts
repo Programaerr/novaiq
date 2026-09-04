@@ -88,19 +88,38 @@ export function subscribeToClientsStrip(callback: (value: ClientsStrip) => void)
   let unsubscribe: (() => void) | null = null;
   let cancelled = false;
 
-  import('firebase/firestore')
-    .then(async ({ doc, onSnapshot }) => {
+  import('./supabase')
+    .then(async ({ supabase }) => {
       if (cancelled) return;
-      const { db } = await import('./firebase');
+
+      const load = async () => {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('data')
+          .eq('key', SETTINGS_KEY)
+          .maybeSingle();
+        if (cancelled) return;
+        // لا مسح لما حُمِّل عند خطأ عابر — نفس القاعدة في socialLinks.ts.
+        if (error) {
+          console.error('clients-strip load error:', error);
+          return;
+        }
+        callback(normalize(data?.data));
+      };
+
+      await load();
       if (cancelled) return;
-      unsubscribe = onSnapshot(
-        doc(db, SETTINGS_DOC),
-        (snap) => callback(normalize(snap.data())),
-        // لا تُمسح البيانات المعروضة عند خطأ عابر في المستمع — نفس القاعدة في socialLinks.ts.
-        (error) => console.error('clients strip subscription error:', error)
-      );
+
+      const channel = supabase
+        .channel('clients-strip')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, () => void load())
+        .subscribe();
+
+      unsubscribe = () => {
+        void supabase.removeChannel(channel);
+      };
     })
-    .catch((error) => console.error('clients strip subscription error:', error));
+    .catch((error) => console.error('clients-strip subscription error:', error));
 
   return () => {
     cancelled = true;
@@ -109,10 +128,7 @@ export function subscribeToClientsStrip(callback: (value: ClientsStrip) => void)
 }
 
 export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
-  const [{ doc, setDoc }, { db }] = await Promise.all([
-    import('firebase/firestore'),
-    import('./firebase'),
-  ]);
+  const { supabase } = await import('./supabase');
 
   /* المستند يُكتب كاملاً بلا merge، وهذا مقصود: الحفظ استبدال لا إضافة، فأي شعار حُذف أو
      عنصر أُزيل يختفي فعلياً من قاعدة البيانات ولا يبقى محجوزاً للمساحة. merge كان سيُبقي كل
@@ -132,7 +148,11 @@ export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
     })),
   };
 
-  await setDoc(doc(db, SETTINGS_DOC), payload);
+  const { error } = await supabase
+    .from('site_settings')
+    .upsert({ key: SETTINGS_KEY, data: payload, updated_at: new Date().toISOString() },
+            { onConflict: 'key' });
+  if (error) throw error;
 }
 
 /** الهوك الوحيد الذي يقرأ منه كل من يعرض الشريط. */
