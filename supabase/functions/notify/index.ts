@@ -18,8 +18,12 @@
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? '';
 /** مجموعة العمل — هنا تُفتح مواضيع العقود. */
 const CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID') ?? '';
-/** محادثة البوت الخاصّة — هنا تصل تنبيهات المشتركين الجدد وحدها. */
-const ADMIN_CHAT_ID = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID') ?? '';
+/** محادثات البوت الخاصّة — هنا تصل تنبيهات المشتركين الجدد وحدها.
+ *  تقبل أكثر من رقم مفصولةً بفاصلة، فتُضاف أرقام لاحقاً بلا لمس الكود. */
+const ADMIN_CHAT_IDS = (Deno.env.get('TELEGRAM_ADMIN_CHAT_ID') ?? '')
+  .split(',')
+  .map((id) => id.trim())
+  .filter(Boolean);
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
@@ -169,16 +173,35 @@ Deno.serve(async (req) => {
        *
        * والارتداد إلى المجموعة عند غياب الإعداد مقصود: إشعار في المكان الخطأ يُلاحَظ ويُصحَّح،
        * أمّا إشعار لا يصل فيبدو كأن أحداً لم يسجّل. */
-      const target = ADMIN_CHAT_ID || CHAT_ID;
-      if (!ADMIN_CHAT_ID) {
+      const targets = ADMIN_CHAT_IDS.length ? ADMIN_CHAT_IDS : [CHAT_ID];
+      if (!ADMIN_CHAT_IDS.length) {
         console.warn('notify: TELEGRAM_ADMIN_CHAT_ID غير مضبوط — أُرسل تنبيه المشترك إلى المجموعة');
       }
-      await tg('sendMessage', {
-        chat_id: target,
-        parse_mode: 'HTML',
-        text: subscriberBody(r),
-        link_preview_options: { is_disabled: true },
+
+      /* كل مُستلِم على حدة، وفشلُ أحدهم لا يمنع الباقين.
+         الحالة الواقعية: شريك لم يضغط Start على البوت بعد — تيليجرام يرفض مراسلته وحده
+         ("chat not found")، ولو كانت الإرسالة واحدة لسقط التنبيه عن الجميع بسببه. */
+      const results = await Promise.allSettled(
+        targets.map((chat_id) =>
+          tg('sendMessage', {
+            chat_id,
+            parse_mode: 'HTML',
+            text: subscriberBody(r),
+            link_preview_options: { is_disabled: true },
+          })
+        )
+      );
+
+      results.forEach((result, i) => {
+        if (result.status === 'rejected') {
+          console.error(`notify: تعذّر إبلاغ ${targets[i]} —`, result.reason);
+        }
       });
+
+      // يفشل الطلب فقط إن لم يصل أحداً إطلاقاً. وصولُه إلى واحد وصولٌ.
+      if (results.every((result) => result.status === 'rejected')) {
+        throw new Error('subscriber notice reached nobody');
+      }
     } else {
       return new Response('unknown type', { status: 400 });
     }
