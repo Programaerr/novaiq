@@ -59,14 +59,17 @@
 # الكود أي dangerouslySetInnerHTML، فهذه طبقة ثانية فوق الأولى لا بديلاً عنها.
 #
 # ملاحظتان تمنعان كسر الموقع، ومن غيّرهما عليه اختبار تسجيل الدخول أولاً:
-#  • Cross-Origin-Opener-Policy لازم يبقى same-origin-allow-popups تحديداً: القيمة الأشد
-#    (same-origin) تقطع اتصال نافذة تسجيل دخول Google المنبثقة بالصفحة، فيعلّق الدخول.
+#  • connect-src يجب أن يبقى فيه https://*.supabase.co **و**wss://*.supabase.co: الأول
+#    للقراءة والكتابة، والثاني للاشتراك اللحظي. حذف الثاني يجعل الصفحات تُحمَّل ثم لا
+#    تتحدّث أبداً — عطل يبدو كبطء لا كمنع.
+#  • script-src لم يعد فيه أي نطاق من Google/Firebase: حزمة Supabase مبنيّة داخل ملفاتنا،
+#    ودخول Google صار إعادة توجيه لصفحة كاملة لا سكربتاً يُحمَّل في صفحتنا.
 #  • frame-ancestors 'self' وليس 'none': الموقع يعرض المعاينة الحية (?live=) داخل إطار
 #    من نفس النطاق؛ 'none' كانت ستُفرغ إطار المعاينة.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://apis.google.com https://www.gstatic.com https://*.firebaseapp.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' https://*.googleapis.com https://*.google.com https://*.firebaseio.com https://*.firebasestorage.app https://*.firebaseapp.com wss://*.firebaseio.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://apis.google.com https://*.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src 'self' https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
     # لا استنتاج لنوع الملف من محتواه: صورة رفعها أحدهم لا يمكن أن تُنفَّذ كسكربت.
     X-Content-Type-Options = "nosniff"
     # لا يُوضع الموقع داخل إطار في نطاق غريب (هجوم clickjacking) — نفس معنى frame-ancestors
