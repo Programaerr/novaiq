@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
  * `CLIENTS_DOC_BUDGET_BYTES` أدناه ويمنع الحفظ قبل الاصطدام به بدل أن يفشل بعده.
  */
 
-const SETTINGS_DOC = 'settings/clients';
+const SETTINGS_KEY = 'clients';
 const CACHE_KEY = 'nuvaiq_clients_strip_cache';
 
 /** سقف عملي دون سقف Firestore الصلب (1MB) بهامش يكفي لبقية الحقول ولترميز base64. */

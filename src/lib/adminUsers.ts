@@ -1,5 +1,4 @@
-import { collection, getDocs, getDoc, doc, setDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { supabase } from './supabase';
 
 export interface ManagedUser {
   uid: string;
@@ -10,36 +9,37 @@ export interface ManagedUser {
   lastSignInAt: string;
 }
 
-// Reads the `users` mirror (see src/lib/auth.ts) straight from Firestore — no Admin SDK /
-// service account key needed. Firestore's own rules restrict `list` on this collection to
-// admins only (see firestore.rules), so a regular customer can never enumerate it even by
-// calling this same function.
+/* يقرأ جدول `profiles` مباشرة — وهو مرآة يملؤها **مشغّل على auth.users**، لا الحساب نفسه.
+   في Firestore كان كل حساب يكتب صفّه عند كل دخول (لغياب بديل بلا Admin SDK)، أي أنه كان يقدر
+   يكتب بريداً أو تاريخ إنشاء غير صحيحين عن نفسه. الآن لا كتابة من المتصفح إطلاقاً، وسياسة
+   RLS تقصر السرد على الأدمن. */
 export async function listAllUsers(): Promise<ManagedUser[]> {
-  if (!auth.currentUser) throw new Error('Not signed in');
-  const snap = await getDocs(collection(db, 'users'));
-  return snap.docs.map((d) => {
-    const data = d.data() as Record<string, unknown>;
-    return {
-      uid: d.id,
-      email: (data.email as string) || '',
-      displayName: (data.displayName as string) || '',
-      photoURL: (data.photoURL as string) || '',
-      createdAt: (data.createdAt as string) || '',
-      lastSignInAt: (data.lastSignInAt as string) || '',
-    };
-  });
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, email, display_name, photo_url, created_at, last_sign_in_at');
+  if (error) throw error;
+  return ((data || []) as Record<string, unknown>[]).map((row) => ({
+    uid: row.id as string,
+    email: (row.email as string) || '',
+    displayName: (row.display_name as string) || '',
+    photoURL: (row.photo_url as string) || '',
+    createdAt: (row.created_at as string) || '',
+    lastSignInAt: (row.last_sign_in_at as string) || '',
+  }));
 }
 
-// Same source as listAllUsers(), minus anyone in the admins allowlist — the Subscribers
-// panel is meant to show real customers, not the team managing them. Checks each user's own
-// email individually against `admins/{email}` (a `get` by known ID, allowed for any signed-in
-// user — see listTeamMembers below for why a direct `list` on that collection isn't possible).
+/* المشتركون = الحسابات ناقص المشرفين. كان هذا في Firestore سؤالاً منفصلاً لكل حساب على حدة
+   (N+1) لأن سرد `admins` ممنوع هناك. هنا استعلام واحد لقائمة المشرفين — والسياسة تسمح للأدمن
+   بقراءتها كاملة — ثم طرحٌ في الذاكرة. */
 export async function listRegularSubscribers(): Promise<ManagedUser[]> {
-  const users = await listAllUsers();
-  const adminFlags = await Promise.all(
-    users.map((u) => (u.email ? getDoc(doc(db, 'admins', u.email.toLowerCase())) : null))
+  const [users, { data: adminRows }] = await Promise.all([
+    listAllUsers(),
+    supabase.from('admins').select('email'),
+  ]);
+  const adminEmails = new Set(
+    ((adminRows || []) as Record<string, unknown>[]).map((r) => (r.email as string).toLowerCase())
   );
-  return users.filter((_, i) => !adminFlags[i]?.exists());
+  return users.filter((u) => !adminEmails.has(u.email.toLowerCase()));
 }
 
 /* تعطيل حساب أو حذفه نهائياً لم يعودا هنا.
@@ -64,21 +64,34 @@ export interface CustomerProfileNote {
 }
 
 export async function getCustomerProfileNote(uid: string): Promise<CustomerProfileNote> {
-  const snap = await getDoc(doc(db, 'customer_notes', uid));
-  if (!snap.exists()) return { note: '' };
-  const d = snap.data();
-  return { note: (d.note as string) || '', phone: (d.phone as string) || undefined, city: (d.city as string) || undefined };
+  const { data } = await supabase
+    .from('customer_notes')
+    .select('note, phone, city')
+    .eq('user_id', uid)
+    .maybeSingle();
+  if (!data) return { note: '' };
+  const d = data as Record<string, unknown>;
+  return {
+    note: (d.note as string) || '',
+    phone: (d.phone as string) || undefined,
+    city: (d.city as string) || undefined,
+  };
 }
 
 export async function saveCustomerProfileNote(uid: string, profile: CustomerProfileNote): Promise<void> {
   // كل حقل صراحة (لا `undefined`) — Firestore يرفض قيمة حقل `undefined` صراحة، وحقل فارغ
   // يعني "لا يوجد تجاوز، اعتمد على أحدث عقد" لا "احذف القيمة القديمة بصمت".
-  await setDoc(doc(db, 'customer_notes', uid), {
-    note: profile.note,
-    phone: profile.phone || '',
-    city: profile.city || '',
-    updatedAt: new Date().toISOString(),
-  });
+  const { error } = await supabase.from('customer_notes').upsert(
+    {
+      user_id: uid,
+      note: profile.note,
+      phone: profile.phone || '',
+      city: profile.city || '',
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' }
+  );
+  if (error) throw error;
 }
 
 export interface TeamMember {
@@ -90,28 +103,27 @@ export interface TeamMember {
   photoURL: string;
 }
 
-// Cross-references the `users` mirror against the `admins` allowlist entirely client-side.
-// The `admins` collection itself can never be listed (firestore.rules denies it on purpose,
-// so admin emails aren't enumerable), but any signed-in user MAY `get` a single admin doc
-// by its known ID — so checking each registered user's own email individually stays inside
-// that rule without needing the Admin SDK at all.
+/* الفريق = تقاطع الحسابات مع قائمة المشرفين. كان هذا سؤالاً لكل حساب على حدة في Firestore،
+   وصار ضمّاً في الذاكرة بعد استعلامين. */
 export async function listTeamMembers(): Promise<TeamMember[]> {
-  const users = await listAllUsers();
-  const results = await Promise.all(
-    users.map(async (u): Promise<TeamMember | null> => {
-      if (!u.email) return null;
-      const adminSnap = await getDoc(doc(db, 'admins', u.email.toLowerCase()));
-      if (!adminSnap.exists()) return null;
-      const data = adminSnap.data() as Record<string, unknown>;
-      return {
-        email: u.email,
-        addedAt: (data?.addedAt as string) || null,
-        hasAccount: true,
-        uid: u.uid,
-        displayName: u.displayName,
-        photoURL: u.photoURL,
-      };
-    })
+  const [users, { data: adminRows }] = await Promise.all([
+    listAllUsers(),
+    supabase.from('admins').select('email, added_at'),
+  ]);
+  const admins = new Map(
+    ((adminRows || []) as Record<string, unknown>[]).map((r) => [
+      (r.email as string).toLowerCase(),
+      (r.added_at as string) || null,
+    ])
   );
-  return results.filter((x): x is TeamMember => x !== null);
+  return users
+    .filter((u) => admins.has(u.email.toLowerCase()))
+    .map((u) => ({
+      email: u.email,
+      addedAt: admins.get(u.email.toLowerCase()) ?? null,
+      hasAccount: true,
+      uid: u.uid,
+      displayName: u.displayName,
+      photoURL: u.photoURL,
+    }));
 }
