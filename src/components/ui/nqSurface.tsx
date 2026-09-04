@@ -289,7 +289,19 @@ export const SIZES: Record<NqSize, SizeSpec> = {
   lg: {
     pad: 'min-h-14 px-8 py-3.5 gap-3',
     badgePad: 'min-h-14 ps-8 pe-2.5 py-2.5 gap-3',
-    text: 'text-sm sm:text-base',
+    /* `text-base` flat, where this was `text-sm sm:text-base`.
+
+       Below the sm breakpoint that made `lg` 14px -- the same as `md` -- so the scale had
+       three steps on a desktop and two on a phone, and the step that collapsed was the one
+       reserved for a page’s single most important action.
+
+       Reported on the phases section’s CTA, in Arabic, which is where it shows first:
+       the script carries what separates one letter from another at a much finer scale than
+       Latin carries its own, so 14px on a wide pill reads as small print on a big button.
+
+       The padding above is untouched and is the reason this costs nothing -- `min-h-14`
+       with `px-8` was already sized to hold a 16px label. */
+    text: 'text-base',
     icon: 'w-5 h-5',
     badge: 'w-10 h-10',
   },

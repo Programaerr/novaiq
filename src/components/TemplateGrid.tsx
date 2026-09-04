@@ -259,11 +259,27 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
                       Raising the opacity cannot cost contrast, only add it -- 0.62 was the
                       weakest ink on the card at 4.71:1 over the brightest cube behind the
-                      glass, and it is the reason the card cannot open past 0.78 alpha. At
-                      0.78 ink that constraint loosens rather than tightens. */}
+                      glass, and it is the reason the card cannot open past 0.78 alpha.
+
+                      0.92rem and 0.88 now, a second pass, because 0.82rem/0.78 was reported
+                      as still unclear and the tracking fix was only half the problem. The
+                      other half is that the whole TREATMENT is wrong for this string in
+                      Arabic. The tracked uppercase micro-label works on a Latin one-worder
+                      -- BROWSE, LEGAL -- because the reader takes it as a sign rather than
+                      as text. This is a full eight-word sentence with an em dash in it, and
+                      once `.nq-label` has correctly stripped the tracking and the uppercase
+                      there is nothing left of the label except the two things that were only
+                      ever its costs: the smallest type on the card, and one of the dimmest.
+
+                      The class stays. The ENGLISH string is still genuinely set as a tracked
+                      uppercase label and should keep being one; it is only RTL that drops it.
+
+                      6.39:1 at 0.78, 7.61:1 at 0.88, both on `#3C4449` -- the surface this
+                      glass composites to against the brightest cube behind it. Up, so the
+                      card’s alpha floor loosens rather than tightens. */}
                   <span
-                    className="nq-label block text-[0.82rem] sm:text-[0.85rem] font-extrabold tracking-[0.14em] uppercase"
-                    style={{ color: WHITE, opacity: 0.78 }}
+                    className="nq-label block text-[0.92rem] sm:text-[0.95rem] font-extrabold tracking-[0.14em] uppercase"
+                    style={{ color: WHITE, opacity: 0.88 }}
                   >
                     {currentLang === 'ar'
                       ? `السعر المقترح لهذه الفكرة — ${choice.tagAr}`
