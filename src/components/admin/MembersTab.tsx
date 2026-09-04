@@ -1,11 +1,19 @@
 // Subscriber management: the non-admin account list, with disable and delete controls, and a
 // per-person profile pulling every contract they hold into one place.
 import { useState, useEffect } from 'react';
-import { Search, Loader2, Users, RotateCcw, UserCheck, IdCard } from 'lucide-react';
+import { Search, Loader2, Users, RotateCcw, UserCheck, IdCard, Ban, Trash2 } from 'lucide-react';
 import { ContractData } from '../../types';
 import { Language } from '../../lib/i18n';
 import { Currency } from '../../lib/currency';
-import { listRegularSubscribers, ManagedUser } from '../../lib/adminUsers';
+import {
+  listRegularSubscribers,
+  ManagedUser,
+  isAccountBanned,
+  disableUserAccount,
+  enableUserAccount,
+  deleteUserAccountForever,
+} from '../../lib/adminUsers';
+import { showToast } from '../../lib/toast';
 import { StatTile } from './shared';
 import { CustomerProfileSheet } from './CustomerProfileSheet';
 
@@ -32,6 +40,8 @@ export function MembersTab({
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [profileUser, setProfileUser] = useState<ManagedUser | null>(null);
+  // uid الحساب الجاري تعطيله/تفعيله/حذفه الآن — لتعطيل أزراره وحده أثناء الطلب، لا اللوحة كلها.
+  const [busyUid, setBusyUid] = useState<string | null>(null);
 
   const load = async () => {
     setIsLoading(true);
@@ -73,6 +83,72 @@ export function MembersTab({
     });
   };
 
+  /* تحديث محلّي فوري بعد نجاح الطلب — لا حاجة لانتظار مشغّل sync_profile_from_auth ثم
+     تحديث كامل من الخادم فقط لتغيير حقل واحد رآه الأدمن هو نفسه للتوّ. */
+  const patchLocalUser = (uid: string, patch: Partial<ManagedUser>) => {
+    const next = (users || []).map((u) => (u.uid === uid ? { ...u, ...patch } : u));
+    membersCache = next;
+    setUsers(next);
+  };
+
+  const handleToggleBan = async (u: ManagedUser) => {
+    if (busyUid) return;
+    const banned = isAccountBanned(u.bannedUntil);
+    if (!banned) {
+      const msg = isAr
+        ? `هل تريد تعطيل حساب "${u.displayName || u.email}"؟ لن يستطيع الدخول حتى تُفعّله مجدداً.`
+        : `Disable the account for "${u.displayName || u.email}"? They won't be able to sign in until you re-enable it.`;
+      if (!window.confirm(msg)) return;
+    }
+    setBusyUid(u.uid);
+    try {
+      if (banned) {
+        await enableUserAccount(u.uid);
+        patchLocalUser(u.uid, { bannedUntil: null });
+        showToast(isAr ? 'تم تفعيل الحساب' : 'Account re-enabled', 'success');
+      } else {
+        await disableUserAccount(u.uid);
+        // تاريخ بعيد يكفي هنا محلياً — القيمة الدقيقة (~100 سنة) تصل لاحقاً من الخادم.
+        patchLocalUser(u.uid, { bannedUntil: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 50).toISOString() });
+        showToast(isAr ? 'تم تعطيل الحساب' : 'Account disabled', 'success');
+      }
+    } catch {
+      showToast(
+        isAr
+          ? `تعذّر ${banned ? 'تفعيل' : 'تعطيل'} الحساب — تحقّق أن دالّة admin-users منشورة`
+          : `Failed to ${banned ? 're-enable' : 'disable'} the account — check that the admin-users function is deployed`,
+        'error'
+      );
+    } finally {
+      setBusyUid(null);
+    }
+  };
+
+  const handleDelete = async (u: ManagedUser) => {
+    if (busyUid) return;
+    const msg = isAr
+      ? `حذف حساب "${u.displayName || u.email}" نهائياً؟ هذا لا يُراجَع. عقوده تبقى محفوظة كما هي، لكن دون حساب دخول مرتبط بها.`
+      : `Permanently delete the account for "${u.displayName || u.email}"? This cannot be undone. Their contracts remain intact, just without a linked account.`;
+    if (!window.confirm(msg)) return;
+    setBusyUid(u.uid);
+    try {
+      await deleteUserAccountForever(u.uid);
+      const next = (users || []).filter((x) => x.uid !== u.uid);
+      membersCache = next;
+      setUsers(next);
+      showToast(isAr ? 'تم حذف الحساب نهائياً' : 'Account permanently deleted', 'success');
+    } catch {
+      showToast(
+        isAr
+          ? 'تعذّر حذف الحساب — تحقّق أن دالّة admin-users منشورة'
+          : 'Failed to delete the account — check that the admin-users function is deployed',
+        'error'
+      );
+    } finally {
+      setBusyUid(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="max-w-xs">
@@ -99,17 +175,6 @@ export function MembersTab({
           <span>{isAr ? 'تحديث' : 'Refresh'}</span>
         </button>
       </div>
-
-      {/* أين ذهب زرّا "تعطيل" و"حذف نهائي".
-          كلاهما يتطلّب Firebase Admin SDK — مفتاح حساب خدمة لا يجوز أن يلمسه المتصفح — أي
-          دالّة سحابية. وقد حُذفت الدوال كلها من هذا النشر، فبقاء زرّين لا يملكان ما ينفّذهما
-          كان سيعني وعداً كاذباً عند أول ضغطة. السرد والبحث والملفّ الشخصي تبقى هنا كما هي،
-          لأنها تُقرأ من Firestore مباشرة ولا تحتاج خادماً. */}
-      <p className="text-[11px] text-ink/60 leading-relaxed max-w-md">
-        {isAr
-          ? 'تعطيل حساب أو حذفه نهائياً يتمّان من Firebase Console ← Authentication ← Users. لا يمكن تنفيذهما من المتصفح: كلاهما يحتاج مفتاح حساب خدمة لا يجوز أن يصل إلى صفحة ويب.'
-          : 'Disabling or permanently deleting an account is done in Firebase Console → Authentication → Users. Neither can run in the browser: both need a service-account key that must never reach a web page.'}
-      </p>
 
       <div className="relative max-w-md">
         {/* موضع الأيقونة يتبع اتجاه اللغة الآن (يمين في العربية، يسار في الإنجليزية) بدل موضع
@@ -140,7 +205,10 @@ export function MembersTab({
         </div>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2.5">
-          {filtered.map((u) => (
+          {filtered.map((u) => {
+            const banned = isAccountBanned(u.bannedUntil);
+            const isBusy = busyUid === u.uid;
+            return (
             <div
               key={u.uid}
               className="p-3.5 rounded-2xl bg-paper border border-ink/10 flex items-center justify-between gap-3"
@@ -154,7 +222,14 @@ export function MembersTab({
                   </div>
                 )}
                 <div className="min-w-0">
-                  <span className="block text-xs font-bold text-ink truncate">{u.displayName || u.email}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="block text-xs font-bold text-ink truncate">{u.displayName || u.email}</span>
+                    {banned && (
+                      <span className="shrink-0 px-1.5 py-0.5 rounded-md bg-red-950/50 border border-red-300/60 text-red-700 text-[9px] font-bold">
+                        {isAr ? 'معطَّل' : 'Disabled'}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[10px] text-ink/50 font-mono truncate" dir="ltr">{u.email}</div>
                   <div className="text-[10px] text-ink/45 mt-0.5">
                     {isAr ? 'انضم:' : 'Joined:'} {formatDate(u.createdAt)} · {isAr ? 'آخر دخول:' : 'Last seen:'} {formatDate(u.lastSignInAt)}
@@ -168,6 +243,22 @@ export function MembersTab({
                   className="p-2 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/75 hover:text-ink cursor-pointer transition-colors"
                 >
                   <IdCard className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => handleToggleBan(u)}
+                  disabled={isBusy}
+                  title={banned ? (isAr ? 'تفعيل الحساب' : 'Re-enable account') : (isAr ? 'تعطيل الحساب' : 'Disable account')}
+                  className="p-2 rounded-lg bg-white/70 hover:bg-amber-50 border border-ink/10 text-ink/75 hover:text-amber-700 cursor-pointer transition-colors disabled:opacity-50"
+                >
+                  {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : banned ? <RotateCcw className="w-3.5 h-3.5" /> : <Ban className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  onClick={() => handleDelete(u)}
+                  disabled={isBusy}
+                  title={isAr ? 'حذف نهائي' : 'Delete permanently'}
+                  className="p-2 rounded-lg bg-white/70 hover:bg-red-50 border border-ink/10 text-ink/75 hover:text-red-700 cursor-pointer transition-colors disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
