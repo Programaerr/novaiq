@@ -17,7 +17,6 @@
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? '';
 const CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID') ?? '';
-const NOTIFY_SECRET = Deno.env.get('NOTIFY_SECRET') ?? '';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
@@ -112,9 +111,17 @@ async function rememberTopic(contractNumber: string, threadId: number) {
 }
 
 Deno.serve(async (req) => {
-  /* السرّ المشترك — القاعدة وحدها تعرفه (يُقرأ من Vault في المشغّل). بدونه يقدر أي شخص يعرف
-     عنوان الدالّة أن يُغرق مجموعتك بمواضيع ملفّقة. */
-  if (!NOTIFY_SECRET || req.headers.get('x-notify-secret') !== NOTIFY_SECRET) {
+  /* من يُسمح له بمناداة هذه الدالّة: القاعدة وحدها.
+   *
+   * عنوان الدالّة ليس سرّاً — مُعرِّف المشروع مكتوب في حزمة الموقع التي ينزّلها كل زائر،
+   * والمسار مُخمَّن. فبلا فحص هنا يقدر أي شخص إغراق مجموعتك بمواضيع لعقود لا وجود لها.
+   *
+   * والمقارنة بمفتاح `service_role` لا بسرّ مخترَع: المفتاح موجود أصلاً، وSupabase يحقنه في
+   * كل دالّة تلقائياً، فلا شيء جديد يُخترع ولا يُحفظ في مكانين. وهو أضيق من `Verify JWT`
+   * المدمج: ذاك يقبل **أي** رمز صادر عن المشروع — ومنه مفتاح `anon` المنشور للعالم في
+   * الموقع نفسه، أي أنه لا يمنع أحداً هنا. */
+  const bearer = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
+  if (!SERVICE_ROLE || bearer !== SERVICE_ROLE) {
     return new Response('forbidden', { status: 403 });
   }
   if (!BOT_TOKEN || !CHAT_ID) {

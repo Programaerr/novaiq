@@ -40,13 +40,13 @@ set search_path = public, extensions, vault
 as $$
 declare
   fn_url text;
-  fn_secret text;
+  fn_key text;
 begin
-  select decrypted_secret into fn_url   from vault.decrypted_secrets where name = 'notify_url'    limit 1;
-  select decrypted_secret into fn_secret from vault.decrypted_secrets where name = 'notify_secret' limit 1;
+  select decrypted_secret into fn_url from vault.decrypted_secrets where name = 'notify_url'  limit 1;
+  select decrypted_secret into fn_key from vault.decrypted_secrets where name = 'service_role_key' limit 1;
 
   -- غياب الإعداد ليس خطأً: قاعدة لم تُضبط فيها الأسرار بعد يجب أن تعمل كاملةً بلا إشعارات.
-  if fn_url is null or fn_secret is null then
+  if fn_url is null or fn_key is null then
     return;
   end if;
 
@@ -54,7 +54,7 @@ begin
     url     := fn_url,
     headers := jsonb_build_object(
                  'Content-Type', 'application/json',
-                 'x-notify-secret', fn_secret
+                 'Authorization', 'Bearer ' || fn_key
                ),
     body    := jsonb_build_object('type', kind, 'record', record),
     timeout_milliseconds := 5000
@@ -103,10 +103,11 @@ create trigger profiles_notify_insert
 --    select vault.create_secret(
 --      'https://<PROJECT_REF>.supabase.co/functions/v1/notify', 'notify_url');
 --
---    select vault.create_secret('<سلسلة عشوائية طويلة تخترعها>', 'notify_secret');
+--    select vault.create_secret('<مفتاح service_role من Settings ← API>', 'service_role_key');
 --
---  ونفس `notify_secret` يُوضع في أسرار الدالّة (Edge Function secrets) باسم NOTIFY_SECRET،
---  ومعه TELEGRAM_BOT_TOKEN وTELEGRAM_CHAT_ID. لتغييرها لاحقاً: vault.update_secret(id, value).
+--  لا سرّ يُخترع: الدالّة تقارن الترويسة بمفتاح service_role الذي يحقنه Supabase فيها تلقائياً.
+--  وأسرارها تقتصر على TELEGRAM_BOT_TOKEN وTELEGRAM_CHAT_ID.
+--  لتغيير أيّها لاحقاً: vault.update_secret(id, value).
 --
 --  ملاحظة على عمود `telegram_topic_id`: تكتبه الدالّة بمفتاح service_role بعد إنشاء الموضوع.
 --  ولهذا يعرف مشغّلُ الحراسة في 02_policies.sql هذا الدور صراحةً — بدونه كانت تلك الكتابة
