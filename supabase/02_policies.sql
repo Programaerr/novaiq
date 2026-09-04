@@ -112,10 +112,10 @@ create or replace function public.guard_contract_update()
 returns trigger language plpgsql security definer set search_path = public, auth as $$
 declare
   /* الأدمن، أو خادمنا نفسه (service_role).
-     الثاني ضروري: دالّة الإشعار تكتب `telegram_topic_id` على العقد بعد إنشاء موضوعه، وهي
-     تعمل بلا مستخدم — فـ`auth.uid()` فارغ و`is_admin()` تعطي false، فكانت تسقط في فرع
-     "العميل" أدناه وتُرفض. ولاحظ ما لا يشمله هذا الإعفاء: قفل التوقيع وقاعدة المسودّة
-     يُفحصان **قبله** ويسريان على الجميع بلا استثناء. */
+     الثاني ضروري لـ`sync_profile_from_auth`: تلك الدالّة تربط عقداً بحساب صاحبه فور أول دخول
+     له (انظر 01_schema.sql)، وتعمل بلا مستخدم — فـ`auth.uid()` فارغ و`is_admin()` تعطي false،
+     فكانت تسقط في فرع "العميل" أدناه وتُرفض. ولاحظ ما لا يشمله هذا الإعفاء: قفل التوقيع وقاعدة
+     المسودّة يُفحصان **قبله** ويسريان على الجميع بلا استثناء. */
   is_privileged boolean :=
     public.is_admin()
     or auth.role() = 'service_role'

@@ -114,11 +114,6 @@ create table if not exists public.contracts (
   development_started_at timestamptz,
   preview_url          text,
 
-  -- مُعرِّف الموضوع (Forum Topic) الذي أنشأه البوت لهذا العقد في مجموعة العمل.
-  -- يُكتب مرّة واحدة من دالّة الإشعار بعد إنشاء الموضوع، وهو ما يجعل كل رسالة لاحقة عن هذا
-  -- العقد تذهب إلى خيطه هو لا إلى قاع المجموعة.
-  telegram_topic_id    bigint,
-
   snapshot_hash        text,
   snapshot_at          timestamptz,
   cancellation_requested_at timestamptz,
@@ -140,6 +135,11 @@ create table if not exists public.contracts (
 
 comment on column public.contracts.email is
   'مطبَّع دائماً (صغير ومشذَّب) — هو ما يربط العقد بصاحبه قبل أن يسجّل دخوله، والقيد أعلاه يفرض ذلك في القاعدة لا في الواجهة.';
+
+-- عمود قديم من نظام "موضوع لكل عقد" على تيليجرام، استُبدل ببوت واحد يرسل رسالة مباشرة (انظر
+-- 03_notifications.sql). أُبقي هذا السطر لا لإنشائه بل لحذفه ممن سبق أن شغّل نسخة أقدم من
+-- هذا الملف — إعادة تشغيله على قاعدة جديدة كلياً لا تجد العمود فتتجاوز الأمر بلا أثر.
+alter table public.contracts drop column if exists telegram_topic_id;
 
 create index if not exists contracts_user_id_idx  on public.contracts (user_id);
 create index if not exists contracts_email_idx    on public.contracts (email);

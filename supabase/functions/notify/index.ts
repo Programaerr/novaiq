@@ -8,23 +8,30 @@
  *  · لا أحد يقدر تزوير إشعار. المتصفح لا يملك عنوان هذه الدالّة ولا سرّها.
  *  · يقع بعد مرور الصفّ من كل سياسات RLS والقيود — فما يصلك إشعارٌ عنه موجود فعلاً.
  *
- * ## لماذا "موضوع" لكل عقد لا رسالة
- * كل عقد يفتح **Forum Topic** خاصاً به في مجموعة العمل، وتُنشر تفاصيله كاملة داخله. السبب
- * عملي: مجموعة تتراكم فيها الرسائل تصير سجلّاً لا يُقرأ — بينما موضوع باسم الشركة يجعل كل ما
- * يخصّ عقداً واحداً في خيط واحد يُفتح بضغطة. ورقم الموضوع يُحفظ على صفّ العقد
- * (`telegram_topic_id`)، فأي رسالة لاحقة عنه تعرف أين تذهب.
+ * ## بوتان منفصلان لا بوت واحد بمواضيع
+ * جُرِّب نظام "Forum Topic" لكل عقد وتعثّر بإعداد تيليجرام نفسه (has_topics_enabled يرفض
+ * التفعيل رغم كل صلاحيات المجموعة). فبدل ملاحقة إعداد خارج يدنا، بوتان بسيطان بلا أي شرط
+ * على نوع المحادثة:
+ *
+ *  · **بوت العقود** — رسالة واحدة كاملة التفاصيل إلى محادثة العمل (مجموعة عادية أو خاصة، لا
+ *    يهم نوعها إطلاقاً).
+ *  · **بوت المشتركين** — إلى محادثات الأدمن الخاصة فقط، كما كان بالضبط.
  */
 
-const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? '';
-/** مجموعة العمل — هنا تُفتح مواضيع العقود. */
-const CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID') ?? '';
-/** محادثات البوت الخاصّة — هنا تصل تنبيهات المشتركين الجدد وحدها.
+/** بوت العقود: يرسل تفاصيل كل عقد جديد إلى محادثة العمل. */
+const CONTRACT_BOT_TOKEN = Deno.env.get('TELEGRAM_CONTRACT_BOT_TOKEN') ?? '';
+const CONTRACT_CHAT_ID = Deno.env.get('TELEGRAM_CONTRACT_CHAT_ID') ?? '';
+
+/** بوت المشتركين: إلى محادثات الأدمن الخاصة وحدها.
  *  تقبل أكثر من رقم مفصولةً بفاصلة، فتُضاف أرقام لاحقاً بلا لمس الكود. */
+const SUBSCRIBER_BOT_TOKEN = Deno.env.get('TELEGRAM_SUBSCRIBER_BOT_TOKEN') ?? '';
 const ADMIN_CHAT_IDS = (Deno.env.get('TELEGRAM_ADMIN_CHAT_ID') ?? '')
   .split(',')
   .map((id) => id.trim())
   .filter(Boolean);
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+
+/** رابط لوحة العقود، لفتح العقد مباشرة من الرسالة بلا بحث. */
+const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://nuvaiq.com';
 
 type Payload = { type: 'new_contract' | 'new_subscriber'; record: Record<string, unknown> };
 
@@ -50,14 +57,14 @@ function jwtRole(token: string): string {
   }
 }
 
-const api = (method: string) => `https://api.telegram.org/bot${BOT_TOKEN}/${method}`;
+const api = (token: string, method: string) => `https://api.telegram.org/bot${token}/${method}`;
 
 /** HTML الذي يقبله تيليجرام محدود جداً، وأي `<` غير مهروب يُفشل الرسالة كلها. */
 const esc = (v: unknown) =>
   String(v ?? '—').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-async function tg(method: string, body: Record<string, unknown>) {
-  const res = await fetch(api(method), {
+async function tg(token: string, method: string, body: Record<string, unknown>) {
+  const res = await fetch(api(token, method), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -77,7 +84,7 @@ const planAr = (p: unknown) =>
   : p === '3_milestones' ? '3 دفعات مرتبطة بالمراحل'
   : '50% عند التوقيع و50% عند التسليم';
 
-/** كل ما يلزم لمعرفة العقد بلا فتح اللوحة. */
+/** كل ما يلزم لمعرفة العقد بلا فتح اللوحة، وفي آخره رابط لفتحه فعلاً عند الحاجة لمراجعة PDF. */
 function contractBody(r: Record<string, unknown>) {
   const signed = String(r.status) !== 'draft';
   const priced = Number(r.total_price_iqd ?? 0) > 0;
@@ -106,6 +113,11 @@ function contractBody(r: Record<string, unknown>) {
   const notes = String(r.custom_features_text ?? '').trim();
   if (notes) parts.push('', '<b>ما طلبه الزبون:</b>', esc(notes));
 
+  /* لا نولّد PDF هنا: هذه دالّة Deno بلا متصفح ولا Canvas، والعقد يُرسم فعلياً بـ html2canvas
+     من المتصفح وحده. فبدل ملف مرفق، رابط للوحة العقود — يفتحها الأدمن ويبحث برقم العقد أعلاه
+     ليطّلع على تفاصيله ويولّد PDF منه كما يعمل الآن تماماً. */
+  parts.push('', `🔗 <a href="${esc(SITE_URL)}/?page=orders">فتح لوحة العقود</a>`);
+
   return parts.join('\n');
 }
 
@@ -118,35 +130,11 @@ function subscriberBody(r: Record<string, unknown>) {
   ].join('\n');
 }
 
-/** يحفظ رقم الموضوع على العقد، فتعرف كل رسالة لاحقة عنه أين تذهب.
- *
- *  يكتب برمز المُنادي نفسه لا بمتغيّر البيئة: هو رمز `service_role` تحقّقت المنصّة من توقيعه
- *  قبل أسطر، وهو بالضرورة أحدث من أي قيمة تجمّدت في بيئة النشر — فلا يبقى في الطريق شيء
- *  يمكن أن يشيخ. */
-async function rememberTopic(contractNumber: string, threadId: number, token: string) {
-  if (!SUPABASE_URL || !token) return;
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/contracts?contract_number=eq.${encodeURIComponent(contractNumber)}`,
-    {
-      method: 'PATCH',
-      headers: {
-        apikey: token,
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        Prefer: 'return=minimal',
-      },
-      body: JSON.stringify({ telegram_topic_id: threadId }),
-    }
-  );
-  // فشل الحفظ لا يُبطل الإشعار: الموضوع أُنشئ والتفاصيل وصلت، وما يضيع هو الربط وحده.
-  if (!res.ok) console.error('rememberTopic failed', res.status, await res.text());
-}
-
 Deno.serve(async (req) => {
   /* من يُسمح له بمناداة هذه الدالّة: القاعدة وحدها.
    *
    * عنوان الدالّة ليس سرّاً — مُعرِّف المشروع مكتوب في حزمة الموقع التي ينزّلها كل زائر،
-   * والمسار مُخمَّن. فبلا فحص هنا يقدر أي شخص إغراق مجموعتك بمواضيع لعقود لا وجود لها.
+   * والمسار مُخمَّن. فبلا فحص هنا يقدر أي شخص إغراق محادثتنا برسائل عن عقود لا وجود لها.
    *
    * والحراسة طبقتان، كلٌّ تسدّ ما تتركه الأخرى:
    *  · **المنصّة** تتحقّق من توقيع الرمز (Verify JWT مُفعَّل) — فلا يمرّ رمز مُلفَّق.
@@ -162,10 +150,6 @@ Deno.serve(async (req) => {
     console.error('notify: نداء مرفوض — الدور:', role || '(بلا رمز صالح)');
     return new Response('forbidden', { status: 403 });
   }
-  if (!BOT_TOKEN || !CHAT_ID) {
-    console.error('notify: missing TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID');
-    return new Response('not configured', { status: 500 });
-  }
 
   let payload: Payload;
   try {
@@ -178,43 +162,34 @@ Deno.serve(async (req) => {
 
   try {
     if (payload.type === 'new_contract') {
-      /* موضوع باسم الشركة ورقم العقد: الاسم وحده يتكرّر بين عقدين لنفس الزبون، والرقم وحده
-         لا يُقرأ. تيليجرام يقصّ ما تجاوز 128 حرفاً، فيُقصّ الاسم لا الرقم. */
-      const company = String(r.company_name ?? 'عقد').slice(0, 90);
-      const topic = await tg('createForumTopic', {
-        chat_id: CHAT_ID,
-        name: `${company} — ${r.contract_number}`,
-      });
+      if (!CONTRACT_BOT_TOKEN || !CONTRACT_CHAT_ID) {
+        console.error('notify: missing TELEGRAM_CONTRACT_BOT_TOKEN / TELEGRAM_CONTRACT_CHAT_ID');
+        return new Response('not configured', { status: 500 });
+      }
 
-      await tg('sendMessage', {
-        chat_id: CHAT_ID,
-        message_thread_id: topic.message_thread_id,
+      await tg(CONTRACT_BOT_TOKEN, 'sendMessage', {
+        chat_id: CONTRACT_CHAT_ID,
         parse_mode: 'HTML',
         text: contractBody(r),
         link_preview_options: { is_disabled: true },
       });
-
-      await rememberTopic(String(r.contract_number), topic.message_thread_id, bearer);
     } else if (payload.type === 'new_subscriber') {
-      /* المشتركون إلى محادثة البوت الخاصّة لا إلى المجموعة.
-       *
-       * تسجيل حساب ليس حدثاً تعاقدياً — لا خيط يتبعه ولا نقاش يدور حوله، بخلاف العقد. وضعُه
-       * في المجموعة يُغرق مواضيع العقود بضجيج يومي، وأول ما يُفقد في مجموعة كثيرة الرسائل هو
-       * الرسالة التي تهمّ.
-       *
-       * والارتداد إلى المجموعة عند غياب الإعداد مقصود: إشعار في المكان الخطأ يُلاحَظ ويُصحَّح،
-       * أمّا إشعار لا يصل فيبدو كأن أحداً لم يسجّل. */
-      const targets = ADMIN_CHAT_IDS.length ? ADMIN_CHAT_IDS : [CHAT_ID];
+      if (!SUBSCRIBER_BOT_TOKEN) {
+        console.error('notify: missing TELEGRAM_SUBSCRIBER_BOT_TOKEN');
+        return new Response('not configured', { status: 500 });
+      }
       if (!ADMIN_CHAT_IDS.length) {
-        console.warn('notify: TELEGRAM_ADMIN_CHAT_ID غير مضبوط — أُرسل تنبيه المشترك إلى المجموعة');
+        // لا وجهة مضبوطة: نتوقف بصمت بدل الرمي — إعداد ناقص لا يجوز أن يعطّل حفظ الحساب.
+        console.warn('notify: TELEGRAM_ADMIN_CHAT_ID غير مضبوط — تم تجاوز تنبيه المشترك');
+        return new Response('ok');
       }
 
       /* كل مُستلِم على حدة، وفشلُ أحدهم لا يمنع الباقين.
          الحالة الواقعية: شريك لم يضغط Start على البوت بعد — تيليجرام يرفض مراسلته وحده
          ("chat not found")، ولو كانت الإرسالة واحدة لسقط التنبيه عن الجميع بسببه. */
       const results = await Promise.allSettled(
-        targets.map((chat_id) =>
-          tg('sendMessage', {
+        ADMIN_CHAT_IDS.map((chat_id) =>
+          tg(SUBSCRIBER_BOT_TOKEN, 'sendMessage', {
             chat_id,
             parse_mode: 'HTML',
             text: subscriberBody(r),
@@ -225,7 +200,7 @@ Deno.serve(async (req) => {
 
       results.forEach((result, i) => {
         if (result.status === 'rejected') {
-          console.error(`notify: تعذّر إبلاغ ${targets[i]} —`, result.reason);
+          console.error(`notify: تعذّر إبلاغ ${ADMIN_CHAT_IDS[i]} —`, result.reason);
         }
       });
 
