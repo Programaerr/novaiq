@@ -18,9 +18,13 @@
  *  · **بوت المشتركين** — إلى محادثات الأدمن الخاصة فقط، كما كان بالضبط.
  */
 
-/** بوت العقود: يرسل تفاصيل كل عقد جديد إلى محادثة العمل. */
+/** بوت العقود: يرسل تفاصيل كل عقد جديد. أكثر من محادثة (أنت وشريكك مثلاً)، مفصولةً بفاصلة —
+ *  نفس صيغة ADMIN_CHAT_IDS تماماً تحتها، فتُضاف محادثة لاحقاً بلا لمس الكود. */
 const CONTRACT_BOT_TOKEN = Deno.env.get('TELEGRAM_CONTRACT_BOT_TOKEN') ?? '';
-const CONTRACT_CHAT_ID = Deno.env.get('TELEGRAM_CONTRACT_CHAT_ID') ?? '';
+const CONTRACT_CHAT_IDS = (Deno.env.get('TELEGRAM_CONTRACT_CHAT_ID') ?? '')
+  .split(',')
+  .map((id) => id.trim())
+  .filter(Boolean);
 
 /** بوت المشتركين: إلى محادثات الأدمن الخاصة وحدها.
  *  تقبل أكثر من رقم مفصولةً بفاصلة، فتُضاف أرقام لاحقاً بلا لمس الكود. */
@@ -162,17 +166,33 @@ Deno.serve(async (req) => {
 
   try {
     if (payload.type === 'new_contract') {
-      if (!CONTRACT_BOT_TOKEN || !CONTRACT_CHAT_ID) {
+      if (!CONTRACT_BOT_TOKEN || !CONTRACT_CHAT_IDS.length) {
         console.error('notify: missing TELEGRAM_CONTRACT_BOT_TOKEN / TELEGRAM_CONTRACT_CHAT_ID');
         return new Response('not configured', { status: 500 });
       }
 
-      await tg(CONTRACT_BOT_TOKEN, 'sendMessage', {
-        chat_id: CONTRACT_CHAT_ID,
-        parse_mode: 'HTML',
-        text: contractBody(r),
-        link_preview_options: { is_disabled: true },
+      // كل مُستلِم على حدة، وفشلُ أحدهم (لم يضغط Start بعد مثلاً) لا يمنع وصولها للباقين.
+      const text = contractBody(r);
+      const results = await Promise.allSettled(
+        CONTRACT_CHAT_IDS.map((chat_id) =>
+          tg(CONTRACT_BOT_TOKEN, 'sendMessage', {
+            chat_id,
+            parse_mode: 'HTML',
+            text,
+            link_preview_options: { is_disabled: true },
+          })
+        )
+      );
+
+      results.forEach((result, i) => {
+        if (result.status === 'rejected') {
+          console.error(`notify: تعذّر إبلاغ ${CONTRACT_CHAT_IDS[i]} بالعقد —`, result.reason);
+        }
       });
+
+      if (results.every((result) => result.status === 'rejected')) {
+        throw new Error('contract notice reached nobody');
+      }
     } else if (payload.type === 'new_subscriber') {
       if (!SUBSCRIBER_BOT_TOKEN) {
         console.error('notify: missing TELEGRAM_SUBSCRIBER_BOT_TOKEN');
