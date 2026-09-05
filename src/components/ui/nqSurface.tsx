@@ -374,32 +374,60 @@ export interface NqSurface {
   badgeBg: string;
   badgeFg: string;
   /** Spread onto the element. Pointer and focus handlers that drive the field. */
-  handlers: {
-    ref: (node: HTMLElement | null) => void;
-    onPointerEnter: (e: React.PointerEvent) => void;
-    onPointerMove: (e: React.PointerEvent) => void;
-    onPointerLeave: (e: React.PointerEvent) => void;
-    onPointerDown: (e: React.PointerEvent) => void;
-    onPointerUp: (e: React.PointerEvent) => void;
-    onPointerCancel: (e: React.PointerEvent) => void;
-    onFocus: (e: React.FocusEvent) => void;
-    onBlur: (e: React.FocusEvent) => void;
-  };
+  handlers: TileHandlers;
   /** The field itself, or null when it is asleep. Render as the first child. */
   tiles: React.ReactNode;
 }
 
-export function useNqSurface(
-  opts: NqSurfaceOptions,
+export interface TileHandlers {
+  ref: (node: HTMLElement | null) => void;
+  onPointerEnter: (e: React.PointerEvent) => void;
+  onPointerMove: (e: React.PointerEvent) => void;
+  onPointerLeave: (e: React.PointerEvent) => void;
+  onPointerDown: (e: React.PointerEvent) => void;
+  onPointerUp: (e: React.PointerEvent) => void;
+  onPointerCancel: (e: React.PointerEvent) => void;
+  onFocus: (e: React.FocusEvent) => void;
+  onBlur: (e: React.FocusEvent) => void;
+}
+
+/* ── The cube field, on its own ──────────────────────────────────────────────── */
+
+export interface TileFieldOptions {
+  /** Off for anything inert, for reduced motion (handled inside), and anywhere the ornament
+      would be noise rather than feedback. */
+  enabled: boolean;
+  /** The opaque fill the cubes are derived from — they ARE the surface, not a layer on it. */
+  surface: string;
+  /** Carried on the crests. Without it the field is a set of neutral greys next to a coloured
+      page, which reads as dirt rather than relief. */
+  accent: string;
+}
+
+export interface TileField {
+  /** Spread onto the element the field lives in. It must be positioned and clip its own
+      overflow, and its content must be positioned too or the canvas paints over it. */
+  handlers: TileHandlers;
+  /** The field itself, or null when it is asleep. Render as the first child. */
+  tiles: React.ReactNode;
+}
+
+/**
+ * The pointer-driven cube field, independent of what it is mounted in.
+ *
+ * Lifted out of `useNqSurface`, which was doing two unrelated jobs: resolving a button's
+ * colours from the tone table, and running this. Only the first is about buttons. This half
+ * needs an element, a fill and an accent — so the client cards, which are not buttons and hold
+ * a logo, a name and a link, can wear the same field.
+ *
+ * The budget, the timers and the drive are unchanged and still shared: `MAX_LIVE_FIELDS` is one
+ * module-level counter for the whole site, which is the entire point of it — a browser keeps
+ * around sixteen WebGL contexts and kills the oldest past that.
+ */
+export function useTileField(
+  { enabled, surface, accent }: TileFieldOptions,
   externalRef?: React.ForwardedRef<never>,
-): NqSurface {
-  const { tone, variant, size, tiles, tileSurface, block, radius, inert, loading, hasBadge,
-    className } = opts;
-
-  const spec = TONES[tone];
-  const pair = spec[variant];
-  const s = SIZES[size];
-
+): TileField {
   const el = useRef<HTMLElement | null>(null);
   const setRef = useCallback(
     (node: HTMLElement | null) => {
@@ -428,7 +456,7 @@ export function useNqSurface(
     return () => mq.removeEventListener('change', read);
   }, []);
 
-  const wantsTiles = tiles && !inert && !reduced;
+  const wantsTiles = enabled && !reduced;
 
   /* Claiming and releasing a slot in the site-wide budget. Both are idempotent — a pointer that
      leaves and re-enters inside the linger must not decrement twice, which would let the counter
@@ -550,7 +578,11 @@ export function useNqSurface(
     onPointerLeave: () => {
       // Focus outlives the pointer: tabbing to a control and then brushing past it with the mouse
       // must not put the field to sleep while it is still the focused one.
-      if (el.current?.matches(':focus-visible')) return;
+      //
+      // `:has()` because the field's element is not always the one that takes focus. On a button
+      // it is; on a card the focus lands on a control inside it, and asking only `matches` there
+      // would sleep the field while the card is still the focused thing on the page.
+      if (el.current?.matches(':focus-visible, :has(:focus-visible)')) return;
       sleep();
     },
     onPointerDown: (e: React.PointerEvent) => {
@@ -576,7 +608,10 @@ export function useNqSurface(
     onFocus: (e: React.FocusEvent) => {
       // Only a keyboard focus. A mouse press focuses too, and lighting the field from the centre
       // on every click would fight the ring the press itself just started.
-      if (!(e.currentTarget as HTMLElement).matches(':focus-visible')) return;
+      //
+      // `target`, not `currentTarget`: focus events bubble, and where the field wraps a control
+      // rather than being one, the element that matched is the inner control.
+      if (!(e.target as HTMLElement).matches(':focus-visible')) return;
       drive.current.px = 0.5;
       drive.current.py = 0.5;
       wake();
@@ -584,8 +619,27 @@ export function useNqSurface(
     onBlur: () => sleep(),
   };
 
+  const tones = useMemo(() => buttonTones(surface, accent), [surface, accent]);
+
+  return { handlers, tiles: mounted && wantsTiles ? <ButtonTiles drive={drive} tones={tones} /> : null };
+}
+
+export function useNqSurface(
+  opts: NqSurfaceOptions,
+  externalRef?: React.ForwardedRef<never>,
+): NqSurface {
+  const { tone, variant, size, tiles, tileSurface, block, radius, inert, loading, hasBadge,
+    className } = opts;
+
+  const spec = TONES[tone];
+  const pair = spec[variant];
+  const s = SIZES[size];
+
   const surface = tileSurface ?? pair.tile ?? pair.bg;
-  const tones = useMemo(() => buttonTones(surface, spec.accent), [surface, spec.accent]);
+  const field = useTileField(
+    { enabled: tiles && !inert, surface, accent: spec.accent },
+    externalRef,
+  );
 
   /* A dev-only contrast check on the pair this surface actually resolved to. The table above is
      measured, but `tileSurface` and a stray `className` can put a label on a fill nobody checked,
@@ -612,8 +666,8 @@ export function useNqSurface(
     style: { background: pair.bg, color: pair.fg },
     badgeBg: pair.badgeBg ?? (isLight(surface) ? OBSIDIAN : '#FFFFFF'),
     badgeFg: pair.badgeFg ?? (isLight(surface) ? PAPER : OBSIDIAN),
-    handlers,
-    tiles: mounted && wantsTiles ? <ButtonTiles drive={drive} tones={tones} /> : null,
+    handlers: field.handlers,
+    tiles: field.tiles,
     className: [
       // `relative` positions the field, `overflow-hidden` is what clips it to the pill — the
       // shader softens its outermost cubes but the actual rounded edge is this.
