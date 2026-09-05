@@ -62,7 +62,6 @@ const LoginPage = lazy(() => trackLoad(import('./components/LoginPage').then((m)
 // band that is still assembling itself while it is being looked at.
 const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
 const ClientsStrip = lazy(() => import('./components/ClientsStrip').then((m) => ({ default: m.ClientsStrip })));
-const ProcessTrack = lazy(() => import('./components/ProcessTrack').then((m) => ({ default: m.ProcessTrack })));
 
 /* لا "وضع ضيف" بعد اليوم.
    كان يوجد علم يُحفظ في sessionStorage معناه "هذا الزائر اختار التصفّح بلا حساب"، وكان لازماً
@@ -598,21 +597,6 @@ export default function App() {
             >
               <Suspense fallback={null}>
                 <PhasesSection language={language} />
-              </Suspense>
-            </LazyOnView>
-
-            {/* The process track: the same story as PhasesSection above, told across eight
-                stages on one path instead of four cards. The two overlap in what they say
-                and they are adjacent on purpose — which of them stays is an editorial call,
-                and putting them side by side is how that call gets made rather than
-                forgotten. Same lazy + LazyOnView pair and the same placeholder height as its
-                neighbour: a different height between two adjacent sections is a scroll jump. */}
-            <LazyOnView
-              rootMargin="800px 0px"
-              placeholder={<div className="h-[40vh] bg-paper" aria-hidden="true" />}
-            >
-              <Suspense fallback={null}>
-                <ProcessTrack language={language} />
               </Suspense>
             </LazyOnView>
 
