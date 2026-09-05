@@ -2034,19 +2034,19 @@ html[data-demo] .nq-navbar {
    وكله transform: المرتفعة والنازلات معاً، فلا تخطيط يُعاد حسابه ولا شيء يقفز. */
 .nq-work-card:hover,
 .nq-work-card:focus-within {
-  transform: translateY(-10px);
+  transform: translateY(-16px);
   box-shadow: 0 22px 40px -22px rgba(8, 10, 13, 0.5);
 }
 
 .nq-work-item:hover ~ .nq-work-item .nq-work-card,
 .nq-work-item:focus-within ~ .nq-work-item .nq-work-card {
-  transform: translateY(10px);
+  transform: translateY(16px);
 }
 
 /* وما قبلها يرتفع معها.
 
-   بدون هذا كانت البطاقة المرتفعة تغطّي 26 بكسلاً من التي فوقها — التداخل 16 زائداً
-   الارتفاع 10 — فيُقصّ اسمها نصفين، وهذا يُقرأ خللاً لا أثراً. وبرفعها معها يبقى الفرق
+   بدون هذا كانت البطاقة المرتفعة تغطّي 44 بكسلاً من التي فوقها — التداخل 28 زائداً
+   الارتفاع 16 — فيُقصّ شعارها، وهذا يُقرأ خللاً لا أثراً. وبرفعها معها يبقى الفرق
    بينهما كما هو، فلا يغطي شيء شيئاً جديداً، وتنفتح الفجوة من جهة واحدة فقط — وهذا ما يفعله
    التفتير فعلاً: ينفصل عند الورقة التي أنت عليها.
 
@@ -2054,15 +2054,66 @@ html[data-demo] .nq-navbar {
    تجميلي على محرّك قديم، لا قسم مكسور. */
 .nq-work-item:has(~ .nq-work-item:hover) .nq-work-card,
 .nq-work-item:has(~ .nq-work-item:focus-within) .nq-work-card {
-  transform: translateY(-10px);
+  transform: translateY(-16px);
 }
 
 /* المفتوحة تغلب الاثنتين: تبقى خارجة من الرزمة حتى لو كان المؤشر على واحدة فوقها —
    الفتح حالة اختارها الزائر، والمرور مجرد مرور. */
 .nq-work-item .nq-work-card[data-open='true'],
 .nq-work-item:hover ~ .nq-work-item .nq-work-card[data-open='true'] {
-  transform: translateY(-10px);
+  transform: translateY(-16px);
   box-shadow: 0 24px 46px -24px rgba(8, 10, 13, 0.55);
+}
+
+/* الاسم يخرج من خلف البطاقة.
+
+   البطاقة شريطان: أعلاها ما يبقى ظاهراً وفيه الشعار في الوسط، وأسفلها ما تغطيه
+   البطاقة التالية وفيه الاسم. والتفتير هو ما يكشفه: الرزمة تنفصل عند البطاقة
+   الملموسة، فيخرج اسمها من تحت جارتها.
+
+   ## الأرقام نظام واحد، فلا يُغيّر منها واحد وحده
+
+     المسرح           96px
+     التداخل           28px   ← OVERLAP_REM في ClientsStrip.tsx
+     الشريط الظاهر    68px   وفيه شعار 48 في الوسط (10..58)
+     الشريط المختفي   28px   وفيه سطر الاسم (72..92)
+     ارتفاع التفتير   16px   والفتح ضعفه = 32 > 28
+
+   السطر الأخير هو الشرط كله: عند 10px كان الفتح 20 ويبقى الاسم مقصوصاً ثمانية
+   بكسلات — أي أن الكشف يُكسر برقم يقع في قاعدة أخرى. لذلك صار 16.
+
+   ## الإخفاء بـ opacity لا بالتغطية
+
+   التغطية هي ما يجعل الأثر يُقرأ "خروجاً من خلف"، لكنها ليست الآلية: البطاقة
+   الأخيرة ليس تحتها ما يغطيها، فكان اسمها سيبقى ظاهراً وحده بين الجميع. وopacity لا
+   visibility للسبب المكتوب أعلاه: هذا النص هو الاسم المُعلَن للزر، ويلزم بقاؤه في
+   شجرة الوصول بينما هو غير مرئي. */
+
+.nq-work-stage {
+  height: 6rem;
+}
+
+/* الظاهر = المسرح ناقص التداخل، والمختفي = التداخل نفسه. والسهم يتبع الظاهر. */
+.nq-work-face,
+.nq-work-caret {
+  height: 4.25rem;
+}
+
+.nq-work-slot {
+  height: 1.75rem;
+}
+
+.nq-work-name {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
+}
+
+.nq-work-card:hover .nq-work-name,
+.nq-work-card:focus-within .nq-work-name,
+.nq-work-card[data-open='true'] .nq-work-name {
+  opacity: 1;
+  transform: none;
 }
 
 .nq-work-logo {
@@ -2106,22 +2157,18 @@ html[data-demo] .nq-navbar {
   visibility: visible;
 }
 
-/* من يطلب تقليل الحركة: البطاقات تُفتح وتُغلق فوراً، وتبقى كل حالة مرئية كما هي. لا تجميد على
-   حالة نصفية، ولا فقدان لأي محتوى. */
+/* من يطلب تقليل الحركة: كل شيء يحدث فوراً بدل أن يُتحرَّك — وليس أن يتوقف عن الحدوث.
+
+   كانت القاعدة تُلغي ارتفاع التفتير أيضاً، وكان ذلك مقبولاً حين كان الارتفاع زينة لا غير.
+   الآن الاسم يسكن الشريط الذي يكشفه التفتير، فإلغاؤه كان يُظهر اسماً يبقى مختفياً خلف
+   البطاقة التالية (مقيساً: 8px فراغ بدونها، وـ 24px مقصوص معها). والمطلوب إلغاء
+   الحركة لا إلغاء المحتوى، وكل الانتقالات هنا ملغاة أصلاً، فالرزمة تنفصل بقفزة واحدة. */
 @media (prefers-reduced-motion: reduce) {
   .nq-work-card,
   .nq-work-logo,
+  .nq-work-name,
   .nq-work-chevron,
   .nq-work-panel {
     transition: none;
-  }
-  .nq-work-card:hover,
-  .nq-work-card:focus-within,
-  .nq-work-card[data-open='true'],
-  .nq-work-item:hover ~ .nq-work-item .nq-work-card,
-  .nq-work-item:focus-within ~ .nq-work-item .nq-work-card,
-  .nq-work-item:has(~ .nq-work-item:hover) .nq-work-card,
-  .nq-work-item:has(~ .nq-work-item:focus-within) .nq-work-card {
-    transform: none;
   }
 }
