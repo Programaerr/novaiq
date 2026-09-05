@@ -61,7 +61,6 @@ const LoginPage = lazy(() => trackLoad(import('./components/LoginPage').then((m)
 // file): they carry the cube bands, and a band that starts loading when it is scrolled to is a
 // band that is still assembling itself while it is being looked at.
 const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
-const ClientsStrip = lazy(() => import('./components/ClientsStrip').then((m) => ({ default: m.ClientsStrip })));
 
 /* لا "وضع ضيف" بعد اليوم.
    كان يوجد علم يُحفظ في sessionStorage معناه "هذا الزائر اختار التصفّح بلا حساب"، وكان لازماً
@@ -582,14 +581,6 @@ export default function App() {
               onStart={() => navigateTo('templates')}
               onRequestProject={startProject}
             />
-
-            {/* شريط "أعمالنا" — مباشرة تحت الهيرو، ويتحكّم به الأدمن من الإعدادات (تشغيل/إيقاف،
-                العنوان، السرعة، العناصر). لا LazyOnView هنا: القسم ملاصق للهيرو أي داخل أول
-                شاشة تقريباً، فتأخير تحميله يعني ظهوره متأخراً أمام العين مباشرة. ومع ذلك هو
-                lazy مثل بقية الأقسام، ولا يرسم شيئاً إطلاقاً وهو مطفأ. */}
-            <Suspense fallback={null}>
-              <ClientsStrip language={language} />
-            </Suspense>
 
             <LazyOnView
               rootMargin="800px 0px"
