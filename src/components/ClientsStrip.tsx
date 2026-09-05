@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useClientsStrip } from '../lib/clientsStrip';
 import { OBSIDIAN, PAPER } from '../lib/homePalette';
-import { bandClipPath, bandSvgPath } from '../lib/bandPath';
-import { useSeen } from '../lib/useSeen';
 import { Language } from '../lib/i18n';
 
 /**
@@ -29,25 +27,9 @@ import { Language } from '../lib/i18n';
  * المسار عرضَ الحاوية. يعمل مع أي عدد عناصر، وأي عرض شاشة، وأي مقاس شعار، ويعيد الحساب
  * تلقائياً حين تُفك صور جديدة أو يُدار الجهاز.
  */
-/**
- * ارتفاع الشريط. الشعارات 36 بكسل على الهاتف و44 على غيره، وهذا يترك لها هامشاً أعلى وأسفل
- * ويعطي الشيفرون طولاً كافياً ليُقرأ كرأس سهم لا كقصّة مائلة.
- */
-const BAND_H = 116;
-
-/**
- * اتجاه الشريط هو اتجاه **الحركة** لا اتجاه اللغة، خلافاً لقسم مسار المشروع.
- *
- * المسار مثبَّت على dir="ltr" ويترجم -50% في اللغتين معاً — التعليق أسفل يشرح لماذا — أي أنه
- * يمشي يساراً دائماً. فرأس السهم على اليسار والفتحة على اليمين، وهما بالضبط حيث تدخل الشعارات
- * وتخرج فعلياً.
- */
-const FLOWS_RIGHT = false;
-
 export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language === 'ar';
-  const { ref: sectionRef, seen } = useSeen<HTMLElement>();
 
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const laneRef = useRef<HTMLUListElement | null>(null);
@@ -57,10 +39,6 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
      الذي يتغيّر بعدد الشعارات وبعرض الجهاز. لو استُعملت القيمة مدةً مباشرة لصار الشريط أسرع
      كلما زادت الشعارات وأبطأ على الشاشة الصغيرة — أي سرعة مختلفة عند كل زائر. */
   const [durationSeconds, setDurationSeconds] = useState(strip.speedSeconds);
-  /* عرض الشريط بالبكسل، لرسم الحدّ. الـSVG يُرسم بالبكسل الحقيقي لا بـviewBox ممدود:
-     preserveAspectRatio="none" يمدّ المحورين بنسبتين مختلفتين، فيتفلطح الشيفرون على شاشة
-     عريضة ويصير حادّاً على ضيقة — وهو الشكل الوحيد هنا الذي يجب أن يحافظ على زاويته. */
-  const [bandWidth, setBandWidth] = useState(0);
 
   const measure = useCallback(() => {
     const viewport = viewportRef.current;
@@ -81,10 +59,6 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
 
     const seconds = Math.max(4, strip.speedSeconds * (laneWidth / viewportWidth));
     setDurationSeconds((prev) => (Math.abs(prev - seconds) > 0.25 ? seconds : prev));
-
-    // عتبة بكسل واحد: ResizeObserver يُطلق على كسور البكسل أثناء التخطيط، وحالة جديدة عند
-    // كل كسر تعني إعادة عرض لا يراها أحد.
-    setBandWidth((prev) => (Math.abs(prev - viewportWidth) > 1 ? viewportWidth : prev));
   }, [repeats, strip.speedSeconds]);
 
   useEffect(() => {
@@ -126,106 +100,62 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
   );
 
   return (
-    <section
-      ref={sectionRef}
-      data-seen={seen ? 'true' : 'false'}
-      aria-label={strip.title}
-      className="relative overflow-hidden py-12 sm:py-16"
-      style={{ background: PAPER }}
-    >
+    <section aria-label={strip.title} className="relative overflow-hidden py-8 sm:py-10" style={{ background: PAPER }}>
       {/* بمقاس عناوين الأقسام في هذا الموقع (قارن PhasesSection)، لا كلمة صغيرة فوق شريط:
           كان سطراً بحجم 0.7rem بتباعد حروف واسع، وهو مقاس "لصيقة" لا مقاس عنوان قسم. */}
       <h2
-        className={`nq-container nq-rise text-center text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none mb-8 sm:mb-10 ${
-          isAr ? '' : 'tracking-tight'
-        }`}
-        style={{ color: OBSIDIAN, ['--nq-rise-delay' as string]: '60ms' }}
+        className="nq-container text-center text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight mb-8 sm:mb-10"
+        style={{ color: OBSIDIAN }}
       >
         {strip.title}
       </h2>
 
-      {/* الشريط نفسه: نفس شكل قسم مسار المشروع، من src/lib/bandPath.ts. القسمان يرسمان جسماً
-          واحداً بشيفرون واحد لا شكلين متشابهين ينحرفان عن بعضهما عند أول تعديل. */}
-      <div className="nq-container">
-        <div className="relative" style={{ height: BAND_H }}>
-          {bandWidth > 0 && (
-            <svg
-              width={bandWidth}
-              height={BAND_H}
-              viewBox={`0 0 ${bandWidth} ${BAND_H}`}
-              className="absolute inset-0"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <defs>
-                {/* نفس كشف قسم المسار: مستطيل واحد يتمدد من الجهة التي تدخل منها الشعارات، فيكشف
-                    الحدّ والحشو والخط المنقّط معاً بحركة واحدة. */}
-                <mask id="nq-clients-reveal" maskUnits="userSpaceOnUse" x="0" y="0" width={bandWidth} height={BAND_H}>
-                  <rect
-                    className="nq-band-wipe"
-                    width={bandWidth}
-                    height={BAND_H}
-                    fill="#fff"
-                    style={{ transformOrigin: FLOWS_RIGHT ? 'left center' : 'right center' }}
-                  />
-                </mask>
-              </defs>
-              <g mask="url(#nq-clients-reveal)">
-                <path d={bandSvgPath(bandWidth, BAND_H, FLOWS_RIGHT)} fill={OBSIDIAN} fillOpacity="0.028" />
-                <path
-                  d={bandSvgPath(bandWidth, BAND_H, FLOWS_RIGHT)}
-                  fill="none"
-                  stroke={OBSIDIAN}
-                  strokeOpacity="0.16"
-                  strokeWidth="1"
-                />
-              </g>
-            </svg>
-          )}
+      {/* تلاشٍ عند الطرفين: بدونه تُقصّ الشعارات بحدّ حادّ عند حافة الشاشة فتبدو الحركة وكأنها
+          تصطدم بجدار. القناع يجعلها تدخل وتخرج من العدم. */}
+      <div
+        ref={viewportRef}
+        /* dir="ltr" على النافذة نفسها لا على المسار وحده — وهنا كان الخلل الباقي.
+           القسم داخل صفحة عربية (rtl)، والمسار أعرض من النافذة. في التخطيط العربي يُثبَّت
+           الطفل الفائض عن أبيه عند الحافة **اليمنى**، فيفيض ما زاد عنه إلى اليسار خارج
+           الشاشة: أي أن ما نراه هو ذيل المسار، ثم تدفعه الحركة يساراً فيتعرّى الجانب الأيمن
+           ولا شيء خلفه — وهو الفراغ في الصورة بالضبط. وضع dir على المسار وحده لم يكفِ لأن
+           موضع صندوقه يقرّره أبوه لا هو.
+           بـ ltr يبدأ المسار من الحافة اليسرى ويفيض يميناً، فتدخل النسخة المكرّرة من اليمين
+           كلما خرجت الأصلية من اليسار: اتصال دائم بلا فراغ. */
+        dir="ltr"
+        className="relative"
+        style={{
+          maskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
+        }}
+      >
+        {/* dir="ltr" على المسار، وهذا هو أصل "الفراغ الكبير ثم يظهر من العدم".
+            الصفحة عربية (rtl)، فالنسختان تُصفّان من اليمين إلى اليسار: النسخة الأصلية تحتل
+            النصف الأيمن والمكرّرة النصف الأيسر. والحركة `-50%` تدفع المسار يساراً — أي نحو
+            النسخة التي تُغادر، بينما الجهة التي تُفرَّغ (اليمين) لا يوجد خلفها شيء. النتيجة
+            بالضبط: الشعارات تخرج، يبقى فراغ بعرض المسار، ثم تعود دفعة واحدة عند إعادة الدورة.
+            بترتيب ltr تقع النسخة المكرّرة خلف الأصلية في اتجاه الحركة، فما يخرج من جهة يدخل
+            من الأخرى بلا أي فراغ. الشعارات والأسماء محايدة الاتجاه فلا يغيّرها هذا بصرياً.
 
-          {/* القصّ يعطي الشريط شيفروناته، والقناع المتدرّج يبقى فوقه.
-              بالقصّ وحده يُقطع الشعار بحدّ مائل حادّ عند الفتحة؛ وبالاثنين معاً يتلاشى وهو ينزلق
-              داخل الشيفرون، فيُقرأ الشكل كممرّ لا كمقصّ.
-
-              dir="ltr" على النافذة نفسها لا على المسار وحده — وهنا كان الخلل الباقي.
-              القسم داخل صفحة عربية (rtl)، والمسار أعرض من النافذة. في التخطيط العربي يُثبَّت
-              الطفل الفائض عن أبيه عند الحافة **اليمنى**، فيفيض ما زاد عنه إلى اليسار خارج
-              الشاشة: أي أن ما نراه هو ذيل المسار، ثم تدفعه الحركة يساراً فيتعرّى الجانب الأيمن
-              ولا شيء خلفه. بـltr يبدأ المسار من الحافة اليسرى ويفيض يميناً، فتدخل النسخة
-              المكرّرة من اليمين كلما خرجت الأصلية من اليسار: اتصال دائم بلا فراغ. */}
-          <div
-            ref={viewportRef}
-            dir="ltr"
-            className="absolute inset-0"
-            style={{
-              clipPath: bandClipPath(FLOWS_RIGHT),
-              maskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
-            }}
-          >
-            {/* pointer-events-none: الحزام عرض لا عنصر تفاعلي — لا يتوقّف بالمرور عليه ولا
-                يستجيب لضغطة، كما طُلب صراحةً. وهذا أيضاً سبب غياب بطاقات المرور التي يطلبها
-                بريف قسم المسار: علامة تنزلق من تحت المؤشر لا تُمرَّر عليها، والحركة نفسها هي
-                المؤشر المتحرك الذي يطلبه البريف هنا. */}
-            <div
-              dir="ltr"
-              className="nq-marquee flex w-max h-full pointer-events-none"
-              style={{ ['--nq-marquee-duration' as string]: `${durationSeconds}s` }}
-            >
-              <ul ref={laneRef} className="flex items-center h-full">
-                {lane.map((item, i) => (
-                  <Item key={`a-${item.id}-${i}`} item={item} />
-                ))}
-              </ul>
-              {/* النسخة الثانية مطابقة تماماً و`aria-hidden`: هي ما يقع تحت العين لحظة إرجاع
-                  المسار إلى الصفر، فلا تُرى قفزة. ليست محتوى إضافياً لقارئ الشاشة. */}
-              <ul className="flex items-center h-full" aria-hidden="true">
-                {lane.map((item, i) => (
-                  <Item key={`b-${item.id}-${i}`} item={item} />
-                ))}
-              </ul>
-            </div>
-          </div>
+            pointer-events-none: الحزام عرض لا عنصر تفاعلي — لا يتوقّف بالمرور عليه ولا
+            يستجيب لضغطة، كما طُلب. */}
+        <div
+          dir="ltr"
+          className="nq-marquee flex w-max pointer-events-none"
+          style={{ ['--nq-marquee-duration' as string]: `${durationSeconds}s` }}
+        >
+          <ul ref={laneRef} className="flex items-center">
+            {lane.map((item, i) => (
+              <Item key={`a-${item.id}-${i}`} item={item} />
+            ))}
+          </ul>
+          {/* النسخة الثانية مطابقة تماماً و`aria-hidden`: هي ما يقع تحت العين لحظة إرجاع
+              المسار إلى الصفر، فلا تُرى قفزة. ليست محتوى إضافياً لقارئ الشاشة. */}
+          <ul className="flex items-center" aria-hidden="true">
+            {lane.map((item, i) => (
+              <Item key={`b-${item.id}-${i}`} item={item} />
+            ))}
+          </ul>
         </div>
       </div>
 
