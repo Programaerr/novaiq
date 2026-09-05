@@ -137,7 +137,7 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
             return (
               <li
                 key={item.id}
-                className="nq-rise relative"
+                className="nq-work-item nq-rise relative"
                 style={{
                   marginTop: index === 0 ? 0 : `-${OVERLAP_REM}rem`,
                   /* الترتيب يتصاعد مع الرزمة، والبطاقة المفتوحة تقفز فوق الجميع حتى لا يقصّ

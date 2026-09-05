@@ -2022,15 +2022,47 @@ html[data-demo] .nq-navbar {
   box-shadow: 0 1px 2px -1px rgba(8, 10, 13, 0.06);
 }
 
+/* التفتير بين البطاقات.
+
+   بطاقة ترتفع وحدها تُقرأ زرّاً. الذي يجعل الرزمة تُقرأ رزمةً تُفتّر هو أن جاراتها تتحرّك —
+   الفجوة التي تنفتح تحت الإصبع هي الأثر كله، وهي الجزء الذي كان ناقصاً.
+
+   `li:hover ~ li` يفعلها بلا جافاسكربت وبلا حالة: المحدّد يطال كل بطاقة بعد الملموسة،
+   فتنزل معاً بينما ترتفع هي. و`:focus-within` معه في كل قاعدة، فالتنقّل بالمفاتيح يُفتّر
+   الرزمة مثل المؤشر بالضبط بدل أن يكون الأثر كله شيئاً لا يراه إلا من يملك فأرة.
+
+   وكله transform: المرتفعة والنازلات معاً، فلا تخطيط يُعاد حسابه ولا شيء يقفز. */
 .nq-work-card:hover,
 .nq-work-card:focus-within {
-  transform: translateY(-6px);
-  box-shadow: 0 18px 34px -22px rgba(8, 10, 13, 0.45);
+  transform: translateY(-10px);
+  box-shadow: 0 22px 40px -22px rgba(8, 10, 13, 0.5);
 }
 
-.nq-work-card[data-open='true'] {
-  transform: translateY(-6px);
-  box-shadow: 0 22px 42px -24px rgba(8, 10, 13, 0.5);
+.nq-work-item:hover ~ .nq-work-item .nq-work-card,
+.nq-work-item:focus-within ~ .nq-work-item .nq-work-card {
+  transform: translateY(10px);
+}
+
+/* وما قبلها يرتفع معها.
+
+   بدون هذا كانت البطاقة المرتفعة تغطّي 26 بكسلاً من التي فوقها — التداخل 16 زائداً
+   الارتفاع 10 — فيُقصّ اسمها نصفين، وهذا يُقرأ خللاً لا أثراً. وبرفعها معها يبقى الفرق
+   بينهما كما هو، فلا يغطي شيء شيئاً جديداً، وتنفتح الفجوة من جهة واحدة فقط — وهذا ما يفعله
+   التفتير فعلاً: ينفصل عند الورقة التي أنت عليها.
+
+   حيث لا يُدعم `:has()` تبقى السابقات مكانها ويعود السلوك إلى ما كان عليه: تراجع
+   تجميلي على محرّك قديم، لا قسم مكسور. */
+.nq-work-item:has(~ .nq-work-item:hover) .nq-work-card,
+.nq-work-item:has(~ .nq-work-item:focus-within) .nq-work-card {
+  transform: translateY(-10px);
+}
+
+/* المفتوحة تغلب الاثنتين: تبقى خارجة من الرزمة حتى لو كان المؤشر على واحدة فوقها —
+   الفتح حالة اختارها الزائر، والمرور مجرد مرور. */
+.nq-work-item .nq-work-card[data-open='true'],
+.nq-work-item:hover ~ .nq-work-item .nq-work-card[data-open='true'] {
+  transform: translateY(-10px);
+  box-shadow: 0 24px 46px -24px rgba(8, 10, 13, 0.55);
 }
 
 .nq-work-logo {
@@ -2085,7 +2117,11 @@ html[data-demo] .nq-navbar {
   }
   .nq-work-card:hover,
   .nq-work-card:focus-within,
-  .nq-work-card[data-open='true'] {
+  .nq-work-card[data-open='true'],
+  .nq-work-item:hover ~ .nq-work-item .nq-work-card,
+  .nq-work-item:focus-within ~ .nq-work-item .nq-work-card,
+  .nq-work-item:has(~ .nq-work-item:hover) .nq-work-card,
+  .nq-work-item:has(~ .nq-work-item:focus-within) .nq-work-card {
     transform: none;
   }
 }
