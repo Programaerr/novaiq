@@ -1,165 +1,220 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
+import { ArrowUpLeft, ArrowUpRight, ChevronDown } from 'lucide-react';
 import { useClientsStrip } from '../lib/clientsStrip';
-import { OBSIDIAN, PAPER } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE, PAPER, WHITE } from '../lib/homePalette';
 import { Language } from '../lib/i18n';
+import { useSeen } from '../lib/useSeen';
 
 /**
- * شريط "أعمالنا" — أسماء وشعارات الشركات التي عملنا معها، يمرّ تحت الهيرو بلا توقّف.
+ * "أعمالنا" — رزمة بطاقات، بطاقة لكل شركة عملنا معها. تُرفع بالمرور وتُفتح بالضغط.
  *
- * ## اللون
- * PAPER، وهو اللون الذي ينتهي إليه تدرّج الهيرو فوقه وتبدأ به مراحل العمل تحته — أي أن هذا
- * القسم لا يُدخل أرضية جديدة إلى الصفحة، بل يقع داخل الأرضية القائمة. أي لون آخر هنا يقطع
- * العمود ويُقرأ كقسم غريب مُلصق.
+ * ## لماذا انتهى الحزام المتحرك
  *
- * ## لماذا CSS خالص ولا إطار جافاسكربت واحد
- * حزام مبنيّ على `requestAnimationFrame` يعني عملاً في الخيط الرئيسي طوال بقاء القسم على
- * الشاشة، وأي انشغال لحظي يظهر كتقطيع. الحركة هنا `transform` واحد على المسار كله: تُنفَّذ على
- * مركّب الطبقات خارج الخيط الرئيسي، فتبقى ناعمة حتى على جهاز ضعيف مشغول بشيء آخر.
+ * كان هذا القسم شريطاً يمشي بلا توقف، وكان صحيحاً لما كان يحمله: شعارات ولا شيء غيرها. الآن كل
+ * بطاقة تحمل وصفاً وزر زيارة، وكلاهما شيء يُقرأ ويُضغط — ولا يُقرأ ولا يُضغط ما ينزلق من تحت
+ * المؤشر. فالحركة الدائمة والمحتوى التفاعلي لا يجتمعان، وما ذهب هو الحركة.
  *
- * ## لماذا يُقاس عرض المسار بدل تكراره برقم ثابت
- * الالتفاف بلا قفزة يحتاج مسارين متطابقين والانتقال بمقدار -50%. لكن ذلك يكفي فقط إذا كان
- * **المسار الواحد أعرض من الشاشة**؛ وإلا فبعد أن يخرج آخر عنصر تبقى مساحة فارغة تمشي حتى
- * تصل النسخة الثانية — وهو بالضبط "الفراغ ثم اختفاء الشعارات" الذي يظهر مع عدد قليل من
- * العناصر أو على شاشة عريضة. عدد التكرارات لا يمكن تخمينه من عدد العناصر: اسم قصير و شعار
- * عريض ليسا بنفس العرض، وعرض الصور نفسه لا يُعرف قبل فكّ ترميزها.
+ * ## الضغط أولاً، والمرور زيادة
  *
- * لذلك يُقاس: ResizeObserver على مسار واحد وعلى الحاوية، ويُرفع التكرار حتى يتجاوز عرضُ
- * المسار عرضَ الحاوية. يعمل مع أي عدد عناصر، وأي عرض شاشة، وأي مقاس شعار، ويعيد الحساب
- * تلقائياً حين تُفك صور جديدة أو يُدار الجهاز.
+ * الرفع عند المرور هو ما طُلب، لكنه لا يعمل على أي جهاز لمس — وهو أغلب الزوار. لذلك كل ما يفتح
+ * البطاقة مربوط بالضغط، والمرور يضيف الرفع فقط. أي أن الهاتف لا يفقد شيئاً من المحتوى، وهذا هو
+ * فرق "تأثير المرور لا يعمل باللمس" بين أن يكون ملاحظة وأن يكون نصف القسم مفقوداً.
+ *
+ * ## البطاقات كلها فاتحة، والنشطة لا تنقلب داكنة
+ *
+ * الطريقة البديهية لإبراز البطاقة المفتوحة هي ملؤها بلون العلامة الداكن. وهي خاطئة هنا لسبب لا
+ * علاقة له بالذوق: ما داخل البطاقة شعار شركة، والشعارات تصل بألوان لا نتحكم بها، وأغلبها داكن —
+ * فسطح داكن يبتلع نصفها. الحالة النشطة تُقال بالحدّ والظل والرفع وبعودة الشعار إلى ألوانه من
+ * التدرّج الرمادي، والسطح يبقى فاتحاً في كل الحالات.
+ *
+ * ## الرابط والوصف اختياريان، وغيابهما ليس نقصاً يُملأ
+ *
+ * بطاقة بلا رابط لا تعرض زر زيارة — لا زراً معطّلاً ولا رابطاً مخمّناً — وبطاقة بلا وصف ولا رابط
+ * لا تُفتح أصلاً، فتُعرض بطاقةً ساكنة بلا `aria-expanded` ولا زر. هذه شركات حقيقية، واختراع عنوان
+ * أو جملة لإحداها خطأ يقع على طرف ثالث لا على الموقع.
  */
+
+/** كم تختفي كل بطاقة تحت التي فوقها. صغير عمداً: يكفي ليُقرأ الصفّ رزمةً، ولا يخفي شعاراً. */
+const OVERLAP_REM = 1;
+
 export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language === 'ar';
+  const { ref: sectionRef, seen } = useSeen<HTMLElement>();
 
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-  const laneRef = useRef<HTMLUListElement | null>(null);
-  const [repeats, setRepeats] = useState(1);
-  /* مدة الدورة محسوبة لا مأخوذة كما هي من الإعدادات.
-     `speedSeconds` معناه "ثوانٍ لعبور عرض شاشة واحد"، والمسافة الفعلية للدورة هي عرض المسار
-     الذي يتغيّر بعدد الشعارات وبعرض الجهاز. لو استُعملت القيمة مدةً مباشرة لصار الشريط أسرع
-     كلما زادت الشعارات وأبطأ على الشاشة الصغيرة — أي سرعة مختلفة عند كل زائر. */
-  const [durationSeconds, setDurationSeconds] = useState(strip.speedSeconds);
-
-  const measure = useCallback(() => {
-    const viewport = viewportRef.current;
-    const lane = laneRef.current;
-    if (!viewport || !lane) return;
-    const laneWidth = lane.getBoundingClientRect().width;
-    const viewportWidth = viewport.getBoundingClientRect().width;
-    if (laneWidth <= 0 || viewportWidth <= 0) return;
-
-    // عرض نسخة واحدة من القائمة (بلا التكرار الحالي)، ثم كم نسخة تلزم لتغطية الشاشة ومعها
-    // هامش أمان بسيط حتى لا يقع الطرف تماماً على حافة الشاشة عند القياس الكسري.
-    const singleWidth = laneWidth / repeats;
-    if (singleWidth <= 0) return;
-    const needed = Math.ceil((viewportWidth * 1.15) / singleWidth);
-    // سقف يمنع أي احتمال لحلقة لا تنتهي لو أعاد القياس صفراً أو قيمة شاذة أثناء التخطيط.
-    const next = Math.min(24, Math.max(1, needed));
-    if (next !== repeats) setRepeats(next);
-
-    const seconds = Math.max(4, strip.speedSeconds * (laneWidth / viewportWidth));
-    setDurationSeconds((prev) => (Math.abs(prev - seconds) > 0.25 ? seconds : prev));
-  }, [repeats, strip.speedSeconds]);
-
-  useEffect(() => {
-    measure();
-    const viewport = viewportRef.current;
-    const lane = laneRef.current;
-    if (!viewport || !lane || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(viewport);
-    observer.observe(lane);
-    return () => observer.disconnect();
-  }, [measure, strip.items]);
+  /* واحدة مفتوحة في كل مرة. رزمة بطاقات مفتوحة كلها ليست رزمة، هي قائمة طويلة — والرسم الذي
+     طُلب منه هذا القسم رزمة. */
+  const [openId, setOpenId] = useState<string | null>(null);
 
   // التفعيل يدوي: لا يظهر شيء حتى يشغّله الأدمن ويضيف عنصراً واحداً على الأقل.
   if (!strip.enabled || strip.items.length === 0) return null;
 
-  const lane = Array.from({ length: repeats }, () => strip.items).flat();
+  /* السهم يشير إلى خارج الصفحة، وجهة الخارج تختلف باختلاف اتجاه القراءة. أيقونتان لا واحدة
+     مقلوبة بـ`scale-x-[-1]`: القلب يعكس رأس السهم وذيله معاً فيخرج شكل لا معنى له. */
+  const ExternalArrow = isAr ? ArrowUpLeft : ArrowUpRight;
 
-  const Item: React.FC<{ item: (typeof strip.items)[number] }> = ({ item }) => (
-    <li className="shrink-0 px-6 sm:px-9 flex items-center">
-      {item.logoDataUrl ? (
-        <img
-          src={item.logoDataUrl}
-          alt={item.name}
-          /* لا loading="lazy" هنا: الصورة data URL موجودة في المستند أصلاً، فالتأجيل لا يوفّر
-             تنزيلاً — كل ما يفعله هو تأخير معرفة عرضها، وهو ما يجعل قياس المسار أعلاه يبدأ
-             من عرض خاطئ فتظهر فجوة حتى يُعاد القياس. */
-          decoding="async"
-          /* ارتفاع موحّد وعرض حر: الشعارات تصل بنسب مختلفة وتثبيت الاثنين يشوّهها. التدرّج
-             الرمادي يجعل شعارات بألوان متضاربة تُقرأ كصفّ واحد مرتّب لا لافتات متنافسة. */
-          className="h-9 sm:h-11 w-auto max-w-[160px] object-contain opacity-85 grayscale"
-        />
-      ) : (
-        <span className="text-base sm:text-xl font-black whitespace-nowrap" style={{ color: OBSIDIAN, opacity: 0.72 }}>
-          {item.name}
-        </span>
-      )}
-    </li>
-  );
+  /* عمود الشعار يُقرّر مرة واحدة للقائمة كلها لا لكل بطاقة.
+     مع الشعارات لازم يكون موجوداً وبعرض ثابت، وإلا بدأت الأسماء من موضع مختلف في كل
+     بطاقة وتوقّفت الرزمة عن أن تُقرأ رزمة. وبلا أي شعار يصير مجرد فراغ يُقرأ إزاحة خاطئة. */
+  const hasAnyLogo = strip.items.some((i) => Boolean(i.logoDataUrl));
 
   return (
-    <section aria-label={strip.title} className="relative overflow-hidden py-8 sm:py-10" style={{ background: PAPER }}>
-      {/* بمقاس عناوين الأقسام في هذا الموقع (قارن PhasesSection)، لا كلمة صغيرة فوق شريط:
-          كان سطراً بحجم 0.7rem بتباعد حروف واسع، وهو مقاس "لصيقة" لا مقاس عنوان قسم. */}
-      <h2
-        className="nq-container text-center text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight mb-8 sm:mb-10"
-        style={{ color: OBSIDIAN }}
-      >
-        {strip.title}
-      </h2>
+    <section
+      ref={sectionRef}
+      data-seen={seen ? 'true' : 'false'}
+      aria-label={strip.title}
+      className="relative py-16 sm:py-24"
+      style={{ background: PAPER }}
+    >
+      <div className="nq-container grid gap-10 lg:gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] lg:items-center">
+        {/* العنوان أولاً في المصدر، فيقع يميناً في العربية ويساراً في الإنجليزية بلا أي عكس
+            يدوي — الشبكة تأخذ اتجاهها من المستند. */}
+        <header className="text-center">
+          <h2
+            className={`nq-rise text-[1.75rem] sm:text-[2.4rem] lg:text-[3rem] font-black leading-[1.2] ${
+              isAr ? '' : 'tracking-tight'
+            }`}
+            style={{ color: OBSIDIAN, ['--nq-rise-delay' as string]: '60ms' }}
+          >
+            {strip.title}
+          </h2>
+          <p
+            className="nq-rise mt-4 mx-auto max-w-[26rem] text-[1rem] font-bold leading-[1.9]"
+            style={{ color: OBSIDIAN, opacity: 0.72, ['--nq-rise-delay' as string]: '120ms' }}
+          >
+            {isAr
+              ? 'شركات اشتغلنا وياها. اضغط على أي بطاقة لتقرأ ما بنيناه لها.'
+              : 'Companies we have worked with. Open any card to read what we built for them.'}
+          </p>
+        </header>
 
-      {/* تلاشٍ عند الطرفين: بدونه تُقصّ الشعارات بحدّ حادّ عند حافة الشاشة فتبدو الحركة وكأنها
-          تصطدم بجدار. القناع يجعلها تدخل وتخرج من العدم. */}
-      <div
-        ref={viewportRef}
-        /* dir="ltr" على النافذة نفسها لا على المسار وحده — وهنا كان الخلل الباقي.
-           القسم داخل صفحة عربية (rtl)، والمسار أعرض من النافذة. في التخطيط العربي يُثبَّت
-           الطفل الفائض عن أبيه عند الحافة **اليمنى**، فيفيض ما زاد عنه إلى اليسار خارج
-           الشاشة: أي أن ما نراه هو ذيل المسار، ثم تدفعه الحركة يساراً فيتعرّى الجانب الأيمن
-           ولا شيء خلفه — وهو الفراغ في الصورة بالضبط. وضع dir على المسار وحده لم يكفِ لأن
-           موضع صندوقه يقرّره أبوه لا هو.
-           بـ ltr يبدأ المسار من الحافة اليسرى ويفيض يميناً، فتدخل النسخة المكرّرة من اليمين
-           كلما خرجت الأصلية من اليسار: اتصال دائم بلا فراغ. */
-        dir="ltr"
-        className="relative"
-        style={{
-          maskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
-        }}
-      >
-        {/* dir="ltr" على المسار، وهذا هو أصل "الفراغ الكبير ثم يظهر من العدم".
-            الصفحة عربية (rtl)، فالنسختان تُصفّان من اليمين إلى اليسار: النسخة الأصلية تحتل
-            النصف الأيمن والمكرّرة النصف الأيسر. والحركة `-50%` تدفع المسار يساراً — أي نحو
-            النسخة التي تُغادر، بينما الجهة التي تُفرَّغ (اليمين) لا يوجد خلفها شيء. النتيجة
-            بالضبط: الشعارات تخرج، يبقى فراغ بعرض المسار، ثم تعود دفعة واحدة عند إعادة الدورة.
-            بترتيب ltr تقع النسخة المكرّرة خلف الأصلية في اتجاه الحركة، فما يخرج من جهة يدخل
-            من الأخرى بلا أي فراغ. الشعارات والأسماء محايدة الاتجاه فلا يغيّرها هذا بصرياً.
+        {/* محدود العرض عمداً: رزمة تمتد على عرض القسم تتوقف عن أن تُقرأ رزمة
+            وتصير قائمة صفوف. وعلى الهاتف السقف أوسع من الحاوية أصلاً، فلا أثر له هناك
+            وتبقى البطاقات بعرض الشاشة. */}
+        <ul className="relative w-full max-w-[330px] mx-auto">
+          {strip.items.map((item, index) => {
+            /* بطاقة بلا وصف وبلا رابط ليس تحتها ما يُفتح، فلا تُقدَّم كشيء يُفتح. */
+            const expandable = Boolean(item.blurb || item.url);
+            const isOpen = expandable && openId === item.id;
+            const panelId = `nq-work-panel-${item.id}`;
+            const labelId = `nq-work-label-${item.id}`;
 
-            pointer-events-none: الحزام عرض لا عنصر تفاعلي — لا يتوقّف بالمرور عليه ولا
-            يستجيب لضغطة، كما طُلب. */}
-        <div
-          dir="ltr"
-          className="nq-marquee flex w-max pointer-events-none"
-          style={{ ['--nq-marquee-duration' as string]: `${durationSeconds}s` }}
-        >
-          <ul ref={laneRef} className="flex items-center">
-            {lane.map((item, i) => (
-              <Item key={`a-${item.id}-${i}`} item={item} />
-            ))}
-          </ul>
-          {/* النسخة الثانية مطابقة تماماً و`aria-hidden`: هي ما يقع تحت العين لحظة إرجاع
-              المسار إلى الصفر، فلا تُرى قفزة. ليست محتوى إضافياً لقارئ الشاشة. */}
-          <ul className="flex items-center" aria-hidden="true">
-            {lane.map((item, i) => (
-              <Item key={`b-${item.id}-${i}`} item={item} />
-            ))}
-          </ul>
-        </div>
+            const head = (
+              <span className="flex items-center gap-4 w-full">
+                {hasAnyLogo && (
+                <span className="grid place-items-center w-[4.5rem] h-12 shrink-0">
+                  {item.logoDataUrl ? (
+                    <img
+                      src={item.logoDataUrl}
+                      alt=""
+                      /* alt فارغ: الاسم مكتوب بجانبه نصاً، وقراءة الاثنين تعني سماع الاسم مرتين.
+                         لا loading="lazy": الصورة data URL موجودة في المستند أصلاً، فالتأجيل لا
+                         يوفّر تنزيلاً. */
+                      decoding="async"
+                      className="nq-work-logo max-h-12 max-w-full object-contain"
+                    />
+                  ) : null}
+                </span>
+                )}
+
+                <span className="min-w-0 flex-1 text-start">
+                  <span id={labelId} className="block text-[1.05rem] font-black" style={{ color: OBSIDIAN }}>
+                    {item.name}
+                  </span>
+                </span>
+
+                {expandable && (
+                  <ChevronDown
+                    className="nq-work-chevron w-5 h-5 shrink-0"
+                    strokeWidth={2.4}
+                    style={{ color: OBSIDIAN, opacity: 0.45 }}
+                    aria-hidden="true"
+                  />
+                )}
+              </span>
+            );
+
+            return (
+              <li
+                key={item.id}
+                className="nq-rise relative"
+                style={{
+                  marginTop: index === 0 ? 0 : `-${OVERLAP_REM}rem`,
+                  /* الترتيب يتصاعد مع الرزمة، والبطاقة المفتوحة تقفز فوق الجميع حتى لا يقصّ
+                     ظلَّها ما تحتها. */
+                  zIndex: isOpen ? strip.items.length + 1 : index + 1,
+                  ['--nq-rise-delay' as string]: `${160 + index * 70}ms`,
+                }}
+              >
+                <div
+                  className="nq-work-card rounded-2xl overflow-hidden"
+                  data-open={isOpen ? 'true' : 'false'}
+                  style={{
+                    background: WHITE,
+                    border: `1px solid ${isOpen ? ORANGE : `${OBSIDIAN}14`}`,
+                  }}
+                >
+                  {expandable ? (
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(isOpen ? null : item.id)}
+                      aria-expanded={isOpen}
+                      aria-controls={panelId}
+                      className="nq-work-head w-full min-h-11 px-4 sm:px-5 py-4 flex items-center cursor-pointer outline-none"
+                    >
+                      {head}
+                    </button>
+                  ) : (
+                    <div className="min-h-11 px-4 sm:px-5 py-4 flex items-center">{head}</div>
+                  )}
+
+                  {/* الشبكة من 0fr إلى 1fr هي ما يفتح اللوحة.
+                      وهي خاصية تخطيط تُعيد الحساب في كل إطار، خلافاً لقاعدة "حرّك transform
+                      وopacity فقط" — والاستثناء مقصود ومحدود: بطاقة واحدة تتحرك في المرّة،
+                      و220ms، وأكورديون بلا حركة ارتفاع يقفز بدل أن ينفتح. البدائل الأخرى أسوأ:
+                      max-height ثابت يقصّ وصفاً طويلاً، وموضع مطلق يُخرج اللوحة من التدفّق
+                      فتغطّي البطاقة التالية بدل أن تدفعها. */}
+                  <div className="nq-work-panel" id={panelId} role="region" aria-labelledby={labelId}>
+                    <div className="overflow-hidden">
+                      <div className="px-4 sm:px-5 pb-4 pt-1">
+                        <span
+                          aria-hidden="true"
+                          className="block h-px w-full mb-4"
+                          style={{ background: `${OBSIDIAN}14` }}
+                        />
+                        {item.blurb && (
+                          <p className="text-[0.95rem] font-bold leading-[1.9]" style={{ color: OBSIDIAN, opacity: 0.75 }}>
+                            {item.blurb}
+                          </p>
+                        )}
+                        {item.url && (
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            /* noopener مطلوب أمنياً مع target="_blank": بدونه تحصل الصفحة
+                               المفتوحة على window.opener وتستطيع تحويل تبويبنا إلى أي عنوان.
+                               والرابط نفسه مفحوص عند القراءة (safeUrl في clientsStrip.ts)،
+                               فلا يصل إلى هنا إلا http أو https. */
+                            rel="noopener noreferrer"
+                            className={`nq-work-visit ${item.blurb ? 'mt-4' : ''} inline-flex items-center gap-2 min-h-11 px-4 rounded-xl text-[0.9rem] font-black outline-none`}
+                            style={{ background: ORANGE, color: WHITE }}
+                          >
+                            {isAr ? 'زيارة الموقع' : 'Visit the site'}
+                            <ExternalArrow className="w-4 h-4" strokeWidth={2.4} aria-hidden="true" />
+                            {/* يُقرأ ولا يُرى: فتح تبويب جديد بلا إنذار يفقد المستخدم موضعه،
+                                والسهم وحده لا يُنطق. */}
+                            <span className="sr-only">{isAr ? '(يفتح في تبويب جديد)' : '(opens in a new tab)'}</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-
-      <span className="sr-only">{isAr ? 'شركات عملنا معها' : 'Companies we have worked with'}</span>
     </section>
   );
 };

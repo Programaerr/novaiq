@@ -27,6 +27,15 @@ export interface ClientItem {
   name: string;
   /** شعار مصغَّر ومضغوط كـ data URL. غيابه يعني "اعرض الاسم نصاً". */
   logoDataUrl?: string;
+  /**
+   * رابط موقع العميل. **اختياري، والغياب هو الأصل.**
+   *
+   * بدونه لا يظهر زر زيارة الموقع إطلاقاً — لا زر مُعطّل ولا رابط مخمّن. هذه
+   * شركات حقيقية، واختراع عنوان لإحداها خطأ يقع على طرف ثالث لا على الموقع.
+   */
+  url?: string;
+  /** سطر أو سطران عمّا أُنجز لهذا العميل. اختياري أيضاً، وللسبب نفسه. */
+  blurb?: string;
 }
 
 export interface ClientsStrip {
@@ -46,6 +55,23 @@ export const DEFAULT_CLIENTS_STRIP: ClientsStrip = {
   items: [],
 };
 
+/**
+ * يمرّ الرابط إذا كان http أو https وحسب، ويُسقط فيما عدا ذلك.
+ *
+ * `href` يحمل قيمة يكتبها الأدمن، وقيمة تبدأ بـ javascript: تُنفّذ عند الضغط — أي أن
+ * الحقل سطح حقن لا حقل نص عادي. والفحص هنا لا عند العرض: فيسري على كل مستهلك،
+ * اليوم وغداً، ويُصفّى معه أي رابط حُفظ قبل وجود هذا الفحص أصلاً.
+ */
+function safeUrl(raw: unknown): string | undefined {
+  if (typeof raw !== 'string' || !raw.trim()) return undefined;
+  try {
+    const parsed = new URL(raw.trim());
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 function normalize(raw: unknown): ClientsStrip {
   const data = (raw || {}) as Partial<ClientsStrip>;
   return {
@@ -58,11 +84,17 @@ function normalize(raw: unknown): ClientsStrip {
           .filter((i): i is ClientItem => !!i && typeof i.id === 'string')
           // المفتاح يُحذف حين لا شعار، ولا يُوضَع بقيمة undefined: تلك القيمة كانت تنتقل من
           // هنا إلى المسوّدة ثم إلى الكتابة، وFirestore يرفض undefined ويُفشل الحفظ كاملاً.
-          .map((i) => ({
-            id: i.id,
-            name: String(i.name || ''),
-            ...(i.logoDataUrl ? { logoDataUrl: i.logoDataUrl } : {}),
-          }))
+          .map((i) => {
+            const url = safeUrl(i.url);
+            const blurb = String(i.blurb || '').trim();
+            return {
+              id: i.id,
+              name: String(i.name || ''),
+              ...(i.logoDataUrl ? { logoDataUrl: i.logoDataUrl } : {}),
+              ...(url ? { url } : {}),
+              ...(blurb ? { blurb } : {}),
+            };
+          })
       : [],
   };
 }
@@ -141,10 +173,14 @@ export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
     enabled: value.enabled,
     title: value.title,
     speedSeconds: value.speedSeconds,
+    // الحقول تُذكر واحداً واحداً هنا، فحقل جديد لا يُضاف إلى هذه القائمة يُحذف عند الحفظ
+    // بصمت: يكتبه الأدمن، ويظهر إلى أن تُعاد الصفحة، ثم يختفي بلا خطأ.
     items: value.items.map((item) => ({
       id: item.id,
       name: item.name,
       ...(item.logoDataUrl ? { logoDataUrl: item.logoDataUrl } : {}),
+      ...(item.url ? { url: item.url } : {}),
+      ...(item.blurb ? { blurb: item.blurb } : {}),
     })),
   };
 

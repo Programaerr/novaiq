@@ -1922,23 +1922,6 @@ html[data-demo] .nq-navbar {
    انشغال جافاسكربت ولا تُجبر المتصفح على إعادة تخطيط أي شيء. -50% لأن المسار نسختان
    متطابقتان جنباً إلى جنب، فنهاية الشوط تقع على بداية النسخة الثانية بالضبط ولا تُرى قفزة.
    المدة تأتي من لوحة التحكم عبر متغيّر مضمَّن على العنصر. */
-@keyframes nq-marquee-slide {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-50%, 0, 0); }
-}
-
-.nq-marquee {
-  animation: nq-marquee-slide var(--nq-marquee-duration, 32s) linear infinite;
-  will-change: transform;
-}
-
-/* لا توقّف عند المرور ولا عند الضغط: طُلب صراحةً أن يظل سائراً مهما فعل الزائر، والعنصر
-   نفسه `pointer-events: none` فلا يستقبل مؤشراً أصلاً. */
-
-/* من يطلب تقليل الحركة من نظامه لا يُعرَض عليه حزام يمشي؛ الأسماء تبقى ظاهرة ساكنة. */
-@media (prefers-reduced-motion: reduce) {
-  .nq-marquee { animation: none; }
-}
 
 /* ── حبّة التنقّل السائلة ─────────────────────────────────────────────────────────────────
    جسم واحد يقف خلف بنود الشريط وينتقل بينها.
@@ -2005,5 +1988,104 @@ html[data-demo] .nq-navbar {
   }
   @page {
     margin: 10mm;
+  }
+}
+
+/* ═══ أعمالنا: رزمة البطاقات ════════════════════════════════════════════════════
+
+   ## الرفع على البطاقة، لا على الزر داخلها
+
+   الزر يملأ رأس البطاقة فقط؛ الظل والحدّ على البطاقة. لذلك يأتي الرفع من `:hover` على البطاقة
+   ومن `:focus-within`، لا من `:hover` على الزر — وبـ`focus-within` تحديداً يحصل مستخدم الكيبورد
+   على نفس الإشارة التي يحصل عليها مستخدم الفأرة، بدل أن تكون الحالة النشطة شيئاً يراه نصف
+   الزوار فقط.
+
+   ## الشعار يعود إلى ألوانه
+
+   الشعارات كلها رمادية في حالة السكون فيُقرأ الصفّ صفّاً واحداً مرتّباً لا لافتات متنافسة، وتعود
+   ألوانها عند المرور أو الفتح. هذا هو ما يميّز البطاقة النشطة هنا — مع الحدّ والظل — لأن السطح
+   نفسه يبقى فاتحاً في كل الحالات: ما بداخله شعار شركة بلون لا نتحكّم به، وسطح داكن يبتلع نصفها.
+
+   ## الفتح: شبكة من 0fr إلى 1fr
+
+   الطريقة الوحيدة التي تحرّك ارتفاعاً غير معروف مسبقاً. و`visibility` تسير معها في نفس القاعدة
+   لا كتفصيل: `hidden` (أي display:none) كان سيمنع الحركة أصلاً، وتركُ اللوحة ظاهرة وهي مغلقة
+   يترك نصّها في شجرة الوصول ورابطها في ترتيب التنقّل بالمفاتيح. `visibility: hidden` وحدها تفعل
+   الأمرين: تتحرّك، وتُخرج ما تحتها من الشجرة ومن الترتيب.
+
+   نعم هذه خاصية تخطيط تُعيد الحساب في كل إطار، خلافاً للقاعدة العامة في هذا الملف. الاستثناء
+   محدود: بطاقة واحدة تتحرّك في المرّة، و220ms. */
+
+.nq-work-card {
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease,
+    border-color 200ms ease;
+  box-shadow: 0 1px 2px -1px rgba(8, 10, 13, 0.06);
+}
+
+.nq-work-card:hover,
+.nq-work-card:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 34px -22px rgba(8, 10, 13, 0.45);
+}
+
+.nq-work-card[data-open='true'] {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 42px -24px rgba(8, 10, 13, 0.5);
+}
+
+.nq-work-logo {
+  filter: grayscale(1);
+  opacity: 0.85;
+  transition: filter 200ms ease, opacity 200ms ease;
+}
+
+.nq-work-card:hover .nq-work-logo,
+.nq-work-card:focus-within .nq-work-logo,
+.nq-work-card[data-open='true'] .nq-work-logo {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.nq-work-chevron {
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease;
+}
+
+.nq-work-card[data-open='true'] .nq-work-chevron {
+  transform: rotate(180deg);
+  opacity: 0.9;
+}
+
+/* الحلقة داخل البطاقة لا حولها: البطاقة لها حدّ خاص بها وزوايا مدوّرة، وحلقة ثانية خارجها تُقرأ
+   حدّاً مضاعفاً. `inset` يضعها على السطح نفسه. */
+.nq-work-head:focus-visible,
+.nq-work-visit:focus-visible {
+  box-shadow: inset 0 0 0 2px #273036;
+}
+
+.nq-work-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 220ms cubic-bezier(0.22, 1, 0.36, 1), visibility 220ms;
+}
+
+.nq-work-card[data-open='true'] .nq-work-panel {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+
+/* من يطلب تقليل الحركة: البطاقات تُفتح وتُغلق فوراً، وتبقى كل حالة مرئية كما هي. لا تجميد على
+   حالة نصفية، ولا فقدان لأي محتوى. */
+@media (prefers-reduced-motion: reduce) {
+  .nq-work-card,
+  .nq-work-logo,
+  .nq-work-chevron,
+  .nq-work-panel {
+    transition: none;
+  }
+  .nq-work-card:hover,
+  .nq-work-card:focus-within,
+  .nq-work-card[data-open='true'] {
+    transform: none;
   }
 }
