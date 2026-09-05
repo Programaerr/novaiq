@@ -87,7 +87,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
   onSelectTemplateForContract,
   onOpenStandalonePreview,
   language = 'ar',
-  currency = 'IQD',
+  currency = 'USD',
 }) => {
   const currentLang: Language = language === 'en' ? 'en' : 'ar';
   // Static catalogue merged with any live admin price overrides.

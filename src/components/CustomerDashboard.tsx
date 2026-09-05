@@ -209,7 +209,7 @@ return (
 // then falls back to the email the contract carries, so a contract still shows even when the
 // email typed in the form differs from the Google account's. Admins never see this:
 // AdminPage routes them to AdminDashboard instead, before this component is ever rendered.
-export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, currency = 'IQD', user, onBackToSite }) => {
+export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ language, currency = 'USD', user, onBackToSite }) => {
   const isAr = language === 'ar';
   const [contracts, setContracts] = useState<ContractData[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);

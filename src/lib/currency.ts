@@ -1,35 +1,33 @@
 import { Language } from './i18n';
 
-// All prices in the app are authored in IQD. Templates additionally carry a curated
-// basePriceUSD, but add-ons/specs and every derived total don't — hand-maintaining a USD
-// figure for every one of those would need updating each time a template or add-on is
-// added. This fixed rate (matching the curated basePriceUSD figures already in
-// templatesData.ts, ~1450 IQD/USD) lets any IQD amount convert itself automatically.
+// Every price in the app is STORED in IQD — template base prices, admin overrides, contract
+// totals, payments. Templates additionally carry a curated basePriceUSD, but add-ons/specs and
+// every derived total don't — hand-maintaining a USD figure for every one of those would need
+// updating each time a template or add-on is added. This fixed rate (matching the curated
+// basePriceUSD figures already in templatesData.ts, ~1450 IQD/USD) lets any stored IQD amount
+// convert itself on the way to the screen.
 export const IQD_PER_USD = 1450;
 
-// The store is entirely Iraqi — switching the UI language to English must not, on its own,
-// silently convert every price to US dollars. Currency is its own, separate choice (a
-// settings toggle, independent of language) that only a customer explicitly making that
-// choice should trigger.
 export type Currency = 'IQD' | 'USD';
 
-export const CURRENCY_STORAGE_KEY = 'nuvaiq_currency';
-
-export function readStoredCurrency(): Currency {
-  try {
-    return localStorage.getItem(CURRENCY_STORAGE_KEY) === 'USD' ? 'USD' : 'IQD';
-  } catch {
-    return 'IQD';
-  }
-}
+/** What the site quotes in. Prices are stored in dinars and read in dollars — the dinar is the
+ *  storage unit, the dollar is the number a customer sees.
+ *
+ *  A constant, not a stored preference. It used to be read from localStorage against the day a
+ *  currency toggle existed; that toggle was never built — `setCurrency` had no caller — so the
+ *  key only ever held a value nobody had chosen, and a stale 'IQD' left in a returning visitor's
+ *  browser would have quietly overridden this for exactly the people who visit most. When a
+ *  toggle does arrive this goes back to being state; until then it must not pretend to be one. */
+export const APP_CURRENCY: Currency = 'USD';
 
 export function toUSD(amountIQD: number): number {
   return Math.round((amountIQD || 0) / IQD_PER_USD);
 }
 
-/** Formats an amount for display: IQD keeps the same figure with a language-matched unit
- *  label (د.ع / IQD), USD converts it — currency is only ever changed by explicit choice. */
-export function formatPrice(amountIQD: number, lang: Language, currency: Currency = 'IQD'): string {
+/** Formats a stored IQD amount for display. USD — the default, and what the site quotes in —
+ *  converts at the fixed rate above; IQD keeps the figure with a language-matched unit label,
+ *  which is still what the admin's own price INPUTS are labelled and typed in. */
+export function formatPrice(amountIQD: number, lang: Language, currency: Currency = 'USD'): string {
   if (currency === 'USD') {
     return `$${toUSD(amountIQD).toLocaleString()}`;
   }

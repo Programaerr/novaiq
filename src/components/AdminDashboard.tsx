@@ -30,7 +30,7 @@ interface AdminDashboardProps {
 
 type Tab = 'overview' | 'contracts' | 'pricing' | 'currency' | 'team' | 'members' | 'settings';
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, currency = 'IQD', onBackToSite }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, currency = 'USD', onBackToSite }) => {
   const isAr = language === 'ar';
   const [tab, setTab] = useState<Tab>('overview');
   const [rawContracts, setRawContracts] = useState<ContractData[]>([]);

@@ -91,7 +91,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   selectedTemplate,
   onContractGenerated,
   language = 'ar' as Language,
-  currency = 'IQD',
+  currency = 'USD',
   initialCustomFeaturesText,
   initialPrimaryColor,
   initialProjectType,

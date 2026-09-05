@@ -1,6 +1,10 @@
 import React from 'react';
 import { ContractData } from '../types';
 import { Language, translateText } from '../lib/i18n';
+// بلا وسيط عملة: كل نداءات `formatPrice` هنا تأخذ القيمة الافتراضية قصداً — وهي الدولار،
+// نفس ما يقرأه الزائر في المتجر. من رأى السعر بالدولار قبل التوقيع لازم يقرأه بالدولار
+// في الوثيقة نفسها؛ وثيقة تذكر وحدة أخرى غير التي اتفق عليها أسوأ من وثيقة بلا رقم. المبلغ
+// المخزّن لا يزال بالدينار (`totalPriceIQD`)، والتحويل يحدث عند العرض فقط.
 import { formatPrice } from '../lib/currency';
 import { contractTerms } from '../data/contractTerms';
 import { sumPayments } from '../lib/payments';

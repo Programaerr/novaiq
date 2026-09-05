@@ -31,7 +31,7 @@ import { useLiveTemplates } from './lib/pricingOverrides';
 import { Template, ContractData, CUSTOM_PROJECT_TEMPLATE_ID } from './types';
 import { Language } from './lib/i18n';
 import { useCurrentUser } from './lib/auth';
-import { Currency, CURRENCY_STORAGE_KEY, readStoredCurrency } from './lib/currency';
+import { APP_CURRENCY } from './lib/currency';
 import { consumePendingContractSelection } from './lib/pendingContractSelection';
 import { initAnalytics, trackPageView, trackEvent } from './lib/analytics';
 import { saveContract } from './lib/db';
@@ -114,17 +114,10 @@ export default function App() {
     }
   });
 
-  // Independent of language on purpose — the store is fully Iraqi, so switching to English
-  // must never silently convert prices to dollars. USD only shows once a customer explicitly
-  // picks it here, and it then persists the same way the language choice does.
-  const [currency, setCurrency] = useState<Currency>(() => readStoredCurrency());
-  useEffect(() => {
-    try {
-      localStorage.setItem(CURRENCY_STORAGE_KEY, currency);
-    } catch {
-      // Storage unavailable — the choice just won't persist.
-    }
-  }, [currency]);
+  // The site quotes in dollars, and that is not a per-visitor choice — there is no toggle to
+  // make it one. Kept as a local so the fifteen components downstream keep taking a prop and
+  // a toggle stays a small change rather than a rewrite. See APP_CURRENCY.
+  const currency = APP_CURRENCY;
 
   // Carries the customer's exact choices from the interactive live-site demo into the contract form
   const [initialCustomFeaturesText, setInitialCustomFeaturesText] = useState<string>('');
@@ -408,6 +401,8 @@ export default function App() {
       trackEvent('contract_submitted', {
         project_type: contract.projectType || 'unspecified',
         template_id: contract.templateId,
+        // Dinars regardless of what the page quotes: this is the stored figure, and a
+        // reported currency that doesn't match the reported value corrupts the funnel.
         value: contract.totalPriceIQD || 0,
         currency: 'IQD',
       });

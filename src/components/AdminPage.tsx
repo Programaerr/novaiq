@@ -75,7 +75,7 @@ function writeAdminHint(uid: string, value: boolean) {
 // and the owner/partner alike. Login/sign-up is identical for both; what happens after
 // depends entirely on the admins allowlist (src/lib/auth.ts), checked here once per
 // session: admins get the full control panel, everyone else gets their own contracts.
-export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'IQD', onContinueAsGuest, onBackToSite, user: passedUser }) => {
+export const AdminPage: React.FC<AdminPageProps> = ({ language, currency = 'USD', onContinueAsGuest, onBackToSite, user: passedUser }) => {
   const [subscribedUser, setSubscribedUser] = useState<User | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | undefined>(undefined);
 

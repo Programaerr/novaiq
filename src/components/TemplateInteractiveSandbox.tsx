@@ -91,7 +91,7 @@ export const TemplateInteractiveSandbox: React.FC<TemplateInteractiveSandboxProp
   initialThemeColor,
   initialMode,
   language = 'ar',
-  currency = 'IQD',
+  currency = 'USD',
 }) => {
   // Declares "a template demo is on screen" for as long as this is mounted, which the cosmic
   // background reads to take itself out of the render tree entirely (see `html[data-demo]` in
