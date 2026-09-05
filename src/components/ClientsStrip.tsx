@@ -34,14 +34,6 @@ import { useSeen } from '../lib/useSeen';
  * أو جملة لإحداها خطأ يقع على طرف ثالث لا على الموقع.
  */
 
-/**
- * كم تختفي كل بطاقة تحت التي بعدها — وهو في نفس الوقت ارتفاع الشريط الذي يسكنه الاسم.
- *
- * الرقمان واحد لا اثنان: ما يختفي من البطاقة هو بالضبط ما يظهر عند المرور، ومربوط
- * بارتفاع التفتير في `.nq-work-card:hover` (16px): الفتح يساوي ضعفه، ولازم يبقى أكبر من هذا.
- */
-const OVERLAP_REM = 1.75;
-
 export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language === 'ar';
@@ -57,6 +49,11 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
   /* السهم يشير إلى خارج الصفحة، وجهة الخارج تختلف باختلاف اتجاه القراءة. أيقونتان لا واحدة
      مقلوبة بـ`scale-x-[-1]`: القلب يعكس رأس السهم وذيله معاً فيخرج شكل لا معنى له. */
   const ExternalArrow = isAr ? ArrowUpLeft : ArrowUpRight;
+
+  /* هل يوجد فعلاً ما يُضغط؟ السطر تحت العنوان يطلب من الزائر الضغط، وما دام لا رابط
+     ولا وصف لأي عميل فلا بطاقة تُفتح، فيصير السطر دعوة إلى شيء جامد. يعود وحده أول
+     ما يُملأ رابط أو وصف من لوحة الأدمن. */
+  const anyExpandable = strip.items.some((i) => Boolean(i.url || i.blurb));
 
   return (
     <section
@@ -83,8 +80,12 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
             style={{ color: OBSIDIAN, opacity: 0.72, ['--nq-rise-delay' as string]: '120ms' }}
           >
             {isAr
-              ? 'شركات اشتغلنا وياها. اضغط على أي بطاقة لتقرأ ما بنيناه لها.'
-              : 'Companies we have worked with. Open any card to read what we built for them.'}
+              ? anyExpandable
+                ? 'شركات اشتغلنا وياها. اضغط على أي بطاقة لتقرأ ما بنيناه لها.'
+                : 'شركات اشتغلنا وياها.'
+              : anyExpandable
+                ? 'Companies we have worked with. Open any card to read what we built for them.'
+                : 'Companies we have worked with.'}
           </p>
         </header>
 
@@ -99,32 +100,32 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
             const panelId = `nq-work-panel-${item.id}`;
             const labelId = `nq-work-label-${item.id}`;
 
-            /* المسرح شريطان: الأعلى ما يبقى ظاهراً، والأسفل ما تغطيه البطاقة التالية —
-               وارتفاعه هو OVERLAP_REM نفسه. وارتفاع المسرح ثابت في كل الحالات: ظهور الاسم
-               لا يغيّر ارتفاع البطاقة، وإلا قفزت الرزمة كلها كلما مرّ المؤشر على واحدة.
+            /* المسرح شريطان: الأعلى ما يبقى ظاهراً، والأسفل ما تغطيه البطاقة التالية.
+               ارتفاعه ثابت في كل الحالات: ظهور الاسم لا يغيّر ارتفاع البطاقة، وإلا قفزت
+               الرزمة كلها كلما مرّ المؤشر على واحدة.
 
-               و`reveal` ليس مجرد "هل يوجد شعار؟": بطاقة لا تُفتح ليس فيها ما يُضغط، فعلى
-               شاشة لمس لن يحدث لا مرور ولا فتح، واسمها لن يظهر أبداً. تلك تضع اسمها في
-               الشريط الظاهر دائماً، ويصغر شعارها ليتّسع لهما — بنفس ارتفاع البطاقة،
-               فتبقى الرزمة مستوية. */
-            const reveal = expandable && Boolean(item.logoDataUrl);
+               و`reveal` هو "هل لهذه البطاقة شعار؟" ولا شيء أكثر. ربطتُه مرّةً بـ`expandable`
+               أيضاً، فاختفى التصميم كله على البيانات الحقيقية: ما من عميل له رابط أو وصف
+               بعد، فكانت كل بطاقة تُرسم بالنسخة البديلة. ومسألة اللمس تُحلّ في مكانها
+               الصحيح: استعلام `hover` في الملف النمطي، لا شرط على حقل قد يكون فارغاً. */
+            const reveal = Boolean(item.logoDataUrl);
 
             const head = (
               <span className="nq-work-stage relative w-full" data-reveal={reveal ? 'true' : 'false'}>
                 <span className="nq-work-face absolute inset-x-0 top-0 flex flex-col items-center justify-center gap-1">
-                  {item.logoDataUrl && (
+                  {reveal ? (
                     <img
                       src={item.logoDataUrl}
                       alt=""
                       /* alt فارغ: الاسم موجود نصاً في الشجرة حتى حين لا يُرى، فقراءة الاثنين
                          تعني سماع الاسم مرتين. ولا loading="lazy": الصورة data URL موجودة في المستند
-                         أصلاً، فالتأجيل لا يوفّر تنزيلاً. */
+                         أصلاً، فالتأجيل لا يوفّر تنزيلاً. والارتفاع من الملف النمطي لا من صنف Tailwind:
+                         يختلف بين اللمس والمؤشر، والفرق جزء من هندسة مكتوبة هناك كلها. */
                       decoding="async"
-                      className={`nq-work-logo ${reveal ? 'max-h-12' : 'max-h-10'} max-w-full object-contain rounded-lg`}
+                      className="nq-work-logo max-w-full object-contain rounded-lg"
                     />
-                  )}
-
-                  {!reveal && (
+                  ) : (
+                    /* بلا شعار ليس للاسم ما يخرج من خلفه، فهو البطاقة كلها ويبقى في وسطها. */
                     <span
                       id={labelId}
                       title={item.name}
@@ -136,26 +137,23 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
                   )}
                 </span>
 
-                {/* الشريط المختفي. والإخفاء الفعلي بـ opacity لا بالتغطية: البطاقة الأخيرة ليس تحتها
-                    ما يغطيها، فالتغطية وحدها كانت ستترك اسمها ظاهراً دائماً بين الجميع. وopacity لا
-                    visibility: هذا النص هو الاسم المُعلَن للزر وإليه يشير aria-labelledby، فيلزم
-                    بقاؤه في شجرة الوصول وهو غير مرئي. */}
+                {/* الاسم. موضعه وظهوره من الملف النمطي: تحت الشعار وظاهراً حيث لا مؤشر، وفي
+                    الشريط المغطّى ومخفيّاً حيث يوجد. والإخفاء بـ opacity لا بـ visibility: هذا النص هو
+                    الاسم المُعلَن للزر وإليه يشير aria-labelledby، فيلزم بقاؤه في شجرة الوصول. */}
                 {reveal && (
-                  <span className="nq-work-slot absolute inset-x-0 bottom-0 flex items-center justify-center">
-                    <span
-                      id={labelId}
-                      title={item.name}
-                      className="nq-work-name block w-full truncate text-center text-[0.95rem] font-black"
-                      style={{ color: OBSIDIAN }}
-                    >
-                      {item.name}
-                    </span>
+                  <span
+                    id={labelId}
+                    title={item.name}
+                    className="nq-work-name truncate text-center text-[0.95rem] font-black"
+                    style={{ color: OBSIDIAN }}
+                  >
+                    {item.name}
                   </span>
                 )}
 
                 {/* غلاف يضع وأيقونة تدور. عنصر واحد لا يحمل الاثنين: دوران الفتح يمسح إزاحة
-                    التوسيط، وهو نفس التصادم الذي كلّف قسم المسار إعادة بناء كاملة. وهو في
-                    الشريط الظاهر لا في وسط المسرح، وإلا اختفى تحت البطاقة التالية مع الاسم. */}
+                    التوسيط، وهو نفس التصادم الذي كلّف قسم المسار إعادة بناء كاملة. وهو يتبع
+                    الشريط الظاهر، وإلا اختفى تحت البطاقة التالية مع الاسم. */}
                 {expandable && (
                   <span className="nq-work-caret absolute end-0 top-0 flex items-center" aria-hidden="true">
                     <ChevronDown
@@ -173,7 +171,6 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
                 key={item.id}
                 className="nq-work-item nq-rise relative"
                 style={{
-                  marginTop: index === 0 ? 0 : `-${OVERLAP_REM}rem`,
                   /* الترتيب يتصاعد مع الرزمة، والبطاقة المفتوحة تقفز فوق الجميع حتى لا يقصّ
                      ظلَّها ما تحتها. */
                   zIndex: isOpen ? strip.items.length + 1 : index + 1,

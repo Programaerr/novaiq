@@ -2065,69 +2065,109 @@ html[data-demo] .nq-navbar {
   box-shadow: 0 24px 46px -24px rgba(8, 10, 13, 0.55);
 }
 
-/* الاسم يخرج من خلف البطاقة.
+/* الاسم يخرج من خلف البطاقة — حيث يوجد مؤشر يفتّره.
 
-   البطاقة شريطان: أعلاها ما يبقى ظاهراً وفيه الشعار في الوسط، وأسفلها ما تغطيه
-   البطاقة التالية وفيه الاسم. والتفتير هو ما يكشفه: الرزمة تنفصل عند البطاقة
-   الملموسة، فيخرج اسمها من تحت جارتها.
+   القسم تخطيطان، لا تخطيط واحد مع شفافية:
 
-   ## الأرقام نظام واحد، فلا يُغيّر منها واحد وحده
+     الافتراضي (لمس، أو محرّك لا يعرف الإجابة)
+         تداخل 12px، شعار 40px، والاسم تحته في الشريط الظاهر ومرئي دائماً.
 
-     المسرح           96px
-     التداخل           28px   ← OVERLAP_REM في ClientsStrip.tsx
-     الشريط الظاهر    68px   وفيه شعار 48 في الوسط (10..58)
-     الشريط المختفي   28px   وفيه سطر الاسم (72..92)
-     ارتفاع التفتير   16px   والفتح ضعفه = 32 > 28
+     @media (hover: hover) and (pointer: fine)
+         تداخل 28px، شعار 48px، والاسم ينتقل إلى الشريط الذي تغطيه البطاقة
+         التالية، ويختفي حتى يفصل المؤشر الرزمة.
 
-   السطر الأخير هو الشرط كله: عند 10px كان الفتح 20 ويبقى الاسم مقصوصاً ثمانية
-   بكسلات — أي أن الكشف يُكسر برقم يقع في قاعدة أخرى. لذلك صار 16.
+   والترتيب مقصود: التخطيط الذي يُظهر الاسم هو الافتراضي، فأي بيئة لا تستطيع
+   تقييم الاستعلام — أو ليس فيها مؤشر حقيقي — ترى اسم الشركة بدل أن يُخفى خلف
+   تفاعل لا تستطيع فعله أبداً.
+
+   ولهذا التداخل هنا لا في marginTop داخل JSX: النمط المضمَّن يغلب الاستعلام، فلن
+   يتغيّر أبداً.
+
+   ## الهندسة كاملة، والمسرح 96px في الحالتين فتبقى الرزمة مستوية
+
+     لمس    الوجه 60  الشعار 40 في 10..50   الاسم 57.6..77.6   والتالية عند 84  ← فراغ 6.4
+     مؤشر  الوجه 68  الشعار 48 في 10..58   الاسم 72..92       والتالية عند 68  ← مخفيّ
+            وعند المرور يفتح التفتير 32 فتصير 100، ويظهر الاسم بفراغ 8
+
+   والسهم يتبع الوجه في الحالتين، وإلا اختفى تحت البطاقة التالية مع الاسم.
 
    ## الإخفاء بـ opacity لا بالتغطية
 
    التغطية هي ما يجعل الأثر يُقرأ "خروجاً من خلف"، لكنها ليست الآلية: البطاقة
    الأخيرة ليس تحتها ما يغطيها، فكان اسمها سيبقى ظاهراً وحده بين الجميع. وopacity لا
-   visibility للسبب المكتوب أعلاه: هذا النص هو الاسم المُعلَن للزر، ويلزم بقاؤه في
-   شجرة الوصول بينما هو غير مرئي. */
+   visibility: هذا النص هو الاسم المُعلَن للزر، ويلزم بقاؤه في شجرة الوصول وهو غير
+   مرئي. */
+
+.nq-work-item + .nq-work-item {
+  margin-top: -0.75rem;
+}
 
 .nq-work-stage {
   height: 6rem;
 }
 
-/* الظاهر = المسرح ناقص التداخل، والمختفي = التداخل نفسه. والسهم يتبع الظاهر. */
 .nq-work-face,
 .nq-work-caret {
-  height: 4.25rem;
-}
-
-.nq-work-slot {
-  height: 1.75rem;
-}
-
-.nq-work-name {
-  opacity: 0;
-  transform: translateY(4px);
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
-}
-
-.nq-work-card:hover .nq-work-name,
-.nq-work-card:focus-within .nq-work-name,
-.nq-work-card[data-open='true'] .nq-work-name {
-  opacity: 1;
-  transform: none;
+  height: 3.75rem;
 }
 
 .nq-work-logo {
-  filter: grayscale(1);
-  opacity: 0.85;
-  transition: filter 200ms ease, opacity 200ms ease;
+  max-height: 2.5rem;
 }
 
-.nq-work-card:hover .nq-work-logo,
-.nq-work-card:focus-within .nq-work-logo,
-.nq-work-card[data-open='true'] .nq-work-logo {
-  filter: grayscale(0);
-  opacity: 1;
+.nq-work-name {
+  position: absolute;
+  inset-inline: 0;
+  top: 3.6rem;
+  display: block;
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .nq-work-item + .nq-work-item {
+    margin-top: -1.75rem;
+  }
+
+  .nq-work-face,
+  .nq-work-caret {
+    height: 4.25rem;
+  }
+
+  .nq-work-logo {
+    max-height: 3rem;
+  }
+
+  .nq-work-name {
+    top: auto;
+    bottom: 0.25rem;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
+  }
+
+  .nq-work-card:hover .nq-work-name,
+  .nq-work-card:focus-within .nq-work-name,
+  .nq-work-card[data-open='true'] .nq-work-name {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* التدرّج الرمادي حالة سكون، ولا معنى لها حيث لا يوجد ما يغادرها. على شاشة لمس لا يقع
+     مرور ولا تركيز ولا فتح أصلاً، فكانت شعارات العملاء تبقى رمادية إلى الأبد — ألوان
+     علامات لا نملكها، تُعرَض خاطئة في أغلب الزيارات. */
+  .nq-work-logo {
+    filter: grayscale(1);
+    opacity: 0.85;
+    transition: filter 200ms ease, opacity 200ms ease;
+  }
+
+  .nq-work-card:hover .nq-work-logo,
+  .nq-work-card:focus-within .nq-work-logo,
+  .nq-work-card[data-open='true'] .nq-work-logo {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+}
+
 
 .nq-work-chevron {
   transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease;
