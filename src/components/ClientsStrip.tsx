@@ -111,7 +111,7 @@ export const ClientsStrip: React.FC<{ language?: Language }> = ({ language = 'ar
                          لا loading="lazy": الصورة data URL موجودة في المستند أصلاً، فالتأجيل لا
                          يوفّر تنزيلاً. */
                       decoding="async"
-                      className="nq-work-logo max-h-12 max-w-full object-contain"
+                      className="nq-work-logo max-h-12 max-w-full object-contain rounded-lg"
                     />
                   ) : null}
                 </span>
