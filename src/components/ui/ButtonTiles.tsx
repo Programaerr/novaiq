@@ -42,7 +42,6 @@ const COARSE: boolean =
     and the whole thing turns to noise behind the text. */
 const ROWS_TARGET = 3.4;
 const CELL_MIN = 9;
-/** A button's cap, and the default. Larger surfaces override it — see `cellMax` below. */
 const CELL_MAX = 18;
 
 /* ── The drive ──────────────────────────────────────────────────────────────────────────── */
@@ -237,15 +236,14 @@ function makeMaterial(cell: number, tones: ButtonTones): THREE.ShaderMaterial {
 
 /* ── The field ──────────────────────────────────────────────────────────────────────────── */
 
-const Field: React.FC<{
-  drive: React.RefObject<TileDrive>;
-  tones: ButtonTones;
-  cellMax: number;
-}> = ({ drive, tones, cellMax }) => {
+const Field: React.FC<{ drive: React.RefObject<TileDrive>; tones: ButtonTones }> = ({
+  drive,
+  tones,
+}) => {
   const size = useThree((s) => s.size);
 
   const cellPx = Math.round(
-    Math.min(cellMax, Math.max(CELL_MIN, size.height / ROWS_TARGET)),
+    Math.min(CELL_MAX, Math.max(CELL_MIN, size.height / ROWS_TARGET)),
   );
   const cell = cellPx / ZOOM;
 
@@ -332,16 +330,6 @@ const Field: React.FC<{
 export interface ButtonTilesProps {
   drive: React.RefObject<TileDrive>;
   tones: ButtonTones;
-  /**
-   * Largest cell the field will use, in pixels. Defaults to a button's 18.
-   *
-   * The grain is `height / ROWS_TARGET` clamped by this, so on anything taller than a
-   * button the cap is what decides it outright. At 18 a 450px panel comes out at twenty-five
-   * rows of specks — the exact "turns to noise" case ROWS_TARGET's own note warns about. The
-   * page-level TileField's floor is 46, so that is the number a full-height surface should
-   * pass to be made of the same cubes as the rest of the site.
-   */
-  cellMax?: number;
 }
 
 /**
@@ -354,7 +342,7 @@ export interface ButtonTilesProps {
  * button would exhaust that on the templates page alone and take the hero's field down with it.
  * A pointer can only be in one place, so at most a couple of these exist at any moment.
  */
-export const ButtonTiles: React.FC<ButtonTilesProps> = ({ drive, tones, cellMax = CELL_MAX }) => (
+export const ButtonTiles: React.FC<ButtonTilesProps> = ({ drive, tones }) => (
   <span
     aria-hidden="true"
     // `span`, not `div`: this lives inside a <button>, whose content model is phrasing content.
@@ -371,7 +359,7 @@ export const ButtonTiles: React.FC<ButtonTilesProps> = ({ drive, tones, cellMax 
       style={{ pointerEvents: 'none' }}
     >
       <group rotation={[TILT_X, TILT_Y, 0]}>
-        <Field drive={drive} tones={tones} cellMax={cellMax} />
+        <Field drive={drive} tones={tones} />
       </group>
     </Canvas>
   </span>

@@ -3,8 +3,7 @@ import { Building2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useClientsStrip, type ClientItem } from '../lib/clientsStrip';
 import { useSeen } from '../lib/useSeen';
-import { OBSIDIAN, ORANGE, WHITE } from '../lib/homePalette';
-import { useTileField } from './ui/nqSurface';
+import { OBSIDIAN } from '../lib/homePalette';
 
 /**
  * "أعمالنا" — صفّ ألواح عمودية، اللوح الذي تحته المؤشّر ينفتح ويتّسع.
@@ -33,15 +32,6 @@ import { useTileField } from './ui/nqSurface';
  */
 
 /**
- * حقل المكعّبات نفسه الذي تلبسه الأزرار (R3F/WebGL)، بحبّة أخشن.
- *
- * `cellMax` الافتراضي 18 بكسل وهو مقاس زرّ: على لوح ارتفاعه 450 يعطي خمسة وعشرين صفّاً من
- * النُقَط بدل المكعّبات. وـ 46 هو أصغر مكعّب في حقل الصفحة الكبير، أي أنّ الألواح تصير من نفس
- * حبّة بقية أسطح الموقع — وهذا كلّ الغرض من إلباسها إيّاه.
- */
-const FIELD = { enabled: true, surface: WHITE, accent: ORANGE, cellMax: 46 } as const;
-
-/**
  * هل للجهاز مؤشّر يمرّ فعلاً؟
  *
  * يُقاس مرّة واحدة عند التحميل مثل `COARSE` في ButtonTiles. الغرض الوحيد منه أن الضغط على
@@ -61,15 +51,9 @@ interface WorkPanelProps {
 /**
  * لوح واحد.
  *
- * مكوّن مستقلّ لأنّ `useTileField` هوك، والهوكات لا تُستدعى داخل حلقة — فكلّ لوح يحتاج حقله
- * الخاصّ يعني أنّ اللوح يصير مكوّناً. وميزانية السياقات محفوظة رغم ذلك: `MAX_LIVE_FIELDS`
- * عدّاد واحد على مستوى الموقع كلّه، ولوح واحد فقط يكون تحت المؤشّر في أيّ لحظة.
+ * مكوّن مستقلّ لأنّ `wasActive` حالة تخصّ لوحاً بعينه، والهوكات لا تُستدعى داخل حلقة.
  */
 const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) => {
-  const field = useTileField(FIELD);
-  const { ref: fieldRef, onPointerEnter, onPointerLeave, onPointerDown, onFocus, onBlur, ...pass } =
-    field.handlers;
-
   /* حالة اللوح قبل أن تبدأ اللمسة، لا بعدها.
 
      الضغط على زرّ يُعطيه التركيز، والتركيز يفتح اللوح — فحين تصل `click` يكون اللوح
@@ -81,29 +65,18 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) 
     <li className="nq-work-panel" data-active={active ? 'true' : 'false'}>
       <button
         type="button"
-        ref={fieldRef as React.Ref<HTMLButtonElement>}
-        {...pass}
-        /* الحقل أوّلاً ثم رأيي: ترتيب NqButton نفسه. وشرط اللمس على المرور فقط — على الهاتف
-           يُطلق المتصفّح pointerenter مع الضغطة نفسها، فبدونه تفتح الضغطة اللوح ثم تغلقه. */
+        /* شرط اللمس على المرور وحده — على الهاتف يُطلق المتصفّح pointerenter مع الضغطة
+           نفسها، فبدونه تفتح الضغطة اللوح ثم تغلقه. */
         onPointerEnter={(e) => {
-          onPointerEnter(e);
           if (e.pointerType !== 'touch') onOpen();
         }}
         onPointerLeave={(e) => {
-          onPointerLeave(e);
           if (e.pointerType !== 'touch') onClose();
         }}
-        onFocus={(e) => {
-          onFocus(e);
-          onOpen();
-        }}
-        onBlur={(e) => {
-          onBlur(e);
-          onClose();
-        }}
-        onPointerDown={(e) => {
+        onFocus={() => onOpen()}
+        onBlur={() => onClose()}
+        onPointerDown={() => {
           wasActive.current = active;
-          onPointerDown(e);
         }}
         onClick={() => {
           if (!wasActive.current) onOpen();
@@ -113,8 +86,6 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) 
         aria-expanded={active}
         aria-label={item.name}
       >
-        {field.tiles}
-
         {/* بلا بطاقة تحته: الشعارات المرفوعة مربّعات لها أرضيّتها أصلاً، فالمربّع الأبيض
             كان صندوقاً حول صندوق. و`alt=""` لأنّ الزرّ يحمل الاسم في `aria-label` — بدونها
             يُنطَق اسم الشركة مرّتين في كلّ لوح. */}

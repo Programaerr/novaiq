@@ -1976,9 +1976,8 @@ html[data-demo] .nq-navbar {
 }
 
 .nq-work-face {
+  /* الشعار والاسم موضوعان مطلقاً ضدّه. */
   position: relative;
-  /* الحقل قماش WebGL مطلق داخل هذا العنصر، فيحتاج أباً موضوعاً وسياق تكديس خاصّاً به. */
-  isolation: isolate;
   flex: 1;
   min-width: 0;
   display: block;
@@ -2013,7 +2012,6 @@ html[data-demo] .nq-navbar {
 .nq-work-logo,
 .nq-work-fallback {
   position: absolute;
-  z-index: 1;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
@@ -2042,7 +2040,6 @@ html[data-demo] .nq-navbar {
 
 .nq-work-copy {
   position: absolute;
-  z-index: 1;
   inset-inline: 0.6rem;
   /* أسفل المربّع بعد تكبيره، لا أسفل مركز اللوح: نصف الضلع × 1.12 ثمّ فسحة. ولأنّه
      مطلق، ظهوره لا يزحزح المربّع عن مركزه — لا شيء يقفز عند الفتح. */
