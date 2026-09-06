@@ -2097,6 +2097,30 @@ html[data-demo] .nq-navbar {
     visibility 0s linear 0s;
 }
 
+/* ولا يلغي ذلك تعتيم الحالة المُعطّلة. NqLink يعتّمها بـ `aria-disabled:opacity-60`، وهي أقلّ
+   تخصيصاً من قاعدة الإظهار فوقها — فكان زرّ بلا `href` يُرسم بكامل قوّته، وهو بالضبط
+   الفشل الذي توجد الحالة المُعطّلة لتمنعه. مقيس: opacity كان 1 مع href فارغ. */
+.nq-work-panel[data-active='true'] .nq-work-visit[aria-disabled='true'] {
+  opacity: 0.6;
+}
+
+/* على الهاتف اللوح المفتوح يأخذ مساحة أوسع، والحبّة تضيق قليلاً — وإلاّ ُقصّ النصّ.
+
+   مقيس: على 390px خمسة ألواح تفتح إلى 132px، وعرض الزرّ الطبيعي 169px، و`.nq-button`
+   يقصّ فائضه — فكان "زيارة الموقع" يُرسم "زيارة الم". والحلّ لا يكون بتوسيع اللوح وحده:
+   جيرانه لهم أرضية 44px لمسية لا ينزلون تحتها، فالطرفان يتقاربان. */
+@media (max-width: 640px) {
+  .nq-work-row[data-open='true'] .nq-work-panel[data-active='true'] {
+    flex-grow: 3.2;
+  }
+
+  .nq-work-visit {
+    padding-inline-start: 0.75rem;
+    font-size: 0.72rem;
+    gap: 0.4rem;
+  }
+}
+
 .nq-work-name {
   font-size: 0.95rem;
   font-weight: 800;
