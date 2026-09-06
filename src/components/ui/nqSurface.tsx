@@ -402,6 +402,9 @@ export interface TileFieldOptions {
   /** Carried on the crests. Without it the field is a set of neutral greys next to a coloured
       page, which reads as dirt rather than relief. */
   accent: string;
+  /** Largest cube, in pixels. A button's 18 by default; anything taller than a button wants
+      a coarser grain or the field reads as speckle — see ButtonTiles' `cellMax`. */
+  cellMax?: number;
 }
 
 export interface TileField {
@@ -425,7 +428,7 @@ export interface TileField {
  * around sixteen WebGL contexts and kills the oldest past that.
  */
 export function useTileField(
-  { enabled, surface, accent }: TileFieldOptions,
+  { enabled, surface, accent, cellMax }: TileFieldOptions,
   externalRef?: React.ForwardedRef<never>,
 ): TileField {
   const el = useRef<HTMLElement | null>(null);
@@ -621,7 +624,10 @@ export function useTileField(
 
   const tones = useMemo(() => buttonTones(surface, accent), [surface, accent]);
 
-  return { handlers, tiles: mounted && wantsTiles ? <ButtonTiles drive={drive} tones={tones} /> : null };
+  return {
+    handlers,
+    tiles: mounted && wantsTiles ? <ButtonTiles drive={drive} tones={tones} cellMax={cellMax} /> : null,
+  };
 }
 
 export function useNqSurface(
