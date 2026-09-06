@@ -1959,6 +1959,9 @@ html[data-demo] .nq-navbar {
 }
 
 .nq-work-panel {
+  /* الكتلة الحاوية لزرّ الزيارة: هو شقيق لـ `.nq-work-face` لا ابنٌ له، فموضوعية الوجه
+     لا تنفعه. بدونها تُحلّ الأزرار الخمسة نسبةً إلى عنصر بعيد وتتكدّس في مكان واحد. */
+  position: relative;
   display: flex;
   flex: 1 1 0;
   min-width: 0;

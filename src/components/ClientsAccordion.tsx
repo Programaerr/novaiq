@@ -123,17 +123,18 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
           رابطاً عاملاً بلا تغيير كود. وما يصير أبداً: رابط حيّ إلى عنوان مخمّن، وهذه شركات
           حقيقية. والعنوان حين يوجد مفلتر أصلاً في `safeUrl` (clientsStrip.ts): http/https فقط. */}
       <NqLink
-        className="nq-work-visit whitespace-nowrap"
+        /* نفس معالجة زرّ "اطلب مشروعك" في Footer.tsx بالضبط — منقولة لا مُقرّبة.
+           `mt-4` وحدها لم تأتِ: هي مسافة تكديس تخصّ الفوتر، وهذا الزرّ موضوع مطلقاً. */
+        className="nq-work-visit nq-label whitespace-nowrap tracking-[0.12em] uppercase sm:text-base uw:text-lg"
         href={item.url ?? '#'}
         disabled={!item.url}
         target="_blank"
         rel="noopener noreferrer"
-        tone="obsidian"
+        tone="footer"
         variant="solid"
-        size="sm"
-        /* حقل المكعّبات مطفأ هنا، مثلما أُطفئ عن الألواح نفسها. */
-        tiles={false}
-        icon={<ArrowUpLeft className="w-4 h-4 shrink-0" />}
+        size="md"
+        /* `badge` لا `icon`: القرص الداكن في طرف الزرّ، كما في المرجع. */
+        badge={<ArrowUpLeft className="w-3.5 h-3.5" strokeWidth={2.6} />}
         /* ستّة روابط نصّها واحد لا تقول لقارئ الشاشة موقع مَن يفتح. */
         aria-label={isAr ? `زيارة موقع ${item.name}` : `Visit ${item.name}`}
       >
