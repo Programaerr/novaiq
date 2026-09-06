@@ -130,7 +130,9 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
         disabled={!item.url}
         target="_blank"
         rel="noopener noreferrer"
-        tone="footer"
+        /* معكوس عن زرّ الفوتر: اللون الداكن ينتقل من القرص إلى الحبّة نفسها، والقرص
+           يصير أبيض. وهذا نغمة موجودة لا ألوان مختارة باليد: `white` هي حرفيّاً معكوس `footer`. */
+        tone="white"
         variant="solid"
         size="md"
         /* `badge` لا `icon`: القرص الداكن في طرف الزرّ، كما في المرجع. */
