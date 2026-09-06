@@ -42,12 +42,38 @@ import { OBSIDIAN } from '../lib/homePalette';
 const HOVER_CAPABLE: boolean =
   typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+/** نفس حدّ `@media (max-width: 640px)` في الـCSS حرفاً بحرف، ليقلبا معاً لا واحداً بعد الآخر. */
+const NARROW = '(max-width: 640px)';
+
+/**
+ * هل الشاشة ضيّقة؟
+ *
+ * قياسٌ مرّة واحدة عند التحميل لا يكفي هنا كما كفى في `HOVER_CAPABLE`: ذاك يصف الجهاز فلا
+ * يتغيّر، وهذا يصف عرض النافذة — يقلبه دوران الهاتف وحده. فاشتراك حقيقيّ يعيد العرض عند العبور.
+ */
+function useNarrowViewport(): boolean {
+  const [narrow, setNarrow] = useState<boolean>(
+    () => typeof window !== 'undefined' && window.matchMedia(NARROW).matches,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(NARROW);
+    const onChange = () => setNarrow(mq.matches);
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  return narrow;
+}
+
 interface WorkPanelProps {
   item: ClientItem;
   active: boolean;
   onOpen: () => void;
   onClose: () => void;
   isAr: boolean;
+  narrow: boolean;
 }
 
 /**
@@ -55,7 +81,7 @@ interface WorkPanelProps {
  *
  * مكوّن مستقلّ لأنّ `wasActive` حالة تخصّ لوحاً بعينه، والهوكات لا تُستدعى داخل حلقة.
  */
-const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, isAr }) => {
+const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, isAr, narrow }) => {
   /* حالة اللوح قبل أن تبدأ اللمسة، لا بعدها.
 
      الضغط على زرّ يُعطيه التركيز، والتركيز يفتح اللوح — فحين تصل `click` يكون اللوح
@@ -134,13 +160,21 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
            يصير أبيض. وهذا نغمة موجودة لا ألوان مختارة باليد: `white` هي حرفيّاً معكوس `footer`. */
         tone="white"
         variant="solid"
-        size="md"
+        /* درجة أصغر على الهاتف، من سلّم SIZES نفسه لا بأرقام مضبوطة باليد.
+
+           مقيس على 390px: اللوح المفتوح 156px والحبّة 128×52 — أي 82% من عرض اللوح، بينما
+           هي 51% منه على 1280. والدرجة `sm` تحمل الحشو والخطّ والفجوة والقرص متّسقة معاً،
+           وتبقى فوق أرضية 44px اللمسية كما ينصّ تعليق SIZES. */
+        size={narrow ? 'sm' : 'md'}
         /* `badge` لا `icon`: القرص الداكن في طرف الزرّ، كما في المرجع. */
         badge={<ArrowUpLeft className="w-3.5 h-3.5" strokeWidth={2.6} />}
         /* ستّة روابط نصّها واحد لا تقول لقارئ الشاشة موقع مَن يفتح. */
         aria-label={isAr ? `زيارة موقع ${item.name}` : `Visit ${item.name}`}
       >
-        {isAr ? 'زيارة الموقع' : 'Visit site'}
+        {/* والنصّ يقصر معها، لأنّه هو ثلثا العرض لا الحشو: عند 12px يأخذ "زيارة الموقع" وحده
+            ~66px من 128. وقارئ الشاشة لا يخسر شيئاً — اسم الرابط يأتي من `aria-label` أعلاه،
+            وفيه اسم الشركة، وهو ما يُنطَق في الحالين. */}
+        {isAr ? (narrow ? 'زيارة' : 'زيارة الموقع') : narrow ? 'Visit' : 'Visit site'}
       </NqLink>
     </li>
   );
@@ -155,6 +189,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
   const isAr = language !== 'en';
   const { ref, seen } = useSeen<HTMLElement>();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const narrow = useNarrowViewport();
 
   /* التفعيل يدويّ بالكامل — القسم لا يظهر للزوّار حتى يُشغّله الأدمن من تبويب الإعدادات، وهي
      نفس قاعدة `clientsStrip.ts` منذ أوّل نسخة. وقائمة فارغة تعني لا شيء يُعرض حتى لو فُعّل. */
@@ -192,6 +227,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
             key={item.id}
             item={item}
             isAr={isAr}
+            narrow={narrow}
             active={activeId === item.id}
             onOpen={() => setActiveId(item.id)}
             /* يُغلق فقط إن كان هو المفتوح: مغادرة لوح بعد دخول جاره تصل متأخّرة أحياناً،
