@@ -2069,7 +2069,8 @@ html[data-demo] .nq-navbar {
   height: 112%;
   border: 0;
   pointer-events: none;
-  filter: blur(3px) saturate(0.9);
+  /* تغبيش خفيف لا يطمس معالم الموقع تماماً — يكفي وحده لجعله خلفية لا محتوى يُقرأ. */
+  filter: blur(1.5px) saturate(0.95);
 }
 
 /* التعتيم فوق الإطار مباشرة لا على خلفية الزرّ: خلفية `.nq-work-face` تُرسَم *تحت* أبنائها
@@ -2078,7 +2079,7 @@ html[data-demo] .nq-navbar {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(247, 247, 245, 0.62);
+  background: rgba(247, 247, 245, 0.45);
 }
 
 /* الشعار مباشرة، بلا بطاقة تحته.

@@ -93,22 +93,14 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
      الألواح معاً. فبلا هذا الشرط كانت خمس صفحات خارجية كاملة تُحمَّل في الخلفية من أوّل لحظة
      يظهر فيها القسم، لموقع لا أحد يراه إلا حين يُفتَح.
 
-     والتأخير قبل التحميل (لا فوراً مع `active`) يمتصّ مرور المؤشّر العابر بين الألواح وهو
-     متّجه لمكان آخر — كل لوح يعبره المؤشّر كان سيُطلق تحميل موقع خارجي كامل بلا داعٍ.
+     بلا تأخير قبل التحميل: تُطلَب فور فتح اللوح مباشرة، فتظهر أقرب ما يمكن إلى لحظة المرور
+     بالماوس نفسها — لا لحظة بعدها.
 
      ولا تُتوقَّع نافذة لكل موقع: مواقع كثيرة ترفض التضمين في إطار من نطاق آخر (ترويسة
      X-Frame-Options أو frame-ancestors في CSP الخاص بها هي) — ومنها أي موقع بُني بنفس قالب
      نوفايك نفسه (انظر frame-ancestors في netlify.toml). حين يرفض الموقع، الإطار يبقى فارغاً
      بصمت بلا أي حدث JS يُعلمنا — فوق الشعار يبقى فراغاً بدل نافذة، لا عطلاً مرئياً. */
-  const [showPreview, setShowPreview] = useState(false);
-  useEffect(() => {
-    if (!active) {
-      setShowPreview(false);
-      return;
-    }
-    const timer = setTimeout(() => setShowPreview(true), 260);
-    return () => clearTimeout(timer);
-  }, [active]);
+  const showPreview = active;
 
   return (
     <li
