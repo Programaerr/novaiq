@@ -1935,6 +1935,46 @@ html[data-demo] .nq-navbar {
   text-align: center;
 }
 
+/* سهما التنقّل بين مجموعات الثلاثة، تحت الصفّ مباشرة. */
+.nq-work-pager {
+  display: flex;
+  justify-content: center;
+  gap: 0.65rem;
+  margin: 0.9rem auto 0;
+  max-width: min(100%, 56rem);
+}
+
+.nq-work-pager-btn {
+  /* 44px — أرضية اللمس الدنيا نفسها المستعملة في كل زرّ لمسي بالموقع. */
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(8, 10, 13, 0.14);
+  background: #f7f7f5;
+  color: #080a0d;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: background-color 200ms ease, opacity 200ms ease;
+}
+
+.nq-work-pager-btn:hover:not(:disabled) {
+  background: #ffffff;
+}
+
+.nq-work-pager-btn:focus-visible {
+  outline: 2px solid #080a0d;
+  outline-offset: 2px;
+}
+
+.nq-work-pager-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
 .nq-work-row {
   /* ضلع الشعار. كلّ شيء داخل اللوح يُقاس منه. */
   --nq-work-logo: clamp(2.5rem, 4.6vw, 4.25rem);

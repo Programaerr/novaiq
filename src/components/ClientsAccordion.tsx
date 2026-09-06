@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, Building2 } from 'lucide-react';
+import { ArrowUpLeft, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useClientsStrip, type ClientItem } from '../lib/clientsStrip';
 import { useSeen } from '../lib/useSeen';
@@ -223,16 +223,35 @@ interface ClientsAccordionProps {
   language?: Language;
 }
 
+/** ثلاثة ألواح في الصفّ، ثم سهمان للمجموعة التالية — بدل صفّ واحد يضيق أكثر مع كل عميل جديد. */
+const PAGE_SIZE = 3;
+
 export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language !== 'en';
   const { ref, seen } = useSeen<HTMLElement>();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
   const narrow = useNarrowViewport();
 
   /* التفعيل يدويّ بالكامل — القسم لا يظهر للزوّار حتى يُشغّله الأدمن من تبويب الإعدادات، وهي
      نفس قاعدة `clientsStrip.ts` منذ أوّل نسخة. وقائمة فارغة تعني لا شيء يُعرض حتى لو فُعّل. */
   if (!strip.enabled || strip.items.length === 0) return null;
+
+  const totalPages = Math.max(1, Math.ceil(strip.items.length / PAGE_SIZE));
+  /* مشتقّة لا مخزَّنة: لو حذف الأدمن عملاء فصار `page` المحفوظ خارج الحدود، هذه تُصحّحه فوراً
+     عند الرسم القادم بلا حاجة لمراقبة طول المصفوفة في useEffect منفصل. */
+  const safePage = Math.min(page, totalPages - 1);
+  const visibleItems = strip.items.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  const canGoPrev = safePage > 0;
+  const canGoNext = safePage < totalPages - 1;
+
+  /* يُغلق أي لوح مفتوح عند تغيير الصفحة: لوح العميل القديم لم يعد مرسوماً أصلاً، لكن الصفّ
+     كان يبقى `data-open="true"` بلا أي لوح فعلاً نشط بداخله لولا هذا التصفير. */
+  const goToPage = (next: number) => {
+    setActiveId(null);
+    setPage(Math.max(0, Math.min(totalPages - 1, next)));
+  };
 
   return (
     <section
@@ -261,7 +280,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
         style={{ ['--nq-rise-delay' as string]: '90ms' }}
         data-open={activeId ? 'true' : 'false'}
       >
-        {strip.items.map((item) => (
+        {visibleItems.map((item) => (
           <WorkPanel
             key={item.id}
             item={item}
@@ -275,6 +294,36 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
           />
         ))}
       </ul>
+
+      {/* السهمان يظهران فقط حين توجد أكثر من صفحة فعلاً — عميلان أو ثلاثة لا يستحقّان سهماً
+          يقودان إلى لا شيء.
+
+          `dir="ltr"` على الغلاف تثبيت للجهتين الفيزيائيتين بصرف النظر عن لغة الصفحة — نفس
+          حلّ Navbar تماماً — فيبقى ترتيب الزرّين في الشيفرة والوصول (Tab) واحداً دائماً،
+          ويتغيّر معنى كل جهة (سابق/تالي) لا شكلها. والاتجاه معكوس عمداً في العربية: أول لوح
+          يبدأ من اليمين (انظر تعليق `.nq-work-row` في index.css)، فـ"التالي" يواصل يساراً. */}
+      {totalPages > 1 && (
+        <div className="nq-work-pager" dir="ltr">
+          <button
+            type="button"
+            onClick={() => goToPage(safePage + (isAr ? 1 : -1))}
+            disabled={isAr ? !canGoNext : !canGoPrev}
+            aria-label={isAr ? 'المجموعة التالية' : 'Previous group'}
+            className="nq-work-pager-btn"
+          >
+            <ChevronLeft className="w-4 h-4" strokeWidth={2.4} />
+          </button>
+          <button
+            type="button"
+            onClick={() => goToPage(safePage + (isAr ? -1 : 1))}
+            disabled={isAr ? !canGoPrev : !canGoNext}
+            aria-label={isAr ? 'المجموعة السابقة' : 'Next group'}
+            className="nq-work-pager-btn"
+          >
+            <ChevronRight className="w-4 h-4" strokeWidth={2.4} />
+          </button>
+        </div>
+      )}
     </section>
   );
 };
