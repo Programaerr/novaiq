@@ -160,8 +160,11 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = () => {
     >
       <h2
         id="nq-work-heading"
-        className="nq-work-heading nq-rise nq-label text-[0.92rem] sm:text-[0.95rem] font-extrabold tracking-[0.14em] uppercase"
-        style={{ color: OBSIDIAN, opacity: 0.72 }}
+        /* مقاس عناوين الأقسام نفسه المستعمل في PhasesSection وContactSection — ولا `.nq-label`
+           بعد اليوم: ذاك أصغر خطّ في الموقع وأخفتُه، وهو معنى "لافتة فوق عنصر" لا معنى
+           "اسم قسم". والتوسيط في الـ CSS مع المسافة، حتى يبقيا معاً. */
+        className="nq-work-heading nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
+        style={{ color: OBSIDIAN }}
       >
         {strip.title}
       </h2>
