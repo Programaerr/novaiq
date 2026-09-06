@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowUpLeft, Building2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useClientsStrip, type ClientItem } from '../lib/clientsStrip';
