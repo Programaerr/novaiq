@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, Building2 } from 'lucide-react';
+import { ArrowUpLeft, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useClientsStrip, type ClientItem } from '../lib/clientsStrip';
 import { useSeen } from '../lib/useSeen';
@@ -89,6 +89,27 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
      مقيسة على منفذ لمس: الضغطة كانت تترك `data-open` عند "false". */
   const wasActive = useRef(false);
 
+  /* "نافذة" حيّة على موقع العميل الفعلي، خلف الشعار — تُحمَّل حين ينفتح اللوح فقط، لا مع كل
+     الألواح معاً. فبلا هذا الشرط كانت خمس صفحات خارجية كاملة تُحمَّل في الخلفية من أوّل لحظة
+     يظهر فيها القسم، لموقع لا أحد يراه إلا حين يُفتَح.
+
+     والتأخير قبل التحميل (لا فوراً مع `active`) يمتصّ مرور المؤشّر العابر بين الألواح وهو
+     متّجه لمكان آخر — كل لوح يعبره المؤشّر كان سيُطلق تحميل موقع خارجي كامل بلا داعٍ.
+
+     ولا تُتوقَّع نافذة لكل موقع: مواقع كثيرة ترفض التضمين في إطار من نطاق آخر (ترويسة
+     X-Frame-Options أو frame-ancestors في CSP الخاص بها هي) — ومنها أي موقع بُني بنفس قالب
+     نوفايك نفسه (انظر frame-ancestors في netlify.toml). حين يرفض الموقع، الإطار يبقى فارغاً
+     بصمت بلا أي حدث JS يُعلمنا — فوق الشعار يبقى فراغاً بدل نافذة، لا عطلاً مرئياً. */
+  const [showPreview, setShowPreview] = useState(false);
+  useEffect(() => {
+    if (!active) {
+      setShowPreview(false);
+      return;
+    }
+    const timer = setTimeout(() => setShowPreview(true), 260);
+    return () => clearTimeout(timer);
+  }, [active]);
+
   return (
     <li
       className="nq-work-panel"
@@ -123,6 +144,24 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
         aria-expanded={active}
         aria-label={item.name}
       >
+        {/* النافذة الحيّة — زخرفية بحتة. `pointer-events: none` في الـCSS يمنع أي تفاعل معها
+            نهائياً (لا نقر، لا تمرير)؛ التصفّح الوحيد الممكن هو زرّ "زيارة الموقع" خارج هذا
+            الزرّ. و`sandbox` يمنع الموقع المضمَّن من التنقّل بصفحتنا نحن أو فتح نوافذ منها —
+            فحتى لو حمل نصّاً خبيثاً، أقصى ضرره أن يُرسم بلا حراك خلف شعاره هو. */}
+        {showPreview && item.url && (
+          <div className="nq-work-preview" aria-hidden="true">
+            <iframe
+              key={item.url}
+              src={item.url}
+              tabIndex={-1}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              sandbox="allow-scripts allow-same-origin"
+              title=""
+            />
+          </div>
+        )}
+
         {/* بلا بطاقة تحته: الشعارات المرفوعة مربّعات لها أرضيّتها أصلاً، فالمربّع الأبيض
             كان صندوقاً حول صندوق. و`alt=""` لأنّ الزرّ يحمل الاسم في `aria-label` — بدونها
             يُنطَق اسم الشركة مرّتين في كلّ لوح. */}
@@ -184,16 +223,35 @@ interface ClientsAccordionProps {
   language?: Language;
 }
 
+/** ثلاثة ألواح في الصفّ، ثم سهمان للمجموعة التالية — بدل صفّ واحد يضيق أكثر مع كل عميل جديد. */
+const PAGE_SIZE = 3;
+
 export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language !== 'en';
   const { ref, seen } = useSeen<HTMLElement>();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
   const narrow = useNarrowViewport();
 
   /* التفعيل يدويّ بالكامل — القسم لا يظهر للزوّار حتى يُشغّله الأدمن من تبويب الإعدادات، وهي
      نفس قاعدة `clientsStrip.ts` منذ أوّل نسخة. وقائمة فارغة تعني لا شيء يُعرض حتى لو فُعّل. */
   if (!strip.enabled || strip.items.length === 0) return null;
+
+  const totalPages = Math.max(1, Math.ceil(strip.items.length / PAGE_SIZE));
+  /* مشتقّة لا مخزَّنة: لو حذف الأدمن عملاء فصار `page` المحفوظ خارج الحدود، هذه تُصحّحه فوراً
+     عند الرسم القادم بلا حاجة لمراقبة طول المصفوفة في useEffect منفصل. */
+  const safePage = Math.min(page, totalPages - 1);
+  const visibleItems = strip.items.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  const canGoPrev = safePage > 0;
+  const canGoNext = safePage < totalPages - 1;
+
+  /* يُغلق أي لوح مفتوح عند تغيير الصفحة: لوح العميل القديم لم يعد مرسوماً أصلاً، لكن الصفّ
+     كان يبقى `data-open="true"` بلا أي لوح فعلاً نشط بداخله لولا هذا التصفير. */
+  const goToPage = (next: number) => {
+    setActiveId(null);
+    setPage(Math.max(0, Math.min(totalPages - 1, next)));
+  };
 
   return (
     <section
@@ -222,7 +280,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
         style={{ ['--nq-rise-delay' as string]: '90ms' }}
         data-open={activeId ? 'true' : 'false'}
       >
-        {strip.items.map((item) => (
+        {visibleItems.map((item) => (
           <WorkPanel
             key={item.id}
             item={item}
@@ -236,6 +294,36 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
           />
         ))}
       </ul>
+
+      {/* السهمان يظهران فقط حين توجد أكثر من صفحة فعلاً — عميلان أو ثلاثة لا يستحقّان سهماً
+          يقودان إلى لا شيء.
+
+          `dir="ltr"` على الغلاف تثبيت للجهتين الفيزيائيتين بصرف النظر عن لغة الصفحة — نفس
+          حلّ Navbar تماماً — فيبقى ترتيب الزرّين في الشيفرة والوصول (Tab) واحداً دائماً،
+          ويتغيّر معنى كل جهة (سابق/تالي) لا شكلها. والاتجاه معكوس عمداً في العربية: أول لوح
+          يبدأ من اليمين (انظر تعليق `.nq-work-row` في index.css)، فـ"التالي" يواصل يساراً. */}
+      {totalPages > 1 && (
+        <div className="nq-work-pager" dir="ltr">
+          <button
+            type="button"
+            onClick={() => goToPage(safePage + (isAr ? 1 : -1))}
+            disabled={isAr ? !canGoNext : !canGoPrev}
+            aria-label={isAr ? 'المجموعة التالية' : 'Previous group'}
+            className="nq-work-pager-btn"
+          >
+            <ChevronLeft className="w-4 h-4" strokeWidth={2.4} />
+          </button>
+          <button
+            type="button"
+            onClick={() => goToPage(safePage + (isAr ? -1 : 1))}
+            disabled={isAr ? !canGoPrev : !canGoNext}
+            aria-label={isAr ? 'المجموعة السابقة' : 'Next group'}
+            className="nq-work-pager-btn"
+          >
+            <ChevronRight className="w-4 h-4" strokeWidth={2.4} />
+          </button>
+        </div>
+      )}
     </section>
   );
 };
