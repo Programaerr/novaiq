@@ -34,6 +34,15 @@ export interface ClientItem {
    * شركات حقيقية، واختراع عنوان لإحداها خطأ يقع على طرف ثالث لا على الموقع.
    */
   url?: string;
+  /**
+   * رابط صورة (لقطة شاشة من الموقع مثلاً)، تُعرَض خلف الشعار حين يُفتح اللوح.
+   *
+   * رابط لا رفع مباشر: عُدِّل عن نافذة `<iframe>` حيّة كانت هنا — مواقع كثيرة ترفض
+   * التضمين في إطار من نطاق آخر (CSP الخاص بها)، ومنها أي موقع بُني بنفس قالب نوفايك
+   * نفسه، فكانت تظهر فارغة عند أكثر العملاء. صورة ثابتة تعمل دائماً بلا هذا القيد.
+   * اختياري تماماً كالرابط أعلاه — بلا صورة، الشعار وحده يظهر كما كان دوماً.
+   */
+  previewImageUrl?: string;
   /** سطر أو سطران عمّا أُنجز لهذا العميل. اختياري أيضاً، وللسبب نفسه. */
   blurb?: string;
 }
@@ -86,12 +95,14 @@ function normalize(raw: unknown): ClientsStrip {
           // هنا إلى المسوّدة ثم إلى الكتابة، وFirestore يرفض undefined ويُفشل الحفظ كاملاً.
           .map((i) => {
             const url = safeUrl(i.url);
+            const previewImageUrl = safeUrl(i.previewImageUrl);
             const blurb = String(i.blurb || '').trim();
             return {
               id: i.id,
               name: String(i.name || ''),
               ...(i.logoDataUrl ? { logoDataUrl: i.logoDataUrl } : {}),
               ...(url ? { url } : {}),
+              ...(previewImageUrl ? { previewImageUrl } : {}),
               ...(blurb ? { blurb } : {}),
             };
           })
@@ -180,6 +191,7 @@ export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
       name: item.name,
       ...(item.logoDataUrl ? { logoDataUrl: item.logoDataUrl } : {}),
       ...(item.url ? { url: item.url } : {}),
+      ...(item.previewImageUrl ? { previewImageUrl: item.previewImageUrl } : {}),
       ...(item.blurb ? { blurb: item.blurb } : {}),
     })),
   };

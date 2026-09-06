@@ -2062,24 +2062,26 @@ html[data-demo] .nq-navbar {
   opacity: 1;
 }
 
-.nq-work-preview iframe {
+.nq-work-preview img {
   position: absolute;
-  inset: -6%;
-  width: 112%;
-  height: 112%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* الصورة مقاسها الحقيقي نادراً ما يطابق نسبة اللوح — `cover` يملأ المساحة كاملة ويقصّ
+     الزائد، لا يُشوِّهها ولا يترك حوافّ فارغة. */
+  object-fit: cover;
   border: 0;
   pointer-events: none;
-  /* تغبيش خفيف لا يطمس معالم الموقع تماماً — يكفي وحده لجعله خلفية لا محتوى يُقرأ. */
-  filter: blur(1.5px) saturate(0.95);
+  opacity: 0.88;
 }
 
-/* التعتيم فوق الإطار مباشرة لا على خلفية الزرّ: خلفية `.nq-work-face` تُرسَم *تحت* أبنائها
+/* التعتيم فوق الصورة مباشرة لا على خلفية الزرّ: خلفية `.nq-work-face` تُرسَم *تحت* أبنائها
    كلّهم بما فيهم هذه النافذة، فلم تكن لتُعتّمها إطلاقاً. */
 .nq-work-preview::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(247, 247, 245, 0.45);
+  background: rgba(247, 247, 245, 0.55);
 }
 
 /* الشعار مباشرة، بلا بطاقة تحته.

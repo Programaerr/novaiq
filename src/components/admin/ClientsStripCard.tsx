@@ -318,14 +318,14 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
             )}
             </div>
 
-            {/* الرابط والوصف، وكلاهما اختياري.
+            {/* الرابط ورابط الصورة والوصف، وكلّها اختيارية.
 
                 الرابط فارغاً يعني أن زر زيارة الموقع لا يظهر على بطاقة هذا العميل — لا زر
-                مُعطّل ولا رابط مخمّن. والرابط يُفحص عند القراءة (انظر safeUrl في
+                مُعطّل ولا رابط مخمّن. وكلا الرابطين يُفحص عند القراءة (انظر safeUrl في
                 clientsStrip.ts): ما ليس http أو https يُسقط، فلا تصل قيمة مثل javascript:
-                إلى href أبداً.
+                إلى href أو src أبداً.
 
-                dir="ltr" على حقل الرابط وحده: عنوان لاتيني داخل واجهة عربية يُعرَض
+                dir="ltr" على حقلَي الرابط وحدهما: عنوان لاتيني داخل واجهة عربية يُعرَض
                 مقلوب الترتيب بدونها — والأدمن يحتاج يقرأ ما لصقه. */}
             <div className="mt-2.5 flex flex-col sm:flex-row gap-2">
               <input
@@ -335,6 +335,15 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
                 value={item.url || ''}
                 onChange={(e) => patchItem(item.id, { url: e.target.value })}
                 placeholder={isAr ? 'https://example.com — رابط الموقع (اختياري)' : 'https://example.com — site link (optional)'}
+                className="sm:w-[15rem] shrink-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
+              />
+              <input
+                dir="ltr"
+                type="url"
+                inputMode="url"
+                value={item.previewImageUrl || ''}
+                onChange={(e) => patchItem(item.id, { previewImageUrl: e.target.value })}
+                placeholder={isAr ? 'رابط صورة (لقطة شاشة، اختياري)' : 'Screenshot image link (optional)'}
                 className="sm:w-[15rem] shrink-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
               />
               <input

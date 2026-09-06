@@ -89,19 +89,6 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
      مقيسة على منفذ لمس: الضغطة كانت تترك `data-open` عند "false". */
   const wasActive = useRef(false);
 
-  /* "نافذة" حيّة على موقع العميل الفعلي، خلف الشعار — تُحمَّل حين ينفتح اللوح فقط، لا مع كل
-     الألواح معاً. فبلا هذا الشرط كانت خمس صفحات خارجية كاملة تُحمَّل في الخلفية من أوّل لحظة
-     يظهر فيها القسم، لموقع لا أحد يراه إلا حين يُفتَح.
-
-     بلا تأخير قبل التحميل: تُطلَب فور فتح اللوح مباشرة، فتظهر أقرب ما يمكن إلى لحظة المرور
-     بالماوس نفسها — لا لحظة بعدها.
-
-     ولا تُتوقَّع نافذة لكل موقع: مواقع كثيرة ترفض التضمين في إطار من نطاق آخر (ترويسة
-     X-Frame-Options أو frame-ancestors في CSP الخاص بها هي) — ومنها أي موقع بُني بنفس قالب
-     نوفايك نفسه (انظر frame-ancestors في netlify.toml). حين يرفض الموقع، الإطار يبقى فارغاً
-     بصمت بلا أي حدث JS يُعلمنا — فوق الشعار يبقى فراغاً بدل نافذة، لا عطلاً مرئياً. */
-  const showPreview = active;
-
   return (
     <li
       className="nq-work-panel"
@@ -136,21 +123,14 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
         aria-expanded={active}
         aria-label={item.name}
       >
-        {/* النافذة الحيّة — زخرفية بحتة. `pointer-events: none` في الـCSS يمنع أي تفاعل معها
-            نهائياً (لا نقر، لا تمرير)؛ التصفّح الوحيد الممكن هو زرّ "زيارة الموقع" خارج هذا
-            الزرّ. و`sandbox` يمنع الموقع المضمَّن من التنقّل بصفحتنا نحن أو فتح نوافذ منها —
-            فحتى لو حمل نصّاً خبيثاً، أقصى ضرره أن يُرسم بلا حراك خلف شعاره هو. */}
-        {showPreview && item.url && (
+        {/* صورة ثابتة خلف الشعار — لا نافذة حيّة. جُرِّب `<iframe>` لموقع العميل الفعلي أولاً
+            وتراجع عنه: مواقع كثيرة ترفض التضمين في إطار من نطاق آخر (CSP الخاص بها)، ومنها
+            أي موقع بُني بنفس قالب نوفايك نفسه، فكانت تظهر فارغة عند أكثر العملاء — بينما صورة
+            تعمل دائماً. زخرفية بحتة (`pointer-events: none` في الـCSS)؛ التصفّح الوحيد
+            الممكن يبقى زرّ "زيارة الموقع" خارج هذا الزرّ. */}
+        {item.previewImageUrl && (
           <div className="nq-work-preview" aria-hidden="true">
-            <iframe
-              key={item.url}
-              src={item.url}
-              tabIndex={-1}
-              loading="lazy"
-              referrerPolicy="no-referrer"
-              sandbox="allow-scripts allow-same-origin"
-              title=""
-            />
+            <img src={item.previewImageUrl} alt="" loading="lazy" decoding="async" />
           </div>
         )}
 
