@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, FileSignature, TriangleAlert } from 'lucide-react';
 import { useLiveTemplates } from '../lib/pricingOverrides';
 import { Language } from '../lib/i18n';
-import { readStoredCurrency } from '../lib/currency';
+import { APP_CURRENCY } from '../lib/currency';
 import { writePendingContractSelection } from '../lib/pendingContractSelection';
 import type { Template } from '../types';
 import { NuvaiqLogo } from './NuvaiqLogo';
@@ -42,10 +42,11 @@ export const TemplateLivePage: React.FC = () => {
   const initialThemeColor = colorParam && THEME_COLORS.includes(colorParam) ? colorParam : undefined;
 
   // This document has no React tree in common with App.tsx (it's a separate entry point —
-  // see main.tsx), so the language/currency the customer already picked on the main site
-  // can only reach it through localStorage, the same place App.tsx itself persists them.
+  // see main.tsx), so the language the customer already picked on the main site can only
+  // reach it through localStorage, the same place App.tsx itself persists it. The currency
+  // is not a choice and never travels: it is the same constant on both sides.
   const [language] = useState<Language>(() => readStoredLanguage());
-  const [currency] = useState(() => readStoredCurrency());
+  const currency = APP_CURRENCY;
 
   // Embedded inside a device frame the parent already provides every control, so the
   // return-to-NUVAIQ bar would just be chrome drawn on top of chrome.

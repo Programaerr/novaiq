@@ -216,7 +216,8 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
 
       <div className="space-y-2.5">
         {draft.items.map((item, idx) => (
-          <div key={item.id} className="p-3 rounded-2xl bg-paper border border-ink/10 flex items-center gap-2.5">
+          <div key={item.id} className="p-3 rounded-2xl bg-paper border border-ink/10">
+            <div className="flex items-center gap-2.5">
             <span className="flex flex-col shrink-0">
               <button
                 type="button"
@@ -315,6 +316,34 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
                 <Trash2 className="w-4 h-4" />
               </button>
             )}
+            </div>
+
+            {/* الرابط والوصف، وكلاهما اختياري.
+
+                الرابط فارغاً يعني أن زر زيارة الموقع لا يظهر على بطاقة هذا العميل — لا زر
+                مُعطّل ولا رابط مخمّن. والرابط يُفحص عند القراءة (انظر safeUrl في
+                clientsStrip.ts): ما ليس http أو https يُسقط، فلا تصل قيمة مثل javascript:
+                إلى href أبداً.
+
+                dir="ltr" على حقل الرابط وحده: عنوان لاتيني داخل واجهة عربية يُعرَض
+                مقلوب الترتيب بدونها — والأدمن يحتاج يقرأ ما لصقه. */}
+            <div className="mt-2.5 flex flex-col sm:flex-row gap-2">
+              <input
+                dir="ltr"
+                type="url"
+                inputMode="url"
+                value={item.url || ''}
+                onChange={(e) => patchItem(item.id, { url: e.target.value })}
+                placeholder={isAr ? 'https://example.com — رابط الموقع (اختياري)' : 'https://example.com — site link (optional)'}
+                className="sm:w-[15rem] shrink-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
+              />
+              <input
+                value={item.blurb || ''}
+                onChange={(e) => patchItem(item.id, { blurb: e.target.value })}
+                placeholder={isAr ? 'سطر عمّا أنجزناه لهذا العميل (اختياري)' : 'A line on what was built for them (optional)'}
+                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
+              />
+            </div>
           </div>
         ))}
 

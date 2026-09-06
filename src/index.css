@@ -1917,27 +1917,208 @@ html[data-demo] .nq-navbar {
 }
 
 
-/* ── شريط "أعمالنا" المتحرك (ClientsStrip.tsx) ──────────────────────────────────────────
-   حركة واحدة على `transform` فقط: تُنفَّذ على مركّب الطبقات خارج الخيط الرئيسي، فلا يقطّعها
-   انشغال جافاسكربت ولا تُجبر المتصفح على إعادة تخطيط أي شيء. -50% لأن المسار نسختان
-   متطابقتان جنباً إلى جنب، فنهاية الشوط تقع على بداية النسخة الثانية بالضبط ولا تُرى قفزة.
-   المدة تأتي من لوحة التحكم عبر متغيّر مضمَّن على العنصر. */
-@keyframes nq-marquee-slide {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-50%, 0, 0); }
+/* ── أعمالنا: صفّ الألواح (ClientsAccordion.tsx) ──────────────────────────────
+   ألواح عمودية متلاصقة، واحد منها ينفتح ويتّسع.
+
+   الاتّساع على `flex-grow` وهو خاصية تخطيط — مع أنّ القاعدة العامة أن تُحرّك `transform`
+   وحده. لا بديل هنا: أكورديون معناه أنّ الجيران يفسحون فعلاً، و`scaleX` يمدّ محتوى اللوح
+   ولا يحرّك جاره قيد بكسل. والكلفة محسوبة: ستّة عناصر في صفّ واحد، لا قائمة طويلة.
+
+   والمقاسات كلّها مشتقّة من `--nq-work-logo` — ضلع مربّع الشعار — فتغييره وحده يضبط اللوح
+   كلّه: موضع الاسم تحته، وأقصى عرض يسمح به اللوح الضيّق. */
+
+.nq-work-heading {
+  /* يتوسّط فوق الصفّ لا فوق الحاوية: الصفّ أضيق منها، فمحاذاة العنوان للحاوية
+     كانت تتركه مزاحاً عن الشيء الذي يسمّيه. */
+  margin: 0 auto clamp(1rem, 2.2vw, 1.75rem);
+  max-width: min(100%, 56rem);
+  text-align: center;
 }
 
-.nq-marquee {
-  animation: nq-marquee-slide var(--nq-marquee-duration, 32s) linear infinite;
-  will-change: transform;
+.nq-work-row {
+  /* ضلع الشعار. كلّ شيء داخل اللوح يُقاس منه. */
+  --nq-work-logo: clamp(2.5rem, 4.6vw, 4.25rem);
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* محدود دون عرض الحاوية: ألواح هذا العرض تبقى نحيلة كما في الرسم؛ ممدودة على
+     1280px تصير ستّة مربّعات عريضة لا أعمدة. ومحاذاته للبداية (اليمين في العربية)
+     هي نفس محاذاة الرسم: طرف ثابت، والاتّساع يحدث داخله. */
+  max-width: min(100%, 56rem);
+  /* موسّطة. كانت محاذاتها للبداية اتّباعاً للطرف الثابت في الرسم، وفي العربية يعني
+     ذلك ملصوقة باليمين ووراءها فراغ. التوسيط يحوّل السقف من فجوة في جهة إلى هامش في الجهتين. */
+  margin-inline: auto;
+  height: clamp(16rem, 48vw, 28rem);
+  border: 1px solid rgba(8, 10, 13, 0.14);
+  /* التدوير على الصفّ وحده والفواصل الداخلية خطوط مستقيمة، كما في الرسم — واللوح
+     الأوّل والأخير يأخذان انحناءهما من قصّ الصفّ لا من زوايا خاصة بهما. */
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #f7f7f5;
 }
 
-/* لا توقّف عند المرور ولا عند الضغط: طُلب صراحةً أن يظل سائراً مهما فعل الزائر، والعنصر
-   نفسه `pointer-events: none` فلا يستقبل مؤشراً أصلاً. */
+.nq-work-panel {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  transition: flex-grow 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
 
-/* من يطلب تقليل الحركة من نظامه لا يُعرَض عليه حزام يمشي؛ الأسماء تبقى ظاهرة ساكنة. */
+.nq-work-panel + .nq-work-panel {
+  border-inline-start: 1px solid rgba(8, 10, 13, 0.14);
+}
+
+/* `data-open` على الصفّ شرطٌ لا زينة: بدونه يكفي `data-active` وحده، وهو موجود على كلّ
+   لوح منذ أوّل رسم. */
+.nq-work-row[data-open='true'] .nq-work-panel[data-active='true'] {
+  flex-grow: 2.4;
+}
+
+.nq-work-face {
+  /* الشعار والاسم موضوعان مطلقاً ضدّه. */
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: background-color 260ms ease;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-face {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.nq-work-face:focus-visible {
+  outline: 2px solid #080a0d;
+  outline-offset: -4px;
+}
+
+/* الشعار مباشرة، بلا بطاقة تحته.
+
+   كان هنا `.nq-work-slot`: مربّع أبيض بحدّ وظلّ والشعار داخله. لكنّ هذه الشعارات ليست
+   علامات شفّافة تحتاج سطحاً تحتها — أغلبها مربّعات مصمتة بأرضيّاتها، فكان صندوقاً حول
+   صندوق ولا يقدّم إلاّ الزاوية الدائرية. فالزاوية انتقلت إلى الصورة وذهب الصندوق.
+
+   والزاوية طول ثابت لا نسبة (كانت 30%): النسبة تُحسَب لكلّ محور وحده، فعلى شعار غير
+   مربّع — كلمة مثلاً — ترسم زوايا بيضوية. ما موجود اليوم كلّه مربّع، والمرفوع غداً لا يضمنه
+   أحد. */
+.nq-work-logo,
+.nq-work-fallback {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* يضمر مع اللوح الضيّق: خمسة ألواح على 390px تعطي كلّ لوح نحو 78px، وأحدهم
+     مفتوح يضغط جيرانه إلى ما دون ذلك — فالشعار يتبع الأضيق من القيمتين بدل أن يطلع. */
+  width: min(var(--nq-work-logo), calc(100% - 0.9rem));
+  max-height: min(var(--nq-work-logo), calc(100% - 0.9rem));
+  height: auto;
+  object-fit: contain;
+  border-radius: clamp(0.55rem, 1.3vw, 1.05rem);
+  display: block;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* بديل "لا شعار مرفوع": رسمة خطّية لا صورة، فلا معنى لتدوير حوافّ ليست لها أرضيّة. */
+.nq-work-fallback {
+  border-radius: 0;
+  aspect-ratio: 1;
+  opacity: 0.55;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-logo,
+.nq-work-panel[data-active='true'] .nq-work-fallback {
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+.nq-work-copy {
+  position: absolute;
+  inset-inline: 0.6rem;
+  /* أسفل المربّع بعد تكبيره، لا أسفل مركز اللوح: نصف الضلع × 1.12 ثمّ فسحة. ولأنّه
+     مطلق، ظهوره لا يزحزح المربّع عن مركزه — لا شيء يقفز عند الفتح. */
+  top: calc(50% + var(--nq-work-logo) * 0.62 + 0.9rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 240ms ease 80ms, transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-copy {
+  opacity: 1;
+  transform: none;
+}
+
+/* زرّ "زيارة الموقع"، أسفل اللوح.
+
+   يختفي بـ `visibility` لا بـ `opacity` وحدها: رابط عند opacity: 0 يبقى قابلاً للتركيز وباقياً
+   في شجرة الوصول — أي خمسة روابط "زيارة الموقع" غير مرئية في ترتيب الـ Tab. و`visibility:
+   hidden` تخرجه من الاثنين طبيعيّاً، بلا `tabIndex`/`aria-hidden` يحتاجان مزامنة مع الحالة.
+
+   وتبقى الحركة ممكنة لأنّ التأخير على `visibility` لا المدّة: تظهر فوراً عند الفتح، وتختفي
+   بعد أن ينتهي التلاشي. */
+.nq-work-visit {
+  position: absolute;
+  inset-inline: 0.5rem;
+  bottom: clamp(0.85rem, 2.4vw, 1.9rem);
+  margin-inline: auto;
+  width: fit-content;
+  max-width: calc(100% - 1rem);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity 240ms ease 80ms,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms,
+    visibility 0s linear 320ms;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-visit {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 240ms ease 80ms,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms,
+    visibility 0s linear 0s;
+}
+
+.nq-work-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.5;
+  color: #080a0d;
+}
+
+.nq-work-blurb {
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: #3e4b54;
+  max-width: 24ch;
+}
+
+/* وقف الحركة لا وقف الفتح. اللوح يتّسع والاسم يظهر فوراً بدل أن يتدرّج — إلغاء التحولات
+   نفسها كان سيترك الاسم عند opacity: 0 إلى الأبد، ولمن هم أقلّ قدرة على الالتفاف حوله. */
 @media (prefers-reduced-motion: reduce) {
-  .nq-marquee { animation: none; }
+  .nq-work-panel,
+  .nq-work-face,
+  .nq-work-logo,
+  .nq-work-fallback,
+  .nq-work-copy,
+  .nq-work-visit {
+    transition: none;
+  }
 }
 
 /* ── حبّة التنقّل السائلة ─────────────────────────────────────────────────────────────────
@@ -2005,131 +2186,5 @@ html[data-demo] .nq-navbar {
   }
   @page {
     margin: 10mm;
-  }
-}
-
-/* ═══ The process track ════════════════════════════════════════════════════════
-
-   Four moving parts, all of them compositor properties.
-
-   ## The reveal is a mask, not eight animations
-
-   `.nq-band-wipe` is a white rect inside an SVG `<mask>`, scaled along X from the side the
-   language starts on. One transform on one element wipes the band's fill, its hairline outline,
-   its dashed spine and the indicator together. Animating the outline instead — a `stroke-dashoffset`
-   draw — would have needed a second animation for the fill and a third for the spine, all of them
-   timed to agree, and any drift between them shows as the band arriving in pieces.
-
-   `transform-box: fill-box` is required and easy to miss: without it an SVG transform-origin is
-   resolved against the nearest viewport rather than the element, so `left center` would not be the
-   left of the rect and the wipe would start somewhere off-screen.
-
-   ## The indicator travels the band's own width
-
-   `--nq-proc-run` is set from the measured width in the component, so the sweep crosses exactly
-   the band and not a guess at it. It is clipped to the band path, so it disappears into the notch
-   and the arrow head rather than running past them.
-
-   ## The hover state is on the innermost element on purpose
-
-   The mark carries three transforms across three nested elements — position, entrance, hover —
-   because `.nq-rise` ends on `transform: none` and holds it with `forwards`, which outranks a
-   normal declaration. Sharing one element would have let the entrance cancel the centring and
-   then permanently block the hover scale. See the note in ProcessTrack.tsx.
-
-   ## Reduced motion removes the motion, not the section
-
-   The wipe and the sweep stop, and the marks and card still respond to hover and focus — the
-   interaction is how the descriptions are read, so removing it would remove the content. This is
-   the same rule `.nq-rise` already follows a few hundred lines up: clear the from-states, do not
-   just drop the animations. */
-
-.nq-band-wipe {
-  transform-box: fill-box;
-  transform: scaleX(0);
-}
-
-[data-seen='true'] .nq-band-wipe {
-  animation: nq-band-wipe 1.15s cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards;
-}
-
-@keyframes nq-band-wipe {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
-}
-
-.nq-proc-sweep {
-  transform-box: fill-box;
-  opacity: 0;
-}
-
-[data-seen='true'] .nq-proc-sweep {
-  animation: nq-proc-sweep 7s linear 1.3s infinite;
-}
-
-@keyframes nq-proc-sweep {
-  0%        { transform: translateX(calc(var(--nq-proc-run, 100%) * -1)); opacity: 0; }
-  12%, 88%  { opacity: 1; }
-  100%      { transform: translateX(var(--nq-proc-run, 100%)); opacity: 0; }
-}
-
-/* The mark. `will-change` is deliberately absent: eight permanent compositing layers for a hover
-   that lasts a moment is the trade the property exists to warn about, and a 46px square scaling
-   by 8% does not need the help. */
-.nq-proc-stage {
-  transform: scale(1);
-  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-  cursor: pointer;
-}
-
-.nq-proc-stage:hover,
-.nq-proc-stage:focus-visible {
-  transform: scale(1.08);
-}
-
-.nq-proc-stage .nq-proc-mark {
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
-}
-
-/* The ring goes on the mark rather than on the button box, which is taller than the mark by the
-   title beneath it — a rounded rectangle around both reads as a form field, not a focused step. */
-.nq-proc-stage:focus-visible .nq-proc-mark {
-  box-shadow: 0 0 0 2px #F7F7F5, 0 0 0 4px #273036;
-}
-
-.nq-proc-title {
-  transition: opacity 180ms ease;
-}
-
-/* The card is present in the DOM only while a stage is active, so this is an entrance and never
-   an exit: there is nothing to animate out, and a fade-out would need the element kept alive
-   past its own state. 8px of travel, which reads as "it came from the mark" without being a
-   slide. */
-.nq-proc-card[data-open='true'] {
-  animation: nq-proc-card 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes nq-proc-card {
-  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nq-band-wipe {
-    transform: scaleX(1);
-    animation: none;
-  }
-  .nq-proc-sweep {
-    animation: none;
-    opacity: 0;
-  }
-  .nq-proc-stage,
-  .nq-proc-stage:hover,
-  .nq-proc-stage:focus-visible {
-    transform: none;
-    transition: none;
-  }
-  .nq-proc-card[data-open='true'] {
-    animation: none;
   }
 }

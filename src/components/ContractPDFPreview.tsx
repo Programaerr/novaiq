@@ -29,7 +29,7 @@ interface ContractPDFPreviewProps {
 export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   contract,
   language,
-  currency = 'IQD',
+  currency = 'USD',
   onClose,
   onFinish,
 }) => {
