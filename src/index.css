@@ -2003,6 +2003,44 @@ html[data-demo] .nq-navbar {
   outline-offset: -4px;
 }
 
+/* "نافذة" حيّة على موقع العميل، خلف الشعار — تُغبَّش وتُعتَّم كي يبقى الشعار والاسم فوقها
+   مقروءين مهما كانت ألوان الموقع المضمَّن. تُرسَم فقط حين يُفتح اللوح (انظر `showPreview` في
+   ClientsAccordion.tsx)، فلا خمس صفحات خارجية تُحمَّل معاً من أوّل ظهور القسم.
+
+   `overflow: hidden` + تكبير الإطار داخلها (بدل تكبيرها هي) يمنع حافّة التغبيش من الظهور
+   كخطّ حادّ عند حدّ اللوح — أثر شائع لأي `filter: blur` قرب حافّة عنصر مقصوص. */
+.nq-work-preview {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-preview {
+  opacity: 1;
+}
+
+.nq-work-preview iframe {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  border: 0;
+  pointer-events: none;
+  filter: blur(3px) saturate(0.9);
+}
+
+/* التعتيم فوق الإطار مباشرة لا على خلفية الزرّ: خلفية `.nq-work-face` تُرسَم *تحت* أبنائها
+   كلّهم بما فيهم هذه النافذة، فلم تكن لتُعتّمها إطلاقاً. */
+.nq-work-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(247, 247, 245, 0.62);
+}
+
 /* الشعار مباشرة، بلا بطاقة تحته.
 
    كان هنا `.nq-work-slot`: مربّع أبيض بحدّ وظلّ والشعار داخله. لكنّ هذه الشعارات ليست
@@ -2139,7 +2177,8 @@ html[data-demo] .nq-navbar {
   .nq-work-logo,
   .nq-work-fallback,
   .nq-work-copy,
-  .nq-work-visit {
+  .nq-work-visit,
+  .nq-work-preview {
     transition: none;
   }
 }
