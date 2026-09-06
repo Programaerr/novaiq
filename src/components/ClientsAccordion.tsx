@@ -122,11 +122,10 @@ interface ClientsAccordionProps {
   language?: Language;
 }
 
-export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = 'ar' }) => {
+export const ClientsAccordion: React.FC<ClientsAccordionProps> = () => {
   const strip = useClientsStrip();
   const { ref, seen } = useSeen<HTMLElement>();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const isAr = language !== 'en';
 
   /* التفعيل يدويّ بالكامل — القسم لا يظهر للزوّار حتى يُشغّله الأدمن من تبويب الإعدادات، وهي
      نفس قاعدة `clientsStrip.ts` منذ أوّل نسخة. وقائمة فارغة تعني لا شيء يُعرض حتى لو فُعّل. */
@@ -137,7 +136,9 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
       ref={ref as React.Ref<HTMLElement>}
       data-seen={seen ? 'true' : 'false'}
       aria-labelledby="nq-work-heading"
-      className="mt-4 sm:mt-6"
+      /* المسافة تحته ملكه هو لا ملك البطاقتين بعده: القسم يُطفأ من لوحة الأدمن،
+         وفسحة موضوعة على البطاقات كانت ستبقى بعد إطفائه بلا سبب يفسّرها. */
+      className="mt-4 sm:mt-6 mb-10 sm:mb-14"
     >
       <h2
         id="nq-work-heading"

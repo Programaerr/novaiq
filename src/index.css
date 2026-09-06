@@ -1917,11 +1917,163 @@ html[data-demo] .nq-navbar {
 }
 
 
-/* ── شريط "أعمالنا" المتحرك (ClientsStrip.tsx) ──────────────────────────────────────────
-   حركة واحدة على `transform` فقط: تُنفَّذ على مركّب الطبقات خارج الخيط الرئيسي، فلا يقطّعها
-   انشغال جافاسكربت ولا تُجبر المتصفح على إعادة تخطيط أي شيء. -50% لأن المسار نسختان
-   متطابقتان جنباً إلى جنب، فنهاية الشوط تقع على بداية النسخة الثانية بالضبط ولا تُرى قفزة.
-   المدة تأتي من لوحة التحكم عبر متغيّر مضمَّن على العنصر. */
+/* ── أعمالنا: صفّ الألواح (ClientsAccordion.tsx) ──────────────────────────────
+   ألواح عمودية متلاصقة، واحد منها ينفتح ويتّسع.
+
+   الاتّساع على `flex-grow` وهو خاصية تخطيط — مع أنّ القاعدة العامة أن تُحرّك `transform`
+   وحده. لا بديل هنا: أكورديون معناه أنّ الجيران يفسحون فعلاً، و`scaleX` يمدّ محتوى اللوح
+   ولا يحرّك جاره قيد بكسل. والكلفة محسوبة: ستّة عناصر في صفّ واحد، لا قائمة طويلة.
+
+   والمقاسات كلّها مشتقّة من `--nq-work-slot` — ضلع مربّع الشعار — فتغييره وحده يضبط اللوح
+   كلّه: موضع الاسم تحته، وأقصى عرض يسمح به اللوح الضيّق. */
+
+.nq-work-heading {
+  margin: 0 0 0.8rem;
+}
+
+.nq-work-row {
+  /* ضلع مربّع الشعار. كلّ شيء داخل اللوح يُقاس منه. */
+  --nq-work-slot: clamp(2.5rem, 4.6vw, 4.25rem);
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* محدود دون عرض الحاوية: ألواح هذا العرض تبقى نحيلة كما في الرسم؛ ممدودة على
+     1280px تصير ستّة مربّعات عريضة لا أعمدة. ومحاذاته للبداية (اليمين في العربية)
+     هي نفس محاذاة الرسم: طرف ثابت، والاتّساع يحدث داخله. */
+  max-width: min(100%, 56rem);
+  height: clamp(13rem, 48vw, 28rem);
+  border: 1px solid rgba(8, 10, 13, 0.14);
+  /* التدوير على الصفّ وحده والفواصل الداخلية خطوط مستقيمة، كما في الرسم — واللوح
+     الأوّل والأخير يأخذان انحناءهما من قصّ الصفّ لا من زوايا خاصة بهما. */
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #f7f7f5;
+}
+
+.nq-work-panel {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  transition: flex-grow 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nq-work-panel + .nq-work-panel {
+  border-inline-start: 1px solid rgba(8, 10, 13, 0.14);
+}
+
+/* `data-open` على الصفّ شرطٌ لا زينة: بدونه يكفي `data-active` وحده، وهو موجود على كلّ
+   لوح منذ أوّل رسم. */
+.nq-work-row[data-open='true'] .nq-work-panel[data-active='true'] {
+  flex-grow: 2.4;
+}
+
+.nq-work-face {
+  position: relative;
+  /* الحقل قماش WebGL مطلق داخل هذا العنصر، فيحتاج أباً موضوعاً وسياق تكديس خاصّاً به. */
+  isolation: isolate;
+  flex: 1;
+  min-width: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: background-color 260ms ease;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-face {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.nq-work-face:focus-visible {
+  outline: 2px solid #080a0d;
+  outline-offset: -4px;
+}
+
+.nq-work-slot {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* يضمر مع اللوح الضيّق: خمسة ألواح على 390px تعطي كلّ لوح نحو 78px، وأحدهم
+     مفتوح يضغط جيرانه إلى ما دون ذلك — فالمربّع يتبع الأضيق من القيمتين بدل أن يطلع. */
+  width: min(var(--nq-work-slot), calc(100% - 0.9rem));
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  /* "الحواف دائرية" — نسبة لا قيمة ثابتة، فتصغر الزاوية مع المربّع بنفس القدر. */
+  border-radius: 30%;
+  background: #ffffff;
+  border: 1px solid rgba(8, 10, 13, 0.12);
+  box-shadow: 0 10px 22px -18px rgba(8, 10, 13, 0.55);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 420ms ease;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-slot {
+  transform: translate(-50%, -50%) scale(1.12);
+  box-shadow: 0 18px 34px -20px rgba(8, 10, 13, 0.6);
+}
+
+.nq-work-logo {
+  max-width: 76%;
+  max-height: 76%;
+  object-fit: contain;
+  display: block;
+}
+
+.nq-work-copy {
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0.6rem;
+  /* أسفل المربّع بعد تكبيره، لا أسفل مركز اللوح: نصف الضلع × 1.12 ثمّ فسحة. ولأنّه
+     مطلق، ظهوره لا يزحزح المربّع عن مركزه — لا شيء يقفز عند الفتح. */
+  top: calc(50% + var(--nq-work-slot) * 0.62 + 0.9rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 240ms ease 80ms, transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-copy {
+  opacity: 1;
+  transform: none;
+}
+
+.nq-work-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.5;
+  color: #080a0d;
+}
+
+.nq-work-blurb {
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: #3e4b54;
+  max-width: 24ch;
+}
+
+/* وقف الحركة لا وقف الفتح. اللوح يتّسع والاسم يظهر فوراً بدل أن يتدرّج — إلغاء التحولات
+   نفسها كان سيترك الاسم عند opacity: 0 إلى الأبد، ولمن هم أقلّ قدرة على الالتفاف حوله. */
+@media (prefers-reduced-motion: reduce) {
+  .nq-work-panel,
+  .nq-work-face,
+  .nq-work-slot,
+  .nq-work-copy {
+    transition: none;
+  }
+}
 
 /* ── حبّة التنقّل السائلة ─────────────────────────────────────────────────────────────────
    جسم واحد يقف خلف بنود الشريط وينتقل بينها.

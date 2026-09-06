@@ -6,6 +6,7 @@ import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
 import { OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { NqButton } from './ui/NqButton';
+import { ClientsAccordion } from './ClientsAccordion';
 import { trackLoad } from '../lib/loadTracker';
 import type { DemoMode } from './TemplateInteractiveSandbox';
 
@@ -113,6 +114,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
       className="relative overflow-hidden pt-[calc(var(--nav-bottom,74px)+1rem)] pb-4 sm:pb-6"
     >
       <div className="relative nq-container">
+        {/* أعمالنا — فوق بطاقتي الطلب، بطلب المالك. يرسم نفسه فارغاً (null) ما لم
+            يُفعّله الأدمن وتكن فيه شركة واحدة على الأقل، فوجوده هنا لا يفرض شيئاً على الصفحة. */}
+        <ClientsAccordion language={currentLang} />
+
         {/* ── The two cards ─────────────────────────────────────────────────────────────
             Tall, full-height panels so each reads as a destination rather than a row. No heading
             above them any more — the client asked for this section's intro copy ("ماذا تريد أن
