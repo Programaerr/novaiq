@@ -738,7 +738,7 @@ export const NqContent: React.FC<NqContentProps> = ({
 
     {badge && (
       <span
-        className={`${surface.size.badge} rounded-full grid place-items-center shrink-0`}
+        className={`nq-badge ${surface.size.badge} rounded-full grid place-items-center shrink-0`}
         style={{ background: surface.badgeBg, color: surface.badgeFg }}
         aria-hidden="true"
       >

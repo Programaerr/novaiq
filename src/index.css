@@ -2115,6 +2115,23 @@ html[data-demo] .nq-navbar {
   .nq-work-row[data-open='true'] .nq-work-panel[data-active='true'] {
     flex-grow: 3.2;
   }
+
+  /* وبقيّة التصغير من الصندوق كلّه، لا من النصّ: الكلمة كاملة مطلوبة.
+
+     والقرص أكبر بند بعد النصّ — 32px من 114 — فيُصغَّر معها. `.nq-badge` صنف موضوع في
+     NqContent لهذا الغرض: بدونه لا سبيل إلى القرص إلا `span > span:last-child`، وهو انتقاء
+     بشكل الـDOM ينكسر بصمت أوّل ما يكسب المكوّن ابناً جديداً. وهو غير مطبَّق في طبقة، فيغلب
+     `w-8 h-8` من Tailwind بلا `!important` — نفس آليّة كتلة تقليل الحركة في آخر الملف. */
+  .nq-work-visit {
+    padding-inline-start: 0.5rem;
+    font-size: 0.66rem;
+    gap: 0.3rem;
+  }
+
+  .nq-work-visit .nq-badge {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }
 
 .nq-work-name {
