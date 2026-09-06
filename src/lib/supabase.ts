@@ -35,3 +35,17 @@ export const supabase = createClient(url, anonKey, {
     flowType: 'pkce',
   },
 });
+
+/**
+ * اسم قناة لحظية فريد لكل نداء اشتراك — لا اسم ثابت مشترك بين كل المستهلكين.
+ *
+ * `supabase.channel('x')` يُعيد **نفس** كائن القناة لو نودي بنفس الاسم مرّتين (Supabase يبحث
+ * عن قناة بهذا الموضوع في سجلّه الداخلي قبل إنشاء واحدة جديدة). فحين يستهلك أكثر من مكوّن
+ * مستقلّ نفس الاسم الثابت (مثل `useLiveTemplates` المُستدعى من `App.tsx` و`TemplateGrid.tsx`
+ * معاً على الصفحة نفسها)، يصطدم ثانيهما بقناة أوّلهما وهي مشترِكة فعلاً، ويرمي المتصفح:
+ * "cannot add postgres_changes callbacks ... after subscribe()". كل استدعاء اشتراك مستقلّ
+ * يحتاج قناته الخاصة، بصرف النظر عن تكرار الموضوع نفسه بين مستهلكين مختلفين.
+ */
+export function uniqueChannelName(topic: string): string {
+  return `${topic}-${crypto.randomUUID()}`;
+}

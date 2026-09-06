@@ -61,7 +61,7 @@ export function subscribeToPricingOverrides(callback: (overrides: Record<string,
   let cancelled = false;
 
   import('./supabase')
-    .then(async ({ supabase }) => {
+    .then(async ({ supabase, uniqueChannelName }) => {
       if (cancelled) return;
 
       const load = async () => {
@@ -85,7 +85,7 @@ export function subscribeToPricingOverrides(callback: (overrides: Record<string,
       if (cancelled) return;
 
       const channel = supabase
-        .channel('pricing-overrides')
+        .channel(uniqueChannelName('pricing-overrides'))
         .on('postgres_changes', { event: '*', schema: 'public', table: OVERRIDES_COLLECTION }, () => void load())
         .subscribe();
 

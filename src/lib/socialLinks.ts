@@ -41,7 +41,7 @@ export function subscribeToSocialLinks(callback: (links: SocialLinks) => void) {
   let cancelled = false;
 
   import('./supabase')
-    .then(async ({ supabase }) => {
+    .then(async ({ supabase, uniqueChannelName }) => {
       if (cancelled) return;
 
       const load = async () => {
@@ -63,7 +63,7 @@ export function subscribeToSocialLinks(callback: (links: SocialLinks) => void) {
       if (cancelled) return;
 
       const channel = supabase
-        .channel('social-links')
+        .channel(uniqueChannelName('social-links'))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, () => void load())
         .subscribe();
 

@@ -121,7 +121,7 @@ export function subscribeToClientsStrip(callback: (value: ClientsStrip) => void)
   let cancelled = false;
 
   import('./supabase')
-    .then(async ({ supabase }) => {
+    .then(async ({ supabase, uniqueChannelName }) => {
       if (cancelled) return;
 
       const load = async () => {
@@ -143,7 +143,7 @@ export function subscribeToClientsStrip(callback: (value: ClientsStrip) => void)
       if (cancelled) return;
 
       const channel = supabase
-        .channel('clients-strip')
+        .channel(uniqueChannelName('clients-strip'))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, () => void load())
         .subscribe();
 

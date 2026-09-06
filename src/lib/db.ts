@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, uniqueChannelName } from './supabase';
 import { ContractData, PaymentRecord } from '../types';
 
 /**
@@ -256,7 +256,7 @@ export function subscribeToContracts(callback: (contracts: ContractData[]) => vo
   load();
 
   const channel = supabase
-    .channel('contracts-all')
+    .channel(uniqueChannelName('contracts-all'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'contracts' }, load)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'contract_payments' }, load)
     .subscribe();
@@ -310,7 +310,7 @@ export function subscribeToMyContracts(
   load();
 
   const channel = supabase
-    .channel('contracts-mine')
+    .channel(uniqueChannelName('contracts-mine'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'contracts' }, () => void load())
     .subscribe();
 
@@ -337,7 +337,7 @@ export function subscribeToContractCosts(callback: (costs: Record<string, number
   load();
 
   const channel = supabase
-    .channel('contract-finance')
+    .channel(uniqueChannelName('contract-finance'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'contract_finance' }, () => void load())
     .subscribe();
 
