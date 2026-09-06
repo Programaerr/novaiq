@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Building2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useClientsStrip, type ClientItem } from '../lib/clientsStrip';
@@ -61,7 +61,15 @@ interface WorkPanelProps {
  */
 const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) => {
   const field = useTileField(FIELD);
-  const { ref: fieldRef, onPointerEnter, onPointerLeave, onFocus, onBlur, ...pass } = field.handlers;
+  const { ref: fieldRef, onPointerEnter, onPointerLeave, onPointerDown, onFocus, onBlur, ...pass } =
+    field.handlers;
+
+  /* حالة اللوح قبل أن تبدأ اللمسة، لا بعدها.
+
+     الضغط على زرّ يُعطيه التركيز، والتركيز يفتح اللوح — فحين تصل `click` يكون اللوح
+     مفتوحاً أصلاً، فتقرأه القاعدة "ضغطة على مفتوح = إغلاق" وتقفله في نفس اللمسة.
+     مقيسة على منفذ لمس: الضغطة كانت تترك `data-open` عند "false". */
+  const wasActive = useRef(false);
 
   return (
     <li className="nq-work-panel" data-active={active ? 'true' : 'false'}>
@@ -87,8 +95,12 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) 
           onBlur(e);
           onClose();
         }}
+        onPointerDown={(e) => {
+          wasActive.current = active;
+          onPointerDown(e);
+        }}
         onClick={() => {
-          if (!active) onOpen();
+          if (!wasActive.current) onOpen();
           else if (!HOVER_CAPABLE) onClose();
         }}
         className="nq-work-face"
