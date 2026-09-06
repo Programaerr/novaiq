@@ -28,9 +28,9 @@ const filePath = process.argv[2];
 
 const client = new Client({
   connectionString: dbUrl,
-  // Supabase يفرض SSL دائماً؛ تعطيل التحقّق من الشهادة هنا مقبول لأنه اتصال أداة تطوير محلية
-  // بعنوان معروف مسبقاً (رابطك أنت)، لا اتصالاً بخادم عشوائي على الشبكة.
-  ssl: { rejectUnauthorized: false },
+  // Supabase يفرض SSL دائماً، وشهادتها تُتحقَّق كاملة هنا (لا rejectUnauthorized: false) —
+  // تعطيل التحقّق يفتح الباب لهجوم وسيط لو تلاعب أحد بالـDNS نحو هذا العنوان تحديداً.
+  ssl: true,
 });
 
 try {
