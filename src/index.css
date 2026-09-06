@@ -1924,7 +1924,7 @@ html[data-demo] .nq-navbar {
    وحده. لا بديل هنا: أكورديون معناه أنّ الجيران يفسحون فعلاً، و`scaleX` يمدّ محتوى اللوح
    ولا يحرّك جاره قيد بكسل. والكلفة محسوبة: ستّة عناصر في صفّ واحد، لا قائمة طويلة.
 
-   والمقاسات كلّها مشتقّة من `--nq-work-slot` — ضلع مربّع الشعار — فتغييره وحده يضبط اللوح
+   والمقاسات كلّها مشتقّة من `--nq-work-logo` — ضلع مربّع الشعار — فتغييره وحده يضبط اللوح
    كلّه: موضع الاسم تحته، وأقصى عرض يسمح به اللوح الضيّق. */
 
 .nq-work-heading {
@@ -1936,8 +1936,8 @@ html[data-demo] .nq-navbar {
 }
 
 .nq-work-row {
-  /* ضلع مربّع الشعار. كلّ شيء داخل اللوح يُقاس منه. */
-  --nq-work-slot: clamp(2.5rem, 4.6vw, 4.25rem);
+  /* ضلع الشعار. كلّ شيء داخل اللوح يُقاس منه. */
+  --nq-work-logo: clamp(2.5rem, 4.6vw, 4.25rem);
   display: flex;
   margin: 0;
   padding: 0;
@@ -2001,37 +2001,43 @@ html[data-demo] .nq-navbar {
   outline-offset: -4px;
 }
 
-.nq-work-slot {
+/* الشعار مباشرة، بلا بطاقة تحته.
+
+   كان هنا `.nq-work-slot`: مربّع أبيض بحدّ وظلّ والشعار داخله. لكنّ هذه الشعارات ليست
+   علامات شفّافة تحتاج سطحاً تحتها — أغلبها مربّعات مصمتة بأرضيّاتها، فكان صندوقاً حول
+   صندوق ولا يقدّم إلاّ الزاوية الدائرية. فالزاوية انتقلت إلى الصورة وذهب الصندوق.
+
+   والزاوية طول ثابت لا نسبة (كانت 30%): النسبة تُحسَب لكلّ محور وحده، فعلى شعار غير
+   مربّع — كلمة مثلاً — ترسم زوايا بيضوية. ما موجود اليوم كلّه مربّع، والمرفوع غداً لا يضمنه
+   أحد. */
+.nq-work-logo,
+.nq-work-fallback {
   position: absolute;
   z-index: 1;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   /* يضمر مع اللوح الضيّق: خمسة ألواح على 390px تعطي كلّ لوح نحو 78px، وأحدهم
-     مفتوح يضغط جيرانه إلى ما دون ذلك — فالمربّع يتبع الأضيق من القيمتين بدل أن يطلع. */
-  width: min(var(--nq-work-slot), calc(100% - 0.9rem));
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  /* "الحواف دائرية" — نسبة لا قيمة ثابتة، فتصغر الزاوية مع المربّع بنفس القدر. */
-  border-radius: 30%;
-  background: #ffffff;
-  border: 1px solid rgba(8, 10, 13, 0.12);
-  box-shadow: 0 10px 22px -18px rgba(8, 10, 13, 0.55);
-  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 420ms ease;
-}
-
-.nq-work-panel[data-active='true'] .nq-work-slot {
-  transform: translate(-50%, -50%) scale(1.12);
-  box-shadow: 0 18px 34px -20px rgba(8, 10, 13, 0.6);
-}
-
-.nq-work-logo {
-  max-width: 76%;
-  max-height: 76%;
+     مفتوح يضغط جيرانه إلى ما دون ذلك — فالشعار يتبع الأضيق من القيمتين بدل أن يطلع. */
+  width: min(var(--nq-work-logo), calc(100% - 0.9rem));
+  max-height: min(var(--nq-work-logo), calc(100% - 0.9rem));
+  height: auto;
   object-fit: contain;
+  border-radius: clamp(0.55rem, 1.3vw, 1.05rem);
   display: block;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* بديل "لا شعار مرفوع": رسمة خطّية لا صورة، فلا معنى لتدوير حوافّ ليست لها أرضيّة. */
+.nq-work-fallback {
+  border-radius: 0;
+  aspect-ratio: 1;
+  opacity: 0.55;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-logo,
+.nq-work-panel[data-active='true'] .nq-work-fallback {
+  transform: translate(-50%, -50%) scale(1.12);
 }
 
 .nq-work-copy {
@@ -2040,7 +2046,7 @@ html[data-demo] .nq-navbar {
   inset-inline: 0.6rem;
   /* أسفل المربّع بعد تكبيره، لا أسفل مركز اللوح: نصف الضلع × 1.12 ثمّ فسحة. ولأنّه
      مطلق، ظهوره لا يزحزح المربّع عن مركزه — لا شيء يقفز عند الفتح. */
-  top: calc(50% + var(--nq-work-slot) * 0.62 + 0.9rem);
+  top: calc(50% + var(--nq-work-logo) * 0.62 + 0.9rem);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2076,7 +2082,8 @@ html[data-demo] .nq-navbar {
 @media (prefers-reduced-motion: reduce) {
   .nq-work-panel,
   .nq-work-face,
-  .nq-work-slot,
+  .nq-work-logo,
+  .nq-work-fallback,
   .nq-work-copy {
     transition: none;
   }

@@ -115,15 +115,14 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) 
       >
         {field.tiles}
 
-        <span className="nq-work-slot">
-          {item.logoDataUrl ? (
-            /* `alt=""` لأنّ الزرّ نفسه يحمل الاسم في `aria-label` — وبدونها يُنطَق اسم الشركة
-               مرّتين في كلّ لوح. */
-            <img src={item.logoDataUrl} alt="" className="nq-work-logo" loading="lazy" decoding="async" />
-          ) : (
-            <Building2 className="w-1/2 h-1/2" style={{ color: OBSIDIAN }} aria-hidden="true" strokeWidth={1.6} />
-          )}
-        </span>
+        {/* بلا بطاقة تحته: الشعارات المرفوعة مربّعات لها أرضيّتها أصلاً، فالمربّع الأبيض
+            كان صندوقاً حول صندوق. و`alt=""` لأنّ الزرّ يحمل الاسم في `aria-label` — بدونها
+            يُنطَق اسم الشركة مرّتين في كلّ لوح. */}
+        {item.logoDataUrl ? (
+          <img src={item.logoDataUrl} alt="" className="nq-work-logo" loading="lazy" decoding="async" />
+        ) : (
+          <Building2 className="nq-work-fallback" style={{ color: OBSIDIAN }} aria-hidden="true" strokeWidth={1.4} />
+        )}
 
         {/* `aria-hidden` على النصّ المرئي: اسم الزرّ يأتي من `aria-label`، وتركه معلناً يعني
             سماعه مرّتين. إخفاؤه بصرياً بـ opacity لا بـ display حتى يبقى قابلاً للانتقال. */}
