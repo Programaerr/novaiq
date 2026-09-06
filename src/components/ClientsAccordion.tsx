@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Building2 } from 'lucide-react';
+import { ArrowUpLeft, Building2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useClientsStrip, type ClientItem } from '../lib/clientsStrip';
 import { useSeen } from '../lib/useSeen';
+import { NqLink } from './ui/NqLink';
 import { OBSIDIAN } from '../lib/homePalette';
 
 /**
@@ -46,6 +47,7 @@ interface WorkPanelProps {
   active: boolean;
   onOpen: () => void;
   onClose: () => void;
+  isAr: boolean;
 }
 
 /**
@@ -53,7 +55,7 @@ interface WorkPanelProps {
  *
  * مكوّن مستقلّ لأنّ `wasActive` حالة تخصّ لوحاً بعينه، والهوكات لا تُستدعى داخل حلقة.
  */
-const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) => {
+const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, isAr }) => {
   /* حالة اللوح قبل أن تبدأ اللمسة، لا بعدها.
 
      الضغط على زرّ يُعطيه التركيز، والتركيز يفتح اللوح — فحين تصل `click` يكون اللوح
@@ -62,19 +64,28 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) 
   const wasActive = useRef(false);
 
   return (
-    <li className="nq-work-panel" data-active={active ? 'true' : 'false'}>
+    <li
+      className="nq-work-panel"
+      data-active={active ? 'true' : 'false'}
+      /* الفتح والإغلاق على الغلاف لا على الزرّ، منذ صار في اللوح عنصران تفاعليّان.
+         على الزرّ وحده كان `pointerleave` يُطلَق لحظة يعبر المؤشّر إلى زرّ الزيارة، فيغلق
+         اللوح تحت الشيء الذي يمدّ يده إليه. والحدثان لا يُطلَقان عند التنقّل بين أبناء
+         العنصر، فعلى الغلاف معناهما "غادر المؤشّر هذا اللوح" — وهو السؤال المقصود. */
+      onPointerEnter={(e) => {
+        if (e.pointerType !== 'touch') onOpen();
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType !== 'touch') onClose();
+      }}
+      onFocus={() => onOpen()}
+      /* و`focusout` يُطلَق فعلاً عند الانتقال من الزرّ إلى الرابط، فلولا هذا الشرط لأغلق
+         اللوح وأخفى الرابط في منتصف الـ Tab. `relatedTarget` يقول إلى أين ذهب التركيز. */
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) onClose();
+      }}
+    >
       <button
         type="button"
-        /* شرط اللمس على المرور وحده — على الهاتف يُطلق المتصفّح pointerenter مع الضغطة
-           نفسها، فبدونه تفتح الضغطة اللوح ثم تغلقه. */
-        onPointerEnter={(e) => {
-          if (e.pointerType !== 'touch') onOpen();
-        }}
-        onPointerLeave={(e) => {
-          if (e.pointerType !== 'touch') onClose();
-        }}
-        onFocus={() => onOpen()}
-        onBlur={() => onClose()}
         onPointerDown={() => {
           wasActive.current = active;
         }}
@@ -102,6 +113,32 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose }) 
           {item.blurb ? <span className="nq-work-blurb">{item.blurb}</span> : null}
         </span>
       </button>
+
+      {/* خارج الزرّ لا داخله: `<a>` جوّة `<button>` غير صالح، واللوح زرّ `aria-expanded`
+          حقيقي.
+
+          ويُرسم على كلّ لوح، لكنّ من لا عنوان له بعد يُرسم `disabled`: وهي كلمة NqLink نفسها لهذه
+          الحالة — تُسقِط `href` بدل أن توجّهه إلى "#"، وتخرجه من ترتيب الـ Tab، وتبتلع الضغطة.
+          فالزرّ موجود وظاهر أنّه لا يؤدّي إلى شيء بعد، وأوّل ما يُلصَق عنوان في لوحة الأدمن يصير
+          رابطاً عاملاً بلا تغيير كود. وما يصير أبداً: رابط حيّ إلى عنوان مخمّن، وهذه شركات
+          حقيقية. والعنوان حين يوجد مفلتر أصلاً في `safeUrl` (clientsStrip.ts): http/https فقط. */}
+      <NqLink
+        className="nq-work-visit whitespace-nowrap"
+        href={item.url ?? '#'}
+        disabled={!item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        tone="obsidian"
+        variant="solid"
+        size="sm"
+        /* حقل المكعّبات مطفأ هنا، مثلما أُطفئ عن الألواح نفسها. */
+        tiles={false}
+        icon={<ArrowUpLeft className="w-4 h-4 shrink-0" />}
+        /* ستّة روابط نصّها واحد لا تقول لقارئ الشاشة موقع مَن يفتح. */
+        aria-label={isAr ? `زيارة موقع ${item.name}` : `Visit ${item.name}`}
+      >
+        {isAr ? 'زيارة الموقع' : 'Visit site'}
+      </NqLink>
     </li>
   );
 };
@@ -110,8 +147,9 @@ interface ClientsAccordionProps {
   language?: Language;
 }
 
-export const ClientsAccordion: React.FC<ClientsAccordionProps> = () => {
+export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
+  const isAr = language !== 'en';
   const { ref, seen } = useSeen<HTMLElement>();
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -150,6 +188,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = () => {
           <WorkPanel
             key={item.id}
             item={item}
+            isAr={isAr}
             active={activeId === item.id}
             onOpen={() => setActiveId(item.id)}
             /* يُغلق فقط إن كان هو المفتوح: مغادرة لوح بعد دخول جاره تصل متأخّرة أحياناً،

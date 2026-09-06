@@ -2060,6 +2060,40 @@ html[data-demo] .nq-navbar {
   transform: none;
 }
 
+/* زرّ "زيارة الموقع"، أسفل اللوح.
+
+   يختفي بـ `visibility` لا بـ `opacity` وحدها: رابط عند opacity: 0 يبقى قابلاً للتركيز وباقياً
+   في شجرة الوصول — أي خمسة روابط "زيارة الموقع" غير مرئية في ترتيب الـ Tab. و`visibility:
+   hidden` تخرجه من الاثنين طبيعيّاً، بلا `tabIndex`/`aria-hidden` يحتاجان مزامنة مع الحالة.
+
+   وتبقى الحركة ممكنة لأنّ التأخير على `visibility` لا المدّة: تظهر فوراً عند الفتح، وتختفي
+   بعد أن ينتهي التلاشي. */
+.nq-work-visit {
+  position: absolute;
+  inset-inline: 0.5rem;
+  bottom: clamp(0.85rem, 2.4vw, 1.9rem);
+  margin-inline: auto;
+  width: fit-content;
+  max-width: calc(100% - 1rem);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity 240ms ease 80ms,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms,
+    visibility 0s linear 320ms;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-visit {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 240ms ease 80ms,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms,
+    visibility 0s linear 0s;
+}
+
 .nq-work-name {
   font-size: 0.95rem;
   font-weight: 800;
@@ -2081,7 +2115,8 @@ html[data-demo] .nq-navbar {
   .nq-work-face,
   .nq-work-logo,
   .nq-work-fallback,
-  .nq-work-copy {
+  .nq-work-copy,
+  .nq-work-visit {
     transition: none;
   }
 }
