@@ -89,6 +89,7 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
      مقيسة على منفذ لمس: الضغطة كانت تترك `data-open` عند "false". */
   const wasActive = useRef(false);
 
+
   return (
     <li
       className="nq-work-panel"
@@ -115,6 +116,35 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
         onPointerDown={() => {
           wasActive.current = active;
         }}
+        /* اللمس يفتح من هنا، لا من `click`.
+
+           مقيس على مسار iOS: 201ms من نزول الإصبع إلى بدء الفتح، مقابل صفر على الماوس
+           (`pointerenter`). والفارق كلّه اصطناعي: `click` آخر حدث في الإيماءة — بعد رفع
+           الإصبع، ثمّ بعد فجوة المتصفّح، ثمّ بعد محاكاة الفأرة. و`pointerup` يُطلَق لحظة
+           رفع الإصبع نفسها، قبل ذلك كلّه.
+
+           ولم يظهر العطل في محاكاة Chromium أبداً: Chromium يمنح الزرّ تركيزاً عند اللمس،
+           فيفتح `onFocus` اللوحَ خلال أربعة ميلي ثانية ولا يصل الأمر إلى `click`. وSafari
+           على iOS لا يمنح الأزرار تركيزاً باللمس — حقول الإدخال وحدها — فمسار التركيز غائب
+           هناك ويسقط الفتح كلّه على `click`. ولذلك قيس بأحداث خام بلا تركيز، لا بنقرة
+           المحاكاة.
+
+           ولماذا `pointerup` لا `pointerdown` وهو الأبكر؟ لأنّ ليس كلّ نزول إصبع لمسةً —
+           التمرير يبدأ بنزول إصبع أيضاً. جُرِّب `pointerdown` أوّلاً ومعه `pointercancel`
+           للتراجع، ومقيس أنّ اللوح كان يُفتح فعلاً أثناء إيماءة أُلغيت: أي أنّ كلّ تمرير
+           يبدأ فوق لوح يجعله يتمدّد ثمّ يرتدّ. و`pointerup` لا يُطلَق أصلاً في إيماءة صارت
+           تمريراً، فالخطر يزول بلا حارس يحرسه.
+
+           والباقي بعده زمنُ ضغط الإصبع نفسه، وهو فعل المستخدم لا انتظار النظام: ما يُقاس
+           استجابةً هو ما بين الرفع والاستجابة. */
+        onPointerUp={(e) => {
+          if (e.pointerType !== 'touch') return;
+          if (wasActive.current) onClose();
+          else onOpen();
+        }}
+        /* و`click` يبقى للكيبورد وللفأرة. وعلى اللمس صار مكرّراً لا ضارّاً — يُعيد نداء ما
+           نُفِّذ في `pointerup`، وكلا النداءين لا يفعل شيئاً إن كان اللوح في حالته أصلاً —
+           إلّا أن يكون `pointerup` لم يقع (إيماءة أُلغيت)، وحينها لا يقع `click` أيضاً. */
         onClick={() => {
           if (!wasActive.current) onOpen();
           else if (!HOVER_CAPABLE) onClose();
