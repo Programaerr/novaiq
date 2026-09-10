@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DEFAULT_MOTIF, safeMotif, type WorkMotifId } from './workMotifs';
 
 /**
  * "أعمالنا" — شريط متحرك بأسماء/شعارات الشركات التي عملنا معها، تحت قسم الهيرو مباشرة.
@@ -45,6 +46,14 @@ export interface ClientItem {
   previewImageUrl?: string;
   /** سطر أو سطران عمّا أُنجز لهذا العميل. اختياري أيضاً، وللسبب نفسه. */
   blurb?: string;
+  /**
+   * حركة الخلفية حين يُفتح لوح هذا العميل — انظر workMotifs.ts.
+   *
+   * يختاره المالك من لوحة الأدمن ولا يُستنتَج من الاسم. الفرق ليس شكليّاً: "أكواد تنزل" خلف
+   * شركة تعني أنّها شركة برمجيات، و"أقمشة" تعني أنّها تبيع ملابس — وهذه ادّعاءات عن شركات
+   * حقيقية لا زخارف. والغياب يعني المحايد (`spark`): حركة لا تقول شيئاً عن عملها.
+   */
+  motif?: WorkMotifId;
 }
 
 export interface ClientsStrip {
@@ -97,6 +106,7 @@ function normalize(raw: unknown): ClientsStrip {
             const url = safeUrl(i.url);
             const previewImageUrl = safeUrl(i.previewImageUrl);
             const blurb = String(i.blurb || '').trim();
+            const motif = safeMotif(i.motif);
             return {
               id: i.id,
               name: String(i.name || ''),
@@ -104,6 +114,7 @@ function normalize(raw: unknown): ClientsStrip {
               ...(url ? { url } : {}),
               ...(previewImageUrl ? { previewImageUrl } : {}),
               ...(blurb ? { blurb } : {}),
+              motif,
             };
           })
       : [],
@@ -193,6 +204,9 @@ export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
       ...(item.url ? { url: item.url } : {}),
       ...(item.previewImageUrl ? { previewImageUrl: item.previewImageUrl } : {}),
       ...(item.blurb ? { blurb: item.blurb } : {}),
+      // المحايد لا يُكتب: هو ما يعنيه غياب الحقل أصلاً، وكتابته تكبّر المستند بلا معنى.
+      // أمّا "بلا حركة" فاختيارٌ صريح ويُكتب، وهو غير المحايد.
+      ...(item.motif && item.motif !== DEFAULT_MOTIF ? { motif: item.motif } : {}),
     })),
   };
 

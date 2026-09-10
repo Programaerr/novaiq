@@ -4,6 +4,8 @@ import { Language } from '../lib/i18n';
 import { useClientsStrip, type ClientItem } from '../lib/clientsStrip';
 import { useSeen } from '../lib/useSeen';
 import { NqLink } from './ui/NqLink';
+import { WorkMotif } from './WorkMotif';
+import { safeMotif } from '../lib/workMotifs';
 import { OBSIDIAN } from '../lib/homePalette';
 
 /**
@@ -158,7 +160,10 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
             أي موقع بُني بنفس قالب نوفايك نفسه، فكانت تظهر فارغة عند أكثر العملاء — بينما صورة
             تعمل دائماً. زخرفية بحتة (`pointer-events: none` في الـCSS)؛ التصفّح الوحيد
             الممكن يبقى زرّ "زيارة الموقع" خارج هذا الزرّ. */}
-        {item.previewImageUrl && (
+        {/* الصورة والحركة خلفيّتان لنفس المكان، فواحدة منهما فقط تُرسَم. والحركة تفوز إلّا
+            أن يُختار "بلا حركة" صراحةً من اللوحة — وهذا هو الطريق إلى الصورة، ومكتوب تحت
+            المُختار هناك حتى لا يُفاجأ من لصق صورة فلم يرها. */}
+        {item.previewImageUrl && safeMotif(item.motif) === 'none' && (
           <div className="nq-work-preview" aria-hidden="true">
             <img src={item.previewImageUrl} alt="" loading="lazy" decoding="async" />
           </div>
@@ -245,6 +250,9 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
      عند الرسم القادم بلا حاجة لمراقبة طول المصفوفة في useEffect منفصل. */
   const safePage = Math.min(page, totalPages - 1);
   const visibleItems = strip.items.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  /* يُبحث في المعروض لا في الكلّ: تبديل الصفحة يُبقي `activeId` لعميل لم يعد على الشاشة،
+     وقراءة نمطه كانت ستُشغّل حركةً خلف صفّ لا يحوي صاحبها. */
+  const activeItem = visibleItems.find((i) => i.id === activeId) ?? null;
   const canGoPrev = safePage > 0;
   const canGoNext = safePage < totalPages - 1;
 
@@ -275,27 +283,36 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
         {strip.title}
       </h2>
 
-      {/* `data-open` على الصفّ لا على اللوح: قاعدة الاتّساع تحتاج أن تعرف أنّ أحدهم مفتوح
-          أصلاً، وإلا فاللوح النشط الوحيد في صفّ ساكن يتّسع بلا سبب عند أوّل رسم. */}
-      <ul
-        className="nq-work-row nq-rise"
-        style={{ ['--nq-rise-delay' as string]: '90ms' }}
-        data-open={activeId ? 'true' : 'false'}
-      >
-        {visibleItems.map((item) => (
-          <WorkPanel
-            key={item.id}
-            item={item}
-            isAr={isAr}
-            narrow={narrow}
-            active={activeId === item.id}
-            onOpen={() => setActiveId(item.id)}
-            /* يُغلق فقط إن كان هو المفتوح: مغادرة لوح بعد دخول جاره تصل متأخّرة أحياناً،
-               وبدون هذا الشرط تمسح مغادرةُ القديم فتحَ الجديد فينطفئ الصفّ بين لوحين. */
-            onClose={() => setActiveId((current) => (current === item.id ? null : current))}
-          />
-        ))}
-      </ul>
+      {/* المسرح: الحركة تحت، والصفّ فوقها.
+
+          الحركة ليست ابنةً للوح المفتوح ولا تتبعه: كانفاس واحد ثابت خلف الصفّ كلّه، والألواح
+          فوقه بأرضيّة معتمة يشفّ منها المفتوح وحده. فالنافذة هي صندوق اللوح نفسه وتتّسع مع
+          تمدّده بلا سطر يزامنهما — والبديل (كانفاس ينتقل بين الألواح) كان يعني قراءة التخطيط
+          كلّ إطار، وهو ما تتجنّبه هذه الشاشة أصلاً.
+
+          والغلاف موجود لأنّ `<ul>` لا يحمل إلا `<li>`؛ الكانفاس شقيقٌ للقائمة لا ابنٌ فيها. */}
+      <div className="nq-work-stage nq-rise" style={{ ['--nq-rise-delay' as string]: '90ms' }}>
+        <WorkMotif seen={seen} motif={activeItem ? safeMotif(activeItem.motif) : null} />
+
+        <ul
+          className="nq-work-row"
+          data-open={activeId ? 'true' : 'false'}
+        >
+          {visibleItems.map((item) => (
+            <WorkPanel
+              key={item.id}
+              item={item}
+              isAr={isAr}
+              narrow={narrow}
+              active={activeId === item.id}
+              onOpen={() => setActiveId(item.id)}
+              /* يُغلق فقط إن كان هو المفتوح: مغادرة لوح بعد دخول جاره تصل متأخّرة أحياناً،
+                 وبدون هذا الشرط تمسح مغادرةُ القديم فتحَ الجديد فينطفئ الصفّ بين لوحين. */
+              onClose={() => setActiveId((current) => (current === item.id ? null : current))}
+            />
+          ))}
+        </ul>
+      </div>
 
       {/* السهمان يظهران فقط حين توجد أكثر من صفحة فعلاً — عميلان أو ثلاثة لا يستحقّان سهماً
           يقودان إلى لا شيء.

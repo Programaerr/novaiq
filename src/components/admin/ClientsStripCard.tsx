@@ -1,5 +1,6 @@
 // قسم "أعمالنا" في الإعدادات: تشغيله، عنوانه، سرعته، وعناصره (اسم أو شعار مرفوع).
 import React, { useEffect, useRef, useState } from 'react';
+import { MOTIFS, MOTIF_IDS, safeMotif, type WorkMotifId } from '../../lib/workMotifs';
 import { compressLogoFile, STRIP_LOGO_MAX_WIDTH } from '../../lib/logoFile';
 import { Save, Loader2, Building2, Plus, Trash2, ImageUp, CheckCircle2, ChevronUp, ChevronDown } from 'lucide-react';
 import {
@@ -352,6 +353,35 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
                 placeholder={isAr ? 'سطر عمّا أنجزناه لهذا العميل (اختياري)' : 'A line on what was built for them (optional)'}
                 className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
               />
+            </div>
+
+            {/* حركة الخلفية. تُختار ولا تُستنتَج من الاسم: "أكواد" خلف شركة تقول إنّها شركة
+                برمجيات، و"أقمشة" تقول إنّها تبيع ملابس — وهذه أوصاف لشركات حقيقية لا زخارف،
+                فمن يعرفها يختارها. والافتراضي محايد لا يقول شيئاً. */}
+            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              <label className="text-[11px] font-black text-ink/70">
+                {isAr ? 'حركة الخلفية' : 'Background motion'}
+              </label>
+              <select
+                value={safeMotif(item.motif)}
+                onChange={(e) => patchItem(item.id, { motif: e.target.value as WorkMotifId })}
+                className="px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40 cursor-pointer"
+              >
+                {MOTIF_IDS.map((id) => (
+                  <option key={id} value={id}>
+                    {isAr ? MOTIFS[id].labelAr : MOTIFS[id].labelEn}
+                  </option>
+                ))}
+              </select>
+              <span className="text-[11px] font-bold text-ink/45">
+                {safeMotif(item.motif) === 'none'
+                  ? isAr
+                    ? 'الصورة أعلاه هي ما يظهر خلف الشعار.'
+                    : 'The image above is what shows behind the logo.'
+                  : isAr
+                    ? 'الحركة تحلّ محلّ صورة اللقطة — اختر "بلا حركة" لعرض الصورة.'
+                    : 'Motion replaces the screenshot — pick “No motion” to show the image.'}
+              </span>
             </div>
           </div>
         ))}

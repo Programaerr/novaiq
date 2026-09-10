@@ -1975,6 +1975,28 @@ html[data-demo] .nq-navbar {
   pointer-events: none;
 }
 
+/* المسرح: يملك العرض والتوسيط اللذين كانا على الصفّ، ليشتركا بينه وبين الكانفاس خلفه.
+   لولاه لأخذ كلٌّ منهما عرضه وحده وانزاحا. */
+.nq-work-stage {
+  position: relative;
+  max-width: min(100%, 56rem);
+  margin-inline: auto;
+}
+
+/* الحركة. تحت الصفّ كلّه لا داخل لوحٍ بعينه — انظر WorkMotif.tsx لسبب ذلك.
+   `pointer-events: none` لأنّها زخرفة خالصة: الضغط يمرّ منها إلى اللوح تحته. */
+.nq-work-motif {
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.nq-work-motif canvas {
+  display: block;
+}
+
 .nq-work-row {
   /* ضلع الشعار. كلّ شيء داخل اللوح يُقاس منه. */
   --nq-work-logo: clamp(2.5rem, 4.6vw, 4.25rem);
@@ -1985,17 +2007,16 @@ html[data-demo] .nq-navbar {
   /* محدود دون عرض الحاوية: ألواح هذا العرض تبقى نحيلة كما في الرسم؛ ممدودة على
      1280px تصير ستّة مربّعات عريضة لا أعمدة. ومحاذاته للبداية (اليمين في العربية)
      هي نفس محاذاة الرسم: طرف ثابت، والاتّساع يحدث داخله. */
-  max-width: min(100%, 56rem);
-  /* موسّطة. كانت محاذاتها للبداية اتّباعاً للطرف الثابت في الرسم، وفي العربية يعني
-     ذلك ملصوقة باليمين ووراءها فراغ. التوسيط يحوّل السقف من فجوة في جهة إلى هامش في الجهتين. */
-  margin-inline: auto;
+  /* العرض والتوسيط انتقلا إلى `.nq-work-stage` أعلاه، ليقاسمهما الكانفاس. */
+  width: 100%;
   height: clamp(16rem, 48vw, 28rem);
   border: 1px solid rgba(8, 10, 13, 0.14);
   /* التدوير على الصفّ وحده والفواصل الداخلية خطوط مستقيمة، كما في الرسم — واللوح
      الأوّل والأخير يأخذان انحناءهما من قصّ الصفّ لا من زوايا خاصة بهما. */
   border-radius: 1rem;
   overflow: hidden;
-  background: #f7f7f5;
+  /* شفّاف: الأرضيّة انتقلت إلى الألواح نفسها (أدناه)، وهي التي تحجب الحركة أو تكشفها. */
+  background: transparent;
 }
 
 .nq-work-panel {
@@ -2005,7 +2026,16 @@ html[data-demo] .nq-navbar {
   display: flex;
   flex: 1 1 0;
   min-width: 0;
-  transition: flex-grow 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* اللوح هو القناع: معتمٌ فيحجب الحركة خلفه، ويشفّ حين يُفتح فتظهر داخله وحده. وبهذا
+     تتّسع "النافذة" مع تمدّد اللوح بلا شيء يزامن الاثنين. */
+  background: #f7f7f5;
+  transition:
+    flex-grow 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 300ms ease;
+}
+
+.nq-work-row[data-open='true'] .nq-work-panel[data-active='true'] {
+  background: transparent;
 }
 
 .nq-work-panel + .nq-work-panel {
@@ -2042,8 +2072,30 @@ html[data-demo] .nq-navbar {
   transition: background-color 260ms ease;
 }
 
-.nq-work-panel[data-active='true'] .nq-work-face {
-  background: rgba(255, 255, 255, 0.7);
+/* غلالة بيضاء في الوسط تخفت نحو الأطراف، بدل صفحة بيضاء بشفافيّة 0.7 على اللوح كلّه.
+
+   تلك كانت تكفي حين لم يكن خلفها إلا لون: الآن خلفها حركة، و0.7 أبيض فوقها تُنزل شفافيّتها
+   الفعّالة إلى الثلث فتصير أثراً لا حركة. والتدرّج يحلّ الأمرين معاً: معتم حيث يقف الشعار
+   والاسم فيبقيان مقروءين، وشفّاف عند الحواف فتُرى الحركة حيث لا نصّ فوقها.
+
+   على `::before` لا على الخلفيّة نفسها لأنّ التدرّجات لا تنتقل بـ`transition`؛ الشفافيّة تنتقل. */
+.nq-work-face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 66% 48% at 50% 46%,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(255, 255, 255, 0.66) 48%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.nq-work-panel[data-active='true'] .nq-work-face::before {
+  opacity: 1;
 }
 
 .nq-work-face:focus-visible {
@@ -2307,7 +2359,8 @@ html[data-demo] .nq-navbar {
   .nq-work-fallback,
   .nq-work-copy,
   .nq-work-visit,
-  .nq-work-preview {
+  .nq-work-preview,
+  .nq-work-face::before {
     transition: none;
   }
 }
