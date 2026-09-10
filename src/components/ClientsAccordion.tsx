@@ -76,6 +76,9 @@ interface WorkPanelProps {
   onClose: () => void;
   isAr: boolean;
   narrow: boolean;
+  /** موضع اللوح في الصفّ وعدد الألواح فيه — يصيران تأخير حركة التبديل. انظر أدناه. */
+  index: number;
+  count: number;
 }
 
 /**
@@ -83,7 +86,16 @@ interface WorkPanelProps {
  *
  * مكوّن مستقلّ لأنّ `wasActive` حالة تخصّ لوحاً بعينه، والهوكات لا تُستدعى داخل حلقة.
  */
-const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, isAr, narrow }) => {
+const WorkPanel: React.FC<WorkPanelProps> = ({
+  item,
+  active,
+  onOpen,
+  onClose,
+  isAr,
+  narrow,
+  index,
+  count,
+}) => {
   /* حالة اللوح قبل أن تبدأ اللمسة، لا بعدها.
 
      الضغط على زرّ يُعطيه التركيز، والتركيز يفتح اللوح — فحين تصل `click` يكون اللوح
@@ -96,6 +108,13 @@ const WorkPanel: React.FC<WorkPanelProps> = ({ item, active, onOpen, onClose, is
     <li
       className="nq-work-panel"
       data-active={active ? 'true' : 'false'}
+      style={{
+        /* رقمان لا واحد: أيّ البطاقات تتحرّك أوّلاً يعتمد على جهة السير — والأماميّة في
+           تلك الجهة تسبق — وهذا المكوّن لا يعرف الجهة. فيمرّر الترتيب ومعكوسه، وتختار
+           القاعدة في index.css بينهما بحسب `data-swap-dir`. */
+        ['--nq-swap-i' as string]: String(index),
+        ['--nq-swap-j' as string]: String(count - 1 - index),
+      }}
       /* الفتح والإغلاق على الغلاف لا على الزرّ، منذ صار في اللوح عنصران تفاعليّان.
          على الزرّ وحده كان `pointerleave` يُطلَق لحظة يعبر المؤشّر إلى زرّ الزيارة، فيغلق
          اللوح تحت الشيء الذي يمدّ يده إليه. والحدثان لا يُطلَقان عند التنقّل بين أبناء
@@ -233,6 +252,16 @@ interface ClientsAccordionProps {
 /** ثلاثة ألواح في الصفّ، ثم سهمان للمجموعة التالية — بدل صفّ واحد يضيق أكثر مع كل عميل جديد. */
 const PAGE_SIZE = 3;
 
+/**
+ * زمنا نصفَي التبديل بالميلي ثانية، مضبوطان مع `nq-work-card-out/in` في index.css.
+ *
+ * الخروج ينتهي فعلياً عند 320ms (‏230 للحركة + تأخيرين × 45) ويُقطَع هنا عند 300: البطاقة
+ * الأخيرة تُنزَع قبل عشرين ميلي ثانية من نهايتها وهي عند شفافيّة تقارب الصفر، فلا يُرى
+ * القطع ولا يُنتظَر. والمجموع نحو ثمانية أعشار الثانية — تبديلٌ يُرى لا وميضٌ يُخمَّن.
+ */
+const SWAP_OUT_MS = 300;
+const SWAP_IN_MS = 510;
+
 export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = 'ar' }) => {
   const strip = useClientsStrip();
   const isAr = language !== 'en';
@@ -240,6 +269,28 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
   const [activeId, setActiveId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const narrow = useNarrowViewport();
+
+  /* الحركة حالةٌ لا أثر: `phase` تقول أيّ نصفَي التبديل يجري الآن، و`dir` جهته الفيزيائية.
+     ترتفعان إلى الصفّ كسمتَي `data-` ليقرأهما الـCSS — الحركة كلّها هناك، وليس هنا إلا
+     التوقيت واللحظة التي تتبدّل فيها القائمة. */
+  const [swap, setSwap] = useState<{ dir: 1 | -1; phase: 'out' | 'in' } | null>(null);
+  const timers = useRef<number[]>([]);
+  /* آخر ضغطة وصلت والحركة جارية، تُنفَّذ بعد انتهائها. تجاهلها كان سيجعل السهم يبدو ميتاً
+     ثمانية أعشار الثانية، وتنفيذها فوراً كان سيقطع الحركة في منتصفها. وواحدة تُحفَظ لا
+     طابور: خمس ضغطات سريعة لا تصير خمس حركات متتالية، بل تصل إلى حيث انتهت الأخيرة. */
+  const queued = useRef<number | null>(null);
+  /* إلى أين تتّجه آخر ضغطة، ما دام هناك تبديل جارٍ — وهو الأساس الذي تُحسَب منه الخطوة
+     التالية، لا الصفحة المعروضة.
+
+     الفرق يظهر في ضغطتين متعاكستين: العين ترى الانتقال إلى المجموعة التالية قد بدأ، فـ"السابق"
+     بعده يعني الرجوع منها. وحسابها من `safePage` — وهي لا تتبدّل إلاّ في منتصف التبديل — كان
+     يجعل الضغطة المعاكسة تساوي الصفحة الحالية فتُلغى بصمت، فيبقى الزائر حيث لا يريد. */
+  const aim = useRef<number | null>(null);
+
+  /* المؤقّتان يعيشان أطول من الصفحة لو غادرها الزائر في منتصف التبديل، و`setState` على
+     مكوّن مُفكَّك تحذيرٌ في الكونسول لا أكثر — لكنّه تحذير عن خطأ حقيقي: عمل مجدول لا
+     صاحب له. */
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   /* التفعيل يدويّ بالكامل — القسم لا يظهر للزوّار حتى يُشغّله الأدمن من تبويب الإعدادات، وهي
      نفس قاعدة `clientsStrip.ts` منذ أوّل نسخة. وقائمة فارغة تعني لا شيء يُعرض حتى لو فُعّل. */
@@ -256,11 +307,62 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
   const canGoPrev = safePage > 0;
   const canGoNext = safePage < totalPages - 1;
 
-  /* يُغلق أي لوح مفتوح عند تغيير الصفحة: لوح العميل القديم لم يعد مرسوماً أصلاً، لكن الصفّ
-     كان يبقى `data-open="true"` بلا أي لوح فعلاً نشط بداخله لولا هذا التصفير. */
-  const goToPage = (next: number) => {
+  /**
+   * التبديل نفسه: البطاقات تخرج، ثمّ تتبدّل القائمة، ثمّ تدخل البطاقات الجديدة.
+   *
+   * `from` مُمرَّرة لا مقروءة من الحالة: النداء الثاني — الضغطة المؤجَّلة — يقع داخل مؤقّت
+   * أُنشئ قبل أن تتبدّل الصفحة، فقراءة `safePage` من إغلاقه كانت ستعطي الصفحة القديمة
+   * وتحسب الجهة عكسها.
+   */
+  const runSwap = (from: number, target: number) => {
+    /* يُسأل عند كلّ ضغطة لا مرّة واحدة عند التحميل: التفضيل يُقلَب والصفحة مفتوحة (على
+       عكس `HOVER_CAPABLE` الذي يصف الجهاز)، وهذا أرخص سؤال يُسأل مرّة كلّ تبديل. */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      aim.current = null;
+      setActiveId(null);
+      setPage(target);
+      return;
+    }
+
+    /* السهم الأيسر يعني السير يميناً في اللغتين: "التالي" في العربية إلى اليسار،
+       و"السابق" في الإنجليزية إلى اليسار، وكلاهما يجرّ الشريط يميناً ليكشف ما وراءه.
+       فالجهة الفيزيائية واحدة والمعنى هو الذي ينقلب. */
+    const forward = target > from;
+    const dir: 1 | -1 = forward === isAr ? 1 : -1;
+
+    aim.current = target;
+    /* يُغلق أي لوح مفتوح: لوح العميل القديم لن يبقى مرسوماً، لكنّ الصفّ كان يبقى
+       `data-open="true"` بلا لوح نشط بداخله لولا هذا التصفير. */
     setActiveId(null);
-    setPage(Math.max(0, Math.min(totalPages - 1, next)));
+    setSwap({ dir, phase: 'out' });
+
+    timers.current.forEach(clearTimeout);
+    timers.current = [
+      window.setTimeout(() => {
+        setPage(target);
+        setSwap({ dir, phase: 'in' });
+      }, SWAP_OUT_MS),
+      window.setTimeout(() => {
+        setSwap(null);
+        const next = queued.current;
+        queued.current = null;
+        if (next !== null && next !== target) runSwap(target, next);
+        else aim.current = null;
+      }, SWAP_OUT_MS + SWAP_IN_MS),
+    ];
+  };
+
+  /** خطوة واحدة عن الوجهة الحالية: ‎+1 إلى مجموعة أبعد في القائمة، ‎−1 إلى أقرب. */
+  const stepPage = (delta: number) => {
+    const base = aim.current ?? safePage;
+    const target = Math.max(0, Math.min(totalPages - 1, base + delta));
+    if (target === base) return;
+    aim.current = target;
+    if (swap) {
+      queued.current = target;
+      return;
+    }
+    runSwap(safePage, target);
   };
 
   return (
@@ -297,13 +399,20 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
         <ul
           className="nq-work-row"
           data-open={activeId ? 'true' : 'false'}
+          /* سمتان لا واحدة: الأولى تقول أيّ نصف يجري، والثانية جهته — وفصلهما يعني أنّ
+             حركتَي الخروج والدخول تشتركان في نفس تعريف الجهة بدل أربع حالات. وحذفهما
+             بـ`undefined` لا بـ`''`: `[data-swap]` في الـCSS تنطبق على قيمة فارغة أيضاً. */
+          data-swap={swap ? swap.phase : undefined}
+          data-swap-dir={swap ? String(swap.dir) : undefined}
         >
-          {visibleItems.map((item) => (
+          {visibleItems.map((item, index) => (
             <WorkPanel
               key={item.id}
               item={item}
               isAr={isAr}
               narrow={narrow}
+              index={index}
+              count={visibleItems.length}
               active={activeId === item.id}
               onOpen={() => setActiveId(item.id)}
               /* يُغلق فقط إن كان هو المفتوح: مغادرة لوح بعد دخول جاره تصل متأخّرة أحياناً،
@@ -325,7 +434,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
         <div className="nq-work-pager" dir="ltr">
           <button
             type="button"
-            onClick={() => goToPage(safePage + (isAr ? 1 : -1))}
+            onClick={() => stepPage(isAr ? 1 : -1)}
             disabled={isAr ? !canGoNext : !canGoPrev}
             aria-label={isAr ? 'المجموعة التالية' : 'Previous group'}
             className="nq-work-pager-btn"
@@ -334,7 +443,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
           </button>
           <button
             type="button"
-            onClick={() => goToPage(safePage + (isAr ? -1 : 1))}
+            onClick={() => stepPage(isAr ? -1 : 1)}
             disabled={isAr ? !canGoPrev : !canGoNext}
             aria-label={isAr ? 'المجموعة السابقة' : 'Next group'}
             className="nq-work-pager-btn"
