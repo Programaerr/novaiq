@@ -118,7 +118,11 @@ export interface ContractData {
   // Legacy compatibility fields
   basePriceSAR?: number;
   totalPriceSAR?: number;
-  paymentPlan: '50_50' | '100_upfront' | '3_milestones';
+  paymentPlan: '50_50' | '100_upfront' | '3_milestones' | 'profit_share';
+  /** نسبة الأرباح المتفق عليها، حين paymentPlan = 'profit_share' فقط. رقم صحيح أو عشري
+   *  (مثلاً 15 تعني 15%) لا كسراً — يُطبع بجانب علامة % في الوثيقة. اختياري لأن كل خطط
+   *  السداد الأخرى لا تحمله، وعقد أُنشئ قبل وجود هذا الحقل يفتحه بلا خطأ. */
+  profitSharePercent?: number;
   /** مدة التنفيذ كما اتُّفق عليها، نصاً حراً: "3 أسابيع"، "شهر ونصف"، "20 يوم عمل"، "قبل رمضان".
    *  المشاريع لا تُقاس كلها بوحدة واحدة، وإجبار الأسابيع كان يحوّل اتفاقاً دقيقاً إلى تقريب.
    *  يُعرض كما كُتب حرفياً في حساب العميل وفي الوثيقة. */
@@ -196,6 +200,12 @@ export interface ContractData {
   // Set only by the admin dashboard, after negotiating with the client — appears on the
   // final printed contract as agreed terms, distinct from the client's own original request.
   adminNotes?: string;
+  /** النسخة الإنجليزية من adminNotes، بقلم الأدمن أيضاً لا ترجمة آلية له.
+   *
+   * على العكس من customFeaturesText (نصّ العميل، لا يُلمَس أبداً — هو ما وقّع عليه)، هذا
+   * نصّنا نحن، فمن حقّنا أن نكتبه بلغتين. الوثيقة تعرض هذه حين تُطبع بالإنجليزية وتوجد؛
+   * غيابها يعني الرجوع لـadminNotes كما كانت الحال دائماً، فعقد قديم لا يخسر شيئاً. */
+  adminNotesEn?: string;
 
   // Internal financial tracking — admin-only (Firestore rules gate all `update`s to admins),
   // never shown on the client's own printed contract. Deliberately separate from `status`

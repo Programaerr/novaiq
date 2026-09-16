@@ -68,6 +68,10 @@ export const ContractDetailsPanel: React.FC<ContractDetailsPanelProps> = ({ cont
                   ? (isAr ? 'دفعة واحدة عند التوقيع' : '100% Upfront')
                   : contract.paymentPlan === '3_milestones'
                   ? (isAr ? '3 دفعات مرتبطة بالمراحل' : '3 Milestones')
+                  : contract.paymentPlan === 'profit_share'
+                  ? (isAr
+                      ? `${contract.profitSharePercent != null ? contract.profitSharePercent + '%' : 'نسبة'} من الأرباح`
+                      : `${contract.profitSharePercent != null ? contract.profitSharePercent + '%' : 'A percentage'} of profit`)
                   : (isAr ? '50% عند التوقيع و50% عند التسليم' : '50% / 50%')}
               </strong>
             </div>

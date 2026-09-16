@@ -321,6 +321,10 @@ function ContractRow({
   const [payments, setPayments] = useState<PaymentRecord[]>(() => baselinePayments(contract));
   const [installmentsPlanned, setInstallmentsPlanned] = useState(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
   const [adminNotes, setAdminNotes] = useState(contract.adminNotes || '');
+  const [adminNotesEn, setAdminNotesEn] = useState(contract.adminNotesEn || '');
+  /** أي لسان مفتوح الآن بمحرّر ملاحظات الأدمن. الحقلان يُحفظان معاً دائماً؛ هذا يقرّر فقط
+   *  أيّهما ظاهر هذه اللحظة، فلا يحتاج للحفظ ولا لمقارنته بـcontract الأصلي. */
+  const [adminNotesLang, setAdminNotesLang] = useState<'ar' | 'en'>('ar');
   /* المدة وآلية السداد صارتا تُعتمدان من هنا لا من الباني.
      المشروع مخصص، فلا الباني يعرف مدته (كان يكتب 8 أسابيع لكل مشروع مهما كان حجمه) ولا العميل
      اختار خطة سداد (كانت مثبَّتة على 50/50 بلا أن تُعرَض عليه). كلاهما الآن يُترك فارغاً في
@@ -329,6 +333,9 @@ function ContractRow({
     contract.deliveryTimelineText || (contract.deliveryTimelineWeeks ? String(contract.deliveryTimelineWeeks) + ' أسابيع' : '')
   );
   const [paymentPlan, setPaymentPlan] = useState<ContractData['paymentPlan']>(contract.paymentPlan || '50_50');
+  const [profitSharePercent, setProfitSharePercent] = useState(
+    contract.profitSharePercent != null ? String(contract.profitSharePercent) : ''
+  );
   /** رابط المعاينة الخاص الذي يتابع منه العميل موقعه أثناء التنفيذ. */
   const [previewUrl, setPreviewUrl] = useState(contract.previewUrl || '');
   /* سجل التدقيق يُجلَب عند الطلب لا مع كل عقد.
@@ -396,12 +403,16 @@ function ContractRow({
       setInstallmentsPlanned(contract.installmentsPlanned ? String(contract.installmentsPlanned) : '');
     }
     if (serverChanged('adminNotes', contract.adminNotes)) setAdminNotes(contract.adminNotes || '');
+    if (serverChanged('adminNotesEn', contract.adminNotesEn)) setAdminNotesEn(contract.adminNotesEn || '');
     if (serverChanged('delivery', [contract.deliveryTimelineText, contract.deliveryTimelineWeeks])) {
       setDeliveryText(
         contract.deliveryTimelineText || (contract.deliveryTimelineWeeks ? String(contract.deliveryTimelineWeeks) + ' أسابيع' : '')
       );
     }
     if (serverChanged('paymentPlan', contract.paymentPlan)) setPaymentPlan(contract.paymentPlan || '50_50');
+    if (serverChanged('profitSharePercent', contract.profitSharePercent)) {
+      setProfitSharePercent(contract.profitSharePercent != null ? String(contract.profitSharePercent) : '');
+    }
     if (serverChanged('previewUrl', contract.previewUrl)) setPreviewUrl(contract.previewUrl || '');
     if (serverChanged('companySignatureDataUrl', contract.companySignatureDataUrl)) setSignatureDirty(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -429,8 +440,10 @@ function ContractRow({
     JSON.stringify(payments) !== JSON.stringify(baselinePayments(contract)) ||
     installmentsPlannedNum !== (contract.installmentsPlanned || 0) ||
     adminNotes !== (contract.adminNotes || '') ||
+    adminNotesEn !== (contract.adminNotesEn || '') ||
     deliveryText.trim() !== (contract.deliveryTimelineText || '') ||
     paymentPlan !== (contract.paymentPlan || '50_50') ||
+    profitSharePercent.trim() !== (contract.profitSharePercent != null ? String(contract.profitSharePercent) : '') ||
     previewUrl.trim() !== (contract.previewUrl || '') ||
     signatureDirty;
 
@@ -463,8 +476,16 @@ function ContractRow({
         // sending `undefined` under merge:true could not do.
         installmentsPlanned: installmentsPlannedNum,
         adminNotes: adminNotes.trim(),
+        // نصّ فاضي لا undefined: put() في lib/db.ts يتجاهل undefined كلياً (لا يكتب العمود)،
+        // فمسح الحقل هنا ثم الحفظ كان سيترك القيمة القديمة في القاعدة بلا تغيير — نفس السبب
+        // الذي يجعل previewUrl فوقها يُرسَل بـ.trim() لا شرطاً.
+        adminNotesEn: adminNotesEn.trim(),
         deliveryTimelineText: deliveryText.trim(),
         paymentPlan,
+        // صفر لا undefined لنفس سبب installmentsPlanned تحت: كل قارئ لهذا الحقل يستعمل
+        // `!= null` أو `|| 0`، فصفر وغياب القيمة يعنيان الشيء نفسه هنا فعلاً — ومسح الحقل
+        // يحتاج قيمة تُكتب فعلاً لا تُتجاهَل.
+        profitSharePercent: profitSharePercent.trim() ? Number(profitSharePercent) : 0,
         previewUrl: previewUrl.trim(),
         // علامة الحبر الداكن تُكتب مع التوقيع نفسه وفي نفس الحفظ — لو كُتبت لاحقاً لظهر
         // التوقيع مقلوباً (أبيض على أبيض) في الفترة بينهما.
@@ -491,7 +512,9 @@ function ContractRow({
               totalPriceIQD: Number(totalPrice) || 0,
               deliveryTimelineText: deliveryText.trim(),
               paymentPlan,
+              ...(profitSharePercent.trim() ? { profitSharePercent: Number(profitSharePercent) } : {}),
               adminNotes: adminNotes.trim(),
+              ...(adminNotesEn.trim() ? { adminNotesEn: adminNotesEn.trim() } : {}),
             },
             approvedBy
           );
@@ -978,8 +1001,26 @@ function ContractRow({
                   <option value="50_50">{isAr ? '50% عند التعاقد و50% عند التسليم' : '50% on signing, 50% on delivery'}</option>
                   <option value="100_upfront">{isAr ? 'دفعة كاملة مسبقة' : 'Full upfront'}</option>
                   <option value="3_milestones">{isAr ? '3 دفعات على مراحل' : '3 milestones'}</option>
+                  <option value="profit_share">{isAr ? 'نسبة من الأرباح' : 'Percentage of profit'}</option>
                 </select>
               </div>
+              {/* يظهر فقط حين تكون آلية السداد "نسبة من الأرباح" — حقل بلا معنى لأي خطة
+                  أخرى، وإظهاره دائماً كان سيسأل عن رقم لا يُستعمل في 3 من كل 4 حالات. */}
+              {paymentPlan === 'profit_share' && (
+                <div className="min-w-0">
+                  <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'النسبة المتفق عليها (%)' : 'Agreed percentage (%)'}</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    value={profitSharePercent}
+                    onChange={(e) => setProfitSharePercent(e.target.value)}
+                    placeholder={isAr ? 'مثال: 15' : 'e.g. 15'}
+                    className="w-full px-2.5 py-2 rounded-lg bg-paper border border-ink/10 text-ink text-xs font-mono"
+                  />
+                </div>
+              )}
               <div className="min-w-0">
                 <label className="block text-[11px] text-ink/50 mb-1">{isAr ? 'عدد الدفعات المتفق عليها' : 'Agreed installments'}</label>
                 <input
@@ -1070,16 +1111,52 @@ function ContractRow({
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">
-              {isAr ? 'الشروط المتفق عليها بعد المراجعة (تظهر على العقد المطبوع)' : 'Agreed Terms After Review (shown on the printed contract)'}
-            </label>
-            <textarea
-              rows={3}
-              value={adminNotes}
-              onChange={(e) => setAdminNotes(e.target.value)}
-              placeholder={isAr ? 'مثال: تم الاتفاق على تخفيض السعر مقابل الدفع الكامل مسبقاً...' : 'e.g. Agreed on a reduced price in exchange for full upfront payment...'}
-              className="w-full p-3 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs"
-            />
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <label className="block text-[11px] font-semibold text-ink/60">
+                {isAr ? 'الشروط المتفق عليها بعد المراجعة (تظهر على العقد المطبوع)' : 'Agreed Terms After Review (shown on the printed contract)'}
+              </label>
+              {/* لسانان لا حقل واحد يُترجَم: هذا نصّنا، فمن حقّنا كتابته بلغتين — بخلاف نصّ
+                  العميل (customFeaturesText) الذي لا يُلمَس أبداً. اللسان يبدّل أيّ من
+                  الحقلين ظاهر فقط؛ كلاهما محفوظ دائماً معاً عند الضغط على حفظ. */}
+              <div className="flex items-center gap-1 shrink-0 bg-paper rounded-lg border border-ink/10 p-0.5">
+                {([
+                  { id: 'ar' as const, label: 'AR' },
+                  { id: 'en' as const, label: 'EN' },
+                ]).map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setAdminNotesLang(opt.id)}
+                    className={`px-2 py-1 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
+                      adminNotesLang === opt.id ? 'bg-ink text-paper' : 'text-ink/50 hover:text-ink'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {adminNotesLang === 'ar' ? (
+              <textarea
+                key="ar"
+                rows={3}
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                placeholder={isAr ? 'مثال: تم الاتفاق على تخفيض السعر مقابل الدفع الكامل مسبقاً...' : 'e.g. Agreed on a reduced price in exchange for full upfront payment...'}
+                dir="rtl"
+                className="w-full p-3 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs"
+              />
+            ) : (
+              <textarea
+                key="en"
+                rows={3}
+                value={adminNotesEn}
+                onChange={(e) => setAdminNotesEn(e.target.value)}
+                placeholder="e.g. Agreed on a reduced price in exchange for full upfront payment... — shown only when the contract is printed in English; leave empty to fall back to the Arabic text above."
+                dir="ltr"
+                className="w-full p-3 rounded-xl bg-white/70 border border-ink/10 text-ink text-xs"
+              />
+            )}
           </div>
 
           {/* رابط المعاينة الخاص — المكان الذي يرفع فيه الأدمن رابط نسخة العميل الجارية

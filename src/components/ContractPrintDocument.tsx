@@ -203,6 +203,13 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
           return isAr ? 'دفعة كاملة مسبقة (خصم 5%)' : 'Full upfront payment (5% discount)';
         case '3_milestones':
           return isAr ? '3 دفعات حسب مراحل الإنجاز الموثقة' : '3 installments across documented milestones';
+        case 'profit_share': {
+          const pct = contract.profitSharePercent;
+          const pctText = pct != null ? `${pct}%` : (isAr ? 'نسبة تُحدَّد' : 'a percentage to be agreed');
+          return isAr
+            ? `${pctText} من صافي أرباح الموقع أو التطبيق، وفق ما ورد في القسم الثاني`
+            : `${pctText} of the site's or app's net profit, per Section Two`;
+        }
         default:
           return contract.paymentPlan;
       }
@@ -785,10 +792,14 @@ export const ConnectedContractPrintDocument = React.forwardRef<
   HTMLDivElement,
   { contract: ContractData; language: Language; frozenTerms?: string[] }
 >(({ contract, language, frozenTerms }, ref) => {
-  /* حرفياً كما كُتبا — انظر نفس التعليق في ContractPDFPreview: العقد يُطبع بنصّ صاحبه، لا
-     بإعادة صياغة آلية له. */
+  /* نصّ العميل (customFeaturesText) حرفياً كما كُتب دائماً — انظر نفس التعليق في
+     ContractPDFPreview: العقد يُطبع بنصّ صاحبه، لا بإعادة صياغة آلية له.
+
+     ملاحظات الأدمن (adminNotes) مختلفة: هي نصّنا، فحين تُطبع الوثيقة بالإنجليزية ووُجدت
+     adminNotesEn تُستعمل هي — نسختنا الإنجليزية المكتوبة بيدنا، لا ترجمة. غيابها يُرجَع
+     لـadminNotes كما كان الحال قبل وجود الحقل الثاني، فعقد قديم لا يفقد شيئاً. */
   const translatedNotes = contract.customFeaturesText;
-  const translatedAdminNotes = contract.adminNotes;
+  const translatedAdminNotes = language === 'en' && contract.adminNotesEn ? contract.adminNotesEn : contract.adminNotes;
 
   return (
     <ContractPrintDocument

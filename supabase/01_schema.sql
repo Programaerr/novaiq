@@ -32,9 +32,13 @@ do $$ begin
 end $$;
 do $$ begin
   if not exists (select 1 from pg_type where typname = 'payment_plan') then
-    create type payment_plan as enum ('50_50', '100_upfront', '3_milestones');
+    create type payment_plan as enum ('50_50', '100_upfront', '3_milestones', 'profit_share');
   end if;
 end $$;
+-- قاعدة جديدة كلياً تنشئ النوع بالقيمة أعلاه فتتجاوز هذا السطر بلا أثر؛ قاعدة سبق تشغيل هذا
+-- الملف عليها تحتاجه لتضيف القيمة لنوع موجود أصلاً. لا يجوز أن يقع هذا داخل `do $$ ... end $$`:
+-- `alter type ... add value` يرفض العمل داخل كتلة معاملة تستعمل القيمة نفسها بعدها مباشرة.
+alter type payment_plan add value if not exists 'profit_share';
 do $$ begin
   if not exists (select 1 from pg_type where typname = 'payment_status') then
     create type payment_status as enum ('unpaid', 'partial', 'paid');
@@ -119,6 +123,12 @@ create table if not exists public.contracts (
   cancellation_requested_at timestamptz,
   cancellation_reason  text check (cancellation_reason is null or length(cancellation_reason) < 2000),
   admin_notes          text,
+  -- النسخة الإنجليزية، بقلم الأدمن أيضاً. اختياري: تُطبع فقط حين تُطلب الوثيقة بالإنجليزية
+  -- ووُجدت، وإلا يُرجَع لـadmin_notes كما كان الحال دائماً.
+  admin_notes_en       text,
+  -- نسبة فقط، لا تُقرأ إلا حين payment_plan = 'profit_share'. numeric لا integer لأن نسبة
+  -- كـ 12.5% اتفاق فعلي محتمل، لا خطأ إدخال.
+  profit_share_percent numeric,
 
   -- ملخّص الدفعات. يُحسب من جدول `contract_payments` بمشغّل أدناه، لا يُكتب يدوياً —
   -- في Firestore كان الكود يعيد حسابه عند كل حفظة ويأمل أن يبقى متّسقاً.
@@ -140,6 +150,11 @@ comment on column public.contracts.email is
 -- 03_notifications.sql). أُبقي هذا السطر لا لإنشائه بل لحذفه ممن سبق أن شغّل نسخة أقدم من
 -- هذا الملف — إعادة تشغيله على قاعدة جديدة كلياً لا تجد العمود فتتجاوز الأمر بلا أثر.
 alter table public.contracts drop column if exists telegram_topic_id;
+
+-- قاعدة سبق تشغيل هذا الملف عليها لن تلتقط الأعمدة الجديدة من create table (لأنه if not
+-- exists ولم يعِد التنفيذ) — نفس سبب alter الأعلى، ونفس الحل.
+alter table public.contracts add column if not exists admin_notes_en text;
+alter table public.contracts add column if not exists profit_share_percent numeric;
 
 create index if not exists contracts_user_id_idx  on public.contracts (user_id);
 create index if not exists contracts_email_idx    on public.contracts (email);

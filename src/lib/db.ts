@@ -25,6 +25,7 @@ const CONTRACT_COLUMNS = [
   'company_signature_data_url', 'company_signature_ink',
   'status', 'created_at', 'updated_at', 'completed_at', 'development_started_at', 'preview_url',
   'snapshot_hash', 'snapshot_at', 'cancellation_requested_at', 'cancellation_reason', 'admin_notes',
+  'admin_notes_en', 'profit_share_percent',
   'paid_amount_iqd', 'payment_status', 'installments_planned',
 ].join(', ');
 
@@ -59,6 +60,7 @@ function fromRow(row: Row, payments?: PaymentRecord[]): ContractData {
     basePriceIQD: n('base_price_iqd'),
     totalPriceIQD: n('total_price_iqd'),
     paymentPlan: (row.payment_plan as ContractData['paymentPlan']) || '50_50',
+    profitSharePercent: row.profit_share_percent != null ? Number(row.profit_share_percent) : undefined,
     deliveryTimelineText: s('delivery_timeline_text'),
     deliveryTimelineWeeks: n('delivery_timeline_weeks'),
     signatureDataUrl: (row.signature_data_url as string) || '',
@@ -78,6 +80,7 @@ function fromRow(row: Row, payments?: PaymentRecord[]): ContractData {
     cancellationRequestedAt: s('cancellation_requested_at'),
     cancellationReason: s('cancellation_reason'),
     adminNotes: s('admin_notes'),
+    adminNotesEn: s('admin_notes_en'),
     paidAmountIQD: n('paid_amount_iqd'),
     paymentStatus: (row.payment_status as ContractData['paymentStatus']) || 'unpaid',
     installmentsPlanned: n('installments_planned'),
@@ -115,6 +118,7 @@ function toRow(c: Partial<ContractData>): Row {
   put('base_price_iqd', c.basePriceIQD);
   put('total_price_iqd', c.totalPriceIQD);
   put('payment_plan', c.paymentPlan);
+  put('profit_share_percent', c.profitSharePercent);
   put('delivery_timeline_text', c.deliveryTimelineText);
   put('delivery_timeline_weeks', c.deliveryTimelineWeeks);
   put('signature_data_url', c.signatureDataUrl);
@@ -133,6 +137,7 @@ function toRow(c: Partial<ContractData>): Row {
   put('cancellation_requested_at', c.cancellationRequestedAt);
   put('cancellation_reason', c.cancellationReason);
   put('admin_notes', c.adminNotes);
+  put('admin_notes_en', c.adminNotesEn);
   put('installments_planned', c.installmentsPlanned);
   /* `paid_amount_iqd` و`payment_status` غير موجودين هنا عمداً: يشتقّهما مشغّل في القاعدة من
      جدول الدفعات، فكتابتهما يدوياً تعني رقمين قد يتناقضان مع الدفتر الذي بُنيا منه. */
@@ -356,9 +361,9 @@ export function subscribeToContractCosts(callback: (costs: Record<string, number
 export async function updateContractFields(
   contract: Pick<ContractData, 'id' | 'contractNumber' | 'developmentStartedAt'>,
   fields: Partial<Pick<ContractData,
-    'status' | 'totalPriceIQD' | 'adminNotes' | 'companySignatureDataUrl' | 'companySignatureInk'
+    'status' | 'totalPriceIQD' | 'adminNotes' | 'adminNotesEn' | 'companySignatureDataUrl' | 'companySignatureInk'
     | 'costIQD' | 'payments' | 'installmentsPlanned' | 'previewUrl' | 'deliveryTimelineWeeks'
-    | 'deliveryTimelineText' | 'paymentPlan' | 'cancellationRequestedAt' | 'cancellationReason'
+    | 'deliveryTimelineText' | 'paymentPlan' | 'profitSharePercent' | 'cancellationRequestedAt' | 'cancellationReason'
     | 'snapshotHash' | 'snapshotAt'>>
 ): Promise<void> {
   const docId = (contract.contractNumber || '').trim() || (contract.id || '').trim();
@@ -455,7 +460,7 @@ export async function deleteContract(contractId?: string, contractNumber?: strin
 // ═══ سجلّ التدقيق ══════════════════════════════════════════════════════════════════════
 
 const AUDITED_FIELDS: (keyof ContractData)[] = [
-  'status', 'totalPriceIQD', 'adminNotes', 'previewUrl', 'paymentPlan',
+  'status', 'totalPriceIQD', 'adminNotes', 'adminNotesEn', 'previewUrl', 'paymentPlan', 'profitSharePercent',
   'deliveryTimelineText', 'deliveryTimelineWeeks', 'installmentsPlanned', 'companySignatureDataUrl',
 ];
 

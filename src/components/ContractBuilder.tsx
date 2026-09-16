@@ -280,7 +280,7 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   const [themePreference, setThemePreference] = useState<'dark' | 'light' | 'both'>(draft?.themePreference || 'dark');
   const [languageSupport, setLanguageSupport] = useState<'ar' | 'en' | 'ar_en'>(draft?.languageSupport || 'ar_en');
-  const [paymentPlan] = useState<'50_50' | '100_upfront' | '3_milestones'>('50_50');
+  const [paymentPlan] = useState<ContractData['paymentPlan']>('50_50');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   /* البنود خلف زرّ.

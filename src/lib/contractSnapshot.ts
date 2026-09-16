@@ -41,10 +41,12 @@ export interface ContractSnapshot {
     projectType?: 'website' | 'app';
     customFeaturesText: string;
     adminNotes: string;
+    adminNotesEn?: string;
     totalPriceIQD: number;
     deliveryTimelineWeeks: number;
     deliveryTimelineText: string;
     paymentPlan: ContractData['paymentPlan'];
+    profitSharePercent?: number;
     languageSupport: ContractData['languageSupport'];
     /** متى فُتحت البنود أمام العميل قبل توقيعه — جزء من كيفية التوقيع لا من محتواه، ولذلك
      *  يُجمَّد معه: هو ما يجيب لاحقاً على "هل عُرضت عليه؟". */
@@ -85,10 +87,12 @@ function buildSnapshotBody(contract: ContractData, approvedBy: string) {
       ...(contract.projectType ? { projectType: contract.projectType } : {}),
       customFeaturesText: contract.customFeaturesText || '',
       adminNotes: contract.adminNotes || '',
+      ...(contract.adminNotesEn ? { adminNotesEn: contract.adminNotesEn } : {}),
       totalPriceIQD: contract.totalPriceIQD || 0,
       deliveryTimelineWeeks: contract.deliveryTimelineWeeks || 0,
       deliveryTimelineText: contract.deliveryTimelineText || '',
       paymentPlan: contract.paymentPlan,
+      ...(contract.profitSharePercent != null ? { profitSharePercent: contract.profitSharePercent } : {}),
       ...(contract.termsViewedAt ? { termsViewedAt: contract.termsViewedAt } : {}),
       languageSupport: contract.languageSupport,
       themePreference: contract.themePreference,

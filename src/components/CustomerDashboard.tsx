@@ -797,7 +797,9 @@ function CustomerContractRow({
           {contract.adminNotes && (
             <div className="p-3 rounded-xl bg-amber-100/80 border border-amber-300/40 text-xs">
               <span className="text-amber-700 font-bold block mb-1">{isAr ? 'الشروط المتفق عليها بعد المراجعة:' : 'Agreed Terms After Review:'}</span>
-              <p className="text-ink/90">{contract.adminNotes}</p>
+              {/* adminNotesEn حين لا isAr ووُجدت — نصّنا المكتوب بالإنجليزية لا ترجمة، بنفس
+                  منطق ContractPrintDocument.tsx تماماً. */}
+              <p className="text-ink/90">{!isAr && contract.adminNotesEn ? contract.adminNotesEn : contract.adminNotes}</p>
             </div>
           )}
 

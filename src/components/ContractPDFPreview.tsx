@@ -37,12 +37,15 @@ export const ContractPDFPreview: React.FC<ContractPDFPreviewProps> = ({
   const printRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  /* نصّ العميل وملاحظات الأدمن يُعرضان كما كُتبا حرفياً.
-     كانا يمرّان على خدمة ترجمة آلية وقت العرض؛ أُلغيت الخدمة بالكامل، وهذا هو الصواب هنا
+  /* نصّ العميل يُعرض كما كُتب حرفياً، دائماً.
+     كان يمرّ على خدمة ترجمة آلية وقت العرض؛ أُلغيت الخدمة بالكامل، وهذا هو الصواب هنا
      تحديداً لا مجرد نتيجة للإلغاء: ما وقّع عليه العميل هو النص الذي كتبه، وإعادة صياغته آلياً
-     في وثيقة تعاقدية تغيّر معناه بلا أن يوافق أحد على الصياغة الجديدة. */
+     في وثيقة تعاقدية تغيّر معناه بلا أن يوافق أحد على الصياغة الجديدة.
+
+     ملاحظات الأدمن مختلفة: هي نصّنا، فحين تُعرض الوثيقة بالإنجليزية ووُجدت adminNotesEn
+     تُستعمل هي — نسختنا الإنجليزية المكتوبة بيدنا لا ترجمة آلية. */
   const customNotes = contract.customFeaturesText;
-  const translatedAdminNotes = contract.adminNotes;
+  const translatedAdminNotes = language === 'en' && contract.adminNotesEn ? contract.adminNotesEn : contract.adminNotes;
   const templateTitle = translateText(contract.templateTitle, language);
   const city = translateText(contract.city, language);
 
