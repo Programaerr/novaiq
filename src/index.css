@@ -1005,6 +1005,15 @@
    browsers that get the real blur see dark glass instead of light. */
 .nq-card-glass {
   background: #3D454A;
+  /* حارس ضدّ عطل رسم معروف بـChrome/Blink: عنصر يحمل backdrop-filter وrounded corners
+     وoverflow:hidden معاً (والثلاثة هنا على نفس العنصر) قد يُركِّب حافته المنحنية بخطأ
+     تقريب (rounding) على بعض تعريفات كرت الشاشة، فيظهر خط رفيع فاتح أو داكن بالضبط عند
+     الحافة — بلا علاقة بالتصميم، عطل رسم بحت. `isolation: isolate` يعطي العنصر سياق
+     تركيب (compositing context) مستقلاً، و`translateZ(0)` يدفعه لطبقة GPU منفصلة —
+     كلاهما يغيّر مسار الترقيم الداخلي لا المظهر، وهذا هو الإصلاح المعروف لهذا العطل
+     تحديداً بلا التخلي عن الضبابية الحيّة (مطلوبة عمداً هنا — انظر تعليق JSX). */
+  isolation: isolate;
+  transform: translateZ(0);
 }
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nq-card-glass {
