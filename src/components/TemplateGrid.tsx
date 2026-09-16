@@ -137,47 +137,28 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
             return (
               <article
                 key={choice.id}
-                /* Frosted glass, not white.
-                
-                   The blur is the load-bearing part, not the transparency. What is behind these
-                   cards is a cube field — high-contrast geometry with its own edges and shading —
-                   so a merely translucent card would show sharp cubes straight through the
-                   headline. The blur is what turns that into a wash the type can sit on. A card
-                   this size over a busy ground either frosts properly or stays opaque; the
-                   in-between is the one option that fails.
+                /* Opaque, not frosted — a deliberate reversal, and why is worth keeping here.
 
-                   The surface itself lives in `.nq-card-glass` (index.css), because the version
-                   for browsers without `backdrop-filter` has to be opaque and an inline style
-                   cannot carry an `@supports`. Measured, not chosen: the frosted card reads
-                   `#202224` (90% Obsidian over the section's own white ground) and WHITE text on
-                   it is 15.96:1 — this is where the brief's "black confined to secondary text"
-                   rule puts the dark neutral, now that the flat section itself is white.
+                   This card used to sit on a live `backdrop-filter` over the animated cube field
+                   behind it: the owner had asked twice for a surface you see the field THROUGH,
+                   and at 8px blur the type stayed readable (`.nq-card-glass` composited to
+                   `#3C4449` over the brightest cube, 4.71:1 on the weakest label).
 
-                   A hairline border and no box-shadow of any kind. Glass needs a lit edge to
-                   read as a pane rather than as a hole, and a 1px inside-white line does that
-                   without putting any ink back under the card.
+                   That is gone. A customer sent a screenshot of a bright vertical line running
+                   through the card's own text — not a design element, a rendering fault, and it
+                   only appeared while interacting with the navbar above. `backdrop-filter`
+                   re-samples whatever is composited behind it every time that changes, and on
+                   some GPU/driver combinations that re-sample comes back wrong at exactly the
+                   moment something nearby repaints. Two attempts at fixing the artifact while
+                   keeping the live blur went nowhere — the second one made it worse, which is the
+                   point at which guessing at a GPU compositing bug from a machine that cannot
+                   reproduce it stops being a reasonable way to spend the customer's patience.
 
-                   `backdrop-filter` re-samples what is beneath it, and beneath it is a WebGL
-                   field that animates — so this costs a blur pass per frame per card while the
-                   field is running. Measured at 120fps on the reference machine with both cards
-                   on screen, and the field already parks itself at `frameloop: 'never'` when it
-                   scrolls out and on `data-idle`, which is when two full-card blurs would
-                   otherwise be pure waste.
-
-                   8px, where this was 18. The paragraph above still describes the reasoning
-                   that put it at 18 — far enough that no cube edge survives — and the owner has
-                   asked for the opposite twice, on this card and on the hero before it: a
-                   surface you can see the field THROUGH. Erasing the grid is also what made
-                   the card read opaque regardless of its alpha, since blurring a regular
-                   repeating pattern averages it away and whatever light still came through
-                   arrived as a flat lift. Proven on the hero, where 22px and 12px were
-                   indistinguishable from each other.
-
-                   What keeps the type readable at 8px is no longer the blur, it is the
-                   surface: `.nq-card-glass` composites to `#3C4449` over the brightest cube
-                   behind it, where the weakest ink on this card — its 0.62 label — measures
-                   4.71:1. */
-                className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden backdrop-blur-[8px] backdrop-saturate-[140%] border border-white/45"
+                   The surface is fully opaque now (`.nq-card-glass` in index.css, no `@supports`
+                   branch left to turn translucent), so there is no live blur left to mis-sample
+                   and nothing left for a seam to appear in. The see-through effect is the cost of
+                   that; a card that cannot render a line through its own headline is worth it. */
+                className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden border border-white/45"
               >
                 {/* The white sheen that used to run across the top of each card is gone, on the
                     owner's call. It was a lit top edge for a card that was nearly opaque; on
