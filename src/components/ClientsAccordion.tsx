@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowUpLeft, Building2, ChevronLeft, ChevronRight, Images } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useClientsStrip, type ClientItem } from '../lib/clientsStrip';
 import { useSeen } from '../lib/useSeen';
+import { AppShotsViewer } from './AppShotsViewer';
+import { NqButton } from './ui/NqButton';
 import { NqLink } from './ui/NqLink';
 import { WorkMotif } from './WorkMotif';
 import { safeMotif } from '../lib/workMotifs';
@@ -69,6 +71,15 @@ function useNarrowViewport(): boolean {
   return narrow;
 }
 
+/**
+ * أصناف زرّ البطاقة، يتقاسمها الرابط والزرّ.
+ *
+ * صفٌّ واحد لا نسختان: ما يتبدّل بين "زيارة الموقع" و"مشاهدة التطبيق" هو العنصر ووجهته،
+ * لا شكله — ونسختان من هذا السطر كانتا ستفترقان عند أوّل تعديل على إحداهما.
+ */
+const VISIT_CLASS =
+  'nq-work-visit nq-label whitespace-nowrap tracking-[0.12em] uppercase sm:text-base uw:text-lg';
+
 interface WorkPanelProps {
   item: ClientItem;
   active: boolean;
@@ -103,6 +114,12 @@ const WorkPanel: React.FC<WorkPanelProps> = ({
      مقيسة على منفذ لمس: الضغطة كانت تترك `data-open` عند "false". */
   const wasActive = useRef(false);
 
+  /* التطبيق لا رابط له يُزار، فزرّه يفتح عارض لقطاته. والحالة هنا لا في المكوّن الأب لأنّها
+     تخصّ لوحاً بعينه — ولا يُغلق العارض بإغلاق اللوح: هو منقول إلى `body` ويغطّي الصفحة،
+     فمغادرة المؤشّر للوح تحته ليست طلب إغلاق. */
+  const [viewing, setViewing] = useState(false);
+  const isApp = item.kind === 'app';
+  const shots = item.shots ?? [];
 
   return (
     <li
@@ -213,10 +230,36 @@ const WorkPanel: React.FC<WorkPanelProps> = ({
           فالزرّ موجود وظاهر أنّه لا يؤدّي إلى شيء بعد، وأوّل ما يُلصَق عنوان في لوحة الأدمن يصير
           رابطاً عاملاً بلا تغيير كود. وما يصير أبداً: رابط حيّ إلى عنوان مخمّن، وهذه شركات
           حقيقية. والعنوان حين يوجد مفلتر أصلاً في `safeUrl` (clientsStrip.ts): http/https فقط. */}
+      {/* التطبيق يُشاهَد ولا يُزار.
+
+          الموقع وجهةٌ: `<a href>` يُعلَن رابطاً، ويفتحه الضغط الأوسط أو ⌘ في تبويب، ويُظهر
+          المتصفّح عنوانه عند المرور. والتطبيق لا وجهة له — يعيش في متجر أو على هاتف — فما
+          يُعرَض منه لقطاته، والعرض فعلٌ لا انتقال، فعنصره `<button>`. وهي قاعدة NqLink.tsx
+          نفسها حرفاً بحرف: الاختيار بين الاثنين ليس عن الشكل، فهما متطابقان، بل عمّا يحدث
+          عند الضغط.
+
+          والمعطَّل معناه واحد في الحالتين: لا عنوان بعد، أو لا لقطات بعد. */}
+      {isApp ? (
+        <NqButton
+          className={VISIT_CLASS}
+          /* لا `href="#"` ولا نافذة فارغة: تطبيقٌ لم تُضَف لقطاته بعد زرٌّ لا يؤدّي إلى شيء،
+             ويقول ذلك، ويعمل أوّل ما تُلصَق أوّل لقطة في اللوحة بلا تغيير كود. */
+          disabled={shots.length === 0}
+          onClick={() => setViewing(true)}
+          tone="white"
+          variant="solid"
+          size={narrow ? 'sm' : 'md'}
+          badge={<Images className="w-3.5 h-3.5" strokeWidth={2.6} />}
+          /* ستّة أزرار نصّها واحد لا تقول لقارئ الشاشة تطبيقَ مَن تفتح. */
+          aria-label={isAr ? `مشاهدة لقطات تطبيق ${item.name}` : `View ${item.name} app screenshots`}
+        >
+          {isAr ? 'مشاهدة التطبيق' : 'View app'}
+        </NqButton>
+      ) : (
       <NqLink
         /* نفس معالجة زرّ "اطلب مشروعك" في Footer.tsx بالضبط — منقولة لا مُقرّبة.
            `mt-4` وحدها لم تأتِ: هي مسافة تكديس تخصّ الفوتر، وهذا الزرّ موضوع مطلقاً. */
-        className="nq-work-visit nq-label whitespace-nowrap tracking-[0.12em] uppercase sm:text-base uw:text-lg"
+        className={VISIT_CLASS}
         href={item.url ?? '#'}
         disabled={!item.url}
         target="_blank"
@@ -241,6 +284,18 @@ const WorkPanel: React.FC<WorkPanelProps> = ({
             الصندوق: درجة أصغر من SIZES، وخطّ وحشو وفجوة أضيق في الـCSS. */}
         {isAr ? 'زيارة الموقع' : 'Visit site'}
       </NqLink>
+      )}
+
+      {/* منقولٌ إلى `body` من داخل المكوّن (انظر AppShotsViewer.tsx)، فبقاؤه هنا في شجرة
+          React لا يعني بقاءه هنا في الصفحة: يظلّ مفتوحاً وإن أُغلق اللوح تحته. */}
+      {viewing && (
+        <AppShotsViewer
+          name={item.name}
+          shots={shots}
+          isAr={isAr}
+          onClose={() => setViewing(false)}
+        />
+      )}
     </li>
   );
 };

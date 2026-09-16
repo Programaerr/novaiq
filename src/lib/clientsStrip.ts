@@ -29,6 +29,20 @@ const SETTINGS_KEY = 'clients';
 /** سقف عملي دون سقف Firestore الصلب (1MB) بهامش يكفي لبقية الحقول ولترميز base64. */
 export const CLIENTS_DOC_BUDGET_BYTES = 700 * 1024;
 
+/**
+ * ما أُنجز لهذا العميل: موقع إلكتروني أم تطبيق هاتف.
+ *
+ * ليس تصنيفاً للعرض بل يقرّر ما يفعله الزرّ على بطاقته. الموقع يُزار: رابط يفتح في تبويب
+ * جديد. والتطبيق لا عنوان له يُزار — يعيش في متجر أو على هاتف — فما يُعرَض منه لقطاته،
+ * وتُشاهَد داخل الصفحة نفسها.
+ *
+ * والغياب يعني "موقع": هو ما كانت عليه كل شركة حُفظت قبل وجود هذا الحقل، فلا يتبدّل عندها شيء.
+ */
+export type ClientKind = 'site' | 'app';
+
+/** أقصى عدد لقطات لتطبيق واحد — حدٌّ للعارض لا للمستند، فاللقطات روابط لا صور مخزَّنة. */
+export const MAX_APP_SHOTS = 12;
+
 export interface ClientItem {
   id: string;
   /** الاسم — يُعرَض نصاً حين لا توجد صورة، ويُستعمل دائماً كـ alt للصورة. */
@@ -61,6 +75,20 @@ export interface ClientItem {
    * حقيقية لا زخارف. والغياب يعني المحايد (`spark`): حركة لا تقول شيئاً عن عملها.
    */
   motif?: WorkMotifId;
+  /** انظر `ClientKind` أعلاه. الغياب = موقع إلكتروني. */
+  kind?: ClientKind;
+  /**
+   * لقطات شاشة التطبيق، بالترتيب الذي تُعرَض به في العارض.
+   *
+   * روابط لا صوراً مرفوعة، بخلاف الشعار فوقها — وهذا ليس تناقضاً: الشعار يُصغَّر في المتصفّح
+   * إلى عشرات الكيلوبايت فيسع المستند عشرات منه، واللقطة الواحدة من هاتف حديث تتجاوز
+   * الميغابايت وحدها. وسقف المستند كلّه 700KB (أعلاه)، فأربع لقطات مرفوعة كانت ستملؤه
+   * وتمنع حفظ القسم كلّه — لا حفظ اللقطات وحدها.
+   *
+   * تُحفَظ أياً كان `kind` ولا تُقرأ إلّا حين يكون `app`: من بدّل النوع ذهاباً وإياباً يجد
+   * ما كتبه كما تركه، بدل أن يمحوه التبديل بصمت.
+   */
+  shots?: string[];
 }
 
 export interface ClientsStrip {
@@ -86,8 +114,11 @@ export const DEFAULT_CLIENTS_STRIP: ClientsStrip = {
  * `href` يحمل قيمة يكتبها الأدمن، وقيمة تبدأ بـ javascript: تُنفّذ عند الضغط — أي أن
  * الحقل سطح حقن لا حقل نص عادي. والفحص هنا لا عند العرض: فيسري على كل مستهلك،
  * اليوم وغداً، ويُصفّى معه أي رابط حُفظ قبل وجود هذا الفحص أصلاً.
+ *
+ * ومُصدَّرة لتستعملها اللوحة أيضاً — لا لتُصفّي، بل لتقول للأدمن قبل الحفظ إنّ ما لصقه
+ * لن يمرّ. فالتصفية الصامتة هنا كانت ستُسقط لقطةً ويبقى العدّاد يقول إنّها موجودة.
  */
-function safeUrl(raw: unknown): string | undefined {
+export function safeUrl(raw: unknown): string | undefined {
   if (typeof raw !== 'string' || !raw.trim()) return undefined;
   try {
     const parsed = new URL(raw.trim());
@@ -114,6 +145,13 @@ function normalize(raw: unknown): ClientsStrip {
             const previewImageUrl = safeUrl(i.previewImageUrl);
             const blurb = String(i.blurb || '').trim();
             const motif = safeMotif(i.motif);
+            const kind: ClientKind = i.kind === 'app' ? 'app' : 'site';
+            /* كلّ لقطة تمرّ بفحص الروابط نفسه: القائمة تُحرَّر من اللوحة وتُخزَّن JSON حرّاً،
+               فقيمة غريبة فيها تصل إلى `src` صورةٍ تُحمَّل. وما لا يمرّ يسقط وحده ولا يُسقِط
+               بقيّة القائمة — لقطة مكسورة لا تمنع عرض الباقي. */
+            const shots = Array.isArray(i.shots)
+              ? (i.shots.map(safeUrl).filter(Boolean) as string[]).slice(0, MAX_APP_SHOTS)
+              : [];
             return {
               id: i.id,
               name: String(i.name || ''),
@@ -122,6 +160,8 @@ function normalize(raw: unknown): ClientsStrip {
               ...(previewImageUrl ? { previewImageUrl } : {}),
               ...(blurb ? { blurb } : {}),
               motif,
+              kind,
+              ...(shots.length ? { shots } : {}),
             };
           })
       : [],
@@ -197,6 +237,11 @@ export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
       // المحايد لا يُكتب: هو ما يعنيه غياب الحقل أصلاً، وكتابته تكبّر المستند بلا معنى.
       // أمّا "بلا حركة" فاختيارٌ صريح ويُكتب، وهو غير المحايد.
       ...(item.motif && item.motif !== DEFAULT_MOTIF ? { motif: item.motif } : {}),
+      // و"موقع" كذلك: هو معنى الغياب، وكلّ ما حُفظ قبل وجود الحقل موقعٌ بالفعل.
+      ...(item.kind === 'app' ? { kind: 'app' as const } : {}),
+      // واللقطات تُكتب أياً كان النوع: من بدّل إلى "موقع" ثم عاد يجدها، ولا يمحوها تبديلٌ
+      // لم يطلب محوها. والعارض لا يقرؤها إلّا مع `app`، فلا تُرى في غير موضعها.
+      ...(item.shots?.length ? { shots: item.shots.slice(0, MAX_APP_SHOTS) } : {}),
     })),
   };
 

@@ -2,14 +2,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MOTIFS, MOTIF_IDS, safeMotif, type WorkMotifId } from '../../lib/workMotifs';
 import { compressLogoFile, STRIP_LOGO_MAX_WIDTH } from '../../lib/logoFile';
-import { Save, Loader2, Building2, Plus, Trash2, ImageUp, CheckCircle2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Save, Loader2, Building2, Plus, Trash2, ImageUp, ImageOff, CheckCircle2, ChevronUp, ChevronDown } from 'lucide-react';
 import {
   useClientsStrip,
   saveClientsStrip,
   estimateStripBytes,
+  safeUrl,
   CLIENTS_DOC_BUDGET_BYTES,
+  MAX_APP_SHOTS,
   type ClientsStrip,
   type ClientItem,
+  type ClientKind,
 } from '../../lib/clientsStrip';
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
@@ -19,6 +22,66 @@ import { showToast } from '../../lib/toast';
 const compressImage = (file: File) => compressLogoFile(file, STRIP_LOGO_MAX_WIDTH);
 
 const newId = () => `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+
+const FIELD =
+  'px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40';
+
+/**
+ * سطر لقطة واحدة: معاينة مصغّرة، وحقل الرابط، وزرّ حذف.
+ *
+ * مكوّن مستقلّ من أجل المعاينة وحدها. المعاينة `<img src>` يتبدّل مع كلّ حرف، و"https://a"
+ * رابطٌ صالح في نظر المتصفّح — أي أنّ لصق عنوان طويل كان سيطلق عشرات الطلبات المهجورة في
+ * أثناء الكتابة. فالرابط المعروض متأخّر 400ms عن الحقل، ولا يُطلَب إلّا ما استقرّ. والهوكات
+ * لا تُستدعى داخل حلقة، فلا سبيل إلى ذلك إلّا بمكوّن.
+ */
+const ShotRow: React.FC<{
+  value: string;
+  index: number;
+  isAr: boolean;
+  onChange: (next: string) => void;
+  onRemove: () => void;
+}> = ({ value, index, isAr, onChange, onRemove }) => {
+  const [settled, setSettled] = useState(value);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSettled(value), 400);
+    return () => clearTimeout(t);
+  }, [value]);
+
+  const preview = safeUrl(settled);
+  /* الفارغ ليس خطأً — هو سطر لم يُملأ بعد. الخطأ أن يُكتب شيء لا يمرّ بـ`safeUrl`، وحينها
+     يُقال الآن لا بعد الحفظ: القراءة تُسقط ما لا يمرّ بصمت، فيبقى الأدمن يظنّ اللقطة محفوظة. */
+  const invalid = value.trim().length > 0 && !safeUrl(value);
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="w-9 h-12 shrink-0 rounded-lg bg-white border border-ink/10 grid place-items-center overflow-hidden">
+        {preview ? (
+          <img src={preview} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          <ImageOff className="w-3.5 h-3.5 text-ink/25" />
+        )}
+      </span>
+      <input
+        dir="ltr"
+        type="url"
+        inputMode="url"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={`https://… — ${isAr ? `لقطة ${index + 1}` : `screenshot ${index + 1}`}`}
+        className={`flex-1 min-w-0 ${FIELD} ${invalid ? 'border-red-500/70' : ''}`}
+      />
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={isAr ? `حذف اللقطة ${index + 1}` : `Remove screenshot ${index + 1}`}
+        className="shrink-0 w-9 h-9 grid place-items-center rounded-xl text-red-600/70 hover:text-red-600 cursor-pointer"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+};
 
 export function ClientsStripCard({ isAr }: { isAr: boolean }) {
   const saved = useClientsStrip();
@@ -99,7 +162,22 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
     }
     setIsSaving(true);
     try {
-      const cleaned = { ...draft, items: draft.items.filter((i) => i.name.trim() || i.logoDataUrl) };
+      /* اللقطات تُنقّى هنا لا عند القراءة وحدها.
+         السطر الفارغ الذي أُضيف ولم يُملأ، والرابط الذي لا يمرّ بـ`safeUrl`، كلاهما كان
+         سيُكتب ثمّ تُسقطه القراءة — أي مستندٌ فيه ما لا يُعرَض أبداً، وعدّادٌ في اللوحة يقول
+         خمس لقطات والزائر يرى ثلاثاً. ويختفيان من اللوحة فور الحفظ، وقد سبق التحذير بالأحمر. */
+      const cleaned = {
+        ...draft,
+        items: draft.items
+          .filter((i) => i.name.trim() || i.logoDataUrl)
+          .map((i) => {
+            const shots = (i.shots || []).map(safeUrl).filter(Boolean) as string[];
+            const next: ClientItem = { ...i };
+            if (shots.length) next.shots = shots;
+            else delete next.shots;
+            return next;
+          }),
+      };
       await saveClientsStrip(cleaned);
       // بعد نجاح الكتابة فقط: لو فشلت، تبقى المسوّدة "متسخة" فلا تمسحها لقطة قادمة قبل أن
       // يحاول الأدمن الحفظ مجدداً.
@@ -328,16 +406,48 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
 
                 dir="ltr" على حقلَي الرابط وحدهما: عنوان لاتيني داخل واجهة عربية يُعرَض
                 مقلوب الترتيب بدونها — والأدمن يحتاج يقرأ ما لصقه. */}
+            {/* نوع العمل، وهو الذي يقرّر ما يفعله زرّ البطاقة عند الزائر: الموقع يُزار في
+                تبويب جديد، والتطبيق تُشاهَد لقطاته في عارض داخل الصفحة.
+
+                قائمة لا مفتاحان، تماماً كقائمة الحركة تحتها: هذا اختيارٌ بين شيئين مسمّيين لا
+                تشغيل/إيقاف، والقائمة تأتي بتنقّل الكيبورد وقارئ الشاشة جاهزَين بلا كود. */}
+            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              <label className="text-[11px] font-black text-ink/70">
+                {isAr ? 'نوع العمل' : 'Kind of work'}
+              </label>
+              <select
+                value={item.kind === 'app' ? 'app' : 'site'}
+                onChange={(e) => patchItem(item.id, { kind: e.target.value as ClientKind })}
+                className={`${FIELD} cursor-pointer`}
+              >
+                <option value="site">{isAr ? 'موقع إلكتروني' : 'Website'}</option>
+                <option value="app">{isAr ? 'تطبيق هاتف' : 'Mobile app'}</option>
+              </select>
+              <span className="text-[11px] font-bold text-ink/45">
+                {item.kind === 'app'
+                  ? isAr
+                    ? 'الزرّ يصير «مشاهدة التطبيق» ويفتح اللقطات في الصفحة.'
+                    : 'The button becomes “View app” and opens the screenshots in place.'
+                  : isAr
+                    ? 'الزرّ «زيارة الموقع» ويفتح الرابط في تبويب جديد.'
+                    : 'The button reads “Visit site” and opens the link in a new tab.'}
+              </span>
+            </div>
+
             <div className="mt-2.5 flex flex-col sm:flex-row gap-2">
-              <input
-                dir="ltr"
-                type="url"
-                inputMode="url"
-                value={item.url || ''}
-                onChange={(e) => patchItem(item.id, { url: e.target.value })}
-                placeholder={isAr ? 'https://example.com — رابط الموقع (اختياري)' : 'https://example.com — site link (optional)'}
-                className="sm:w-[15rem] shrink-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
-              />
+              {/* رابط الموقع لا يُعرَض للتطبيق لأنّه لا يعنيه — لكنّه لا يُمحى أيضاً: من بدّل
+                  النوع ذهاباً وإياباً يجد ما كتبه كما تركه (انظر مسار الحفظ في clientsStrip.ts). */}
+              {item.kind !== 'app' && (
+                <input
+                  dir="ltr"
+                  type="url"
+                  inputMode="url"
+                  value={item.url || ''}
+                  onChange={(e) => patchItem(item.id, { url: e.target.value })}
+                  placeholder={isAr ? 'https://example.com — رابط الموقع (اختياري)' : 'https://example.com — site link (optional)'}
+                  className={`sm:w-[15rem] shrink-0 ${FIELD}`}
+                />
+              )}
               <input
                 dir="ltr"
                 type="url"
@@ -351,9 +461,63 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
                 value={item.blurb || ''}
                 onChange={(e) => patchItem(item.id, { blurb: e.target.value })}
                 placeholder={isAr ? 'سطر عمّا أنجزناه لهذا العميل (اختياري)' : 'A line on what was built for them (optional)'}
-                className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
+                className={`flex-1 min-w-0 ${FIELD}`}
               />
             </div>
+
+            {/* لقطات التطبيق.
+
+                روابط لا رفعاً، بخلاف الشعار فوق: الشعار يُصغَّر في المتصفّح إلى عشرات
+                الكيلوبايت، واللقطة الواحدة من هاتف حديث تتجاوز الميغابايت — وسقف المستند كلّه
+                700KB، فأربع لقطات مرفوعة كانت ستمنع حفظ القسم كلّه لا حفظ اللقطات وحدها.
+                ارفعها إلى أيّ مستضيف صور وألصق الرابط. */}
+            {item.kind === 'app' && (
+              <div className="mt-2.5 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-[11px] font-black text-ink/70">
+                    {isAr ? 'لقطات التطبيق — بالترتيب الذي تُعرَض به' : 'App screenshots — in the order they appear'}
+                  </label>
+                  <span className="text-[10.5px] font-bold text-ink/45 font-mono">
+                    {(item.shots || []).length} / {MAX_APP_SHOTS}
+                  </span>
+                </div>
+
+                {(item.shots || []).map((shot, si) => (
+                  <ShotRow
+                    key={si}
+                    value={shot}
+                    index={si}
+                    isAr={isAr}
+                    onChange={(next) => {
+                      const shots = [...(item.shots || [])];
+                      shots[si] = next;
+                      patchItem(item.id, { shots });
+                    }}
+                    onRemove={() => patchItem(item.id, { shots: (item.shots || []).filter((_, i) => i !== si) })}
+                  />
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => patchItem(item.id, { shots: [...(item.shots || []), ''] })}
+                  disabled={(item.shots || []).length >= MAX_APP_SHOTS}
+                  className="w-full py-2 rounded-xl border border-dashed border-ink/25 text-[11px] font-bold text-ink/60 hover:text-ink hover:border-ink/40 cursor-pointer disabled:opacity-40 disabled:cursor-default flex items-center justify-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  {isAr ? 'إضافة لقطة' : 'Add a screenshot'}
+                </button>
+
+                <p className="text-[10.5px] font-bold text-ink/45 leading-relaxed">
+                  {(item.shots || []).length === 0
+                    ? isAr
+                      ? 'بلا لقطات، زرّ «مشاهدة التطبيق» يظهر معطّلاً — يعمل أوّل ما تُضاف واحدة.'
+                      : 'With no screenshots the “View app” button shows disabled — it works as soon as one is added.'
+                    : isAr
+                      ? 'الروابط التي لا تبدأ بـ http أو https لا تُحفَظ — المحدَّدة بالأحمر لن تظهر.'
+                      : 'Links that do not start with http or https are not saved — the ones outlined in red will not appear.'}
+                </p>
+              </div>
+            )}
 
             {/* حركة الخلفية. تُختار ولا تُستنتَج من الاسم: "أكواد" خلف شركة تقول إنّها شركة
                 برمجيات، و"أقمشة" تقول إنّها تبيع ملابس — وهذه أوصاف لشركات حقيقية لا زخارف،

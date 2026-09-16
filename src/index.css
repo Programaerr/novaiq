@@ -2321,8 +2321,154 @@ html[data-demo] .nq-navbar {
 /* ولا يلغي ذلك تعتيم الحالة المُعطّلة. NqLink يعتّمها بـ `aria-disabled:opacity-60`، وهي أقلّ
    تخصيصاً من قاعدة الإظهار فوقها — فكان زرّ بلا `href` يُرسم بكامل قوّته، وهو بالضبط
    الفشل الذي توجد الحالة المُعطّلة لتمنعه. مقيس: opacity كان 1 مع href فارغ. */
-.nq-work-panel[data-active='true'] .nq-work-visit[aria-disabled='true'] {
+/* المعطَّل بنفس الشكل سواء كان رابطاً أم زرّاً. الرابط لا يملك `disabled` فيُكتب بـaria
+   (انظر NqLink)، والزرّ يملكها فعلاً — والحالتان واحدة هنا: عميلٌ بلا رابط، وتطبيقٌ بلا
+   لقطات بعد. */
+.nq-work-panel[data-active='true'] .nq-work-visit[aria-disabled='true'],
+.nq-work-panel[data-active='true'] .nq-work-visit:disabled {
   opacity: 0.6;
+}
+
+/* ── عارض لقطات التطبيق (AppShotsViewer.tsx) ──────────────────────────────────
+   شاشة كاملة سوداء: اللقطة بنسبة الهاتف — طويلة ضيّقة — ولا يسعها إلّا ارتفاع الشاشة.
+   والسواد ليس لوناً مختاراً بل غياب لون: أي أرضيّة فاتحة تنافس اللقطة نفسها، وهي ملوّنة
+   ومضيئة ومن تصميم غيرنا. */
+.nq-shots {
+  position: fixed;
+  inset: 0;
+  /* فوق شريط الكوكيز (‏z-999) عمداً، وهو أعلى ما في الموقع.
+
+     سلّم الطبقات هنا: 50 للشريط العلوي، 100 للنوافذ، 200 للتنبيهات، 999 للكوكيز. وشريط
+     الكوكيز يغطّي أسفل كلّ نافذة في الموقع منذ اليوم الأوّل، لكنّ هذه أوّل نافذة أزرارها في
+     الأسفل — فمقيسٌ أنّ سهمَي التبديل كانا لا يُضغطان أصلاً قبل أن يختار الزائر بشأن الكوكيز.
+
+     ونافذة `aria-modal` تعني بتعريفها أنّ ما خلفها غير قابل للتفاعل، فبقاء الشريط قابلاً
+     للضغط فوقها تناقضٌ مع ما يُعلَن لقارئ الشاشة. ولا شيء يُمَسّ في الموافقة نفسها: الشريط
+     لا يُغلَق ولا يُتجاوَز، بل يقف خلف نافذة فتحها الزائر بنفسه، ويعود كما كان عند إغلاقها. */
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 10, 13, 0.94);
+  /* يمنع تسلسل التمرير إلى الصفحة تحته حين يبلغ العارض طرفه. */
+  overscroll-behavior: contain;
+  /* الأفقيّ لنا والباقي للمتصفّح: `pan-y pinch-zoom` تترك التقريب بالإصبعين عاملاً — ولقطة
+     تطبيق نصُّها صغير يُقرَّب ليُقرأ — وتمنع المتصفّح وحده من ابتلاع السحب الأفقيّ قبل أن يصل
+     إلى `pointerup`. و`none` كانت ستأخذ التقريب معها بلا سبب. */
+  touch-action: pan-y pinch-zoom;
+}
+
+.nq-shots-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.75rem;
+  color: #f7f7f5;
+}
+
+.nq-shots-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nq-shots-count {
+  /* أرقام بعرض واحد: بدونها يتحرّك العدّاد أفقياً كلّما تبدّل الرقم من 1 إلى 2. */
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.6;
+  margin-inline-start: auto;
+}
+
+/* زرّ العارض: الإغلاق والسهمان معاً. 44px أرضية اللمس نفسها المستعملة في كلّ زرّ لمسي
+   بالموقع، وهي هنا أهمّ لا أقلّ: يد واحدة تمسك الهاتف وتضغط بالإبهام. */
+.nq-shots-btn {
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 247, 245, 0.18);
+  background: rgba(247, 247, 245, 0.08);
+  color: #f7f7f5;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: background-color 180ms ease, opacity 180ms ease;
+}
+
+.nq-shots-btn:hover:not(:disabled) {
+  background: rgba(247, 247, 245, 0.18);
+}
+
+.nq-shots-btn:focus-visible {
+  outline: 2px solid #f7f7f5;
+  outline-offset: 2px;
+}
+
+.nq-shots-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.nq-shots-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 1rem;
+}
+
+.nq-shots-img {
+  max-width: 100%;
+  max-height: 100%;
+  /* `contain` لا `cover`: القصّ هنا يحذف من اللقطة — وهي الشيء المعروض، لا خلفية له. */
+  object-fit: contain;
+  border-radius: 0.75rem;
+  /* الصورة قد تكون شفّافة أو بحواف فاتحة؛ حدٌّ خافت يفصلها عن السواد بلا إطار ثقيل. */
+  box-shadow: 0 0 0 1px rgba(247, 247, 245, 0.12);
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: nq-shots-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes nq-shots-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.nq-shots-broken {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  color: rgba(247, 247, 245, 0.7);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.nq-shots-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nq-shots-img {
+    animation: none;
+  }
 }
 
 /* على اللمس وحده: انفتاح أقصر.
