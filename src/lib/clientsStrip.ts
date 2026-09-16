@@ -4,9 +4,17 @@ import { DEFAULT_MOTIF, safeMotif, type WorkMotifId } from './workMotifs';
 /**
  * "أعمالنا" — شريط متحرك بأسماء/شعارات الشركات التي عملنا معها، تحت قسم الهيرو مباشرة.
  *
- * يتبع نفس نمط socialLinks.ts بالضبط: مستند إعدادات واحد يقرؤه كل زائر ويكتبه الأدمن وحده
- * (قاعدة settings في supabase/02_policies.sql)، مع نسخة محلية تُرسَم فوراً قبل وصول Firestore حتى لا
- * يظهر الشريط ثم يقفز.
+ * يتبع نفس نمط socialLinks.ts: مستند إعدادات واحد يقرؤه كل زائر ويكتبه الأدمن وحده
+ * (قاعدة settings في supabase/02_policies.sql).
+ *
+ * ## ولا نسخة محلية — وهذا تصحيح لا سهو
+ * كانت هنا نسخة في localStorage تُرسَم فوراً ريثما تصل القاعدة، والغرض منها منع قفزة تخطيط.
+ * لكنها كانت تُري الزائر **بيانات قديمة** ثم تستبدلها فجأة أمام عينه — وهذا أسوأ من القفزة
+ * التي وُضعت لمنعها: شعار عميل أُزيل يبقى ظاهراً لحظة، واسم عُدِّل يُقرأ بصيغته السابقة.
+ *
+ * ولم يعد لها ما يبرّرها أصلاً: القسم يبدأ `enabled: false` فيرسم نفسه فارغاً (null) لا
+ * صندوقاً فارغاً، ولا يحجز على الصفحة ارتفاعاً ينهار حين تصل البيانات. فلا قفزة تُمنَع،
+ * ولا فائدة تُفقَد. يظهر مرّة واحدة، صحيحاً.
  *
  * ## لماذا الصور داخل المستند لا في Storage
  * الشعار المرفوع يُصغَّر ويُضغَط في المتصفح قبل الحفظ (انظر SettingsTab) فيصير عشرات الكيلوبايت
@@ -17,7 +25,6 @@ import { DEFAULT_MOTIF, safeMotif, type WorkMotifId } from './workMotifs';
  */
 
 const SETTINGS_KEY = 'clients';
-const CACHE_KEY = 'nuvaiq_clients_strip_cache';
 
 /** سقف عملي دون سقف Firestore الصلب (1MB) بهامش يكفي لبقية الحقول ولترميز base64. */
 export const CLIENTS_DOC_BUDGET_BYTES = 700 * 1024;
@@ -121,23 +128,6 @@ function normalize(raw: unknown): ClientsStrip {
   };
 }
 
-function readCache(): ClientsStrip {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    return raw ? normalize(JSON.parse(raw)) : DEFAULT_CLIENTS_STRIP;
-  } catch {
-    return DEFAULT_CLIENTS_STRIP;
-  }
-}
-
-function writeCache(value: ClientsStrip) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(value));
-  } catch {
-    // مساحة ممتلئة أو تصفّح خاص — الشريط سيعتمد على Firestore وحده، لا أكثر.
-  }
-}
-
 export function subscribeToClientsStrip(callback: (value: ClientsStrip) => void) {
   let unsubscribe: (() => void) | null = null;
   let cancelled = false;
@@ -219,15 +209,10 @@ export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
 
 /** الهوك الوحيد الذي يقرأ منه كل من يعرض الشريط. */
 export function useClientsStrip(): ClientsStrip {
-  const [value, setValue] = useState<ClientsStrip>(readCache);
-  useEffect(
-    () =>
-      subscribeToClientsStrip((next) => {
-        writeCache(next);
-        setValue(next);
-      }),
-    []
-  );
+  /* يبدأ من الافتراضي (enabled: false) لا من نسخة محفوظة: القسم لا يرسم شيئاً إلى أن تصل
+     البيانات الحقيقية، فلا يرى أحد حالةً قديمة تُستبدل أمامه. */
+  const [value, setValue] = useState<ClientsStrip>(DEFAULT_CLIENTS_STRIP);
+  useEffect(() => subscribeToClientsStrip(setValue), []);
   return value;
 }
 

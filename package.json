@@ -7,11 +7,12 @@
     "prepare": "git config core.hooksPath .githooks",
     "dev": "tsx server.ts",
     "build": "vite build && node scripts/check-dist.mjs",
-    "clean": "rm -rf dist",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=nuvaiq",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
     "translations": "node scripts/build-translations.mjs",
     "db:run": "node scripts/run-sql.mjs",
+    "clean": "rm -rf dist",
     "graph:watch": "$(cat graphify-out/.graphify_python 2>/dev/null || echo python) -m graphify.watch . --debounce 3"
   },
   "dependencies": {
@@ -39,7 +40,8 @@
     "three": "0.182.0",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "wrangler": "^4.132.0"
   },
   "overrides": {
     "uuid": "^11.1.1",

@@ -61,6 +61,10 @@ const LoginPage = lazy(() => trackLoad(import('./components/LoginPage').then((m)
 // file): they carry the cube bands, and a band that starts loading when it is scrolled to is a
 // band that is still assembling itself while it is being looked at.
 const PhasesSection = lazy(() => import('./components/PhasesSection').then((m) => ({ default: m.PhasesSection })));
+// أعمالنا. كانت أعلى صفحة القوالب، ونُقلت إلى الرئيسية بطلب المالك لتُرى مباشرة بعد الهيرو.
+// كسولة كبقيّة أقسام ما تحت الطيّة، ولسببٍ إضافي هنا: القسم يحمل مشهد WebGL (WorkMotif)،
+// وتحميله عند الاقتراب يعني ألّا يُنشأ سياق ثانٍ قبل أن يكون هناك من ينظر إليه.
+const ClientsAccordion = lazy(() => import('./components/ClientsAccordion').then((m) => ({ default: m.ClientsAccordion })));
 
 /* لا "وضع ضيف" بعد اليوم.
    كان يوجد علم يُحفظ في sessionStorage معناه "هذا الزائر اختار التصفّح بلا حساب"، وكان لازماً
@@ -576,6 +580,18 @@ export default function App() {
               onStart={() => navigateTo('templates')}
               onRequestProject={startProject}
             />
+
+            {/* أعمالنا — أوّل ما يلي الهيرو: الزائر يقرأ العرض، ثم يرى من عمل معنا فعلاً، قبل
+                أن يُطلب منه شيء. بلا placeholder عمداً، بخلاف القسم الذي تحته: هذا القسم يرسم
+                نفسه فارغاً (null) ما لم يُفعّله الأدمن وتكن فيه شركة واحدة على الأقل، وحجز
+                ارتفاع له كان سيترك فجوة دائمة في كل موقع لم تُضف إليه شركات بعد.
+                و800px من هامش التحميل تعني أنّه يبدأ التحميل فور فتح الصفحة لا عند الوصول
+                إليه — فهو تحت الطيّة مباشرة. */}
+            <LazyOnView rootMargin="800px 0px">
+              <Suspense fallback={null}>
+                <ClientsAccordion language={language} />
+              </Suspense>
+            </LazyOnView>
 
             <LazyOnView
               rootMargin="800px 0px"
