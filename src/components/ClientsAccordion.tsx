@@ -6,7 +6,7 @@ import { useSeen } from '../lib/useSeen';
 import { NqLink } from './ui/NqLink';
 import { WorkMotif } from './WorkMotif';
 import { safeMotif } from '../lib/workMotifs';
-import { OBSIDIAN } from '../lib/homePalette';
+import { OBSIDIAN, PAPER } from '../lib/homePalette';
 
 /**
  * "أعمالنا" — صفّ ألواح عمودية، اللوح الذي تحته المؤشّر ينفتح ويتّسع.
@@ -370,88 +370,107 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
       ref={ref as React.Ref<HTMLElement>}
       data-seen={seen ? 'true' : 'false'}
       aria-labelledby="nq-work-heading"
-      /* المسافة تحته ملكه هو لا ملك البطاقتين بعده: القسم يُطفأ من لوحة الأدمن،
-         وفسحة موضوعة على البطاقات كانت ستبقى بعد إطفائه بلا سبب يفسّرها. */
-      className="mt-4 sm:mt-6 mb-10 sm:mb-14"
+      /* أرضيّته الخاصّة، كما لكلّ قسم في HOME_SECTIONS.md.
+
+         الهيرو فوقه ينتهي بتدرّج `WHITE 84% → PAPER 100%` — أي أنّه يخفت عمداً إلى PAPER
+         ليسلّم إلى "مراحل العمل" تحته وهي PAPER كاملة. وهذا القسم دُسّ بينهما بلا أرضيّة،
+         فظهرت أرضيّة الصفحة (WHITE) من تحته وقطعت التسليم بشريط أبيض له حدّان حادّان:
+         مقيسٌ عند 1204 حيث يبلغ التدرّج PAPER ثمّ يقفز راجعاً إلى WHITE، وعند 1904 حيث
+         تبدأ PAPER من جديد. فأخذ الأرضيّة نفسها، فصار الثلاثة مدىً واحداً.
+
+         و`py` بدل `mt/mb`: الهامش فراغ لا تطلوه الخلفيّة، فكان سيترك الشريطين نفسيهما
+         أنحل. والقيم هي القيم السابقة حرفاً بحرف، فالمسافات لم تتغيّر — اللون وحده تغيّر.
+         وتبقى ملكه هو لا ملك ما بعده: القسم يُطفأ من لوحة الأدمن، وفسحةٌ موضوعة على
+         القسم التالي كانت ستبقى بعد إطفائه بلا سبب يفسّرها. */
+      style={{ background: PAPER }}
+      className="relative pt-4 sm:pt-6 pb-10 sm:pb-14"
     >
-      <h2
-        id="nq-work-heading"
-        /* مقاس عناوين الأقسام نفسه المستعمل في PhasesSection وContactSection — ولا `.nq-label`
-           بعد اليوم: ذاك أصغر خطّ في الموقع وأخفتُه، وهو معنى "لافتة فوق عنصر" لا معنى
-           "اسم قسم". والتوسيط في الـ CSS مع المسافة، حتى يبقيا معاً. */
-        className="nq-work-heading nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
-        style={{ color: OBSIDIAN }}
-      >
-        {strip.title}
-      </h2>
+      {/* الحاوية نفسها التي يستعملها كلّ قسم آخر في الصفحة، لا عرضاً خاصاً بهذا القسم.
 
-      {/* المسرح: الحركة تحت، والصفّ فوقها.
-
-          الحركة ليست ابنةً للوح المفتوح ولا تتبعه: كانفاس واحد ثابت خلف الصفّ كلّه، والألواح
-          فوقه بأرضيّة معتمة يشفّ منها المفتوح وحده. فالنافذة هي صندوق اللوح نفسه وتتّسع مع
-          تمدّده بلا سطر يزامنهما — والبديل (كانفاس ينتقل بين الألواح) كان يعني قراءة التخطيط
-          كلّ إطار، وهو ما تتجنّبه هذه الشاشة أصلاً.
-
-          والغلاف موجود لأنّ `<ul>` لا يحمل إلا `<li>`؛ الكانفاس شقيقٌ للقائمة لا ابنٌ فيها. */}
-      <div className="nq-work-stage nq-rise" style={{ ['--nq-rise-delay' as string]: '90ms' }}>
-        <WorkMotif seen={seen} motif={activeItem ? safeMotif(activeItem.motif) : null} />
-
-        <ul
-          className="nq-work-row"
-          data-open={activeId ? 'true' : 'false'}
-          /* سمتان لا واحدة: الأولى تقول أيّ نصف يجري، والثانية جهته — وفصلهما يعني أنّ
-             حركتَي الخروج والدخول تشتركان في نفس تعريف الجهة بدل أربع حالات. وحذفهما
-             بـ`undefined` لا بـ`''`: `[data-swap]` في الـCSS تنطبق على قيمة فارغة أيضاً. */
-          data-swap={swap ? swap.phase : undefined}
-          data-swap-dir={swap ? String(swap.dir) : undefined}
+          كان العنوان والصفّ والسهمان محدودين بـ56rem مكتوبةً في الـCSS، بينما الترويسة وكلّ
+          قسم تحتها يقرأون `--nq-container`. مقيسٌ على شاشة 1944px: الحاوية تمتدّ من 172 إلى
+          1772 وهذا القسم من 524 إلى 1420 — أي 352px من الفراغ زيادةً على كلّ جانب، وحده
+          دون الصفحة. فصار يقرأ ما يقرأونه: جزيرة أصبحت صفّاً. */}
+      <div className="nq-container">
+        <h2
+          id="nq-work-heading"
+          /* مقاس عناوين الأقسام نفسه المستعمل في PhasesSection وContactSection — ولا `.nq-label`
+             بعد اليوم: ذاك أصغر خطّ في الموقع وأخفتُه، وهو معنى "لافتة فوق عنصر" لا معنى
+             "اسم قسم". والتوسيط في الـ CSS مع المسافة، حتى يبقيا معاً. */
+          className="nq-work-heading nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
+          style={{ color: OBSIDIAN }}
         >
-          {visibleItems.map((item, index) => (
-            <WorkPanel
-              key={item.id}
-              item={item}
-              isAr={isAr}
-              narrow={narrow}
-              index={index}
-              count={visibleItems.length}
-              active={activeId === item.id}
-              onOpen={() => setActiveId(item.id)}
-              /* يُغلق فقط إن كان هو المفتوح: مغادرة لوح بعد دخول جاره تصل متأخّرة أحياناً،
-                 وبدون هذا الشرط تمسح مغادرةُ القديم فتحَ الجديد فينطفئ الصفّ بين لوحين. */
-              onClose={() => setActiveId((current) => (current === item.id ? null : current))}
-            />
-          ))}
-        </ul>
-      </div>
+          {strip.title}
+        </h2>
 
-      {/* السهمان يظهران فقط حين توجد أكثر من صفحة فعلاً — عميلان أو ثلاثة لا يستحقّان سهماً
-          يقودان إلى لا شيء.
+        {/* المسرح: الحركة تحت، والصفّ فوقها.
 
-          `dir="ltr"` على الغلاف تثبيت للجهتين الفيزيائيتين بصرف النظر عن لغة الصفحة — نفس
-          حلّ Navbar تماماً — فيبقى ترتيب الزرّين في الشيفرة والوصول (Tab) واحداً دائماً،
-          ويتغيّر معنى كل جهة (سابق/تالي) لا شكلها. والاتجاه معكوس عمداً في العربية: أول لوح
-          يبدأ من اليمين (انظر تعليق `.nq-work-row` في index.css)، فـ"التالي" يواصل يساراً. */}
-      {totalPages > 1 && (
-        <div className="nq-work-pager" dir="ltr">
-          <button
-            type="button"
-            onClick={() => stepPage(isAr ? 1 : -1)}
-            disabled={isAr ? !canGoNext : !canGoPrev}
-            aria-label={isAr ? 'المجموعة التالية' : 'Previous group'}
-            className="nq-work-pager-btn"
+            الحركة ليست ابنةً للوح المفتوح ولا تتبعه: كانفاس واحد ثابت خلف الصفّ كلّه، والألواح
+            فوقه بأرضيّة معتمة يشفّ منها المفتوح وحده. فالنافذة هي صندوق اللوح نفسه وتتّسع مع
+            تمدّده بلا سطر يزامنهما — والبديل (كانفاس ينتقل بين الألواح) كان يعني قراءة التخطيط
+            كلّ إطار، وهو ما تتجنّبه هذه الشاشة أصلاً.
+
+            والغلاف موجود لأنّ `<ul>` لا يحمل إلا `<li>`؛ الكانفاس شقيقٌ للقائمة لا ابنٌ فيها. */}
+        <div className="nq-work-stage nq-rise" style={{ ['--nq-rise-delay' as string]: '90ms' }}>
+          <WorkMotif seen={seen} motif={activeItem ? safeMotif(activeItem.motif) : null} />
+
+          <ul
+            className="nq-work-row"
+            data-open={activeId ? 'true' : 'false'}
+            /* سمتان لا واحدة: الأولى تقول أيّ نصف يجري، والثانية جهته — وفصلهما يعني أنّ
+               حركتَي الخروج والدخول تشتركان في نفس تعريف الجهة بدل أربع حالات. وحذفهما
+               بـ`undefined` لا بـ`''`: `[data-swap]` في الـCSS تنطبق على قيمة فارغة أيضاً. */
+            data-swap={swap ? swap.phase : undefined}
+            data-swap-dir={swap ? String(swap.dir) : undefined}
           >
-            <ChevronLeft className="w-4 h-4" strokeWidth={2.4} />
-          </button>
-          <button
-            type="button"
-            onClick={() => stepPage(isAr ? -1 : 1)}
-            disabled={isAr ? !canGoPrev : !canGoNext}
-            aria-label={isAr ? 'المجموعة السابقة' : 'Next group'}
-            className="nq-work-pager-btn"
-          >
-            <ChevronRight className="w-4 h-4" strokeWidth={2.4} />
-          </button>
+            {visibleItems.map((item, index) => (
+              <WorkPanel
+                key={item.id}
+                item={item}
+                isAr={isAr}
+                narrow={narrow}
+                index={index}
+                count={visibleItems.length}
+                active={activeId === item.id}
+                onOpen={() => setActiveId(item.id)}
+                /* يُغلق فقط إن كان هو المفتوح: مغادرة لوح بعد دخول جاره تصل متأخّرة أحياناً،
+                   وبدون هذا الشرط تمسح مغادرةُ القديم فتحَ الجديد فينطفئ الصفّ بين لوحين. */
+                onClose={() => setActiveId((current) => (current === item.id ? null : current))}
+              />
+            ))}
+          </ul>
         </div>
-      )}
+
+        {/* السهمان يظهران فقط حين توجد أكثر من صفحة فعلاً — عميلان أو ثلاثة لا يستحقّان سهماً
+            يقودان إلى لا شيء.
+
+            `dir="ltr"` على الغلاف تثبيت للجهتين الفيزيائيتين بصرف النظر عن لغة الصفحة — نفس
+            حلّ Navbar تماماً — فيبقى ترتيب الزرّين في الشيفرة والوصول (Tab) واحداً دائماً،
+            ويتغيّر معنى كل جهة (سابق/تالي) لا شكلها. والاتجاه معكوس عمداً في العربية: أول لوح
+            يبدأ من اليمين (انظر تعليق `.nq-work-row` في index.css)، فـ"التالي" يواصل يساراً. */}
+        {totalPages > 1 && (
+          <div className="nq-work-pager" dir="ltr">
+            <button
+              type="button"
+              onClick={() => stepPage(isAr ? 1 : -1)}
+              disabled={isAr ? !canGoNext : !canGoPrev}
+              aria-label={isAr ? 'المجموعة التالية' : 'Previous group'}
+              className="nq-work-pager-btn"
+            >
+              <ChevronLeft className="w-4 h-4" strokeWidth={2.4} />
+            </button>
+            <button
+              type="button"
+              onClick={() => stepPage(isAr ? -1 : 1)}
+              disabled={isAr ? !canGoPrev : !canGoNext}
+              aria-label={isAr ? 'المجموعة السابقة' : 'Next group'}
+              className="nq-work-pager-btn"
+            >
+              <ChevronRight className="w-4 h-4" strokeWidth={2.4} />
+            </button>
+          </div>
+        )}
+      </div>
     </section>
   );
 };
