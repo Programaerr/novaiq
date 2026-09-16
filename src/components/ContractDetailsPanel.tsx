@@ -90,7 +90,7 @@ export const ContractDetailsPanel: React.FC<ContractDetailsPanelProps> = ({ cont
               <strong className="text-ink/90">{translateText(contract.templateTitle, language)}</strong>
             </div>
             <div>
-              <span className="text-ink/75 block">{isAr ? 'اسم الشركة' : 'Company Name'}</span>
+              <span className="text-ink/75 block">{isAr ? 'الاسم / اسم النشاط' : 'Name / Business Name'}</span>
               <strong className="text-ink/90">{contract.companyName}</strong>
             </div>
             {/* البريد ورقم السجل: كلاهما مطبوع في وثيقة الـPDF منذ البداية وغائب عن هذه
@@ -101,11 +101,11 @@ export const ContractDetailsPanel: React.FC<ContractDetailsPanelProps> = ({ cont
               <strong className="text-ink/90 font-mono wrap-break-word" dir="ltr">{contract.email || '—'}</strong>
             </div>
             <div>
-              <span className="text-ink/75 block">{isAr ? 'رقم السجل التجاري' : 'CR / ID Number'}</span>
+              <span className="text-ink/75 block">{isAr ? 'رقم السجل التجاري' : 'Commercial Registration'}</span>
               <strong className="text-ink/90 font-mono" dir="ltr">{contract.crNumber || '—'}</strong>
             </div>
             <div>
-              <span className="text-ink/75 block">{isAr ? 'اسم الممثل' : 'Representative'}</span>
+              <span className="text-ink/75 block">{isAr ? 'الاسم الكامل (الموقّع)' : 'Full Name (Signatory)'}</span>
               <strong className="text-ink/90">{contract.repName}</strong>
             </div>
             <div>

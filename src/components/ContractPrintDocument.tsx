@@ -60,10 +60,14 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       statusSigned: isAr ? 'موقّع من الطرفين' : 'Signed by both parties',
       statusAwaiting: isAr ? 'موقّع من العميل — بانتظار اعتماد NUVAIQ' : 'Signed by the client — awaiting NUVAIQ approval',
 
-      s1: isAr ? '1. بيانات الشركة والممثل القانوني' : '1. COMPANY & LEGAL REPRESENTATIVE',
-      companyName: isAr ? 'اسم الشركة' : 'Company Name',
-      crNumber: isAr ? 'رقم السجل التجاري' : 'CR / ID Number',
-      repName: isAr ? 'الممثل المخوّل' : 'Authorized Representative',
+      /* "الممثل القانوني" و"CR / ID Number" كانا يوحيان بجهة مسجَّلة رسمياً — NUVAIQ اسم
+         تجاري لمقدّم خدمة لا شركة ذات شخصية معنوية، وأغلب العملاء أفراد أو أصحاب نشاط لا
+         شركات مسجَّلة. العنوان الآن يصف ما في القسم فعلاً (بيانات العميل)، والحقول تقبل
+         فرداً أو نشاطاً بلا افتراض تسجيل، ولا تطلب رقم هوية شخصية بديلاً عن السجل التجاري. */
+      s1: isAr ? '1. بيانات العميل' : '1. CLIENT INFORMATION',
+      companyName: isAr ? 'الاسم / اسم النشاط' : 'Name / Business Name',
+      crNumber: isAr ? 'رقم السجل التجاري (اختياري)' : 'Commercial Registration (optional)',
+      repName: isAr ? 'الاسم الكامل (الموقّع)' : 'Full Name (Signatory)',
       email: isAr ? 'البريد الإلكتروني' : 'Email',
       phone: isAr ? 'رقم الهاتف' : 'Phone',
       location: isAr ? 'المقر' : 'Location',
@@ -109,7 +113,7 @@ export const ContractPrintDocument = React.forwardRef<HTMLDivElement, ContractPr
       remaining: isAr ? 'المتبقي' : 'Remaining',
       contractState: isAr ? 'حالة العقد' : 'Contract status',
       issuedOn: isAr ? 'تاريخ إصدار هذه النسخة' : 'This copy issued on',
-      clientSig: isAr ? 'توقيع ممثل الشركة' : 'Client Representative Signature',
+      clientSig: isAr ? 'توقيع العميل' : 'Client Signature',
       signedElectronically: isAr ? '[ تم التوقيع إلكترونياً ]' : '[ Signed Electronically ]',
       companySig: isAr ? 'توقيع واعتماد NUVAIQ' : 'NUVAIQ Sign-off',
       pendingApproval: isAr ? '[ قيد الاعتماد ]' : '[ Pending Approval ]',

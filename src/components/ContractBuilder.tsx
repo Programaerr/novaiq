@@ -433,10 +433,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
 
   const missingItems: MissingItem[] = [];
   if (!companyName.trim()) {
-    missingItems.push({ step: 1, field: 'companyName', label: isAr ? 'اسم الشركة' : 'Company name' });
+    missingItems.push({ step: 1, field: 'companyName', label: isAr ? 'الاسم / اسم النشاط' : 'Name / Business name' });
   }
   if (!repName.trim()) {
-    missingItems.push({ step: 1, field: 'repName', label: isAr ? 'اسم المخوَّل بالتوقيع' : 'Authorised signatory' });
+    missingItems.push({ step: 1, field: 'repName', label: isAr ? 'الاسم الكامل للتوقيع' : 'Full name (signatory)' });
   }
   /* بريد الزبون: فارغاً أو مكتوباً خطأً، النتيجة واحدة — عقد لا يجده صاحبه أبداً، لأن
      المطابقة في subscribeToMyContracts مساواة نصّية على هذا الحقل بالذات. ولا يكفي هنا

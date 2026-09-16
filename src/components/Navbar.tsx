@@ -127,14 +127,32 @@ export const Navbar: React.FC<NavbarProps> = ({
   useEffect(() => {
     const strip = navStripRef.current;
     if (!strip) return;
-    const ro = new ResizeObserver(measureBase);
+    const ro = new ResizeObserver(() => {
+      measureBase();
+      positionPill();
+    });
     ro.observe(strip);
     return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measureBase]);
 
   /* وضع الحبّة على البند النشط. أوّل مرّة بلا حركة (تظهر مكانها لا تنزلق من الزاوية)، وبعدها
-     بحركة واحدة تُشغَّل على العنصر مباشرة. */
-  useLayoutEffect(() => {
+     بحركة واحدة تُشغَّل على العنصر مباشرة.
+
+     ## الحارس الذي كان غائباً، وسبب اختفاء الحبّة بلا سبب ظاهر
+
+     هذا الشريط `hidden lg:flex` — أي display:none تحت lg بالكامل. وrect عنصر معروض بهذا الشكل
+     صفر تماماً (width=0, height=0) لا "غير موجود". فحين كان هذا الأثر يُشغَّل بينما الشريط
+     مخفياً (كل تنقّل على الهاتف، وأي لحظة عرض النافذة أضيق من lg) كان يحسب
+     `scaleX(0/pillBox.base) = scaleX(0)` ويكتبه فعلياً في `node.style.transform` — حبّة بعرض
+     صفر، أي غير مرئية تماماً. ولأن الأثر يعمل فقط عند تغيّر activePage أو pillBox، لا عند
+     تغيّر العرض، كانت تبقى بعرض صفر حتى أول تنقّل تالٍ — فتظهر "اختفت" على جهاز تخطّى لتوّه
+     الحد الفاصل lg قادماً من هاتف أو نافذة ضيّقة، حتى على حاسوب.
+
+     الفحص أدناه (`s.width === 0`) يمنع فقط تطبيق قياس فاسد؛ لا يمسح آخر موضع صحيح. وباستدعاء
+     نفس الدالة من ResizeObserver (أعلاه)، تُعاد المحاولة فوراً حين يستعيد الشريط عرضه الحقيقي
+     — بلا انتظار نقرة تالية. */
+  const positionPill = useCallback(() => {
     const strip = navStripRef.current;
     const node = pillRef.current;
     const link = linkRefs.current[activePage];
@@ -142,6 +160,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
     const s = strip.getBoundingClientRect();
     const r = link.getBoundingClientRect();
+    // شريط أو رابط بعرض صفر يعني أحدهما غير معروض فعلياً (hidden lg:flex تحت الحد الفاصل، أو
+    // لم يُخطَّط بعد) — قياسه صفر لا قياس حقيقي، فيُترك آخر موضع مطبَّق كما هو.
+    if (s.width === 0 || r.width === 0) return;
+
     const to = `translate3d(${r.left - s.left}px, ${r.top - s.top}px, 0) scaleX(${r.width / pillBox.base})`;
     const from = lastTransform.current;
     lastTransform.current = to;
@@ -164,7 +186,10 @@ export const Navbar: React.FC<NavbarProps> = ({
       ],
       { duration: 520, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'both' },
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePage, pillBox]);
+
+  useLayoutEffect(positionPill, [positionPill]);
 
   // مشتقة من خاصية currentUser (انظر تعليقها بالأعلى)، لا من اشتراك خاص بهذا الملف —
   // undefined = لم يُحسم فحص الدخول الأولي بعد، وهذا ما يمنع "Login" من الوميض للحظة قبل أن
