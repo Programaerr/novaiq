@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
     },
     /* ترويسات `vite preview` — نسخة من ترويسات الإنتاج، لا زينة.
      *
-     * الإنتاج يضبطها في netlify.toml، والتطوير في server.ts (خادم Express). أمّا
+     * الإنتاج يضبطها في public/_headers، والتطوير في server.ts (خادم Express). أمّا
      * `vite preview` فكان بلا أي منها — ولهذا ظهر في الكونسول:
      * "Cross-Origin-Opener-Policy policy would block the window.closed call" أربع مرّات من
      * Firebase Auth: نافذة دخول Google المنبثقة تُستفتى كل بضع ميلي‑ثانية عن `window.closed`،

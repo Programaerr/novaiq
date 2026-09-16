@@ -1083,7 +1083,7 @@ function ContractRow({
           </div>
 
           {/* رابط المعاينة الخاص — المكان الذي يرفع فيه الأدمن رابط نسخة العميل الجارية
-              (Netlify preview / staging) ليتابع منه تعديلات موقعه لحظة بلحظة. يظهر في حساب
+              (رابط معاينة / staging) ليتابع منه تعديلات موقعه لحظة بلحظة. يظهر في حساب
               العميل فقط عند وجوده، ولا يُعرض إلا إن كان http/https (safeExternalUrl). */}
           <div>
             <label className="block text-[11px] font-semibold text-ink/60 mb-1.5">

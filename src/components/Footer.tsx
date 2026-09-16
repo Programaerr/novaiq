@@ -270,7 +270,7 @@ export const Footer: React.FC<FooterProps> = ({
                   يقود إليهما أي رابط ظاهر — فلا الزائر يجدهما ولا مُدقّق شاشة موافقة Google
                   الذي يفتح الصفحة الرئيسية ويبحث عن الرابطين. href حقيقي (لا "#") ليكونا
                   رابطين قابلين للزحف والنسخ، وonClick يبقي التنقّل داخل التطبيق بلا إعادة
-                  تحميل؛ /privacy و/terms يحوّلهما Netlify إلى المسار الفعلي (netlify.toml). */}
+                  تحميل؛ /privacy و/terms تحوّلهما الاستضافة إلى المسار الفعلي (public/_redirects). */}
               <FooterLink label={isAr ? 'سياسة الخصوصية' : 'Privacy Policy'} href="/privacy" onClick={go('privacy')} />
               <FooterLink label={isAr ? 'شروط الخدمة' : 'Terms of Service'} href="/terms" onClick={go('terms')} />
               <FooterLink label={isAr ? 'العقد الإلكتروني' : 'E-contract'} onClick={go('econtracts')} />

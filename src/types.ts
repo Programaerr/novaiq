@@ -171,7 +171,7 @@ export interface ContractData {
    *  أي حقل آخر، لأن لا شيء يقول متى بدأ العمل. */
   developmentStartedAt?: string;
   /**
-   * رابط معاينة خاص يرفعه الأدمن ليتابع العميل موقعه أثناء التطوير (رابط Netlify/staging
+   * رابط معاينة خاص يرفعه الأدمن ليتابع العميل موقعه أثناء التطوير (رابط staging
    * مثلاً). يظهر في حساب العميل فقط عند وجوده — ولا يُعرض إلا إذا كان http/https (انظر
    * safeExternalUrl في lib/contractProgress.ts): رابط يبدأ بـjavascript: كان سيصبح ثغرة
    * تنفيذ كود بضغطة واحدة من العميل.
