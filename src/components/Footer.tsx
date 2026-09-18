@@ -236,19 +236,43 @@ export const Footer: React.FC<FooterProps> = ({
             </p>
 
             {socials.length > 0 && (
-              <div className="mt-7 flex items-center gap-3">
+              /* الفراغ فوق الصفّ ليس ذوقاً: الفقّاعة تبلغ 40px فوق حافّة الصفّ (ارتفاعها 28
+                 وهامشها 12)، وكان الفراغ 28 — فتنزل 12px داخل سطر الفقرة الأخير وتُقرأ فوقه.
+                 48px تُخلي لها المسافة كلّها وتترك 8px تنفُّس، ويستوي الصفّ عندها مع "الدعم
+                 الفني" في العمود المجاور (قياس عند 1280: 186 مقابل 184).
+
+                 وهو مشدود إلى الفقرة لا إلى رقم مطلق، فمهما طال نصّ الفقرة أو قصر — أو تبدّلت
+                 اللغة — تبقى المسافة هي ما تحتاجه الفقّاعة بالضبط. */
+              <div className="mt-12 flex items-center gap-3">
+                {/* المقاس والشكل هنا بـTailwind، والحالة كلّها (الحشوة الصاعدة، انقلاب الحبر،
+                    حلقة التركيز، الفقّاعة) في `.nq-social` بـindex.css: عناصر زائفة ومنحنيات
+                    وتأخير لا تُكتب صفّاً من الأصناف يُقرأ. */}
                 {socials.map(({ Icon, href, label }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={label}
-                    className="w-10 h-10 uw:w-12 uw:h-12 grid place-items-center rounded-full text-[rgb(var(--ft-fg)/var(--ft-a70))] hover:text-[rgb(var(--ft-accent-ink))] transition-colors bg-[rgb(var(--ft-fg)/0.05)] hover:bg-[rgb(var(--ft-accent)/0.92)] backdrop-blur-md"
-                    style={{ boxShadow: 'inset 0 0 0 1px rgb(var(--ft-fg) / 0.18)' }}
-                  >
-                    <Icon className="w-4 h-4" strokeWidth={1.8} />
-                  </a>
+                  <span key={label} className="nq-social-slot">
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="nq-social w-10 h-10 uw:w-12 uw:h-12 grid place-items-center rounded-full backdrop-blur-md"
+                    >
+                      <Icon className="w-4 h-4" strokeWidth={1.8} />
+                      {/* العلامة مرسومة مرّتين عمداً — راجع `.nq-social` في index.css. هذه
+                          الثانية بيضاء على الإبراز، تركبها الطبقة الصاعدة فتُكشف معها بكسلاً
+                          بكسل. وهي زينة محضة لقارئ الشاشة: الاسم قيل مرّة في `aria-label`. */}
+                      <span className="nq-social-fill" aria-hidden="true">
+                        <span className="nq-social-fill-in">
+                          <Icon className="w-4 h-4" strokeWidth={1.8} />
+                        </span>
+                      </span>
+                    </a>
+                    {/* بعد الرابط لا قبله: القاعدة تصل إليه بـ`+` من الرابط نفسه، فلا تحتاج
+                        `:has()` على الغلاف. و`aria-hidden` لأنّ `aria-label` فوق يقول الاسم
+                        نفسه — وإلّا سمعه قارئ الشاشة مرّتين. */}
+                    <span className="nq-social-tip" aria-hidden="true">
+                      {label}
+                    </span>
+                  </span>
                 ))}
               </div>
             )}

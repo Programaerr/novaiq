@@ -2635,6 +2635,202 @@ html[data-demo] .nq-navbar {
 }
 
 
+/* ── أزرار التواصل في التذييل (Footer.tsx) ────────────────────────────────────
+
+   كان المرور على الزرّ يُبدّل أرضيّته من شفّافة إلى الإبراز في مكانها — يعمل، لكنّه لا يحمل
+   اتّجاهاً: لا شيء فيه يقول من أين جاء اللون. الآن يصعد الإبراز من أسفل الدائرة حتّى يملأها.
+
+   والصعود واحدٌ في اللغتين: حركة رأسيّة لا أفقيّة، فلا تُقلَب مع اتّجاه الصفحة ولا تحتاج
+   تجميداً كالذي تحتاجه أسهم التبديل.
+
+   ## لماذا أيقونتان لا أيقونة تُبدّل لونها
+
+   الشكل الأوّل كان أيقونة واحدة ينقلب حبرها من الداكن إلى الأبيض بينما يصعد الإبراز تحتها.
+   والانقلاب يمرّ حتماً بالرماديّ المتوسّط — وهو رديء على الورق وعلى الإبراز معاً في آنٍ
+   واحد، لأنّ الأيقونة في تلك اللحظة نفسها نصفُها على هذا ونصفُها على ذاك. مُسِح خمسُ
+   توليفات من المدد والمنحنيات والتأخير، فكان أفضلها يهبط إلى 1.84:1 عند 120ms — أي أنّ
+   العلامة تكاد تختفي في منتصف كلّ مرور. وليست التوليفة هي المشكلة: العبور اللونيّ نفسه هو
+   المشكلة، ولا توليفة تُنجي منه.
+
+   فصارتا اثنتين: الداكنة على الورق ثابتة، وفوقها طبقةٌ صاعدة تحمل الإبراز وعليه نسخة
+   بيضاء من العلامة نفسها. فكلّ بكسل من العلامة، في كلّ لحظة، إمّا داكن على ورق (17:1) أو
+   أبيض على إبراز (13.4:1)، ولا شيء بينهما. والحدّ الصاعد يقطعها أفقيّاً — وهذا هو الأثر
+   المقصود لا عَرَضاً منه.
+
+   ## وكيف تبقى النسخة البيضاء ساكنة وهي داخل طبقةٍ تصعد
+
+   الطبقة الخارجيّة تصعد من `translateY(100%)` إلى صفر، والداخليّة تهبط من `translateY(-100%)`
+   إلى صفر. وعند أيّ تقدّم p يكون مجموعهما صفراً دائماً — فالنسخة البيضاء مسمّرة في مكانها
+   بالبناء لا بالمصادفة، بينما صندوق الطبقة الخارجيّة (بـ`overflow: hidden`) يقصّها إلى
+   الشريط المكشوف وحده. وكلتاهما `transform` فقط: تُركَّبان على الطبقات بلا إعادة تخطيط، وهي
+   أزرارٌ متجاورة قد يمرّ المؤشّر عليها تباعاً في لحظة. */
+.nq-social-slot {
+  position: relative;
+  display: inline-flex;
+}
+
+.nq-social {
+  position: relative;
+  /* يقصّ الطبقة الصاعدة على حدّ الدائرة؛ بدونه تُرسم مربّعاً يبرز من أسفلها. */
+  overflow: hidden;
+  color: rgb(var(--ft-fg) / var(--ft-a70));
+  background: rgb(var(--ft-fg) / 0.05);
+  box-shadow: inset 0 0 0 1px rgb(var(--ft-fg) / 0.18);
+  transition: box-shadow 260ms ease;
+}
+
+/* الطبقة الصاعدة: تقف تحت الدائرة مزاحةً بكامل ارتفاعها، فلا يُرى منها شيء قبل المرور. */
+.nq-social-fill {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform: translateY(100%);
+  /* خروج متسارع: تسقط ولا تتمايل عائدة. */
+  transition: transform 240ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ما تحمله: الإبراز والنسخة البيضاء من العلامة. إزاحتها معاكسة لإزاحة حاملتها تماماً —
+   المدّة نفسها والمنحنى نفسه — فمجموعهما صفر عند كلّ إطار. */
+.nq-social-fill-in {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(var(--ft-accent) / 0.92);
+  color: rgb(var(--ft-accent-ink));
+  transform: translateY(-100%);
+  transition: transform 240ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+.nq-social:hover .nq-social-fill,
+.nq-social:focus-visible .nq-social-fill,
+.nq-social:hover .nq-social-fill-in,
+.nq-social:focus-visible .nq-social-fill-in {
+  transform: translateY(0);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nq-social:hover,
+.nq-social:focus-visible {
+  box-shadow: inset 0 0 0 1px rgb(var(--ft-accent) / 0.92);
+  transition: box-shadow 380ms ease;
+}
+
+/* لم يكن لهذه الأزرار أي حلقة تركيز إطلاقاً — وهي روابط تُبلَغ بـTab مثل كلّ روابط التذييل
+   الأخرى، وكلّها تملك `focus-visible:ring`. وصارت ألزم الآن: التركيز يملأ الدائرة بالإبراز
+   تماماً كالمرور، فلا يميّزهما شيء بدونها. وهي خارج الصندوق (`outline`) فلا يقصّها
+   `overflow: hidden` فوق. */
+.nq-social:focus-visible {
+  outline: 2px solid rgb(var(--ft-accent));
+  outline-offset: 2px;
+}
+
+/* اسم المنصّة فوق الزرّ. بعد الرابط في الـDOM لا قبله، ليكفي `+` ولا يُحتاج إلى `:has()`
+   على الغلاف. وهو `aria-hidden` لأنّ `aria-label` على الرابط يقول الاسم نفسه لقارئ
+   الشاشة — وإلّا قُرِئ مرّتين. */
+.nq-social-tip {
+  position: absolute;
+  bottom: 100%;
+  /* فيزيائي لا منطقي: الوسط وسطٌ في اللغتين، و`inset-inline-start` كانت ستقلِب الإزاحة مع
+     الاتّجاه فتخرج الفقّاعة عن مركز زرّها. */
+  left: 50%;
+  --nq-tip-x: -50%;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: rgb(var(--ft-fg));
+  color: rgb(var(--ft-bg));
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  /* لا تلتقط المؤشّر: وإلّا لارتعشت تحته — تظهر فتقطع المرور عن الزرّ فتختفي فيعود المرور
+     فتظهر. */
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(var(--nq-tip-x), 0.5rem);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+/* الفقّاعتان الطرفيّتان تلتصقان بحافّة زرّهما الخارجيّة بدل أن تتوسّطنه.
+
+   السبب مقيس: الفقّاعة أعرض من زرّها (89px مقابل 40) فتنتأ 25px على كلّ جانب، والزرّ الطرفيّ
+   ملاصقٌ لحشوة الحاوية (32px فوق 1024، و24px تحتها) — فلا يبقى لها إلّا 7px عند 1280، وعند
+   900 تخرج عن الشاشة بـ1px فيُقصّ آخر حرف من "Instagram". وليست 7px فسحةً بل صدفة: لافتةٌ
+   أطول بقليل كانت ستخرج عند كلّ عرض.
+
+   والالتصاق بالمنطقيّ لا بالفيزيائيّ هنا — عكس `left: 50%` فوق — لأنّ السؤال نفسه منطقيّ:
+   «الطرف الخارجيّ» يقع يميناً في العربيّة ويساراً في الإنجليزيّة، و`:first-child` هو أوّل
+   العمود في الاتّجاهين معاً لأنّ الصفّ `flex` يتبع اتّجاه الصفحة. فالقاعدة تصحّ في اللغتين
+   بلا أي شرط على اللغة.
+
+   وصفر انتِئاء بالبناء لا بالقياس: الحافّة الملاصقة هي حافّة الزرّ نفسه. */
+.nq-social-slot:first-child .nq-social-tip,
+.nq-social-slot:last-child .nq-social-tip {
+  --nq-tip-x: 0px;
+  left: auto;
+}
+
+.nq-social-slot:first-child .nq-social-tip {
+  inset-inline-start: 0;
+}
+
+/* بعد قاعدة `:first-child` عمداً: حين يكون الرابط وحيداً يطابق الاثنين، فيفوز هذا ويلتصق
+   بالطرف الداخليّ — وهو الطرف الذي فيه متّسع دائماً. */
+.nq-social-slot:last-child .nq-social-tip {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+.nq-social:focus-visible + .nq-social-tip {
+  opacity: 1;
+  transform: translate(var(--nq-tip-x), 0);
+  /* المنحنى يتجاوز الواحد (y=2 ثمّ 1.5) فترتفع الفقّاعة فوق موضعها ثمّ تستقرّ — وهذه الوثبة
+     هي كلّ ما يميّز الحركة؛ بـ`ease` عاديّة تصير ظهوراً لا أكثر. */
+  transition: opacity 300ms ease, transform 300ms cubic-bezier(0.47, 2, 0.41, 1.5);
+}
+
+/* المرور وحده خلف `hover: hover`: على اللمس تُبقي المتصفّحات `:hover` معلّقة بعد النقرة
+   حتّى يُلمَس موضع آخر — فتبقى الفقّاعة معلّقة فوق زرّ غادرته الإصبع وفتح الرابط في لسان
+   آخر. ولا يُفقَد شيء: الاسم مكتوب في `aria-label`، والأيقونة علامة المنصّة نفسها. */
+@media (hover: hover) {
+  .nq-social:hover + .nq-social-tip {
+    opacity: 1;
+    transform: translate(var(--nq-tip-x), 0);
+    transition: opacity 300ms ease, transform 300ms cubic-bezier(0.47, 2, 0.41, 1.5);
+  }
+}
+
+/* تحت تفضيل تقليل الحركة: الطبقة تظهر ولا تصعد، والفقّاعة تظهر ولا تثب. المعنى باقٍ كاملاً
+   — الزرّ يمتلئ والاسم يظهر — والمحذوف هو الإزاحة وحدها. ولمّا سكنت الطبقتان عند الصفر
+   عادت النسخة البيضاء إلى موضعها تماماً، فالأيقونة مقروءة في الطرفين كما في الحركة. */
+@media (prefers-reduced-motion: reduce) {
+  .nq-social-fill,
+  .nq-social-fill-in,
+  .nq-social:hover .nq-social-fill,
+  .nq-social:focus-visible .nq-social-fill,
+  .nq-social:hover .nq-social-fill-in,
+  .nq-social:focus-visible .nq-social-fill-in {
+    transform: none;
+    transition: opacity 200ms ease;
+  }
+  .nq-social-fill {
+    opacity: 0;
+  }
+  .nq-social:hover .nq-social-fill,
+  .nq-social:focus-visible .nq-social-fill {
+    opacity: 1;
+  }
+  .nq-social-tip,
+  .nq-social:hover + .nq-social-tip,
+  .nq-social:focus-visible + .nq-social-tip {
+    transform: translate(var(--nq-tip-x), 0);
+    transition: opacity 200ms ease;
+  }
+}
+
+
 /* ═══ طباعة المتصفح مباشرة (لا زر "تنزيل PDF") ═══════════════════════════════════════════
 
    زر "تنزيل PDF" يُصوِّر الوثيقة بـhtml2canvas ويُضمِّنها صورة داخل jsPDF — فما يظهر مطبوعاً
