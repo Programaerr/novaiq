@@ -155,8 +155,24 @@ export const Navbar: React.FC<NavbarProps> = ({
   const positionPill = useCallback(() => {
     const strip = navStripRef.current;
     const node = pillRef.current;
+    if (!strip || !node || !pillBox) return;
+
+    /* صفحة ليست في الشريط: لا بند نشط، فلا حبّة.
+
+       الشريط ثلاثة بنود (الرئيسية، القوالب، مراحل العمل)، والموقع أكثر من ذلك بكثير: طلب
+       مخصّص، الدعم، الخصوصية، الشروط، مُنشئ العقد… وكانت الحبّة تُترَك مكانها في كلّ واحدة
+       منها لأنّ `link` غير موجود فيُخرَج من الدالة قبل أن تُلمس. فتبقى بيضاء تحت بندٍ صار
+       غير نشط ولونه `text-white/90` — أبيض على أبيض، أي اسمٌ يختفي ويبقى مربّع.
+
+       ومقيسٌ بحالتين: الانتقال من "القوالب" إلى صفحة خارج الشريط يتركها تحت "القوالب"،
+       وفتحُ إحدى تلك الصفحات مباشرة يتركها بلا `transform` أصلاً — أي عند موضعها الافتراضي،
+       وهو تحت "الرئيسية" تماماً. */
     const link = linkRefs.current[activePage];
-    if (!strip || !node || !link || !pillBox) return;
+    if (!link) {
+      node.style.opacity = '0';
+      return;
+    }
+    node.style.opacity = '1';
 
     const s = strip.getBoundingClientRect();
     const r = link.getBoundingClientRect();
