@@ -113,7 +113,19 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
   // نفس الجهاز)، وقراءته هنا كانت تملأ نموذج الأدمن ببيانات آخر زبون بدأ عقده على هذا الجهاز.
   const [draft] = useState(() => (adminCreatingForClient ? null : loadContractDraft()));
 
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  /* المرحلة تُستعاد مع بقيّة المسودّة، لا تبدأ من الأولى دائماً.
+
+     كلّ حقل يعود بعد التحديث وهذه وحدها كانت لا تعود، فمن كان في "المراجعة والتوقيع" يجد
+     نفسه في "بيانات الشركة" — ويقرؤها أنّ عقده ضاع لا أنّه رجع خطوة.
+
+     والحدّ بين 1 و3 ليس احتياطاً نظرياً: القيمة تأتي من `localStorage` ويحرّرها من شاء،
+     ورقمٌ خارج المدى يُخفي مراحل العقد كلّها فلا يُرسَم شيء. والمراحل الثلاث أزرار يُنتقل
+     بينها بحرّية أصلاً (الشريط أدناه)، فالاستعادة لا تتخطّى تحقّقاً — والتحقّق كلّه يقع عند
+     الإرسال على أيّ حال. */
+  const [currentStep, setCurrentStep] = useState<number>(() => {
+    const saved = Number(draft?.step);
+    return Number.isFinite(saved) ? Math.min(3, Math.max(1, Math.round(saved))) : 1;
+  });
   const [template, setTemplate] = useState<Template>(selectedTemplate || templatesData[0]);
 
   // Keeps the active template's pricing current if an admin edits it while this page is
@@ -364,8 +376,10 @@ export const ContractBuilder: React.FC<ContractBuilderProps> = ({
       customProjectName,
       projectType,
       clientLogoDataUrl,
+      step: currentStep,
     });
   }, [
+    currentStep,
     companyName,
     crNumber,
     repName,
