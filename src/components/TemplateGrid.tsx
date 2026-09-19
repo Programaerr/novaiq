@@ -158,7 +158,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                    branch left to turn translucent), so there is no live blur left to mis-sample
                    and nothing left for a seam to appear in. The see-through effect is the cost of
                    that; a card that cannot render a line through its own headline is worth it. */
-                className="nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden border border-white/45"
+                className="nq-gate nq-card-glass relative flex flex-col min-h-[56svh] lg:min-h-[60vh] rounded-[1.75rem] p-7 sm:p-9 overflow-hidden border border-white/45"
               >
                 {/* The white sheen that used to run across the top of each card is gone, on the
                     owner's call. It was a lit top edge for a card that was nearly opaque; on
@@ -320,6 +320,29 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     </NqButton>
                   )}
                 </div>
+                {/* الدفّتان آخر ما في البطاقة: تغطّيان ما قبلهما، ويكفي ترتيب الطلاء
+                    وحده — لا حاجة لرفع أيّ شيء آخر. وهما مغلّفتان في `@media (hover: hover)`
+                    فلا وجود لهما على اللمس؛ انظر `.nq-gate` في index.css.
+
+                    وما عليهما هو هويّة البطاقة نفسها — أيقونتها ووسمها — لا كلمة «افتح»:
+                    شبكةٌ من أبوابٍ متشابهة لا يُعرف أيُّها الموقع وأيُّها التطبيق إلّا بعد
+                    المرور على كلٍّ منهما. */}
+                <span className="nq-gate__flap nq-gate__flap--l" aria-hidden="true">
+                  <span
+                    className="w-14 h-14 rounded-2xl grid place-items-center"
+                    style={{ background: ORANGE_ON_DARK, color: OBSIDIAN }}
+                  >
+                    <Icon className="w-7 h-7" strokeWidth={2.2} />
+                  </span>
+                </span>
+                <span className="nq-gate__flap nq-gate__flap--r" aria-hidden="true">
+                  <span
+                    className="nq-label px-5 text-center text-[0.82rem] sm:text-[0.85rem] uw:text-[0.9rem] font-extrabold tracking-[0.14em] uppercase"
+                    style={{ color: WHITE }}
+                  >
+                    {currentLang === 'ar' ? choice.tagAr : choice.tagEn}
+                  </span>
+                </span>
               </article>
             );
           })}
