@@ -67,10 +67,15 @@ interface NavbarProps {
  * واللافتة `aria-hidden`: الاسم نفسه مكتوب في `aria-label` على الزرّ، فلولا ذلك لسمعه قارئ
  * الشاشة مرّتين. الشكل كلّه في `.nq-hint` بـindex.css.
  */
-const Hint: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+const Hint: React.FC<{
+  label: string;
+  /** أيّ جهةٍ من الزرّ تقف عليها. فيزيائيّة لا منطقيّة: `left` يسارٌ في اللغتين. */
+  side?: 'top' | 'bottom' | 'left' | 'right';
+  children: React.ReactNode;
+}> = ({ label, side = 'bottom', children }) => (
   <span className="nq-hint-slot">
     {children}
-    <span className="nq-hint" aria-hidden="true">
+    <span className="nq-hint" data-side={side} aria-hidden="true">
       <span className="nq-hint-text">{label}</span>
     </span>
   </span>

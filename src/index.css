@@ -2869,20 +2869,20 @@ html[data-demo] .nq-navbar {
 
 .nq-hint {
   position: absolute;
-  top: 100%;
-  /* فيزيائي لا منطقي: الوسط وسطٌ في اللغتين. */
-  left: 50%;
-  /* الفاصل يُقاس من أسفل الشريط، لا من أسفل الزرّ — وبينهما 10px من حشوة الشريط نفسه.
+  /* الموضع نفسه ليس هنا: أربع جهات، كلٌّ منها تكتب هذه المتغيّرات الأربعة وحدها (انظر
+     `[data-side]` أدناه). فكلّ ما تحت هذا السطر — اللون والخطّ والحشوة والانتقال — يُكتب
+     مرّة واحدة ويصحّ في الجهات الأربع.
 
-     `top: 100%` ينسب اللافتة إلى الزرّ، والزرّ ينتهي عند y=62 بينما الشريط المطليّ ينتهي عند
-     72 (مقيس بمسحٍ رأسيّ على البكسلات، لا من الصناديق). فـ0.4rem كانت تضع طرف السنّ عند
-     62.7 — أي 9.3px داخل الشريط، فيُطلى داكناً على داكن ويختفي، ويختفي معه 3.6px من أعلى
-     اللافتة.
+       --nq-hint-x / --nq-hint-y    الإزاحة التي تُوسِّط اللافتة على زرّها
+       --nq-hint-ox / --nq-hint-oy  إزاحة الدخول: من أين تأتي وهي مخفيّة، وهي دائماً
+                                    نحو الزرّ، فتبدو خارجةً منه لا هابطةً عليه
 
-     0.8rem تضع الطرف عند 69.1، فيلامس حافّة الشريط من داخلها بـ2.9px وتقف اللافتة 2.8px
-     تحتها: أقرب ما يمكن مع بقاء السنّ مقروءاً. مُسِحت 0.4 و0.8 و1 و1.15 و1.3 بالصور،
-     وما فوق 0.8 يبعد بلا مقابل. */
-  margin-top: 0.8rem;
+     والقيم هنا هي جهة "bottom"، فلافتةٌ بلا `data-side` تعمل كما كانت. */
+  --nq-hint-x: -50%;
+  --nq-hint-y: 0px;
+  --nq-hint-ox: 0px;
+  --nq-hint-oy: -0.35rem;
+  --nq-hint-gap: 0.8rem;
   /* مستطيلٌ مستدير الزوايا، لا كبسولة. بحشوة 0.5rem يبلغ ارتفاعها 28px، ونصف قطر 0.75rem
      عليه (12px) يقارب نصف الارتفاع — فتُقرأ كبسولةً لا لافتة. 0.45rem حشوةً و0.5rem نصفَ
      قطر: الارتفاع 26px والزاوية 8px، أي أقلّ من ثلث الارتفاع، فيبين الضلع المستقيم. */
@@ -2915,7 +2915,7 @@ html[data-demo] .nq-navbar {
      فتظهر. */
   pointer-events: none;
   opacity: 0;
-  transform: translate(-50%, -0.35rem);
+  transform: translate(calc(var(--nq-hint-x) + var(--nq-hint-ox)), calc(var(--nq-hint-y) + var(--nq-hint-oy)));
   /* الإخفاء: فوريّ وبلا تأخير. قاعدة الظهور أدناه تعيد كتابة الانتقال بتأخيره. */
   transition: opacity 140ms ease, transform 140ms ease;
 }
@@ -2949,19 +2949,101 @@ html[data-demo] .nq-navbar {
 .nq-hint::before {
   content: '';
   position: absolute;
-  top: -0.25rem;
-  left: 50%;
   /* يصغر مع الفقّاعة: سنٌّ بعرض 10px تحت لافتةٍ ارتفاعها 26px يقارب نصفها عرضاً. */
   width: 0.5rem;
   height: 0.5rem;
   background: inherit;
   border-radius: 0.09375rem;
+}
+
+/* ── الجهات الأربع ────────────────────────────────────────────────────────────
+
+   كلّ جهة تكتب: أين تُثبَّت اللافتة، وكم تبتعد، وكيف تتوسّط زرَّها، ومن أين تدخل، وأين
+   يقف سنُّها. ولا شيء غير ذلك — الباقي مشترك أعلاه.
+
+   والجهات فيزيائيّة لا منطقيّة: `left` يسارٌ في العربيّة والإنجليزيّة معاً. وهي نفس قاعدة
+   أسهم التبديل في «أعمالنا»: الزرّ الذي على اليسار يمضي يساراً مهما كانت اللغة، لأنّ
+   الاتّجاه وصفٌ لمكانٍ على الشاشة لا معنىً يُترجَم.
+
+   و`inset` و`margin` مختصرتين عمداً، لا `top` و`margin-top` مفردتين: الجهات تتشارك عنصراً
+   واحداً، فما تكتبه واحدةٌ منها ولا تمحوه الأخرى يبقى ساريَ المفعول تحتها. المختصرتان
+   تكتبان الجوانب الأربعة في كلّ مرّة، فلا يبقى شيء ليتسرّب.
+
+   و«bottom» هي الافتراض: لافتةٌ بلا `data-side` تُثبَّت بنفس قاعدتها. وبدون ذلك كانت تسقط
+   إلى الموضع الساكن فتنزاح 34.6px — نصف عرضها — لأنّ `translate(-50%)` يبقى عاملاً بلا
+   `left: 50%` يقابله. */
+
+.nq-hint:not([data-side]),
+.nq-hint[data-side='bottom'] {
+  /* الفاصل يُقاس من أسفل الشريط، لا من أسفل الزرّ — وبينهما 10px من حشوة الشريط نفسه.
+
+     `top: 100%` ينسب اللافتة إلى الزرّ، والزرّ ينتهي عند y=62 بينما الشريط المطليّ ينتهي
+     عند 72 (مقيس بمسحٍ رأسيّ على البكسلات، لا من الصناديق). فـ0.4rem كانت تضع طرف السنّ
+     عند 62.7 — أي 9.3px داخل الشريط، فيُطلى داكناً على داكن ويختفي، ويختفي معه 3.6px من
+     أعلى اللافتة.
+
+     0.8rem تضع الطرف عند 69.1، فيلامس حافّة الشريط من داخلها بـ2.9px وتقف اللافتة 2.8px
+     تحتها: أقرب ما يمكن مع بقاء السنّ مقروءاً. مُسِحت 0.4 و0.8 و1 و1.15 و1.3 بالصور،
+     وما فوق 0.8 يبعد بلا مقابل. */
+  inset: 100% auto auto 50%;
+  margin: var(--nq-hint-gap) 0 0 0;
+  --nq-hint-x: -50%;
+  --nq-hint-y: 0px;
+  --nq-hint-ox: 0px;
+  --nq-hint-oy: -0.35rem;
+}
+
+.nq-hint:not([data-side])::before,
+.nq-hint[data-side='bottom']::before {
+  inset: -0.25rem auto auto 50%;
   transform: translateX(-50%) rotate(45deg);
+}
+
+.nq-hint[data-side='top'] {
+  inset: auto auto 100% 50%;
+  margin: 0 0 var(--nq-hint-gap) 0;
+  --nq-hint-x: -50%;
+  --nq-hint-y: 0px;
+  --nq-hint-ox: 0px;
+  --nq-hint-oy: 0.35rem;
+}
+
+.nq-hint[data-side='top']::before {
+  inset: auto auto -0.25rem 50%;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.nq-hint[data-side='left'] {
+  inset: 50% 100% auto auto;
+  margin: 0 var(--nq-hint-gap) 0 0;
+  --nq-hint-x: 0px;
+  --nq-hint-y: -50%;
+  --nq-hint-ox: 0.35rem;
+  --nq-hint-oy: 0px;
+}
+
+.nq-hint[data-side='left']::before {
+  inset: 50% -0.25rem auto auto;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.nq-hint[data-side='right'] {
+  inset: 50% auto auto 100%;
+  margin: 0 0 0 var(--nq-hint-gap);
+  --nq-hint-x: 0px;
+  --nq-hint-y: -50%;
+  --nq-hint-ox: -0.35rem;
+  --nq-hint-oy: 0px;
+}
+
+.nq-hint[data-side='right']::before {
+  inset: 50% auto auto -0.25rem;
+  transform: translateY(-50%) rotate(45deg);
 }
 
 .nq-hint-slot:has(:focus-visible) .nq-hint {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translate(var(--nq-hint-x), var(--nq-hint-y));
   /* المنحنى يتجاوز الواحد فتنزل الفقّاعة تحت موضعها ثمّ تستقرّ — نفس وثبة فقّاعات التذييل،
      مقلوبةً لأنّ هذه تنزل وتلك تصعد. */
   transition: opacity 260ms ease 450ms, transform 260ms cubic-bezier(0.47, 2, 0.41, 1.5) 450ms;
@@ -2972,7 +3054,7 @@ html[data-demo] .nq-navbar {
 @media (hover: hover) {
   .nq-hint-slot:hover .nq-hint {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(var(--nq-hint-x), var(--nq-hint-y));
     transition: opacity 260ms ease 450ms, transform 260ms cubic-bezier(0.47, 2, 0.41, 1.5) 450ms;
   }
 }
@@ -2983,7 +3065,7 @@ html[data-demo] .nq-navbar {
   .nq-hint,
   .nq-hint-slot:hover .nq-hint,
   .nq-hint-slot:has(:focus-visible) .nq-hint {
-    transform: translate(-50%, 0);
+    transform: translate(var(--nq-hint-x), var(--nq-hint-y));
   }
   .nq-hint {
     transition: opacity 140ms ease;
