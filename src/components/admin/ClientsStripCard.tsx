@@ -266,31 +266,6 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
             className="w-full px-3 py-2.5 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
           />
         </label>
-
-        <label className="block space-y-1.5">
-          <span className="text-[11px] font-bold text-ink/75 flex items-center justify-between">
-            <span>{isAr ? 'سرعة الحركة' : 'Motion speed'}</span>
-            <span className="font-mono text-ink/50">
-              {draft.speedSeconds}s {isAr ? '/ عرض شاشة' : '/ screen width'}
-            </span>
-          </span>
-          {/* الرقم ثوانٍ لعبور عرض شاشة واحد لا للدورة كاملة: طول الدورة يتغيّر بعدد الشعارات
-              وبعرض الجهاز، فلو كان الرقم للدورة لصارت السرعة المرئية مختلفة عند كل زائر ومع كل
-              شعار يُضاف. بهذا المعنى تبقى السرعة كما ضبطتَها مهما تغيّر الباقي. */}
-          <input
-            type="range"
-            min={8}
-            max={120}
-            step={2}
-            value={draft.speedSeconds}
-            onChange={(e) => patch({ speedSeconds: Number(e.target.value) })}
-            className="w-full cursor-pointer"
-          />
-          <span className="flex justify-between text-[10px] font-bold text-ink/45">
-            <span>{isAr ? 'أسرع' : 'Faster'}</span>
-            <span>{isAr ? 'أبطأ' : 'Slower'}</span>
-          </span>
-        </label>
       </div>
 
       <div className="space-y-2.5">

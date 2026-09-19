@@ -96,15 +96,12 @@ export interface ClientsStrip {
   enabled: boolean;
   /** العنوان فوق الشريط، قابل للتعديل في أي وقت. */
   title: string;
-  /** ثواني الدورة الكاملة. أكبر = أبطأ. */
-  speedSeconds: number;
   items: ClientItem[];
 }
 
 export const DEFAULT_CLIENTS_STRIP: ClientsStrip = {
   enabled: false,
   title: 'أعمالنا',
-  speedSeconds: 32,
   items: [],
 };
 
@@ -133,8 +130,6 @@ function normalize(raw: unknown): ClientsStrip {
   return {
     enabled: data.enabled === true,
     title: typeof data.title === 'string' && data.title.trim() ? data.title : DEFAULT_CLIENTS_STRIP.title,
-    // يُقيَّد هنا لا في الواجهة فقط: قيمة صفر أو سالبة تنتج حركة لا نهائية السرعة أو متجمّدة.
-    speedSeconds: Math.min(120, Math.max(8, Number(data.speedSeconds) || DEFAULT_CLIENTS_STRIP.speedSeconds)),
     items: Array.isArray(data.items)
       ? data.items
           .filter((i): i is ClientItem => !!i && typeof i.id === 'string')
@@ -224,7 +219,6 @@ export async function saveClientsStrip(value: ClientsStrip): Promise<void> {
   const payload: ClientsStrip = {
     enabled: value.enabled,
     title: value.title,
-    speedSeconds: value.speedSeconds,
     // الحقول تُذكر واحداً واحداً هنا، فحقل جديد لا يُضاف إلى هذه القائمة يُحذف عند الحفظ
     // بصمت: يكتبه الأدمن، ويظهر إلى أن تُعاد الصفحة، ثم يختفي بلا خطأ.
     items: value.items.map((item) => ({
