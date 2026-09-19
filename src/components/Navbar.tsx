@@ -57,6 +57,25 @@ interface NavbarProps {
   currentUser: User | null | undefined;
 }
 
+/**
+ * زرّ ومعه اللافتة التي تقول ماذا يفعل، تظهر بعد مرورٍ متعمَّد لا بمجرّد عبور.
+ *
+ * زرّان في الشريط لا يُفصحان عن نفسهما — الكرة ورمز AR، وصورة الحساب — وكلاهما كان يعتمد على
+ * `title`، أي تلميحة المتصفّح: تتأخّر ثانيةً كاملة، ولا يُتحكَّم في شكلها ولا موضعها، ولا
+ * تظهر على اللمس، وتُرسم بلون نظام التشغيل. هذه من الموقع، وتُرسم حيث يُنظر إليها.
+ *
+ * واللافتة `aria-hidden`: الاسم نفسه مكتوب في `aria-label` على الزرّ، فلولا ذلك لسمعه قارئ
+ * الشاشة مرّتين. الشكل كلّه في `.nq-hint` بـindex.css.
+ */
+const Hint: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+  <span className="nq-hint-slot">
+    {children}
+    <span className="nq-hint" aria-hidden="true">
+      <span className="nq-hint-text">{label}</span>
+    </span>
+  </span>
+);
+
 export const Navbar: React.FC<NavbarProps> = ({
   activePage,
   setActivePage,
@@ -419,10 +438,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 animate-pulse"
               />
             ) : isLoggedIn ? (
+              /* `aria-label` بدل `title`: كان `title` هو ما يمنح هذا الرابط اسمه المقروء
+                 أصلاً — الصورة `alt=""` والأيقونة مخفيّة — فحذفه بلا بديل كان سيترك الرابط
+                 بلا اسم لقارئ الشاشة. وبقاؤه مع اللافتة كان سيرسم تلميحتين فوق بعضهما. */
+              <Hint label={userName || (isAr ? 'حسابي' : 'My Account')}>
               <a
                 href="?page=orders"
                 onClick={(e) => handleNavClick('orders', e)}
-                title={userName || (isAr ? 'حسابي' : 'My Account')}
+                aria-label={userName || (isAr ? 'حسابي' : 'My Account')}
                 className={`relative flex items-center justify-center p-1 rounded-full border transition-all cursor-pointer ${
                   activePage === 'orders'
                     ? 'border-white'
@@ -441,6 +464,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <UserCircle2 className="w-7 h-7 text-white/90" />
                 )}
               </a>
+              </Hint>
             ) : (
               /* An NqLink, not an NqButton: this changes the URL, so it has to be an anchor —
                  middle-click, ⌘-click and "copy link address" all depend on it. */
@@ -465,19 +489,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               navbar, which is on screen the whole time — so its field is the one most likely to be
               grazed by a pointer on its way somewhere else, and at this width there is barely room
               for the cluster to read as anything. */}
+          {/* اللافتة تقول ما يفعله الزرّ لا ما يعرضه: الرمز المكتوب عليه هو اللغة الحاليّة
+              (AR الآن) لا التي سينتقل إليها، وهو التباسٌ لا تحلّه أيقونة الكرة وحدها. */}
+          <Hint label={isAr ? 'تبديل اللغة' : 'Switch language'}>
           <NqButton
             tone="chrome"
             variant="ghost"
             size="sm"
             tiles={false}
             onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-            title={isAr ? 'تبديل اللغة' : 'Switch language'}
             aria-label={isAr ? 'تبديل اللغة' : 'Switch language'}
             className="px-3"
             icon={<Globe className="w-4 h-4" />}
           >
             <span className="font-mono">{isAr ? 'AR' : 'EN'}</span>
           </NqButton>
+          </Hint>
 
           <button
             ref={menuButtonRef}
