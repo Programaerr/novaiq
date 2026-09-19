@@ -243,13 +243,16 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
             aria-checked={draft.enabled}
             aria-label={isAr ? 'إظهار القسم للزوار' : 'Show the section to visitors'}
             onClick={() => patch({ enabled: !draft.enabled })}
-            className={`relative shrink-0 w-14 h-8 rounded-full border transition-colors cursor-pointer ${
+            className={`nq-switch relative shrink-0 w-14 h-8 rounded-full border cursor-pointer ${
               draft.enabled ? 'bg-ink border-ink' : 'bg-white border-ink/25'
             }`}
           >
+            {/* موضع السكون واحد، والحالة تُقرأ من `aria-checked` على الزرّ فوق — لا من صنف
+                يُبدَّل هنا. انظر `.nq-switch` في index.css: الطرفان كانا `start`/`end`
+                وبينهما `auto` التي لا تُستوفى، فكان الزرّ يقفز. */}
             <span
-              className={`absolute top-1/2 -translate-y-1/2 w-6 h-6 rounded-full shadow-sm transition-all ${
-                draft.enabled ? 'start-auto end-1 bg-paper' : 'start-1 end-auto bg-ink/30'
+              className={`nq-switch-knob absolute top-1/2 w-6 h-6 rounded-full shadow-sm ${
+                draft.enabled ? 'bg-paper' : 'bg-ink/30'
               }`}
             />
           </button>
