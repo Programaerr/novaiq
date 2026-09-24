@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FileCheck, Clock, Download, Lock } from 'lucide-react';
+import { FileCheck, Clock, Download } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { loginWithGoogle, loginWithPassword, authErrorMessage } from '../lib/auth';
-import { ERROR, OBSIDIAN, ORANGE, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
+import { loginWithGoogle, authErrorMessage } from '../lib/auth';
+import { OBSIDIAN, ORANGE, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { CardField } from './CardField';
 import { NuvaiqLogo } from './NuvaiqLogo';
 import { NqButton } from './ui/NqButton';
@@ -98,33 +98,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
   const isAr = language === 'ar';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-
-  /* دخول ثانٍ بالبريد وكلمة السر، وراء زرّ عائم متكتّم — لصاحب الموقع حين لا يناسبه الدخول
-     بـ Google، لا باباً عاماً ثانياً يُعرض على كل زائر (انظر تعليق الزرّ الوحيد أسفل الملف:
-     ذاك القرار يبقى قائماً لبقيّة الزائرين). لا تسجيل حساب جديد من هنا: العمل فقط لبريد
-     فُعِّلت له كلمة سر مسبقاً من تبويب الإعدادات (setAccountPassword في lib/auth.ts) — فالحاجز
-     نفسه (admins + email_confirmed_at) يسري بصرف النظر عن طريق الدخول. */
-  const [showPasswordLogin, setShowPasswordLogin] = useState(false);
-  const [pwEmail, setPwEmail] = useState('');
-  const [pwPassword, setPwPassword] = useState('');
-  const [pwSubmitting, setPwSubmitting] = useState(false);
-  const [pwError, setPwError] = useState('');
-
-  const handlePasswordSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pwSubmitting) return;
-    setPwError('');
-    setPwSubmitting(true);
-    try {
-      const { error } = await loginWithPassword(pwEmail, pwPassword);
-      if (error) throw error;
-      // نجاح: onAuthStateChange في lib/auth.ts يتولّى الباقي — لا توجيه هنا، بخلاف Google
-      // الذي يغادر الصفحة، هذا الدخول يبقى فيها فتُعاد الجلسة محلياً فوراً.
-    } catch (err) {
-      setPwError(authErrorMessage(err, isAr));
-      setPwSubmitting(false);
-    }
-  };
 
   const handleGoogleSignIn = async () => {
     if (isSubmitting) return;
@@ -429,65 +402,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ language, onContinueAsGues
           </div>
         </div>
       </div>
-
-      {/* الزرّ العائم — دخول ثانٍ بالبريد وكلمة السر، لصاحب الموقع حصراً. متكتّم عمداً: أيقونة
-          قفل صغيرة معتمة في زاوية الشاشة، لا نصّ يشرحها ولا مكان في تدفّق البطاقة أعلاه — من
-          لا يعرف الغرض منها يظنّها زخرفة، ومن يعرفه يجدها في المكان نفسه دائماً. */}
-      <button
-        type="button"
-        onClick={() => setShowPasswordLogin((v) => !v)}
-        aria-label={isAr ? 'دخول بالبريد وكلمة السر' : 'Sign in with email and password'}
-        aria-expanded={showPasswordLogin}
-        className="fixed bottom-4 start-4 z-50 w-9 h-9 grid place-items-center rounded-full backdrop-blur-sm transition-colors cursor-pointer"
-        style={{ background: 'rgba(8, 10, 13, 0.10)', color: 'rgba(8, 10, 13, 0.45)' }}
-      >
-        <Lock className="w-4 h-4" />
-      </button>
-
-      {showPasswordLogin && (
-        <form
-          onSubmit={handlePasswordSignIn}
-          dir={isAr ? 'rtl' : 'ltr'}
-          className="fixed bottom-16 start-4 z-50 w-64 p-3.5 rounded-2xl space-y-2.5"
-          style={{ background: WHITE, boxShadow: '0 10px 30px -8px rgba(8,10,13,0.35)' }}
-        >
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            value={pwEmail}
-            onChange={(e) => setPwEmail(e.target.value)}
-            placeholder={isAr ? 'البريد الإلكتروني' : 'Email'}
-            dir="ltr"
-            className="w-full px-3 py-2 rounded-lg border text-xs font-medium outline-none"
-            style={{ borderColor: 'rgba(8,10,13,0.15)', color: OBSIDIAN }}
-          />
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
-            value={pwPassword}
-            onChange={(e) => setPwPassword(e.target.value)}
-            placeholder={isAr ? 'كلمة السر' : 'Password'}
-            dir="ltr"
-            className="w-full px-3 py-2 rounded-lg border text-xs font-medium outline-none"
-            style={{ borderColor: 'rgba(8,10,13,0.15)', color: OBSIDIAN }}
-          />
-          {pwError && (
-            <p role="alert" className="text-[11px] font-medium" style={{ color: ERROR }}>
-              {pwError}
-            </p>
-          )}
-          <button
-            type="submit"
-            disabled={pwSubmitting}
-            className="w-full py-2 rounded-lg text-xs font-bold disabled:opacity-60 cursor-pointer"
-            style={{ background: OBSIDIAN, color: WHITE }}
-          >
-            {pwSubmitting ? '···' : isAr ? 'دخول' : 'Sign in'}
-          </button>
-        </form>
-      )}
     </div>
   );
 };

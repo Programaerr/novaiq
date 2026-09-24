@@ -66,29 +66,6 @@ export function loginWithGoogle() {
 }
 
 /**
- * دخول بالبريد وكلمة السر — طريق ثانٍ إلى الحساب نفسه لا حساباً موازياً.
- *
- * يعمل فقط لحساب فُعِّلت له كلمة سر مسبقاً عبر setAccountPassword أدناه (من لوحة التحكم، بعد
- * دخول بـ Google أولاً). Supabase يربط كل طرق الدخول بالحساب (uid) نفسه، فبريد موجود أصلاً في
- * جدول admins يبقى أدمن بأي طريق دخل به — الحاجز الحقيقي هو is_admin() في القاعدة لا طريقة
- * الدخول، تماماً كما مع Google.
- */
-export function loginWithPassword(email: string, password: string) {
-  return supabase.auth.signInWithPassword({ email: normalizeEmail(email), password });
-}
-
-/**
- * يضيف كلمة سر إلى الحساب الموقَّع حالياً — لا ينشئ حساباً جديداً ولا يغيّر بريده.
- *
- * يُستدعى مرّة واحدة من تبويب الإعدادات بعد دخول بـ Google، فيصير لذلك البريد نفسه طريق دخول
- * ثانٍ بعدها عبر loginWithPassword — بلا لمس جدول admins، لأن الحساب (uid) لم يتغيّر ولا
- * بريده معه.
- */
-export function setAccountPassword(password: string) {
-  return supabase.auth.updateUser({ password });
-}
-
-/**
  * هل توجد جلسة قائمة الآن؟
  *
  * جواب فوري من آخر حالة معروفة، لا رحلة شبكة. تُستعمل في شاشة الدخول للتفريق بين "لم يدخل"
@@ -189,16 +166,6 @@ export function authErrorMessage(error: unknown, isAr: boolean): string {
      تدفّق إعادة التوجيه أصلاً. والتصنيف هنا بحسب ما يمكن أن يقع فعلاً في هذا التدفّق. */
   if (status === 429 || message.includes('rate limit')) {
     return isAr ? 'محاولات كثيرة جداً، حاول بعد قليل' : 'Too many attempts — please try again shortly';
-  }
-  // دخول بالبريد وكلمة السر (loginWithPassword) وحده يصل إلى هذه الرسالة — دخول Google
-  // بإعادة توجيه لا يملك بيانات دخول ليخطئ فيها.
-  if (message.includes('invalid login credentials')) {
-    return isAr ? 'البريد أو كلمة السر غير صحيحة' : 'Incorrect email or password';
-  }
-  if (message.includes('password')) {
-    return isAr
-      ? 'كلمة السر غير صالحة — يجب أن تكون 6 أحرف على الأقل'
-      : 'Invalid password — must be at least 6 characters';
   }
   if (message.includes('failed to fetch') || message.includes('network')) {
     return isAr ? 'تعذّر الاتصال بالخادم، تحقّق من الإنترنت' : 'Network error — check your connection';

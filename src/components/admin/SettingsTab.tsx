@@ -14,7 +14,6 @@ import { useSocialLinks, saveSocialLinks, SocialLinks } from '../../lib/socialLi
 import { cosmicAudio } from '../../lib/audio';
 import { showToast } from '../../lib/toast';
 import { ClientsStripCard } from './ClientsStripCard';
-import { AccountSecurityCard } from './AccountSecurityCard';
 
 const SOCIAL_FIELDS: Array<{
   id: keyof SocialLinks;
@@ -55,11 +54,7 @@ export function SettingsTab({ isAr }: { isAr: boolean }) {
 
   return (
     <div className="space-y-10">
-      {/* الدخول الاحتياطي أولاً: أدمن قرأ هذا التبويب أوّل مرّة يحتاج يعرف أن الخيار موجود قبل
-          أن يمرّ عليه وهو يبحث عن شيء آخر. */}
-      <AccountSecurityCard isAr={isAr} />
-
-      {/* شريط "أعمالنا" ثانياً: هو الأحدث والأكثر تعديلاً، وروابط التواصل تُضبط مرة وتُنسى. */}
+      {/* شريط "أعمالنا" أولاً: هو الأحدث والأكثر تعديلاً، وروابط التواصل تُضبط مرة وتُنسى. */}
       <ClientsStripCard isAr={isAr} />
 
       <div className="space-y-4 max-w-2xl">
