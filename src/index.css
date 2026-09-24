@@ -1986,6 +1986,42 @@ html[data-demo] .nq-navbar {
      767px شعارٌ ضائع في بياض. والحدّان الآخران كما هما، فلا شيء دون 1478px يبلغ السقف
      أصلاً — الهاتف على أرضيّته 2.5rem، و1280 على 4.6vw. */
   --nq-work-logo: clamp(2.5rem, 4.6vw, 6rem);
+
+  /* ── ما يشغله أسفل اللوح، مقيساً لا مقدَّراً ─────────────────────────────────
+     كان زرّ الزيارة والنصّ فوقه يحملان رقمين منفصلين: الزرّ ارتفاعه الحقيقيّ، والنصّ
+     حجزَ له `3rem` مكتوبة باليد. والرقمان تفارقا: الزرّ 52px فوق 640px، فالمحجوز أقلّ
+     من المشغول بـ4px — ويُقصّ الوصف تحت الحبّة. فصارا رقماً واحداً يشتقّ منه الاثنان.
+
+       · `--nq-work-visit-inset` بُعد الحبّة عن قاع اللوح.
+       · `--nq-work-visit-h` صندوقها: 3.25rem = 52px على العريض، و2.75rem = 44px على
+         الهاتف (أرضية هدف اللمس، انظر الحدّ الشفّاف في استعلام 640px أدناه) — والقلب
+         بينهما على نفس `(max-width: 640px)` التي يقلب عليها `narrow` حجم الزرّ في
+         ClientsAccordion.tsx، فلا يمكن للاثنين أن يفترقا.
+       · `--nq-work-visit-gap` الفسحة بين آخر سطر والحبّة. كانت 4px — أي التصاق —
+         فصارت 18.4px، ومعها 5px من حدّ الحبّة الشفّاف تبلغ المرسوم 23.75px.
+       · `--nq-work-copy-h` كتلة النصّ: مقيسة 75.65px (اسم 22.8 + فجوة 5.6 + سطرا وصف
+         47.25). و5rem = 80px تترك 4px، فلا يقصّ خطٌّ بديل السطرَ الثاني عند أوّل تعثّر.
+         وسقفُها سقفٌ حقيقيّ لأنّ `-webkit-line-clamp: 2` على `.nq-work-blurb` يمنع
+         الثالث — لولاه لكان هذا الرقم أمنية لا قياساً.
+
+     ومنها `--nq-work-logo-top`: الشعار في منتصف اللوح ما دام المنتصف يترك لما تحته
+     مساحته، وإلاّ ارتفع بقدر ما يعوز بالضبط. كان مكانه `50%` مع استثناء `28%` تحت
+     640px، فكان فوقها جرفٌ: عند 641px يعود إلى المنتصف واللوح ما زال قصيراً (305px)،
+     فيُقصّ الوصف إلى سطر ونصف — مقيس. و`min()` لا تعرف جرفاً: هي نفس الحساب على كلّ
+     عرض. وعلى 1280px تفوز `50%` كما كانت، فلا شيء يتغيّر على الحاسبة. */
+  --nq-work-visit-inset: clamp(0.85rem, 2.4vw, 1.9rem);
+  --nq-work-visit-h: 3.25rem;
+  --nq-work-visit-gap: 1.15rem;
+  --nq-work-copy-h: 5rem;
+  /* هبوط النصّ عن مركز الشعار: نصف الضلع بعد التكبير (×1.12) ثمّ فسحة. */
+  --nq-work-copy-drop: calc(var(--nq-work-logo) * 0.62 + 0.9rem);
+  --nq-work-logo-top: min(
+    50%,
+    calc(
+      100% - var(--nq-work-copy-drop) - var(--nq-work-copy-h) - var(--nq-work-visit-gap) -
+        var(--nq-work-visit-h) - var(--nq-work-visit-inset)
+    )
+  );
   display: flex;
   margin: 0;
   padding: 0;
@@ -2262,31 +2298,20 @@ html[data-demo] .nq-navbar {
 .nq-work-panel[data-active='true'] .nq-work-logo,
 .nq-work-panel[data-active='true'] .nq-work-fallback {
   transform: translate(-50%, -50%) scale(1.12);
-}
-
-/* على الهاتف، اللوح المفتوح أقصر ممّا يحتاجه الشعار المكبَّر + الاسم + سطر العمل + زرّ
-   الزيارة معاً لو بقي الشعار عند مركز اللوح (50%) — القياس الفعلي: 254px ارتفاعاً، منها
-   127px فوق المركز للشعار وحده، فلا يتبقّى للنصّ قبل الزرّ إلا نحو 30px، أقلّ من ارتفاع
-   الاسم وحده. الشعار يرتفع إلى 28% فيتحرّر نحو 56px إضافية للنصّ تحته (انظر `.nq-work-copy`
-   أدناه لنفس الرقم) — وعلى العريض لا حاجة لهذا: المسافة متوفّرة أصلاً. */
-@media (max-width: 640px) {
-  .nq-work-panel[data-active='true'] .nq-work-logo,
-  .nq-work-panel[data-active='true'] .nq-work-fallback {
-    top: 28%;
-  }
+  /* انظر `--nq-work-logo-top` في `.nq-work-row`: المنتصف ما لم يكن اللوح أقصر من أن
+     يسع ما تحته. والمغلق يبقى عند 50% — لا نصّ تحته يزاحمه. */
+  top: var(--nq-work-logo-top);
 }
 
 .nq-work-copy {
   position: absolute;
   inset-inline: 0.6rem;
-  /* أسفل المربّع بعد تكبيره، لا أسفل مركز اللوح: نصف الضلع × 1.12 ثمّ فسحة. ولأنّه
-     مطلق، ظهوره لا يزحزح المربّع عن مركزه — لا شيء يقفز عند الفتح. */
-  top: calc(50% + var(--nq-work-logo) * 0.62 + 0.9rem);
-  /* ويتوقّف قبل زرّ "زيارة الموقع" لا عند حدّ اللوح: بدون هذا الحدّ، سطرا بلوغ (اسم طويل
-     أو وصف من سطرين) يمتدّان تحت الزرّ فعلاً — والزرّ لاحقٌ في الـDOM فيُرسَم فوقهما،
-     فيبدو النصّ "مختفياً" لا مقصوصاً. المحجوز هنا نفس مسافة الزرّ عن الأسفل زائد ارتفاعه
-     (‏3rem تكفي حجمَيه معاً: md على العرض العريض وsm على الهاتف) زائد فسحة صغيرة. */
-  bottom: calc(clamp(0.85rem, 2.4vw, 1.9rem) + 3rem);
+  /* أسفل المربّع بعد تكبيره، لا أسفل مركز اللوح — ولأنّه مطلق، ظهوره لا يزحزح المربّع
+     عن مكانه: لا شيء يقفز عند الفتح. */
+  top: calc(var(--nq-work-logo-top) + var(--nq-work-copy-drop));
+  /* ويتوقّف قبل الحبّة لا عند حدّ اللوح: بدون هذا الحدّ يمتدّ الوصف تحتها فعلاً، والحبّة
+     لاحقة في الـDOM فتُرسم فوقه — فيبدو النصّ "مختفياً" لا مقصوصاً. */
+  bottom: calc(var(--nq-work-visit-inset) + var(--nq-work-visit-h) + var(--nq-work-visit-gap));
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -2297,14 +2322,6 @@ html[data-demo] .nq-navbar {
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 240ms ease 80ms, transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms;
-}
-
-/* نفس رفعة الشعار أعلاه (28% لا 50%) وبنفس الحساب بالضبط، فيبقى "أسفل المربّع" صحيحاً حتى
-   بعد ارتفاعه. بدون هذه القاعدة يبقى النصّ يُحسَب من مركز لوحٍ لم يعد الشعار عنده. */
-@media (max-width: 640px) {
-  .nq-work-panel[data-active='true'] .nq-work-copy {
-    top: calc(28% + var(--nq-work-logo) * 0.62 + 0.9rem);
-  }
 }
 
 .nq-work-panel[data-active='true'] .nq-work-copy {
@@ -2323,7 +2340,7 @@ html[data-demo] .nq-navbar {
 .nq-work-visit {
   position: absolute;
   inset-inline: 0.5rem;
-  bottom: clamp(0.85rem, 2.4vw, 1.9rem);
+  bottom: var(--nq-work-visit-inset);
   margin-inline: auto;
   width: fit-content;
   max-width: calc(100% - 1rem);
@@ -2536,6 +2553,12 @@ html[data-demo] .nq-navbar {
 @media (max-width: 640px) {
   .nq-work-row[data-open='true'] .nq-work-panel[data-active='true'] {
     flex-grow: 3.2;
+  }
+
+  /* صندوق الحبّة هنا 44px لا 52: `size="sm"` من ClientsAccordion.tsx زائد الحدّ الشفّاف
+     في آخر هذه الكتلة. ويُعلَن هنا لا فوق، فيقع التصريح بجانب ما يصنعه. */
+  .nq-work-row {
+    --nq-work-visit-h: 2.75rem;
   }
 
   /* كلّ مقاس هنا نسبةٌ إلى الخطّ لا رقم مختار، والحشو حول القرص يساوي نفسه من الجهات
