@@ -137,6 +137,172 @@
   --color-zinc-950: oklch(14.1% .005 285.823);
 }
 
+
+/* ── السِمة الليليّة ───────────────────────────────────────────────────────────────────
+   لا ورقة ألوان ثانية: نفس الرموز أعلاه بقيمٍ أخرى. وهذا ممكنٌ أصلاً لأنّ Tailwind v4 لا
+   يُدرج قيمة لونٍ قطّ — كلّ `bg-ink` و`text-white` و`border-zinc-800` في المشروع تُترجَم
+   إلى `var(--color-…)`. فإعادة تعريف الرمز هنا تصل إلى ~430 موضعاً في ~35 ملفاً بلا أن
+   يتغيّر حرفٌ في أيٍّ منها. وهو نفس ما يقوله تعليق `@theme` أعلاه عن تبديل الهويّة —
+   والسِمة الليليّة أوّل مستفيدٍ حقيقيّ منه.
+
+   ويفوز هذا على `@theme` لسببين معاً: `html[data-theme='dark']` أخصّ من `:root`، وهو
+   خارج الطبقات بينما `@theme` داخل `@layer theme` — وأيّ قاعدة خارج الطبقات تغلب أيّ
+   قاعدة داخلها مهما كانت الخصوصيّة.
+
+   ## ما لا يُقلَب، ولماذا
+
+   الرموز هنا مسمّاةٌ بقيمتها لا بدورها (`white`, `black`, `ink`)، والقلب الأعمى يكسر
+   نصفها. مقيس على المشروع كلّه:
+
+     · `white` — 284 استعمالاً نصّاً و183 خلفيّة. أي أنّه لا يُقلَب: نصّ أبيض فوق لوحٍ
+       داكن يجب أن يبقى أبيض، وبطاقةٌ بيضاء يجب أن تُظلم. ولمّا كان الاستعمالان بنفس
+       الرمز، بقي `--color-white` فاتحاً كما هو (النصّ يفوز عدداً وموضعاً)، و183 الخلفيّة
+       كلّها تقريباً في لوحة الأدمن ولوحة العميل والمعاينة — وهذه محفوظة نهاريّةً في
+       `.nq-app-light` أدناه، فلا تصلها المسألة أصلاً.
+
+     · `ink` مقابل `obsidian` — هما اليوم رمزٌ واحد (`--color-ink: var(--color-obsidian)`)،
+       وهنا يفترقان. `ink` نصٌّ وحدّ قبل كلّ شيء (383 نصّاً و165 حدّاً مقابل 13 خلفيّة)
+       فيصير فاتحاً، و`obsidian` لوحٌ داكن (22 خلفيّة مقابل 7 نصوص) فيصير سطحاً مرتفعاً.
+       وهذا بالضبط ما وُجد التسمية المستعارة له: أن ينفصل الدوران حين يلزم.
+
+     · سلّم `zinc` يُعكَس طرفاً بطرف — 50 يأخذ ما كان لـ950 وهكذا — فالسلّم كلّه معرَّف
+       بوصفه تدرّجاً من السطح إلى الحبر، والليل يقلب الاتّجاه لا يُلغيه.
+
+     · والأكسنت `--color-orange` قيمته `#273036`، وهي لوحة قاتمة أصلاً: على أرضيّة داكنة
+       تختفي. فيأخذ توأمه الفاتح `--color-orange-on-dark` (#C4CED4) المعرَّف فوق لهذا
+       الغرض حرفيّاً — «للأرضيّات التي يختفي عليها الأكسنت». */
+html[data-theme='dark'] {
+  /* يخبر المتصفّح بالسِمة بدل أن يريه إيّاها: أشرطة التمرير وعناصر النماذج وخلفيّة
+     الإكمال التلقائيّ وقوائم `<select>`. مكتوبٌ هنا وعلى العنصر من JS معاً — الأوّل
+     للصفحة، والثاني لأنّ theme-init.js يسبق هذا الملفّ. */
+  color-scheme: dark;
+
+  /* أرضيّة الصفحة. أعلى قليلاً من `--color-obsidian` (#080A0D) عمداً: الشريط العلويّ
+     والفوتر والألواح الداكنة كلّها مبنيّة على الأبسيديان، فأرضيّةٌ مطابقة له كانت
+     ستبتلعها جميعاً. */
+  --nq-ground: #0B0E13;
+  --nq-accent: #C4CED4;
+
+  /* زجاج الشريط العلويّ: فاتحٌ فوق صفحة داكنة، لا داكنٌ فوق داكن. القيمة النهاريّة
+     (`rgb(8 10 13 / 0.72)`) هنا شريطٌ أسود على أرضيّة سوداء — أي لا شريط. */
+  --nq-bar: rgb(30 37 47 / 0.82);
+  --nq-bar-hover: rgb(38 46 58 / 0.92);
+
+  /* ── الأسطح، من الأعمق إلى الأرفع ─────────────────────────────────────────────
+     أربع درجات لا واحدة، بنفس المنطق الذي بُنيت به العائلة الفاتحة أعلاه: بطاقة مرتفعة
+     وفاصل قسمٍ هادئ وشارة، كلٌّ يُقرأ سطحاً مستقلاً بلا حدٍّ بينها. */
+  --color-white-warm: #141922;
+  --color-paper: #1A202A;
+  --color-paper-deep: #242B36;
+  --color-surface-light: #1E242E;
+
+  --color-obsidian: #1A2027;
+  --color-graphite: #1C222B;
+  --color-black: #161B22;
+
+  /* الحبر: نصٌّ وحدّ. 15.4:1 على الأرضيّة — والحدود عند `border-ink/10` تصير خطاً فاتحاً
+     خافتاً على لوحٍ داكن، وهو نفس ما كانته خطاً داكناً خافتاً على لوحٍ فاتح. */
+  --color-ink: #E8EBEF;
+
+  /* الرماديّان يتبادلان الدور: `steel-light` كان الأدكن (للنصّ الخافت على أرضيّة فاتحة)،
+     والليل يحتاج الأفتح. 7.4:1 و5.1:1 على الأرضيّة — كلاهما فوق 4.5. */
+  --color-steel: #A7AFB9;
+  --color-steel-light: #8A939E;
+  --color-ember: #8D9AA6;
+
+  --color-orange: #C4CED4;
+  --color-orange-on-light: #C4CED4;
+  --color-orange-on-dark: #C4CED4;
+
+  /* `white` يبقى فاتحاً — انظر التعليق أعلاه. */
+  --color-white: #F7F7F5;
+
+  --color-zinc-50: #0D1014;
+  --color-zinc-100: #15181D;
+  --color-zinc-200: #1E2228;
+  --color-zinc-300: #2A2F36;
+  --color-zinc-400: #3C424A;
+  --color-zinc-500: #6E757E;
+  --color-zinc-600: #949BA4;
+  --color-zinc-700: #B7BDC4;
+  --color-zinc-800: #D4D8DD;
+  --color-zinc-900: #E7EAEE;
+  --color-zinc-950: #F2F4F6;
+}
+
+/* ── ما يبقى نهاريّاً: شاشات التطبيق ──────────────────────────────────────────────────
+   لوحة الأدمن ولوحة العميل وباني العقد والمعاينة التفاعليّة ليست صفحات تسويق — هي أدوات،
+   وفيها وحدها 183 خلفيّة `bg-white` و314 لوناً مكتوباً بالست عشري داخل JSX لا يصلها أيّ
+   رمز. لو قُلبت أرضيّاتها وحدها لصارت نصّاً داكناً على لوحٍ داكن؛ أي أنّ نصف الليل أسوأ
+   من لا ليل.
+
+   فتُعاد الرموز هنا إلى قيمها النهاريّة، بنفس آليّة `.rental-scope` أعلاه وللسبب نفسه:
+   محتوىً له نظام ألوانه الخاصّ داخل صفحةٍ لها نظامها. ولا يحتاج ما بالداخل أن يعرف —
+   نفس الصنف يُحلّ عنده غير ما يُحلّ عنده على بعد عنصرٍ واحد فوقه. */
+html[data-theme='dark'] .nq-app-light {
+  color-scheme: light;
+  --nq-accent: #273036;
+  --color-white-warm: #F7F7F5;
+  --color-paper: #E9E7E3;
+  --color-paper-deep: #DCDBD6;
+  --color-surface-light: #FFFFFF;
+  --color-obsidian: #080A0D;
+  --color-graphite: #12161C;
+  --color-black: #080A0D;
+  --color-ink: #080A0D;
+  --color-steel: #9299A3;
+  --color-steel-light: #6B7179;
+  --color-ember: #3E4B54;
+  --color-orange: #273036;
+  --color-orange-on-light: #273036;
+  --color-orange-on-dark: #C4CED4;
+  --color-white: #F7F7F5;
+  --color-zinc-50: #FAFAFA;
+  --color-zinc-100: #F3F3F3;
+  --color-zinc-200: #E6E7E7;
+  --color-zinc-300: #D3D3D3;
+  --color-zinc-400: #B5B6B6;
+  --color-zinc-500: #8D8E90;
+  --color-zinc-600: #666769;
+  --color-zinc-700: #434547;
+  --color-zinc-800: #282A2C;
+  --color-zinc-900: #17191C;
+  --color-zinc-950: #080A0D;
+  /* الأرضيّة أيضاً: هذه الشاشات تملأ الصفحة، فأرضيّتها هي ما يُرى. */
+  background-color: #F7F7F5;
+  color: #080A0D;
+}
+
+/* ── العبور بين السِمتين ───────────────────────────────────────────────────────────────
+   صفحةٌ تقلب ألوانها كلّها في إطارٍ واحد تُقرأ وميضاً لا تبديلاً. ولها طريقان، والاختيار
+   بينهما في src/lib/theme.ts لا هنا:
+
+   1. **View Transitions**: المتصفّح يلتقط الصفحة، يطبّق التغيير، ثمّ يمزج اللقطة القديمة
+      في الجديدة. لقطتان تتلاشيان مهما كان عدد العناصر في الصفحة — فالثمن ثابت. والمدّة
+      من هنا لأنّها حركة، ومكانها مع بقيّة الحركة.
+
+   2. **وإلاّ**: انتقالٌ مفروض على ألوان كلّ عنصر. `!important` على محدِّدٍ شامل ثقيل،
+      ولذلك هو مؤقّت: `data-theme-fade` تُرفَع بعد 760ms (انظر theme.ts). تركُها مفروضة
+      يعني أنّ كلّ hover في الموقع يصير بطيئاً بعد أوّل تبديل سِمة.
+
+   ومن طلب تقليل الحركة لا تُكتَب له أيّ من السمتين أصلاً، فلا شيء هنا يعمل عنده. */
+html[data-theme-vt]::view-transition-old(root),
+html[data-theme-vt]::view-transition-new(root) {
+  animation-duration: 820ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html[data-theme-fade],
+html[data-theme-fade] *,
+html[data-theme-fade] *::before,
+html[data-theme-fade] *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow,
+    outline-color, text-decoration-color !important;
+  transition-duration: 700ms !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
+}
+
 /* Self-hosted Cairo — replaces the Google Fonts <link> in index.html.
    Loading fonts from the same origin as the page (instead of a fonts.googleapis.com
    stylesheet that itself points at a separate fonts.gstatic.com host) removes the
@@ -199,7 +365,11 @@
        form controls, the autofill wash on inputs, `<select>` popups, and the flash of canvas
        before first paint. Without it those render in the dark default and sit on a sand page as
        black rectangles — a trace of exactly the identity this was rebuilt to remove. It also
-       stops a dark flash between navigation and first paint. */
+       stops a dark flash between navigation and first paint.
+
+       والقيمة هنا هي النهاريّة فقط؛ `html[data-theme='dark']` أعلاه تقلبها، و`applyMode`
+       في src/lib/theme.ts تكتبها على العنصر نفسه أيضاً لأنّ theme-init.js يسبق هذا
+       الملفّ في الوصول. */
     color-scheme: light;
     /* The page's flat base colour, and the one the browser uses for the area past the document
        when a phone rubber-bands past either end. It has to match the backdrop below or a hard
@@ -297,8 +467,11 @@
        opaque colour on `body` paints straight over its own pseudo-element and hides the entire
        background composition; the page still looks dark, which is exactly why it can sit there
        unnoticed. The flat colour belongs on `html` (see --nq-ground), which is also the element
-       whose colour fills the overscroll area, so nothing is lost by taking it off here. */
-    color: #080A0D;
+       whose colour fills the overscroll area, so nothing is lost by taking it off here.
+
+       واللون رمزٌ لا قيمة منذ صارت للموقع سِمة ليليّة: `--color-ink` هو ما ينقلب، وكتابة
+       `#080A0D` هنا كانت ستُبقي نصّ الصفحة كلّه أسود على أرضيّة سوداء. */
+    color: var(--color-ink);
     overflow-x: hidden;
   }
 
@@ -3148,6 +3321,123 @@ html[data-demo] .nq-navbar {
   .nq-hint-slot:hover .nq-hint,
   .nq-hint-slot:has(:focus-visible) .nq-hint {
     transition: opacity 200ms ease 450ms;
+  }
+}
+
+
+/* ── قائمة السِمة (ThemeMenu.tsx) ─────────────────────────────────────────────
+
+   قائمةٌ صغيرة تتدلّى من زرّها في الشريط. والشريط مقفول على `dir="ltr"` (انظر
+   Navbar.tsx)، فالتعليق هنا فيزيائيّ: `right: 0` الحافّة اليمنى في اللغتين، وهي
+   الحافّة التي يقف عندها الزرّ. أمّا نصّ القائمة فيتبع اللغة — `dir` مكتوبة على
+   العنصر نفسه في المكوّن — فالأيقونة والكلمة والعلامة ترتّب نفسها كما تُقرأ.
+
+   والإخفاء بـ`visibility` لا بـ`opacity` وحدها: ثلاثة أزرار عند `opacity: 0` تبقى
+   قابلة للتركيز وباقية في شجرة الوصول. والتأخير على `visibility` لا على المدّة،
+   فتظهر فوراً وتختفي بعد أن ينتهي التلاشي. (`tabIndex` و`aria-hidden` في المكوّن
+   يقولان الشيء نفسه للقارئ — الاثنان معاً لأنّ `visibility` وحدها لا تُعتمد عليها
+   في كلّ قارئ.) */
+.nq-theme-slot {
+  position: relative;
+  display: inline-flex;
+}
+
+.nq-theme-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  z-index: 60;
+  min-width: 10.5rem;
+  padding: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  border-radius: 0.9rem;
+  /* نفس زجاج الشريط الذي تتدلّى منه، لا لوحٌ بلونٍ خاصّ به: القيمة نفسها تنقلب مع
+     السِمة (انظر `--nq-bar` في كتلة الليل)، فالقائمة تتبع بلا سطرٍ ثانٍ. */
+  background: var(--nq-bar-hover);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 0 0 1px rgb(247 247 245 / 0.14),
+    0 20px 44px -20px rgb(8 10 13 / 0.85);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.4rem) scale(0.97);
+  transform-origin: top right;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    visibility 0s linear 160ms;
+}
+
+.nq-theme-menu[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 200ms ease,
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s;
+}
+
+.nq-theme-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  /* 2.5rem = 40px مرسومة. أرضيّة هدف اللمس 44px تأتي من الحشو الرأسيّ للقائمة حولها
+     مضافاً إلى هذا — وثلاثة عناصر متجاورة رأسيّاً لا أفقيّاً، فلا تزاحم بينها. */
+  min-height: 2.5rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: normal;
+  color: rgb(247 247 245 / 0.76);
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.nq-theme-item:hover,
+.nq-theme-item:focus-visible {
+  background: rgb(247 247 245 / 0.1);
+  color: #f7f7f5;
+}
+
+.nq-theme-item:focus-visible {
+  outline: 2px solid #f7f7f5;
+  outline-offset: -2px;
+}
+
+.nq-theme-item[aria-checked='true'] {
+  color: #f7f7f5;
+}
+
+.nq-theme-item-text {
+  flex: 1 1 auto;
+  text-align: start;
+}
+
+/* العلامة مرسومة على كلّ سطر وتُخفى بالشفافيّة، فعرض السطر واحدٌ في الحالتين — وإلاّ
+   قفزت الكلمات أفقيّاً كلّما انتقل الاختيار من سطر إلى آخر. */
+.nq-theme-check {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.nq-theme-item[aria-checked='true'] .nq-theme-check {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nq-theme-menu,
+  .nq-theme-menu[data-open='true'] {
+    transition: opacity 120ms ease;
+    transform: none;
   }
 }
 

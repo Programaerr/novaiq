@@ -13,6 +13,7 @@ import { NqButton } from './ui/NqButton';
 import { NqLink } from './ui/NqLink';
 import { useFloatingBarBottom } from '../lib/useFloatingBarBottom';
 import { NuvaiqLogo } from './NuvaiqLogo';
+import { ThemeMenu } from './ThemeMenu';
 // نوع فقط (import type) — يُحذف بالكامل عند الترجمة، لا يسحب Firebase SDK فعلياً وقت التشغيل.
 // من يملك حالة الدخول فعلياً هو App.tsx (useCurrentUser، مطلوبة هناك أصلاً لتوجيه الصفحات)،
 // وهذا الملف يستقبلها كخاصية بدل الاشتراك بنفسه بشكل مكرر — انظر تعليق currentUser أدناه.
@@ -496,6 +497,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               for the cluster to read as anything. */}
           {/* اللافتة تقول ما يفعله الزرّ لا ما يعرضه: الرمز المكتوب عليه هو اللغة الحاليّة
               (AR الآن) لا التي سينتقل إليها، وهو التباسٌ لا تحلّه أيقونة الكرة وحدها. */}
+          {/* السِمة قبل اللغة: الاثنان تفضيلان للعرض لا تنقّلاً، فيقفان معاً على طرف
+              الشريط بعيداً عن الحساب والقائمة. واللافتة تقول الحالة لا الفعل — «سِمة
+              الموقع — ليليّ» — لأنّ هذا زرٌّ يفتح قائمةً لا زرٌّ يقلب. */}
+          <Hint label={isAr ? 'سِمة الموقع' : 'Site theme'}>
+            <ThemeMenu isAr={isAr} />
+          </Hint>
+
           <Hint label={isAr ? 'تبديل اللغة' : 'Switch language'}>
           <NqButton
             tone="chrome"
