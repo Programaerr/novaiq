@@ -137,201 +137,6 @@
   --color-zinc-950: oklch(14.1% .005 285.823);
 }
 
-
-/* ── السِمة الليليّة: نفس درجات الموقع، بأدوارٍ متبادلة ───────────────────────────────────
-   لا لونَ واحدَ هنا مخترعاً ولا محسوباً. كلّ قيمة أدناه درجةٌ تستعملها الصفحة النهاريّة
-   أصلاً — أبسيديان، غرافيت، الأبيض الدافئ، توأم الأكسنت على الداكن، الفولاذيّ — وإنّما
-   تبادلت الأدوار: ما كان أرضيّةً صار نصّاً، وما كان نصّاً صار أرضيّة.
-
-   وهذا هو الفرق بين سِمةٍ ليليّة متناسقة وأخرى غريبة عن موقعها. جُرّب قبله قلبٌ حسابيّ
-   لإضاءة كلّ لون (`L* → 100 − L*` في CIELAB): النسب كانت سليمة تماماً، لكنّ الدرجات
-   الناتجة (‏#0A0A08، #191815، #22211D) لم تكن من درجات الموقع — قريبةً منها ولا هي هي،
-   وهو بالضبط ما يُقرأ «غير متناسق». اللوحة تملك عائلةً داكنة كاملة ومستعملة في الشريط
-   العلويّ والفوتر والألواح الداكنة منذ اليوم الأوّل؛ فالليل يأخذها كما هي.
-
-   ## الدرجتان الوحيدتان غير الموجودتين حرفاً
-
-   العائلة الفاتحة أربع درجات (‏#FFFFFF، #F7F7F5، #E9E7E3، #DCDBD6) والداكنة اثنتان
-   (‏#080A0D، #12161C). فالناقصتان تكملان نفس السلّم بنفس خطوته لا بخطوةٍ مختارة:
-   `#1A2129` ثمّ `#232B34`، امتداداً لأبسيديان→غرافيت.
-
-   ## والمرتفع يفتح، لا يُظلم
-
-   في النهار السطح المرتفع أفتح من الصفحة (#FFFFFF فوق #F7F7F5). وفي الليل أفتح منها
-   أيضاً — لا أدكن. القلب الحرفيّ كان سيجعل البطاقة المرتفعة أدكن من صفحتها، وهو عكس ما
-   تقوله عين القارئ عن الارتفاع في كلّ واجهةٍ داكنة.
-
-   ## مقيس
-
-     نصّ المتن على الصفحة    18.48:1   (وفي النهار 18.48:1)
-     نصّ المتن على الحزام    16.92:1   (وفي النهار 16.05:1)
-     نصّ المتن على المرتفع   15.14:1
-     الخافت على الصفحة        6.90:1   (وفي النهار 4.59:1)
-     الخافت على المرتفع       5.65:1   ← أسوأ زوجٍ نصّيّ، وما زال فوق 4.5
-     الأكسنت على الصفحة      12.39:1   (وفي النهار 12.53:1)
-
-   ## ويفوز هذا على `@theme`
-
-   لسببين معاً: `html[data-theme='dark']` أخصّ من `:root`، وهو خارج الطبقات بينما `@theme`
-   داخل `@layer theme` — وأيّ قاعدة خارج الطبقات تغلب أيّ قاعدة داخلها مهما كانت
-   الخصوصيّة. وكلّ `bg-ink` و`text-white` و`border-zinc-800` في المشروع مترجَمة أصلاً إلى
-   `var(--color-…)` لأنّ Tailwind v4 لا يُدرج قيمة لونٍ قطّ — فإعادة التعريف هنا تصل إلى
-   ~430 موضعاً في ~35 ملفاً بلا أن يتغيّر حرفٌ في أيٍّ منها.
-
-   ## وما لا ينقلب
-
-   `--color-white` يبقى الأبيض الدافئ. هو 284 نصّاً و183 خلفيّة في المشروع، أي أنّه
-   لا يُقلَب: نصٌّ أبيض فوق كروم داكن يبقى أبيض، والخلفيّات البيضاء كلّها تقريباً في شاشات
-   التطبيق المحفوظة نهاريّةً في `.nq-app-light` أدناه. و`--color-ink` يفترق هنا عن
-   `--color-obsidian` وهما اليوم رمزٌ واحد: الحبر نصٌّ وحدٌّ (383 + 165 مقابل 13 خلفيّة)
-   فيصير فاتحاً، والأبسيديان لوحٌ (22 خلفيّة مقابل 7 نصوص) فيصير سطحاً مرتفعاً. وهذا ما
-   وُجدت التسمية المستعارة له أصلاً: أن ينفصل الدوران حين يلزم. */
-html[data-theme='dark'] {
-  /* يخبر المتصفّح بالسِمة بدل أن يريه إيّاها: أشرطة التمرير وعناصر النماذج وخلفيّة
-     الإكمال التلقائيّ وقوائم `<select>`. */
-  color-scheme: dark;
-
-  --nq-ground: #080A0D;
-  --nq-accent: #C4CED4;
-
-  /* زجاج الشريط العلويّ والقائمة المتدلّية منه. الشريط داكنٌ في السِمتين — هو كروم لا
-     صفحة — لكنّه في الليل يقف على أرضيّة بلونه هو، فيرتفع درجةً ليبقى شيئاً قائماً
-     فوقها لا رقعةً منها. */
-  --nq-bar: rgb(30 37 45 / 0.86);
-  --nq-bar-hover: rgb(38 46 56 / 0.94);
-
-  /* الأسطح: أبسيديان ثمّ غرافيت ثمّ درجتان تُكملان السلّم. */
-  --color-white-warm: #080A0D;
-  --color-paper: #12161C;
-  --color-surface-light: #1A2129;
-  --color-paper-deep: #232B34;
-
-  --color-obsidian: #12161C;
-  --color-graphite: #1A2129;
-  --color-black: #12161C;
-
-  /* النصّ والحدّ. و`border-ink/10` تصير خطاً فاتحاً خافتاً على لوحٍ داكن — وهو نفس ما
-     كانته خطاً داكناً خافتاً على لوحٍ فاتح. */
-  --color-ink: #F7F7F5;
-  --color-white: #F7F7F5;
-
-  /* الأكسنت يأخذ توأمه المعرَّف فوق لهذا الغرض حرفيّاً: «للأرضيّات التي يختفي عليها
-     الأكسنت — 1.47:1 على الأبسيديان». */
-  --color-orange: #C4CED4;
-  --color-orange-on-light: #C4CED4;
-  --color-orange-on-dark: #C4CED4;
-
-  /* الرماديّان يلتقيان عند الفولاذيّ. اللوحة تنصّ فوق على أنّهما توأمان لأرضيّتين:
-     `steel` 6.90:1 على الأبسيديان، و`steel-light` للأرضيّة الفاتحة. وفي الليل كلّ
-     الأرضيّات داكنة، فكلاهما الفولاذيّ. */
-  --color-steel: #9299A3;
-  --color-steel-light: #9299A3;
-  --color-ember: #9299A3;
-
-  /* السلّم معرَّف فوق بوصفه تدرّجاً من السطح إلى الحبر؛ والليل يقلب اتّجاهه لا يُلغيه —
-     فكلّ درجة تأخذ ما كان لمقابلها من الطرف الآخر. */
-  --color-zinc-50: #080A0D;
-  --color-zinc-100: #17191C;
-  --color-zinc-200: #282A2C;
-  --color-zinc-300: #434547;
-  --color-zinc-400: #666769;
-  --color-zinc-500: #8D8E90;
-  --color-zinc-600: #B5B6B6;
-  --color-zinc-700: #D3D3D3;
-  --color-zinc-800: #E6E7E7;
-  --color-zinc-900: #F3F3F3;
-  --color-zinc-950: #FAFAFA;
-
-  /* ── القنوات، للألوان الشفّافة ────────────────────────────────────────────────
-     `rgb(var(--x) / 0.14)` لا يقبل `#RRGGBB`، فالثلاثيّات تُعلَن منفصلة. وهي نفس
-     الألوان أعلاه لا ألوانٌ أخرى. */
-  --nq-ink-rgb: 247 247 245;
-  --nq-ground-rgb: 8 10 13;
-  --nq-accent-rgb: 196 206 212;
-}
-
-/* الثلاثيّات النهاريّة. معلنةٌ على `:root` لا داخل `@theme` لأنّها ليست ألوان Tailwind —
-   لا تُولَد منها أصناف، وإنّما تُقرأ يدويّاً حيث يحتاج اللون شفافيّة. */
-:root {
-  --nq-ink-rgb: 8 10 13;
-  --nq-ground-rgb: 247 247 245;
-  --nq-accent-rgb: 39 48 54;
-}
-
-/* ── ما يبقى نهاريّاً: شاشات التطبيق ──────────────────────────────────────────────────
-   لوحة الأدمن ولوحة العميل وباني العقد والمعاينة ليست صفحات تسويق — هي أدوات، وفيها
-   وحدها 314 لوناً مكتوباً بالست عشري داخل JSX لا يصله أيّ رمز ولا ينقلب معه. والقلب
-   يضمن نسبة التباين لأنّ الطرفين ينقلبان معاً؛ فحين ينقلب طرفٌ واحد ويثبت الآخر تسقط
-   الضمانة كلّها — نصٌّ داكن مكتوبٌ بالست عشري على لوحٍ انقلب إلى الداكن.
-
-   فتُعاد الرموز هنا إلى قيمها النهاريّة، بنفس آليّة `.rental-scope` أعلاه وللسبب نفسه:
-   محتوىً له نظام ألوانه الخاصّ داخل صفحةٍ لها نظامها. ولا يحتاج ما بالداخل أن يعرف. */
-html[data-theme='dark'] .nq-app-light {
-  color-scheme: light;
-  --nq-ground: #F7F7F5;
-  --nq-accent: #273036;
-  --nq-ink-rgb: 8 10 13;
-  --nq-ground-rgb: 247 247 245;
-  --nq-accent-rgb: 39 48 54;
-  --color-obsidian: #080A0D;
-  --color-graphite: #12161C;
-  --color-orange: #273036;
-  --color-orange-on-light: #273036;
-  --color-orange-on-dark: #C4CED4;
-  --color-ember: #3E4B54;
-  --color-white-warm: #F7F7F5;
-  --color-paper: #E9E7E3;
-  --color-paper-deep: #DCDBD6;
-  --color-surface-light: #FFFFFF;
-  --color-steel: #9299A3;
-  --color-steel-light: #6B7179;
-  --color-black: #080A0D;
-  --color-white: #F7F7F5;
-  --color-zinc-50: #FAFAFA;
-  --color-zinc-100: #F3F3F3;
-  --color-zinc-200: #E6E7E7;
-  --color-zinc-300: #D3D3D3;
-  --color-zinc-400: #B5B6B6;
-  --color-zinc-500: #8D8E90;
-  --color-zinc-600: #666769;
-  --color-zinc-700: #434547;
-  --color-zinc-800: #282A2C;
-  --color-zinc-900: #17191C;
-  --color-zinc-950: #080A0D;
-  background-color: #F7F7F5;
-  color: #080A0D;
-}
-
-/* ── العبور بين السِمتين ───────────────────────────────────────────────────────────────
-   صفحةٌ تقلب ألوانها كلّها في إطارٍ واحد تُقرأ وميضاً لا تبديلاً. ولها طريقان، والاختيار
-   بينهما في src/lib/theme.ts لا هنا:
-
-   1. **View Transitions**: المتصفّح يلتقط الصفحة، يطبّق التغيير، ثمّ يمزج اللقطة القديمة
-      في الجديدة. لقطتان تتلاشيان مهما كان عدد العناصر في الصفحة — فالثمن ثابت لا يتبع
-      حجم الصفحة. والمدّة من هنا لأنّها حركة، ومكانها مع بقيّة الحركة.
-
-   2. **وإلاّ**: انتقالٌ مفروض على ألوان كلّ عنصر. `!important` على محدِّدٍ شامل ثقيل،
-      ولذلك هو مؤقّت: `data-theme-fade` تُرفَع بعد 760ms (انظر theme.ts). تركُها مفروضة
-      يعني أنّ كلّ hover في الموقع يصير بطيئاً بعد أوّل تبديل سِمة.
-
-   ومن طلب تقليل الحركة لا تُكتَب له أيّ من السمتين أصلاً، فلا شيء هنا يعمل عنده. */
-html[data-theme-vt]::view-transition-old(root),
-html[data-theme-vt]::view-transition-new(root) {
-  animation-duration: 820ms;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-html[data-theme-fade],
-html[data-theme-fade] *,
-html[data-theme-fade] *::before,
-html[data-theme-fade] *::after {
-  transition-property: background-color, border-color, color, fill, stroke, box-shadow,
-    outline-color, text-decoration-color !important;
-  transition-duration: 700ms !important;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-  transition-delay: 0s !important;
-}
-
 /* Self-hosted Cairo — replaces the Google Fonts <link> in index.html.
    Loading fonts from the same origin as the page (instead of a fonts.googleapis.com
    stylesheet that itself points at a separate fonts.gstatic.com host) removes the
@@ -394,11 +199,7 @@ html[data-theme-fade] *::after {
        form controls, the autofill wash on inputs, `<select>` popups, and the flash of canvas
        before first paint. Without it those render in the dark default and sit on a sand page as
        black rectangles — a trace of exactly the identity this was rebuilt to remove. It also
-       stops a dark flash between navigation and first paint.
-
-       والقيمة هنا هي النهاريّة فقط؛ `html[data-theme='dark']` أعلاه تقلبها، و`applyMode`
-       في src/lib/theme.ts تكتبها على العنصر نفسه أيضاً لأنّ theme-init.js يسبق هذا
-       الملفّ في الوصول. */
+       stops a dark flash between navigation and first paint. */
     color-scheme: light;
     /* The page's flat base colour, and the one the browser uses for the area past the document
        when a phone rubber-bands past either end. It has to match the backdrop below or a hard
@@ -496,11 +297,8 @@ html[data-theme-fade] *::after {
        opaque colour on `body` paints straight over its own pseudo-element and hides the entire
        background composition; the page still looks dark, which is exactly why it can sit there
        unnoticed. The flat colour belongs on `html` (see --nq-ground), which is also the element
-       whose colour fills the overscroll area, so nothing is lost by taking it off here.
-
-       واللون رمزٌ لا قيمة منذ صارت للموقع سِمة ليليّة: `--color-ink` هو ما ينقلب، وكتابة
-       `#080A0D` هنا كانت ستُبقي نصّ الصفحة كلّه أسود على أرضيّة سوداء. */
-    color: var(--color-ink);
+       whose colour fills the overscroll area, so nothing is lost by taking it off here. */
+    color: #080A0D;
     overflow-x: hidden;
   }
 
@@ -540,7 +338,7 @@ html[data-theme-fade] *::after {
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-color: var(--color-white-warm);
+    background-color: #F7F7F5;
   }
 }
 
@@ -826,10 +624,10 @@ html[data-theme-fade] *::after {
   background: conic-gradient(
     from 0deg,
     transparent,
-    var(--beam-ink, var(--color-surface-light)) 10%,
+    var(--beam-ink, #FFFFFF) 10%,
     transparent 25%,
     transparent 50%,
-    var(--beam-ink, var(--color-surface-light)) 60%,
+    var(--beam-ink, #FFFFFF) 60%,
     transparent 75%,
     transparent
   );
@@ -899,7 +697,7 @@ html[data-theme-fade] *::after {
    slightly more light along its upper edge. */
 .nq-btn--solid {
   background: var(--nq-accent);
-  color: var(--color-surface-light);
+  color: #FFFFFF;
   border: 0;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.18),
@@ -915,7 +713,7 @@ html[data-theme-fade] *::after {
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
-  background: var(--color-surface-light);
+  background: #FFFFFF;
   color: var(--color-obsidian);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.34),
@@ -931,13 +729,13 @@ html[data-theme-fade] *::after {
    vanish into a disc of exactly its own shade. The two values have to arrive from the button. */
 .nq-btn--solid {
   --nq-surface: var(--nq-accent); /* the button's body */
-  --nq-ink: var(--color-surface-light);              /* what is written on it */
+  --nq-ink: #FFFFFF;              /* what is written on it */
 }
 
 .nq-btn--solid:hover,
 .nq-btn--solid:focus-visible,
 .nq-btn--solid:active {
-  --nq-surface: var(--color-surface-light);
+  --nq-surface: #FFFFFF;
   --nq-ink: var(--color-obsidian);
 }
 
@@ -946,7 +744,7 @@ html[data-theme-fade] *::after {
    Scoped to the sandbox root so every other button on the site is untouched. */
 .sandbox-root .nq-btn--solid {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--color-surface-light);
+  color: #ffffff;
   --beam-ink: rgba(255, 255, 255, 0.85);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
 }
@@ -954,7 +752,7 @@ html[data-theme-fade] *::after {
 .sandbox-root .nq-btn--solid:focus-visible,
 .sandbox-root .nq-btn--solid:active {
   background: rgba(255, 255, 255, 0.14);
-  color: var(--color-surface-light);
+  color: #ffffff;
 }
 /* Inactive toggle buttons in the sandbox toolbar are muted grey by default; lift them to
    white-on-dark too so the whole chrome reads neutral, not half-themed. */
@@ -972,7 +770,7 @@ html[data-theme-fade] *::after {
   height: 2rem;
   border-radius: 50%;
   background: var(--nq-ink, #111111);
-  color: var(--nq-surface, var(--color-surface-light));
+  color: var(--nq-surface, #FFFFFF);
   transition: color 0.25s ease, background-color 0.25s ease;
 }
 
@@ -1042,7 +840,7 @@ html[data-theme-fade] *::after {
 .nq-coast {
   position: absolute;
   inset: 0;
-  background: var(--color-white-warm);
+  background: #f7f7f5;
 }
 
 /* ═══ The sign-in page's frosted panels ═══════════════════════════════════
@@ -1348,7 +1146,7 @@ html[data-theme-fade] *::after {
      ولم يُخفَّض أكثر لأن التباين هو الحدّ: فوق أفتح جزء من الصفحة (WHITE) يركّب هذا اللون إلى
      ‎#4B4D4F‎ تقريباً، فيكون النص الأبيض عنده 8.7:1 والنص بشفافية 70% عند 5.3:1 — كلاهما فوق
      4.5:1. عند 0.65 ينزل النص الثانوي إلى 4.3:1، أي تحت الحد، ولذلك توقّفت هنا. */
-  background: rgb(var(--nq-ink-rgb) / 0.72);
+  background: rgba(8, 10, 13, 0.72);
   border-radius: 1rem;
 }
 
@@ -1794,7 +1592,7 @@ html[data-demo] .nq-navbar {
   width: 2px;
   height: 0.85em;
   margin-inline-end: 0.3em;
-  background: var(--color-surface-light);
+  background: #fff;
   animation: navbar-cursor-blink 0.9s step-end infinite;
 }
 
@@ -2138,9 +1936,9 @@ html[data-demo] .nq-navbar {
   display: grid;
   place-items: center;
   border-radius: 999px;
-  border: 1px solid rgb(var(--nq-ink-rgb) / 0.14);
-  background: var(--color-white-warm);
-  color: var(--color-obsidian);
+  border: 1px solid rgba(8, 10, 13, 0.14);
+  background: #f7f7f5;
+  color: #080a0d;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
@@ -2148,11 +1946,11 @@ html[data-demo] .nq-navbar {
 }
 
 .nq-work-pager-btn:hover:not(:disabled) {
-  background: var(--color-surface-light);
+  background: #ffffff;
 }
 
 .nq-work-pager-btn:focus-visible {
-  outline: 2px solid var(--color-obsidian);
+  outline: 2px solid #080a0d;
   outline-offset: 2px;
 }
 
@@ -2239,7 +2037,7 @@ html[data-demo] .nq-navbar {
 
      الأرضية 16rem كما هي: على الهاتف يفوز 48vw ثم الأرضية، فلا شيء من هذا يصله. */
   height: clamp(16rem, 48vw, 34rem);
-  border: 1px solid rgb(var(--nq-ink-rgb) / 0.14);
+  border: 1px solid rgba(8, 10, 13, 0.14);
   /* التدوير على الصفّ وحده والفواصل الداخلية خطوط مستقيمة، كما في الرسم — واللوح
      الأوّل والأخير يأخذان انحناءهما من قصّ الصفّ لا من زوايا خاصة بهما. */
   border-radius: 1rem;
@@ -2257,7 +2055,7 @@ html[data-demo] .nq-navbar {
   min-width: 0;
   /* اللوح هو القناع: معتمٌ فيحجب الحركة خلفه، ويشفّ حين يُفتح فتظهر داخله وحده. وبهذا
      تتّسع "النافذة" مع تمدّد اللوح بلا شيء يزامن الاثنين. */
-  background: var(--color-white-warm);
+  background: #f7f7f5;
   transition:
     flex-grow 420ms cubic-bezier(0.22, 1, 0.36, 1),
     background-color 300ms ease;
@@ -2268,7 +2066,7 @@ html[data-demo] .nq-navbar {
 }
 
 .nq-work-panel + .nq-work-panel {
-  border-inline-start: 1px solid rgb(var(--nq-ink-rgb) / 0.14);
+  border-inline-start: 1px solid rgba(8, 10, 13, 0.14);
 }
 
 /* `data-open` على الصفّ شرطٌ لا زينة: بدونه يكفي `data-active` وحده، وهو موجود على كلّ
@@ -2299,7 +2097,7 @@ html[data-demo] .nq-navbar {
    بلون ما تحتها تماماً ولا تُرى. تبقى لأنّها تصف الصفّ لا الصفحة: من يضع هذا الصفّ على
    أرضيّة أخرى يوماً يجده يحمل صينيّته معه. */
 .nq-work-row[data-swap] {
-  background: var(--color-paper);
+  background: #e9e7e3;
 }
 
 /* ولا ظلّ تحت البطاقة. جُرِّب `0 12px 28px` ليقول إنّها مرفوعة عن الصينيّة، وأُلغي: البطاقات
@@ -2417,7 +2215,7 @@ html[data-demo] .nq-navbar {
 }
 
 .nq-work-face:focus-visible {
-  outline: 2px solid var(--color-obsidian);
+  outline: 2px solid #080a0d;
   outline-offset: -4px;
 }
 
@@ -2459,7 +2257,7 @@ html[data-demo] .nq-navbar {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgb(var(--nq-ground-rgb) / 0.55);
+  background: rgba(247, 247, 245, 0.55);
 }
 
 /* الشعار مباشرة، بلا بطاقة تحته.
@@ -2595,7 +2393,7 @@ html[data-demo] .nq-navbar {
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  background: rgb(var(--nq-ink-rgb) / 0.94);
+  background: rgba(8, 10, 13, 0.94);
   /* يمنع تسلسل التمرير إلى الصفحة تحته حين يبلغ العارض طرفه. */
   overscroll-behavior: contain;
   /* الأفقيّ لنا والباقي للمتصفّح: `pan-y pinch-zoom` تترك التقريب بالإصبعين عاملاً — ولقطة
@@ -2609,7 +2407,7 @@ html[data-demo] .nq-navbar {
   align-items: center;
   gap: 0.75rem;
   padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.75rem;
-  color: var(--color-white-warm);
+  color: #f7f7f5;
 }
 
 .nq-shots-name {
@@ -2639,9 +2437,9 @@ html[data-demo] .nq-navbar {
   display: grid;
   place-items: center;
   border-radius: 999px;
-  border: 1px solid rgb(var(--nq-ground-rgb) / 0.18);
-  background: rgb(var(--nq-ground-rgb) / 0.08);
-  color: var(--color-white-warm);
+  border: 1px solid rgba(247, 247, 245, 0.18);
+  background: rgba(247, 247, 245, 0.08);
+  color: #f7f7f5;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
@@ -2649,11 +2447,11 @@ html[data-demo] .nq-navbar {
 }
 
 .nq-shots-btn:hover:not(:disabled) {
-  background: rgb(var(--nq-ground-rgb) / 0.18);
+  background: rgba(247, 247, 245, 0.18);
 }
 
 .nq-shots-btn:focus-visible {
-  outline: 2px solid var(--color-white-warm);
+  outline: 2px solid #f7f7f5;
   outline-offset: 2px;
 }
 
@@ -2677,7 +2475,7 @@ html[data-demo] .nq-navbar {
   object-fit: contain;
   border-radius: 0.75rem;
   /* الصورة قد تكون شفّافة أو بحواف فاتحة؛ حدٌّ خافت يفصلها عن السواد بلا إطار ثقيل. */
-  box-shadow: 0 0 0 1px rgb(var(--nq-ground-rgb) / 0.12);
+  box-shadow: 0 0 0 1px rgba(247, 247, 245, 0.12);
   user-select: none;
   -webkit-user-drag: none;
   animation: nq-shots-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -2699,7 +2497,7 @@ html[data-demo] .nq-navbar {
   flex-direction: column;
   align-items: center;
   gap: 0.6rem;
-  color: rgb(var(--nq-ground-rgb) / 0.7);
+  color: rgba(247, 247, 245, 0.7);
   font-size: 0.85rem;
   font-weight: 700;
   text-align: center;
@@ -2819,13 +2617,13 @@ html[data-demo] .nq-navbar {
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.5;
-  color: var(--color-obsidian);
+  color: #080a0d;
 }
 
 .nq-work-blurb {
   font-size: 0.82rem;
   line-height: 1.8;
-  color: var(--color-ember);
+  color: #3e4b54;
   max-width: 24ch;
   /* سطران كسقف صريح لا نتيجة قصّ عشوائي: بدونه، وصفٌ طويل يقتطعه `.nq-work-copy` أعلاه
      في مكان عشوائي منتصف الجملة. الحدّ هنا يقول أين تُقطَع بوضوح — بثلاث نقاط — قبل أن
@@ -2875,7 +2673,7 @@ html[data-demo] .nq-navbar {
   transform-origin: 0 0;
   border-radius: 0.75rem;
   background: var(--color-white-warm);
-  box-shadow: 0 10px 15px -3px rgb(var(--nq-ink-rgb) / 0.28), 0 4px 6px -4px rgb(var(--nq-ink-rgb) / 0.22);
+  box-shadow: 0 10px 15px -3px rgb(8 10 13 / 0.28), 0 4px 6px -4px rgb(8 10 13 / 0.22);
   pointer-events: none;
   z-index: 0;
   will-change: transform;
@@ -3350,123 +3148,6 @@ html[data-demo] .nq-navbar {
   .nq-hint-slot:hover .nq-hint,
   .nq-hint-slot:has(:focus-visible) .nq-hint {
     transition: opacity 200ms ease 450ms;
-  }
-}
-
-
-/* ── قائمة السِمة (ThemeMenu.tsx) ─────────────────────────────────────────────
-
-   قائمةٌ صغيرة تتدلّى من زرّها في الشريط. والشريط مقفول على `dir="ltr"` (انظر
-   Navbar.tsx)، فالتعليق هنا فيزيائيّ: `right: 0` الحافّة اليمنى في اللغتين، وهي
-   الحافّة التي يقف عندها الزرّ. أمّا نصّ القائمة فيتبع اللغة — `dir` مكتوبة على
-   العنصر نفسه في المكوّن — فالأيقونة والكلمة والعلامة ترتّب نفسها كما تُقرأ.
-
-   والإخفاء بـ`visibility` لا بـ`opacity` وحدها: ثلاثة أزرار عند `opacity: 0` تبقى
-   قابلة للتركيز وباقية في شجرة الوصول. والتأخير على `visibility` لا على المدّة،
-   فتظهر فوراً وتختفي بعد أن ينتهي التلاشي. (`tabIndex` و`aria-hidden` في المكوّن
-   يقولان الشيء نفسه للقارئ — الاثنان معاً لأنّ `visibility` وحدها لا تُعتمد عليها
-   في كلّ قارئ.) */
-.nq-theme-slot {
-  position: relative;
-  display: inline-flex;
-}
-
-.nq-theme-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 0.5rem;
-  z-index: 60;
-  min-width: 10.5rem;
-  padding: 0.3rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  border-radius: 0.9rem;
-  /* نفس زجاج الشريط الذي تتدلّى منه، لا لوحٌ بلونٍ خاصّ به: القيمة نفسها تنقلب مع
-     السِمة (انظر `--nq-bar` في كتلة الليل)، فالقائمة تتبع بلا سطرٍ ثانٍ. */
-  background: var(--nq-bar-hover);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow:
-    inset 0 0 0 1px rgb(var(--nq-ground-rgb) / 0.14),
-    0 20px 44px -20px rgb(var(--nq-ink-rgb) / 0.85);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-0.4rem) scale(0.97);
-  transform-origin: top right;
-  transition:
-    opacity 160ms ease,
-    transform 160ms ease,
-    visibility 0s linear 160ms;
-}
-
-.nq-theme-menu[data-open='true'] {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition:
-    opacity 200ms ease,
-    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
-    visibility 0s linear 0s;
-}
-
-.nq-theme-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  /* 2.5rem = 40px مرسومة. أرضيّة هدف اللمس 44px تأتي من الحشو الرأسيّ للقائمة حولها
-     مضافاً إلى هذا — وثلاثة عناصر متجاورة رأسيّاً لا أفقيّاً، فلا تزاحم بينها. */
-  min-height: 2.5rem;
-  padding: 0.45rem 0.6rem;
-  border-radius: 0.6rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: normal;
-  color: rgb(var(--nq-ground-rgb) / 0.76);
-  cursor: pointer;
-  transition:
-    background-color 180ms ease,
-    color 180ms ease;
-}
-
-.nq-theme-item:hover,
-.nq-theme-item:focus-visible {
-  background: rgb(var(--nq-ground-rgb) / 0.1);
-  color: var(--color-white-warm);
-}
-
-.nq-theme-item:focus-visible {
-  outline: 2px solid var(--color-white-warm);
-  outline-offset: -2px;
-}
-
-.nq-theme-item[aria-checked='true'] {
-  color: var(--color-white-warm);
-}
-
-.nq-theme-item-text {
-  flex: 1 1 auto;
-  text-align: start;
-}
-
-/* العلامة مرسومة على كلّ سطر وتُخفى بالشفافيّة، فعرض السطر واحدٌ في الحالتين — وإلاّ
-   قفزت الكلمات أفقيّاً كلّما انتقل الاختيار من سطر إلى آخر. */
-.nq-theme-check {
-  opacity: 0;
-  transition: opacity 160ms ease;
-}
-
-.nq-theme-item[aria-checked='true'] .nq-theme-check {
-  opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nq-theme-menu,
-  .nq-theme-menu[data-open='true'] {
-    transition: opacity 120ms ease;
-    transform: none;
   }
 }
 

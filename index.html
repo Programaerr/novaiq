@@ -1,8 +1,5 @@
 <!doctype html>
-<!-- `data-theme` يكتبه theme-init.js قبل أوّل رسم؛ وليس مكتوباً هنا لأنّ قيمته تعتمد
-     على المستخدم لا على الصفحة. وصنف `dark` الذي كان هنا حُذف: لم يكن شيء يقرؤه —
-     لا `dark:` واحدة في المشروع كلّه — فكان يعِد بسِمة ليليّة لا وجود لها. -->
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,20 +11,10 @@
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <!-- Matches the page's own background exactly (--nq-ground in src/index.css). Android/Chrome
          paints its address bar with this, so a value even slightly off shows as a seam between
-         the browser chrome and the top of the site.
-
-         والقيمة هنا هي النهاريّة فقط — قيمة البداية. theme-init.js أعلاه يعيد كتابتها قبل أوّل
-         رسم إن كانت السِمة ليليّة، و`applyMode` في src/lib/theme.ts يعيدها عند كلّ تبديل. تركها
-         ثابتة كان سيعني شريط عنوان أبيض فوق موقع أسود — وهي نفس الدرزة الموصوفة أعلاه، بعرض
-         الشاشة. -->
+         the browser chrome and the top of the site. Warm White, not black — the brand's flat page
+         background is a light neutral; #000000 here would flash a dark bar above a light page on
+         first paint. -->
     <meta name="theme-color" content="#F7F7F5" />
-    <!-- السِمة (نهاريّ/ليليّ) قبل أيّ رسم. متزامن بلا defer/async: أيّ تأجيل يعني أنّ
-         المتصفّح يرسم الصفحة نهاريّةً أوّلاً ثمّ تقلب — وميضٌ أبيض على من اختار الليليّ.
-         وموضعه بعد وسم theme-color مباشرةً لا قبله: هو يكتب فيه، وعنصرٌ لم يُحلَّل بعد لا
-         يُعثر عليه — مقيس، كان الوسم يبقى على القيمة النهاريّة في سِمةٍ ليليّة. وهو ملفّ لا
-         قصاصة داخل الصفحة لنفس سبب gtag-init.js: CSP هنا `script-src 'self'` فتُحجب
-         الـinline بصمت. انظر src/lib/theme.ts. -->
-    <script src="/theme-init.js"></script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <!-- `default` gives dark status-bar icons/clock, for the light warm-white page underneath

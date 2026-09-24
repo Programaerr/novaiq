@@ -30,7 +30,6 @@ const ALLOWED = [
   { test: /^manifest\.webmanifest$/, why: 'بيان تطبيق الويب' },
   { test: /^sw\.js$/, why: 'عامل الخدمة' },
   { test: /^gtag-init\.js$/, why: 'قصاصة التحليلات (خارج HTML بسبب CSP)' },
-  { test: /^theme-init\.js$/, why: 'كتابة السِمة قبل أوّل رسم (خارج HTML بسبب CSP)' },
   { test: /^_redirects$/, why: 'قواعد التوجيه على Cloudflare Pages' },
   { test: /^_headers$/, why: 'ترويسات الأمان على Cloudflare Pages' },
 ];

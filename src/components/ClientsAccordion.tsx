@@ -8,7 +8,7 @@ import { NqButton } from './ui/NqButton';
 import { NqLink } from './ui/NqLink';
 import { WorkMotif } from './WorkMotif';
 import { safeMotif } from '../lib/workMotifs';
-import { V, PAPER } from '../lib/homePalette';
+import { OBSIDIAN, PAPER } from '../lib/homePalette';
 
 /**
  * "أعمالنا" — صفّ ألواح عمودية، اللوح الذي تحته المؤشّر ينفتح ويتّسع.
@@ -211,7 +211,7 @@ const WorkPanel: React.FC<WorkPanelProps> = ({
         {item.logoDataUrl ? (
           <img src={item.logoDataUrl} alt="" className="nq-work-logo" loading="lazy" decoding="async" />
         ) : (
-          <Building2 className="nq-work-fallback" style={{ color: V.OBSIDIAN }} aria-hidden="true" strokeWidth={1.4} />
+          <Building2 className="nq-work-fallback" style={{ color: OBSIDIAN }} aria-hidden="true" strokeWidth={1.4} />
         )}
 
         {/* `aria-hidden` على النصّ المرئي: اسم الزرّ يأتي من `aria-label`، وتركه معلناً يعني
@@ -437,7 +437,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
          أنحل. والقيم هي القيم السابقة حرفاً بحرف، فالمسافات لم تتغيّر — اللون وحده تغيّر.
          وتبقى ملكه هو لا ملك ما بعده: القسم يُطفأ من لوحة الأدمن، وفسحةٌ موضوعة على
          القسم التالي كانت ستبقى بعد إطفائه بلا سبب يفسّرها. */
-      style={{ background: V.PAPER }}
+      style={{ background: PAPER }}
       className="relative pt-4 sm:pt-6 pb-10 sm:pb-14"
     >
       {/* الحاوية نفسها التي يستعملها كلّ قسم آخر في الصفحة، لا عرضاً خاصاً بهذا القسم.
@@ -453,7 +453,7 @@ export const ClientsAccordion: React.FC<ClientsAccordionProps> = ({ language = '
              بعد اليوم: ذاك أصغر خطّ في الموقع وأخفتُه، وهو معنى "لافتة فوق عنصر" لا معنى
              "اسم قسم". والتوسيط في الـ CSS مع المسافة، حتى يبقيا معاً. */
           className="nq-work-heading nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
-          style={{ color: V.OBSIDIAN }}
+          style={{ color: OBSIDIAN }}
         >
           {strip.title}
         </h2>

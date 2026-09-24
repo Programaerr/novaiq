@@ -4,7 +4,7 @@ import { useLiveTemplates, resolveVariant } from '../lib/pricingOverrides';
 import { Globe, Smartphone, Eye, ArrowLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { Currency, formatPrice } from '../lib/currency';
-import { V, OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
+import { OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { NqButton } from './ui/NqButton';
 import { trackLoad } from '../lib/loadTracker';
 import type { DemoMode } from './TemplateInteractiveSandbox';
@@ -102,10 +102,10 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
     <section
       id="templates-section"
       style={{
-        background: V.WHITE,
+        background: WHITE,
         /* Pull the whole section up behind the floating navbar, exactly as the hero and the
            timeline do — so the ground reaches the top of the viewport instead of leaving a seam
-           of body colour visible between the navbar and the section. WARM V.WHITE, the client's
+           of body colour visible between the navbar and the section. WARM WHITE, the client's
            third pass — the flat sections went Obsidian, then Orange, and are white now, with the
            dark neutral confined to this section's own two cards instead (see below). */
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
@@ -174,7 +174,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       point of attraction" element the brief describes for an icon that matters. */}
                   <span
                     className="w-14 h-14 rounded-2xl grid place-items-center shrink-0"
-                    style={{ background: V.ORANGE_ON_DARK, color: V.OBSIDIAN }}
+                    style={{ background: ORANGE_ON_DARK, color: OBSIDIAN }}
                   >
                     <Icon className="w-7 h-7" strokeWidth={2.2} />
                   </span>
@@ -190,7 +190,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       Latin stops being readable here. */}
                   <span
                     className="nq-label text-[0.82rem] sm:text-[0.85rem] uw:text-[0.9rem] font-extrabold tracking-[0.14em] uppercase"
-                    style={{ color: V.WHITE }}
+                    style={{ color: WHITE }}
                   >
                     {currentLang === 'ar' ? choice.tagAr : choice.tagEn}
                   </span>
@@ -202,7 +202,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                     mistake: the darkest tone in this system is Obsidian, never a flat black. */}
                 <h3
                   className="relative mt-6 text-[1.6rem] sm:text-[2rem] uw:text-[2.4rem] font-black leading-tight"
-                  style={{ color: V.WHITE }}
+                  style={{ color: WHITE }}
                 >
                   {currentLang === 'ar' ? choice.titleAr : choice.titleEn}
                 </h3>
@@ -212,7 +212,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                        same reason as the line above: this is the longest Arabic sentence on
                        the card and it wraps to three lines at 390px. */
                     className="relative mt-3 text-[1rem] sm:text-base uw:text-lg font-bold leading-[1.9]"
-                    style={{ color: V.WHITE, opacity: 0.9 }}
+                    style={{ color: WHITE, opacity: 0.9 }}
                 >
                   {variant.description}
                 </p>
@@ -260,7 +260,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       card’s alpha floor loosens rather than tightens. */}
                   <span
                     className="nq-label block text-[0.92rem] sm:text-[0.95rem] font-extrabold tracking-[0.14em] uppercase"
-                    style={{ color: V.WHITE, opacity: 0.88 }}
+                    style={{ color: WHITE, opacity: 0.88 }}
                   >
                     {currentLang === 'ar'
                       ? `السعر التقديري لهذا الخيار — ${choice.tagAr}`
@@ -269,7 +269,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
 
                   <strong
                     className="block mt-1.5 text-[1.6rem] sm:text-[1.95rem] uw:text-[2.2rem] font-black leading-none tabular-nums"
-                    style={{ color: V.ORANGE_ON_DARK }}
+                    style={{ color: ORANGE_ON_DARK }}
                   >
                     {formatPrice(variant.priceIQD, currentLang, currency)}
                   </strong>
@@ -282,7 +282,7 @@ export const TemplateGrid: React.FC<TemplateGridProps> = ({
                       dots below the baseline need more room between lines than Latin. */}
                   <p
                     className="mt-3 text-[0.9rem] sm:text-[0.92rem] font-bold leading-[1.85]"
-                    style={{ color: V.WHITE, opacity: 0.82 }}
+                    style={{ color: WHITE, opacity: 0.82 }}
                   >
                     {currentLang === 'ar'
                       ? 'هذا رقم استرشادي لهذا القالب، ويُحدَّد السعر النهائي في العقد بين الطرفين.'
