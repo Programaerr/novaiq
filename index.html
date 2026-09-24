@@ -6,11 +6,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- السِمة (نهاريّ/ليليّ) قبل أيّ رسم. أوّل ما في الرأس بعد الترميز والمنفذ، ومتزامن بلا
-         defer/async: أيّ تأجيل يعني أنّ المتصفّح يرسم الصفحة نهاريّةً أوّلاً ثمّ تقلب — وميضٌ
-         أبيض على من اختار الليليّ. وهو ملفّ لا قصاصة داخل الصفحة لنفس سبب gtag-init.js:
-         CSP هنا `script-src 'self'` فتُحجب الـinline بصمت. انظر src/lib/theme.ts. -->
-    <script src="/theme-init.js"></script>
     <title>NUVAIQ</title>
     <link rel="icon" type="image/png" href="/icons/favicon.png" />
     <!-- Installable-app (PWA) wiring: the manifest makes Android/Chrome offer "Add to home
@@ -26,6 +21,13 @@
          ثابتة كان سيعني شريط عنوان أبيض فوق موقع أسود — وهي نفس الدرزة الموصوفة أعلاه، بعرض
          الشاشة. -->
     <meta name="theme-color" content="#F7F7F5" />
+    <!-- السِمة (نهاريّ/ليليّ) قبل أيّ رسم. متزامن بلا defer/async: أيّ تأجيل يعني أنّ
+         المتصفّح يرسم الصفحة نهاريّةً أوّلاً ثمّ تقلب — وميضٌ أبيض على من اختار الليليّ.
+         وموضعه بعد وسم theme-color مباشرةً لا قبله: هو يكتب فيه، وعنصرٌ لم يُحلَّل بعد لا
+         يُعثر عليه — مقيس، كان الوسم يبقى على القيمة النهاريّة في سِمةٍ ليليّة. وهو ملفّ لا
+         قصاصة داخل الصفحة لنفس سبب gtag-init.js: CSP هنا `script-src 'self'` فتُحجب
+         الـinline بصمت. انظر src/lib/theme.ts. -->
+    <script src="/theme-init.js"></script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <!-- `default` gives dark status-bar icons/clock, for the light warm-white page underneath

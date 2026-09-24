@@ -32,7 +32,7 @@
     root.style.colorScheme = mode;
 
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', mode === 'dark' ? '#0B0E13' : '#F7F7F5');
+    if (meta) meta.setAttribute('content', mode === 'dark' ? '#0A0A08' : '#F7F7F5');
   } catch (e) {
     /* أيّ فشل هنا يترك الصفحة نهاريّة — وهي الحالة التي كان عليها الموقع قبل السِمات،
        فأسوأ ما يحدث هو ألّا تعمل الميزة، لا أن تنكسر الصفحة. */

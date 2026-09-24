@@ -39,7 +39,7 @@ const DARK_QUERY = '(prefers-color-scheme: dark)';
 /** ألوان `--nq-ground` في الحالتين. مكرَّرة هنا عمداً — انظر `applyMode`. */
 const GROUND: Record<ThemeMode, string> = {
   light: '#F7F7F5',
-  dark: '#0B0E13',
+  dark: '#0A0A08',
 };
 
 export function isThemeChoice(v: unknown): v is ThemeChoice {
