@@ -7,7 +7,7 @@ import { showToast } from '../lib/toast';
 import { useSocialLinks, whatsappLink } from '../lib/socialLinks';
 import { IRAQI_PHONE_LENGTH, IRAQI_PHONE_RULE, isValidIraqiPhone, sanitizeIraqiPhone } from '../lib/iraqiPhone';
 import { trackEvent } from '../lib/analytics';
-import { ERROR, OBSIDIAN, PAPER, PAPER_DEEP, SUCCESS, WHITE } from '../lib/homePalette';
+import { V, ERROR, OBSIDIAN, PAPER_DEEP, SUCCESS, WHITE } from '../lib/homePalette';
 import { BAND_FADE, SIGNAL_TONES, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
@@ -259,7 +259,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
          leaving a disconnected strip. Otherwise the top padding clears the absolutely-positioned
          tile strip above it, which takes up no height of its own. */
       style={{
-        background: WHITE,
+        background: V.WHITE,
         ...(isPageTop
           ? { marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))' }
           : {}),
@@ -282,7 +282,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
           className="absolute inset-x-0 top-0"
           style={{
             height: 'var(--nq-band)',
-            /* The top opens on PAPER so it is continuous with the section above (PhasesSection),
+            /* The top opens on V.PAPER so it is continuous with the section above (PhasesSection),
                which is also paper — the two read as one surface at the seam rather than as a strip
                dropped on top of a different colour.
 
@@ -292,7 +292,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                strip of half-blue. Blue lands at 34%, just after the field reaches full height. Move
                either number without the other and you get back one of the two faults the note on
                BAND_FADE describes. */
-            background: 'linear-gradient(to bottom, ' + PAPER + ' 0%, ' + WHITE + ' 40%)',
+            background: 'linear-gradient(to bottom, ' + V.PAPER + ' 0%, ' + V.WHITE + ' 40%)',
           }}
         >
           <TileField tones={SIGNAL_TONES} fade={BAND_FADE} />
@@ -310,7 +310,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
               messages, which needed their own chip (see the notes there). */}
           <h2
             className="nq-rise text-[1.55rem] sm:text-[2.1rem] uw:text-[2.6rem] font-black leading-none tracking-tight"
-            style={{ color: OBSIDIAN, ['--nq-rise-delay' as string]: '80ms' }}
+            style={{ color: V.OBSIDIAN, ['--nq-rise-delay' as string]: '80ms' }}
             >
               {isAr ? 'المراسلة والدعم' : 'Messaging & Support'}
             </h2>
@@ -339,11 +339,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     <label
                       htmlFor={id}
                       className="block rounded-xl px-4 pt-3 pb-2.5 cursor-text transition-shadow duration-200 focus-within:shadow-[0_0_0_2px_#080A0D]"
-                      style={{ background: PAPER_DEEP }}
+                      style={{ background: V.PAPER_DEEP }}
                     >
                       <span
                         className="block text-[0.7rem] sm:text-[0.75rem] uw:text-[0.85rem] font-extrabold tracking-wide"
-                        style={{ color: OBSIDIAN, opacity: 0.75 }}
+                        style={{ color: V.OBSIDIAN, opacity: 0.75 }}
                       >
                         {isAr ? field.ar : field.en}
                       </span>
@@ -361,7 +361,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                              on a coloured panel is the one control here that can be pulled out of
                              the layout it sits in. */
                           className="mt-1 block w-full bg-transparent border-0 outline-none resize-none text-[0.95rem] uw:text-[1.05rem] font-bold leading-relaxed"
-                          style={{ color: OBSIDIAN }}
+                          style={{ color: V.OBSIDIAN }}
                         />
                       ) : (
                         <input
@@ -380,7 +380,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                           /* 40px of input under a 20px label clears the 44px the whole block needs
                              to be a comfortable touch target. */
                           className="mt-1 block w-full h-10 uw:h-12 bg-transparent border-0 outline-none text-[0.95rem] uw:text-[1.05rem] font-bold"
-                          style={{ color: OBSIDIAN }}
+                          style={{ color: V.OBSIDIAN }}
                         />
                       )}
                     </label>
@@ -391,7 +391,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                       <p
                         id={id + '-hint'}
                         className="mt-1.5 px-1 text-[0.72rem] sm:text-[0.78rem] font-bold leading-relaxed"
-                        style={{ color: OBSIDIAN, opacity: 0.7 }}
+                        style={{ color: V.OBSIDIAN, opacity: 0.7 }}
                       >
                         {isAr ? field.hint.ar : field.hint.en}
                       </p>
@@ -413,7 +413,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                         id={id + '-error'}
                         role="alert"
                         className="mt-1.5 inline-block px-2.5 py-1 rounded-lg text-[0.78rem] font-extrabold"
-                        style={{ color: ERROR, background: OBSIDIAN }}
+                        style={{ color: ERROR, background: V.OBSIDIAN }}
                       >
                         {error}
                       </p>
@@ -458,7 +458,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[0.85rem] font-extrabold"
-                    style={{ color: SUCCESS, background: OBSIDIAN }}
+                    style={{ color: SUCCESS, background: V.OBSIDIAN }}
                   >
                     <MessageCircle className="w-4 h-4" strokeWidth={2.4} />
                     {isAr ? 'افتح واتساب' : 'Open WhatsApp'}
@@ -466,7 +466,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ language = 'ar',
                 )}
 
                 {sent && (
-                  <p role="status" className="inline-block px-2.5 py-1 rounded-lg text-[0.85rem] font-extrabold" style={{ color: SUCCESS, background: OBSIDIAN }}>
+                  <p role="status" className="inline-block px-2.5 py-1 rounded-lg text-[0.85rem] font-extrabold" style={{ color: SUCCESS, background: V.OBSIDIAN }}>
                     {isAr ? 'تم الإرسال' : 'Sent'}
                   </p>
                 )}

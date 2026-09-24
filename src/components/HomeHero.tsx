@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpLeft } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { channels, ORANGE, WHITE, PAPER } from '../lib/homePalette';
+import { V, channels, ORANGE, WHITE } from '../lib/homePalette';
 import { HERO_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
 
@@ -65,7 +65,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
            and they are breaking up across exactly the same band (HERO_FADE.lo, one value, shared).
            The two together are the edge: blocks thinning out over ground that is already becoming
            the next section, so there is no line anywhere for a line to be wrong at. */
-        background: `linear-gradient(to bottom, ${WHITE} ${100 - HERO_FADE.lo * 100}%, ${PAPER} 100%)`,
+        background: `linear-gradient(to bottom, ${V.WHITE} ${100 - HERO_FADE.lo * 100}%, ${V.PAPER} 100%)`,
         minHeight: '100svh',
         marginTop: 'calc(-1 * (var(--nav-bottom, 74px) + var(--content-gap, 0.75rem)))',
       }}
@@ -129,7 +129,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
              IDENTICAL contrast, since blurring a near-uniform light field does not darken
              it. Every number above was computed without the blur for that reason. */
           style={{
-            background: `rgb(${channels(ORANGE)} / ${0.74})`,
+            background: `rgb(${channels(V.ORANGE)} / ${0.74})`,
             backdropFilter: 'blur(8px) saturate(140%)',
             WebkitBackdropFilter: 'blur(8px) saturate(140%)',
           }}
@@ -148,7 +148,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
             >
               <span
                 className="block text-[2.1rem] sm:text-[2.6rem] uw:text-[3.2rem] font-black tracking-[0.06em] leading-none"
-                style={{ color: WHITE }}
+                style={{ color: V.WHITE }}
               >
                 NUVAIQ
               </span>
@@ -165,7 +165,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({
                    line is dimmed so it sits back from a SOLID surface, and there is no solid
                    surface here. The hierarchy now comes from size and weight, which is what
                    survives a backdrop that shows through. */
-                style={{ color: WHITE }}
+                style={{ color: V.WHITE }}
               >
                 {isAr
                   ? 'اطلب موقعك او تصميمك الخاص والباقي علينا'

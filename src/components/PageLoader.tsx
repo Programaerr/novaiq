@@ -1,5 +1,5 @@
 import React from 'react';
-import { ORANGE, OBSIDIAN, PAPER } from '../lib/homePalette';
+import { V } from '../lib/homePalette';
 
 /**
  * The one loader the whole app uses.
@@ -9,19 +9,19 @@ import { ORANGE, OBSIDIAN, PAPER } from '../lib/homePalette';
  * Nothing else is mounted that could peek through and read as a half-loaded page.
  */
 export const PageLoader: React.FC = () => (
-  <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{ background: PAPER }}>
+  <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{ background: V.PAPER }}>
     <div className="flex flex-col items-center gap-5">
       <div
         className="w-12 h-12 rounded-full animate-spin"
         style={{
-          border: `2px solid ${ORANGE}33`,
-          borderTopColor: ORANGE,
-          boxShadow: `0 0 24px ${ORANGE}55`,
+          border: `2px solid ${V.ORANGE}33`,
+          borderTopColor: V.ORANGE,
+          boxShadow: `0 0 24px ${V.ORANGE}55`,
         }}
       />
       <span
         className="font-black tracking-[0.3em] font-mono text-base select-none"
-        style={{ color: OBSIDIAN, opacity: 0.75 }}
+        style={{ color: V.OBSIDIAN, opacity: 0.75 }}
       >
         NUVAIQ
       </span>

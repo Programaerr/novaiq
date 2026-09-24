@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ArrowUp, ArrowUpLeft, ArrowUpRight, Facebook, Instagram, MessageCircle, Music2 } from 'lucide-react';
 import { Language } from '../lib/i18n';
-import { channels, OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
+import { V, channels, OBSIDIAN, ORANGE, WHITE, PAPER } from '../lib/homePalette';
 import { NuvaiqLogo } from './NuvaiqLogo';
 import { connectionTones, FOOTER_BAND_FADE, TileField } from './TileField';
 import { NqButton } from './ui/NqButton';
@@ -194,7 +194,7 @@ export const Footer: React.FC<FooterProps> = ({
           // Seen only for the frame before the canvas over it paints, but it has to make the same
           // journey — section colour, through warm white, into paper — or that first frame
           // flashes a different band than the one that replaces it.
-          background: `linear-gradient(to bottom, ${fromColor} 0%, ${WHITE} 52%, ${PAPER} 100%)`,
+          background: `linear-gradient(to bottom, ${fromColor} 0%, ${V.WHITE} 52%, ${V.PAPER} 100%)`,
         }}
       >
         {/* WHITE is the flat plane the band stands on, not either of its ends — it arrives out of

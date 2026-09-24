@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../lib/i18n';
 import { useSeen } from '../lib/useSeen';
-import { OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
+import { V, OBSIDIAN, ORANGE_ON_DARK, WHITE } from '../lib/homePalette';
 import { ProjectCtaButton } from './ProjectCtaButton';
 
 interface MilestoneTimelineProps {
@@ -83,7 +83,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
       id="timeline-section"
       data-seen={seen ? 'true' : 'false'}
       style={{
-        background: WHITE,
+        background: V.WHITE,
         /* Pull the whole section up behind the floating navbar, exactly as the hero does — so
            the cube field at the top runs under the navbar instead of starting below it as a
            seam of body colour. The navbar is fixed and floats above the page; without this the
@@ -113,7 +113,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                uppercase label device the rule was written for. The `isAr ? '' : ...`
                shape is the pattern already used at HomeHero.tsx:195. */
             className={`nq-rise text-[1.55rem] sm:text-[2.1rem] font-black leading-none ${isAr ? '' : 'tracking-tight'}`}
-            style={{ color: OBSIDIAN, ['--nq-rise-delay' as string]: '80ms' }}
+            style={{ color: V.OBSIDIAN, ['--nq-rise-delay' as string]: '80ms' }}
           >
             {isAr ? 'مراحل العمل' : 'Project Phases & Delivery'}
           </h2>
@@ -122,7 +122,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
               is simply per-contract rather than the same eight weeks for everyone. */}
           <p
             className="nq-rise mt-4 max-w-[42rem] text-sm sm:text-base font-bold leading-relaxed"
-            style={{ color: OBSIDIAN, opacity: 0.8, ['--nq-rise-delay' as string]: '130ms' }}
+            style={{ color: V.OBSIDIAN, opacity: 0.8, ['--nq-rise-delay' as string]: '130ms' }}
           >
             {isAr
               ? 'أربع مراحل ثابتة لكل مشروع، ومدّة التنفيذ تُحدَّد في القسم الأول من اتفاقك حسب حجم العمل.'
@@ -175,7 +175,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                     {/* The step number, quiet and small — sequence without the card's numeral. */}
                     <span
                       className="pt-1 text-[1.35rem] sm:text-[1.5rem] font-black leading-none tabular-nums shrink-0"
-                      style={{ color: WHITE, opacity: 0.7 }}
+                      style={{ color: V.WHITE, opacity: 0.7 }}
                       aria-hidden="true"
                     >
                       {index + 1}
@@ -184,7 +184,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                     <span
                       aria-hidden="true"
                       className="w-px self-stretch shrink-0"
-                      style={{ background: WHITE, opacity: 0.25 }}
+                      style={{ background: V.WHITE, opacity: 0.25 }}
                     />
 
                     <div className="min-w-0 flex-1">
@@ -202,7 +202,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                             title stays the denser block of the two. */}
                         <h3
                           className="text-[1.05rem] sm:text-[1.2rem] font-black leading-[1.35]"
-                          style={{ color: WHITE }}
+                          style={{ color: V.WHITE }}
                         >
                           {ms.phaseTitle}
                         </h3>
@@ -224,7 +224,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                              PAPER_DEEP's 14.30:1 and 7.16:1, and both are far clear of any floor;
                              what is bought is that the two sections stop using two different
                              greys for one idea. */
-                          style={{ background: ORANGE_ON_DARK, color: OBSIDIAN }}
+                          style={{ background: V.ORANGE_ON_DARK, color: V.OBSIDIAN }}
                           aria-hidden="true"
                         >
                           <Icon className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.9} />
@@ -236,7 +236,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                            Arabic words on glass at 12px is the size this section was least
                            readable at. */
                         className="mt-2 text-[0.85rem] sm:text-sm font-bold"
-                        style={{ color: WHITE, opacity: 0.82 }}
+                        style={{ color: V.WHITE, opacity: 0.82 }}
                       >
                         {ms.status}
                       </p>
@@ -247,11 +247,11 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                             <CheckCircle2
                               className="w-4 h-4 shrink-0 mt-0.5"
                               strokeWidth={2.2}
-                              style={{ color: WHITE }}
+                              style={{ color: V.WHITE }}
                             />
                             <span
                               className="text-[0.92rem] font-bold leading-[1.9]"
-                              style={{ color: WHITE, opacity: 0.9 }}
+                              style={{ color: V.WHITE, opacity: 0.9 }}
                             >
                               {task}
                             </span>
@@ -265,7 +265,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({ language =
                       <div className="mt-5 pt-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
                         {/* English only, for the reason on the section heading above: at 20px
                             this measured -0.5px, pulling the Arabic joins closed. */}
-                        <div className={`text-xl font-black ${isAr ? '' : 'tracking-tight'}`} style={{ color: WHITE }}>
+                        <div className={`text-xl font-black ${isAr ? '' : 'tracking-tight'}`} style={{ color: V.WHITE }}>
                           {isAr ? `المرحلة ${index + 1} من 4` : `Phase ${index + 1} of 4`}
                         </div>
                       </div>
