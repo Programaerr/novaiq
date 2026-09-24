@@ -2247,7 +2247,9 @@ html[data-demo] .nq-navbar {
   object-fit: contain;
   border-radius: clamp(0.55rem, 1.3vw, 1.05rem);
   display: block;
-  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* `top` منتقلة أيضاً لا `transform` وحدها: الهاتف يرفع الشعار حين يُفتح اللوح (انظر
+     الاستعلام أدناه)، وبدون هذه الإضافة كان يقفز إلى مكانه الجديد فجأة بينما البقيّة تتدرّج. */
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), top 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* بديل "لا شعار مرفوع": رسمة خطّية لا صورة، فلا معنى لتدوير حوافّ ليست لها أرضيّة. */
@@ -2262,12 +2264,30 @@ html[data-demo] .nq-navbar {
   transform: translate(-50%, -50%) scale(1.12);
 }
 
+/* على الهاتف، اللوح المفتوح أقصر ممّا يحتاجه الشعار المكبَّر + الاسم + سطر العمل + زرّ
+   الزيارة معاً لو بقي الشعار عند مركز اللوح (50%) — القياس الفعلي: 254px ارتفاعاً، منها
+   127px فوق المركز للشعار وحده، فلا يتبقّى للنصّ قبل الزرّ إلا نحو 30px، أقلّ من ارتفاع
+   الاسم وحده. الشعار يرتفع إلى 28% فيتحرّر نحو 56px إضافية للنصّ تحته (انظر `.nq-work-copy`
+   أدناه لنفس الرقم) — وعلى العريض لا حاجة لهذا: المسافة متوفّرة أصلاً. */
+@media (max-width: 640px) {
+  .nq-work-panel[data-active='true'] .nq-work-logo,
+  .nq-work-panel[data-active='true'] .nq-work-fallback {
+    top: 28%;
+  }
+}
+
 .nq-work-copy {
   position: absolute;
   inset-inline: 0.6rem;
   /* أسفل المربّع بعد تكبيره، لا أسفل مركز اللوح: نصف الضلع × 1.12 ثمّ فسحة. ولأنّه
      مطلق، ظهوره لا يزحزح المربّع عن مركزه — لا شيء يقفز عند الفتح. */
   top: calc(50% + var(--nq-work-logo) * 0.62 + 0.9rem);
+  /* ويتوقّف قبل زرّ "زيارة الموقع" لا عند حدّ اللوح: بدون هذا الحدّ، سطرا بلوغ (اسم طويل
+     أو وصف من سطرين) يمتدّان تحت الزرّ فعلاً — والزرّ لاحقٌ في الـDOM فيُرسَم فوقهما،
+     فيبدو النصّ "مختفياً" لا مقصوصاً. المحجوز هنا نفس مسافة الزرّ عن الأسفل زائد ارتفاعه
+     (‏3rem تكفي حجمَيه معاً: md على العرض العريض وsm على الهاتف) زائد فسحة صغيرة. */
+  bottom: calc(clamp(0.85rem, 2.4vw, 1.9rem) + 3rem);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2277,6 +2297,14 @@ html[data-demo] .nq-navbar {
   opacity: 0;
   transform: translateY(8px);
   transition: opacity 240ms ease 80ms, transform 420ms cubic-bezier(0.22, 1, 0.36, 1) 80ms;
+}
+
+/* نفس رفعة الشعار أعلاه (28% لا 50%) وبنفس الحساب بالضبط، فيبقى "أسفل المربّع" صحيحاً حتى
+   بعد ارتفاعه. بدون هذه القاعدة يبقى النصّ يُحسَب من مركز لوحٍ لم يعد الشعار عنده. */
+@media (max-width: 640px) {
+  .nq-work-panel[data-active='true'] .nq-work-copy {
+    top: calc(28% + var(--nq-work-logo) * 0.62 + 0.9rem);
+  }
 }
 
 .nq-work-panel[data-active='true'] .nq-work-copy {
@@ -2574,6 +2602,13 @@ html[data-demo] .nq-navbar {
   line-height: 1.8;
   color: #3e4b54;
   max-width: 24ch;
+  /* سطران كسقف صريح لا نتيجة قصّ عشوائي: بدونه، وصفٌ طويل يقتطعه `.nq-work-copy` أعلاه
+     في مكان عشوائي منتصف الجملة. الحدّ هنا يقول أين تُقطَع بوضوح — بثلاث نقاط — قبل أن
+     يصل الأمر إلى قصّ الحاوية. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 /* وقف الحركة لا وقف الفتح. اللوح يتّسع والاسم يظهر فوراً بدل أن يتدرّج — إلغاء التحولات
