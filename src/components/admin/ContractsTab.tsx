@@ -651,7 +651,7 @@ function ContractRow({
                 type="button"
                 onClick={() => setShowProfile(true)}
                 title={isAr ? 'الملف الشخصي للعميل' : 'Customer profile'}
-                className="p-2 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors shrink-0"
+                className="w-9 h-9 shrink-0 grid place-items-center rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors"
               >
                 <IdCard className="w-3.5 h-3.5" />
               </button>
@@ -1098,7 +1098,11 @@ function ContractRow({
                           type="button"
                           onClick={() => removePayment(p.id)}
                           title={isAr ? 'حذف الدفعة' : 'Remove payment'}
-                          className="p-1.5 rounded-md bg-red-100 hover:bg-red-900 border border-red-300 text-red-700 cursor-pointer transition-colors shrink-0"
+                          /* 36px (w-9 h-9) لا p-1.5 حول أيقونة 14px (≈26px): هدف لمس أوضح على
+                             الهاتف بجانب حقلي التاريخ/الملاحظة القابلين للتعديل، بنفس مقاس
+                             زرّ حذف الشركة في ClientsStripCard.tsx — معيار الحذف الصغير موحّد
+                             في اللوحة كلها لا مقاساً خاصاً بهذا الصفّ. */
+                          className="w-9 h-9 shrink-0 grid place-items-center rounded-md bg-red-100 hover:bg-red-900 border border-red-300 text-red-700 cursor-pointer transition-colors"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
@@ -1195,11 +1199,15 @@ function ContractRow({
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+          {/* شبكة 2×2 على الهاتف لا flex-wrap: أربعة أزرار بعرض 375px مع justify-end كانت تلتفّ
+              إلى سطرين بشكل عشوائي — السطر الأوّل يلتصق باليمين ويترك فراغاً معكوساً على
+              اليسار، وهو نفس الشكل "الناقص" الذي أصلحناه في شريط الأرقام أعلى اللوحة. شبكة
+              متساوية الأعمدة تعطي صفّين مرتّبين تماماً، وsm:flex يعيد الصفّ الأصلي بعرضٍ يكفيه. */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end gap-2 pt-1">
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="px-4 py-2.5 rounded-xl bg-red-100 hover:bg-red-900 disabled:opacity-60 text-red-700 border border-red-300 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-4 py-2.5 rounded-xl bg-red-100 hover:bg-red-900 disabled:opacity-60 text-red-700 border border-red-300 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
             >
               <Trash2 className="w-4 h-4" />
               <span>{isAr ? 'حذف' : 'Delete'}</span>
@@ -1207,7 +1215,7 @@ function ContractRow({
             <button
               onClick={handleDownload}
               disabled={isDownloading}
-              className="px-4 py-2.5 rounded-xl bg-white/70 hover:bg-sand-light disabled:opacity-60 text-ink border border-ink/15 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-4 py-2.5 rounded-xl bg-white/70 hover:bg-sand-light disabled:opacity-60 text-ink border border-ink/15 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
             >
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
               <span>{isAr ? 'تنزيل PDF' : 'Download PDF'}</span>
@@ -1216,7 +1224,7 @@ function ContractRow({
             <button
               onClick={() => (auditRows ? setAuditRows(null) : loadAudit())}
               disabled={auditLoading}
-              className="px-4 py-2.5 rounded-xl bg-white/70 hover:bg-sand-light disabled:opacity-60 text-ink border border-ink/15 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-4 py-2.5 rounded-xl bg-white/70 hover:bg-sand-light disabled:opacity-60 text-ink border border-ink/15 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
             >
               {auditLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <History className="w-4 h-4" />}
               <span>{isAr ? 'سجل الحركات' : 'Activity log'}</span>
@@ -1224,7 +1232,7 @@ function ContractRow({
             <button
               onClick={handleSave}
               disabled={!dirty || isSaving}
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all border border-white"
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed text-black text-xs font-extrabold flex items-center justify-center gap-2 cursor-pointer transition-all border border-white"
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               <span>{isAr ? 'حفظ التغييرات' : 'Save Changes'}</span>

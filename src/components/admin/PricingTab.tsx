@@ -252,15 +252,19 @@ function PricingRow({
                 </p>
               </div>
             </div>
+            {/* مربّع ثابت 112px على كل عرض، لا w-full على الهاتف: كانت تصبح شريطاً عريضاً
+                رفيعاً (العرض الكامل × 112px ارتفاعاً)، فيقصّ object-cover من لقطة الموقع أكثر
+                بكثير مما يقصّه على سطح المكتب — نفس الصورة تُقصّ بنسبتين مختلفتين تماماً بحسب
+                الشاشة. مربّع ثابت يعني قصّاً بنسبة واحدة دائماً. */}
             {previewImage && !imageBroken ? (
               <img
                 src={previewImage}
                 alt=""
                 onError={() => setImageBroken(true)}
-                className="w-full sm:w-28 h-28 rounded-xl object-cover border border-ink/10"
+                className="w-28 h-28 shrink-0 rounded-xl object-cover border border-ink/10"
               />
             ) : (
-              <div className="w-full sm:w-28 h-28 rounded-xl bg-white/70 border border-dashed border-ink/10 flex items-center justify-center text-ink/45 text-[10px] text-center px-2">
+              <div className="w-28 h-28 shrink-0 rounded-xl bg-white/70 border border-dashed border-ink/10 flex items-center justify-center text-ink/45 text-[10px] text-center px-2">
                 {isAr ? 'رابط غير صالح' : 'Invalid URL'}
               </div>
             )}

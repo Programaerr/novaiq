@@ -310,7 +310,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ language, curren
         />
       </div>
       <div className="lg:hidden mb-6 -mx-4 px-4 overflow-x-auto">
-        <div className="flex gap-2.5 w-max pb-1">
+        {/* `min-w-full` لا `w-max`: تلك كانت تُحجّم هذا الصفّ على مقاس محتواه فقط (~638px لأربع
+           شرائح)، فيصير أضيق من العرض المتاح على أي هاتف/لوحية أعرض من ذلك ويتجمّع عند طرف
+           واحد تاركاً فراغاً بعده — نفس السبب الذي جعل flex-1 في StatChip بلا أثر: لا مساحة
+           فائضة تُوزَّع مادام الصفّ نفسه لا يكبر عن محتواه. min-w-full يجعله يملأ العرض كحدّ
+           أدنى فتتوزّع الشرائح (flex-1) بالتساوي فيه، ويكبر الصفّ عن ذلك الحدّ فقط حين تحتاج
+           الشرائح مساحة أكبر من عرض الشاشة فعلاً — وهنا فقط يبدأ التمرير الأفقي. */}
+        <div className="flex gap-2.5 min-w-full pb-1">
           <StatChip icon={FileCheck} label={isAr ? 'العقود' : 'Contracts'} value={String(stats.count)} tint="#273036" />
           <StatChip icon={BarChart3} label={isAr ? 'القيمة المتعاقدة' : 'Contracted'} value={formatPrice(stats.totalIQD, language, currency)} tint="#080A0D" />
           <StatChip icon={ArrowLeftRight} label={isAr ? 'المحصّل' : 'Collected'} value={formatPrice(stats.totalCollectedIQD, language, currency)} tint="#3E8F5F" />

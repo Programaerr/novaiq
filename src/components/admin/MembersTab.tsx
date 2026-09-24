@@ -236,11 +236,14 @@ export function MembersTab({
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
+              {/* 36px (w-9 h-9) لا p-2 حول أيقونة 14px (≈30px): معيار أزرار اللوحة الصغيرة
+                  موحّد على 36px (انظر زرّ حذف الشركة في ClientsStripCard.tsx). وgap-2 لا 1.5،
+                  فثلاثة أزرار متلاصقة على الهاتف أحدها حذف نهائي يستحقّ فسحة أوضح بين الأصابع. */}
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => setProfileUser(u)}
                   title={isAr ? 'الملف الشخصي' : 'Profile'}
-                  className="p-2 rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/75 hover:text-ink cursor-pointer transition-colors"
+                  className="w-9 h-9 grid place-items-center rounded-lg bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/75 hover:text-ink cursor-pointer transition-colors"
                 >
                   <IdCard className="w-3.5 h-3.5" />
                 </button>
@@ -248,15 +251,18 @@ export function MembersTab({
                   onClick={() => handleToggleBan(u)}
                   disabled={isBusy}
                   title={banned ? (isAr ? 'تفعيل الحساب' : 'Re-enable account') : (isAr ? 'تعطيل الحساب' : 'Disable account')}
-                  className="p-2 rounded-lg bg-white/70 hover:bg-amber-50 border border-ink/10 text-ink/75 hover:text-amber-700 cursor-pointer transition-colors disabled:opacity-50"
+                  className="w-9 h-9 grid place-items-center rounded-lg bg-white/70 hover:bg-amber-50 border border-ink/10 text-ink/75 hover:text-amber-700 cursor-pointer transition-colors disabled:opacity-50"
                 >
                   {isBusy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : banned ? <RotateCcw className="w-3.5 h-3.5" /> : <Ban className="w-3.5 h-3.5" />}
                 </button>
+                {/* أحمر من الاستراحة لا من hover وحدها: hover لا يظهر أبداً على اللمس، فكان
+                    هذا الزرّ يبدو مطابقاً تماماً لجاريه غير الخطرين حتى لحظة الضغط عليه فعلاً.
+                    نفس درجة الأحمر المستعملة لزرّ حذف الدفعة في ContractsTab.tsx. */}
                 <button
                   onClick={() => handleDelete(u)}
                   disabled={isBusy}
                   title={isAr ? 'حذف نهائي' : 'Delete permanently'}
-                  className="p-2 rounded-lg bg-white/70 hover:bg-red-50 border border-ink/10 text-ink/75 hover:text-red-700 cursor-pointer transition-colors disabled:opacity-50"
+                  className="w-9 h-9 grid place-items-center rounded-lg bg-red-100 hover:bg-red-900 border border-red-300 text-red-700 cursor-pointer transition-colors disabled:opacity-50"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

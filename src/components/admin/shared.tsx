@@ -49,7 +49,12 @@ export function StatTile({ icon: Icon, label, value, accent, tint }: { icon: Rea
  */
 export function StatChip({ icon: Icon, label, value, tint }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; tint: string }) {
   return (
-    <div className="shrink-0 min-w-[9.5rem] p-3 rounded-2xl bg-paper border border-ink/10 flex items-center gap-2.5">
+    /* `flex-1` لا `shrink-0` وحدها: أربعة شرائح × 9.5rem + الفجوات بينها ≈ 638px، وهذا أقلّ من
+       عرض الصفّ على كل عرض بين ~640px و1024px (لوحيّات، هاتف بالعرض). بـ shrink-0 فقط كانت
+       الشرائح تتجمّع عند طرف واحد وتترك فراغاً فارغاً بعدها — يبدو كصفّ ناقص لا شريطاً منتهياً
+       عمداً. flex-1 يوسّعها بالتساوي لتملأ العرض كل ما وُجدت مساحة، وmin-width يبقى يفرض
+       التمرير الأفقي فقط حين يضيق العرض عن استيعابها فعلاً. */
+    <div className="flex-1 min-w-[9.5rem] p-3 rounded-2xl bg-paper border border-ink/10 flex items-center gap-2.5">
       <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${tint}1a`, color: tint }}>
         <Icon className="w-4 h-4" />
       </div>

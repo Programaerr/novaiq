@@ -140,7 +140,7 @@ export function CustomerProfileSheet({
               وورقة تُفتح فوق شاشة تحمل الزرّ نفسه لا تحتاج نسخة ثانية منه — الإغلاق يكشفه. */}
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors shrink-0"
+            className="w-9 h-9 shrink-0 grid place-items-center rounded-xl bg-white/70 hover:bg-sand-light border border-ink/10 text-ink/60 hover:text-ink cursor-pointer transition-colors"
             aria-label={isAr ? 'إغلاق' : 'Close'}
           >
             <X className="w-4 h-4" />

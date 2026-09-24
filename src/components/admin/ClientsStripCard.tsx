@@ -274,14 +274,22 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
       <div className="space-y-2.5">
         {draft.items.map((item, idx) => (
           <div key={item.id} className="p-3 rounded-2xl bg-paper border border-ink/10">
-            <div className="flex items-center gap-2.5">
+            {/* صفّان على الهاتف، صفّ واحد من sm: نفس أسلوب صفّ الدفعات في ContractsTab.tsx.
+                كانت ستّة عناصر متلاصقة في صفّ واحد دائماً — الأسهم والشعار وحقل الاسم ثم
+                الرفع والحذف — تأكل الثوابت منها وحدها نحو 190px على هاتف 375px، فلا يتبقّى
+                لحقل الاسم إلا ~150px. sm:contents يُلغي التجميع بدءاً من sm فيعود الصفّ الأصلي
+                تماماً. */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+            <div className="flex items-center gap-2.5 sm:contents">
+            {/* p-1 + خلفية عند hover لا أيقونة عارية بلا صندوق: كانت مساحة اللمس تساوي حجم
+                الأيقونة نفسها (~14px) بلا أي حشو — أصغر هدف لمس في اللوحة كلها. */}
             <span className="flex flex-col shrink-0">
               <button
                 type="button"
                 onClick={() => move(item.id, -1)}
                 disabled={idx === 0}
                 aria-label={isAr ? 'تحريك لأعلى' : 'Move up'}
-                className="text-ink/40 hover:text-ink disabled:opacity-30 cursor-pointer disabled:cursor-default"
+                className="p-1 rounded hover:bg-white/60 text-ink/40 hover:text-ink disabled:opacity-30 cursor-pointer disabled:cursor-default"
               >
                 <ChevronUp className="w-3.5 h-3.5" />
               </button>
@@ -290,7 +298,7 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
                 onClick={() => move(item.id, 1)}
                 disabled={idx === draft.items.length - 1}
                 aria-label={isAr ? 'تحريك لأسفل' : 'Move down'}
-                className="text-ink/40 hover:text-ink disabled:opacity-30 cursor-pointer disabled:cursor-default"
+                className="p-1 rounded hover:bg-white/60 text-ink/40 hover:text-ink disabled:opacity-30 cursor-pointer disabled:cursor-default"
               >
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
@@ -312,7 +320,9 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
               placeholder={isAr ? 'اسم الشركة' : 'Company name'}
               className="flex-1 min-w-0 px-3 py-2 rounded-xl bg-white border border-ink/15 text-xs font-bold text-ink outline-none focus:border-ink/40"
             />
+            </div>
 
+            <div className="flex items-center justify-end gap-2 sm:contents">
             <input
               ref={(el) => {
                 fileInputs.current[item.id] = el;
@@ -339,7 +349,7 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
                 type="button"
                 onClick={() => patchItem(item.id, { logoDataUrl: undefined })}
                 title={isAr ? 'إزالة الشعار وإظهار الاسم نصاً' : 'Remove the logo and show the name as text'}
-                className="shrink-0 text-[10px] font-bold text-ink/50 hover:text-ink cursor-pointer"
+                className="shrink-0 px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-ink/50 hover:text-ink hover:bg-white/50 cursor-pointer"
               >
                 {isAr ? 'نص' : 'Text'}
               </button>
@@ -373,6 +383,7 @@ export function ClientsStripCard({ isAr }: { isAr: boolean }) {
                 <Trash2 className="w-4 h-4" />
               </button>
             )}
+            </div>
             </div>
 
             {/* الرابط ورابط الصورة والوصف، وكلّها اختيارية.
