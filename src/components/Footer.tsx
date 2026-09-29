@@ -217,8 +217,8 @@ export const Footer: React.FC<FooterProps> = ({
           its own — without it the first link would sit inside the cubes. */}
       <div className="relative nq-container pb-16 sm:pb-20 pt-[calc(var(--nq-band)+2.5rem)]">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
-          {/* Brand + blurb. */}
-          <div className="lg:col-span-4">
+{/* Brand + blurb. */}
+           <div className="lg:col-span-4 order-2 lg:order-none">
             <a
               href="#"
               onClick={(e) => { e.preventDefault(); go('home')(); }}
@@ -301,18 +301,18 @@ export const Footer: React.FC<FooterProps> = ({
             )}
           </div>
 
-          {/* Quick links. */}
-          <div className="lg:col-span-2">
-            <FooterColumn heading={isAr ? 'تصفح' : 'Browse'}>
+{/* Quick links. */}
+           <div className="lg:col-span-2 order-3 lg:order-none">
+             <FooterColumn heading={isAr ? 'تصفح' : 'Browse'}>
               <FooterLink label={isAr ? 'الرئيسية' : 'Home'} onClick={go('home')} />
               <FooterLink label={isAr ? 'القوالب' : 'Templates'} onClick={go('templates')} />
               <FooterLink label={isAr ? 'مراحل العمل' : 'Roadmap'} onClick={go('timeline')} />
             </FooterColumn>
           </div>
 
-          {/* Legal. */}
-          <div className="lg:col-span-2">
-            <FooterColumn heading={isAr ? 'قانوني' : 'Legal'}>
+{/* Legal. */}
+           <div className="lg:col-span-2 order-4 lg:order-none">
+             <FooterColumn heading={isAr ? 'قانوني' : 'Legal'}>
               {/* الصفحتان موجودتان أصلاً كمسارَين (?page=privacy / ?page=terms) لكن لم يكن
                   يقود إليهما أي رابط ظاهر — فلا الزائر يجدهما ولا مُدقّق شاشة موافقة Google
                   الذي يفتح الصفحة الرئيسية ويبحث عن الرابطين. href حقيقي (لا "#") ليكونا
@@ -325,15 +325,15 @@ export const Footer: React.FC<FooterProps> = ({
             </FooterColumn>
           </div>
 
-          {/* Contact. */}
-          <div className="lg:col-span-4">
+{/* Contact. */}
+           <div className="lg:col-span-4 lg:col-start-9 order-1 lg:order-none flex flex-col h-full">
               {/* برتقالي صافٍ حقيقي، لا غسلة 10% كانت بالكاد تُرى — تصحيح مباشر. لا حاجة
                   لـ backdrop-blur بعد الآن: التمويه كان يخدم غسلة شفافة تكشف ما خلفها، ولا معنى
                   له فوق تعبئة معتمة بالكامل (تكلفة GPU بلا أي أثر مرئي).
                   الحلقة المحيطة (boxShadow) كانت أيضاً برتقالية بنسبة 30% — نفس درجة لون التعبئة
                   تقريباً، فتختفي فيها بمجرد أن تصبح التعبئة نفسها برتقالية صافية. استُبدلت بحافة
                   مضيئة بيضاء خفيفة، نفس أسلوب ".nq-btn--solid" في التعامل مع سطح برتقالي معتم. */}
-              <div className="rounded-2xl bg-[rgb(var(--ft-accent))] p-5"
+              <div className="rounded-2xl bg-[rgb(var(--ft-accent))] p-5 flex flex-col h-full justify-between"
                 style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18), inset 0 1px 0 rgba(255,255,255,0.25)' }}
               >
                 {/* الحبر صار --ft-accent-ink مو --ft-fg. الفرق ما كان يبين يوم كان الإبراز
