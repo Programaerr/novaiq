@@ -26,9 +26,25 @@ import { useLayoutEffect, useState, type RefObject } from 'react';
  * a preceding sibling — `<main>`, in this app — and that is the block whose bottom edge the footer
  * meets. Any future wrapper around either one changes nothing.
  *
- * Then it descends: at each level it takes the last child that still reaches that bottom edge, and
- * remembers the deepest opaque background colour it passed through. The result is the colour a
- * pixel at the bottom of the content would be.
+ * Then it descends: at each level it takes the last child that still reaches that bottom edge AND
+ * runs the full width of the block, and remembers the deepest opaque background colour it passed
+ * through. The result is the colour a pixel at the bottom of the content would be.
+ *
+ * ## Why the width test is the definition and not a heuristic
+ *
+ * Without it, the descent walks into whatever box happens to end lowest — and on the templates
+ * page that is a CARD. A card is a raised surface standing ON the ground, not the ground; it is
+ * inset by the container's gutters, so along most of the belt's width the visitor is looking at
+ * the page, not at the card. Measured: closing the live preview remounts the footer, the descent
+ * reached the last template card, and the belt's first gradient stop came back `rgb(61, 69, 74)`
+ * — the card's dark glass — where the page there is `#F7F7F5`. The belt then ramped out of a
+ * colour that covers a third of its width, which reads as a dark haze lying between the cards and
+ * the footer. Reported from a phone, and reproduced at 390px with the CPU throttled 6x.
+ *
+ * The belt spans the full width of the page. So the only colour that can be "the colour directly
+ * above it" is one that also spans the full width. Anything narrower has the ground beside it, and
+ * the ground is the answer. That is why the test belongs in the descent rather than in a list of
+ * elements to skip: it follows from what the belt is, so it holds for any page added later.
  *
  * Elements that paint no solid colour of their own — a transparent section, or one whose surface is
  * a gradient rather than a `background-color` — are skipped, and the answer falls through to
@@ -86,7 +102,11 @@ function measure(el: HTMLElement): string | null {
   const above = precedingBlock(el);
   if (!above) return null;
 
-  const bottom = above.getBoundingClientRect().bottom;
+  const box = above.getBoundingClientRect();
+  const bottom = box.bottom;
+  // The belt runs the full width of the page, so the only colour that can be "the colour above
+  // it" is one that runs the full width too. See the note on `fullWidth` below.
+  const width = box.width;
   let found: string | null = null;
   let node: HTMLElement | null = above;
 
@@ -94,14 +114,17 @@ function measure(el: HTMLElement): string | null {
     const solid = solidBackground(node);
     if (solid) found = solid;
 
-    // Descend into the last child that still reaches the bottom edge. Taking the LAST such child
-    // matters: siblings overlap in paint order, and the one written last is the one on top.
+    // Descend into the last child that still reaches the bottom edge AND spans the whole width.
+    // Taking the LAST such child matters: siblings overlap in paint order, and the one written
+    // last is the one on top.
     let next: HTMLElement | null = null;
     for (const child of Array.from(node.children)) {
       if (!(child instanceof HTMLElement)) continue;
       const r = child.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
-      if (r.bottom >= bottom - 1) next = child;
+      if (r.bottom < bottom - 1) continue;
+      if (r.width < width - 1) continue;
+      next = child;
     }
     node = next;
   }
