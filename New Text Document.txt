@@ -1,3 +1,4 @@
+api token = 7RtS1TUshop
 {
   "openapi": "3.1.0",
   "info": {
