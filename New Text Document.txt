@@ -1,0 +1,929 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "متجري",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/website-info": {
+      "get": {
+        "tags": [
+          "Merchant"
+        ],
+        "summary": "جلب معلومات الموقع (اللون والاسم)",
+        "description": "جلب معلومات الموقع المخزنة في موچود API بما فيها color_theme و meta_pixel_id و tiktok_pixel_id (اختياري).\nيُستخدم من قِبل الموقع لتطبيق الثيم وتتبع البكسل عند إتمام الطلب. لا يمرّر أسرار CAPI.",
+        "operationId": "get_website_info_api_website_info_get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "توكن المتجر",
+              "title": "Token"
+            },
+            "description": "توكن المتجر"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meta-event": {
+      "post": {
+        "tags": [
+          "Merchant"
+        ],
+        "summary": "تمرير أحداث البكسل إلى CAPI",
+        "description": "لا يقبل Purchase. عنوان الزائر يُؤخذ من الاتصال، لا من جسم الطلب.",
+        "operationId": "proxy_meta_event_api_meta_event_post",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "توكن المتجر",
+              "title": "Token"
+            },
+            "description": "توكن المتجر"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MetaBrowserEventProxy"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/resolve-token": {
+      "get": {
+        "tags": [
+          "Utility"
+        ],
+        "summary": "تصحيح حالة أحرف توكن المتجر",
+        "operationId": "resolve_token_api_api_resolve_token_get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "توكن من الرابط",
+              "title": "Token"
+            },
+            "description": "توكن من الرابط"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+ "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/token": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "الحصول على توكن المتجر",
+        "description": "إرجاع توكن المتجر. إن لم يكن MOJOD_AUTH_TOKEN معيّناً يُرجَع 'demo' لعرض منتجات تجريبية.",
+        "operationId": "get_token_api_token_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product-details": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get Product Details",
+        "description": "جلب تفاصيل المنتج\n\nيمكن استخدام strung أو product_id",
+        "operationId": "get_product_details_api_product_details_get",
+        "parameters": [
+          {
+            "name": "strung",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "معرف المنتج strung",
+              "title": "Strung"
+            },
+            "description": "معرف المنتج strung"
+          },
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "معرف المنتج product_id",
+              "title": "Product Id"
+            },
+            "description": "معرف المنتج product_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product-video": {
+      "head": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Proxy Product Video",
+        "operationId": "proxy_product_video_api_product_video_head",
+        "parameters": [
+          {
+            "name": "strung",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Strung"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Proxy Product Video",
+        "operationId": "proxy_product_video_api_product_video_head",
+        "parameters": [
+          {
+            "name": "strung",
+            "in": "query",
+ "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Strung"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "جلب قائمة المنتجات",
+        "description": "جلب قائمة المنتجات\n\nيدعم الفلترة حسب الفئة والبحث في اسم المنتج",
+        "operationId": "get_products_api_products_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "رقم الصفحة",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "رقم الصفحة"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "عدد المنتجات في الصفحة",
+              "default": 20,
+              "title": "Limit"
+            },
+            "description": "عدد المنتجات في الصفحة"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "فلتر حسب الفئة (ID الفئة)",
+              "title": "Category"
+            },
+            "description": "فلتر حسب الفئة (ID الفئة)"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "بحث في اسم المنتج",
+              "title": "Search"
+            },
+            "description": "بحث في اسم المنتج"
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Token للمصادقة",
+              "title": "Token"
+            },
+            "description": "Token للمصادقة"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": [
+          "Products"
+,
+        "summary": "جلب قائمة الفئات",
+        "description": "جلب جميع الفئات. عند فشل الاتصال بـ API موچود تُرجَع فئات تجريبية.",
+        "operationId": "get_categories_api_categories_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/add-simple-order": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "إضافة طلب بسيط جديد",
+        "description": "إضافة طلب بسيط جديد\n\nيتطلب token كـ query parameter\n\n**Parameters:**\n- **token**: Token للمصادقة (query parameter)\n- **request**: بيانات الطلب (body)\n\n**Returns:**\n- نتيجة إضافة الطلب",
+        "operationId": "add_simple_order_api_add_simple_order_post",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Token للمصادقة",
+              "title": "Token"
+            },
+            "description": "Token للمصادقة"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSimpleOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/add-simple-order-no-limit": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "إضافة طلب بسيط جديد",
+        "description": "إضافة طلب بسيط جديد\n\nيتطلب token كـ query parameter\n\n**Parameters:**\n- **token**: Token للمصادقة (query parameter)\n- **request**: بيانات الطلب (body)\n\n**Returns:**\n- نتيجة إضافة الطلب",
+        "operationId": "add_simple_order_no_limit_api_add_simple_order_no_limit_post",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Token للمصادقة",
+              "title": "Token"
+            },
+            "description": "Token للمصادقة"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSimpleOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+ }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/my-ip": {
+      "get": {
+        "tags": [
+          "Utility"
+        ],
+        "summary": "جلب IP الخاص بك",
+        "description": "إرجاع IP الخاص بالمستخدم",
+        "operationId": "get_my_ip_my_ip_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddSimpleOrderRequest": {
+        "properties": {
+          "cus_name": {
+            "type": "string",
+            "title": "Cus Name"
+          },
+          "cus_num1": {
+            "type": "string",
+            "title": "Cus Num1"
+          },
+          "capetel": {
+            "type": "string",
+            "title": "Capetel"
+          },
+          "city": {
+            "type": "string",
+            "title": "City",
+            "default": ""
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "item_id": {
+            "type": "integer",
+            "title": "Item Id"
+          },
+          "all_price": {
+            "type": "integer",
+            "title": "All Price"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          },
+          "ip": {
+            "type": "string",
+            "title": "Ip",
+            "default": ""
+          },
+          "fbp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fbp"
+          },
+          "fbc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fbc"
+          },
+          "event_source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Source Url"
+          },
+          "user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Agent"
+          },
+          "client_user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client User Agent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cus_name",
+          "cus_num1",
+          "capetel",
+          "address",
+          "item_id",
+          "all_price",
+          "count"
+        ],
+        "title": "AddSimpleOrderRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MetaBrowserEventProxy": {
+"properties": {
+          "event_name": {
+            "type": "string",
+            "title": "Event Name"
+          },
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "event_source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Source Url"
+          },
+          "fbp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fbp"
+          },
+          "fbc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fbc"
+          },
+          "client_user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client User Agent"
+          },
+          "user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Agent"
+          },
+          "content_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Id"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "num_items": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Items"
+          },
+          "ph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ph"
+          },
+          "ct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ct"
+          },
+          "st": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "St"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_name",
+          "event_id"
+        ],
+        "title": "MetaBrowserEventProxy"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
